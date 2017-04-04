@@ -1,0 +1,20 @@
+<style>
+ body {
+    background-color: #f5f5f5 !important;
+    color: #000000; !important;
+ }
+</style>
+<div class="dashboard-content-wrapper" ng-class="{'loading': $ctrl.isLoading }">
+
+  <header active-tab="$ctrl.activePage"
+          tabs="$ctrl.pages"
+          tabs-order="$ctrl.pagesOrder"
+          update-state="$ctrl.updateState(pageName, state)"
+          selected-value="$ctrl.selectedValue"
+          select-dropdown="$ctrl.selectDropdown"></header>
+
+  <div class="dashboard-content" ui-view
+       autoscroll="false"></div>
+
+  <div class="loading-overlay"></div>
+</div>

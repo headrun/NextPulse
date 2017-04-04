@@ -1,0 +1,131 @@
+login {
+
+  .cover;
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: table;
+  overflow: hidden;
+
+  &> header {
+    &> nav{
+      & aside{
+       display:none!important; 
+      } 
+      &> a.navbutton {
+        display:none!important;
+      }
+      &> .menubutton{
+        display :none!important;
+      }
+      &> div.aside-overlay{
+        display:none!important;
+      }
+    }
+    
+    & logout {
+      display:none;
+    }
+  }
+
+  &> div.login-form-container {
+
+    .cover;
+    display: table-cell;
+    vertical-align: middle;
+
+    &> form {
+
+      display: block;
+      text-align: center;
+      margin: 0px auto;
+      width: 300px;
+
+      &> div.logo-container {
+
+        margin-bottom: 20px;
+
+        img{
+
+          display: inline-block;
+
+          &:first-child {
+          
+           /* margin-bottom: @gutter;*/
+          }
+        }
+      }
+
+      input.form-control, input[type=submit] {
+
+       /* border-radius: 0;*/
+      }
+
+      &> .form-group {
+      
+        &.error-msg {
+
+          display: none;
+
+          span {
+
+            color: @brand-danger;
+          }
+        }
+
+        span.field-error {
+        
+          color: @brand-danger;
+        }
+      }
+
+      &.error {
+
+        &> .form-group.error-msg {
+
+          display: block;
+        }
+      }
+     .login-details {
+         margin-top: -552px;
+      }
+     img {
+         margin-left: -8px;
+        margin-bottom: -17px;
+         }
+    }
+  }
+ .copyright_info {
+         float: left;
+         padding: 30px 0px 25px 0px;
+         margin: 70px 0px 0px 0px;
+         width: 100%;
+         color: black;
+         font-size: 12px;
+         font-style: normal;
+         font-weight: normal;
+         /*background: rgba(255, 255, 255, 0.05);
+         background-color: #2f2f31;*/
+         margin-top: 8%;
+     }
+    .limit-width, .layout-boxed {
+      max-width: 1170px;
+     }
+    .copyright_info>.container {
+     padding: 0 15px;
+    }
+    .one_half {
+      width: 48%;
+    }
+    @media only screen and (max-device-width: 480px){
+        .volume {
+            display: none;
+         }   
+        .card {
+            display: none;
+        }   
+        #login_form {
+            margin-left: 29px;
+        }   
+    }
+}

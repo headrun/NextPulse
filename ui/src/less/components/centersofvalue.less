@@ -1,0 +1,57 @@
+centersofvalue {
+
+  div.chart-label {
+
+    position: absolute;
+    width: 85%;
+    left: 15%;
+    padding: 0 32px;
+    z-index: 1;
+    top: 50px;
+    font-style: italic;
+    color: #999999;
+  }
+
+  &> div.tabs-content {
+
+    &> form {
+
+      .pull-left;
+      width: 15%;
+      display: table;
+
+      &> filter-bar {
+
+        width: 100%;
+        height: auto;
+
+        &> filter {
+          & .form-group {
+            & .filter {
+              select {
+
+               height:26px;
+              
+              }
+            } 
+          }
+        }
+      }
+
+      &> div.form-group {
+
+        padding-left: @gutter;
+      }
+    }
+
+    table.no-filters-content {
+
+      .text-center;
+      .pull-left;
+      width: 85%;
+      padding-left: @gutter;
+      font-size: 1.5em;
+      margin-top: @gutter;
+    }
+  }
+}

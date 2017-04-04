@@ -1,0 +1,280 @@
+summary {
+
+  display: block;
+  .cover;
+  height: 130%;
+
+  .visualization { 
+
+    width: 100%!important;
+    z-index: 1;
+    
+    &> div.summary-nav {
+
+      position:absolute;
+      width:200px;
+      height: 100%;
+      background-color:#fff!important;
+      box-shadow: 4px 3px 0px #d0d0d2;
+      -webkit-box-shadow: 4px 3px 0px #d0d0d2;
+      -moz-box-shadow: 4px 3px 0px #d0d0d2;
+      -o-box-shadow: 4px 3px 0px #d0d0d2;
+
+      aside {
+        
+        ul {
+          
+          li {
+
+            border-bottom: 1px solid #eaeaeb;
+
+            a {
+       
+              color: black;
+
+              &> i {
+                color: @brand-primary;
+                margin-top: 3px;
+
+                &.fa-chevron-right {
+
+                  font-size: 11px;
+                  margin-top: 6px;
+                }
+              }
+
+              &> span {
+
+                width: 30px;
+                height: 1px;
+                display: block;
+                top: 41px;
+                background-color: black;
+                position: absolute;
+              }
+            }
+       
+            }
+
+            &:hover > a {
+
+              color: black;
+            }
+          
+          &>li.active {
+            color: #fff;
+            background-color: @brand-primary;
+            border-bottom:3px solid @brand-primary;
+            &>a {
+              color:#fff!important;
+              background-color: @brand-primary!important;
+              font-size: 18px;
+              &> i{
+                color:white; 
+              }
+            }
+          }
+
+        }
+
+      }
+
+    }
+    &> div.widget-row{
+
+    
+
+      &> div.widget {
+
+        &> div.widget-content {
+           
+           background-color: #BFBFBF!important;
+           font-color: black;
+
+           div.widget-title {
+
+             border-bottom:3px solid white;
+             background-color:#fff!important;
+            
+             &a {
+              font-weight: bold;
+             }
+           }
+           div.widget-body {
+             
+
+           }
+        
+        }
+
+      }
+
+    }
+    
+ } 
+
+  div.widget-row.last-row {
+
+    margin-bottom: 0 !important;
+  }
+
+  div.widget {
+
+    width: 100/3%;
+    color: black !important;
+  }
+
+  .widget-title {
+    
+    height:51px!important;
+    padding: 5px 10px 5px 10px !important;
+    border-bottom:3px solid #eaeaeb !important;
+    background-color: #fff!important;
+    z-index: 1;
+
+    a {
+      color:black;
+      vertical-align: middle;
+      font-weight: bold;
+      font-size:16px;
+
+      &> i {
+
+        vertical-align: middle;
+        
+        &.arrow{
+          background-image: url("/img/arrows.png");
+          width: 21px;
+          height: 21px;
+          margin-top:7px;
+          display:inline-block;
+
+          &.violet {
+
+            background-position:21px 0px;
+          
+          }
+          
+          &.blue {
+            background-position:21px 21px;
+          }
+          
+          &.yellow {
+            background-position:0px 21px;
+          }
+
+
+        }
+
+
+      }
+    }
+
+    &> div {
+    
+      vertical-align: middle;
+    }
+  }
+
+  div.widget-content {
+
+    div.dec-bar {
+
+      width: 100%;
+      padding: 0 10px;
+      display: block;
+      height: 3px;
+      position: absolute;
+      z-index: 2;
+      top: 48px;
+      left: 0;
+
+      &> div {
+
+        width: 100%;
+        height: 100%;
+      }
+    }
+  }
+
+  div.widget-body {
+
+    padding-top: 41px !important;
+    position: relative;
+
+    &> table {
+
+      margin-top: 8px;
+
+      thead {
+
+        tr > th {
+
+          border-bottom: none;
+          text-align: right;
+        }
+      }
+
+      td {
+        border-top:none;
+      }
+    }
+
+    &> a.btn {
+
+      position: absolute;
+      bottom: @gutter;
+      right: @gutter;
+      background-color: rgb(16, 59, 108);
+    }
+  }
+
+  .indicator {
+    background-image: url("/img/trafficlights.png"); 
+    
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    vertical-align: middle;
+
+   &.circle-green { 
+     background-position:0px -18px;
+   }
+  }
+  .summary {
+
+    display: inline-block;
+
+  }
+  .enrollment {
+   background-image: url("/img/summary_icons/users.png");
+    width: 42px;
+    height: 34px;
+  }
+  .claims {
+   background-image: url("/img/summary_icons/notepad.png");
+   width: 28px;
+   height: 34px;
+  }
+  .centersofvalue {
+   background-image: url("/img/summary_icons/target.png");
+   width:34px;
+   height:34px;
+  }
+  .healthrisk {
+    background-image: url("/img/summary_icons/prescription.png");
+    width: 24px;
+    height: 34px;
+  }
+  .financial {
+    background-image: url("/img/summary_icons/dollar.png");
+    width: 30px;
+    height: 34px;
+  }
+  .healthinitialtive {
+
+    background-image: url("/img/summary_icons/heart.png");
+    width: 42px;
+    height: 33px;
+  }
+}

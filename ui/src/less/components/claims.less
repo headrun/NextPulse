@@ -1,0 +1,48 @@
+dashboard div.dashboard-content {
+
+  claims {
+    display: block;
+    position: relative;
+    .cover;
+
+    .tabs-content {
+
+      tab {
+
+        ul.subnav {
+
+          position: absolute;
+          top: @gutter;
+          left: 15%;
+          padding-left: @gutter;
+
+          &> li {
+
+            &> a {
+
+              padding-top: 10px;
+              padding-bottom: 10px;
+              border-radius: 4px;
+            }
+
+            &.active {
+
+              &> a {
+
+                color: #ffffff;
+                font-weight: bold;
+                background-color: @brand-contrast;
+              }
+            }
+          }
+        }
+
+        layout {
+
+          padding-top: 50px;
+          padding-bottom: 50px;
+        }
+      }
+    }
+  }
+}

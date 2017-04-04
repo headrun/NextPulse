@@ -1,0 +1,44 @@
+<!--<h2>Landing Page</h2>-->
+<style>
+.upload,#admin_but,#dropdown_title,.caret,#home {
+    display: none;
+}
+@media screen and (min-width: 960px){
+    .dashboard-content-wrapper{
+        overflow: hidden;
+     }
+} 
+@media screen and (max-device-width: 480px){
+    .dashboard-content-wrapper{
+        /*overflow:hidden;*/
+    }
+ }
+</style>
+<head>
+<title>NextPulse</title>
+</head>
+<body>
+
+
+<div class="container" style="background: url(/img/banner_about_us.png) no-repeat center center fixed;background-repeat: no-repeat;backgrou    nd-size: cover;width:100%;height:100%;margin-top:-26px;">
+   <div class="card">
+        <div class="listview lv-bordered lv-lg">
+            <div class="clearfix lv-header-alt">
+                <section id="Projects">
+                    <div class="row">
+                        <h2 class="hidden-xs lvh-label">Projects</h2>
+                    </div>
+                    <div class="col col-33 left">
+                        <a ng-repeat="item in $ctrl.mapping_list"
+                                ui-sref="dashboard.page1({'selpro': item})"
+                                ng-click="$ctrl.clickPro(item)">
+                                <li>{{item.split(' - ')[1]}}</li>
+                        </a>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div> 
+</div>
+
+</body>

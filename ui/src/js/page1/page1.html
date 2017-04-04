@@ -1,0 +1,265 @@
+<body>
+<style>
+::-webkit-scrollbar-thumb {
+      background:#4c4c4c;
+}
+::-webkit-scrollbar {
+      width: 8px;
+}
+.daterangepicker {
+    color: black;
+}
+
+.daterangepicker td.active, .daterangepicker td.active:hover {
+    background-color: white;
+    border-color: transparent;
+    color: black;
+ }
+
+.daterangepicker td.in-range {
+    background-color: white;
+    border-color: transparent;
+    color: black;
+    border-radius: 0;
+}
+
+table {
+
+    margin : 0 auto;
+    border: 1 px solid #323232;
+ }
+.table-responsive {
+    border: 1px solid #ccc;
+    background-color:#ffffff;
+    margin: 5px;
+    padding-right: 10px;
+    padding-left: 10px;
+}
+.table-bordered>tbody>tr>td {
+    border : none;
+}
+
+.table>tbody>tr>td {
+    border-top: none;
+}
+.table-bordered>tfoot>tr>th {
+    border : none;
+}
+.table-bordered>thead>tr>td {
+    border : none;
+}
+.table-bordered>thead>tr>th {
+    border : none;
+}
+.body {
+        width: 100%;
+    }
+.body thead, .body tbody, .body tr, .body td, .body th{
+    display: block;
+ }
+.body tr:after {
+    content: ' ';
+    display: block;
+    visibility: hidden;
+    clear: both;
+}
+ .body tbody{
+    height: 180px;
+    overflow-y: auto;
+}
+
+.body th {
+    height: 40px;
+}
+
+.body td, .body th {
+    width: 19.7%;
+    float: left;
+}
+
+div.content {
+    overflow: hidden;
+ }
+thead {
+    border: 1px solid black;
+}
+</style>
+<div class="container volume">
+ <div class="row">
+    <div id="wrapper">
+        <div class="font_value">
+            <h3 class="pull-left brand_style">{{$ctrl.project}}DASHBOARD</h3>
+        </div>
+           <div ng-repeat="k in $ctrl.packet_hierarchy_list track by $index" class="packet_num">
+                <form>
+                    <div class="form-group">
+                        <select class="form-control input-sm packet" id="{{$index}}">
+                            <option>All</option>
+                        </select>
+                    </div>
+                </form>
+             </div> 
+        </div>
+        <div class="col-md-3 col-sm-3 col-xs-10 btn-group dashboard">
+            <button type="button" id="day" ng-model="radioModel" class="btn btn-default day" ng-click="$ctrl.active_filters('day','day_yes')" uib-btn-radio="'Day'"style="cursor:pointer;">Day</button>
+            <button type="button" id="week" ng-model="radioModel" class="btn btn-default week" ng-click="$ctrl.active_filters('week','week_yes')" uib-btn-radio="'Week'" style="cursor:pointer;">Week</button>
+            <button type="button" id="Month" ng-model="radioModel" class="btn btn-default month" ng-click="$ctrl.active_filters('month','month_yes')" uib-btn-radio="'Month'" style="cursor:pointer;">Month</button>
+        </div>
+        <div id="inner1" class="col-md-3 col-sm-3 col-xs-10" style="margin-bottom:initial;">
+                 <i class="fa fa-calendar date" aria-hidden="true"></i><input class="form-control select" id="select" size="22">
+            </div>
+    </div>
+</div>
+    <div class="scroll">
+    <div class="row" ng-repeat="i in $ctrl.useful_layout">
+        <div ng-repeat="j in i" class="col-sm-{{j.col}} widget">
+            <div class="widget-content">
+                <div class="widget-title clearfix" title="Sample Widg">
+                    <span  id="title-name" class="pull-left">{{j.name}}</span>
+                </div>
+                <div class="widget-body">
+                    <div ng-if="j.day_type_widget" class="input-group"id="inner2">
+                        <div class="btn-group">
+                            <button type="button" id="day" ng-model="radioModel" class="btn btn-default day2" ng-click="$ctrl.dateType('day', j.opt, j.api, 'day_yes')" uib-btn-radio="'Day'" style="cursor:pointer;">Day</button>
+                            <button type="button" id="week" ng-model="radioModel" class="btn btn-default week2" ng-click="$ctrl.dateType('week', j.opt, j.api, 'week_yes')" uib-btn-radio="'Week'" style="cursor:pointer;">Week</button>
+                            <button type="button" id="Month" ng-model="radioModel" class="btn btn-default month2" ng-click="$ctrl.dateType('month', j.opt, j.api, 'month_yes')" uib-btn-radio="'Month'" style="cursor:pointer;">Month</button>
+                         </div>
+                     </div>
+                    <highcharts options="$ctrl.final_layout_values_list[j.opt]"></highcharts>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6" id="emp_widget">
+            <div class="table-responsive">
+                <div class="widget-title clearfix" title="Sample Widg">
+                    <h4>Top Employee Performance Details</h4>
+                </div>
+                <table class="table table-bordered line">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Employee Name</th>
+                            <th>Productivity</th>
+                            <th>Packet</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="l in $ctrl.top_five">
+                            <td>{{l.rank}}</td>
+                            <td>{{l.employee_id}}</td>
+                            <td>{{l.productivity}}</td>
+                            <td>{{l.work_packet}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+<div class="row">
+    <div class="col-md-6" id="volume_table">
+        <div class="table-responsive">
+            <div class="widget-title clearfix" title="Sample Widg">
+                    <h4>Volume Status</h4>
+            </div>
+            <table class="table table-bordered line">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Opening</th>
+                        <th>Received</th>
+                        <th>NonWorkableCount</th>
+                        <th>Completed</th>
+                        <th>Closing</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="l in $ctrl.volume_graphs">
+                        <td>{{l.date}}</td>
+                        <td>{{l.opening}}</td>
+                        <td>{{l.received}}</td>
+                        <td>{{l.non_workable_count}}</td>
+                        <td>{{l.completed}}</td>
+                        <td>{{l.closing_balance}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<a class="back-to-top" id="goTop">
+    <i class="fa fa-arrow-circle-o-up"></i>
+</a>
+</div>
+
+
+<div class="modal fade" id="myModal" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+         <div class="modal-header">
+             <button type="button" class="close" data-dismiss="modal">&times;</button>
+             <h4 class="modal-title">{{$ctrl.chart_type}}</h4>
+
+         </div>
+         <div class="modal-body">
+            <div class="row" style="margin-right:16px;">
+                <div class="">
+                     <table style="border:1px solid #3c3c3c;">
+                          <thead style="display:block;">
+                              <tr class="row_name">
+                                  <th ng-repeat="i in $ctrl.fields_list_drilldown" style="width:200px;padding:5px;text-align:-webkit-center;">{{i}}</th>
+                              </tr>
+                          </thead>
+                          <tbody style="max-height:150px;overflow-y:auto;display:block;">
+                             <tr ng-repeat= "x in $ctrl.names">
+                                 <td ng-repeat="i in $ctrl.fields_list_drilldown" style="width:200px;padding:5px;text-align:-webkit-center;">{{x[i]}}</td>
+                             </tr>
+                          </tbody>
+                      </table>
+                </div>
+            </div>
+         </div>
+         <div class="modal-footer">
+           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+         </div>
+       </div>
+    </div>
+  </div>
+ </div>
+</body>
+
+
+<script>
+
+    $('body').on('click','.btn-group button', function(e) {
+     $(this).addClass('active btn-success');
+     $(this).siblings().removeClass('active btn-success');
+});
+
+$(document).ready(function() {
+    $(window).scroll(function() {
+        if($(this).scrollTop() > 100){
+            $('#goTop').stop().animate({
+                bottom: '0'
+                }, 500);
+        }
+        else{
+            $('#goTop').stop().animate({
+               bottom: '0'
+            }, 500);
+        }
+    });
+    $('#goTop').click(function() {
+        $('.scroll').stop().animate({
+           scrollTop: 0
+        }, 500, function() {
+           $('#goTop').stop().animate({
+               bottom: '0'
+           }, 500);
+        });
+    });
+});
+</script>

@@ -1,0 +1,35 @@
+{
+  "short_name": "NextPulse",
+  "name": "NextPulse",
+  "background_color": "#61B329",
+  "display": "standalone",
+  "theme_color": "#61B329",
+  "icons": [
+    {
+      "src": "images/nextwealth128.png",
+      "sizes": "128X128",
+      "type": "image/png"
+    },
+    {
+      "src": "images/nextwealth144.png",
+      "sizes": "144X144",
+      "type": "image/png"
+    },
+    {
+      "src": "images/nextwealth152.png",
+      "sizes": "152X152",
+      "type": "image/png"
+    },
+    {
+      "src": "images/nextwealth192.png",
+      "sizes": "192X192",
+      "type": "image/png"
+    },
+    {
+      "src": "images/nextwealth256.png",
+      "sizes": "256X256",
+      "type": "image/png"
+    }
+  ],
+  "start_url": "index.html"
+}
