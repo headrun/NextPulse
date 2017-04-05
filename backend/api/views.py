@@ -49,6 +49,13 @@ def get_order_of_headers(open_sheet, Default_Headers, mandatory_fileds=[]):
         indexes.update({val: ind_sheet})
     return is_mandatory_available, sheet_indexes, indexes
 
+def change_password(request):
+    new_pass = json.loads(request.POST['json'])['name']
+    user_obj = User.objects.filter(username=request.user.username)[0]
+    user_obj.set_password(new_pass)
+    user_obj.save()
+    return HttpResponse('cool')
+
 def validate_sheet(open_sheet, request, SOH_XL_HEADERS, SOH_XL_MAN_HEADERS):
     sheet_headers = []
     if open_sheet.nrows > 0:
@@ -3315,10 +3322,16 @@ def pareto_graph_data(pareto_dict):
     for key,value in pareto_dict.iteritems():
         alignment_data = graph_data_alignment(value, 'data')
         for single_dict in alignment_data:
-            if key == 'Cumulative %':
+            """if key == 'Cumulative %':
                 single_dict['type']='spline'
             if key == 'Error Count':
                 single_dict['type'] = 'column'
+                single_dict['yAxis'] = 1"""
+            if key == 'Error Count':
+                single_dict['type'] = 'column'
+                #single_dict['yAxis'] = 1
+            if key == 'Cumulative %':
+                single_dict['type']='spline'
                 single_dict['yAxis'] = 1
             final_list.append(single_dict)
     return final_list
@@ -4465,14 +4478,24 @@ def fte_calculation(request,prj_id,center_obj,date_list,level_structure_key):
     prj_name = Project.objects.filter(id=prj_id).values_list('name', flat=True)
     center_name = Center.objects.filter(id=center_obj).values_list('name', flat=True)
     work_packet_query =  query_set_generation(prj_id,center_obj,level_structure_key,[])
+    work_packet_query['from_date__gte'] = date_list[0]
+    work_packet_query['to_date__lte'] = date_list[-1]
+    print work_packet_query
     work_packets = Targets.objects.filter(**work_packet_query).values('sub_project','work_packet','sub_packet','fte_target').distinct()
     sub_packet_query = query_set_generation(prj_id,center_obj,level_structure_key,[])
+    sub_packet_query['from_date__gte'] = date_list[0]
+    sub_packet_query['to_date__lte'] = date_list[-1]
+    print sub_packet_query
     sub_packets = filter(None,Targets.objects.filter(**sub_packet_query).values_list('sub_packet',flat=True).distinct())
+    print "sub_packets",sub_packets
     conn = redis.Redis(host="localhost", port=6379, db=0)
     new_date_list = []
     status = 0
     if len(sub_packets) == 0:
+        work_packet_query['from_date__lte'] = date_list[0]
+        work_packet_query['to_date__gte'] = date_list[-1]
         work_packets = Targets.objects.filter(**work_packet_query).values('sub_project', 'work_packet', 'sub_packet','fte_target').distinct()
+        print 'targte',work_packets
         date_values = {}
         volumes_dict = {}
         result = {}
@@ -4957,13 +4980,13 @@ def volume_graph_data(date_list,prj_id,center_obj,level_structure_key):
                     closing_bal.append(vol_values)
                 elif volume_key == 'non_workable_count':
                     nwc.append(vol_values)
-        worktrack_volumes= {}
+        worktrack_volumes = OrderedDict()
         worktrack_volumes['Opening'] = [sum(i) for i in zip(*opening)]
         worktrack_volumes['Received'] = [sum(i) for i in zip(*received)]
         worktrack_volumes['Non Workable Count'] = [sum(i) for i in zip(*nwc)]
         worktrack_volumes['Completed'] = [sum(i) for i in zip(*completed)]
         worktrack_volumes['Closing balance'] = [sum(i) for i in zip(*closing_bal)]
-        worktrack_timeline = {}
+        worktrack_timeline = OrderedDict()
         day_opening =[worktrack_volumes['Opening'], worktrack_volumes['Received']]
         worktrack_timeline['Opening'] = [sum(i) for i in zip(*day_opening)]
         worktrack_timeline['Completed'] = worktrack_volumes['Completed']
@@ -6080,7 +6103,10 @@ def main_productivity_data(center,prj_id,date_list,level_structure_key):
                     # below code for productivity
                     #import pdb;pdb.set_trace()
                     if len(billable_emp_count) > 0 and total_work_done != None:
-                        productivity_value = float(total_work_done / float(billable_emp_count[0]))
+                        if billable_emp_count[0] != 0:
+                            productivity_value = float(total_work_done / float(billable_emp_count[0]))
+                        else: 
+                            productivity_value = 0
                     else:
                         productivity_value = 0
                     final_prodictivity_value = float('%.2f' % round(productivity_value, 2))

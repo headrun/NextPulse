@@ -12,6 +12,32 @@
 
                this.user = Session.get();
 
+               self.new_password = '';
+               self.new_again = '';
+               self.pass_status = false;
+               self.pass_error = false;
+
+               self.password = function(new_pa, new_again_pa){
+                 if (new_pa === new_again_pa){
+
+                   var data = $.param({
+                     json: JSON.stringify({
+                       name: new_pa
+                     })
+                   });
+
+                   $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
+                   $http.post('api/change_password/', data).then(function(result){
+                     if (result.statusText == 'OK') {
+                       self.pass_status = true;
+                     }
+                   });
+                 }
+                 else {
+                   self.pass_error = true;
+                 }
+               }
+
                 if (this.user.roles.indexOf("team_lead") >= 0) {
                     this.user.role = "Team Lead";
                 }
@@ -31,6 +57,7 @@
                 }
                 if (this.user.role == "Customer") {
                     $('#fileupload').hide();
+                    $('#home').hide();
                 }
                 if (this.user.role == "Team Lead") {
                     $('#select_dropdown').hide();
@@ -64,8 +91,14 @@
                     var map_list = result.result.list;
                     self.mapping_list = map_list;
                     if (result.result.list[0] != "none"){
+                        if ((result.result.list.length) == 2) {
+                            var option = map_list[0];
+                        }   
+                        else {
                         var option = map_list[1];
+                        }
                         self.select_option = option.split(' - ')[1];
+                        $('#select_dropdown').show();
                     }
                 }
                 if (result.result['role'] == "center_manager")

@@ -199,7 +199,7 @@
                         var sub_packet_level = result.result.sub_packet_level;
                         var work_packet_level = result.result.work_packet_level;
                         self.global_packet_values = result.result.fin;
-                        self.hideLoading();
+                        //self.hideLoading();
 
                         self.top_employee_details =  result.result.top_five_employee_details;
                         self.top_five = result.result.only_top_five;
@@ -3754,7 +3754,7 @@ angular.extend(self.chartOptions18, {
             };
 
 
-            self.chartOptions27 = {
+        self.chartOptions27 = {
             chart: {
             zoomType: 'xy',
             backgroundColor: "transparent",
@@ -3775,20 +3775,31 @@ angular.extend(self.chartOptions18, {
                 format: '{value}',
             },
             title: {
-                text: 'Cumulative %',
+                //text: 'Cumulative %',
+                text: 'Error Count',
                 color:'a2a2a2',
             }
         }, { // Secondary yAxis
             gridLineWidth: 0,
             minorGridLineWidth: 0,
             title: {
-                text: 'Error Count',
+                //text: 'Error Count',
+                text: 'Cumulative %',
                 color:'a2a2a2',
             },
+  
             labels: {
                 color: 'a2a2a2',
                 format: '{value} ',
             },
+
+            plotLines: [{
+                color: '#89A54E',
+                dashStyle: 'shortdash',
+                value: 80,
+                width: 3,
+                zIndex: 10
+            }], 
             opposite: true
         },],
         tooltip: {
@@ -3803,7 +3814,7 @@ angular.extend(self.chartOptions18, {
     }
             
 
-           self.chartOptions28 = {
+        self.chartOptions28 = {
             chart: {
             zoomType: 'xy',
             backgroundColor: "transparent",
@@ -3824,20 +3835,30 @@ angular.extend(self.chartOptions18, {
                 format: '{value}',
             },
             title: {
-                text: 'Cumulative %',
+                //text: 'Cumulative %',
+                text: 'Error Count',
                 color:'a2a2a2',
             }
         }, { // Secondary yAxis
             gridLineWidth: 0,
             minorGridLineWidth: 0,
             title: {
-                text: 'Error Count',
+                //text: 'Error Count',
+                text: 'Cumulative %',
                 color:'a2a2a2',
             },
             labels: {
                 color: 'a2a2a2',
                 format: '{value} ',
             },
+            
+            plotLines: [{
+                color: '#89A54E',
+                dashStyle: 'shortdash',
+                value: 80,
+                width: 3,
+                zIndex: 10
+            }], 
             opposite: true
         },],
         tooltip: {
@@ -3852,7 +3873,7 @@ angular.extend(self.chartOptions18, {
     }
             
 
-           self.chartOptions29 = {
+        self.chartOptions29 = {
             chart: {
             zoomType: 'xy',
             backgroundColor: "transparent",
@@ -3873,20 +3894,29 @@ angular.extend(self.chartOptions18, {
                 format: '{value}',
             },
             title: {
-                text: 'Cumulative %',
+                //text: 'Cumulative %',
+                text: 'Error Count',
                 color:'a2a2a2',
             }
         }, { // Secondary yAxis
             gridLineWidth: 0,
             minorGridLineWidth: 0,
             title: {
-                text: 'Error Count',
+                text: 'Cumulative %',
+                //text: 'Error Count',
                 color:'a2a2a2',
             },
             labels: {
                 color: 'a2a2a2',
                 format: '{value} ',
             },
+            plotLines: [{
+                color: '#89A54E',
+                dashStyle: 'shortdash',
+                value: 80,
+                width: 3,
+                zIndex: 10
+            }], 
             opposite: true
         },],
         tooltip: {
@@ -3946,20 +3976,30 @@ angular.extend(self.chartOptions18, {
                 format: '{value}',
             },
             title: {
-                text: 'Cumulative %',
+                //text: 'Cumulative %',
+                text: 'Error Count',
                 color:'a2a2a2',
             }
         }, { // Secondary yAxis
             gridLineWidth: 0,
             minorGridLineWidth: 0,
             title: {
-                text: 'Error Count',
+                text: 'Cumulative %',
+                //text: 'Error Count',
                 color:'a2a2a2',
             },
             labels: {
                 color: 'a2a2a2',
                 format: '{value} ',
             },
+            plotLines: [{
+                color: '#89A54E',
+                dashStyle: 'shortdash',
+                value: 80,
+                width: 3,
+                zIndex: 10
+            }],
+
             opposite: true
         },],
         tooltip: {

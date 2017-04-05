@@ -125,7 +125,7 @@ dashboard div.dashboard-content {
     display: none;
 }*/
 #divNewNotifications {
-    height:300px;
+    /*height:300px;*/
     overflow-y: scroll;
   }
 
@@ -189,6 +189,20 @@ dashboard div.dashboard-content {
     padding-bottom: 8px;
     margin-left: 9px;
   }
+ .fa-key {
+    float: left;
+    margin-left: -14px;
+    margin-top: 3px;
+    color:#337ab7;
+}
+  .msg {
+        margin-top: 10px;
+        color: #337ab7;
+    }
+  #update{
+    color: #337ab7;
+    background: none;
+    }
   .user-logout {
     margin-top: -6px !important;
     margin-right: 8px;
@@ -313,9 +327,46 @@ dashboard div.dashboard-content {
 
              <ul class="dropdown-menu sym-log user-logout">
                  <li>
-                    <logout></logout>
+                   <a type="button" class="btn" id="update" data-toggle="modal" data-target="#passModal"><i class="fa fa-key"></i>Update Password</a>
                  </li>
+                <li>
+                    <logout></logout>
+                 </li> 
              </ul>
+  <div class="modal fade" id="passModal" role="dialog">
+    <div class="modal-dialog">
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Update Password</h4>
+        </div>
+        <div class="modal-body">
+          <div class="container">
+                <form>
+                  <div class="form-group">
+                    <label>New Password :</label>
+                    <input type="password" class="form-control" style="width:25%;" ng-model="$ctrl.new_password"/>
+                  </div>
+                  <div class="form-group">
+                    <label>Confirm Password :</label>
+                    <input type="password" class="form-control" style="width:25%;" ng-model="$ctrl.new_again"/>
+                  </div>
+                  <button class="btn btn-primary btn-sm" ng-click="$ctrl.password($ctrl.new_password, $ctrl.new_again)">
+                    Submit
+                  </button>
+                  <p ng-if="$ctrl.pass_status" class="msg"> Password changed sucessfully </p>
+                  <p ng-if="$ctrl.pass_error" class="msg"> Passwords doesn't match</p>
+                </form>
+               </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+     </div>
+  </div>
+</div>
+
           </li>
       </ul>
     </div>
@@ -355,7 +406,7 @@ dashboard div.dashboard-content {
 
     $('.dropdown-toggle').dropdown();
     $('#divNewNotifications li').on('click', function() {
-       $('#dropdown_title').html($(".brand_style").text().replace(" - Dashboard",''));
+       $('#dropdown_title').html($(".brand_style").text().replace(" - DASHBOARD",''));
     });
 
 </script>
