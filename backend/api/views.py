@@ -631,17 +631,24 @@ def redis_insertion_final(prj_obj,center_obj,dates_list,key_type,level_structure
                 data_dict[redis_key] = value_dict
             if key_type == 'WorkTrack':
                 redis_key = '{0}_{1}_{2}_{3}_worktrack'.format(prj_name, center_name, final_work_packet,str(date_is))
-                closing_balance = Worktrack.objects.filter(**query_set).values_list('closing_balance')
-                received = Worktrack.objects.filter(**query_set).values_list('received')
-                completed = Worktrack.objects.filter(**query_set).values_list('completed')
-                opening = Worktrack.objects.filter(**query_set).values_list('opening')
-                non_workable_count = Worktrack.objects.filter(**query_set).values_list('non_workable_count')
+                #closing_balance = Worktrack.objects.filter(**query_set).values_list('closing_balance')
+                closing_balance = Worktrack.objects.filter(**query_set).values_list('closing_balance').aggregate(Sum('closing_balance'))
+                #received = Worktrack.objects.filter(**query_set).values_list('received')
+                received = Worktrack.objects.filter(**query_set).values_list('received').aggregate(Sum('received'))
+                #completed = Worktrack.objects.filter(**query_set).values_list('completed')
+                completed = Worktrack.objects.filter(**query_set).values_list('completed').aggregate(Sum('completed'))
+                #opening = Worktrack.objects.filter(**query_set).values_list('opening')
+                opening = Worktrack.objects.filter(**query_set).values_list('opening').aggregate(Sum('opening'))
+                #non_workable_count = Worktrack.objects.filter(**query_set).values_list('non_workable_count')
+                non_workable_count = Worktrack.objects.filter(**query_set).values_list('non_workable_count').aggregate(Sum('non_workable_count'))
                 try:
-                    value_dict['closing_balance'] = str(closing_balance[0][0])
+                    #value_dict['closing_balance'] = str(closing_balance[0][0])
+                    value_dict['closing_balance'] = str(closing_balance['closing_balance__sum'])
                 except:
                     value_dict['closing_balance'] = ''
                 try:
-                    value_dict['completed'] = str(completed[0][0])
+                    #value_dict['completed'] = str(completed[0][0])
+                    value_dict['completed'] = str(completed['completed__sum'])
                 except:
                     value_dict['completed'] = ''
                 try:
@@ -649,11 +656,13 @@ def redis_insertion_final(prj_obj,center_obj,dates_list,key_type,level_structure
                 except:
                     value_dict['opening'] = ''
                 try:
-                    value_dict['non_workable_count'] = str(non_workable_count[0][0])
+                    #value_dict['non_workable_count'] = str(non_workable_count[0][0])
+                    value_dict['non_workable_count'] = str(non_workable_count['non_workable_count__sum'])
                 except:
                     value_dict['non_workable_count'] = ''
                 try:
-                    value_dict['received'] = int(received[0][0])
+                    #value_dict['received'] = int(received[0][0])
+                    value_dict['received'] = int(received['received__sum'])
                 except:
                     value_dict['received'] = ''
                 data_dict[redis_key] = value_dict
@@ -4492,8 +4501,8 @@ def fte_calculation(request,prj_id,center_obj,date_list,level_structure_key):
     new_date_list = []
     status = 0
     if len(sub_packets) == 0:
-        work_packet_query['from_date__lte'] = date_list[0]
-        work_packet_query['to_date__gte'] = date_list[-1]
+        #work_packet_query['from_date__lte'] = date_list[0]
+        #work_packet_query['to_date__gte'] = date_list[-1]
         work_packets = Targets.objects.filter(**work_packet_query).values('sub_project', 'work_packet', 'sub_packet','fte_target').distinct()
         print 'targte',work_packets
         date_values = {}
@@ -4981,12 +4990,14 @@ def volume_graph_data(date_list,prj_id,center_obj,level_structure_key):
                 elif volume_key == 'non_workable_count':
                     nwc.append(vol_values)
         worktrack_volumes = OrderedDict()
+        #worktrack_volumes = {}
         worktrack_volumes['Opening'] = [sum(i) for i in zip(*opening)]
         worktrack_volumes['Received'] = [sum(i) for i in zip(*received)]
         worktrack_volumes['Non Workable Count'] = [sum(i) for i in zip(*nwc)]
         worktrack_volumes['Completed'] = [sum(i) for i in zip(*completed)]
         worktrack_volumes['Closing balance'] = [sum(i) for i in zip(*closing_bal)]
         worktrack_timeline = OrderedDict()
+        #worktrack_timeline = {}
         day_opening =[worktrack_volumes['Opening'], worktrack_volumes['Received']]
         worktrack_timeline['Opening'] = [sum(i) for i in zip(*day_opening)]
         worktrack_timeline['Completed'] = worktrack_volumes['Completed']
