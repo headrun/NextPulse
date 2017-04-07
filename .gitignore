@@ -8,5 +8,6 @@ node_modules/*
 ui/src/libs/*
 ui/src/app.css
 backend/api/migrations/*
+backend/static/*
 .idea
 .idea/

@@ -652,7 +652,8 @@ def redis_insertion_final(prj_obj,center_obj,dates_list,key_type,level_structure
                 except:
                     value_dict['completed'] = ''
                 try:
-                    value_dict['opening'] = str(opening[0][0])
+                    #value_dict['opening'] = str(opening[0][0])
+                    value_dict['opening'] = str(opening['opening__sum'])
                 except:
                     value_dict['opening'] = ''
                 try:
@@ -3248,6 +3249,37 @@ def min_max_num(int_value_range):
     main_max_dict ['max_value'] = int_max_value
     return main_max_dict
 
+def volume_status_week(week_names,productivity_list,final_productivity):
+    final_productivity =  OrderedDict()
+    for final_key, final_value in productivity_list.iteritems():
+        for week_key, week_value in final_value.iteritems():
+            if week_key not in final_productivity.keys():
+                final_productivity[week_key] = [] 
+    for prod_week_num in week_names:
+        if len(productivity_list.get(prod_week_num,'')) > 0: 
+            for vol_key, vol_values in productivity_list[prod_week_num].iteritems():
+                if final_productivity.has_key(vol_key):
+                    if vol_key == 'Opening':
+                        final_productivity[vol_key].append(vol_values[0])
+                    elif vol_key == 'Closing balance':
+                        final_productivity[vol_key].append(vol_values[-1])
+                    else:
+                        if isinstance(vol_values,list):
+                            vol_values = sum(vol_values)
+                        final_productivity[vol_key].append(vol_values)
+                else:
+                    if isinstance(vol_values,list):
+                        vol_values = sum(vol_values)
+                    final_productivity[vol_key] = [vol_values]
+            for prod_key, prod_values in final_productivity.iteritems():
+                if prod_key not in productivity_list[prod_week_num].keys():
+                    final_productivity[prod_key].append(0)
+        else:
+            for vol_key, vol_values in final_productivity.iteritems():
+                final_productivity[vol_key].append(0)
+    return final_productivity
+
+
 def prod_volume_week(week_names,productivity_list,final_productivity):
     for final_key, final_value in productivity_list.iteritems():
         for week_key, week_value in final_value.iteritems():
@@ -3830,7 +3862,8 @@ def day_week_month(request, dwm_dict, prj_id, center, work_packets, level_struct
 
         # below for productivity,packet wise performance
         final_productivity = prod_volume_week(month_names, productivity_list, final_productivity)
-        final_vol_graph_bar_data = prod_volume_week(month_names, vol_graph_bar_data, final_vol_graph_bar_data)
+        final_vol_graph_bar_data = volume_status_week(month_names, vol_graph_bar_data, final_vol_graph_bar_data)
+        #final_vol_graph_bar_data = prod_volume_week(month_names, vol_graph_bar_data, final_vol_graph_bar_data)
         final_vol_graph_line_data = prod_volume_week(month_names, vol_graph_line_data, final_vol_graph_line_data)
         final_internal_accuracy_timeline = errors_week_calcuations(month_names, internal_accuracy_timeline,final_internal_accuracy_timeline)
         final_external_accuracy_timeline = errors_week_calcuations(month_names, external_accuracy_timeline,final_external_accuracy_timeline)
@@ -4065,7 +4098,8 @@ def day_week_month(request, dwm_dict, prj_id, center, work_packets, level_struct
         result_dict['monthly_volume_graph_details'] = graph_data_alignment_color(final_montly_vol_data, 'data', level_structure_key,prj_id, center,'monthly_volume')
 
         final_productivity = prod_volume_week(week_names, productivity_list, final_productivity)
-        final_vol_graph_bar_data = prod_volume_week(week_names, vol_graph_bar_data, final_vol_graph_bar_data)
+        #final_vol_graph_bar_data = prod_volume_week(week_names, vol_graph_bar_data, final_vol_graph_bar_data)
+        final_vol_graph_bar_data = volume_status_week(week_names, vol_graph_bar_data, final_vol_graph_bar_data)
         final_vol_graph_line_data = prod_volume_week(week_names, vol_graph_line_data, final_vol_graph_line_data)
         result_dict['volume_graphs'] = {}
         result_dict['volume_graphs']['bar_data'] = graph_data_alignment_color(final_vol_graph_bar_data,'data', level_structure_key,prj_id,center,'volume_bar_graph') 
