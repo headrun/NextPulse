@@ -137,7 +137,10 @@
                     'self.chartOptions31':self.chartOptions31,
                     'self.chartOptions32':self.chartOptions32,
                     'self.chartOptions33':self.chartOptions33,
-                    'self.chartOptions34':self.chartOptions34
+                    'self.chartOptions34':self.chartOptions34,
+                    'self.chartOptions35':self.chartOptions35,
+                    'self.chartOptions36':self.chartOptions36,
+                    'self.chartOptions37':self.chartOptions37
                     };
 
                     var final_layout_list = [];
@@ -724,7 +727,10 @@ for (var sub_pro in self.drop_list) {
                     'self.chartOptions31':self.chartOptions31,
                     'self.chartOptions32':self.chartOptions32,
                     'self.chartOptions33':self.chartOptions33,
-                    'self.chartOptions34':self.chartOptions34
+                    'self.chartOptions34':self.chartOptions34,
+                    'self.chartOptions35':self.chartOptions35,
+                    'self.chartOptions36':self.chartOptions36,
+                    'self.chartOptions37':self.chartOptions37
                     };
                     var final_layout_list = [];
                     for (var single in self.layout_list){   
@@ -3003,6 +3009,93 @@ plotOptions: {
                     },
                     series: self.high_data_gener[0].week_productivity_data.data,
                 });
+
+                angular.extend(self.chartOptions35, {
+                    xAxis: {
+                        categories: self.high_data_gener[0].data.date,
+                    },   
+                    series: self.high_data_gener[0].data.data
+                    });  
+                angular.extend(self.chartOptions35.plotOptions.series.point.events,{
+                    select: function(e) {
+                    var chart_name = 'Static_Daily_Production_Bar';
+                    var is_drill = self.list_object[chart_name].is_drilldown;
+                    if (is_drill){
+                    var addition = '&project=' + pro + '&center=' + loc; 
+                    console.log(e.target.name);
+                    var productivity_bar_graph ='/api/chart_data/?';
+                    var dates_list = self.get_date();
+                    $http.get( productivity_bar_graph + 'packet=' + e.target.series.name + '&date=' + e.target.category
+                     + '&type=' + 'Production Chart'+addition).success(
+                    function(data,  status)
+                        {
+                            $('#myModal').modal('show');
+                            self.names = data.result.data;
+                            self.fields_list_drilldown = self.list_object_drilldown[data.result.type];
+                            self.chart_type = data.result.type;
+                            console.log(self.names);
+                        }).error(function(error){ console.log("error")});
+                        }
+                    }
+                });
+
+                angular.extend(self.chartOptions36, {
+                    xAxis: {
+                        categories: self.high_data_gener[0].week_productivity_data.date,
+                    },   
+                    series: self.high_data_gener[0].week_productivity_data.data
+                });  
+                angular.extend(self.chartOptions36.plotOptions.series.point.events,{
+                    select: function(e) {
+                    var chart_name = 'Static_Weekly_Production_Bar';
+                    var is_drill = self.list_object[chart_name].is_drilldown;
+                    if (is_drill){
+                    var addition = '&project=' + pro + '&center=' + loc;
+                    console.log(e.target.name);
+                    var productivity_bar_graph ='/api/chart_data/?';
+                    var dates_list = self.get_date();
+                    $http.get( productivity_bar_graph + 'packet=' + e.target.series.name + '&date=' + e.target.category
+                     + '&type=' + 'Production Chart'+addition).success(
+                    function(data,  status)
+                        {
+                            $('#myModal').modal('show');
+                            self.names = data.result.data;
+                            self.fields_list_drilldown = self.list_object_drilldown[data.result.type];
+                            self.chart_type = data.result.type;
+                            console.log(self.names);
+                        }).error(function(error){ console.log("error")});
+                        }
+                    }
+                 });
+
+                angular.extend(self.chartOptions37, {
+                    xAxis: {
+                        categories: self.high_data_gener[0].month_productivity_data.date,
+                    },
+                    series: self.high_data_gener[0].month_productivity_data.data
+                    });
+                angular.extend(self.chartOptions37.plotOptions.series.point.events,{
+                    select: function(e) {
+                    var chart_name = 'Static_Monthly_Production_Bar';
+                    var is_drill = self.list_object[chart_name].is_drilldown;
+                    if (is_drill){
+                    var addition = '&project=' + pro + '&center=' + loc;
+                    console.log(e.target.name);
+                    var productivity_bar_graph ='/api/chart_data/?';
+                    var dates_list = self.get_date();
+                    $http.get( productivity_bar_graph + 'packet=' + e.target.series.name + '&date=' + e.target.category
+                     + '&type=' + 'Production Chart'+addition).success(
+                    function(data,  status)
+                        {
+                            $('#myModal').modal('show');
+                            self.names = data.result.data;
+                            self.fields_list_drilldown = self.list_object_drilldown[data.result.type];
+                            self.chart_type = data.result.type;
+                            console.log(self.names);
+                        }).error(function(error){ console.log("error")});
+                        }
+                    }
+                });      
         
                 angular.extend(self.chartOptions34, {
                     xAxis: {
@@ -4396,6 +4489,96 @@ angular.extend(self.chartOptions18, {
                credits: {
                 enabled: false
                },
+            };
+
+    self.chartOptions35 = {
+            chart: {
+                type: 'column',
+                backgroundColor: "transparent"
+             },
+            title: {
+                text: ''
+            },
+            subtitle: {
+                text: ''
+            },
+            yAxis: {
+                gridLineColor: 'a2a2a2',
+                min: 0,
+                title: {
+                    text: ''
+                }
+            },
+            plotOptions:{
+                series:{
+                    allowPointSelect: true,
+                    cursor: 'pointer',
+                point: {
+                    events:{
+                    }
+                }
+                }
+            }
+         };
+
+    self.chartOptions36 = {
+            chart: {
+                type: 'column',
+                backgroundColor: "transparent"
+             },
+            title: {
+                text: ''
+            },
+            subtitle: {
+                text: ''
+            },
+            yAxis: {
+                gridLineColor: 'a2a2a2',
+                min: 0,
+                title: {
+                    text: ''
+                }
+            },
+            plotOptions:{
+                series:{
+                    allowPointSelect: true,
+                    cursor: 'pointer',
+                point: {
+                    events:{
+                    }
+                }
+                }
+            }
+         };         
+
+    self.chartOptions37 = {
+            chart: {
+                type: 'column',
+                backgroundColor: "transparent"
+             },
+            title: {
+                text: ''
+            },
+            subtitle: {
+                text: ''
+            },
+            yAxis: {
+                gridLineColor: 'a2a2a2',
+                min: 0,
+                title: {
+                    text: ''
+                }
+            },
+            plotOptions:{
+                series:{
+                    allowPointSelect: true,
+                    cursor: 'pointer',
+                point: {
+                    events:{
+                    }
+                }
+                }
+            }
             };        
 
     self.chartOptions22 = '<p> workpacket </p>'

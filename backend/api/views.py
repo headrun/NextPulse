@@ -3280,6 +3280,36 @@ def volume_status_week(week_names,productivity_list,final_productivity):
     return final_productivity
 
 
+def received_volume_week(week_names,productivity_list,final_productivity):
+    productivity_data = {} 
+    for final_key, final_value in productivity_list.iteritems():
+        for week_key, week_value in final_value.iteritems():
+            if week_key not in final_productivity.keys():
+                final_productivity[week_key] = [] 
+    for prod_week_num in week_names:
+        if len(productivity_list.get(prod_week_num,'')) > 0: 
+            values = productivity_list[prod_week_num]
+            if len(values['Received']) == len(values['Opening']):
+                values['Received'][0] = values['Received'][0] + values['Opening'][0]
+                values['Received'] = sum(values['Received'])
+                values['Completed'] = sum(values['Completed'])
+                values['Opening'] = sum(values['Opening'])
+                productivity_data.update(values)
+                del productivity_data['Opening']
+                for vol_key,vol_values in productivity_data.iteritems():
+                    if final_productivity.has_key(vol_key):
+                        final_productivity[vol_key].append(vol_values)
+                    else:
+                        final_productivity[vol_key] = [vol_values]
+
+            for prod_key, prod_values in final_productivity.iteritems():
+                if prod_key not in productivity_list[prod_week_num].keys():
+                    final_productivity[prod_key].append(0)
+        else:
+            for vol_key, vol_values in final_productivity.iteritems():
+                final_productivity[vol_key].append(0)
+    return final_productivity
+
 def prod_volume_week(week_names,productivity_list,final_productivity):
     for final_key, final_value in productivity_list.iteritems():
         for week_key, week_value in final_value.iteritems():
@@ -3802,7 +3832,8 @@ def day_week_month(request, dwm_dict, prj_id, center, work_packets, level_struct
                 month_names.append(month_name)
             packet_sum_data = result_dict['volumes_data']['volume_values']
 
-            volume_graph = volume_graph_data(month_dates, prj_id, center, level_structure_key)
+            #volume_graph = volume_graph_data(month_dates, prj_id, center, level_structure_key)
+            volume_graph = volume_graph_data_week_month(month_dates, prj_id, center, level_structure_key)
             vol_graph_line_data[month_name] = volume_graph['line_data']
             vol_graph_bar_data[month_name] = volume_graph['bar_data']
 
@@ -3864,7 +3895,8 @@ def day_week_month(request, dwm_dict, prj_id, center, work_packets, level_struct
         final_productivity = prod_volume_week(month_names, productivity_list, final_productivity)
         final_vol_graph_bar_data = volume_status_week(month_names, vol_graph_bar_data, final_vol_graph_bar_data)
         #final_vol_graph_bar_data = prod_volume_week(month_names, vol_graph_bar_data, final_vol_graph_bar_data)
-        final_vol_graph_line_data = prod_volume_week(month_names, vol_graph_line_data, final_vol_graph_line_data)
+        #final_vol_graph_line_data = prod_volume_week(month_names, vol_graph_line_data, final_vol_graph_line_data)
+        final_vol_graph_line_data = received_volume_week(month_names, vol_graph_line_data, final_vol_graph_line_data)
         final_internal_accuracy_timeline = errors_week_calcuations(month_names, internal_accuracy_timeline,final_internal_accuracy_timeline)
         final_external_accuracy_timeline = errors_week_calcuations(month_names, external_accuracy_timeline,final_external_accuracy_timeline)
         # result_dict['internal_time_line'] = graph_data_alignment(final_internal_accuracy_timeline, name_key='data')
@@ -4020,7 +4052,8 @@ def day_week_month(request, dwm_dict, prj_id, center, work_packets, level_struct
                     else:
                         monthly_vol_data[vol_cumulative_key].append(0)
                 #monthly_vol_data[week_name] = monthly_volume_graph_details
-                volume_graph = volume_graph_data(week, prj_id, center, level_structure_key)
+                #volume_graph = volume_graph_data(week, prj_id, center, level_structure_key)
+                volume_graph = volume_graph_data_week_month(week, prj_id, center, level_structure_key)
                 vol_graph_line_data[week_name] = volume_graph['line_data']
                 vol_graph_bar_data[week_name] = volume_graph['bar_data']
                 packet_sum_data = result_dict['volumes_data']['volume_values']
@@ -4100,7 +4133,8 @@ def day_week_month(request, dwm_dict, prj_id, center, work_packets, level_struct
         final_productivity = prod_volume_week(week_names, productivity_list, final_productivity)
         #final_vol_graph_bar_data = prod_volume_week(week_names, vol_graph_bar_data, final_vol_graph_bar_data)
         final_vol_graph_bar_data = volume_status_week(week_names, vol_graph_bar_data, final_vol_graph_bar_data)
-        final_vol_graph_line_data = prod_volume_week(week_names, vol_graph_line_data, final_vol_graph_line_data)
+        #final_vol_graph_line_data = prod_volume_week(week_names, vol_graph_line_data, final_vol_graph_line_data)
+        final_vol_graph_line_data = received_volume_week(week_names, vol_graph_line_data, final_vol_graph_line_data)
         result_dict['volume_graphs'] = {}
         result_dict['volume_graphs']['bar_data'] = graph_data_alignment_color(final_vol_graph_bar_data,'data', level_structure_key,prj_id,center,'volume_bar_graph') 
         result_dict['volume_graphs']['line_data'] = graph_data_alignment_color(final_vol_graph_line_data,'data', level_structure_key,prj_id,center,'volume_productivity_graph') 
@@ -5047,6 +5081,91 @@ def volume_graph_data(date_list,prj_id,center_obj,level_structure_key):
         final_volume_graph['line_data'] = {}
         return final_volume_graph
 
+def volume_graph_data_week_month(date_list,prj_id,center_obj,level_structure_key):
+    conn = redis.Redis(host="localhost", port=6379, db=0)
+    result = {}
+    volumes_dict = {}
+    date_values = {}
+    prj_name = Project.objects.filter(id=prj_id).values_list('name',flat=True)
+    center_name = Center.objects.filter(id=center_obj).values_list('name', flat=True)
+    query_set = query_set_generation(prj_id,center_obj,level_structure_key,date_list)
+    volume_list = worktrack_internal_external_workpackets_list(level_structure_key,'Worktrack',query_set)
+    for date_va in date_list:
+        total_done_value = RawTable.objects.filter(project=prj_id, center=center_obj, date=date_va).aggregate(Max('per_day'))
+        if total_done_value['per_day__max'] > 0:
+            count =0
+            for vol_type in volume_list:
+                final_work_packet = level_hierarchy_key(level_structure_key,vol_type)
+                if not final_work_packet:
+                    final_work_packet = level_hierarchy_key(volume_list[count],vol_type)
+                count = count+1
+                date_pattern = '{0}_{1}_{2}_{3}_worktrack'.format(prj_name[0], str(center_name[0]), str(final_work_packet), date_va)
+                key_list = conn.keys(pattern=date_pattern)
+                if not key_list:
+                    if date_values.has_key(final_work_packet):
+                        date_values[final_work_packet]['opening'].append(0)
+                        date_values[final_work_packet]['received'].append(0)
+                        date_values[final_work_packet]['completed'].append(0)
+                        date_values[final_work_packet]['non_workable_count'].append(0)
+                        date_values[final_work_packet]['closing_balance'].append(0)
+                    else:
+                        date_values[final_work_packet] = {}
+                        date_values[final_work_packet]['opening']= [0]
+                        date_values[final_work_packet]['received']= [0]
+                        date_values[final_work_packet]['completed'] = [0]
+                        date_values[final_work_packet]['non_workable_count'] = [0]
+                        date_values[final_work_packet]['closing_balance']= [0]
+                for cur_key in key_list:
+                    var = conn.hgetall(cur_key)
+                    for key,value in var.iteritems():
+                        if (value == 'None') or (value == ''):
+                            value = 0
+                        if not date_values.has_key(final_work_packet):
+                            date_values[final_work_packet] = {}
+                        if date_values.has_key(final_work_packet):
+                            if date_values[final_work_packet].has_key(key):
+                                date_values[final_work_packet][key].append(int(value))
+                            else:
+                                date_values[final_work_packet][key]=[int(value)]
+
+                    volumes_dict['data'] = date_values
+                    volumes_dict['date'] = date_list
+                    result['data'] = volumes_dict
+    if result.has_key('data'):
+        opening,received,nwc,closing_bal,completed = [],[],[],[],[]
+        for vol_key in result['data']['data'].keys():
+            for volume_key,vol_values in result['data']['data'][vol_key].iteritems():
+                if volume_key == 'opening':
+                    opening.append(vol_values)
+                elif volume_key == 'received':
+                    received.append(vol_values)
+                elif volume_key == 'completed':
+                    completed.append(vol_values)
+                elif volume_key == 'closing_balance':
+                    closing_bal.append(vol_values)
+                elif volume_key == 'non_workable_count':
+                    nwc.append(vol_values)
+        worktrack_volumes= {}
+        worktrack_volumes['Received'] = [sum(i) for i in zip(*received)]
+        worktrack_volumes['Opening'] = [sum(i) for i in zip(*opening)]
+        worktrack_volumes['Non Workable Count'] = [sum(i) for i in zip(*nwc)]
+        worktrack_volumes['Completed'] = [sum(i) for i in zip(*completed)]
+        worktrack_volumes['Closing balance'] = [sum(i) for i in zip(*closing_bal)]
+        worktrack_timeline = {}
+        worktrack_timeline['Completed'] = worktrack_volumes['Completed']
+        worktrack_timeline['Received'] = worktrack_volumes['Received']
+        worktrack_timeline['Opening'] = worktrack_volumes['Opening']
+        final_volume_graph = {}
+        final_volume_graph['bar_data']  = worktrack_volumes
+        final_volume_graph['line_data'] = worktrack_timeline
+        #import pdb;pdb.set_trace()
+        return final_volume_graph
+        print result
+    else:
+        final_volume_graph ={}
+        final_volume_graph['bar_data'] = {}
+        final_volume_graph['line_data'] = {}
+        return final_volume_graph        
 
 def volumes_graphs_data_table(date_list,prj_id,center,level_structure_key):
     conn = redis.Redis(host="localhost", port=6379, db=0)
