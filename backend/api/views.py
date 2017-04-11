@@ -24,6 +24,11 @@ from django.apps import apps
 from collections import OrderedDict
 from django.utils.timezone import utc
 from django.utils.encoding import smart_str, smart_unicode
+from collections import OrderedDict
+from django.core.mail import send_mail
+import hashlib
+import random
+
 
 def error_insert(request):
     pass
@@ -50,11 +55,43 @@ def get_order_of_headers(open_sheet, Default_Headers, mandatory_fileds=[]):
     return is_mandatory_available, sheet_indexes, indexes
 
 def change_password(request):
-    new_pass = json.loads(request.POST['json'])['name']
-    user_obj = User.objects.filter(username=request.user.username)[0]
-    user_obj.set_password(new_pass)
-    user_obj.save()
+    data_to = json.loads(request.POST['json'])
+    if "auth_key" in data_to.keys():
+        user_id = data_to['user_id']
+        auth_key = data_to['auth_key']
+        new_pass = data_to['name']
+        user_obj = User.objects.filter(id=user_id)[0]
+        user_obj.set_password(new_pass)
+        user_obj.save()
+    else:
+        new_pass = json.loads(request.POST['json'])['name']
+        user_obj = User.objects.filter(username=request.user.username)[0]
+        user_obj.set_password(new_pass)
+        user_obj.save()
     return HttpResponse('cool')
+
+def get_details(email_id):
+    user_obj = User.objects.filter(email=email_id)
+    if user_obj:
+        user_id = user_obj[0].id
+        auth_key = hashlib.sha1(str(random.random())).hexdigest()[:5]
+        user_data = Profile()
+        user_data.user_id = user_id
+        user_data.activation_key = auth_key
+        user_data.save()
+        return user_id,auth_key
+    else:
+        return 'Email id not found',0
+
+def forgot_password(request):
+    email_id = request.GET['email']
+    user_id, auth_key = get_details(email_id)
+    var = 'http://nextpulse.nextwealth.in/#!/reset/'+str(user_id)+'/'+str(auth_key)
+    if auth_key:
+        send_mail('Password Reset', 'click here to reset your password...'+var, 'nextpulse@nextwealth.in', [email_id])
+        return HttpResponse('Cool')
+    else:
+        return HttpResponse('Email id not found')
 
 def validate_sheet(open_sheet, request, SOH_XL_HEADERS, SOH_XL_MAN_HEADERS):
     sheet_headers = []
@@ -4195,8 +4232,6 @@ def day_week_month(request, dwm_dict, prj_id, center, work_packets, level_struct
         result_dict['ext_max_value'] = ext_min_max['max_value']
         result_dict['data']['date'] = data_date
         return result_dict
-
-
 
 def num_of_days(to_date,from_date):
     date_list=[]

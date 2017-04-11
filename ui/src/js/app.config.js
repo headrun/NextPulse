@@ -33,6 +33,9 @@
                 * if not authenticated, he will be redirected to LOGIN_PAGE
                */
                "authRequired": true
+             }).state("reset_password", {
+               "url"     : "/reset/:userId/:authKey",
+               "template": "<reset></reset>"
              });
 
              $urp.otherwise("/");
@@ -89,8 +92,13 @@
             });
 
             function goToLogin () {
-
+            if (window.location.href.indexOf('reset_password') > 0){
+              $state.go('reset_password', {});
+            }
+            else {
               $state.go(LOGIN_STATE, {"location": "replace"});
+            }
+            //$state.go(LOGIN_STATE, {"location": "replace"});
             }
 
             $rootScope.$on(AUTH_EVENTS.unAuthorized, goToLogin);

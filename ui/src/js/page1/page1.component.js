@@ -186,7 +186,6 @@
                     var static_ajax = static_data + '&project=' + self.project + '&center=' + self.location
                     self.main_render(from_to_data)
                     $http({method:"GET", url:static_ajax}).success(function(result){
-                           self.hideLoading();
                            self.static_widget_render(result,self.project,self.location);
                     });
                 }
@@ -197,12 +196,13 @@
              console.log('Hello from page1 yesh');
              $scope.options = self.tabData;
              self.main_render = function(from_to_data){
+                 self.showLoading();
                  $http({method:"GET", url:from_to_data}).success(function(result){
                         var sub_project_level = result.result.sub_project_level;
                         var sub_packet_level = result.result.sub_packet_level;
                         var work_packet_level = result.result.work_packet_level;
                         self.global_packet_values = result.result.fin;
-                        //self.hideLoading();
+                        self.hideLoading();
 
                         self.top_employee_details =  result.result.top_five_employee_details;
                         self.top_five = result.result.only_top_five;
@@ -315,7 +315,6 @@ for (var sub_pro in self.drop_list) {
                                                 $('.month').addClass('active btn-success');
                                                 $('.month').siblings().removeClass('active btn-success');
                                             }
-
                                     self.showLoading();
                                     self.drop_sub_proj = this.value;
                                     self.drop_work_pack = self.wor_pac_sel.value;
@@ -336,7 +335,6 @@ for (var sub_pro in self.drop_list) {
                             var from_to_data = from_to + 'from=' + from + '&to=' + to + '&project=' + self.project
                                     + '&center=' + self.location + '&type=' + 'day'  + final_work;
                             $http({method:"GET", url:from_to_data}).success(function(result){
-                                self.hideLoading();
                                 self.chart_render(result,self.project,self.location);
                             });
                                 });
@@ -371,12 +369,10 @@ for (var sub_pro in self.drop_list) {
                                                 $('.month').addClass('active btn-success');
                                                 $('.month').siblings().removeClass('active btn-success');
                                             }
-                                    self.showLoading();
+                                    self.showLoading();        
                                     self.drop_sub_proj = self.sub_pro_sel.value
                                     self.drop_work_pack = this.value;
                                     self.drop_sub_pack = self.sub_pac_sel.value;
-                        //$('.day').addClass('active');
-                        //$('.day').siblings().removeClass('active');
 
                             var final_work =  '&sub_project=' + self.drop_sub_proj + '&sub_packet=' + self.drop_sub_pack +
                                 '&work_packet=' + self.drop_work_pack
@@ -385,12 +381,9 @@ for (var sub_pro in self.drop_list) {
                             var from = dateEntered.split('to')[0].replace(' ','');
                             var to = dateEntered.split('to')[1].replace(' ','');
                             var placeholder = ''
-                            /*var from_to_data = from_to + 'from=' + from + '&to=' + to + '&project=' + self.project
-                                    + '&center=' + self.location + '&type=' + self.day_type  + final_work;*/
                             var from_to_data = from_to + 'from=' + from + '&to=' + to + '&project=' + self.project
                                     + '&center=' + self.location + '&type=' + 'day'  + final_work;
                             $http({method:"GET", url:from_to_data}).success(function(result){
-                                self.hideLoading();
                                 self.chart_render(result,self.project,self.location);
                             });
                                 });
@@ -425,13 +418,10 @@ for (var sub_pro in self.drop_list) {
                                                 $('.month').addClass('active btn-success');
                                                 $('.month').siblings().removeClass('active btn-success');
                                             }
-
                                         self.showLoading();
                                         self.drop_work_pack = self.wor_pac_sel.value;
                                         self.drop_sub_proj = self.sub_pro_sel.value;
                                         self.drop_sub_pack = this.value;
-                        //$('.day').addClass('active');
-                        //$('.day').siblings().removeClass('active');
 
                             var final_work =  '&sub_project=' + self.drop_sub_proj + '&sub_packet=' + self.drop_sub_pack + '&work_packet=' + self.drop_work_pack
                             var dateEntered = document.getElementById('select').value
@@ -439,12 +429,9 @@ for (var sub_pro in self.drop_list) {
                             var from = dateEntered.split('to')[0].replace(' ','');
                             var to = dateEntered.split('to')[1].replace(' ','');
                             var placeholder = ''
-                            /*var from_to_data = from_to + 'from=' + from + '&to=' + to + '&project=' + self.project
-                                    + '&center=' + self.location + '&type=' + self.day_type  + final_work;*/
                             var from_to_data = from_to + 'from=' + from + '&to=' + to + '&project=' + self.project
                                   + '&center=' + self.location + '&type=' + 'day'  + final_work;
                             $http({method:"GET", url:from_to_data}).success(function(result){
-                                self.hideLoading();
                                 self.chart_render(result,self.project,self.location);
                             });
                                     });
@@ -488,8 +475,6 @@ for (var sub_pro in self.drop_list) {
                                                 $('.month').siblings().removeClass('active btn-success');
                                             }
 
-                        //$('.day').addClass('active');
-                        //$('.day').siblings().removeClass('active');
 
                             var final_work =  '&sub_project=' + self.drop_sub_proj + '&sub_packet=' + self.drop_sub_pack + '&work_packet=' + self.drop_work_pack
                             var dateEntered = document.getElementById('select').value
@@ -497,12 +482,9 @@ for (var sub_pro in self.drop_list) {
                             var from = dateEntered.split('to')[0].replace(' ','');
                             var to = dateEntered.split('to')[1].replace(' ','');
                             var placeholder = ''
-                            /*var from_to_data = from_to + 'from=' + from + '&to=' + to + '&project=' + self.project
-                                    + '&center=' + self.location + '&type=' + self.day_type  + final_work;*/
                             var from_to_data = from_to + 'from=' + from + '&to=' + to + '&project=' + self.project
                                   + '&center=' + self.location + '&type=' + 'day'  + final_work;
                             $http({method:"GET", url:from_to_data}).success(function(result){
-                                self.hideLoading();
                                 self.chart_render(result,self.project,self.location);
                             });
                                     });
@@ -555,8 +537,6 @@ for (var sub_pro in self.drop_list) {
                             var from = dateEntered.split('to')[0].replace(' ','');
                             var to = dateEntered.split('to')[1].replace(' ','');
                             var placeholder = ''
-                            /*var from_to_data = from_to + 'from=' + from + '&to=' + to + '&project=' + self.project
-                                    + '&center=' + self.location + '&type=' + self.day_type  + final_work;*/
                             var from_to_data = from_to + 'from=' + from + '&to=' + to + '&project=' + self.project
                                   + '&center=' + self.location + '&type=' + 'day'  + final_work;
                             $http({method:"GET", url:from_to_data}).success(function(result){
@@ -597,21 +577,16 @@ for (var sub_pro in self.drop_list) {
                                                 $('.month').addClass('active btn-success');
                                                 $('.month').siblings().removeClass('active btn-success');
                                             }
-
                                         self.showLoading();
                                         self.drop_sub_pack = this.value;
                                         self.drop_sub_proj = 'undefined';
                                         self.drop_work_pack;
-                        //$('.day').addClass('active');
-                        //$('.day').siblings().removeClass('active');
             var final_work =  '&sub_project=' + self.drop_sub_proj + '&sub_packet=' + self.drop_sub_pack + '&work_packet=' + self.drop_work_pack
             var dateEntered = document.getElementById('select').value
             dateEntered = dateEntered.replace(' to ','to');
             var from = dateEntered.split('to')[0].replace(' ','');
             var to = dateEntered.split('to')[1].replace(' ','');
             var placeholder = ''
-            /*var from_to_data = from_to + 'from=' + from + '&to=' + to + '&project=' + self.project
-                    + '&center=' + self.location + '&type=' + self.day_type  + final_work;*/
             var from_to_data = from_to + 'from=' + from + '&to=' + to + '&project=' + self.project
                    + '&center=' + self.location + '&type=' + 'day'  + final_work;
             $http({method:"GET", url:from_to_data}).success(function(result){
@@ -645,23 +620,11 @@ for (var sub_pro in self.drop_list) {
                 function(newVal){
                     if (newVal.state) {
                         $scope.radioModel = 'Day';
-                        self.showLoading();
                         self.location = newVal.state.split(' - ')[0] + ' - ';
                         self.project = newVal.state.split(' - ')[1] + ' - ';
                         $('#0').show();
                         $('#1').show();
                         $('#2').show();
-                        /*var sub_pa_se = 0;
-                        var wor_pa_se = 1;
-                        var sub_pr_se = 0;
-                        if ((sub_pa_se === 0) && (sub_pr_se === 0)){
-                            $('#1').prop('disabled', 'disabled');
-                            $('#2').prop('disabled', 'disabled');
-                        }
-                        $('#0').remove();
-                        $('#1').remove();
-                        $('#2').remove();*/
-                        //$('')
 
                         self.sub_pro_sel = document.getElementById("0");
                         self.removeOptions(self.sub_pro_sel);
@@ -773,7 +736,6 @@ for (var sub_pro in self.drop_list) {
                     var from_to_data = from_to + 'from=' + self.lastDate + '&to=' + self.firstDate + '&project=' + self.project
                               + '&center=' + self.location  + '&type=' + self.day_type;
                 }
-                            //var pro_cen_nam = result.result.list[1].split(' - ')[1];
                             self.first = result.result.dates.from_date;
                             self.lastDate = self.first;
                             self.last = result.result.dates.to_date;
@@ -797,10 +759,8 @@ for (var sub_pro in self.drop_list) {
                         var static_ajax = static_data + '&project=' + self.project + '&center=' + self.location
                         self.main_render(from_to_data)
                         $http({method:"GET", url:static_ajax}).success(function(result){
-                           self.hideLoading();
                            self.static_widget_render(result,self.project,self.location);
                             });
-                        //self.static_widget_render(result,self.project,self.location)
                         });
                     }
                 });
@@ -878,11 +838,8 @@ for (var sub_pro in self.drop_list) {
                                             $('#myModal').modal('show');
                                             self.names = data.result.data;
                                             var proj = data.result.project;
-                                            //var pro_drill = drilldown_config[proj];
                                             var pro_drill = data.result.table_headers;
                                             var chart_type = data.result.type;
-
-                                            //self.fields_list_drilldown = pro_drill[chart_type];
                                             self.fields_list_drilldown = pro_drill;
                                             self.chart_type = data.result.type;
                                             console.log(self.names);
@@ -1717,7 +1674,6 @@ for (var sub_pro in self.drop_list) {
                 var from_to_data = from_to +'from=' + self.lastDate + '&to=' + self.firstDate + '&project=' + self.project + '&center=' + self.location + '&type=' + type + final_work; 
                 self.showLoading();
                 $http({method:"GET", url:from_to_data}).success(function(result){
-                    self.hideLoading();
                     self.chart_render(result,self.project,self.location);
                 });  
 
@@ -3130,7 +3086,6 @@ plotOptions: {
             self.click = function(start,end){
                 self.start = start.format('YYYY-MM-DD');
                 self.end = end.format('YYYY-MM-DD');
-                self.showLoading();
                 //var dates_list = self.get_date();
                 var final_packet_count = project_dropdown_count + '&project=' + self.project + '&center=' + self.location;
                 var dropdown_selection_data = $http({method:"GET", url:final_packet_count}).success(function(result){
@@ -3173,6 +3128,7 @@ plotOptions: {
                 var final_work =  '&sub_project=' + self.sub_pro_sel_two + '&sub_packet=' + self.sub_pac_sel_two + '&work_packet=' + self.packet_clicked;
                 var from_to_data = from_to + 'from=' + dates_list[0] + '&to=' + dates_list[1] + '&project=' + self.project
                        + '&center=' + self.location + '&type=' + 'day' + final_work;
+                self.showLoading();
                 $('.day2').addClass('active btn-success');
                 $('.day2').siblings().removeClass('active btn-success');
 
@@ -4579,7 +4535,7 @@ angular.extend(self.chartOptions18, {
                 }
                 }
             }
-            };        
+         };
 
     self.chartOptions22 = '<p> workpacket </p>'
 
