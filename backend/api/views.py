@@ -4525,11 +4525,12 @@ def fte_calculation_sub_project_sub_packet(prj_id,center_obj,work_packet_query,l
     conn = redis.Redis(host="localhost", port=6379, db=0)
     prj_name = Project.objects.filter(id=prj_id).values_list('name', flat=True)
     center_name = Center.objects.filter(id=center_obj).values_list('name', flat=True)
-    work_packets = Targets.objects.filter(**work_packet_query).values('sub_project', 'work_packet', 'sub_packet','fte_target').distinct()
+    """work_packets = Targets.objects.filter(**work_packet_query).values('sub_project', 'work_packet', 'sub_packet','fte_target').distinct()
     for wp_dict in work_packets:
-        packets_target[wp_dict['sub_packet']] = int(wp_dict['fte_target'])
+        packets_target[wp_dict['sub_packet']] = int(wp_dict['fte_target'])"""
     distinct_wp = Targets.objects.filter(**work_packet_query).values_list('work_packet', flat=True).distinct()
     wp_subpackets = {}
+    new_work_packet_query = work_packet_query
     for wrk_pkt in distinct_wp:
         work_packet_query['work_packet'] = wrk_pkt
         distinct_sub_pkt = Targets.objects.filter(**work_packet_query).values_list('sub_packet', flat=True).distinct()
@@ -4541,6 +4542,13 @@ def fte_calculation_sub_project_sub_packet(prj_id,center_obj,work_packet_query,l
     volumes_dict = {}
     result = {}
     for date_va in date_list:
+        new_work_packet_query['from_date__gte'] = date_va
+        new_work_packet_query['to_date__lte'] = date_va
+        if new_work_packet_query.has_key('work_packet'):
+            del new_work_packet_query['work_packet']
+        work_packets = Targets.objects.filter(**new_work_packet_query).values('sub_project', 'work_packet', 'sub_packet','fte_target').distinct()
+        for wp_dict in work_packets:
+            packets_target[wp_dict['sub_packet']] = int(wp_dict['fte_target'])
         total_done_value = RawTable.objects.filter(project=prj_id, center=center_obj, date=date_va).aggregate(Max('per_day'))
         if total_done_value['per_day__max'] > 0:
             new_date_list.append(date_va)
@@ -4567,13 +4575,16 @@ def fte_calculation_sub_project_sub_packet(prj_id,center_obj,work_packet_query,l
                                 value = 0
                             if date_values.has_key(key):
                                 fte_sum = float(value) / packets_target[sub_packet]
-                                final_fte = float('%.2f' % round(fte_sum, 2))
-                                date_values[key].append(final_fte)
+                                #final_fte = float('%.2f' % round(fte_sum, 2))
+                                #date_values[key].append(final_fte)
+                                date_values[key].append(fte_sum)
                             else:
-                                if packets_target[sub_packet]>0:
-                                    fte_sum = float(value) / packets_target[sub_packet]
-                                    final_fte = float('%.2f' % round(fte_sum, 2))
-                                    date_values[key] = [final_fte]
+                                if packets_target.has_key(sub_packet)>0:
+                                    if packets_target[sub_packet]>0:
+                                        fte_sum = float(value) / packets_target[sub_packet]
+                                        #final_fte = float('%.2f' % round(fte_sum, 2))
+                                        #date_values[key] = [final_fte]
+                                        date_values[key] = [fte_sum]
                         volumes_dict['data'] = date_values
                         volumes_dict['date'] = date_list
                         result['data'] = volumes_dict
@@ -4632,12 +4643,14 @@ def fte_calculation(request,prj_id,center_obj,date_list,level_structure_key):
                                     value = 0
                                 if date_values.has_key(key):
                                     fte_sum = float(value) / int(wp_packet['fte_target'])
-                                    final_fte = float('%.2f' % round(fte_sum, 2))
-                                    date_values[key].append(final_fte)
+                                    #final_fte = float('%.2f' % round(fte_sum, 2))
+                                    #date_values[key].append(final_fte)
+                                    date_values[key].append(fte_sum)
                                 else:
                                     fte_sum = float(value) / int(wp_packet['fte_target'])
-                                    final_fte = float('%.2f' % round(fte_sum, 2))
-                                    date_values[key] = [final_fte]
+                                    #final_fte = float('%.2f' % round(fte_sum, 2))
+                                    #date_values[key] = [final_fte]
+                                    date_values[key] = [fte_sum]
                         volumes_dict['data'] = date_values
                         volumes_dict['date'] = date_list
                         result['data'] = volumes_dict
