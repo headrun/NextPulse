@@ -140,7 +140,8 @@
                     'self.chartOptions34':self.chartOptions34,
                     'self.chartOptions35':self.chartOptions35,
                     'self.chartOptions36':self.chartOptions36,
-                    'self.chartOptions37':self.chartOptions37
+                    'self.chartOptions37':self.chartOptions37,
+                    'self.chartOptions38':self.chartOptions38,
                     };
 
                     var final_layout_list = [];
@@ -198,6 +199,8 @@
              self.main_render = function(from_to_data){
                  self.showLoading();
                  $http({method:"GET", url:from_to_data}).success(function(result){
+                        $('#dropdown_title').html($(".brand_style").text().replace(" - DASHBOARD",''));
+                        //self.hideLoading();
                         var sub_project_level = result.result.sub_project_level;
                         var sub_packet_level = result.result.sub_packet_level;
                         var work_packet_level = result.result.work_packet_level;
@@ -286,12 +289,19 @@ for (var sub_pro in self.drop_list) {
                             if ((result.result.fin.sub_project) && (result.result.fin.work_packet)){
                                 $('#0').on('change', function(){
                                             if (self.day_type === 'week'){
-                                                $('.day2').addClass('active btn-success');
-                                                $('.day2').siblings().removeClass('active btn-success');
-                                                $('.day').addClass('active btn-success');
-                                                $('.day').siblings().removeClass('active btn-success');
+                                                $('.week2').addClass('active btn-success');
+                                                $('.week2').siblings().removeClass('active btn-success');
+                                                $('.week').addClass('active btn-success');
+                                                $('.week').siblings().removeClass('active btn-success');
                                             }
                                             if (self.day_type === 'month'){
+                                                $('.month2').addClass('active btn-success');
+                                                $('.month2').siblings().removeClass('active btn-success');
+                                                $('.month').addClass('active btn-success');
+                                                $('.month').siblings().removeClass('active btn-success');
+                                            }
+
+                                            if (self.day_type === 'day'){
                                                 $('.day2').addClass('active btn-success');
                                                 $('.day2').siblings().removeClass('active btn-success');
                                                 $('.day').addClass('active btn-success');
@@ -340,12 +350,19 @@ for (var sub_pro in self.drop_list) {
                                 });
                                 $('#1').on('change', function(){
                                             if (self.day_type === 'week'){
-                                                $('.day2').addClass('active btn-success');
-                                                $('.day2').siblings().removeClass('active btn-success');
-                                                $('.day').addClass('active btn-success');
-                                                $('.day').siblings().removeClass('active btn-success');
+                                                $('.week2').addClass('active btn-success');
+                                                $('.week2').siblings().removeClass('active btn-success');
+                                                $('.week').addClass('active btn-success');
+                                                $('.week').siblings().removeClass('active btn-success');
                                             }
                                             if (self.day_type === 'month'){
+                                                $('.month2').addClass('active btn-success');
+                                                $('.month2').siblings().removeClass('active btn-success');
+                                                $('.month').addClass('active btn-success');
+                                                $('.month').siblings().removeClass('active btn-success');
+                                            }
+
+                                            if (self.day_type === 'day'){
                                                 $('.day2').addClass('active btn-success');
                                                 $('.day2').siblings().removeClass('active btn-success');
                                                 $('.day').addClass('active btn-success');
@@ -389,12 +406,19 @@ for (var sub_pro in self.drop_list) {
                                 });
                                     $('#2').on('change', function(){
                                             if (self.day_type === 'week'){
-                                                $('.day2').addClass('active btn-success');
-                                                $('.day2').siblings().removeClass('active btn-success');
-                                                $('.day').addClass('active btn-success');
-                                                $('.day').siblings().removeClass('active btn-success');
+                                                $('.week2').addClass('active btn-success');
+                                                $('.week2').siblings().removeClass('active btn-success');
+                                                $('.week').addClass('active btn-success');
+                                                $('.week').siblings().removeClass('active btn-success');
                                             }
                                             if (self.day_type === 'month'){
+                                                $('.month2').addClass('active btn-success');
+                                                $('.month2').siblings().removeClass('active btn-success');
+                                                $('.month').addClass('active btn-success');
+                                                $('.month').siblings().removeClass('active btn-success');
+                                            }
+
+                                            if (self.day_type === 'day'){
                                                 $('.day2').addClass('active btn-success');
                                                 $('.day2').siblings().removeClass('active btn-success');
                                                 $('.day').addClass('active btn-success');
@@ -445,12 +469,19 @@ for (var sub_pro in self.drop_list) {
                                         self.drop_sub_proj = 'undefined';
                                         self.drop_sub_pack = self.sub_pac_sel.value;
                                             if (self.day_type === 'week'){
-                                                $('.day2').addClass('active btn-success');
-                                                $('.day2').siblings().removeClass('active btn-success');
-                                                $('.day').addClass('active btn-success');
-                                                $('.day').siblings().removeClass('active btn-success');
+                                                $('.week2').addClass('active btn-success');
+                                                $('.week2').siblings().removeClass('active btn-success');
+                                                $('.week').addClass('active btn-success');
+                                                $('.week').siblings().removeClass('active btn-success');
                                             }
                                             if (self.day_type === 'month'){
+                                                $('.month2').addClass('active btn-success');
+                                                $('.month2').siblings().removeClass('active btn-success');
+                                                $('.month').addClass('active btn-success');
+                                                $('.month').siblings().removeClass('active btn-success');
+                                            }
+
+                                            if (self.day_type === 'day'){
                                                 $('.day2').addClass('active btn-success');
                                                 $('.day2').siblings().removeClass('active btn-success');
                                                 $('.day').addClass('active btn-success');
@@ -498,12 +529,19 @@ for (var sub_pro in self.drop_list) {
                                             self.drop_sub_proj = 'undefined';
                                             self.drop_sub_pack = 'undefined';
                                             if (self.day_type === 'week'){
-                                                $('.day2').addClass('active btn-success');
-                                                $('.day2').siblings().removeClass('active btn-success');
-                                                $('.day').addClass('active btn-success');
-                                                $('.day').siblings().removeClass('active btn-success');
+                                                $('.week2').addClass('active btn-success');
+                                                $('.week2').siblings().removeClass('active btn-success');
+                                                $('.week').addClass('active btn-success');
+                                                $('.week').siblings().removeClass('active btn-success');
                                             }
                                             if (self.day_type === 'month'){
+                                                $('.month2').addClass('active btn-success');
+                                                $('.month2').siblings().removeClass('active btn-success');
+                                                $('.month').addClass('active btn-success');
+                                                $('.month').siblings().removeClass('active btn-success');
+                                            }
+
+                                            if (self.day_type === 'day'){
                                                 $('.day2').addClass('active btn-success');
                                                 $('.day2').siblings().removeClass('active btn-success');
                                                 $('.day').addClass('active btn-success');
@@ -548,12 +586,19 @@ for (var sub_pro in self.drop_list) {
                                 if (result.result.fin.sub_packet) {
                                     $('#1').on('change', function(){
                                             if (self.day_type === 'week'){
-                                                $('.day2').addClass('active btn-success');
-                                                $('.day2').siblings().removeClass('active btn-success');
-                                                $('.day').addClass('active btn-success');
-                                                $('.day').siblings().removeClass('active btn-success');
+                                                $('.week2').addClass('active btn-success');
+                                                $('.week2').siblings().removeClass('active btn-success');
+                                                $('.week').addClass('active btn-success');
+                                                $('.week').siblings().removeClass('active btn-success');
                                             }
                                             if (self.day_type === 'month'){
+                                                $('.month2').addClass('active btn-success');
+                                                $('.month2').siblings().removeClass('active btn-success');
+                                                $('.month').addClass('active btn-success');
+                                                $('.month').siblings().removeClass('active btn-success');
+                                            }
+
+                                            if (self.day_type === 'day'){
                                                 $('.day2').addClass('active btn-success');
                                                 $('.day2').siblings().removeClass('active btn-success');
                                                 $('.day').addClass('active btn-success');
@@ -693,7 +738,8 @@ for (var sub_pro in self.drop_list) {
                     'self.chartOptions34':self.chartOptions34,
                     'self.chartOptions35':self.chartOptions35,
                     'self.chartOptions36':self.chartOptions36,
-                    'self.chartOptions37':self.chartOptions37
+                    'self.chartOptions37':self.chartOptions37,
+                    'self.chartOptions38':self.chartOptions38,
                     };
                     var final_layout_list = [];
                     for (var single in self.layout_list){   
@@ -776,7 +822,7 @@ for (var sub_pro in self.drop_list) {
             self.dateType = function(key,all_data,name,button_clicked){
                 self.showLoading();
                 self.day_type = key;
-                var obj = {"self.chartOptions":self.chartOptions,"self.chartOptions9":self.chartOptions9,"self.chartOptions9_2":self.chartOptions9_2,"self.chartOptions10":self.chartOptions10,"self.chartOptions15":self.chartOptions15,"self.chartOptions16":self.chartOptions16,"self.chartOptions16_2":self.chartOptions16_2,"self.chartOptions17":self.chartOptions17,"self.chartOptions18":self.chartOptions18,"self.chartOptions19":self.chartOptions19,"self.chartOptions20":self.chartOptions20,'self.chartOptions21':self.chartOptions21,'self.chartOptions24':self.chartOptions24,'self.chartOptions25':self.chartOptions25,'self.chartOptions26':self.chartOptions26}
+                var obj = {"self.chartOptions":self.chartOptions,"self.chartOptions9":self.chartOptions9,"self.chartOptions9_2":self.chartOptions9_2,"self.chartOptions10":self.chartOptions10,"self.chartOptions15":self.chartOptions15,"self.chartOptions16":self.chartOptions16,"self.chartOptions16_2":self.chartOptions16_2,"self.chartOptions17":self.chartOptions17,"self.chartOptions18":self.chartOptions18,"self.chartOptions19":self.chartOptions19,"self.chartOptions20":self.chartOptions20,'self.chartOptions21':self.chartOptions21,'self.chartOptions24':self.chartOptions24,'self.chartOptions25':self.chartOptions25,'self.chartOptions26':self.chartOptions26,'self.chartOptions38':self.chartOptions38}
                 self.render_data = obj[all_data];
                 self.high_data = [];
                 self.button_clicked = button_clicked;
@@ -897,6 +943,62 @@ for (var sub_pro in self.drop_list) {
                        }
                     });
                   }
+
+             if (name === 'chartOptions38') {
+             angular.extend(self.render_data, {
+               xAxis: {
+                 categories: self.high_data_gener[0].data.date,
+                 title: {
+                  text: '',
+                 }
+               },
+               plotOptions: {
+                series : {
+                    allowPointSelect: true,
+                    cursor: 'pointer',
+                    point: {
+                        events:{
+                        select: function(e) {
+                        var chart_name = 'Production_avg_perday';
+                        var is_drill = self.list_object[chart_name].is_drilldown;
+                        if (is_drill){
+                        var addition = '&project=' +self.project + '&center=' +self.location;
+                        console.log(e.target.series.name);
+                        var productivity_graph ='/api/chart_data/?'
+                        self.packet_clicked = e.target.series.name;
+                        var is_exist = self.packet_clicked.indexOf('&');
+                        if (is_exist > 0){
+                        self.packet_clicked = self.packet_clicked.replace(' & ',' and ')
+                        }
+                        $http.get( productivity_graph+ 'packet=' + self.packet_clicked + '&date=' + e.target.category +
+                        '&type=' + 'Production Trends' + addition).success(
+                        function(data, status)
+                                {
+                                    $('#myModal').modal('show');
+                                    self.names = data.result.data;
+                                    var proj = data.result.project;
+                                    var pro_drill = data.result.table_headers;
+                                    var chart_type = data.result.type;
+                                    self.fields_list_drilldown = pro_drill;
+                                    self.chart_type = data.result.type;
+                                    console.log(self.names);
+                                }).error(function(error){ console.log("error")});
+                                }
+
+                        }
+                    }
+                },
+                bar: {
+                 dataLabels: {
+                 enabled: true
+                 }
+                }
+               }
+               },
+               series: self.high_data_gener[0].production_avg_details
+             });
+             } 
+
              if (name === 'chartOptions10'){
                             angular.extend(self.render_data, {
                xAxis: {
@@ -1747,6 +1849,14 @@ for (var sub_pro in self.drop_list) {
 
                                                         var chart_type = data.result.type;
 
+                                                        var pro_value = '';
+                                                        var aud_value = '';
+                                                        self.error_count = '';
+                                                        self.audited_count = '';
+                                                        if (aud_value === undefined) {
+                                                          self.audited_count = pro_value;
+                                                        }
+
                                                         self.fields_list_drilldown = pro_drill;
 
                                                         self.chart_type = data.result.type;
@@ -1805,6 +1915,57 @@ for (var sub_pro in self.drop_list) {
                }
              });
 
+                           angular.extend(self.chartOptions38, {
+                                xAxis: {
+                                    categories: self.high_data_gener[0].data.date,
+                                    title: {
+                                        text: '',
+                                    }
+                                },
+                                plotOptions: {
+                                     series : {
+                                        allowPointSelect: true,
+                                        cursor: 'pointer',
+                                        point: {
+                                            events:{
+                                             select: function(e) {
+                                             var chart_name = 'Production_avg_perday';
+                                             var is_drill = self.list_object[chart_name].is_drilldown;
+                                             if (is_drill){
+                                             var addition = '&project=' +pro + '&center=' +loc;
+                                             console.log(e.target.series.name);
+                                             var productivity_graph ='/api/chart_data/?'
+                                             var packet_clicked = e.target.series.name;
+                                             var is_exist = packet_clicked.indexOf('&');
+                                             if (is_exist > 0){
+                                                packet_clicked = packet_clicked.replace(' & ',' and ')
+                                             }
+                            $http.get( productivity_graph+ 'packet=' + packet_clicked + '&date=' + e.target.category +
+                            '&type=' + 'Production Trends' + addition).success(
+                            function(data, status)
+                                {
+                                    $('#myModal').modal('show');
+                                    self.names = data.result.data;
+                                    var proj = data.result.project;
+                                    var pro_drill = data.result.table_headers;
+                                    var chart_type = data.result.type;
+                                    self.fields_list_drilldown = pro_drill;
+                                    self.chart_type = data.result.type;
+                                    console.log(self.names);
+                                }).error(function(error){ console.log("error")});
+                                }
+                        }
+                    }
+                    }
+                },
+                bar: {
+                 dataLabels: {
+                 enabled: true
+                 }
+                }
+               },
+               series: self.high_data_gener[0].production_avg_details
+             });
 
                             angular.extend(self.chartOptions9_2.yAxis,{
                                 min:result.result.min_external_time_line,
@@ -1848,6 +2009,13 @@ plotOptions: {
                                     var proj = data.result.project;
                                     var pro_drill = data.result.table_headers;
                                     var chart_type = data.result.type;
+                                    var pro_value = data.result.Productivity_value;
+                                    var aud_value = data.result.audited_value;
+                                    self.error_count = data.result.Error_count;
+                                    self.audited_count = aud_value;
+                                    if (aud_value === undefined) {
+                                      self.audited_count = pro_value;
+                                    }
                                     self.fields_list_drilldown = pro_drill;
                                     self.chart_type = data.result.type;
                                     console.log(self.names);
@@ -1912,6 +2080,13 @@ plotOptions: {
                                     var pro_drill = data.result.table_headers;
                                     //var pro_drill = drilldown_config[proj];
                                     var chart_type = data.result.type;
+                                    var pro_value = data.result.Productivity_value;
+                                    var aud_value = data.result.audited_value;
+                                    self.error_count = data.result.Error_count;
+                                    self.audited_count = aud_value;
+                                    if (aud_value === undefined) {
+                                      self.audited_count = pro_value;
+                                    } 
                                     self.fields_list_drilldown = pro_drill;
                                     //self.fields_list_drilldown = pro_drill[chart_type];
                                     //self.fields_list_drilldown = self.list_object_drilldown[data.result.type];
@@ -2647,8 +2822,13 @@ plotOptions: {
                                     //var pro_drill = drilldown_config[proj];
                                     var pro_drill = data.result.table_headers;
                                     var chart_type = data.result.type;
-                                    //self.fields_list_drilldown = pro_drill[chart_type];
-                                    //self.fields_list_drilldown = self.list_object_drilldown[data.result.type];
+                                    var pro_value = data.result.Productivity_value;
+                                    var aud_value = data.result.audited_value;
+                                    self.error_count = data.result.Error_count;
+                                    self.audited_count = aud_value;
+                                    if (aud_value === undefined) {
+                                      self.audited_count = pro_value;
+                                    }
                                     self.fields_list_drilldown = pro_drill;
                                     self.chart_type = data.result.type;
                                     console.log(self.names);
@@ -2696,8 +2876,13 @@ plotOptions: {
                                     //var pro_drill = drilldown_config[proj];
                                     var pro_drill = data.result.table_headers;
                                     var chart_type = data.result.type;
-                                    //self.fields_list_drilldown = pro_drill[chart_type];
-                                    //self.fields_list_drilldown = self.list_object_drilldown[data.result.type];
+                                    var pro_value = data.result.Productivity_value;
+                                    var aud_value = data.result.audited_value;
+                                    self.error_count = data.result.Error_count;
+                                    self.audited_count = aud_value;
+                                    if (aud_value === undefined) {
+                                      self.audited_count = pro_value;
+                                    }
                                     self.fields_list_drilldown = pro_drill;
                                     self.chart_type = data.result.type;
                                     console.log(self.names);
@@ -3470,6 +3655,41 @@ angular.extend(self.chartOptions18, {
                 }
             }
             };*/
+
+           self.chartOptions38 = {
+                chart : {
+                 backgroundColor: "transparent"
+                },
+                lang: {
+                   thousandsSeparator: ','
+                },
+                yAxis: {
+                gridLineColor: 'a2a2a2',
+
+                min: 0,
+                title: {
+                 text: '',
+                 align: 'high'
+                },
+                labels: {
+                 overflow: 'justify',
+
+                }
+               },
+
+               tooltip: {
+                valueSuffix: '',
+
+                formatter: function () {
+                             return "<small>" + this.x + "</small><br/>" +
+                                    "<b>" + this.series.name + "</b> : " + Highcharts.numberFormat(this.y, null, null, ",");
+                           }
+               },
+
+               credits: {
+                enabled: false
+               },
+            }; 
             self.chartOptions10 = {
             chart: {
                 type: 'column',

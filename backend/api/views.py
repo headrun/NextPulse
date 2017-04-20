@@ -26,6 +26,7 @@ from django.utils.timezone import utc
 from django.utils.encoding import smart_str, smart_unicode
 from collections import OrderedDict
 from django.core.mail import send_mail
+import collections
 import hashlib
 import random
 
@@ -2287,6 +2288,64 @@ def target_query_set_generation(prj_id,center_obj,level_structure_key,date_list)
     return query_set
 
 
+def production_avg_perday(date_list,prj_id,center_obj,work_packets,level_structure_key):
+    work = work_packets
+    conn = redis.Redis(host="localhost", port=6379, db=0)
+    result = {}
+    volumes_dict = {}
+    date_values = {}
+    prj_name = Project.objects.filter(id=prj_id).values_list('name', flat=True)
+    center_name = Center.objects.filter(id=center_obj).values_list('name', flat=True)
+    query_set = query_set_generation(prj_id, center_obj, level_structure_key, date_list)
+    new_date_list = []
+    for date_va in date_list:
+        total_done_value = RawTable.objects.filter(project=prj_id, center=center_obj, date=date_va).aggregate(Max('per_day'))
+        if total_done_value['per_day__max'] > 0:
+            new_date_list.append(date_va)
+            if level_structure_key.has_key('sub_project'):
+                if level_structure_key['sub_project'] == "All":
+                    volume_list = RawTable.objects.filter(**query_set).values('sub_project').distinct()
+                else:
+                    if level_structure_key.has_key('work_packet'):
+                        if level_structure_key['work_packet'] == "All":
+                            volume_list = RawTable.objects.filter(**query_set).values('sub_project','work_packet').distinct()
+                        else:
+                            volume_list = RawTable.objects.filter(**query_set).values('sub_project', 'work_packet','sub_packet').distinct()
+            elif level_structure_key.has_key('work_packet') and len(level_structure_key) == 1:
+                if level_structure_key['work_packet'] == "All":
+                    volume_list = RawTable.objects.filter(**query_set).values('sub_project', 'work_packet').distinct()
+                else:
+                    volume_list = RawTable.objects.filter(**query_set).values('sub_project', 'work_packet','sub_packet').distinct()
+            elif level_structure_key.has_key('work_packet') and level_structure_key.has_key('sub_packet'):
+                volume_list = RawTable.objects.filter(**query_set).values('sub_project', 'work_packet','sub_packet').distinct()
+            else:
+                volume_list = []
+
+            count = 0
+            for vol_type in volume_list:
+                final_work_packet = level_hierarchy_key(level_structure_key, vol_type)
+                if not final_work_packet:
+                    final_work_packet = level_hierarchy_key(volume_list[count], vol_type)
+                count = count + 1
+                date_pattern = '{0}_{1}_{2}_{3}'.format(prj_name[0], str(center_name[0]), str(final_work_packet),date_va)
+                key_list = conn.keys(pattern=date_pattern)
+                if not key_list:
+                    if date_values.has_key(final_work_packet):
+                        date_values[final_work_packet].append(0)
+                    else:
+                        date_values[final_work_packet] = [0]
+                for cur_key in key_list:
+                    var = conn.hgetall(cur_key)
+                    for key, value in var.iteritems():
+                        if value == 'None':
+                            value = 0
+                        if date_values.has_key(key):
+                            date_values[key].append(int(value))
+                        else:
+                            date_values[key] = [int(value)]
+    return date_values
+
+
 def product_total_graph(date_list,prj_id,center_obj,work_packets,level_structure_key):
     work = work_packets
     conn = redis.Redis(host="localhost", port=6379, db=0)
@@ -3188,7 +3247,7 @@ def internal_extrnal_graphs(request,date_list,prj_id,center_obj,packet_sum_data,
         final_internal_data = external_internal_without_audit_graph(request, date_list, prj_id, center_obj, packet_sum_data,level_structure_key,err_type='Internal')
     else:
         final_internal_data = internal_extrnal_graphs_same_formula(request, date_list, prj_id, center_obj,level_structure_key,err_type='Internal')
-    if prj_name[0] in ['DellBilling','DellCoding','Mobius','Gooru','3iKYC','Bigbasket','Sulekha','Tally','Nextwealth','Wipro','Federal Bank','E4U','indix','Walmart Chittor','Walmart']:
+    if prj_name[0] in ['NTT DATA Services TP','NTT DATA Services Coding','Mobius','Gooru','3iKYC','Bigbasket','Sulekha','Tally','Nextwealth','Wipro','Federal Bank','E4U','indix','Walmart Chittor','Walmart']:
         final_external_data = internal_extrnal_graphs_same_formula(request, date_list, prj_id, center_obj,level_structure_key,err_type='External')
         final_internal_data.update(final_external_data)
         return final_internal_data
@@ -3390,7 +3449,7 @@ def prod_volume_week_util(week_names,productivity_list,final_productivity):
                     if isinstance(vol_values,list):
                         new_values= [k for k in vol_values if k!=0]
                         if len(new_values)>0:
-                            vol_values = sum(vol_values)/len(new_values)
+                            vol_values = float(float(sum(vol_values))/len(new_values))
                         else:
                             vol_values = sum(vol_values)
                     vol_values = float('%.2f' % round(vol_values, 2))
@@ -3398,7 +3457,7 @@ def prod_volume_week_util(week_names,productivity_list,final_productivity):
                 else:
                     if isinstance(vol_values,list):
                         if len(vol_values)>0:
-                            vol_values = sum(vol_values)/len(vol_values)
+                            vol_values = float(float(sum(vol_values))/len(vol_values))
                         else:
                             vol_values = sum(vol_values)
                     final_productivity[vol_key] = [vol_values]
@@ -3688,6 +3747,8 @@ def day_week_month(request, dwm_dict, prj_id, center, work_packets, level_struct
         final_details = {}
         result_dict =  product_total_graph(dwm_dict['day'], prj_id, center, work_packets, level_structure_key)
         tat_graph_details = tat_graph(dwm_dict['day'], prj_id, center,level_structure_key)
+        production_avg_details = production_avg_perday(dwm_dict['day'], prj_id, center, work_packets, level_structure_key)
+        result_dict['production_avg_details'] = graph_data_alignment_color(production_avg_details, 'data', level_structure_key,prj_id, center)
         volume_graph = volume_graph_data(dwm_dict['day'], prj_id, center, level_structure_key)
         result_dict['volume_graphs'] = {}
         result_dict['volume_graphs']['bar_data'] = graph_data_alignment_color(volume_graph['bar_data'],'data', level_structure_key,prj_id,center,'volume_bar_graph') 
@@ -3892,6 +3953,7 @@ def day_week_month(request, dwm_dict, prj_id, center, work_packets, level_struct
         utilization_fte_dt = {}
         monthly_vol_data = {}
         tat_graph_dt = {}
+        prod_avg_dt = {}
         monthly_vol_data['total_workdone'] = []
         monthly_vol_data['total_target'] = []
         data_date = []
@@ -3916,7 +3978,8 @@ def day_week_month(request, dwm_dict, prj_id, center, work_packets, level_struct
             volume_graph = volume_graph_data_week_month(month_dates, prj_id, center, level_structure_key)
             vol_graph_line_data[month_name] = volume_graph['line_data']
             vol_graph_bar_data[month_name] = volume_graph['bar_data']
-
+            production_avg_details = production_avg_perday(month_dates, prj_id, center, work_packets,level_structure_key)
+            prod_avg_dt[month_name] = production_avg_details
             tat_graph_details = tat_graph(month_dates,prj_id,center,level_structure_key)
             tat_graph_dt[month_name] = tat_graph_details
             utilization_details = modified_utilization_calculations(center, prj_id, month_dates, level_structure_key)
@@ -4004,6 +4067,8 @@ def day_week_month(request, dwm_dict, prj_id, center, work_packets, level_struct
                         all_external_error_accuracy[vol_key] = vol_values
 
         # below for productivity,packet wise performance
+        final_prod_avg_details = prod_volume_week_util(month_names, prod_avg_dt, {})
+        result_dict['production_avg_details'] = graph_data_alignment_color(final_prod_avg_details,'data',level_structure_key, prj_id, center) 
         final_productivity = prod_volume_week(month_names, productivity_list, final_productivity)
         final_vol_graph_bar_data = volume_status_week(month_names, vol_graph_bar_data, final_vol_graph_bar_data)
         #final_vol_graph_bar_data = prod_volume_week(month_names, vol_graph_bar_data, final_vol_graph_bar_data)
@@ -4059,7 +4124,7 @@ def day_week_month(request, dwm_dict, prj_id, center, work_packets, level_struct
         #final_total_fte_calc = prod_volume_week(month_names, total_fte_list, {})
         #final_total_fte_calc = prod_volume_week_util(month_names, total_fte_list, {})
         prj_name = Project.objects.get(id=prj_id[0]).name
-        if prj_name == 'DellCoding':
+        if prj_name == 'NTT DATA Services Coding':
             final_total_fte_calc = prod_volume_week_util_dell_coding(month_names, total_fte_list, {},'month')
             final_total_wp_fte_calc = prod_volume_week_util_dell_coding(month_names, wp_fte_list, {},'month')
         else:
@@ -4129,6 +4194,7 @@ def day_week_month(request, dwm_dict, prj_id, center, work_packets, level_struct
         utilization_fte_dt = {}
         monthly_vol_data = {}
         tat_graph_dt = {}
+        prod_avg_dt = {}
         monthly_vol_data['total_workdone'] = []
         monthly_vol_data['total_target'] = [] 
         data_date = []
@@ -4166,6 +4232,8 @@ def day_week_month(request, dwm_dict, prj_id, center, work_packets, level_struct
                 #utilization_fte_details = utilization_work_packet_data(center, prj_id, week,level_structure_key)
                 #utilization_fte_dt[week_name] = utilization_fte_details['utilization']
                 utilization_fte_dt[week_name] = utilization_details['fte_utilization']
+                production_avg_details = production_avg_perday(week, prj_id, center, work_packets,level_structure_key)
+                prod_avg_dt[week_name] = production_avg_details
                 monthly_volume_graph_details = Monthly_Volume_graph(week, prj_id, center,level_structure_key)
                 for vol_cumulative_key,vol_cumulative_value in monthly_volume_graph_details.iteritems():
                     if len(vol_cumulative_value) > 0:
@@ -4265,7 +4333,7 @@ def day_week_month(request, dwm_dict, prj_id, center, work_packets, level_struct
         # below for productivity,packet wise performance
         result_dict['fte_calc_data'] = {}
         prj_name = Project.objects.get(id=prj_id[0]).name
-        if prj_name == 'DellCoding':
+        if prj_name == 'NTT DATA Services Coding':
             final_total_fte_calc =prod_volume_week_util_dell_coding(week_names, total_fte_list, {},'week')
             final_total_wp_fte_calc = prod_volume_week_util_dell_coding(week_names, wp_fte_list, {},'week')
         else:
@@ -4276,6 +4344,8 @@ def day_week_month(request, dwm_dict, prj_id, center, work_packets, level_struct
         #final_total_fte_calc = prod_volume_week(week_names, total_fte_list, {})
         #final_total_fte_calc = prod_volume_week_util(week_names, total_fte_list, {})
         result_dict['fte_calc_data']['total_fte'] = graph_data_alignment_color(final_total_fte_calc, 'data',level_structure_key, prj_id, center,'sum_total_fte')
+        final_prod_avg_details = prod_volume_week_util(week_names, prod_avg_dt, {})
+        result_dict['production_avg_details'] = graph_data_alignment_color(final_prod_avg_details, 'data',level_structure_key, prj_id, center) 
         #final_total_wp_fte_calc = prod_volume_week(week_names, wp_fte_list, {})
         #final_total_wp_fte_calc = prod_volume_week_util(week_names, wp_fte_list, {})
         result_dict['fte_calc_data']['work_packet_fte'] = graph_data_alignment_color(final_total_wp_fte_calc, 'data',level_structure_key, prj_id,center,'total_fte')
@@ -4708,7 +4778,10 @@ def fte_calculation_sub_project_sub_packet(prj_id,center_obj,work_packet_query,l
                             if value == 'None':
                                 value = 0
                             if date_values.has_key(key):
-                                fte_sum = float(value) / packets_target[sub_packet]
+                                try:
+                                    fte_sum = float(value) / packets_target[sub_packet]
+                                except:
+                                    fte_sum = 0
                                 #final_fte = float('%.2f' % round(fte_sum, 2))
                                 #date_values[key].append(final_fte)
                                 date_values[key].append(fte_sum)
@@ -4863,21 +4936,57 @@ def fte_calculation(request,prj_id,center_obj,date_list,level_structure_key):
                                 final_fte_sum = float('%.2f' % round(local_sum, 2))
                                 final_fte[wp_final_work_packet] = [final_fte_sum]
                     count =count+1
-
-    work_packet_fte = {}
-    work_packet_fte['total_fte'] = {}
-    work_packet_fte['total_fte'] = [sum(i) for i in zip(*final_fte.values())]
-    work_packet_fte['total_fte'] = [float('%.2f' % round(wp_values, 2)) for wp_values in work_packet_fte['total_fte']]
-    fte_high_charts = {}
-    #fte_high_charts['total_fte'] = graph_data_alignment_color(work_packet_fte, 'data', level_structure_key, prj_id, center_obj)
-    fte_high_charts['total_fte'] = work_packet_fte
-    #fte_high_charts['work_packet_fte'] = graph_data_alignment(final_fte, name_key='data')
-    fte_high_charts['work_packet_fte'] = graph_data_alignment_color(final_fte, 'data', level_structure_key, prj_id, center_obj,'')
-    fte_high_charts['work_packet_fte'] =final_fte
-    #fte_high_charts['fte_date_list'] = new_date_list
-    return fte_high_charts
-
-
+    type = request.GET['type']
+    if request.GET['project'].split(' - ')[0] == 'NTT DATA Services TP': 
+        if type == "day":
+            work_packet_fte = {} 
+            work_packet_fte['total_fte'] = {} 
+            work_packet_fte['total_fte'] = [sum(i) for i in zip(*final_fte.values())]
+            #work_packet_fte['total_fte'] = [float('%.2f' % round(wp_values, 2)) for wp_values in work_packet_fte['total_fte']]
+            work_packet_fte['total_fte'] = [round(wp_values, 2) for wp_values in work_packet_fte['total_fte']]
+            fte_high_charts = {} 
+            #fte_high_charts['total_fte'] = graph_data_alignment_color(work_packet_fte, 'data', level_structure_key, prj_id, center_obj)
+            fte_high_charts['total_fte'] = work_packet_fte
+            #fte_high_charts['work_packet_fte'] = graph_data_alignment(final_fte, name_key='data')
+            fte_high_charts['work_packet_fte'] = graph_data_alignment_color(final_fte, 'data', level_structure_key, prj_id, center_obj,'')
+            fte_high_charts['work_packet_fte'] =final_fte
+            #fte_high_charts['fte_date_list'] = new_date_list
+        if type == "week" or type == "month":
+            work_packet_fte = {}
+            packet_fte = {}
+            #count = 0
+            for key,value in final_fte.iteritems():
+                count = 0
+                if final_fte.has_key(key):
+                    if 0.0 in value:
+                        count = collections.Counter(value)
+                        count_value = count[0.0]
+                    else:
+                        count_value = 0
+                count_num = len(value) - count_value
+                fte_sum = sum(value)/count_num
+                packet_fte[key] = float('%.2f' % round(fte_sum, 2))
+            fte_high_charts = {}
+            fte_high_charts['total_fte'] = {}
+            #fte_high_charts['total_fte'] = sum(packet_fte.values())
+            final_fte_values = sum(packet_fte.values())
+            fte_high_charts['total_fte']['total_fte'] = [float('%.2f' % round(final_fte_values, 2))]
+            fte_high_charts['work_packet_fte'] = graph_data_alignment_color(final_fte, 'data', level_structure_key, prj_id, center_obj,'')
+            fte_high_charts['work_packet_fte'] = final_fte
+        return fte_high_charts 
+    else:
+        work_packet_fte = {} 
+        work_packet_fte['total_fte'] = {} 
+        work_packet_fte['total_fte'] = [sum(i) for i in zip(*final_fte.values())]
+        #work_packet_fte['total_fte'] = [float('%.2f' % round(wp_values, 2)) for wp_values in work_packet_fte['total_fte']]
+        work_packet_fte['total_fte'] = [round(wp_values, 2) for wp_values in work_packet_fte['total_fte']]
+        fte_high_charts = {} 
+        #fte_high_charts['total_fte'] = graph_data_alignment_color(work_packet_fte, 'data', level_structure_key, prj_id, center_obj)
+        fte_high_charts['total_fte'] = work_packet_fte
+        #fte_high_charts['work_packet_fte'] = graph_data_alignment(final_fte, name_key='data')
+        fte_high_charts['work_packet_fte'] = graph_data_alignment_color(final_fte, 'data', level_structure_key, prj_id, center_obj,'')
+        fte_high_charts['work_packet_fte'] =final_fte
+        return fte_high_charts
 
 def top_five_emp(center,prj_id,dwm_dict,level_key_structure):
     all_details_list = []
@@ -5507,16 +5616,25 @@ def internal_bar_data(pro_id, cen_id, from_, to_, main_work_packet, chart_type,p
                 except:
                     per_day_value = 0
                 if per_day_value > 0:
-                    list_data.append({'name':i[0], 'date':str(i[1]), 'work_packet':i[2],'total_errors':i[3], 'productivity': per_day_value})
+                    #list_data.append({'name':i[0], 'date':str(i[1]), 'work_packet':i[2],'total_errors':i[3], 'productivity': per_day_value})
+                    list_data.append({'date':str(i[1]), 'total_errors':i[3], 'productivity': per_day_value})
+                    Productivity_value = 0
+                    Error_count = 0
                 for ans in list_data:
+                    if ans['productivity']:
+                        Productivity_value = Productivity_value + ans['productivity']
+                    if ans['total_errors']:
+                        Error_count = Error_count + ans['total_errors']
                     if ans['productivity'] > 0:
                         accuracy = 100 - ((float(ans['total_errors']) / float(ans['productivity']))) * 100
                         accuracy_agg = float('%.2f' % round(accuracy, 2))
                         ans['accuracy'] = accuracy_agg
             if len(list_data)>0:
-                table_headers = ['date','name', 'productivity', 'total_errors', 'accuracy']
+                table_headers = ['date','productivity','total_errors']
         final_internal_bar_drilldown['data'] = list_data
         final_internal_bar_drilldown['table_headers'] = table_headers
+        final_internal_bar_drilldown['Productivity_value'] = Productivity_value
+        final_internal_bar_drilldown['Error_count'] = Error_count
         return final_internal_bar_drilldown
     '''if project == "Ujjivan" and chart_type == 'External Accuracy':
         date_range = num_of_days(to_, from_)
@@ -5651,8 +5769,15 @@ def internal_bar_data(pro_id, cen_id, from_, to_, main_work_packet, chart_type,p
                     else:
                         list_of = Externalerrors.objects.filter(center=cen_id, project=pro_id, date=date,work_packet=packets_list[0]).values_list('employee_id','date','work_packet','audited_errors','total_errors')
         for i in list_of:
-            internal_bar_list.append({'name':i[0], 'date':str(i[1]), 'audited_count':i[3], 'total_errors':i[4]})
+            #internal_bar_list.append({'name':i[0], 'date':str(i[1]), 'audited_count':i[3], 'total_errors':i[4]})
+            internal_bar_list.append({'date':str(i[1]), 'audited_count':i[3], 'total_errors':i[4]})
+            audited_value = 0
+            Error_count = 0
             for ans in internal_bar_list:
+                if ans['audited_count']:
+                    audited_value = audited_value + ans['audited_count']
+                if ans['total_errors']:
+                    Error_count = Error_count + ans['total_errors']
                 if ans['total_errors'] >0 and ans['audited_count']>0:
                     accuracy = 100 - ((float(ans['total_errors']) / float(ans['audited_count']))) * 100
                     accuracy_agg = float('%.2f' % round(accuracy, 2))
@@ -5662,10 +5787,13 @@ def internal_bar_data(pro_id, cen_id, from_, to_, main_work_packet, chart_type,p
                 else:
                     ans['accuracy'] = 100
     if len(internal_bar_list) > 0:
-        table_headers = ['date','name','audited_count', 'total_errors', 'accuracy']
+        #table_headers = ['date','name','audited_count', 'total_errors', 'accuracy']
+        table_headers = ['date','audited_count', 'total_errors']
     final_internal_bar_drilldown['data'] = internal_bar_list
     final_internal_bar_drilldown['project'] = project
     final_internal_bar_drilldown['table_headers'] = table_headers
+    final_internal_bar_drilldown['audited_value'] = audited_value
+    final_internal_bar_drilldown['Error_count'] = Error_count
     return final_internal_bar_drilldown
 
 
@@ -5690,15 +5818,24 @@ def internal_chart_data_multi(pro_id,cen_id,to_date,work_packet,chart_type,proje
             except:
                 per_day_value = 0
             if per_day_value > 0:
-                list_ext_data.append({'name': i[0],'date':str(i[3]),'work_packet': i[1],'total_errors': i[2],'productivity': per_day_value})
+                #list_ext_data.append({'name': i[0],'date':str(i[3]),'work_packet': i[1],'total_errors': i[2],'productivity': per_day_value})
+                list_ext_data.append({'date':str(i[3]),'total_errors': i[2],'productivity': per_day_value  })
+            Productivity_value = 0
+            Error_count = 0
             for ans in list_ext_data:
+                if ans['total_errors']:
+                    Error_count = Error_count + ans['total_errors']
+                if ans['productivity']:
+                    Productivity_value = Productivity_value + ans['productivity']
                 accuracy = 100 - ((float(ans['total_errors']) / float(ans['productivity']))) * 100
                 accuracy_agg = float('%.2f' % round(accuracy, 2))
                 ans['accuracy'] = accuracy_agg
         if len(list_ext_data) > 0:
-                table_headers = ['date','name','productivity','total_errors', 'accuracy']
+                table_headers = ['date','productivity','total_errors']
         final_internal_drilldown['data'] = list_ext_data
         final_internal_drilldown['table_headers'] = table_headers
+        final_internal_drilldown['Productivity_value'] = Productivity_value
+        final_internal_drilldown['Error_count'] = Error_count
         return final_internal_drilldown
 
     '''if project == 'Ujjivan' and chart_type == 'External Accuracy Trends':
@@ -5738,15 +5875,24 @@ def internal_chart_data_multi(pro_id,cen_id,to_date,work_packet,chart_type,proje
             except:
                 per_day_value = 0
             if per_day_value > 0:
-                list_ext_data.append({'name': i[0],'date':str(i[3]),'work_packet': i[1],'total_errors': i[2],'productivity': per_day_value})
+                #list_ext_data.append({'name': i[0],'date':str(i[3]),'work_packet': i[1],'total_errors': i[2],'productivity': per_day_value})
+                list_ext_data.append({'date':str(i[3]),'total_errors': i[2],'productivity': per_day_value})
+            Productivity_value = 0
+            Error_count = 0 
             for ans in list_ext_data:
+                if ans['productivity']:
+                    Productivity_value = Productivity_value + ans['productivity']
+                if ans['total_errors']:
+                    Error_count = Error_count + ans['total_errors'] 
                 accuracy = 100 - ((float(ans['total_errors']) / float(ans['productivity']))) * 100
                 accuracy_agg = float('%.2f' % round(accuracy, 2))
                 ans['accuracy'] = accuracy_agg
         if len(list_ext_data) > 0:
-                table_headers = ['date','name','productivity','total_errors', 'accuracy']
+                table_headers = ['date','productivity','total_errors']
         final_internal_drilldown['data'] = list_ext_data
         final_internal_drilldown['table_headers'] = table_headers
+        final_internal_drilldown['Productivity_value'] = Productivity_value
+        final_internal_drilldown['Error_count'] = Error_count
         return final_internal_drilldown
 
     elif chart_type == 'Internal Accuracy Trends':
@@ -5847,8 +5993,15 @@ def internal_chart_data_multi(pro_id,cen_id,to_date,work_packet,chart_type,proje
     final_internal_drilldown['type'] = chart_type
 
     for i in list_of_internal:
-        internal_list.append({'name':i[0],'audited_count':i[1], 'total_errors':i[2],'date':str(i[3])})
+        #internal_list.append({'name':i[0],'audited_count':i[1], 'total_errors':i[2],'date':str(i[3])})
+        internal_list.append({'audited_count':i[1], 'total_errors':i[2],'date':str(i[3])})
+        audited_value = 0
+        Error_count = 0 
         for ans in internal_list:
+            if ans['audited_count']:
+                audited_value = audited_value + ans['audited_count']
+            if ans['total_errors']:
+                Error_count = Error_count + ans['total_errors']
             if ans['audited_count'] > 0:
                 accuracy = 100 - ((float(ans['total_errors']) / float(ans['audited_count']))) * 100
             else:
@@ -5856,10 +6009,12 @@ def internal_chart_data_multi(pro_id,cen_id,to_date,work_packet,chart_type,proje
             accuracy_agg = float('%.2f' % round(accuracy, 2))
             ans['accuracy'] = accuracy_agg
     if len(internal_list) > 0:
-            table_headers = ['date','name','audited_count','total_errors', 'accuracy']
+            table_headers = ['date','audited_count','total_errors']
 
     final_internal_drilldown['data'] = internal_list
     final_internal_drilldown['table_headers'] = table_headers
+    final_internal_drilldown['audited_value'] = audited_value
+    final_internal_drilldown['Error_count'] = Error_count
     return final_internal_drilldown
 
 
@@ -5895,15 +6050,24 @@ def internal_chart_data(pro_id,cen_id,to_date,work_packet,chart_type,project):
                 except:
                     per_day_value = 0
                 if per_day_value > 0:
-                    list_ext_data.append({'name': i[0],'date':str(i[3]),'work_packet': i[1],'total_errors': i[2],'productivity': per_day_value})
+                    #list_ext_data.append({'name': i[0],'date':str(i[3]),'work_packet': i[1],'total_errors': i[2],'productivity': per_day_value})
+                    list_ext_data.append({'date':str(i[3]),'total_errors': i[2],'productivity': per_day_value})
+                Productivity_value = 0
+                Error_count = 0
                 for ans in list_ext_data:
+                    if ans['total_errors']:
+                        Error_count = Error_count + ans['total_errors']
+                    if ans['productivity']:
+                        Productivity_value = Productivity_value + ans['productivity']
                     accuracy = 100 - ((float(ans['total_errors']) / float(ans['productivity']))) * 100
                     accuracy_agg = float('%.2f' % round(accuracy, 2))
                     ans['accuracy'] = accuracy_agg
                 if len(list_ext_data) >0:
-                    table_headers = ['date','name', 'productivity', 'total_errors', 'accuracy']
+                    table_headers = ['date', 'productivity', 'total_errors']
             final_internal_drilldown['data'] = list_ext_data
             final_internal_drilldown['table_headers'] = table_headers
+            final_internal_drilldown['Productivity_value'] = Productivity_value
+            final_internal_drilldown['Error_count'] = Error_count
             return final_internal_drilldown
 
     if chart_type == 'Internal Accuracy Trends':
@@ -6021,8 +6185,15 @@ def internal_chart_data(pro_id,cen_id,to_date,work_packet,chart_type,project):
     internal_list = []
     table_headers = []
     for i in list_of_internal:
-        internal_list.append({'name':i[0],'audited_count':i[1], 'total_errors':i[2],'date':str(i[3])})
+        #internal_list.append({'name':i[0],'audited_count':i[1], 'total_errors':i[2],'date':str(i[3])})
+        internal_list.append({'audited_count':i[1], 'total_errors':i[2],'date':str(i[3])})
+        audited_value = 0 
+        Error_count = 0
         for ans in internal_list:
+            if ans['audited_count']:
+                audited_value = audited_value + ans['audited_count']
+            if ans['total_errors']:
+                Error_count = Error_count + ans['total_errors']
             if ans['audited_count']>0:
                 accuracy = 100 - ((float(ans['total_errors']) / float(ans['audited_count']))) * 100
             else:
@@ -6031,9 +6202,12 @@ def internal_chart_data(pro_id,cen_id,to_date,work_packet,chart_type,project):
             ans['accuracy'] = accuracy_agg
 
         if len(internal_list)>0:
-            table_headers = ['date','name','audited_count','total_errors','accuracy']
+            #table_headers = ['date','name','audited_count','total_errors','accuracy']
+            table_headers = ['date','audited_count','total_errors']
     final_internal_drilldown['data'] = internal_list
     final_internal_drilldown['table_headers'] = table_headers
+    final_internal_drilldown['audited_value'] = audited_value
+    final_internal_drilldown['Error_count'] = Error_count
     return final_internal_drilldown
 
 

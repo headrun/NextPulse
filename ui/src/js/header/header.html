@@ -301,7 +301,7 @@ dashboard div.dashboard-content {
             <ul ID="divNewNotifications" class="dropdown-menu">
                 <li>
                     <a href="" class="dropdown_items" ng-repeat="item in $ctrl.mapping_list"
-                                                      ng-click="$ctrl.clickFun(item)" >
+                                                      ng-click="$ctrl.change_href(item)">
                        {{item.split(' - ')[1]}}</a>
                 </li>
             </ul>
@@ -405,8 +405,8 @@ dashboard div.dashboard-content {
     });
 
     $('.dropdown-toggle').dropdown();
-    $('#divNewNotifications li').on('click', function() {
+    /*$('#divNewNotifications li').on('click', function() {
        $('#dropdown_title').html($(".brand_style").text().replace(" - DASHBOARD",''));
-    });
+    });*/
 
 </script>
