@@ -33,6 +33,7 @@ import random
 
 def error_insert(request):
     pass
+
 def get_order_of_headers(open_sheet, Default_Headers, mandatory_fileds=[]):
     indexes, sheet_indexes = {}, {}
     sheet_headers = open_sheet.row_values(0)
@@ -3243,7 +3244,7 @@ def external_internal_without_audit_graph(request,date_list,prj_id,center_obj,pa
 def internal_extrnal_graphs(request,date_list,prj_id,center_obj,packet_sum_data,level_structure_key):
     prj_name = Project.objects.filter(id=prj_id).values_list('name', flat=True)
     center_name = Center.objects.filter(id=center_obj).values_list('name', flat=True)
-    if prj_name[0] in ['Ujjivan']:
+    if prj_name[0] in ['']:
         final_internal_data = external_internal_without_audit_graph(request, date_list, prj_id, center_obj, packet_sum_data,level_structure_key,err_type='Internal')
     else:
         final_internal_data = internal_extrnal_graphs_same_formula(request, date_list, prj_id, center_obj,level_structure_key,err_type='Internal')
