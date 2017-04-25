@@ -17,6 +17,7 @@ urlpatterns = [
     url(r'^annotations/create/$', apiviews.add_annotation),
     url(r'^annotations/update/$', apiviews.update_annotation),
     url(r'^static_production_data/',apiviews.static_production_data),
-    url(r'^change_password/', apiviews.change_password)
+    url(r'^change_password/', apiviews.change_password),
+    url(r'^forgot_password/', apiviews.forgot_password),
 
 ]

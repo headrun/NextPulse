@@ -28,7 +28,7 @@ admin.site.register(Customer,CustomerAdmin)
 
 class HeadcountAdmin(admin.ModelAdmin):
     list_display = ['project','work_packet','sub_packet','date']
-    list_filter = ['project','center']
+    list_filter = ['project','center','work_packet','sub_packet']
 admin.site.register(Headcount,HeadcountAdmin)
 
 class CentermanagerAdmin(admin.ModelAdmin):
@@ -43,7 +43,7 @@ admin.site.register(Nextwealthmanager,NextwealthmanagerAdmin)
 
 class RawtableAdmin(admin.ModelAdmin):
     list_display = ['work_packet','sub_project','sub_packet','per_day','employee_id','norm','date','created_at','modified_at']
-    list_filter = ('work_packet', 'date','project','center')
+    list_filter = ('work_packet', 'date','project','center','sub_packet')
 admin.site.register(RawTable,RawtableAdmin)
 
 class WidgetsAdmin(admin.ModelAdmin):
@@ -108,7 +108,7 @@ admin.site.register(HeadcountAuthoring,HeadcountAuthoringAdmin)
 
 class TargetsAdmin(admin.ModelAdmin):
     list_display = ['work_packet','sub_project','sub_packet','from_date','to_date','target']
-    list_filter = ['project']
+    list_filter = ['project','work_packet','sub_packet']
 admin.site.register(Targets,TargetsAdmin)
 
 
@@ -118,8 +118,8 @@ class TargetsAuthoringAdmin(admin.ModelAdmin):
 admin.site.register(TargetsAuthoring,TargetsAuthoringAdmin)
 
 class WorktrackAdmin(admin.ModelAdmin):
-    list_display = ['work_packet', 'opening', 'received', 'completed','date']
-    list_filter = ['project','work_packet']
+    list_display = ['work_packet', 'opening', 'received', 'completed','date', 'sub_packet']
+    list_filter = ['project','work_packet','sub_packet']
 admin.site.register(Worktrack,WorktrackAdmin)
 
 class WorktrackAuthoringAdmin(admin.ModelAdmin):

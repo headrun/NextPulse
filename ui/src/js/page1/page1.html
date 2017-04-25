@@ -219,6 +219,14 @@ thead {
                              </tr>
                           </tbody>
                       </table>
+                      <table>
+                        
+                        <p ng-if="$ctrl.audited_count && $ctrl.fields_list_drilldown.indexOf('audited_count') == 1">Audited Count: 
+                             {{$ctrl.audited_count}}</p>
+                        <p ng-if="$ctrl.audited_count && $ctrl.fields_list_drilldown.indexOf('audited_count') == -1">Productivity Count:
+                             {{$ctrl.audited_count}}</p>
+                        <p ng-if="$ctrl.error_count">Error Count: {{$ctrl.error_count}}</p>
+                     </table>
                 </div>
             </div>
          </div>

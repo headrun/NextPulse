@@ -17,6 +17,10 @@
                self.pass_status = false;
                self.pass_error = false;
 
+               self.change_href = function(item) {
+                 $state.go("dashboard.page1",{'selpro': item});
+               }
+
                self.password = function(new_pa, new_again_pa){
                  if (new_pa === new_again_pa){
 

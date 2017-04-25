@@ -496,6 +496,13 @@ class Alias_Widget(models.Model):
         return '%s - %s' % (str(self.project),str(self.widget_name))
         #return str(self.widget_name)
 
+class Profile(models.Model):
+    user = models.ForeignKey(User, db_index=True)
+    activation_key = models.CharField(max_length=40)
+    status = models.BooleanField(default=0)
+
+    class Meta:
+        db_table = u'profile'
 
 class Alias_packets(models.Model):
     widget = models.ForeignKey(Alias_Widget, null=True,db_index=True)
