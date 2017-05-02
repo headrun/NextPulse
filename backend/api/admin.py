@@ -47,7 +47,7 @@ class RawtableAdmin(admin.ModelAdmin):
 admin.site.register(RawTable,RawtableAdmin)
 
 class WidgetsAdmin(admin.ModelAdmin):
-    list_display = ['config_name','name','col','api','opt','id_num','day_type_widget','priority']
+    list_display = ['config_name','name','api','opt','id_num','day_type_widget','priority']
 admin.site.register(Widgets,WidgetsAdmin)
 
 '''
@@ -58,7 +58,7 @@ admin.site.register(Widget_Mapping,Widget_MappingAdmin)
 '''
 
 class Widgets_groupAdmin(admin.ModelAdmin):
-    list_display = ['User_Group','widget_name','widget_priority','is_display','is_drilldown','project']
+    list_display = ['User_Group','widget_name','widget_priority','is_display','is_drilldown','project','col']
     list_filter = ['User_Group','project']
 admin.site.register(Widgets_group,Widgets_groupAdmin)
 
@@ -148,6 +148,24 @@ class Alias_packetsAdmin(admin.ModelAdmin):
     list_display = ['widget','existed_name','alias_name']
     list_filter = ['alias_name']
 admin.site.register(Alias_packets,Alias_packetsAdmin)
+
+class UploadAuthoringAdmin(admin.ModelAdmin):
+    list_display = ['project','target','upload']
+admin.site.register(UploadAuthoring,UploadAuthoringAdmin)
+
+class UploadDataTableAdmin(admin.ModelAdmin):
+    list_display = ['project','target','upload','date']
+admin.site.register(UploadDataTable,UploadDataTableAdmin)
+
+class IncomingerrorAuthoringAdmin(admin.ModelAdmin):
+    list_display = ['project','center','work_packet','sub_packet','error_values']
+    list_filter = ['project','work_packet','sub_packet']
+admin.site.register(IncomingerrorAuthoring,IncomingerrorAuthoringAdmin)
+
+class IncomingerrorAdmin(admin.ModelAdmin):
+    list_display = ['project','center','work_packet','sub_packet','error_values','date']
+    list_filter = ['project','work_packet','sub_packet']
+admin.site.register(Incomingerror,IncomingerrorAdmin)
 
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User

@@ -60,7 +60,7 @@ class Customer(models.Model):
 class Widgets(models.Model):
     config_name = models.CharField(max_length=255,db_index=True)
     name = models.CharField(max_length=255,db_index=True)
-    col = models.IntegerField(max_length=125)
+    #col = models.IntegerField(max_length=125)
     api = models.CharField(max_length=255,null=True, blank=True)
     opt = models.CharField(max_length=225)
     id_num = models.IntegerField(max_length=125)
@@ -79,6 +79,8 @@ class Widgets_group(models.Model):
     project = models.ForeignKey(Project, null=True,db_index=True)
     center = models.ForeignKey(Center, null=True,db_index=True)
     widget_name = models.ForeignKey(Widgets, null=True,db_index=True)
+    col = models.IntegerField(max_length=125,default=0)
+    #widget_col = models.IntegerField(default=None)
     widget_priority = models.IntegerField(max_length=125)
     is_display = models.BooleanField(default=None)
     is_drilldown = models.BooleanField(default=None)
@@ -514,6 +516,67 @@ class Alias_packets(models.Model):
 
     def __unicode__(self):
         return self.alias_name
+
+class UploadAuthoring(models.Model):
+    date = models.CharField(max_length=255, blank=True)
+    sub_project = models.CharField(max_length=255, blank=True)
+    #target = models.IntegerField(max_length=125)
+    #upload = models.IntegerField(max_length=125)
+    target = models.CharField(max_length=255, blank=True)
+    upload = models.CharField(max_length=255, blank=True)
+    center = models.ForeignKey(Center, null=True,db_index=True)
+    project = models.ForeignKey(Project, null=True,db_index=True)
+    sheet_name = models.CharField(max_length=255, default='')
+
+    class Meta:
+        db_table = u'upload_authoring'
+
+    def __unicode__(self):
+        return u''
+
+class UploadDataTable(models.Model):
+    date = models.DateField()
+    sub_project = models.CharField(max_length=255, blank=True)
+    target = models.IntegerField(max_length=125,default = 0)
+    upload = models.IntegerField(max_length=125)
+    center = models.ForeignKey(Center, null=True,db_index=True)
+    project = models.ForeignKey(Project, null=True,db_index=True)
+
+    class Meta:
+        db_table = u'upload_data_table'
+
+    def __unicode__(self):
+        return u''
+
+class IncomingerrorAuthoring(models.Model):
+    date = models.CharField(max_length=255, blank=True)
+    sub_project = models.CharField(max_length=255, blank=True)
+    work_packet = models.CharField(max_length=255, blank=True)
+    sub_packet = models.CharField(max_length=255, blank=True)
+    project = models.ForeignKey(Project, null=True)
+    center = models.ForeignKey(Center, null=True)
+    error_values = models.CharField(max_length=255, blank=True)
+    sheet_name = models.CharField(max_length=255, default='')
+
+    class Meta:
+        db_table = u'incoming_error_authoring'
+
+    def __unicode__(self):
+        return self.work_packet
+class Incomingerror(models.Model):
+    date = models.DateField()
+    sub_project = models.CharField(max_length=255, blank=True,db_index=True)
+    work_packet = models.CharField(max_length=255,db_index=True)
+    sub_packet = models.CharField(max_length=255, blank=True,db_index=True)
+    error_values = models.IntegerField(max_length=125)
+    project = models.ForeignKey(Project, null=True)
+    center = models.ForeignKey(Center, null=True)
+
+    class Meta:
+        db_table = u'incoming_error'
+
+    def __unicode__(self):
+        return self.work_packet
 
 class TatAuthoring(models.Model):
     sub_project = models.CharField(max_length=255, blank=True)
