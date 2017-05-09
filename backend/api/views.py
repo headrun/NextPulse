@@ -2821,10 +2821,13 @@ def internal_extrnal_graphs_same_formula(request,date_list,prj_id,center_obj,lev
                     percentage = (float(vol_error_values[key][count]) / vol_error_value) * 100
                     percentage = 100-float('%.2f' % round(percentage, 2))
             else:
-                if vol_error_value == 0:
-                    percentage = (float(vol_error_values[key][count]) / date_values_sum[key]) * 100
-                    percentage = 100-float('%.2f' % round(percentage, 2))
-                else:
+                try:
+                    if vol_error_value == 0:
+                        percentage = (float(vol_error_values[key][count]) / date_values_sum[key]) * 100
+                        percentage = 100-float('%.2f' % round(percentage, 2))
+                    else:
+                        percentage = "NA"
+                except:
                     percentage = "NA"
             if internal_time_line.has_key(key):
                 internal_time_line[key].append(percentage)
@@ -3845,7 +3848,7 @@ def upload_target_data(date_list, prj_id, center):
                 percentage = (float(upload['upload__sum'])/float(target['target__sum'])) * 100
                 final_percentage = (float('%.2f' % round(percentage, 2)))
             else:
-                final_percentage = 0
+                final_percentage = 'NA'
             final_data.append(final_percentage)
     final_result['data'] = final_data
     result_data.append(final_result)
