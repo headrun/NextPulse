@@ -2793,14 +2793,19 @@ def internal_extrnal_graphs_same_formula(request,date_list,prj_id,center_obj,lev
              percentage = 100 - float('%.2f' % round(percentage, 2))
              error_accuracy[key] = [percentage]
         else:
-            if error_audit_data[key] == 0 and date_values_sum[key] != 0:
-                percentage = (float(value) / date_values_sum[key]) * 100
-                percentage = 100 - float('%.2f' % round(percentage, 2))
+            try:
+                if error_audit_data[key] == 0 and date_values_sum[key] != 0:
+                    percentage = (float(value) / date_values_sum[key]) * 100
+                    percentage = 100 - float('%.2f' % round(percentage, 2))
+                    error_accuracy[key] = [percentage]
+                else:
+                    #percentage = ((float(value)/float(error_audit_data[key])))*100
+                    #percentage = 100 - float('%.2f' % round(percentage, 2))
+                    percentage = 'NA'
+                    error_accuracy[key] = [percentage]
+            except:
+                percentage = 'NA'
                 error_accuracy[key] = [percentage]
-            """else:
-                percentage = ((float(value)/float(error_audit_data[key])))*100
-                percentage = 100 - float('%.2f' % round(percentage, 2))
-                error_accuracy[key] = [percentage]"""
     err_acc_name = [] 
     err_acc_perc = []
     for key, value in error_accuracy.iteritems():
@@ -2819,8 +2824,8 @@ def internal_extrnal_graphs_same_formula(request,date_list,prj_id,center_obj,lev
                 if vol_error_value == 0:
                     percentage = (float(vol_error_values[key][count]) / date_values_sum[key]) * 100
                     percentage = 100-float('%.2f' % round(percentage, 2))
-            """else:
-                percentage = "NA" """
+                else:
+                    percentage = "NA"
             if internal_time_line.has_key(key):
                 internal_time_line[key].append(percentage)
             else:
@@ -3614,22 +3619,24 @@ def received_volume_week(week_names,productivity_list,final_productivity):
     for prod_week_num in week_names:
         if len(productivity_list.get(prod_week_num,'')) > 0: 
             values = productivity_list[prod_week_num]
-            if len(values['Received']) == len(values['Opening']):
-                values['Received'][0] = values['Received'][0] + values['Opening'][0]
-                values['Received'] = sum(values['Received'])
-                values['Completed'] = sum(values['Completed'])
-                values['Opening'] = sum(values['Opening'])
-                productivity_data.update(values)
-                del productivity_data['Opening']
-                for vol_key,vol_values in productivity_data.iteritems():
-                    if final_productivity.has_key(vol_key):
-                        final_productivity[vol_key].append(vol_values)
-                    else:
-                        final_productivity[vol_key] = [vol_values]
+            flag = isinstance(values.get('Received',""), list) & isinstance(values.get('Completed',""), list) & isinstance(values.get('Opening',""), list)
+            if flag:
+                if len(values['Received']) == len(values['Opening']):
+                    values['Received'][0] = values['Received'][0] + values['Opening'][0]
+                    values['Received'] = sum(values['Received'])
+                    values['Completed'] = sum(values['Completed'])
+                    values['Opening'] = sum(values['Opening'])
+                    productivity_data.update(values)
+                    del productivity_data['Opening']
+                    for vol_key,vol_values in productivity_data.iteritems():
+                        if final_productivity.has_key(vol_key):
+                            final_productivity[vol_key].append(vol_values)
+                        else:
+                            final_productivity[vol_key] = [vol_values]
 
-            for prod_key, prod_values in final_productivity.iteritems():
-                if prod_key not in productivity_list[prod_week_num].keys():
-                    final_productivity[prod_key].append(0)
+                for prod_key, prod_values in final_productivity.iteritems():
+                    if prod_key not in productivity_list[prod_week_num].keys():
+                        final_productivity[prod_key].append(0)
         else:
             for vol_key, vol_values in final_productivity.iteritems():
                 final_productivity[vol_key].append(0)
@@ -3852,16 +3859,16 @@ def pre_scan_exception_data(date_list, prj_id, center):
         total_done_value = RawTable.objects.filter(project=prj_id, center=center, date=date_value).aggregate(Max('per_day'))
         if total_done_value['per_day__max'] > 0:
             work_packet = RawTable.objects.filter(project=prj_id, center=center, date=date_value).values_list('work_packet',flat=True).distinct()
-            for packet in work_packet:
-                if packet == 'Scanning':
-                    final_packet_value = RawTable.objects.filter(project=prj_id, center=center, date=date_value,work_packet=packet).aggregate(Sum('per_day'))
-                    error_count = Incomingerror.objects.filter(project=prj_id, center=center, date=date_value,work_packet=packet).aggregate(Sum('error_values'))
-                    if error_count['error_values__sum'] > 0 and final_packet_value['per_day__sum'] > 0:
-                        percentage = (float(error_count['error_values__sum'])/float(error_count['error_values__sum'] + final_packet_value['per_day__sum'])) * 100
-                        final_percentage_va = (float('%.2f' % round(percentage, 2)))
-                    else:
-                        final_percentage_va = 0
-                    final_result_data.append(final_percentage_va)
+            """for packet in work_packet:
+                if packet == 'Scanning':"""
+            final_packet_value = RawTable.objects.filter(project=prj_id, center=center, date=date_value,work_packet='Scanning').aggregate(Sum('per_day'))
+            error_count = Incomingerror.objects.filter(project=prj_id, center=center, date=date_value,work_packet='Scanning').aggregate(Sum('error_values'))
+            if error_count['error_values__sum'] > 0 and final_packet_value['per_day__sum'] > 0:
+                percentage = (float(error_count['error_values__sum'])/float(error_count['error_values__sum'] + final_packet_value['per_day__sum'])) * 100
+                final_percentage_va = (float('%.2f' % round(percentage, 2)))
+            else:
+                final_percentage_va = 0
+            final_result_data.append(final_percentage_va)
     final_result_dict['data'] = final_result_data
     result_data_value.append(final_result_dict)
     return result_data_value
@@ -3897,11 +3904,11 @@ def nw_exception_data(date_list, prj_id, center,level_structure_key):
             for packet in packets:
                 if packet == 'Data Entry' or packet =='KYC Check':
                     sub_packets = Incomingerror.objects.filter(project=prj_id, center=center, date=date_value,work_packet = packet).values_list('sub_packet',flat = True).distinct()
-                    work_done = RawTable.objects.filter(project=prj_id, center=center, date=date_value,work_packet = packet).aggregate(Sum('per_day'))
+                    #work_done = RawTable.objects.filter(project=prj_id, center=center, date=date_value,work_packet = packet).aggregate(Sum('per_day'))
                     error_value = Incomingerror.objects.filter(project=prj_id, center=center, date=date_value,work_packet=packet,sub_packet='NW Exception').aggregate(Sum('error_values'))
-                    if work_done['per_day__sum'] > 0 and error_value['error_values__sum'] > 0: 
-                        percentage = float(error_value['error_values__sum'])/float(work_done['per_day__sum'])*100
-                        percentage = (float('%.2f' % round(percentage, 2))) 
+                    if error_value['error_values__sum'] > 0: 
+                        percentage = float(error_value['error_values__sum'])
+                        #percentage = (float('%.2f' % round(percentage, 2))) 
                     else:
                         percentage = 0
                     if result.has_key(packet):
@@ -4116,19 +4123,21 @@ def day_week_month(request, dwm_dict, prj_id, center, work_packets, level_struct
             final_dict['external_accuracy_graph'] = graph_data_alignment_color(
                 error_graphs_data['external_accuracy_graph'], 'y', level_structure_key, prj_id, center,'external_error_accuracy')"""
         final_dict.update(result_dict)
-        sub_pro_level = filter(None, RawTable.objects.filter(project=prj_id, center=center).values_list('sub_project',flat=True).distinct())
+        dates = [dwm_dict['day'][0], dwm_dict['day'][-1:][0]]
+        raw_master_set = RawTable.objects.filter(project=prj_id, center=center, date__range=dates)
+        sub_pro_level = filter(None, raw_master_set.values_list('sub_project',flat=True).distinct())
         sub_project_level = [i for i in sub_pro_level]
         if len(sub_project_level) >= 1:
             sub_project_level.append('all')
         else:
             sub_project_level = ''
-        work_pac_level = filter(None, RawTable.objects.filter(project=prj_id, center=center).values_list('work_packet',flat=True).distinct())
+        work_pac_level = filter(None, raw_master_set.values_list('work_packet',flat=True).distinct())
         work_packet_level = [j for j in work_pac_level]
         if len(work_packet_level) >= 1:
             work_packet_level.append('all')
         else:
             work_packet_level = ''
-        sub_pac_level = filter(None, RawTable.objects.filter(project=prj_id, center=center).values_list('sub_packet',flat=True).distinct())
+        sub_pac_level = filter(None, raw_master_set.values_list('sub_packet',flat=True).distinct())
         sub_packet_level = [k for k in sub_pac_level]
         if len(sub_packet_level) >= 1:
             sub_packet_level.append('all')
@@ -4153,32 +4162,32 @@ def day_week_month(request, dwm_dict, prj_id, center, work_packets, level_struct
         big_dict = {}
         if final_details['sub_project']:
             if final_details['work_packet']:
-                first = RawTable.objects.filter(project=prj_id).values_list('sub_project').distinct()
+                first = raw_master_set.values_list('sub_project').distinct()
                 big_dict = {}
                 total = {}
                 for i in first:
-                    list_val = RawTable.objects.filter(project=prj_id, sub_project=i[0]).values_list('work_packet').distinct()
+                    list_val = RawTable.objects.filter(project=prj_id, sub_project=i[0], date__range=dates).values_list('work_packet').distinct()
                     for j in list_val:
                         total[j[0]] = []
-                        sub_pac_data = RawTable.objects.filter(project=prj_id, sub_project=i[0], work_packet=j[0]).values_list('sub_packet').distinct()
+                        sub_pac_data = RawTable.objects.filter(project=prj_id, sub_project=i[0], work_packet=j[0], date__range=dates).values_list('sub_packet').distinct()
                         for l in sub_pac_data:
                             total[j[0]].append(l[0])
                     big_dict[i[0]] = total
                     total = {}
         elif final_details['work_packet']:
             if final_details['sub_packet']:
-                first = RawTable.objects.filter(project=prj_id).values_list('work_packet').distinct()
+                first = raw_master_set.values_list('work_packet').distinct()
                 big_dict = {}
                 total = {}
                 for i in first:
-                    list_val = RawTable.objects.filter(project=prj_id, work_packet=i[0]).values_list('sub_packet').distinct()
+                    list_val = RawTable.objects.filter(project=prj_id, work_packet=i[0], date__range=dates).values_list('sub_packet').distinct()
                     for j in list_val:
                         total[j[0]] = []
                     big_dict[i[0]] = total
                     total = {}
             else:
                 big_dict = {}
-                work_pac_level = RawTable.objects.filter(project=prj_id, center=center).values_list('work_packet').distinct()
+                work_pac_level = raw_master_set.values_list('work_packet').distinct()
                 for i in work_pac_level:
                     big_dict[i[0]] = {}
         # final_dict['drop_value'] = {u'Charge': {u'Copay': [], u'Charge': [], u'DemoCheck': [], u'Demo': []}, u'Payment': {u'Payment': []}}
@@ -4350,6 +4359,79 @@ def day_week_month(request, dwm_dict, prj_id, center, work_packets, level_struct
                         all_external_error_accuracy[vol_key] = vol_values
 
         # below for productivity,packet wise performance
+        dates = [dwm_dict['month']['month_dates'][0][0], dwm_dict['month']['month_dates'][-1:][0][-1:][0]]
+        raw_master_set = RawTable.objects.filter(project=prj_id, center=center, date__range=dates)
+        final_details = {}
+        sub_pro_level = filter(None, raw_master_set.values_list('sub_project',flat=True).distinct())
+        sub_project_level = [i for i in sub_pro_level]
+        if len(sub_project_level) >= 1:
+            sub_project_level.append('all')
+        else:
+            sub_project_level = '' 
+        work_pac_level = filter(None, raw_master_set.values_list('work_packet',flat=True).distinct())
+        work_packet_level = [j for j in work_pac_level]
+        if len(work_packet_level) >= 1:
+            work_packet_level.append('all')
+        else:
+            work_packet_level = '' 
+        sub_pac_level = filter(None, raw_master_set.values_list('sub_packet',flat=True).distinct())
+        sub_packet_level = [k for k in sub_pac_level]
+        if len(sub_packet_level) >= 1:
+            sub_packet_level.append('all')
+        else:
+            sub_packet_level = '' 
+        # sub_pro_level = filter(RawTable.objects.filter(project=prj_id, center=center).values_list('sub_project').distinct()
+        # work_pac_level = RawTable.objects.filter(project=prj_id, center=center).values_list('work_packet').distinct()
+        # sub_pac_level = RawTable.objects.filter(project=prj_id, center=center).values_list('sub_packet').distinct()
+        final_details['sub_project'] = 0
+        final_details['work_packet'] = 0
+        final_details['sub_packet'] = 0
+        if len(sub_pro_level) >= 1:
+            final_details['sub_project'] = 1
+        if len(work_pac_level) >= 1:
+            final_details['work_packet'] = 1
+        if len(sub_pac_level) >= 1:
+            final_details['sub_packet'] = 1
+
+        result_dict['sub_project_level'] = sub_project_level
+        result_dict['work_packet_level'] = work_packet_level
+        result_dict['sub_packet_level'] = sub_packet_level
+        big_dict = {}
+        if final_details['sub_project']:
+            if final_details['work_packet']:
+                first = raw_master_set.values_list('sub_project').distinct()
+                big_dict = {}
+                total = {}
+                for i in first:
+                    list_val = RawTable.objects.filter(project=prj_id, sub_project=i[0], date__range=dates).values_list('work_packet').distinct()
+                    for j in list_val:
+                        total[j[0]] = []
+                        sub_pac_data = RawTable.objects.filter(project=prj_id, sub_project=i[0], work_packet=j[0], date__range=dates).values_list('sub_packet').distinct()
+                        for l in sub_pac_data:
+                            total[j[0]].append(l[0])
+                    big_dict[i[0]] = total
+                    total = {}
+        elif final_details['work_packet']:
+            if final_details['sub_packet']:
+                first = raw_master_set.values_list('work_packet').distinct()
+                big_dict = {}
+                total = {}
+                for i in first:
+                    list_val = RawTable.objects.filter(project=prj_id, work_packet=i[0], date__range=dates).values_list('sub_packet').distinct()
+                    for j in list_val:
+                        total[j[0]] = []
+                    big_dict[i[0]] = total
+                    total = {}
+            else:
+                big_dict = {}
+                work_pac_level = raw_master_set.values_list('work_packet').distinct()
+                for i in work_pac_level:
+                    big_dict[i[0]] = {}
+        # final_dict['drop_value'] = {u'Charge': {u'Copay': [], u'Charge': [], u'DemoCheck': [], u'Demo': []}, u'Payment': {u'Payment': []}}
+        result_dict['level'] = [1, 2]
+        result_dict['fin'] = final_details
+        result_dict['drop_value'] = big_dict
+
         final_upload_target_details = prod_volume_upload_week_util(month_names, upload_target_dt, {})
         final_pre_scan_exception_details = prod_volume_upload_week_util(month_names,pre_scan_exception_dt, {})
         final_prod_avg_details = prod_volume_week_util(month_names, prod_avg_dt, {})
@@ -4632,6 +4714,79 @@ def day_week_month(request, dwm_dict, prj_id, center, work_packets, level_struct
                             all_external_error_accuracy[vol_key].append(vol_values[0])
                         else:
                             all_external_error_accuracy[vol_key] = vol_values
+        dates = [dwm_dict['week'][0][0], dwm_dict['week'][-1:][0][-1:][0]]
+        raw_master_set = RawTable.objects.filter(project=prj_id, center=center, date__range=dates)
+        final_details = {}
+        sub_pro_level = filter(None, raw_master_set.values_list('sub_project',flat=True).distinct())
+        sub_project_level = [i for i in sub_pro_level]
+        if len(sub_project_level) >= 1:
+            sub_project_level.append('all')
+        else:
+            sub_project_level = '' 
+        work_pac_level = filter(None, raw_master_set.values_list('work_packet',flat=True).distinct())
+        work_packet_level = [j for j in work_pac_level]
+        if len(work_packet_level) >= 1:
+            work_packet_level.append('all')
+        else:
+            work_packet_level = '' 
+        sub_pac_level = filter(None, raw_master_set.values_list('sub_packet',flat=True).distinct())
+        sub_packet_level = [k for k in sub_pac_level]
+        if len(sub_packet_level) >= 1:
+            sub_packet_level.append('all')
+        else:
+            sub_packet_level = '' 
+        # sub_pro_level = filter(RawTable.objects.filter(project=prj_id, center=center).values_list('sub_project').distinct()
+        # work_pac_level = RawTable.objects.filter(project=prj_id, center=center).values_list('work_packet').distinct()
+        # sub_pac_level = RawTable.objects.filter(project=prj_id, center=center).values_list('sub_packet').distinct()
+        final_details['sub_project'] = 0
+        final_details['work_packet'] = 0
+        final_details['sub_packet'] = 0
+        if len(sub_pro_level) >= 1:
+            final_details['sub_project'] = 1
+        if len(work_pac_level) >= 1:
+            final_details['work_packet'] = 1
+        if len(sub_pac_level) >= 1:
+            final_details['sub_packet'] = 1
+
+        result_dict['sub_project_level'] = sub_project_level
+        result_dict['work_packet_level'] = work_packet_level
+        result_dict['sub_packet_level'] = sub_packet_level
+        big_dict = {}
+        if final_details['sub_project']:
+            if final_details['work_packet']:
+                first = raw_master_set.values_list('sub_project').distinct()
+                big_dict = {}
+                total = {}
+                for i in first:
+                    list_val = RawTable.objects.filter(project=prj_id, sub_project=i[0], date__range=dates).values_list('work_packet').distinct()
+                    for j in list_val:
+                        total[j[0]] = []
+                        sub_pac_data = RawTable.objects.filter(project=prj_id, sub_project=i[0], work_packet=j[0], date__range=dates).values_list('sub_packet').distinct()
+                        for l in sub_pac_data:
+                            total[j[0]].append(l[0])
+                    big_dict[i[0]] = total
+                    total = {}
+        elif final_details['work_packet']:
+            if final_details['sub_packet']:
+                first = raw_master_set.values_list('work_packet').distinct()
+                big_dict = {}
+                total = {}
+                for i in first:
+                    list_val = RawTable.objects.filter(project=prj_id, work_packet=i[0], date__range=dates).values_list('sub_packet').distinct()
+                    for j in list_val:
+                        total[j[0]] = []
+                    big_dict[i[0]] = total
+                    total = {}
+            else:
+                big_dict = {}
+                work_pac_level = raw_master_set.values_list('work_packet').distinct()
+                for i in work_pac_level:
+                    big_dict[i[0]] = {}
+        # final_dict['drop_value'] = {u'Charge': {u'Copay': [], u'Charge': [], u'DemoCheck': [], u'Demo': []}, u'Payment': {u'Payment': []}}
+        result_dict['level'] = [1, 2]
+        result_dict['fin'] = final_details
+        result_dict['drop_value'] = big_dict
+
         # below for productivity,packet wise performance
         result_dict['fte_calc_data'] = {}
         prj_name = Project.objects.get(id=prj_id[0]).name

@@ -80,6 +80,7 @@
                });
 
              $http({method:"GET", url:self.pro_landing_url}).success(function(result){
+
                 if (result.result.role === 'customer'){
                     $('#emp_widget').hide();
                     $('#volume_table').hide();
@@ -210,11 +211,12 @@
                         var work_packet_level = result.result.work_packet_level;
                         self.global_packet_values = result.result.fin;
                         self.hideLoading();
+                        self.drop_list = [];
 
                         self.top_employee_details =  result.result.top_five_employee_details;
                         self.top_five = result.result.only_top_five;
                         self.volume_graphs = result.result.volumes_graphs_details;
-                        self.drop_list =  result.result.drop_value
+                        self.drop_list =  result.result.drop_value;
                         self.sub_pro_sel = document.getElementById("0");
                         self.wor_pac_sel = document.getElementById("1");
                         self.sub_pac_sel = document.getElementById("2");
@@ -247,9 +249,7 @@
                               }                            
 
 
-
-
-for (var sub_pro in self.drop_list) {
+                        for (var sub_pro in self.drop_list) {
                             self.sub_pro_sel.options[self.sub_pro_sel.options.length] = new Option(sub_pro, sub_pro);
                         }
                         self.sub_pro_sel.onchange = function () {
@@ -2010,6 +2010,7 @@ for (var sub_pro in self.drop_list) {
             } 
 
             self.chart_render = function(result,pro,loc){
+
                             self.hideLoading();
                             self.high_data_gener = [];
                             var final_data_gener = result.result;
@@ -2017,6 +2018,59 @@ for (var sub_pro in self.drop_list) {
                             self.top_employee_details =  result.result.top_five_employee_details;
                             self.top_five = result.result.only_top_five;
                             self.volume_graphs = result.result.volumes_graphs_details;
+                           /* self.drop_list = [];
+                            self.drop_list =  result.result.drop_value;
+
+                        self.sub_pro_sel = document.getElementById("0");
+                        self.removeOptions(self.sub_pro_sel);
+                        self.wor_pac_sel = document.getElementById("1");
+                        if (self.wor_pac_sel != null){
+                            self.removeOptions(self.wor_pac_sel);
+                        }
+                        self.sub_pac_sel = document.getElementById("2");
+                        if (self.sub_pac_sel != null){
+                            self.removeOptions(self.sub_pac_sel);
+                        }
+
+                        for (var sub_pro in self.drop_list) {
+                            self.sub_pro_sel.options[self.sub_pro_sel.options.length] = new Option(sub_pro, sub_pro);
+                        }
+                        self.sub_pro_sel.onchange = function () { 
+                            self.wor_pac_sel.length = 1; 
+                            self.sub_pac_sel.length = 1; 
+                            if (this.selectedIndex < 1) { 
+                                self.wor_pac_sel.options[0].text = "All"
+                                self.sub_pac_sel.options[0].text = "All"
+                                return;
+                            }
+                            self.wor_pac_sel.options[0].text = "All"
+                            for (var wor_pac in self.drop_list[this.value]) {
+                                self.wor_pac_sel.options[self.wor_pac_sel.options.length] = new Option(wor_pac, wor_pac);
+                            }
+                            if (self.wor_pac_sel.options.length==2) {
+                                //self.wor_pac_sel.selectedIndex=1;
+                                self.wor_pac_sel.onchange();
+                            }
+                        }
+                        self.sub_pro_sel.onchange();
+                        self.wor_pac_sel.onchange = function () { 
+                            self.sub_pac_sel.length = 1; 
+                            if (this.selectedIndex < 1) { 
+                                self.sub_pac_sel.options[0].text = "All"
+                                return;
+                            }
+                            self.sub_pac_sel.options[0].text = "All"
+
+                            var sub_pac = self.drop_list[self.sub_pro_sel.value][this.value];
+                            for (var i = 0; i < sub_pac.length; i++) {
+                                self.sub_pac_sel.options[self.sub_pac_sel.options.length] = new Option(sub_pac[i], sub_pac[i]);
+                            }
+                            if (self.sub_pac_sel.options.length==2) {
+                                self.sub_pac_sel.selectedIndex=1;
+                                self.sub_pac_sel.onchange();
+                            }
+                            }*/
+
             
                             angular.extend(self.chartOptions, {
 
@@ -3655,6 +3709,20 @@ plotOptions: {
             self.click = function(start,end){
                 self.start = start.format('YYYY-MM-DD');
                 self.end = end.format('YYYY-MM-DD');
+                        self.sub_pro_sel = document.getElementById("0");
+                        self.removeOptions(self.sub_pro_sel);
+                        self.wor_pac_sel = document.getElementById("1");
+                        if (self.wor_pac_sel != null){
+                            self.removeOptions(self.wor_pac_sel);
+                        }
+                        self.sub_pac_sel = document.getElementById("2");
+                        if (self.sub_pac_sel != null){
+                            self.removeOptions(self.sub_pac_sel);
+                        }
+                        $("#0").append(new Option("All"));
+                        $("#1").append(new Option("All"));
+                        $("#2").append(new Option("All"));
+
                 //var dates_list = self.get_date();
                 var final_packet_count = project_dropdown_count + '&project=' + self.project + '&center=' + self.location;
                 var dropdown_selection_data = $http({method:"GET", url:final_packet_count}).success(function(result){
@@ -3662,7 +3730,6 @@ plotOptions: {
                         var dropdown_sub_project = result.result.sub_project;
                         var dropdown_work_packet = result.result.work_packet;
                         var dropdown_sub_packet = result.result.sub_packet;
-
 
                 var dates_list = [self.start,self.end];
                 //var wor_pac = document.getElementById("0");
@@ -3700,8 +3767,52 @@ plotOptions: {
                 self.showLoading();
                 $('.day2').addClass('active btn-success');
                 $('.day2').siblings().removeClass('active btn-success');
+                //self.main_render(from_to_data)
 
                $http({method:"GET", url:from_to_data}).success(function(result){
+
+                        self.drop_list = [];
+                        self.drop_list =  result.result.drop_value;
+
+                        for (var sub_pro in self.drop_list) {
+                            self.sub_pro_sel.options[self.sub_pro_sel.options.length] = new Option(sub_pro, sub_pro);
+                        }
+                        self.sub_pro_sel.onchange = function () { 
+                            self.wor_pac_sel.length = 1; 
+                            self.sub_pac_sel.length = 1; 
+                            if (this.selectedIndex < 1) { 
+                                self.wor_pac_sel.options[0].text = "All"
+                                self.sub_pac_sel.options[0].text = "All"
+                                return;
+                            }
+                            self.wor_pac_sel.options[0].text = "All"
+                            for (var wor_pac in self.drop_list[this.value]) {
+                                self.wor_pac_sel.options[self.wor_pac_sel.options.length] = new Option(wor_pac, wor_pac);
+                            }
+                            if (self.wor_pac_sel.options.length==2) {
+                                //self.wor_pac_sel.selectedIndex=1;
+                                self.wor_pac_sel.onchange();
+                            }
+                        }
+                        self.sub_pro_sel.onchange();
+                        self.wor_pac_sel.onchange = function () { 
+                            self.sub_pac_sel.length = 1; 
+                            if (this.selectedIndex < 1) { 
+                                self.sub_pac_sel.options[0].text = "All"
+                                return;
+                            }
+                            self.sub_pac_sel.options[0].text = "All"
+
+                            var sub_pac = self.drop_list[self.sub_pro_sel.value][this.value];
+                            for (var i = 0; i < sub_pac.length; i++) {
+                                self.sub_pac_sel.options[self.sub_pac_sel.options.length] = new Option(sub_pac[i], sub_pac[i]);
+                            }
+                            if (self.sub_pac_sel.options.length==2) {
+                                self.sub_pac_sel.selectedIndex=1;
+                                self.sub_pac_sel.onchange();
+                            }
+                            }
+
                             $('#select').val(self.start + ' to ' + self.end)
                             self.sel_type = result.result.days_type;
                             if (self.sel_type === 'week'){
