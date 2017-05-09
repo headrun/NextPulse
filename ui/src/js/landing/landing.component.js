@@ -17,8 +17,6 @@
 
              self.hideLoading();
 
-
-
               self.clickPro = function(val, $rootScope){
 
                 self.showLoading();
@@ -26,8 +24,6 @@
                 $('#dropdown_title').text(val.split(' - ')[1]);
 
               }
-
-
             $http({method:"GET", url:project}).success(function(result){
 
                 if (result.result['role'] == "customer") {
