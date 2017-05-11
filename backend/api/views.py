@@ -2793,19 +2793,17 @@ def internal_extrnal_graphs_same_formula(request,date_list,prj_id,center_obj,lev
              percentage = 100 - float('%.2f' % round(percentage, 2))
              error_accuracy[key] = [percentage]
         else:
-            try:
-                if error_audit_data[key] == 0 and date_values_sum[key] != 0:
-                    percentage = (float(value) / date_values_sum[key]) * 100
-                    percentage = 100 - float('%.2f' % round(percentage, 2))
-                    error_accuracy[key] = [percentage]
-                else:
-                    #percentage = ((float(value)/float(error_audit_data[key])))*100
-                    #percentage = 100 - float('%.2f' % round(percentage, 2))
-                    percentage = 'NA'
-                    error_accuracy[key] = [percentage]
-            except:
-                percentage = 'NA'
-                error_accuracy[key] = [percentage]
+	    if error_audit_data[key] == 0 and date_values_sum[key] != 0:
+	        percentage = (float(value) / date_values_sum[key]) * 100
+		percentage = 100 - float('%.2f' % round(percentage, 2))
+		error_accuracy[key] = [percentage]
+	"""
+		else:
+		    percentage = ((float(value)/float(error_audit_data[key])))*100
+		    percentage = 100 - float('%.2f' % round(percentage, 2))
+		    percentage = 'NA'
+		    error_accuracy[key] = [percentage]
+	"""
     err_acc_name = [] 
     err_acc_perc = []
     for key, value in error_accuracy.iteritems():
@@ -2821,13 +2819,10 @@ def internal_extrnal_graphs_same_formula(request,date_list,prj_id,center_obj,lev
                     percentage = (float(vol_error_values[key][count]) / vol_error_value) * 100
                     percentage = 100-float('%.2f' % round(percentage, 2))
             else:
-                try:
-                    if vol_error_value == 0:
-                        percentage = (float(vol_error_values[key][count]) / date_values_sum[key]) * 100
-                        percentage = 100-float('%.2f' % round(percentage, 2))
-                    else:
-                        percentage = "NA"
-                except:
+                if vol_error_value == 0:
+                    percentage = (float(vol_error_values[key][count]) / date_values_sum[key]) * 100
+                    percentage = 100-float('%.2f' % round(percentage, 2))
+                else:
                     percentage = "NA"
             if internal_time_line.has_key(key):
                 internal_time_line[key].append(percentage)
@@ -3848,7 +3843,7 @@ def upload_target_data(date_list, prj_id, center):
                 percentage = (float(upload['upload__sum'])/float(target['target__sum'])) * 100
                 final_percentage = (float('%.2f' % round(percentage, 2)))
             else:
-                final_percentage = 'NA'
+                final_percentage = 0
             final_data.append(final_percentage)
     final_result['data'] = final_data
     result_data.append(final_result)
