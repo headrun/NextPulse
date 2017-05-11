@@ -2763,35 +2763,6 @@ def internal_extrnal_graphs_same_formula(request,date_list,prj_id,center_obj,lev
                                     vol_audit_data[error_vol_type] = [value]
                                 else:
                                     vol_audit_data[error_vol_type] = [int(value)]
-    """
-    date_values = {}
-    for date_va in date_list:
-        total_done_value = RawTable.objects.filter(project=prj_id, center=center_obj, date=date_va).aggregate(Max('per_day'))
-        if total_done_value['per_day__max'] > 0:
-            volume_list = worktrack_internal_external_workpackets_list(level_structure_key, 'RawTable', query_set)
-            count =0
-            for vol_type in volume_list:
-                final_work_packet = level_hierarchy_key(level_structure_key,vol_type)
-                if not final_work_packet:
-                    final_work_packet = level_hierarchy_key(volume_list[count],vol_type)
-                count = count+1
-                date_pattern = '{0}_{1}_{2}_{3}'.format(prj_name[0], str(center_name[0]), str(final_work_packet), date_va)
-                key_list = conn.keys(pattern=date_pattern)
-                if not key_list:
-                    if date_values.has_key(final_work_packet):
-                        date_values[final_work_packet].append(0)
-                    else:
-                        date_values[final_work_packet] = [0]
-                for cur_key in key_list:
-                    var = conn.hgetall(cur_key)
-                    for key,value in var.iteritems():
-                        if value == 'None':
-                            value = 0
-                        if date_values.has_key(key):
-                            date_values[key].append(int(value))
-                        else:
-                            date_values[key]=[int(value)]
-    """
     date_values_sum = {}
     for key, value in date_values.iteritems():
         production_data = [i for i in value if i!='NA']
@@ -2951,14 +2922,6 @@ def agent_pareto_data_generation(request,date_list,prj_id,center_obj,level_struc
     final_pareto_data['Error Count']['Error Count'] = error_count_data[:10]
     new_dict.update(new_list)
     #emp_error_count = 0
-    """
-    for key, value in sorted(error_count.iteritems(), key=lambda (k, v): (-v, k)):
-        data_list = []
-        emp_error_count = emp_error_count +value
-        data_list.append(key)
-        data_list.append(emp_error_count)
-        new_list.append(data_list)
-    """
     for key, value in new_dict.iteritems():
         if error_sum > 0:
             accuracy = (float(float(value)/float(error_sum)))*100
@@ -3012,11 +2975,6 @@ def agent_external_pareto_data_generation(request,date_list,prj_id,center_obj,le
     final_pareto_data['Cumulative %'] = {}
     final_pareto_data['Cumulative %']['Cumulative %'] = []
     extrnl_error_count_data = []
-    """
-    for key,value in sorted(extrnl_error_count.iteritems(), key=lambda (k, v): (-v, k)):
-        extrnl_error_count_data.append(value)
-    """
-    #final_pareto_data['Error Count']['Error Count'] = extrnl_error_count_data[:10]
 
     emp_error_count = 0
     for key, value in sorted(extrnl_error_count.iteritems(), key=lambda (k, v): (-v, k)):
