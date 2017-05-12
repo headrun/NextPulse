@@ -5211,19 +5211,18 @@ def fte_calculation(request,prj_id,center_obj,date_list,level_structure_key):
     work_packet_query =  query_set_generation(prj_id,center_obj,level_structure_key,[])
     work_packet_query['from_date__gte'] = date_list[0]
     work_packet_query['to_date__lte'] = date_list[-1]
-    work_packets = Targets.objects.filter(**work_packet_query).values('sub_project','work_packet','sub_packet','fte_target').distinct()
+    work_packet_query['target_type'] = 'FTE Target'
+    work_packets = Targets.objects.filter(**work_packet_query).values('sub_project','work_packet','sub_packet','target_value').distinct()
     sub_packet_query = query_set_generation(prj_id,center_obj,level_structure_key,[])
     sub_packet_query['from_date__gte'] = date_list[0]
     sub_packet_query['to_date__lte'] = date_list[-1]
+    sub_packet_query['target_type'] = 'FTE Target'
     sub_packets = filter(None,Targets.objects.filter(**sub_packet_query).values_list('sub_packet',flat=True).distinct())
     conn = redis.Redis(host="localhost", port=6379, db=0)
     new_date_list = []
     status = 0
     if len(sub_packets) == 0:
-        #work_packet_query['from_date__lte'] = date_list[0]
-        #work_packet_query['to_date__gte'] = date_list[-1]
-        work_packets = Targets.objects.filter(**work_packet_query).values('sub_project', 'work_packet', 'sub_packet','fte_target').distinct()
-        print 'targte',work_packets
+        work_packets = Targets.objects.filter(**work_packet_query).values('sub_project', 'work_packet', 'sub_packet','target_value').distinct()
         date_values = {}
         volumes_dict = {}
         result = {}
@@ -5235,7 +5234,7 @@ def fte_calculation(request,prj_id,center_obj,date_list,level_structure_key):
                     final_work_packet = level_hierarchy_key(level_structure_key, wp_packet)
                     date_pattern = '{0}_{1}_{2}_{3}'.format(prj_name[0], str(center_name[0]), str(final_work_packet),date_va)
                     key_list = conn.keys(pattern=date_pattern)
-                    if wp_packet['fte_target'] >0:
+                    if wp_packet['target_value'] >0:
                         if not key_list:
                             if date_values.has_key(final_work_packet):
                                 date_values[final_work_packet].append(0)
@@ -5249,12 +5248,12 @@ def fte_calculation(request,prj_id,center_obj,date_list,level_structure_key):
                             if value == 'None':
                                 value = 0
                             if date_values.has_key(key):
-                                fte_sum = float(value) / int(wp_packet['fte_target'])
+                                fte_sum = float(value) / int(wp_packet['target_value'])
                                 #final_fte = float('%.2f' % round(fte_sum, 2))
                                 #date_values[key].append(final_fte)
                                 date_values[key].append(fte_sum)
                             else:
-                                fte_sum = float(value) / int(wp_packet['fte_target'])
+                                fte_sum = float(value) / int(wp_packet['target_value'])
                                 #final_fte = float('%.2f' % round(fte_sum, 2))
                                 #date_values[key] = [final_fte]
                                 date_values[key] = [fte_sum]
@@ -5270,6 +5269,7 @@ def fte_calculation(request,prj_id,center_obj,date_list,level_structure_key):
                 sub_project_query['project'] = prj_id
                 sub_project_query['center'] = center_obj
                 sub_project_query['sub_project'] = sub_project
+                sub_project_query['target_type'] = 'FTE Target'
                 new_level_structu_key = {}
                 new_level_structu_key['sub_project'] = sub_project
                 new_level_structu_key['work_packet'] = 'All'
