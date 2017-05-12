@@ -147,6 +147,8 @@
                     'self.chartOptions40':self.chartOptions40,
                     'self.chartOptions41':self.chartOptions41,
                     'self.chartOptions42':self.chartOptions42,
+                    'self.chartOptions43':self.chartOptions43,
+                    'self.chartOptions44':self.chartOptions44,
                     };
 
                     var final_layout_list = [];
@@ -955,7 +957,7 @@
              if (name === 'chartOptions39') {
                             angular.extend(self.render_data, {
                xAxis: {
-                 categories: self.high_data_gener[0].data.date,
+                 categories: self.high_data_gener[0].upload_target_data.date,
                  title: {
                   text: '',
                  }
@@ -1003,7 +1005,7 @@
                 }
                }
                },
-               series: self.high_data_gener[0].upload_target_data
+               series: self.high_data_gener[0].upload_target_data.data
              });
              }
 
@@ -2199,7 +2201,7 @@
 
                            angular.extend(self.chartOptions39, {
                                 xAxis: {
-                                    categories: self.high_data_gener[0].data.date,
+                                    categories: self.high_data_gener[0].upload_target_data.date,
                                     title: {
                                         text: '',
                                     }
@@ -2246,7 +2248,7 @@
                  }
                 }
                },
-               series: self.high_data_gener[0].upload_target_data
+               series: self.high_data_gener[0].upload_target_data.data,
              });
 
                            angular.extend(self.chartOptions40, {
@@ -3282,7 +3284,104 @@ plotOptions: {
                     data: self.high_data_gener[0].internal_accuracy_graph
              }]
              });
-                                         angular.extend(self.chartOptions6.yAxis.title,{
+
+
+
+                            angular.extend(self.chartOptions43.yAxis.title,{
+                                text: ''
+                            });
+                            angular.extend(self.chartOptions43.plotOptions.series.point.events,{
+                            select: function(e) {
+                            var chart_name = 'internal_field_accuracy_graph';
+                            var is_drill = self.list_object[chart_name].is_drilldown;
+                            if (is_drill){
+                            var addition = '&project=' + pro + '&center=' + loc;
+                            console.log(e.target.name);
+                            var internal_bar_graph ='/api/chart_data/?';
+                            var dates_list = self.get_date();
+                            var packet_clicked = e.target.name;
+                            var is_exist = packet_clicked.indexOf('&');
+                            if (is_exist > 0){
+                                packet_clicked = packet_clicked.replace(' & ',' and ')
+                            }
+                            $http.get( internal_bar_graph + 'packet=' + packet_clicked + '&from=' + dates_list[0] + '&to=' + dates_list[1]
+                             + '&type=' + 'Internal Field Accuracy'+addition).success(
+                            function(data, status)
+                                {
+                                    $('#myModal').modal('show');
+                                    self.names = data.result.data;
+                                    var proj = data.result.project;
+                                    var pro_drill = data.result.table_headers;
+                                    var chart_type = data.result.type;
+                                    self.fields_list_drilldown = pro_drill;
+                                    self.chart_type = data.result.type;
+                                    console.log(self.names);
+                                }).error(function(error){ console.log("error")});
+                                }
+                            }
+                            });
+                            angular.extend(self.chartOptions43,{
+                                series: [{
+                                    name: 'accuracy',
+                                    cursor: 'pointer',
+                                    colorByPoint: true,
+                                    data: self.high_data_gener[0].internal_field_accuracy_graph
+                                }]
+                            });
+
+                           angular.extend(self.chartOptions4.yAxis.title,{
+                                text: ''
+                            });
+                            angular.extend(self.chartOptions44.plotOptions.series.point.events,{
+                            select: function(e) {
+                            var chart_name = 'external_field_accuracy_graph';
+                            var is_drill = self.list_object[chart_name].is_drilldown;
+                            if (is_drill){
+                            var addition = '&project=' + pro + '&center=' + loc;
+                            console.log(e.target.name);
+                            var internal_bar_graph ='/api/chart_data/?';
+                            var dates_list = self.get_date();
+                            var packet_clicked = e.target.name;
+                            var is_exist = packet_clicked.indexOf('&');
+                            if (is_exist > 0){
+                                packet_clicked = packet_clicked.replace(' & ',' and ')
+                            }
+                            $http.get( internal_bar_graph + 'packet=' + packet_clicked + '&from=' + dates_list[0] + '&to=' + dates_list[1]
+                             + '&type=' + 'External Field Accuracy'+addition).success(
+                            function(data, status)
+                                {
+                                    $('#myModal').modal('show');
+                                    self.names = data.result.data;
+                                    var proj = data.result.project;
+                                    var pro_drill = data.result.table_headers;
+                                    var chart_type = data.result.type;
+                                    self.fields_list_drilldown = pro_drill;
+                                    self.chart_type = data.result.type;
+                                    console.log(self.names);
+                                }).error(function(error){ console.log("error")});
+                                }
+                            }
+                            });
+                            angular.extend(self.chartOptions44,{
+                                series: [{
+                                    name: 'accuracy',
+                                    cursor: 'pointer',
+                                    colorByPoint: true,
+                                    data: self.high_data_gener[0].external_field_accuracy_graph
+                                }]
+                            });
+
+                            angular.extend(self.chartOptions44.yAxis,{
+                                min:result.result.ext_min_value,
+                                max:result.result.ext_max_value
+                            });
+
+                            angular.extend(self.chartOptions43.yAxis,{
+                                min:result.result.ext_min_value,
+                                max:result.result.ext_max_value
+                            });
+
+                            angular.extend(self.chartOptions6.yAxis.title,{
                                 text: ''
                             });
                             angular.extend(self.chartOptions4.yAxis,{
@@ -4393,7 +4492,95 @@ angular.extend(self.chartOptions18, {
                 }
                 }
             },
+            };
 
+            self.chartOptions43 = {
+            chart: {
+                type: 'column',
+                backgroundColor: "transparent"
+             },
+            title: {
+                text: ''
+            },
+            subtitle: {
+                text: ''
+            },
+            xAxis: {
+                type: 'category'
+            },
+            legend: {
+                enabled: false
+            },
+            yAxis: {
+                min:'',
+                max:'',
+                gridLineColor: 'a2a2a2',
+                title: {
+                    text: ''
+                }
+            },
+            tooltip: {
+                valueSuffix: ' %',
+            },
+            plotOptions:{
+                series:{
+                    allowPointSelect: true,
+                point: {
+                    events:{
+                    }
+                },
+                dataLabels: {
+                enabled: true,
+                format: '{y} %',
+                valueDecimals: 2
+                }
+                }
+            },
+
+            };
+
+            self.chartOptions44 = {
+            chart: {
+                type: 'column',
+                backgroundColor: "transparent"
+             },
+            title: {
+                text: ''
+            },
+            subtitle: {
+                text: ''
+            },
+            xAxis: {
+                type: 'category'
+            },
+            legend: {
+                enabled: false
+            },
+            yAxis: {
+                min:'',
+                max:'',
+                gridLineColor: 'a2a2a2',
+                title: {
+                    text: ''
+                }
+            },
+            tooltip: {
+                valueSuffix: ' %',
+            },
+            plotOptions:{
+                series:{
+                    allowPointSelect: true,
+                point: {
+                    events:{
+                    }
+                },
+                dataLabels: {
+                enabled: true,
+                format: '{y} %',
+                valueDecimals: 2
+                }
+                }
+             },
             };
             self.chartOptions5 = {
                 chart: {
