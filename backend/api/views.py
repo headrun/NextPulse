@@ -2551,38 +2551,41 @@ def product_total_graph(date_list,prj_cen_val,work_packets,level_structure_key):
     query_set = query_set_generation(prj_cen_val[0][0],prj_cen_val[1][0],level_structure_key,date_list)
     main_set = RawTable.objects.filter(**query_set)
     new_date_list = []
-    data_list = RawTable.objects.filter(project=prj_cen_val[0][0],center=prj_cen_val[1][0],date__range=[date_list[0], date_list[-1]]).values('date', 'per_day').order_by('date', 'per_day')
-    for result2 in data_list: ratings[result2['date']].append(result2['per_day'])
-    new_date_list = [str(i) for i in ratings.keys()]
-    main_loop = [sum(i) for i in ratings.values() if max(i) > 0] 
-    if len(main_loop) > 1: 
-        if level_structure_key.has_key('sub_project'):
-            if level_structure_key['sub_project'] == "All":
-                #volume_list = RawTable.objects.filter(**query_set).values('sub_project').distinct()
-                volume_list = main_set.values('sub_project').distinct()
+    #data_list = RawTable.objects.filter(project=prj_cen_val[0][0],center=prj_cen_val[1][0],date__range=[date_list[0], date_list[-1]]).values('date', 'per_day').order_by('date', 'per_day')
+    #for result2 in data_list: ratings[result2['date']].append(result2['per_day'])
+    #new_date_list = [str(i) for i in ratings.keys()]
+    #main_loop = [sum(i) for i in ratings.values() if max(i) > 0] 
+    #if len(main_loop) > 1: 
+    for date_va in date_list:
+        total_done_value = RawTable.objects.filter(project=prj_cen_val[0][0],center=prj_cen_val[1][0],date=date_va).aggregate(Max('per_day'))
+        if total_done_value['per_day__max'] > 0:
+            new_date_list.append(date_va)
+            if level_structure_key.has_key('sub_project'):
+                if level_structure_key['sub_project'] == "All":
+                    #volume_list = RawTable.objects.filter(**query_set).values('sub_project').distinct()
+                    volume_list = main_set.values('sub_project').distinct()
+                else:
+                    if level_structure_key.has_key('work_packet'):
+                        if level_structure_key['work_packet'] == "All":
+                            #volume_list = RawTable.objects.filter(**query_set).values('sub_project','work_packet').distinct()
+                            volume_list = main_set.values('sub_project','work_packet').distinct()
+                        else:
+                            #volume_list = RawTable.objects.filter(**query_set).values('sub_project','work_packet','sub_packet').distinct()
+                            volume_list = main_set.values('sub_project','work_packet','sub_packet').distinct()
+            elif level_structure_key.has_key('work_packet') and len(level_structure_key) ==1:
+                if level_structure_key['work_packet'] == "All":
+                    #volume_list = RawTable.objects.filter(**query_set).values('sub_project','work_packet').distinct()
+                    volume_list = main_set.values('sub_project','work_packet').distinct()
+                else:
+                    #volume_list = RawTable.objects.filter(**query_set).values('sub_project', 'work_packet','sub_packet').distinct()
+                    volume_list = main_set.values('sub_project', 'work_packet','sub_packet').distinct()
+            elif level_structure_key.has_key('work_packet') and level_structure_key.has_key('sub_packet'):
+                #volume_list = RawTable.objects.filter(**query_set).values('sub_project','work_packet','sub_packet').distinct()
+                volume_list = main_set.values('sub_project','work_packet','sub_packet').distinct()
             else:
-                if level_structure_key.has_key('work_packet'):
-                    if level_structure_key['work_packet'] == "All":
-                        #volume_list = RawTable.objects.filter(**query_set).values('sub_project','work_packet').distinct()
-                        volume_list = main_set.values('sub_project','work_packet').distinct()
-                    else:
-                        #volume_list = RawTable.objects.filter(**query_set).values('sub_project','work_packet','sub_packet').distinct()
-                        volume_list = main_set.values('sub_project','work_packet','sub_packet').distinct()
-        elif level_structure_key.has_key('work_packet') and len(level_structure_key) ==1:
-            if level_structure_key['work_packet'] == "All":
-                #volume_list = RawTable.objects.filter(**query_set).values('sub_project','work_packet').distinct()
-                volume_list = main_set.values('sub_project','work_packet').distinct()
-            else:
-                #volume_list = RawTable.objects.filter(**query_set).values('sub_project', 'work_packet','sub_packet').distinct()
-                volume_list = main_set.values('sub_project', 'work_packet','sub_packet').distinct()
-        elif level_structure_key.has_key('work_packet') and level_structure_key.has_key('sub_packet'):
-            #volume_list = RawTable.objects.filter(**query_set).values('sub_project','work_packet','sub_packet').distinct()
-            volume_list = main_set.values('sub_project','work_packet','sub_packet').distinct()
-        else:
-            volume_list = []
+                volume_list = []
 
-        count =0
-        for date_va in new_date_list:
+            count =0
             for vol_type in volume_list:
                 final_work_packet = level_hierarchy_key(level_structure_key,vol_type)
                 if not final_work_packet:
@@ -4001,6 +4004,8 @@ def day_week_month(request, dwm_dict, prj_id, center, work_packets, level_struct
         utilization_details = modified_utilization_calculations(center, prj_id, dwm_dict['day'], level_structure_key)
 
         productivity_utilization_data = main_productivity_data(prj_cen_val, dwm_dict['day'], level_structure_key)
+        #productivity_min_max = adding_min_max('original_productivity_graph', productivity_utilization_data)
+        #result_dict.update()
         #utilization_fte_details = utilization_work_packet_data(center, prj_id, dwm_dict['day'], level_structure_key)
         #utilization_operational_details = utilization_operational_data(center, prj_id, dwm_dict['day'], level_structure_key)
         result_dict['utilization_fte_details'] = graph_data_alignment_color(utilization_details['fte_utilization'], 'data',level_structure_key, prj_id, center,'fte_utilization')
@@ -5211,19 +5216,18 @@ def fte_calculation(request,prj_id,center_obj,date_list,level_structure_key):
     work_packet_query =  query_set_generation(prj_id,center_obj,level_structure_key,[])
     work_packet_query['from_date__gte'] = date_list[0]
     work_packet_query['to_date__lte'] = date_list[-1]
-    work_packets = Targets.objects.filter(**work_packet_query).values('sub_project','work_packet','sub_packet','fte_target').distinct()
+    work_packet_query['target_type'] = 'FTE Target'
+    work_packets = Targets.objects.filter(**work_packet_query).values('sub_project','work_packet','sub_packet','target_value').distinct()
     sub_packet_query = query_set_generation(prj_id,center_obj,level_structure_key,[])
     sub_packet_query['from_date__gte'] = date_list[0]
     sub_packet_query['to_date__lte'] = date_list[-1]
+    sub_packet_query['target_type'] = 'FTE Target'
     sub_packets = filter(None,Targets.objects.filter(**sub_packet_query).values_list('sub_packet',flat=True).distinct())
     conn = redis.Redis(host="localhost", port=6379, db=0)
     new_date_list = []
     status = 0
     if len(sub_packets) == 0:
-        #work_packet_query['from_date__lte'] = date_list[0]
-        #work_packet_query['to_date__gte'] = date_list[-1]
-        work_packets = Targets.objects.filter(**work_packet_query).values('sub_project', 'work_packet', 'sub_packet','fte_target').distinct()
-        print 'targte',work_packets
+        work_packets = Targets.objects.filter(**work_packet_query).values('sub_project', 'work_packet', 'sub_packet','target_value').distinct()
         date_values = {}
         volumes_dict = {}
         result = {}
@@ -5235,7 +5239,7 @@ def fte_calculation(request,prj_id,center_obj,date_list,level_structure_key):
                     final_work_packet = level_hierarchy_key(level_structure_key, wp_packet)
                     date_pattern = '{0}_{1}_{2}_{3}'.format(prj_name[0], str(center_name[0]), str(final_work_packet),date_va)
                     key_list = conn.keys(pattern=date_pattern)
-                    if wp_packet['fte_target'] >0:
+                    if wp_packet['target_value'] >0:
                         if not key_list:
                             if date_values.has_key(final_work_packet):
                                 date_values[final_work_packet].append(0)
@@ -5249,12 +5253,12 @@ def fte_calculation(request,prj_id,center_obj,date_list,level_structure_key):
                             if value == 'None':
                                 value = 0
                             if date_values.has_key(key):
-                                fte_sum = float(value) / int(wp_packet['fte_target'])
+                                fte_sum = float(value) / int(wp_packet['target_value'])
                                 #final_fte = float('%.2f' % round(fte_sum, 2))
                                 #date_values[key].append(final_fte)
                                 date_values[key].append(fte_sum)
                             else:
-                                fte_sum = float(value) / int(wp_packet['fte_target'])
+                                fte_sum = float(value) / int(wp_packet['target_value'])
                                 #final_fte = float('%.2f' % round(fte_sum, 2))
                                 #date_values[key] = [final_fte]
                                 date_values[key] = [fte_sum]
@@ -5270,6 +5274,7 @@ def fte_calculation(request,prj_id,center_obj,date_list,level_structure_key):
                 sub_project_query['project'] = prj_id
                 sub_project_query['center'] = center_obj
                 sub_project_query['sub_project'] = sub_project
+                sub_project_query['target_type'] = 'FTE Target'
                 new_level_structu_key = {}
                 new_level_structu_key['sub_project'] = sub_project
                 new_level_structu_key['work_packet'] = 'All'
