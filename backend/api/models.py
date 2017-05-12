@@ -15,6 +15,8 @@ class Center(models.Model):
 class Project(models.Model):
     name    = models.CharField(max_length=255,db_index=True)
     center  = models.ForeignKey(Center, null=True)
+    days_week = models.IntegerField(max_length=125,default=5)
+    days_month = models.IntegerField(max_length=125,default=21)
     project_db_handlings_choices = (('update','Update'),('aggregate','Aggregate'),('ignore','Ignore'),)
     project_db_handling = models.CharField(max_length=30,choices=project_db_handlings_choices,default='ignore',) 
 
@@ -381,6 +383,8 @@ class Targets(models.Model):
     sub_packet  = models.CharField(max_length=255, blank=True,db_index=True)
     target      = models.IntegerField(max_length=125)
     fte_target  = models.IntegerField(max_length=125,default=0)
+    target_type = models.CharField(max_length=255, blank=True)
+    target_value = models.IntegerField(max_length=125,default=0)
     center = models.ForeignKey(Center, null=True)
     project = models.ForeignKey(Project, null=True,db_index=True)
 
@@ -399,6 +403,8 @@ class TargetsAuthoring(models.Model):
     sub_packet  = models.CharField(max_length=255, blank=True)
     target      = models.CharField(max_length=125)
     fte_target = models.CharField(max_length=125, blank=True)
+    target_type = models.CharField(max_length=255, blank=True)
+    target_value = models.CharField(max_length=125, blank=True)
     center = models.ForeignKey(Center, null=True,db_index=True)
     project = models.ForeignKey(Project, null=True,db_index=True)
     sheet_name = models.CharField(max_length=255, default='')
