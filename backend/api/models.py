@@ -569,6 +569,7 @@ class IncomingerrorAuthoring(models.Model):
 
     def __unicode__(self):
         return self.work_packet
+
 class Incomingerror(models.Model):
     date = models.DateField()
     sub_project = models.CharField(max_length=255, blank=True,db_index=True)
