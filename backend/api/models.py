@@ -199,7 +199,7 @@ class RawTable(models.Model):
     work_packet = models.CharField(max_length=255,db_index=True)
     sub_packet  = models.CharField(max_length=255, blank=True,db_index=True)
     per_hour    = models.IntegerField(max_length=255, default=0)
-    per_day     = models.IntegerField(max_length=255, default=0)
+    per_day     = models.IntegerField(max_length=255, default=0,db_index=True)
     date = models.DateField()
     norm        = models.IntegerField(max_length=255, blank=True)
     created_at  = models.DateTimeField(auto_now_add=True, null=True)

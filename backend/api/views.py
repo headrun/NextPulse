@@ -2264,6 +2264,7 @@ def Packet_Alias_Names(prj_id,center_obj,widget_config_name):
 
 
 def graph_data_alignment_color(volumes_data,name_key,level_structure_key,prj_id,center_obj,widget_config_name=''):
+    
     packet_color_query = query_set_generation(prj_id[0],center_obj[0],level_structure_key,[]) 
     color_query_set = Color_Mapping.objects.filter(**packet_color_query)
     if level_structure_key.has_key('sub_project'):
@@ -2507,7 +2508,7 @@ def production_avg_perday(date_list,prj_cen_val,work_packets,level_structure_key
             volume_list = []
 
         count = 0
-        for date_va in new_date_list:
+        for date_va in date_list:
             for vol_type in volume_list:    
                 final_work_packet = level_hierarchy_key(level_structure_key, vol_type)
                 if not final_work_packet:
@@ -2769,7 +2770,7 @@ def internal_external_graphs_common(request,date_list,prj_id,center_obj,level_st
     date_values = {}
     for date_va in date_list:
         total_done_value = RawTable.objects.filter(project=prj_id, center=center_obj, date=date_va).aggregate(Max('per_day'))
-    if total_done_value['per_day__max'] > 0:
+        if total_done_value['per_day__max'] > 0:
             volume_list = worktrack_internal_external_workpackets_list(level_structure_key, 'RawTable', query_set)
             count =0
             for vol_type in volume_list:
@@ -3629,11 +3630,13 @@ def prod_volume_week_util(week_names,productivity_list,final_productivity):
 """
 
 def prod_volume_week_util(prj_id,week_names,productivity_list,final_productivity,week_or_month):
+
     var = Project.objects.filter(id=prj_id[0]).values('days_week','days_month')[0]
     for final_key, final_value in productivity_list.iteritems():
         for week_key, week_value in final_value.iteritems():
             if week_key not in final_productivity.keys():
                 final_productivity[week_key] = []
+    
     for prod_week_num in week_names:
         if len(productivity_list.get(prod_week_num,'')) > 0:
             for vol_key, vol_values in productivity_list[prod_week_num].iteritems():
@@ -3674,6 +3677,7 @@ def prod_volume_week_util(prj_id,week_names,productivity_list,final_productivity
         else:
             for vol_key, vol_values in final_productivity.iteritems():
                 final_productivity[vol_key].append(0)
+    
     return final_productivity
 
 
@@ -3815,7 +3819,7 @@ def overall_exception_data(date_list, prj_id, center,level_structure_key):
                 if packet == 'Data Entry' or packet =='KYC Check':
                     sub_packets = Incomingerror.objects.filter(project=prj_id, center=center, date=date_value,work_packet = packet).values_list('sub_packet',flat = True).distinct()
                     work_done = RawTable.objects.filter(project=prj_id, center=center, date=date_value,work_packet = packet).aggregate(Sum('per_day'))
-                    error_value = Incomingerror.objects.filter(project=prj_id, center=center, date=date_value,work_packet=packet,sub_packet='Over all Exception').aggregate(Sum('error_values'))
+                    error_value = Incomingerror.objects.filter(project=prj_id, center=center, date=date_value,work_packet=packet,sub_packet='Overall Exception').aggregate(Sum('error_values'))
                     if work_done['per_day__sum'] > 0 and error_value['error_values__sum'] > 0:
                         percentage = float(error_value['error_values__sum'])/float(work_done['per_day__sum'])*100
                         percentage = (float('%.2f' % round(percentage, 2)))
@@ -5157,9 +5161,9 @@ def fte_calculation_sub_project_sub_packet(prj_id,center_obj,work_packet_query,l
         new_work_packet_query['to_date__lte'] = date_va
         if new_work_packet_query.has_key('work_packet'):
             del new_work_packet_query['work_packet']
-        work_packets = Targets.objects.filter(**new_work_packet_query).values('sub_project', 'work_packet', 'sub_packet','fte_target').distinct()
+        work_packets = Targets.objects.filter(**new_work_packet_query).values('sub_project', 'work_packet', 'sub_packet','target_value').distinct()
         for wp_dict in work_packets:
-            packets_target[wp_dict['sub_packet']] = int(wp_dict['fte_target'])
+            packets_target[wp_dict['sub_packet']] = int(wp_dict['target_value'])
         total_done_value = RawTable.objects.filter(project=prj_id, center=center_obj, date=date_va).aggregate(Max('per_day'))
         if total_done_value['per_day__max'] > 0:
             new_date_list.append(date_va)
@@ -6890,23 +6894,28 @@ def main_productivity_data(prj_cen_val,date_list,level_structure_key):
         utilization_date_values = {}
         product_date_values['total_prodictivity'] = []
         utilization_date_values['total_utilization'] = []
-        from collections import defaultdict
-        ratings = defaultdict(list)
-        data_list = RawTable.objects.filter(project=prj_cen_val[0][0],center=prj_cen_val[1][0],date__range=[date_list[0], date_list[-1]]).values('date', 'per_day').order_by('date', 'per_day')
-        for result2 in data_list: ratings[result2['date']].append(result2['per_day'])
-        #for date_value in date_list:
-        for date_va,data in ratings.iteritems():
-            #total_done_value = RawTable.objects.filter(project=prj_cen_val[0][0], center=prj_cen_val[1][0], date=date_value).aggregate(Max('per_day'))
-            total_done_value = max(data)
-            if total_done_value > 0:
+        #from collections import defaultdict
+        #ratings = defaultdict(list)
+        #data_list = RawTable.objects.filter(project=prj_cen_val[0][0],center=prj_cen_val[1][0],date__range=[date_list[0], date_list[-1]]).values('date', 'per_day').order_by('date', 'per_day')
+        #for result2 in data_list: ratings[result2['date']].append(result2['per_day'])
+        for date_va in date_list:
+        #for date_va,data in ratings.iteritems():
+            total_done_value = RawTable.objects.filter(project=prj_cen_val[0][0], center=prj_cen_val[1][0], date=date_va).aggregate(Max('per_day'))
+            #total_done_value = max(data)
+            if total_done_value['per_day__max'] > 0:
+            #if total_done_value > 0:
                 billable_emp_count = Headcount.objects.filter(project=prj_cen_val[0][0], center=prj_cen_val[1][0], date=date_va).values_list('billable_agents', flat=True)
                 #total_emp_count = Headcount.objects.filter(project=prj_id, center=center, date=date_value).values_list('total', flat=True)
                 total_work_done = RawTable.objects.filter(project=prj_cen_val[0][0], center=prj_cen_val[1][0], date=date_va).values_list('per_day').aggregate(Sum('per_day'))
                 total_work_done = total_work_done.get('per_day__sum')
             # below code for productivity
 
-                if len(billable_emp_count) > 0 and billable_emp_count[0] != 0:
-                    productivity_value = float(total_work_done / float(sum(billable_emp_count)))
+                #if len(billable_emp_count) > 0 and billable_emp_count[0] != 0:
+                if len(billable_emp_count) > 0:
+                    try:
+                        productivity_value = float(total_work_done / float(sum(billable_emp_count)))
+                    except:
+                        productivity_value = 0
                 else:
                     productivity_value = 0
                 final_prodictivity_value = float('%.2f' % round(productivity_value, 2))
@@ -6920,16 +6929,17 @@ def main_productivity_data(prj_cen_val,date_list,level_structure_key):
         utilization_date_values = {}
         query_set = query_set_generation(prj_cen_val[0][0], prj_cen_val[1][0], level_structure_key, date_list)
         volume_list = workpackets_list(level_structure_key, 'Headcount', query_set)
-        from collections import defaultdict
-        ratings = defaultdict(list)
-        data_list = RawTable.objects.filter(project=prj_cen_val[0][0],center=prj_cen_val[1][0],date__range=[date_list[0], date_list[-1]]).values('date', 'per_day').order_by('date', 'per_day')
-        for result2 in data_list: ratings[result2['date']].append(result2['per_day'])
-        for date_va,data in ratings.iteritems():
-        #for date_value in date_list:
+        #from collections import defaultdict
+        #ratings = defaultdict(list)
+        #data_list = RawTable.objects.filter(project=prj_cen_val[0][0],center=prj_cen_val[1][0],date__range=[date_list[0], date_list[-1]]).values('date', 'per_day').order_by('date', 'per_day')
+        #for result2 in data_list: ratings[result2['date']].append(result2['per_day'])
+        #for date_va,data in ratings.iteritems():
+        for date_va in date_list:
             packet_count = 0
-            #total_done_value = RawTable.objects.filter(project=prj_cen_val[0][0], center=prj_cen_val[1][0], date=date_value).aggregate(Max('per_day'))
-            total_done_value = max(data)
-            if total_done_value > 0:
+            total_done_value = RawTable.objects.filter(project=prj_cen_val[0][0], center=prj_cen_val[1][0], date=date_va).aggregate(Max('per_day'))
+            #total_done_value = max(data)
+            if total_done_value['per_day__max'] > 0:
+            #if total_done_value > 0:
                 for vol_type in volume_list:
                     if level_structure_key.has_key('sub_project'):
                         local_level_hierarchy_key = vol_type
@@ -7474,7 +7484,7 @@ def Monthly_Volume_graph(date_list, prj_cen_val, level_structure_key):
                 ##target_consideration = Targets.objects.filter(**target_query_set).values('target','fte_target').distinct()
                 ##fte_targets_list = Targets.objects.filter(**target_query_set).values_list('fte_target',flat=True).distinct()
                 target_types = Targets.objects.filter(**target_query_set).values('target_type').distinct()
-                target_consideration = target_types.filter(target_type = 'Production').values_list('target_value',flat=True).distinct()
+                target_consideration = target_types.filter(target_type = 'Target').values_list('target_value',flat=True).distinct()
                 fte_targets_list = target_types.filter(target_type = 'FTE Target').values_list('target_value',flat=True).distinct()
                 """
                 if len(target_consideration) > 0:
@@ -7518,6 +7528,11 @@ def Monthly_Volume_graph(date_list, prj_cen_val, level_structure_key):
                         _targets_list[final_work_packet].append(int(target_consideration[0]))
                     else:
                         _targets_list[final_work_packet] = [int(target_consideration[0])]
+                elif len(target_consideration) == 0 and len(fte_targets_list) > 0:
+                    if _targets_list.has_key(final_work_packet):
+                         _targets_list[final_work_packet].append(int(fte_targets_list[0]))
+                    else:
+                        _targets_list[final_work_packet] = [int(fte_targets_list[0])]
                 else:
                     if _targets_list.has_key(final_work_packet):
                         _targets_list[final_work_packet].append(0)
