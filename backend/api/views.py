@@ -7762,3 +7762,81 @@ def dropdown_data_types(request):
         result['sub_packet'] = 1
     return HttpResponse(result)
 
+
+
+def get_top_reviews(request):
+   """ get list of reviews """
+    project = request.GET.get('project', "")
+    team_lead = request.GET.get('team_lead', "")
+    search_term = request.GET.get('search', "")
+
+    if search_term:
+        rev_objs = Review.objects.filter(review_name__contains = search_term, project__id = project)
+    else:
+        rev_objs = Review.objects.filter(project__id = project)
+
+    result = {all_data :[]}
+    if rev_objs.count > 10:
+        rev_objs = rev_objs[:10]
+    for item in rev_objs:
+        data = {}
+        data['name'] = item.review_name
+        review_date = item.review_date
+        data['date'] = review_date.strftime("%d %b, %Y")
+        data['time'] = review_date.strftime("%I:%M %p")
+        data['id'] = item.id
+
+        all_data.append(data)
+
+    return HttpResponse(result)
+
+
+
+def create_reviews(request):
+    """ creating reviews """
+    curdate = datetime.datetime.now()
+    project = request.GET.get('project', "")
+    review_name = request.GET.get('review_name', "")
+    _review_date = request.GET.get('review_date', "")
+    _review_time = request.GET.get('review_time', "")
+    tl = request.GET.get('team_lead', "")
+
+    review_date = datetime.datetime.strptime((_review_date + _review_time), "%d %b, %Y%I:%M %p")
+
+    Review.objects.update_or_create(project__id = project, review_name = review_name, team_lead__id = tl, review_date= review_date)
+
+    return HttpResponse('success')
+
+def get_review_details(request):
+    """ getting detail of the review """
+
+    review_id = request.GET.get('review_id', "")
+
+    rev_objs = Review.objects.filter(id = review_id)
+
+    if not rev_objs:
+        return HttpResponse('Failed')
+    else:
+        item = rev_objs[0]
+        data = {}
+        data['name'] = item.review_name
+        review_date = item.review_date
+        data['date'] = review_date.strftime("%d %b, %Y")
+        data['time'] = review_date.strftime("%I:%M %p")
+
+        return HttpResponse(data)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

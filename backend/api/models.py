@@ -625,3 +625,48 @@ class TatTable(models.Model):
 
     def __unicode__(self):
         return self.tat_status
+
+
+class Review(models.Model):
+    """ model to store Reviews """
+    review_name = models.CharField(max_length=255, db_index=True)
+    project = models.ForeignKey(Project, db_index=True)
+    team_lead = models.ForeignKey(TeamLead, db_index=True)
+    review_date = models.DateTimeField(null=True, db_index=True)
+    creation_date = models.DateTimeField(auto_now_add=True)
+    updation_date = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = u'review_system'
+
+    def __unicode__(self):
+        return self.review_name
+
+
+class ReviewFiles(models.Model):
+    """ model to store files for reviews """
+    file_name = models.FileField(upload_to='media/reviews/')
+    review = models.ForeignKey(Review, db_index=True)
+    creation_date = models.DateTimeField(auto_now_add=True)
+    updation_date = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = u'review_files'
+        index_together = (('review', 'file_name'), )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
