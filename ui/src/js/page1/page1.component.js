@@ -79,36 +79,23 @@
                 self.click(start,end);
                });
 
-             $http({method:"GET", url:self.pro_landing_url}).success(function(result){
+             $http.get(self.pro_landing_url).then(function(result){
 
-                if (result.result.role === 'customer'){
-                    $('#emp_widget').hide();
-                    $('#volume_table').hide();
-                     }
-                self.list_object = result.result.lay[0];
-                /*self.list_object = result.result.lay[0];*/
-                if((result.result.role === 'customer') || (result.result.role === 'team_lead') || (result.result.role === 'center_manager') || (result.result.role === 'nextwealth_manager'))
-                {   $('#emp_widget').hide();
-                    $('#volume_table').hide();
-                    var pro_cen_nam = $state.params.selpro;
-                    self.first = result.result.dates.from_date;
-                    self.lastDate = self.first;
-                    self.last = result.result.dates.to_date;
-                    self.firstDate = self.last;
-                    $('#select').val(self.first + ' to ' + self.last)
+                self.list_object = result.data.result.lay[0];
+                self.layout_list = result.data.result.lay[1].layout;
 
-                    if ((result.result.role === 'customer') || (result.result.role === 'team_lead') || (result.result.role === 'nextwealth_manager') || (result.result.role === 'center_manager')){
-                       self.layout_list = result.result.lay[1].layout;
-                    }
-                    else {
-                        if (result.result.lay.length == 1){
-                            self.layout_list = result.result.lay[0][pro_cen_nam]
-                        }
-                        else {
-                            self.layout_list = result.result.lay[1][pro_cen_nam]
-                        }
-                    }
-                    self.final_layout_values_list = {
+                var pro_cen_nam = $state.params.selpro;                                                                                           
+                self.call_back = [];
+
+                self.first = result.data.result.dates.from_date;                                                                                       
+                self.last = result.data.result.dates.to_date;
+
+                self.call_back.push(self.first);
+                self.call_back.push(self.last);
+
+                $('#select').val(self.first + ' to ' + self.last);
+
+                self.final_layout_values_list = {
                     'self.chartOptions':self.chartOptions,
                     'self.chartOptions4':self.chartOptions4,
                     'self.chartOptions6':self.chartOptions6,
@@ -149,55 +136,137 @@
                     'self.chartOptions42':self.chartOptions42,
                     'self.chartOptions43':self.chartOptions43,
                     'self.chartOptions44':self.chartOptions44,
-                    };
+                };
 
-                    var final_layout_list = [];
-                    for (var single in self.layout_list){
-                        for (var double in self.list_object){
-                            if (self.layout_list[single] === double) {
-                                final_layout_list.push(self.list_object[double])
-                            }
+                self.final_layout_list = [];
+                for (var single in self.layout_list){
+                    for (var double in self.list_object){
+                        if (self.layout_list[single] === double) {
+                            self.final_layout_list.push(self.list_object[double])
                         }
                     }
-
-                    var is_filled = 0;
-                    var col_size = 0;
-                    var first_row = [];
-                    var second_row = [];
-                    for (var one_lay in final_layout_list){
-                        col_size = col_size + final_layout_list[one_lay].col;
-                        if (col_size > 12){
-                            is_filled = 1;
-                            if (col_size >= 12){
-                                col_size = 0;
-                            }
-                        }
-                        if (is_filled){
-                            second_row.push(final_layout_list[one_lay]);
-                        }
-                        else{
-                            first_row.push(final_layout_list[one_lay]);
-                        }
-                        if ((col_size%12 == 0) | (col_size > 12)){
-                            is_filled = 1;
-                            if (col_size >= 12){
-                                col_size = 0;
-                            }
-                        }
-                    }
-                    self.useful_layout.push(first_row,second_row);
-
-                    self.location = pro_cen_nam.split('-')[0].replace(' ','') + ' - '
-                    self.project = pro_cen_nam.split('-')[1].replace(' ','') + ' - '
-                    var from_to_data = from_to + 'from=' + self.lastDate + '&to=' + self.firstDate + '&project=' + self.project
-                              + '&center=' + self.location  + '&type=' + self.day_type;
-                    var static_ajax = static_data + '&project=' + self.project + '&center=' + self.location
-                    self.main_render(from_to_data)
-                    $http({method:"GET", url:static_ajax}).success(function(result){
-                           self.static_widget_render(result,self.project,self.location);
-                    });
                 }
-             })
+
+                self.location = pro_cen_nam.split('-')[0].replace(' ','') + ' - '
+                self.project = pro_cen_nam.split('-')[1].replace(' ','') + ' - '
+                
+                self.call_back.push(self.location);
+                self.call_back.push(self.project);
+             
+                return self.call_back;
+                    //var from_to_data = from_to + 'from=' + self.lastDate + '&to=' + self.firstDate + '&project=' + self.project
+                              //+ '&center=' + self.location  + '&type=' + self.day_type;
+                    //var static_ajax = static_data + '&project=' + self.project + '&center=' + self.location
+                    //self.main_render(from_to_data)
+                    //$http({method:"GET", url:static_ajax}).success(function(result){
+                           //self.static_widget_render(result,self.project,self.location);
+                    //});
+           }).then(function(callback){
+                    var packet_url = '/api/get_packet_details/?&project='+callback[3]+'&center='+callback[2]+'&from='+'2017-01-09'+'&to='+'2017-01-15'
+                    $http.get(packet_url).then(function(result){
+                        $('#dropdown_title').html($(".brand_style").text().replace(" - DASHBOARD",''));
+                        //self.hideLoading();
+                        var sub_project_level = result.data.result.sub_project_level;
+                        var sub_packet_level = result.data.result.sub_packet_level;
+                        var work_packet_level = result.data.result.work_packet_level;
+                        self.global_packet_values = result.data.result.fin;
+                        self.hideLoading();
+                        self.drop_list = [];
+
+                        self.top_employee_details =  result.data.result.top_five_employee_details;
+                        self.top_five = result.data.result.only_top_five;
+                        self.volume_graphs = result.data.result.volumes_graphs_details;
+                        self.drop_list =  result.data.result.drop_value;
+                        self.sub_pro_sel = document.getElementById("0");
+                        self.wor_pac_sel = document.getElementById("1");
+                        self.sub_pac_sel = document.getElementById("2");
+                        $("#0, #1, #2").unbind("change");
+
+                            if (result.data.result.fin.sub_project) {
+                                console.log('sub_projet_exist');
+                            }
+                            else {   
+                                $('#2').hide();
+                                //$('#2').remove();
+                                if (result.data.result.fin.work_packet) {
+                                    console.log('work_packet_exist');
+                                }
+                                if (result.data.result.fin.sub_packet) {
+                                    console.log('sub_packet_exist');
+                                }
+                                else {
+                                    $('#1').hide();
+                                    //$('#1').remove();
+                                }
+                            }
+
+                            if (result.data.result.fin.sub_packet) {
+                                    console.log('sub_packet_exist');
+                                }
+                            else {
+                                    $('#2').hide();
+                                    //$('#1').remove();
+                              }   
+
+
+                        for (var sub_pro in self.drop_list) {
+                            self.sub_pro_sel.options[self.sub_pro_sel.options.length] = new Option(sub_pro, sub_pro);
+                        }
+                    });
+                    return callback
+
+           }).then(function(callback){
+           
+                    self.hideLoading();
+                    //self.lastDate+'&to='+self.firstDate+'&type=' + self.day_type;
+                    var common_for_all = '?&project='+callback[3]+'&center='+callback[2]+'&from='+'2017-01-09'+'&to='+'2017-01-15'+'&type=' + 
+                                         self.day_type;
+                    var allo_and_comp = '/api/alloc_and_compl/'+common_for_all;
+                    var utill_all = '/api/utilisation_all/'+common_for_all;
+
+                    $http({method:"GET", url: allo_and_comp}).success(function(result){
+
+                            angular.extend(self.chartOptions17, {
+                                xAxis: {
+                                    categories: result.result.date,
+                                },
+                                series: result.result.bar_data
+                            });
+                            
+                            angular.extend(self.chartOptions18, {
+                                xAxis: {
+                                    categories: result.result.date,
+                                },
+                                series: result.result.line_data
+                            });
+                        })
+
+                    $http({method:"GET", url: utill_all}).success(function(result){
+
+
+                            angular.extend(self.chartOptions25, {
+                                xAxis: {
+                                    categories: result.result.date,
+                                },
+                                series: result.result.utilization_operational_details
+                            });
+
+                            angular.extend(self.chartOptions24, {
+                                xAxis: {
+                                    categories: result.result.date,
+                                },
+                                series: result.result.utilization_fte_details
+                            });
+
+                            angular.extend(self.chartOptions15, {
+                                xAxis: {
+                                    categories: result.result.date,
+                                },
+                                series: result.result.original_utilization_graph
+                            });
+
+                        })
+            })
              console.log(self.firstDate);
              console.log(self.lastDate);
              self.updateState();
