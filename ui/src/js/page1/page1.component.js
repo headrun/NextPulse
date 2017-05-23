@@ -79,6 +79,91 @@
                 self.click(start,end);
                });
 
+             self.main_widget_function = function(callback, packet) {
+
+                    //self.lastDate+'&to='+self.firstDate+'&type=' + self.day_type;
+                    var common_for_all = '?&project='+callback[3]+'&center='+callback[2]+'&from='+'2017-01-09'+'&to='+'2017-01-15'+'&type=' +
+                                         self.day_type + packet;
+                    var allo_and_comp = '/api/alloc_and_compl/'+common_for_all;
+                    var utill_all = '/api/utilisation_all/'+common_for_all;
+                    var erro_all = '/api/erro_data_all/'+common_for_all;
+
+                    $http({method:"GET", url: allo_and_comp}).success(function(result){
+
+                            angular.extend(self.chartOptions17, {
+                                xAxis: {
+                                    categories: result.result.date,
+                                },
+                                series: result.result.bar_data
+                            });
+
+                            angular.extend(self.chartOptions18, {
+                                xAxis: {
+                                    categories: result.result.date,
+                                },
+                                series: result.result.line_data
+                            });
+                        })
+
+                    $http({method:"GET", url: utill_all}).success(function(result){
+
+
+                            angular.extend(self.chartOptions25, {
+                                xAxis: {
+                                    categories: result.result.date,
+                                },
+                                series: result.result.utilization_operational_details
+                            });
+
+                            angular.extend(self.chartOptions24, {
+                                xAxis: {
+                                    categories: result.result.date,
+                                },
+                                series: result.result.utilization_fte_details
+                            });
+
+                            angular.extend(self.chartOptions15, {
+                                xAxis: {
+                                    categories: result.result.date,
+                                },
+                                series: result.result.original_utilization_graph
+                            });
+
+                        })
+
+                       $http({method:"GET", url: erro_all}).success(function(result){
+
+                            angular.extend(self.chartOptions9, {
+                                xAxis: {
+                                    categories: result.result.date,
+                                },
+                                series: result.result.external_time_line
+                            });
+
+                            angular.extend(self.chartOptions9_2, {
+                                xAxis: {
+                                    categories: result.result.date,
+                                },
+                                series: result.result.internal_time_line
+                            });
+
+                            angular.extend(self.chartOptions4, {
+                                xAxis: {
+                                    categories: result.result.date,
+                                },
+                                series: result.result.internal_accuracy_graph
+                            });
+
+                            angular.extend(self.chartOptions6, {
+                                xAxis: {
+                                    categories: result.result.date,
+                                },
+                                series: result.result.external_accuracy_graph
+                            });
+
+               self.hideLoading();
+                }) 
+            }
              $http.get(self.pro_landing_url).then(function(result){
 
                 self.list_object = result.data.result.lay[0];
@@ -154,23 +239,16 @@
                 self.call_back.push(self.project);
              
                 return self.call_back;
-                    //var from_to_data = from_to + 'from=' + self.lastDate + '&to=' + self.firstDate + '&project=' + self.project
-                              //+ '&center=' + self.location  + '&type=' + self.day_type;
-                    //var static_ajax = static_data + '&project=' + self.project + '&center=' + self.location
-                    //self.main_render(from_to_data)
-                    //$http({method:"GET", url:static_ajax}).success(function(result){
-                           //self.static_widget_render(result,self.project,self.location);
-                    //});
+
            }).then(function(callback){
-                    var packet_url = '/api/get_packet_details/?&project='+callback[3]+'&center='+callback[2]+'&from='+'2017-01-09'+'&to='+'2017-01-15'
+                    var packet_url = '/api/get_packet_details/?&project='+callback[3]+'&center='+callback[2]+'&from='+'2017-01-09'+'&to='+'2017-01-15';
+                    self.call_back = callback;
                     $http.get(packet_url).then(function(result){
                         $('#dropdown_title').html($(".brand_style").text().replace(" - DASHBOARD",''));
-                        //self.hideLoading();
                         var sub_project_level = result.data.result.sub_project_level;
                         var sub_packet_level = result.data.result.sub_packet_level;
                         var work_packet_level = result.data.result.work_packet_level;
                         self.global_packet_values = result.data.result.fin;
-                        self.hideLoading();
                         self.drop_list = [];
 
                         self.top_employee_details =  result.data.result.top_five_employee_details;
@@ -180,6 +258,8 @@
                         self.sub_pro_sel = document.getElementById("0");
                         self.wor_pac_sel = document.getElementById("1");
                         self.sub_pac_sel = document.getElementById("2");
+
+
                         $("#0, #1, #2").unbind("change");
 
                             if (result.data.result.fin.sub_project) {
@@ -212,156 +292,69 @@
                         for (var sub_pro in self.drop_list) {
                             self.sub_pro_sel.options[self.sub_pro_sel.options.length] = new Option(sub_pro, sub_pro);
                         }
+                if ((result.data.result.fin.sub_project) && (result.data.result.fin.work_packet)){
+
+                $('#0').on('change', function(){
+
+                });
+
+                $('#1').on('change', function(){
+
+                });
+
+                $('#2').on('change', function(){
+
+                });
+
+                }
+
+                else {
+
+                if ((result.data.result.fin.work_packet) && (result.data.result.fin.sub_packet)){
+
+                $('#0').on('change', function(){
+
+                });
+
+                }
+
+                else {
+
+                if (result.data.result.fin.work_packet){ 
+
+                    $('#0').on('change', function(){ 
+                        self.drop_work_pack = this.value;
+                        self.drop_sub_proj = 'undefined';
+                        self.drop_sub_pack = self.sub_pac_sel.value;
+                        
+                        var final_work =  '&sub_project=' + self.drop_sub_proj + '&sub_packet=' + self.drop_sub_pack + '&work_packet=' + 
+                                            self.drop_work_pack;
+
+                        self.main_widget_function(self.call_back, final_work);
+
                     });
-                    return callback
+                }
+                }
+                if (result.data.result.fin.sub_packet) {
+                $('#1').on('change', function(){
 
+                });
+                }
+
+                else {
+                self.drop_sub_pack = 'undefined';
+                }
+             }
+
+                    })
+                    return callback;
            }).then(function(callback){
-           
-                    self.hideLoading();
-                    //self.lastDate+'&to='+self.firstDate+'&type=' + self.day_type;
-                    var common_for_all = '?&project='+callback[3]+'&center='+callback[2]+'&from='+'2017-01-09'+'&to='+'2017-01-15'+'&type=' + 
-                                         self.day_type;
-                    var allo_and_comp = '/api/alloc_and_compl/'+common_for_all;
-                    var utill_all = '/api/utilisation_all/'+common_for_all;
+                    var final_work = '';
+                    self.main_widget_function(callback, final_work);
 
-                    $http({method:"GET", url: allo_and_comp}).success(function(result){
-
-                            angular.extend(self.chartOptions17, {
-                                xAxis: {
-                                    categories: result.result.date,
-                                },
-                                series: result.result.bar_data
-                            });
-                            
-                            angular.extend(self.chartOptions18, {
-                                xAxis: {
-                                    categories: result.result.date,
-                                },
-                                series: result.result.line_data
-                            });
-                        })
-
-                    $http({method:"GET", url: utill_all}).success(function(result){
-
-
-                            angular.extend(self.chartOptions25, {
-                                xAxis: {
-                                    categories: result.result.date,
-                                },
-                                series: result.result.utilization_operational_details
-                            });
-
-                            angular.extend(self.chartOptions24, {
-                                xAxis: {
-                                    categories: result.result.date,
-                                },
-                                series: result.result.utilization_fte_details
-                            });
-
-                            angular.extend(self.chartOptions15, {
-                                xAxis: {
-                                    categories: result.result.date,
-                                },
-                                series: result.result.original_utilization_graph
-                            });
-
-                        })
+            }).then(function(callback){
             })
-             console.log(self.firstDate);
-             console.log(self.lastDate);
-             self.updateState();
-             console.log('Hello from page1 yesh');
-             $scope.options = self.tabData;
-             self.main_render = function(from_to_data){
-                 self.showLoading();
-                 $http({method:"GET", url:from_to_data}).success(function(result){
-                        $('#dropdown_title').html($(".brand_style").text().replace(" - DASHBOARD",''));
-                        //self.hideLoading();
-                        var sub_project_level = result.result.sub_project_level;
-                        var sub_packet_level = result.result.sub_packet_level;
-                        var work_packet_level = result.result.work_packet_level;
-                        self.global_packet_values = result.result.fin;
-                        self.hideLoading();
-                        self.drop_list = [];
-
-                        self.top_employee_details =  result.result.top_five_employee_details;
-                        self.top_five = result.result.only_top_five;
-                        self.volume_graphs = result.result.volumes_graphs_details;
-                        self.drop_list =  result.result.drop_value;
-                        self.sub_pro_sel = document.getElementById("0");
-                        self.wor_pac_sel = document.getElementById("1");
-                        self.sub_pac_sel = document.getElementById("2");
-                        $("#0, #1, #2").unbind("change");
-
-                            if (result.result.fin.sub_project) {
-                                console.log('sub_projet_exist');
-                            }
-                            else {
-                                $('#2').hide();
-                                //$('#2').remove();
-                                if (result.result.fin.work_packet) {
-                                    console.log('work_packet_exist');
-                                }
-                                if (result.result.fin.sub_packet) {
-                                    console.log('sub_packet_exist');
-                                }
-                                else {
-                                    $('#1').hide();
-                                    //$('#1').remove();
-                                }
-                            }
-                            
-                            if (result.result.fin.sub_packet) {
-                                    console.log('sub_packet_exist');
-                                }
-                            else {
-                                    $('#2').hide();
-                                    //$('#1').remove();
-                              }                            
-
-
-                        for (var sub_pro in self.drop_list) {
-                            self.sub_pro_sel.options[self.sub_pro_sel.options.length] = new Option(sub_pro, sub_pro);
-                        }
-                        self.sub_pro_sel.onchange = function () {
-                            self.wor_pac_sel.length = 1;
-                            self.sub_pac_sel.length = 1;
-                            if (this.selectedIndex < 1) {
-                                self.wor_pac_sel.options[0].text = "All"
-                                self.sub_pac_sel.options[0].text = "All"
-                                return;
-                            }
-                            self.wor_pac_sel.options[0].text = "All"
-                            for (var wor_pac in self.drop_list[this.value]) {
-                                self.wor_pac_sel.options[self.wor_pac_sel.options.length] = new Option(wor_pac, wor_pac);
-                            }
-                            if (self.wor_pac_sel.options.length==2) {
-                                //self.wor_pac_sel.selectedIndex=1;
-                                self.wor_pac_sel.onchange();
-                            }
-                        }
-                        self.sub_pro_sel.onchange();
-                        self.wor_pac_sel.onchange = function () {
-                            self.sub_pac_sel.length = 1;
-                            if (this.selectedIndex < 1) {
-                                self.sub_pac_sel.options[0].text = "All"
-                                return;
-                            }
-                            self.sub_pac_sel.options[0].text = "All"
-
-                            var sub_pac = self.drop_list[self.sub_pro_sel.value][this.value];
-                            for (var i = 0; i < sub_pac.length; i++) {
-                                self.sub_pac_sel.options[self.sub_pac_sel.options.length] = new Option(sub_pac[i], sub_pac[i]);
-                            }
-                            if (self.sub_pac_sel.options.length==2) {
-                                self.sub_pac_sel.selectedIndex=1;
-                                self.sub_pac_sel.onchange();
-                            }
-                            }
-                            self.drop_work_pack = 'All';
-                            self.drop_sub_proj = 'All';
-                            self.drop_sub_pack = 'All';
-                            if ((result.result.fin.sub_project) && (result.result.fin.work_packet)){
+                            /*if ((result.result.fin.sub_project) && (result.result.fin.work_packet)){
                                 $('#0').on('change', function(){
                                             if (self.day_type === 'week'){
                                                 $('.week2').addClass('active btn-success');
@@ -414,10 +407,10 @@
                             dateEntered = dateEntered.replace(' to ','to');
                             var from = dateEntered.split('to')[0].replace(' ','');
                             var to = dateEntered.split('to')[1].replace(' ','');
-                            var placeholder = ''
+                            var placeholder = ''*/
                             /*var from_to_data = from_to + 'from=' + from + '&to=' + to + '&project=' + self.project
                                     + '&center=' + self.location + '&type=' + self.day_type  + final_work;*/
-                            var from_to_data = from_to + 'from=' + from + '&to=' + to + '&project=' + self.project
+                            /*var from_to_data = from_to + 'from=' + from + '&to=' + to + '&project=' + self.project
                                     + '&center=' + self.location + '&type=' + 'day'  + final_work;
                             $http({method:"GET", url:from_to_data}).success(function(result){
                                 self.chart_render(result,self.project,self.location);
@@ -722,15 +715,13 @@
                             }
                         self.packet_count = result.result.productivity_data.length;
                             self.chart_render(result,self.project,self.location);
-                         })
-                            }
                         self.removeOptions = function (selectbox){
                             var i;
                             for(i = selectbox.options.length - 1 ; i >= 0 ; i--)
                                 {
                                     selectbox.remove(i);
                                 }
-                            }
+                            }*/
              var unWatch;
 
              this.$onInit = function () {
@@ -899,7 +890,6 @@
                 self.first = self.lastDate;
 
             self.dateType = function(key,all_data,name,button_clicked){
-                self.showLoading();
                 self.day_type = key;
                 var obj = {"self.chartOptions":self.chartOptions,"self.chartOptions9":self.chartOptions9,"self.chartOptions9_2":self.chartOptions9_2,"self.chartOptions10":self.chartOptions10,"self.chartOptions15":self.chartOptions15,"self.chartOptions16":self.chartOptions16,"self.chartOptions16_2":self.chartOptions16_2,"self.chartOptions17":self.chartOptions17,"self.chartOptions18":self.chartOptions18,"self.chartOptions19":self.chartOptions19,"self.chartOptions20":self.chartOptions20,'self.chartOptions21':self.chartOptions21,'self.chartOptions24':self.chartOptions24,'self.chartOptions25':self.chartOptions25,'self.chartOptions26':self.chartOptions26,'self.chartOptions38':self.chartOptions38,'self.chartOptions39':self.chartOptions39,'self.chartOptions40':self.chartOptions40,'self.chartOptions41':self.chartOptions41,'self.chartOptions42':self.chartOptions42}
                 self.render_data = obj[all_data];
@@ -919,7 +909,6 @@
                         + '&center=' + self.location + '&type=' + self.day_type + final_work;
                 console.log(from_to_data);
                 $http({method:"GET", url:from_to_data}).success(function(result){
-                            self.hideLoading();
                             self.high_data_gener = [];
                             var final_data_gener = result.result;
                             self.high_data_gener.push(final_data_gener);
@@ -2128,7 +2117,6 @@
                 var placeholder = '' 
                 var final_work =  '&sub_project=' + self.drop_sub_proj + '&sub_packet=' + self.drop_sub_pack + '&work_packet=' + self.packet_clicked + '&is_clicked=' + self.button_clicked;
                 var from_to_data = from_to +'from=' + self.lastDate + '&to=' + self.firstDate + '&project=' + self.project + '&center=' + self.location + '&type=' + type + final_work; 
-                self.showLoading();
                 $http({method:"GET", url:from_to_data}).success(function(result){
                     self.chart_render(result,self.project,self.location);
                 });  
@@ -2137,7 +2125,6 @@
 
             self.chart_render = function(result,pro,loc){
 
-                            self.hideLoading();
                             self.high_data_gener = [];
                             var final_data_gener = result.result;
                             self.high_data_gener.push(final_data_gener);
@@ -4040,7 +4027,6 @@ plotOptions: {
                 var final_work =  '&sub_project=' + self.sub_pro_sel_two + '&sub_packet=' + self.sub_pac_sel_two + '&work_packet=' + self.packet_clicked;
                 var from_to_data = from_to + 'from=' + dates_list[0] + '&to=' + dates_list[1] + '&project=' + self.project
                        + '&center=' + self.location + '&type=' + 'day' + final_work;
-                self.showLoading();
                 $('.day2').addClass('active btn-success');
                 $('.day2').siblings().removeClass('active btn-success');
                 //self.main_render(from_to_data)

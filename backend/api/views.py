@@ -30,6 +30,232 @@ import collections
 import hashlib
 import random
 
+def get_level_structure_key(work_packet, sub_project, sub_packet, pro_cen_mapping):
+    """It will generate level structure key with existing packet, project, and sub packey types"""
+    level_structure_key ={}
+    if (work_packet) and (work_packet !='undefined'): level_structure_key['work_packet']= work_packet
+    if (sub_project) and (sub_project !='undefined'): level_structure_key['sub_project'] = sub_project
+    if (sub_packet) and (sub_packet !='undefined'): level_structure_key['sub_packet'] = sub_packet
+    count = 0
+    all_count = [count + 1 for key in level_structure_key.values() if key == "All"]
+    if len(all_count) >= 2:
+        if len(level_structure_key) !=3:
+            level_structure_key = {}
+        if len(all_count) == 3:
+            level_structure_key = {}
+    if not level_structure_key:
+        sub_pro_level = filter(None,RawTable.objects.filter(project=pro_cen_mapping[0][0], center=pro_cen_mapping[1][0]).values_list('sub_project',flat=True).distinct())
+        if len(sub_pro_level)>= 1:
+            level_structure_key['sub_project'] = "All"
+        if not level_structure_key:
+            work_pac_level = filter(None,RawTable.objects.filter(project=pro_cen_mapping[0][0], center=pro_cen_mapping[1][0]).values_list('work_packet',flat=True).distinct())
+            if len(work_pac_level)>=1:
+                level_structure_key['work_packet'] = "All"
+        if not level_structure_key:
+            sub_pac_level = filter(None,RawTable.objects.filter(project=pro_cen_mapping[0][0], center=pro_cen_mapping[1][0]).values_list('sub_packet',flat=True).distinct())
+            if len(sub_pac_level)>=1:
+                level_structure_key['sub_packet'] = "All"
+    return level_structure_key
+
+def data_dict(variable):
+    """It generates common code required for all the widgets"""
+    main_data_dict = {}
+    from_date = datetime.datetime.strptime(variable['from'],'%Y-%m-%d').date()
+    to_date = datetime.datetime.strptime(variable['to'],'%Y-%m-%d').date()
+    project_name = variable.get('project','')
+    if project_name: project_name = project_name.split(' -')[0]
+    center_name = variable.get('center','')
+    if center_name: center_name = center_name.split(' -')[0]
+    pro_cen_mapping = []
+    pro_cen_mapping.append(Project.objects.filter(name=project_name).values_list('id', 'name')[0])
+    pro_cen_mapping.append(Center.objects.filter(name=center_name).values_list('id', 'name')[0])
+    main_data_dict['pro_cen_mapping'] = pro_cen_mapping
+    main_data_dict['work_packet'] = variable.get('work_packet',[])
+    main_data_dict['sub_project'] = variable.get('sub_project','')
+    main_data_dict['sub_packet'] = variable.get('sub_packet','')
+    type = variable.get('type','')
+    type = 'day'
+    is_clicked = variable.get('is_clicked','NA')
+    if type == 'day':
+        date_list=num_of_days(to_date,from_date)
+        if 'yes' not in is_clicked:
+            if len(date_list) > 15:
+                type = 'week'
+            if len(date_list) > 60:
+                type = 'month'
+    main_data_dict['date_list'] = date_list
+    dwm_dict= {}
+    employe_dates = {}
+    if type == 'day':
+        dwm_dict['day']= date_list
+    main_data_dict['dwm_dict'] = dwm_dict
+    return main_data_dict 
+
+def get_packet_details(request):
+    """It will generate all the list of packets, projects and sub packets for the project"""
+    main_data_dict = data_dict(request.GET)
+    dates = [main_data_dict['dwm_dict']['day'][:-1][0], main_data_dict['dwm_dict']['day'][-1:][0]]
+    final_dict = {}
+    raw_master_set = RawTable.objects.filter(project=main_data_dict['pro_cen_mapping'][0][0], center=main_data_dict['pro_cen_mapping'][1][0], 
+                                             date__range=dates)
+    sub_pro_level = filter(None, raw_master_set.values_list('sub_project',flat=True).distinct())
+    sub_project_level = [i for i in sub_pro_level]
+    if len(sub_project_level) >= 1:
+        sub_project_level.append('all')
+    else:
+        sub_project_level = ''
+    work_pac_level = filter(None, raw_master_set.values_list('work_packet',flat=True).distinct())
+    work_packet_level = [j for j in work_pac_level]
+    if len(work_packet_level) >= 1:
+        work_packet_level.append('all')
+    else:
+        work_packet_level = ''
+    sub_pac_level = filter(None, raw_master_set.values_list('sub_packet',flat=True).distinct())
+    sub_packet_level = [k for k in sub_pac_level]
+    if len(sub_packet_level) >= 1:
+        sub_packet_level.append('all')
+    else:
+        sub_packet_level = ''
+    final_details = {}
+    final_details['sub_project'] = 0
+    final_details['work_packet'] = 0
+    final_details['sub_packet'] = 0
+    if len(sub_pro_level) >= 1:
+        final_details['sub_project'] = 1
+    if len(work_pac_level) >= 1:
+        final_details['work_packet'] = 1
+    if len(sub_pac_level) >= 1:
+        final_details['sub_packet'] = 1
+
+    final_dict['sub_project_level'] = sub_project_level
+    final_dict['work_packet_level'] = work_packet_level
+    final_dict['sub_packet_level'] = sub_packet_level
+    big_dict = {}
+    if final_details['sub_project']:
+        if final_details['work_packet']:
+            first = raw_master_set.values_list('sub_project').distinct()
+            big_dict = {}
+            total = {}
+            for i in first:
+                list_val = RawTable.objects.filter(project=prj_id, sub_project=i[0], date__range=dates).values_list('work_packet').distinct()
+                for j in list_val:
+                    total[j[0]] = []
+                    sub_pac_data = RawTable.objects.filter(project=prj_id, sub_project=i[0], work_packet=j[0], date__range=dates).values_list('sub_packet').distinct()
+                    for l in sub_pac_data:
+                        total[j[0]].append(l[0])
+                big_dict[i[0]] = total
+                total = {}
+    elif final_details['work_packet']:
+        if final_details['sub_packet']:
+            first = raw_master_set.values_list('work_packet').distinct()
+            big_dict = {}
+            total = {}
+            for i in first:
+                list_val = RawTable.objects.filter(project=prj_id, work_packet=i[0], date__range=dates).values_list('sub_packet').distinct()
+                for j in list_val:
+                    total[j[0]] = []
+                big_dict[i[0]] = total
+                total = {}
+        else:
+            big_dict = {}
+            work_pac_level = raw_master_set.values_list('work_packet').distinct()
+            for i in work_pac_level:
+                big_dict[i[0]] = {}
+    # final_dict['drop_value'] = {u'Charge': {u'Copay': [], u'Charge': [], u'DemoCheck': [], u'Demo': []}, u'Payment': {u'Payment': []}}
+    final_dict['level'] = [1, 2]
+    final_dict['fin'] = final_details
+    final_dict['drop_value'] = big_dict
+    return HttpResponse(final_dict)
+
+def alloc_and_compl(request):
+    final_dict = {}
+    main_data_dict = data_dict(request.GET)
+    level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], main_data_dict['sub_packet'], 
+                                                  main_data_dict['pro_cen_mapping'])
+    volume_graph = volume_graph_data(main_data_dict['dwm_dict']['day'], main_data_dict['pro_cen_mapping'][0][0], 
+                                     main_data_dict['pro_cen_mapping'][1][0], level_structure_key)
+    final_dict['bar_data'] = graph_data_alignment_color(volume_graph['bar_data'],'data',level_structure_key,
+                                   main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0],'volume_bar_graph')
+    final_dict['line_data'] = graph_data_alignment_color(volume_graph['line_data'],'data', level_structure_key,
+                                    main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0],'volume_productivity_graph')
+    final_dict['date'] = main_data_dict['date_list']
+    return HttpResponse(final_dict)
+
+def utilisation_all(request):
+    final_dict = {}
+    main_data_dict = data_dict(request.GET)
+    level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], main_data_dict['sub_packet'],
+                                                  main_data_dict['pro_cen_mapping'])
+    utilization_details = modified_utilization_calculations(main_data_dict['pro_cen_mapping'][1][0],main_data_dict['pro_cen_mapping'][0][0],
+                                                            main_data_dict['date_list'],level_structure_key)
+    final_dict['utilization_fte_details'] = graph_data_alignment_color(utilization_details['fte_utilization'], 'data',level_structure_key, 
+                                       main_data_dict['pro_cen_mapping'][0][0], main_data_dict['pro_cen_mapping'][1][0],'fte_utilization')
+    final_dict['utilization_operational_details'] = graph_data_alignment_color(utilization_details['operational_utilization'], 'data',
+             level_structure_key, main_data_dict['pro_cen_mapping'][0][0], main_data_dict['pro_cen_mapping'][1][0],'operational_utilization')
+    final_dict['original_utilization_graph'] = graph_data_alignment_color(utilization_details['overall_utilization'], 'data', level_structure_key, 
+             main_data_dict['pro_cen_mapping'][0][0], main_data_dict['pro_cen_mapping'][1][0],'utilisation_wrt_work_packet')
+    final_dict['date'] = main_data_dict['date_list']
+    return HttpResponse(final_dict)
+
+def erro_data_all(request):
+    final_dict = {}
+    main_data_dict = data_dict(request.GET)
+    final_dict['date'] = main_data_dict['date_list']
+    level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], main_data_dict['sub_packet'],
+                                                  main_data_dict['pro_cen_mapping'])
+    error_graphs_data = internal_extrnal_graphs(main_data_dict['dwm_dict']['day'], main_data_dict['pro_cen_mapping'][0][0], 
+                                                main_data_dict['pro_cen_mapping'][1][0],level_structure_key)
+    if len(error_graphs_data['internal_time_line']) > 0:
+        internal_time_line = {}
+        for er_key, er_value in error_graphs_data['internal_time_line']['internal_time_line'].iteritems():
+            packet_errors = []
+            for err_value in er_value:
+                if err_value == "NA":
+                    packet_errors.append(0)
+                else:
+                    packet_errors.append(err_value)
+            internal_time_line[er_key] = packet_errors
+        final_dict['internal_time_line'] = graph_data_alignment_color(internal_time_line, 'data',level_structure_key, 
+                       main_data_dict['pro_cen_mapping'][0][0], main_data_dict['pro_cen_mapping'][1][0],'internal_accuracy_timeline')
+        int_error_timeline_min_max = error_timeline_min_max(internal_time_line)
+        final_dict['min_internal_time_line'] = int_error_timeline_min_max['min_value']
+        final_dict['max_internal_time_line'] = int_error_timeline_min_max['max_value']
+    
+    if len(error_graphs_data['external_time_line']) > 0:
+        for er_key, er_value in error_graphs_data['external_time_line']['external_time_line'].iteritems():
+            packet_errors = []
+            for err_value in er_value:
+                if err_value == "NA":
+                    packet_errors.append(0)
+                else:
+                    packet_errors.append(err_value)
+            error_graphs_data['external_time_line']['external_time_line'][er_key] = packet_errors
+        final_dict['external_time_line'] = graph_data_alignment_color(error_graphs_data['external_time_line']['external_time_line'], 'data', 
+               level_structure_key, main_data_dict['pro_cen_mapping'][0][0], main_data_dict['pro_cen_mapping'][1][0],'external_accuracy_timeline')
+        ext_error_timeline_min_max = error_timeline_min_max(error_graphs_data['external_time_line']['external_time_line'])
+        final_dict['min_external_time_line'] = ext_error_timeline_min_max['min_value']
+        final_dict['max_external_time_line'] = ext_error_timeline_min_max['max_value']
+
+    if error_graphs_data.has_key('internal_accuracy_graph'):
+        final_dict['internal_accuracy_graph'] = graph_data_alignment_color(error_graphs_data['internal_accuracy_graph'], 'y', 
+            level_structure_key, main_data_dict['pro_cen_mapping'][0][0], main_data_dict['pro_cen_mapping'][1][0],'internal_error_accuracy')
+    if error_graphs_data.has_key('external_accuracy_graph'):
+        final_dict['external_accuracy_graph'] = graph_data_alignment_color(error_graphs_data['external_accuracy_graph'], 'y', 
+            level_structure_key, main_data_dict['pro_cen_mapping'][0][0], main_data_dict['pro_cen_mapping'][1][0],'external_error_accuracy')
+    if error_graphs_data.has_key('extr_err_accuracy'):
+        final_extrn_accuracy = {}
+        for perc_key,perc_value in error_graphs_data['extr_err_accuracy']['packets_percntage'].iteritems():
+            final_extrn_accuracy[perc_key] = perc_value[0]
+        final_dict['external_accuracy_graph'] = graph_data_alignment_color(final_extrn_accuracy, 'y', level_structure_key, 
+             main_data_dict['pro_cen_mapping'][0][0], main_data_dict['pro_cen_mapping'][1][0],'external_error_accuracy')
+    if error_graphs_data.has_key('intr_err_accuracy'):
+        final_intrn_accuracy = {}
+        for perc_key,perc_value in error_graphs_data['intr_err_accuracy']['packets_percntage'].iteritems():
+            final_intrn_accuracy[perc_key] = perc_value[0]
+        final_dict['internal_accuracy_graph'] = graph_data_alignment_color(final_intrn_accuracy, 'y', level_structure_key, 
+            main_data_dict['pro_cen_mapping'][0][0], main_data_dict['pro_cen_mapping'][1][0],'intenal_error_accuracy')
+
+    return HttpResponse(final_dict)
 
 def error_insert(request):
     pass
@@ -2254,7 +2480,7 @@ def Packet_Alias_Names(prj_id,center_obj,widget_config_name):
     widget_id = Widgets.objects.filter(config_name=widget_config_name).values_list('id',flat=True)
     alias_packet_names = []
     if len(widget_id)>0:
-        alias_widget_id = Alias_Widget.objects.filter(widget_name_id=widget_id[0],project=prj_id[0]).values_list('id',flat=True)
+        alias_widget_id = Alias_Widget.objects.filter(widget_name_id=widget_id[0],project=prj_id).values_list('id',flat=True)
         if len(alias_widget_id):
             alias_packet_names = Alias_packets.objects.filter(widget_id=alias_widget_id[0]).values('existed_name','alias_name')
     new_pkt_names = {}
@@ -2263,9 +2489,8 @@ def Packet_Alias_Names(prj_id,center_obj,widget_config_name):
     return new_pkt_names
 
 
-def graph_data_alignment_color(volumes_data,name_key,level_structure_key,prj_id,center_obj,widget_config_name=''):
-    
-    packet_color_query = query_set_generation(prj_id[0],center_obj[0],level_structure_key,[]) 
+def graph_data_alignment_color(volumes_data,name_key,level_structure_key,prj_id,center_obj,widget_config_name=''): 
+    packet_color_query = query_set_generation(prj_id,center_obj,level_structure_key,[]) 
     color_query_set = Color_Mapping.objects.filter(**packet_color_query)
     if level_structure_key.has_key('sub_project'):
         if level_structure_key['sub_project'] == "All":
@@ -2875,7 +3100,7 @@ def internal_external_graphs_common(request,date_list,prj_id,center_obj,level_st
 
 
 
-def internal_extrnal_graphs_same_formula(request,date_list,prj_id,center_obj,level_structure_key,err_type):
+def internal_extrnal_graphs_same_formula(date_list,prj_id,center_obj,level_structure_key,err_type):
     prj_name = Project.objects.filter(id=prj_id).values_list('name', flat=True)
     center_name = Center.objects.filter(id=center_obj).values_list('name', flat=True)
     query_set = query_set_generation(prj_id, center_obj, level_structure_key,date_list)
@@ -3347,11 +3572,11 @@ def sample_pareto_analysis(request,date_list,prj_id,center_obj,level_structure_k
     return result
 
 
-def internal_extrnal_graphs(request,date_list,prj_id,center_obj,packet_sum_data,level_structure_key):
+def internal_extrnal_graphs(date_list,prj_id,center_obj,level_structure_key):
     prj_name = Project.objects.filter(id=prj_id).values_list('name', flat=True)
     center_name = Center.objects.filter(id=center_obj).values_list('name', flat=True)
-    final_internal_data = internal_extrnal_graphs_same_formula(request, date_list, prj_id, center_obj,level_structure_key,err_type='Internal')
-    final_external_data = internal_extrnal_graphs_same_formula(request, date_list, prj_id, center_obj,level_structure_key,err_type='External')
+    final_internal_data = internal_extrnal_graphs_same_formula(date_list, prj_id, center_obj,level_structure_key,err_type='Internal')
+    final_external_data = internal_extrnal_graphs_same_formula(date_list, prj_id, center_obj,level_structure_key,err_type='External')
     final_internal_data.update(final_external_data)
     return final_internal_data
     #return final_external_data
@@ -4080,6 +4305,7 @@ def day_week_month(request, dwm_dict, prj_id, center, work_packets, level_struct
             # final_dict['external_accuracy_graph'] = graph_data_alignment(all_external_error_accuracy,name_key='y')
         final_dict.update(result_dict)
         dates = [dwm_dict['day'][0], dwm_dict['day'][-1:][0]]
+        """
         raw_master_set = RawTable.objects.filter(project=prj_id, center=center, date__range=dates)
         sub_pro_level = filter(None, raw_master_set.values_list('sub_project',flat=True).distinct())
         sub_project_level = [i for i in sub_pro_level]
@@ -4150,6 +4376,7 @@ def day_week_month(request, dwm_dict, prj_id, center, work_packets, level_struct
         final_dict['level'] = [1, 2]
         final_dict['fin'] = final_details
         final_dict['drop_value'] = big_dict
+       """
         ext_min_value, ext_max_value = 0, 0
         if error_graphs_data.has_key('extr_err_accuracy'):
             ext_value_range = error_graphs_data['extr_err_accuracy']['extr_err_perc']
@@ -4850,6 +5077,9 @@ def num_of_days(to_date,from_date):
     return date_list
 
 def static_production_data(request):
+    return HttpResponse('cool')
+
+def static_production_dataa(request):
     final_data_dict = {}
     try:
         work_packet = request.GET.get('work_packet')
@@ -5441,8 +5671,10 @@ def top_five_emp(center,prj_id,dwm_dict,level_key_structure):
     else:
         return all_details_list
 
-
 def from_to(request):
+    return HttpResponse('Cool')
+
+def from_too(request):
     from_date = datetime.datetime.strptime(request.GET['from'],'%Y-%m-%d').date()
     to_date = datetime.datetime.strptime(request.GET['to'],'%Y-%m-%d').date()
     type = request.GET['type']
@@ -5688,6 +5920,7 @@ def volume_graph_data(date_list,prj_id,center_obj,level_structure_key):
                         date_values[final_work_packet]['completed'] = [0]
                         date_values[final_work_packet]['non_workable_count'] = [0]
                         date_values[final_work_packet]['closing_balance']= [0]
+
                 for cur_key in key_list:
                     var = conn.hgetall(cur_key)
                     for key,value in var.iteritems():
@@ -5704,6 +5937,7 @@ def volume_graph_data(date_list,prj_id,center_obj,level_structure_key):
                     volumes_dict['data'] = date_values
                     volumes_dict['date'] = date_list
                     result['data'] = volumes_dict
+
     if result.has_key('data'):
         opening,received,nwc,closing_bal,completed = [],[],[],[],[]
         for vol_key in result['data']['data'].keys():
@@ -5718,6 +5952,7 @@ def volume_graph_data(date_list,prj_id,center_obj,level_structure_key):
                     closing_bal.append(vol_values)
                 elif volume_key == 'non_workable_count':
                     nwc.append(vol_values)
+
         worktrack_volumes = OrderedDict()
         #worktrack_volumes = {}
         worktrack_volumes['Opening'] = [sum(i) for i in zip(*opening)]
@@ -5734,8 +5969,6 @@ def volume_graph_data(date_list,prj_id,center_obj,level_structure_key):
         final_volume_graph['bar_data']  = worktrack_volumes
         final_volume_graph['line_data'] = worktrack_timeline
         return final_volume_graph
-
-        print result
     else:
         final_volume_graph ={}
         final_volume_graph['bar_data'] = {}

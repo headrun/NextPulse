@@ -19,5 +19,10 @@ urlpatterns = [
     url(r'^static_production_data/',apiviews.static_production_data),
     url(r'^change_password/', apiviews.change_password),
     url(r'^forgot_password/', apiviews.forgot_password),
+    url(r'^alloc_and_compl', apiviews.alloc_and_compl),
+    url(r'^utilisation_all', apiviews.utilisation_all),
+    url(r'^erro_data_all', apiviews.erro_data_all),
+    url(r'^get_packet_details', apiviews.get_packet_details),
+    #url()
 
 ]
