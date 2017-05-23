@@ -399,7 +399,7 @@ class TargetsAuthoring(models.Model):
     from_date = models.CharField(max_length=255)
     to_date   = models.CharField(max_length=255)
     sub_project = models.CharField(max_length=255, blank=True)
-    work_packet = models.CharField(max_length=255)
+    work_packet = models.CharField(max_length=255, blank=True)
     sub_packet  = models.CharField(max_length=255, blank=True)
     target      = models.CharField(max_length=125)
     fte_target = models.CharField(max_length=125, blank=True)
