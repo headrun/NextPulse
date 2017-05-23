@@ -167,6 +167,13 @@ class IncomingerrorAdmin(admin.ModelAdmin):
     list_filter = ['project','work_packet','sub_packet']
 admin.site.register(Incomingerror,IncomingerrorAdmin)
 
+class ReviewAdmin(admin.ModelAdmin):
+    list_display = ['review_name', 'project', 'team_lead']
+    list_filter =  ['review_name', 'project', 'team_lead']
+admin.site.register(Review,ReviewAdmin)
+
+
+
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.contrib.auth.admin import UserAdmin

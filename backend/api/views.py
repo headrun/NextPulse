@@ -137,13 +137,13 @@ def project(request):
     list_wid = []
     layout_list = []
     final_dict = {}
-    
+
     if 'team_lead' in user_group:
         center = TeamLead.objects.filter(name_id=request.user.id).values_list('center')
         prj_id = TeamLead.objects.filter(name_id=request.user.id).values_list('project')
 
     if 'customer' in user_group:
-        select_list = [] 
+        select_list = []
         details = {} 
         center_list = Customer.objects.filter(name_id=request.user.id).values_list('center')
         project_list = Customer.objects.filter(name_id=request.user.id).values_list('project')
@@ -162,8 +162,8 @@ def project(request):
                     project_name = str(Project.objects.filter(id=project[0])[0])
                     select_list.append(center_name + ' - ' + project_name) 
         details['list'] = select_list
-    
-        if len(select_list) > 1: 
+
+        if len(select_list) > 1:
               if multi_project:
                  prj_id = Project.objects.filter(name=multi_project).values_list('id','center_id')
               else:
@@ -171,10 +171,10 @@ def project(request):
                  prj_id = Project.objects.filter(name=prj_name).values_list('id','center_id') 
 
     if 'nextwealth_manager' in user_group:
-        select_list = []  
+        select_list = []
         #layout_list = []
         center_list = Nextwealthmanager.objects.filter(name_id=request.user.id).values_list('center')
-        if len(center_list) < 2: 
+        if len(center_list) < 2:
             center_name = str(Center.objects.filter(id=center_list[0][0])[0])
             center_id = Center.objects.filter(name = center_name)[0].id
             project_list = Project.objects.filter(center_id=center_id)
@@ -190,7 +190,7 @@ def project(request):
                 project_list = Project.objects.filter(center_id=center_id)
                 for project in project_list:
                     project_name = str(project)
-                    select_list.append(project_name)    
+                    select_list.append(project_name)
 
         if len(select_list) > 1:
             if multi_project:
@@ -219,13 +219,13 @@ def project(request):
                 for project in project_list:
                     project_name = str(project)
                     select_list.append(project_name)
-          
+
         if len(select_list) > 1:
             if multi_project:
                 prj_id = Project.objects.filter(name=multi_project).values_list('id','center_id')
             else:
                 prj_name = select_list[1]
-                prj_id = Project.objects.filter(name=prj_name).values_list('id','center_id')    
+                prj_id = Project.objects.filter(name=prj_name).values_list('id','center_id')
 
         else:
             if multi_project:
@@ -234,7 +234,7 @@ def project(request):
                 prj_name = select_list[0]
                 prj_id = Project.objects.filter(name=prj_name).values_list('id','center_id') 
 
-    
+
 
     if user_group in ['nextwealth_manager','center_manager','customer']:
         widgets_id = Widgets_group.objects.filter(User_Group_id=user_group_id, project=prj_id[0][0],center=prj_id[0][1]).values('widget_priority', 'is_drilldown','is_display', 'widget_name','col')
@@ -1533,7 +1533,7 @@ def upload_new(request):
                                 if 'not_applicable' not in local_internalerror_data.values():
                                     internal_error_dataset[str(customer_data[date_name])][emp_key] = local_internalerror_data
 
-            
+
                 if key == sheet_names.get('external_error_sheet',''):
                     date_name = authoring_dates['extr_error_date']
                     if not external_error_dataset.has_key(customer_data[date_name]):
@@ -2715,7 +2715,7 @@ def internal_external_graphs_common(request,date_list,prj_id,center_obj,level_st
     extrnl_error_values = {} 
     extrnl_err_type = {} 
     extr_volumes_list_new=[]
-    all_error_types = [] 
+    all_error_types = []
     for date_va in date_list:
         count =0
         total_done_value = RawTable.objects.filter(project=prj_id, center=center_obj, date=date_va).aggregate(Max('per_day'))
@@ -7765,31 +7765,34 @@ def dropdown_data_types(request):
 
 
 def get_top_reviews(request):
-   """ get list of reviews """
+    """ get list of reviews """
     project = request.GET.get('project', "")
-    team_lead = request.GET.get('team_lead', "")
+    #team_lead = request.GET.get('team_lead', "")
     search_term = request.GET.get('search', "")
 
-    if search_term:
-        rev_objs = Review.objects.filter(review_name__contains = search_term, project__id = project)
-    else:
-        rev_objs = Review.objects.filter(project__id = project)
+    try:
+        if search_term:
+            rev_objs = Review.objects.filter(review_name__contains = search_term, project__id = project).order_by('-review_date')
+        else:
+            rev_objs = Review.objects.filter(project__id = project).order_by('-review_date')
 
-    result = {all_data :[]}
-    if rev_objs.count > 10:
-        rev_objs = rev_objs[:10]
-    for item in rev_objs:
-        data = {}
-        data['name'] = item.review_name
-        review_date = item.review_date
-        data['date'] = review_date.strftime("%d %b, %Y")
-        data['time'] = review_date.strftime("%I:%M %p")
-        data['id'] = item.id
+        result = {all_data :[]}
+        if rev_objs.count() > 10:
+            rev_objs = rev_objs[:10]
+        for item in rev_objs:
+            data = {}
+            data['name'] = item.review_name
+            review_date = item.review_date
+            data['date'] = review_date.strftime("%d %b, %Y")
+            data['time'] = review_date.strftime("%I:%M %p")
+            data['id'] = item.id
 
-        all_data.append(data)
+            all_data.append(data)
 
-    return HttpResponse(result)
+        return HttpResponse(result)
 
+    except:
+        return HttpResponse("Failed")
 
 
 def create_reviews(request):
@@ -7800,34 +7803,35 @@ def create_reviews(request):
     _review_date = request.GET.get('review_date', "")
     _review_time = request.GET.get('review_time', "")
     tl = request.GET.get('team_lead', "")
+    try:
+        review_date = datetime.datetime.strptime((_review_date + _review_time), "%d %b, %Y%I:%M %p")
+        Review.objects.update_or_create(project__id = project, review_name = review_name, team_lead__id = tl, review_date= review_date)
+        return HttpResponse('success')
 
-    review_date = datetime.datetime.strptime((_review_date + _review_time), "%d %b, %Y%I:%M %p")
-
-    Review.objects.update_or_create(project__id = project, review_name = review_name, team_lead__id = tl, review_date= review_date)
-
-    return HttpResponse('success')
+    except:
+        return HttpResponse("Failed")
 
 def get_review_details(request):
     """ getting detail of the review """
 
     review_id = request.GET.get('review_id', "")
-
     rev_objs = Review.objects.filter(id = review_id)
 
     if not rev_objs:
         return HttpResponse('Failed')
     else:
-        item = rev_objs[0]
-        data = {}
-        data['name'] = item.review_name
-        review_date = item.review_date
-        data['date'] = review_date.strftime("%d %b, %Y")
-        data['time'] = review_date.strftime("%I:%M %p")
+        try:
+            item = rev_objs[0]
+            data = {}
+            data['name'] = item.review_name
+            review_date = item.review_date
+            data['date'] = review_date.strftime("%d %b, %Y")
+            data['time'] = review_date.strftime("%I:%M %p")
 
-        return HttpResponse(data)
+            return HttpResponse(data)
 
-
-
+        except:
+            return HttpResponse("Failed")
 
 
 

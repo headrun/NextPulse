@@ -19,5 +19,8 @@ urlpatterns = [
     url(r'^static_production_data/',apiviews.static_production_data),
     url(r'^change_password/', apiviews.change_password),
     url(r'^forgot_password/', apiviews.forgot_password),
+    url(r'^get_top_reviews',apiviews.get_top_reviews),
+    url(r'^create_reviews',apiviews.create_reviews),
+    url(r'^get_review_details',apiviews.get_review_details),
 
 ]
