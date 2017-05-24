@@ -3480,13 +3480,17 @@ plotOptions: {
                             });
 
                             angular.extend(self.chartOptions44.yAxis,{
-                                min:result.result.ext_min_value,
-                                max:result.result.ext_max_value
+                                //min:result.result.ext_min_value,
+                                //max:result.result.ext_max_value
+                                min:result.result.exter_min_value,
+                                max:result.result.exter_max_value
                             });
 
                             angular.extend(self.chartOptions43.yAxis,{
-                                min:result.result.ext_min_value,
-                                max:result.result.ext_max_value
+                                //min:result.result.ext_min_value,
+                                //max:result.result.ext_max_value
+                                min:result.result.inter_min_value,
+                                max:result.result.inter_max_value
                             });
 
                             angular.extend(self.chartOptions6.yAxis.title,{
