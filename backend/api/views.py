@@ -4241,15 +4241,16 @@ def tat_graph(date_list, prj_cen_val, level_structure_key):
     else:
         volume_list = []
 
-    from collections import defaultdict
-    ratings = defaultdict(list)
-    data_list_main = RawTable.objects.filter(project=prj_cen_val[0][0],center=prj_cen_val[1][0],date__range=[date_list[0], date_list[-1]]).values('date', 'per_day').order_by('date', 'per_day')
-    for result2 in data_list_main: ratings[result2['date']].append(result2['per_day'])
-    #for date in date_list:
-    for date_va,data in ratings.iteritems():
-        #total_done_value = RawTable.objects.filter(project=prj_cen_val[0][0], center=prj_cen_val[1][0], date=date).aggregate(Max('per_day'))
-        total_done_value = max(data)
-        if total_done_value > 0:
+    #from collections import defaultdict
+    #ratings = defaultdict(list)
+    #data_list_main = RawTable.objects.filter(project=prj_cen_val[0][0],center=prj_cen_val[1][0],date__range=[date_list[0], date_list[-1]]).values('date', 'per_day').order_by('date', 'per_day')
+    #for result2 in data_list_main: ratings[result2['date']].append(result2['per_day'])
+    for date_va in date_list:
+    #for date_va,data in ratings.iteritems():
+        total_done_value = RawTable.objects.filter(project=prj_cen_val[0][0], center=prj_cen_val[1][0], date=date_va).aggregate(Max('per_day'))
+        #total_done_value = max(data)
+        #if total_done_value > 0:
+        if total_done_value['per_day__max'] > 0:
             data_list.append(str(date_va))
             count = 0
             final_data = []
@@ -7183,16 +7184,17 @@ def modified_utilization_calculations(center,prj_id,date_list,level_structure_ke
         utilization_date_values = {} 
         product_date_values['total_prodictivity'] = [] 
         utilization_date_values['total_utilization'] = [] 
-        from collections import defaultdict
-        ratings = defaultdict(list)
-        data_list = RawTable.objects.filter(project=prj_id,center=center,date__range=[date_list[0], date_list[-1]]).values('date', 'per_day').order_by('date', 'per_day')
-        for result2 in data_list: ratings[result2['date']].append(result2['per_day'])
-        #for date_value in date_list:
-        for date_va,data in ratings.iteritems():
-            #total_done_value = RawTable.objects.filter(project=prj_id, center=center, date=date_value).aggregate(Max('per_day'))
-            total_done_value = max(data)
-
-            if total_done_value > 0: 
+        #from collections import defaultdict
+        #ratings = defaultdict(list)
+        #data_list = RawTable.objects.filter(project=prj_id,center=center,date__range=[date_list[0], date_list[-1]]).values('date', 'per_day').order_by('date', 'per_day')
+        #for result2 in data_list: ratings[result2['date']].append(result2['per_day'])
+        for date_va in date_list:
+        #for date_va,data in ratings.iteritems():
+            total_done_value = RawTable.objects.filter(project=prj_id, center=center, date=date_va).aggregate(Max('per_day'))
+            
+            #total_done_value = max(data)
+            if total_done_value['per_day__max'] > 0:
+            #if total_done_value > 0: 
                 headcount_details = Headcount.objects.filter(project=prj_id, center=center, date=date_va).aggregate(Sum('billable_hc'),
                                     Sum('billable_agents'),Sum('buffer_agents'),Sum('qc_or_qa'),Sum('teamlead'),
                                     Sum('trainees_and_trainers'),Sum('managers'),Sum('mis'))
@@ -7817,18 +7819,19 @@ def Monthly_Volume_graph(date_list, prj_cen_val, level_structure_key):
     final_values['total_workdone'] = []
     final_targets['total'] = []
     final_work_packet = ''
-    from collections import defaultdict
-    ratings = defaultdict(list)
-    data_list = RawTable.objects.filter(project=prj_cen_val[0][0],center=prj_cen_val[1][0],date__range=[date_list[0], date_list[-1]]).values('date', 'per_day').order_by('date', 'per_day')
-    for result2 in data_list: ratings[result2['date']].append(result2['per_day'])
-    new_date_list = [str(i) for i in ratings.keys()]
-    main_loop = [max(i) for i in ratings.values() if max(i) > 0]
+    #from collections import defaultdict
+    #ratings = defaultdict(list)
+    #data_list = RawTable.objects.filter(project=prj_cen_val[0][0],center=prj_cen_val[1][0],date__range=[date_list[0], date_list[-1]]).values('date', 'per_day').order_by('date', 'per_day')
+    #for result2 in data_list: ratings[result2['date']].append(result2['per_day'])
+    #new_date_list = [str(i) for i in ratings.keys()]
+    #main_loop = [max(i) for i in ratings.values() if max(i) > 0]
     #if len(main_loop) > 1:
-    #for date in date_list:
-    for date_va,data in ratings.iteritems():
-        #total_done_value = RawTable.objects.filter(project=prj_cen_val[0][0], center=prj_cen_val[1][0], date=date).aggregate(Max('per_day'))
-        total_done_value = max(data)
-        if total_done_value > 0:
+    for date_va in date_list:
+    #for date_va,data in ratings.iteritems():
+        total_done_value = RawTable.objects.filter(project=prj_cen_val[0][0], center=prj_cen_val[1][0], date=date_va).aggregate(Max('per_day'))
+        if total_done_value['per_day__max'] > 0:
+        #total_done_value = max(data)
+        #if total_done_value > 0:
             new_date_list.append(str(date_va))
             count = 0
             for vol_type in volume_list:
