@@ -5493,6 +5493,7 @@ def fte_wp_total(final_fte):
 def fte_calculation_sub_project_sub_packet(prj_id,center_obj,work_packet_query,level_structure_key,date_list):
     packets_target = {}
     new_date_list = []
+    #import pdb;pdb.set_trace()
     conn = redis.Redis(host="localhost", port=6379, db=0)
     prj_name = Project.objects.filter(id=prj_id).values_list('name', flat=True)
     center_name = Center.objects.filter(id=center_obj).values_list('name', flat=True)
@@ -5511,8 +5512,8 @@ def fte_calculation_sub_project_sub_packet(prj_id,center_obj,work_packet_query,l
     volumes_dict = {}
     result = {}
     for date_va in date_list:
-        new_work_packet_query['from_date__gte'] = date_va
-        new_work_packet_query['to_date__lte'] = date_va
+        #new_work_packet_query['from_date__gte'] = date_va
+        #new_work_packet_query['to_date__lte'] = date_va
         if new_work_packet_query.has_key('work_packet'):
             del new_work_packet_query['work_packet']
         work_packets = Targets.objects.filter(**new_work_packet_query).values('sub_project', 'work_packet', 'sub_packet','target_value').distinct()
@@ -5528,10 +5529,10 @@ def fte_calculation_sub_project_sub_packet(prj_id,center_obj,work_packet_query,l
                         new_level_structu_key['sub_project'] = level_structure_key['sub_project']
                     new_level_structu_key['work_packet'] = wp_key
                     new_level_structu_key['sub_packet'] = sub_packet
-                    new_level_structu_key['from_date__gte'] = date_va
-                    new_level_structu_key['to_date__lte'] = date_va
+                    #new_level_structu_key['from_date__gte'] = date_va
+                    #new_level_structu_key['to_date__lte'] = date_va
                     final_work_packet = level_hierarchy_key(level_structure_key, new_level_structu_key)
-                    date_pattern = '{0}_{1}_{2}_{3}'.format(prj_name[0], str(center_name[0]), str(final_work_packet),date_va)
+                    date_pattern = '{0}_{1}_{2}_{3}'.format(prj_name[0], str(center_name[0]), str(final_work_packet),str(date_va))
                     key_list = conn.keys(pattern=date_pattern)
                     packets_values = Targets.objects.filter(**new_level_structu_key).values('sub_project', 'work_packet', 'sub_packet','target_value').distinct()
                     if not key_list:
@@ -5578,18 +5579,19 @@ def fte_calculation(request,prj_id,center_obj,date_list,level_structure_key):
     prj_name = Project.objects.filter(id=prj_id).values_list('name', flat=True)
     center_name = Center.objects.filter(id=center_obj).values_list('name', flat=True)
     work_packet_query =  query_set_generation(prj_id,center_obj,level_structure_key,[])
-    work_packet_query['from_date__gte'] = date_list[0]
-    work_packet_query['to_date__lte'] = date_list[-1]
+    #work_packet_query['from_date__gte'] = date_list[0]
+    #work_packet_query['to_date__lte'] = date_list[-1]
     work_packet_query['target_type'] = 'FTE Target'
     work_packets = Targets.objects.filter(**work_packet_query).values('sub_project','work_packet','sub_packet','target_value').distinct()
     sub_packet_query = query_set_generation(prj_id,center_obj,level_structure_key,[])
-    sub_packet_query['from_date__gte'] = date_list[0]
-    sub_packet_query['to_date__lte'] = date_list[-1]
+    #sub_packet_query['from_date__gte'] = date_list[0]
+    #sub_packet_query['to_date__lte'] = date_list[-1]
     sub_packet_query['target_type'] = 'FTE Target'
     sub_packets = filter(None,Targets.objects.filter(**sub_packet_query).values_list('sub_packet',flat=True).distinct())
     conn = redis.Redis(host="localhost", port=6379, db=0)
     new_date_list = []
     status = 0
+    #import pdb;pdb.set_trace()
     if len(sub_packets) == 0:
         work_packets = Targets.objects.filter(**work_packet_query).values('sub_project', 'work_packet', 'sub_packet','target_value').distinct()
         date_values = {}
@@ -5601,7 +5603,7 @@ def fte_calculation(request,prj_id,center_obj,date_list,level_structure_key):
                 new_date_list.append(date_va)
                 for wp_packet in work_packets:
                     final_work_packet = level_hierarchy_key(level_structure_key, wp_packet)
-                    date_pattern = '{0}_{1}_{2}_{3}'.format(prj_name[0], str(center_name[0]), str(final_work_packet),date_va)
+                    date_pattern = '{0}_{1}_{2}_{3}'.format(prj_name[0], str(center_name[0]), str(final_work_packet),str(date_va))
                     key_list = conn.keys(pattern=date_pattern)
                     if wp_packet['target_value'] >0:
                         if not key_list:
