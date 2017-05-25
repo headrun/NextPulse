@@ -1,0 +1,70 @@
+<style>
+
+.card {
+    font-size: 1em;
+    overflow: hidden;
+    padding: 0;
+    border: none;
+    border-radius: .28571429rem;
+    box-shadow: 0 1px 3px 0 #d4d4d5, 0 0 0 1px #d4d4d5;
+}
+
+.card-block {
+    font-size: 1em;
+    position: relative;
+    margin: 0;
+    padding: 1em;
+    border: none;
+    border-top: 1px solid rgba(34, 36, 38, .1);
+    box-shadow: none;
+}
+
+.text-bold {
+    font-weight: 700;
+}
+
+.review {
+    margin-top: 20px;
+    cursor: pointer;
+}
+
+.details {
+    text-align: center;
+    padding-top: 100px;
+}
+
+</style>
+<div class="container">
+<div class="row">
+    <div class="col-md-3">
+        <div class="row">
+        <div class="col-md-6 review" ng-repeat="review in $ctrl.all_reviews" ng-click="$ctrl.get_review(review)">
+            <div class="card">
+                <div class="card-block">
+                    <h4 class="card-title">{{review.name}}</h4>
+                    <h4 class="card-title">{{review.date}}</h4>
+                    <h4 class="card-title">{{review.time}}</h4>
+                </div>
+            </div>
+        </div>
+        </div>
+    </div>
+    <div class="col-md-9 details">
+        <h1>{{$ctrl.rev_tl}}</h1>
+        <h1>{{$ctrl.rev_date}}</h1>
+        <h1>{{$ctrl.rev_name}}</h1>
+        <h1>{{$ctrl.rev_time}}</h1>
+        <div id="fileuploader">Upload</div>
+    </div>
+</div>
+</div>
+
+<script>
+$(document).ready(function()
+{
+    $("#fileuploader").uploadFile({
+    url:"/api/create_reviews/",
+    fileName:"myfile"
+    });
+});
+</script>
