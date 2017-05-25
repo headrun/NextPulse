@@ -7720,7 +7720,7 @@ def update_annotation(request):
     annotation_id = request.POST.get("id")
     series = request.POST.get('series_name')
     text = request.POST.get("text")
-    
+
     if action == "delete":
         anno = Annotation.objects.filter(key__contains = request.POST['id'])
         if anno:
@@ -7742,7 +7742,7 @@ def dropdown_data_types(request):
     center_id = request.GET['center'].split('-')[0].strip()
     center = Center.objects.filter(name=center_id).values_list('id', flat=True)
     prj_id = Project.objects.filter(name=project).values_list('id', flat=True)
-    result = {} 
+    result = {}
     sub_project = RawTable.objects.filter(project_id=prj_id[0],center_id = center[0]).values_list('sub_project',flat=True).distinct()
     sub_project = filter(None, sub_project)
     print 'dropdown' , sub_project
@@ -7752,13 +7752,13 @@ def dropdown_data_types(request):
     sub_packet = RawTable.objects.filter(project_id=prj_id[0], center_id=center[0]).values_list('sub_packet',flat=True).distinct()
     sub_packet = filter(None, sub_packet)
     result['sub_project'] = 0
-    if len(sub_project) > 0: 
+    if len(sub_project) > 0:
         result['sub_project'] = 1
     result['work_packet'] = 0
-    if len(work_packet) > 0: 
+    if len(work_packet) > 0:
         result['work_packet'] = 1
     result['sub_packet'] = 0
-    if len(sub_packet) > 0: 
+    if len(sub_packet) > 0:
         result['sub_packet'] = 1
     return HttpResponse(result)
 
@@ -7771,12 +7771,14 @@ def get_top_reviews(request):
     search_term = request.GET.get('search', "")
 
     try:
+        """
         if search_term:
             rev_objs = Review.objects.filter(review_name__contains = search_term, project__id = project).order_by('-review_date')
         else:
             rev_objs = Review.objects.filter(project__id = project).order_by('-review_date')
-
-        result = {all_data :[]}
+        """
+        rev_objs = Review.objects.all()
+        result = {'all_data' :[]}
         if rev_objs.count() > 10:
             rev_objs = rev_objs[:10]
         for item in rev_objs:
@@ -7787,7 +7789,7 @@ def get_top_reviews(request):
             data['time'] = review_date.strftime("%I:%M %p")
             data['id'] = item.id
 
-            all_data.append(data)
+            result['all_data'].append(data)
 
         return HttpResponse(result)
 
@@ -7798,14 +7800,34 @@ def get_top_reviews(request):
 def create_reviews(request):
     """ creating reviews """
     curdate = datetime.datetime.now()
-    project = request.GET.get('project', "")
-    review_name = request.GET.get('review_name', "")
-    _review_date = request.GET.get('review_date', "")
-    _review_time = request.GET.get('review_time', "")
-    tl = request.GET.get('team_lead', "")
+    import pdb;pdb.set_trace()
+    project = request.POST.get('project', "")
+    review_name = request.POST.get('review_name', "")
+    _review_date = request.POST.get('review_date', "")
+    _review_time = request.POST.get('review_time', "")
+    tl = request.POST.get('team_lead', "")
+    attach_files = request.FILES.getlist('myfile', "")
     try:
+        r_obj = Review.objects.get(id = 1)
+        for item in attach_files:
+            rfo = ReviewFiles.objects.create(file_name = item, review = r_obj)
+        """
         review_date = datetime.datetime.strptime((_review_date + _review_time), "%d %b, %Y%I:%M %p")
-        Review.objects.update_or_create(project__id = project, review_name = review_name, team_lead__id = tl, review_date= review_date)
+        rev_obj, created = Review.objects.update_or_create(project__id = project, review_name = review_name, review_date= review_date,
+                                defaults={'team_lead__id': 'tl'},)
+
+        if attach_files:
+            for item in attach_files:
+                rev_fil_objs = ReviewFiles.objects.filter(file_name = item, review__id = rev_obj.id)
+                if rev_fil_objs:
+                    rfo = rev_fil_objs[0]
+                    rfo.file_name = item
+                    rfo.save()
+                else:
+                    rfo = ReviewFiles.objects.create(file_name = item, review__id = rev_obj.id)
+
+        """
+
         return HttpResponse('success')
 
     except:
@@ -7823,10 +7845,15 @@ def get_review_details(request):
         try:
             item = rev_objs[0]
             data = {}
+            data['rev_files'] = []
             data['name'] = item.review_name
             review_date = item.review_date
             data['date'] = review_date.strftime("%d %b, %Y")
             data['time'] = review_date.strftime("%I:%M %p")
+            data['tl']   = item.team_lead.name.first_name+ " " + item.team_lead.name.last_name
+            rev_fil_objs = ReviewFiles.objects.filter(review__id = rev_obj.id)
+            for obj in rev_fil_objs:
+                data['rev_files'].append(obj.file_name)
 
             return HttpResponse(data)
 

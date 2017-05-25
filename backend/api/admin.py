@@ -172,6 +172,13 @@ class ReviewAdmin(admin.ModelAdmin):
     list_filter =  ['review_name', 'project', 'team_lead']
 admin.site.register(Review,ReviewAdmin)
 
+"""
+class ReviewFilesAdmin(admin.ModelAdmin):
+    list_display = ['file_name', 'review__review_name', 'updation_date']
+    list_filter =  ['file_name', 'review__review_name', 'updation_date']
+admin.site.register(ReviewFiles, ReviewFilesAdmin)
+"""
+
 
 
 from django.contrib.auth.forms import UserCreationForm

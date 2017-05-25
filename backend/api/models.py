@@ -638,6 +638,7 @@ class Review(models.Model):
 
     class Meta:
         db_table = u'review_system'
+        unique_together = (('review_name', 'project', 'review_date'), )
 
     def __unicode__(self):
         return self.review_name
@@ -645,7 +646,7 @@ class Review(models.Model):
 
 class ReviewFiles(models.Model):
     """ model to store files for reviews """
-    file_name = models.FileField(upload_to='media/reviews/')
+    file_name = models.FileField(upload_to='media/reviews/%Y%m')
     review = models.ForeignKey(Review, db_index=True)
     creation_date = models.DateTimeField(auto_now_add=True)
     updation_date = models.DateTimeField(auto_now=True)
@@ -653,6 +654,8 @@ class ReviewFiles(models.Model):
     class Meta:
         db_table = u'review_files'
         index_together = (('review', 'file_name'), )
+        unique_together = (('review', 'file_name'), )
+
 
 
 
