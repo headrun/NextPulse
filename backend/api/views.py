@@ -73,8 +73,8 @@ def data_dict(variable):
     main_data_dict['work_packet'] = variable.get('work_packet',[])
     main_data_dict['sub_project'] = variable.get('sub_project','')
     main_data_dict['sub_packet'] = variable.get('sub_packet','')
-    type = variable.get('type','')
     type = 'day'
+    type = variable.get('type','')
     is_clicked = variable.get('is_clicked','NA')
     if type == 'day':
         date_list=num_of_days(to_date,from_date)
