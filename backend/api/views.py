@@ -1,4 +1,6 @@
 import datetime
+import os
+import mimetypes
 import traceback
 from django.shortcuts import render
 from common.utils import getHttpResponse as HttpResponse
@@ -7800,7 +7802,6 @@ def get_top_reviews(request):
 def create_reviews(request):
     """ creating reviews """
     curdate = datetime.datetime.now()
-    import pdb;pdb.set_trace()
     project = request.POST.get('project', "")
     review_name = request.POST.get('review_name', "")
     _review_date = request.POST.get('review_date', "")
@@ -7824,7 +7825,7 @@ def create_reviews(request):
                     rfo.file_name = item
                     rfo.save()
                 else:
-                    rfo = ReviewFiles.objects.create(file_name = item, review__id = rev_obj.id)
+                    rfo = ReviewFiles.objects.create(file_name = item, review = rev_obj.id)
 
         """
 
@@ -7838,7 +7839,7 @@ def get_review_details(request):
 
     review_id = request.GET.get('review_id', "")
     rev_objs = Review.objects.filter(id = review_id)
-
+    import pdb;pdb.set_trace()
     if not rev_objs:
         return HttpResponse('Failed')
     else:
@@ -7851,9 +7852,14 @@ def get_review_details(request):
             data['date'] = review_date.strftime("%d %b, %Y")
             data['time'] = review_date.strftime("%I:%M %p")
             data['tl']   = item.team_lead.name.first_name+ " " + item.team_lead.name.last_name
-            rev_fil_objs = ReviewFiles.objects.filter(review__id = rev_obj.id)
+            rev_fil_objs = ReviewFiles.objects.filter(review__id = item.id)
             for obj in rev_fil_objs:
-                data['rev_files'].append(obj.file_name)
+                f = open(obj.file_name.path)
+                cont_type = mimetypes.types_map[os.path.splitext(f.name)[1]]
+                response = HttpResponse(content_type = cont_type)
+                response['Content-Disposition'] = 'attachment; filename=%s' % smart_str(obj)
+                response['X-Sendfile'] = obj.file_name.name
+                data['rev_files'].append(response)
 
             return HttpResponse(data)
 
