@@ -93,7 +93,6 @@
 
                 self.render_data = obj[all_data];
                 self.button_clicked = button_clicked;
-                debugger;
              }*/
 
              /*self.allo_and_comp = function() {
@@ -118,17 +117,28 @@
 
 
              self.main_widget_function = function(callback, packet) {
-    
+
                     //self.lastDate+'&to='+self.firstDate+'&type=' + self.day_type;
 
-                    self.data_to_show = '?&project='+callback[3]+'&center='+callback[2]+'&from='+'2017-01-09'+'&to='+'2017-01-15'+'&type=' +
-                                        packet;
+                    self.data_to_show = '?&project='+callback[3]+'&center='+callback[2]+'&from='+'2017-01-09'+'&to='+'2017-01-15'+packet+'&type=';
                     self.common_for_all = self.data_to_show + self.day_type
                     //var allo_and_comp = '/api/alloc_and_compl/'+self.common_for_all;
                     var utill_all = '/api/utilisation_all/'+self.common_for_all;
                     var erro_all = '/api/erro_data_all/'+self.common_for_all;
 
                     self.allo_and_comp = function(final_work, type) {
+
+                        if (type == undefined) {
+
+                            type = 'day'
+                        }
+
+                        if (final_work == undefined) {
+
+                            final_work = ''
+                        }
+
+                        self.type = type;
 
                         var allo_and_comp = '/api/alloc_and_compl/'+self.data_to_show + type + final_work;
 
@@ -150,10 +160,9 @@
                         })
                     }
 
-                    self.allo_and_comp();
+                    self.allo_and_comp(undefined, undefined);
 
                     $http({method:"GET", url: utill_all}).success(function(result){
-
 
                             angular.extend(self.chartOptions25, {
                                 xAxis: {

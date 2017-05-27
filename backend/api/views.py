@@ -73,8 +73,10 @@ def data_dict(variable):
     main_data_dict['work_packet'] = variable.get('work_packet',[])
     main_data_dict['sub_project'] = variable.get('sub_project','')
     main_data_dict['sub_packet'] = variable.get('sub_packet','')
-    type = 'day'
+    dwm_dict= {}
     type = variable.get('type','')
+    if type == '':
+        type = 'day'
     is_clicked = variable.get('is_clicked','NA')
     if type == 'day':
         date_list=num_of_days(to_date,from_date)
@@ -83,12 +85,52 @@ def data_dict(variable):
                 type = 'week'
             if len(date_list) > 60:
                 type = 'month'
-    main_data_dict['date_list'] = date_list
-    dwm_dict= {}
-    employe_dates = {}
-    if type == 'day':
         dwm_dict['day']= date_list
-    main_data_dict['dwm_dict'] = dwm_dict
+        main_data_dict['dwm_dict'] = dwm_dict
+
+    if type == 'week':
+        months_dict = {}
+        weeks_data = [] 
+        days = (to_date - from_date).days
+        days = days+1
+        for i in range(0, days):
+            date = from_date + datetime.timedelta(i)
+            weeks_data.append(str(date))
+        weeks = [] 
+        weekdays = []   
+        fro_mon = datetime.datetime.strptime(weeks_data[0],'%Y-%m-%d').date()
+        to_mon = datetime.datetime.strptime(weeks_data[-1],'%Y-%m-%d').date()
+        no_of_days = to_mon - fro_mon
+        num_days = int(re.findall('\d+', str(no_of_days))[0]) + 1
+        week_list=[]
+        start = 1
+        end = 7 - fro_mon.weekday()
+        while start <= num_days:
+            weeks.append({'start': start, 'end': end})
+            sdate = fro_mon + datetime.timedelta(start - 1)
+            edate = fro_mon + datetime.timedelta(end - 1)
+            weekdays.append({'start': sdate, 'end': edate})
+            start = end + 1
+            end = end + 7
+            if end > num_days:
+                end = num_days
+        if weekdays[-1]['end'] > to_mon :
+            weekdays[-1]['end'] = to_mon
+        for w_days in weekdays:
+            date_list = num_of_days(w_days['end'],w_days['start'])
+            week_list.append(date_list)
+
+    if type == 'week':
+        employe_dates = {}
+        dwm_dict['week'] = week_list
+        for week in week_list:
+            if week and  employe_dates.has_key('days'):
+                employe_dates['days'] = employe_dates['days']+week
+            else:
+                employe_dates['days'] = week
+        
+        main_data_dict['dwm_dict'] = dwm_dict
+
     return main_data_dict 
 
 def get_packet_details(request):
@@ -170,90 +212,101 @@ def get_packet_details(request):
 def alloc_and_compl(request):
     final_dict = {}
     main_data_dict = data_dict(request.GET)
-    level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], main_data_dict['sub_packet'], 
-                                                  main_data_dict['pro_cen_mapping'])
-    volume_graph = volume_graph_data(main_data_dict['dwm_dict']['day'], main_data_dict['pro_cen_mapping'][0][0], 
-                                     main_data_dict['pro_cen_mapping'][1][0], level_structure_key)
-    final_dict['bar_data'] = graph_data_alignment_color(volume_graph['bar_data'],'data',level_structure_key,
-                                   main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0],'volume_bar_graph')
-    final_dict['line_data'] = graph_data_alignment_color(volume_graph['line_data'],'data', level_structure_key,
-                                    main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0],'volume_productivity_graph')
-    final_dict['date'] = main_data_dict['date_list']
+    if main_data_dict['dwm_dict'].has_key('day'):
+        main_dates_list = [ main_data_dict['dwm_dict']['day']]
+    elif main_data_dict['dwm_dict'].has_key('week'):
+        main_dates_list = main_data_dict['dwm_dict']['week']
+    for sing_list in main_dates_list:
+        level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], main_data_dict['sub_packet'], 
+                                                      main_data_dict['pro_cen_mapping'])
+        volume_graph = volume_graph_data(sing_list, main_data_dict['pro_cen_mapping'][0][0], 
+                                         main_data_dict['pro_cen_mapping'][1][0], level_structure_key)
+        final_dict['bar_data'] = graph_data_alignment_color(volume_graph['bar_data'],'data',level_structure_key,
+                                       main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0],'volume_bar_graph')
+        final_dict['line_data'] = graph_data_alignment_color(volume_graph['line_data'],'data', level_structure_key,
+                                      main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0],'volume_productivity_graph')
+        final_dict['date'] = sing_list
     return HttpResponse(final_dict)
 
 def utilisation_all(request):
     final_dict = {}
     main_data_dict = data_dict(request.GET)
-    level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], main_data_dict['sub_packet'],
-                                                  main_data_dict['pro_cen_mapping'])
-    utilization_details = modified_utilization_calculations(main_data_dict['pro_cen_mapping'][1][0],main_data_dict['pro_cen_mapping'][0][0],
-                                                            main_data_dict['date_list'],level_structure_key)
-    final_dict['utilization_fte_details'] = graph_data_alignment_color(utilization_details['fte_utilization'], 'data',level_structure_key, 
-                                       main_data_dict['pro_cen_mapping'][0][0], main_data_dict['pro_cen_mapping'][1][0],'fte_utilization')
-    final_dict['utilization_operational_details'] = graph_data_alignment_color(utilization_details['operational_utilization'], 'data',
-             level_structure_key, main_data_dict['pro_cen_mapping'][0][0], main_data_dict['pro_cen_mapping'][1][0],'operational_utilization')
-    final_dict['original_utilization_graph'] = graph_data_alignment_color(utilization_details['overall_utilization'], 'data', level_structure_key, 
-             main_data_dict['pro_cen_mapping'][0][0], main_data_dict['pro_cen_mapping'][1][0],'utilisation_wrt_work_packet')
-    final_dict['date'] = main_data_dict['date_list']
+    if main_data_dict['dwm_dict'].has_key('day'):
+        main_dates_list = [ main_data_dict['dwm_dict']['day']]
+    for sing_list in main_dates_list:
+        level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], main_data_dict['sub_packet'],
+                                                      main_data_dict['pro_cen_mapping'])
+        utilization_details = modified_utilization_calculations(main_data_dict['pro_cen_mapping'][1][0],main_data_dict['pro_cen_mapping'][0][0],
+                                                                sing_list,level_structure_key)
+        final_dict['utilization_fte_details'] = graph_data_alignment_color(utilization_details['fte_utilization'], 'data',level_structure_key, 
+                                           main_data_dict['pro_cen_mapping'][0][0], main_data_dict['pro_cen_mapping'][1][0],'fte_utilization')
+        final_dict['utilization_operational_details'] = graph_data_alignment_color(utilization_details['operational_utilization'], 'data',
+                 level_structure_key, main_data_dict['pro_cen_mapping'][0][0], main_data_dict['pro_cen_mapping'][1][0],'operational_utilization')
+        final_dict['original_utilization_graph'] = graph_data_alignment_color(utilization_details['overall_utilization'], 'data', level_structure_key, 
+                 main_data_dict['pro_cen_mapping'][0][0], main_data_dict['pro_cen_mapping'][1][0],'utilisation_wrt_work_packet')
+        final_dict['date'] = sing_list
     return HttpResponse(final_dict)
 
 def erro_data_all(request):
     final_dict = {}
     main_data_dict = data_dict(request.GET)
-    final_dict['date'] = main_data_dict['date_list']
-    level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], main_data_dict['sub_packet'],
-                                                  main_data_dict['pro_cen_mapping'])
-    error_graphs_data = internal_extrnal_graphs(main_data_dict['dwm_dict']['day'], main_data_dict['pro_cen_mapping'][0][0], 
-                                                main_data_dict['pro_cen_mapping'][1][0],level_structure_key)
-    if len(error_graphs_data['internal_time_line']) > 0:
-        internal_time_line = {}
-        for er_key, er_value in error_graphs_data['internal_time_line']['internal_time_line'].iteritems():
-            packet_errors = []
-            for err_value in er_value:
-                if err_value == "NA":
-                    packet_errors.append(0)
-                else:
-                    packet_errors.append(err_value)
-            internal_time_line[er_key] = packet_errors
-        final_dict['internal_time_line'] = graph_data_alignment_color(internal_time_line, 'data',level_structure_key, 
-                       main_data_dict['pro_cen_mapping'][0][0], main_data_dict['pro_cen_mapping'][1][0],'internal_accuracy_timeline')
-        int_error_timeline_min_max = error_timeline_min_max(internal_time_line)
-        final_dict['min_internal_time_line'] = int_error_timeline_min_max['min_value']
-        final_dict['max_internal_time_line'] = int_error_timeline_min_max['max_value']
-    
-    if len(error_graphs_data['external_time_line']) > 0:
-        for er_key, er_value in error_graphs_data['external_time_line']['external_time_line'].iteritems():
-            packet_errors = []
-            for err_value in er_value:
-                if err_value == "NA":
-                    packet_errors.append(0)
-                else:
-                    packet_errors.append(err_value)
-            error_graphs_data['external_time_line']['external_time_line'][er_key] = packet_errors
-        final_dict['external_time_line'] = graph_data_alignment_color(error_graphs_data['external_time_line']['external_time_line'], 'data', 
-               level_structure_key, main_data_dict['pro_cen_mapping'][0][0], main_data_dict['pro_cen_mapping'][1][0],'external_accuracy_timeline')
-        ext_error_timeline_min_max = error_timeline_min_max(error_graphs_data['external_time_line']['external_time_line'])
-        final_dict['min_external_time_line'] = ext_error_timeline_min_max['min_value']
-        final_dict['max_external_time_line'] = ext_error_timeline_min_max['max_value']
+    if main_data_dict['dwm_dict'].has_key('day'):
+        main_dates_list = [ main_data_dict['dwm_dict']['day']]
+    for sing_list in main_dates_list:
+        final_dict['date'] = sing_list
+        level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], main_data_dict['sub_packet'],
+                                                      main_data_dict['pro_cen_mapping'])
+        error_graphs_data = internal_extrnal_graphs(main_data_dict['dwm_dict']['day'], main_data_dict['pro_cen_mapping'][0][0], 
+                                                    main_data_dict['pro_cen_mapping'][1][0],level_structure_key)
+        if len(error_graphs_data['internal_time_line']) > 0:
+            internal_time_line = {}
+            for er_key, er_value in error_graphs_data['internal_time_line']['internal_time_line'].iteritems():
+                packet_errors = []
+                for err_value in er_value:
+                    if err_value == "NA":
+                        packet_errors.append(0)
+                    else:
+                        packet_errors.append(err_value)
+                internal_time_line[er_key] = packet_errors
+            final_dict['internal_time_line'] = graph_data_alignment_color(internal_time_line, 'data',level_structure_key, 
+                           main_data_dict['pro_cen_mapping'][0][0], main_data_dict['pro_cen_mapping'][1][0],'internal_accuracy_timeline')
+            int_error_timeline_min_max = error_timeline_min_max(internal_time_line)
+            final_dict['min_internal_time_line'] = int_error_timeline_min_max['min_value']
+            final_dict['max_internal_time_line'] = int_error_timeline_min_max['max_value']
+        
+        if len(error_graphs_data['external_time_line']) > 0:
+            for er_key, er_value in error_graphs_data['external_time_line']['external_time_line'].iteritems():
+                packet_errors = []
+                for err_value in er_value:
+                    if err_value == "NA":
+                        packet_errors.append(0)
+                    else:
+                        packet_errors.append(err_value)
+                error_graphs_data['external_time_line']['external_time_line'][er_key] = packet_errors
+            final_dict['external_time_line'] = graph_data_alignment_color(error_graphs_data['external_time_line']['external_time_line'], 'data', 
+                   level_structure_key, main_data_dict['pro_cen_mapping'][0][0], main_data_dict['pro_cen_mapping'][1][0],'external_accuracy_timeline')
+            ext_error_timeline_min_max = error_timeline_min_max(error_graphs_data['external_time_line']['external_time_line'])
+            final_dict['min_external_time_line'] = ext_error_timeline_min_max['min_value']
+            final_dict['max_external_time_line'] = ext_error_timeline_min_max['max_value']
 
-    if error_graphs_data.has_key('internal_accuracy_graph'):
-        final_dict['internal_accuracy_graph'] = graph_data_alignment_color(error_graphs_data['internal_accuracy_graph'], 'y', 
-            level_structure_key, main_data_dict['pro_cen_mapping'][0][0], main_data_dict['pro_cen_mapping'][1][0],'internal_error_accuracy')
-    if error_graphs_data.has_key('external_accuracy_graph'):
-        final_dict['external_accuracy_graph'] = graph_data_alignment_color(error_graphs_data['external_accuracy_graph'], 'y', 
-            level_structure_key, main_data_dict['pro_cen_mapping'][0][0], main_data_dict['pro_cen_mapping'][1][0],'external_error_accuracy')
-    if error_graphs_data.has_key('extr_err_accuracy'):
-        final_extrn_accuracy = {}
-        for perc_key,perc_value in error_graphs_data['extr_err_accuracy']['packets_percntage'].iteritems():
-            final_extrn_accuracy[perc_key] = perc_value[0]
-        final_dict['external_accuracy_graph'] = graph_data_alignment_color(final_extrn_accuracy, 'y', level_structure_key, 
-             main_data_dict['pro_cen_mapping'][0][0], main_data_dict['pro_cen_mapping'][1][0],'external_error_accuracy')
-    if error_graphs_data.has_key('intr_err_accuracy'):
-        final_intrn_accuracy = {}
-        for perc_key,perc_value in error_graphs_data['intr_err_accuracy']['packets_percntage'].iteritems():
-            final_intrn_accuracy[perc_key] = perc_value[0]
-        final_dict['internal_accuracy_graph'] = graph_data_alignment_color(final_intrn_accuracy, 'y', level_structure_key, 
-            main_data_dict['pro_cen_mapping'][0][0], main_data_dict['pro_cen_mapping'][1][0],'intenal_error_accuracy')
+        if error_graphs_data.has_key('internal_accuracy_graph'):
+            final_dict['internal_accuracy_graph'] = graph_data_alignment_color(error_graphs_data['internal_accuracy_graph'], 'y', 
+                level_structure_key, main_data_dict['pro_cen_mapping'][0][0], main_data_dict['pro_cen_mapping'][1][0],'internal_error_accuracy')
+        if error_graphs_data.has_key('external_accuracy_graph'):
+            final_dict['external_accuracy_graph'] = graph_data_alignment_color(error_graphs_data['external_accuracy_graph'], 'y', 
+                level_structure_key, main_data_dict['pro_cen_mapping'][0][0], main_data_dict['pro_cen_mapping'][1][0],'external_error_accuracy')
+        if error_graphs_data.has_key('extr_err_accuracy'):
+            final_extrn_accuracy = {}
+            for perc_key,perc_value in error_graphs_data['extr_err_accuracy']['packets_percntage'].iteritems():
+                final_extrn_accuracy[perc_key] = perc_value[0]
+            final_dict['external_accuracy_graph'] = graph_data_alignment_color(final_extrn_accuracy, 'y', level_structure_key, 
+                 main_data_dict['pro_cen_mapping'][0][0], main_data_dict['pro_cen_mapping'][1][0],'external_error_accuracy')
+        if error_graphs_data.has_key('intr_err_accuracy'):
+            final_intrn_accuracy = {}
+            for perc_key,perc_value in error_graphs_data['intr_err_accuracy']['packets_percntage'].iteritems():
+                final_intrn_accuracy[perc_key] = perc_value[0]
+            final_dict['internal_accuracy_graph'] = graph_data_alignment_color(final_intrn_accuracy, 'y', level_structure_key, 
+                main_data_dict['pro_cen_mapping'][0][0], main_data_dict['pro_cen_mapping'][1][0],'intenal_error_accuracy')
 
     return HttpResponse(final_dict)
 
