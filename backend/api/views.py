@@ -3352,9 +3352,12 @@ def internal_external_graphs_common(request,date_list,prj_id,center_obj,level_st
                  error_accuracy[key] = [percentage]
             else:
                 if audit_data[key] == 0 and date_values_sum.has_key(key):
-                    percentage = (float(value) / date_values_sum[key]) * 100
-                    percentage = 100 - float('%.2f' % round(percentage, 2))
-                    error_accuracy[key] = [percentage]
+                    try:
+                        percentage = (float(value) / date_values_sum[key]) * 100
+                        percentage = 100 - float('%.2f' % round(percentage, 2))
+                        error_accuracy[key] = [percentage]
+                    except:
+                        error_accuracy[key] = [0]
                 else:
                     percentage = 0
                     error_accuracy[key] = [percentage]
@@ -3393,9 +3396,12 @@ def internal_external_graphs_common(request,date_list,prj_id,center_obj,level_st
                  error_accuracy[key] = [percentage]
             else:
                 if audit_data[key] == 0 and date_values_sum.has_key(key):
-                    percentage = (float(value) / date_values_sum[key]) * 100
-                    percentage = 100 - float('%.2f' % round(percentage, 2))
-                    error_accuracy[key] = [percentage]
+                    try:
+                        percentage = (float(value) / date_values_sum[key]) * 100
+                        percentage = 100 - float('%.2f' % round(percentage, 2))
+                        error_accuracy[key] = [percentage]
+                    except:
+                        error_accuracy[key] = [0]
                 else:
                     percentage = 0
                     error_accuracy[key] = [percentage]
@@ -3550,9 +3556,12 @@ def internal_extrnal_graphs_same_formula(request,date_list,prj_id,center_obj,lev
              error_accuracy[key] = [percentage]
         else:
             if error_audit_data[key] == 0 and date_values_sum.has_key(key):
-                percentage = (float(value) / date_values_sum[key]) * 100
-                percentage = 100 - float('%.2f' % round(percentage, 2))
-                error_accuracy[key] = [percentage]
+                try:
+                    percentage = (float(value) / date_values_sum[key]) * 100
+                    percentage = 100 - float('%.2f' % round(percentage, 2))
+                    error_accuracy[key] = [percentage]
+                except:
+                    error_accuracy[key] = [percentage]
             else:
                 percentage = 0
                 error_accuracy[key] = [percentage]
@@ -3572,8 +3581,11 @@ def internal_extrnal_graphs_same_formula(request,date_list,prj_id,center_obj,lev
                     percentage = 100-float('%.2f' % round(percentage, 2))
             else:
                 if vol_error_value == 0 and date_values_sum.has_key(key):
-                    percentage = (float(vol_error_values[key][count]) / date_values_sum[key]) * 100
-                    percentage = 100-float('%.2f' % round(percentage, 2))
+                    try:
+                        percentage = (float(vol_error_values[key][count]) / date_values_sum[key]) * 100
+                        percentage = 100-float('%.2f' % round(percentage, 2))
+                    except:
+                        percentage = 0
                 else:
                     percentage = 0
             if internal_time_line.has_key(key):
