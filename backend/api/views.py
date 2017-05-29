@@ -7844,8 +7844,9 @@ def Monthly_Volume_graph(date_list, prj_cen_val, level_structure_key):
                 final_work_packet = level_hierarchy_key(local_level_hierarchy_key, vol_type)
                 #import pdb;pdb.set_trace()
                 target_check = Targets.objects.filter(project= prj_cen_val[0][0], center= prj_cen_val[1][0], from_date__lte=date_va,to_date__gte=date_va).values_list('work_packet',flat=True).distinct()
-                if target_check[0]:
-                    target_query_set = target_query_generations(prj_cen_val[0][0], prj_cen_val[1][0], date_va, final_work_packet,level_structure_key)
+		if target_check:
+                    if target_check[0]:
+                    	target_query_set = target_query_generations(prj_cen_val[0][0], prj_cen_val[1][0], date_va, final_work_packet,level_structure_key)
                 else:
                     target_query_set = target_query_generations(prj_cen_val[0][0], prj_cen_val[1][0], date_va,'',level_structure_key)
 
