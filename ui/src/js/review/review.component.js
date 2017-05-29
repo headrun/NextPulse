@@ -35,6 +35,9 @@
                      self.rev_time = result.data.result.time;
 
                      self.rev_tl = result.data.result.tl;
+
+                     self.files_list = result.data.result.rev_files;
+
                  });
              }
 

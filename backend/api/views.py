@@ -31,7 +31,7 @@ from django.core.mail import send_mail
 import collections
 import hashlib
 import random
-
+from wsgiref.util import FileWrapper
 
 def error_insert(request):
     pass
@@ -7839,7 +7839,7 @@ def get_review_details(request):
 
     review_id = request.GET.get('review_id', "")
     rev_objs = Review.objects.filter(id = review_id)
-    import pdb;pdb.set_trace()
+    #import pdb;pdb.set_trace()
     if not rev_objs:
         return HttpResponse('Failed')
     else:
@@ -7854,12 +7854,7 @@ def get_review_details(request):
             data['tl']   = item.team_lead.name.first_name+ " " + item.team_lead.name.last_name
             rev_fil_objs = ReviewFiles.objects.filter(review__id = item.id)
             for obj in rev_fil_objs:
-                f = open(obj.file_name.path)
-                cont_type = mimetypes.types_map[os.path.splitext(f.name)[1]]
-                response = HttpResponse(content_type = cont_type)
-                response['Content-Disposition'] = 'attachment; filename=%s' % smart_str(obj)
-                response['X-Sendfile'] = obj.file_name.name
-                data['rev_files'].append(response)
+                data['rev_files'].append(obj.file_name.url)
 
             return HttpResponse(data)
 

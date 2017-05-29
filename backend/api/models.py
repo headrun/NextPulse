@@ -646,7 +646,7 @@ class Review(models.Model):
 
 class ReviewFiles(models.Model):
     """ model to store files for reviews """
-    file_name = models.FileField(upload_to='media/reviews/%Y%m')
+    file_name = models.FileField(upload_to='reviews/%Y%m')
     review = models.ForeignKey(Review, db_index=True)
     creation_date = models.DateTimeField(auto_now_add=True)
     updation_date = models.DateTimeField(auto_now=True)
