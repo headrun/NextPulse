@@ -456,6 +456,26 @@ def latest_dates(request,prj_id):
         result['to_date'] = '2017-01-11'
     return result
 
+def different_sub_error_type(total_type_errors):
+    all_errors = {}
+    new_all_errors = {}
+    if len(total_type_errors) > 0:
+        for error_dict in total_type_errors:
+            error_names= error_dict['type_error'].split('#<>#')
+            error_values = error_dict['sub_error_count'].split('#<>#')
+            for er_key,er_value in zip(error_names,error_values):
+                if all_errors.has_key(er_key):
+                    all_errors[er_key].append(int(er_value))
+                else:
+                    if er_key != '':
+                        all_errors[er_key] = [int(er_value)]
+        for type_error,sub_error_count in all_errors.iteritems():
+            try:
+                new_all_errors[str(type_error)] = sum(sub_error_count)
+            except:
+                type_error = smart_str(type_error)
+                new_all_errors[type_error] = sum(sub_error_count)
+    return new_all_errors
 
 def different_error_type(total_error_types):
     all_errors = {}
@@ -500,7 +520,79 @@ def error_types_sum(error_list):
     #return final_error_dict
     return new_final_dict
 
-
+def internal_extrnal_sub_error_types(request,date_list,prj_id,center_obj,level_structure_key,err_type):
+    prj_name = Project.objects.filter(id=prj_id).values_list('name', flat=True)
+    center_name = Center.objects.filter(id=center_obj).values_list('name', flat=True)
+    query_set = query_set_generation(prj_id, center_obj, level_structure_key,date_list)
+    if err_type =='Internal' :
+        extr_volumes_list = worktrack_internal_external_workpackets_list(level_structure_key, 'Internalerrors',query_set)
+        err_key_type = 'error'
+    if err_type == 'External':
+        extr_volumes_list = worktrack_internal_external_workpackets_list(level_structure_key, 'Externalerrors',query_set)
+        err_key_type = 'externalerror'
+    conn = redis.Redis(host="localhost", port=6379, db=0)
+    result = {}
+    vol_error_values = {}
+    vol_audit_data = {}
+    extrnl_error_values = {}
+    extrnl_err_type = {}
+    extr_volumes_list_new=[]
+    all_error_types = []
+    sub_error_types = []
+    for date_va in date_list:
+        count =0
+        total_done_value = RawTable.objects.filter(project=prj_id, center=center_obj, date=date_va).aggregate(Max('per_day'))
+        if total_done_value['per_day__max'] > 0:
+            for vol_type in extr_volumes_list:
+                final_work_packet = level_hierarchy_key(level_structure_key, vol_type)
+                if not final_work_packet:
+                    final_work_packet = level_hierarchy_key(extr_volumes_list[count],vol_type)
+                count = count+1
+                extr_volumes_list_new.append(final_work_packet)
+                key_pattern = '{0}_{1}_{2}_{3}_{4}'.format(prj_name[0], str(center_name[0]), final_work_packet, date_va,err_key_type)
+                audit_key_list = conn.keys(pattern=key_pattern)
+                if not audit_key_list:
+                    if vol_error_values.has_key(final_work_packet):
+                        vol_error_values[final_work_packet].append("NA")
+                        vol_audit_data[final_work_packet].append("NA")
+                    else:
+                        vol_error_values[final_work_packet] = ["NA"]
+                        vol_audit_data[final_work_packet] = ["NA"]
+                for cur_key in audit_key_list:
+                    var = conn.hgetall(cur_key)
+                    for key, value in var.iteritems():
+                        if key == 'types_of_errors':
+                            all_error_types.append(value)
+                        elif key == 'sub_error_types':
+                            sub_error_types.append(value)
+                        else:
+                            if value == 'None':
+                                value = "NA"
+                            error_vol_type = final_work_packet
+                            if key == 'error_values':
+                                if vol_error_values.has_key(error_vol_type):
+                                    if value =="NA":
+                                        vol_error_values[error_vol_type].append(value)
+                                    else:
+                                        vol_error_values[error_vol_type].append(int(value))
+                                else:
+                                    if value =="NA":
+                                        vol_error_values[error_vol_type] = [value]
+                                    else:
+                                        vol_error_values[error_vol_type] = [int(value)]
+                            else:
+                                if vol_audit_data.has_key(error_vol_type):
+                                    if value=="NA":
+                                        vol_audit_data[error_vol_type].append(value)
+                                    else:
+                                        vol_audit_data[error_vol_type].append(int(value))
+                                else:
+                                    if value=="NA":
+                                        vol_audit_data[error_vol_type] = [value]
+                                    else:
+                                        vol_audit_data[error_vol_type] = [int(value)]
+    sub_error_category_calculations = error_types_sum(sub_error_types)
+    return sub_error_category_calculations
 
 def internal_extrnal_error_types(request,date_list,prj_id,center_obj,level_structure_key,err_type):
     prj_name = Project.objects.filter(id=prj_id).values_list('name', flat=True)
@@ -524,6 +616,7 @@ def internal_extrnal_error_types(request,date_list,prj_id,center_obj,level_struc
     extrnl_err_type = {}
     extr_volumes_list_new=[]
     all_error_types = []
+    sub_error_types = []
     for date_va in date_list:
         count =0
         total_done_value = RawTable.objects.filter(project=prj_id, center=center_obj, date=date_va).aggregate(Max('per_day'))
@@ -549,6 +642,8 @@ def internal_extrnal_error_types(request,date_list,prj_id,center_obj,level_struc
                     for key, value in var.iteritems():
                         if key == 'types_of_errors':
                             all_error_types.append(value)
+                        elif key == 'sub_error_types':
+                            sub_error_types.append(value)
                         else:
                             if value == 'None':
                                 value = "NA"
@@ -628,9 +723,12 @@ def redis_insertion_final(prj_obj,center_obj,dates_list,key_type,level_structure
                 total_audit = Internalerrors.objects.filter(**query_set).values_list('audited_errors').aggregate(Sum('audited_errors'))
                 total_errors = Internalerrors.objects.filter(**query_set).values_list('total_errors').aggregate(Sum('total_errors'))
                 error_types = Internalerrors.objects.filter(**query_set).values('error_types','error_values')
+                type_errors = Internalerrors.objects.filter(**query_set).values('type_error','sub_error_count')
                 total_error_types = different_error_type(error_types)
+                total_type_errors = different_sub_error_type(type_errors)
                 value_dict['total_audit'] = str(total_audit['audited_errors__sum'])
                 value_dict['total_errors'] = str(total_errors['total_errors__sum'])
+                value_dict['sub_error_types'] = json.dumps(total_type_errors)
                 value_dict['types_of_errors'] = json.dumps(total_error_types)
                 data_dict[redis_key] = value_dict
             if key_type == 'External':
@@ -638,10 +736,13 @@ def redis_insertion_final(prj_obj,center_obj,dates_list,key_type,level_structure
                 total_audit = Externalerrors.objects.filter(**query_set).values_list('audited_errors').aggregate(Sum('audited_errors'))
                 total_errors = Externalerrors.objects.filter(**query_set).values_list('total_errors').aggregate(Sum('total_errors'))
                 error_types = Externalerrors.objects.filter(**query_set).values('error_types', 'error_values')
+                type_errors = Externalerrors.objects.filter(**query_set).values('type_error','sub_error_count')
+                total_type_errors = different_sub_error_type(type_errors)
                 total_error_types = different_error_type(error_types)
                 value_dict['total_audit'] = str(total_audit['audited_errors__sum'])
                 value_dict['total_errors'] = str(total_errors['total_errors__sum'])
                 value_dict['types_of_errors'] = json.dumps(total_error_types)
+                value_dict['sub_error_types'] = json.dumps(total_type_errors)
                 data_dict[redis_key] = value_dict
             if key_type == 'WorkTrack':
                 redis_key = '{0}_{1}_{2}_{3}_worktrack'.format(prj_name, center_name, final_work_packet,str(date_is))
@@ -874,6 +975,8 @@ def internalerror_query_insertion(customer_data, prj_obj, center_obj,teamleader_
                                  total_errors=total_errors,
                                  error_types = customer_data.get('error_types', ''),
                                  error_values = customer_data.get('error_values', ''),
+                                 sub_error_count = customer_data.get('sub_error_count',''),
+                                 type_error = customer_data.get('type_error', ''),
                                  project=prj_obj, center=center_obj)
         if new_can:
             try:
@@ -921,6 +1024,8 @@ def externalerror_query_insertion(customer_data, prj_obj, center_obj,teamleader_
                                  total_errors=total_errors,
                                  error_types=customer_data.get('error_types', ''),
                                  error_values=customer_data.get('error_values', ''),
+                                 type_error = customer_data.get('type_error', ''),
+                                 sub_error_count = customer_data.get('sub_error_count',''),
                                  project=prj_obj, center=center_obj)
         if new_can:
             try:
@@ -1310,7 +1415,7 @@ def upload_new(request):
                         other_fileds.append(required_filed[1])
                 if map_key == 'date':
                     authoring_dates['intr_error_date'] = map_value.lower()
-        
+
         external_error_map_query = Authoring_mapping(prj_obj,center_obj,'ExternalerrorsAuthoring')
         for map_key,map_value in external_error_map_query.iteritems():
             if map_key == 'sheet_name':
@@ -1497,16 +1602,30 @@ def upload_new(request):
                                     local_internalerror_data[raw_key] = 'not_applicable'
 
                         elif ('#<>#' not in raw_value) and (raw_value in customer_data.keys()):
-                            if (raw_key== 'error_category') or (raw_key== 'error_count'):
-                                if customer_data.get(internal_error_mapping['error_category']) != '' :
-                                    error_count = customer_data[internal_error_mapping['error_count']]
-                                    if error_count == '':
-                                        error_count = 0
-                                    local_internalerror_data['individual_errors']={}
-                                    local_internalerror_data['individual_errors'][customer_data[raw_value]] = error_count
-                                else:
-                                    local_internalerror_data['individual_errors']={}
-                                    local_internalerror_data['individual_errors']['no_data']='no_data'
+                            if (raw_key== 'error_category') or (raw_key== 'error_count') or (raw_key== 'type_error'):
+                                if raw_key== 'type_error':
+                                    if customer_data.get(internal_error_mapping['type_error']) != '':
+                                         error_name = customer_data[internal_error_mapping['type_error']]
+                                         error_count = customer_data[internal_error_mapping['error_count']]
+                                         if error_count == '':
+                                             error_count = 0
+                                         local_internalerror_data['sub_errors']={}
+                                         type_key = customer_data[raw_value].replace(' ','_') +'_' + customer_data['error category'].replace(' ','_')
+                                         local_internalerror_data['sub_errors'][type_key] = error_count
+                                    else:
+                                        local_internalerror_data['sub_errors']={}
+                                        local_internalerror_data['sub_errors']['no_data']='no_data'
+
+                                if (raw_key== 'error_category') or (raw_key== 'error_count'):
+                                    if customer_data.get(internal_error_mapping['error_category']) != '' :
+                                        error_count = customer_data[internal_error_mapping['error_count']]
+                                        if error_count == '':
+                                            error_count = 0
+                                        local_internalerror_data['individual_errors']={}
+                                        local_internalerror_data['individual_errors'][customer_data[raw_value]] = error_count
+                                    else:
+                                        local_internalerror_data['individual_errors']={}
+                                        local_internalerror_data['individual_errors']['no_data']='no_data'
                             else:
                                 local_internalerror_data[raw_key] = customer_data[raw_value]
 
@@ -1514,10 +1633,13 @@ def upload_new(request):
                     if 'not_applicable' not in local_internalerror_data.values():
                         if internal_error_dataset.has_key(str(customer_data[date_name])):
                             if internal_error_dataset[str(customer_data[date_name])].has_key(emp_key):
-                                if local_internalerror_data.has_key('individual_errors') and internal_error_dataset[str(customer_data[date_name])][emp_key].has_key('individual_errors'):
+                                if (local_internalerror_data.has_key('individual_errors') and internal_error_dataset[str(customer_data[date_name])][emp_key].has_key('individual_errors')) or (local_internalerror_data.has_key('sub_errors') and internal_error_dataset[str(customer_data[date_name])][emp_key].has_key('sub_errors')):
                                     individual_errors = local_internalerror_data['individual_errors']
+                                    sub_errors = local_internalerror_data['sub_errors']
                                     individual_errors.update(internal_error_dataset[str(customer_data[date_name])][emp_key]['individual_errors'])
+                                    sub_errors.update(internal_error_dataset[str(customer_data[date_name])][emp_key]['sub_errors'])
                                     internal_error_dataset[str(customer_data[date_name])][emp_key]['individual_errors'] = local_internalerror_data['individual_errors']
+                                    internal_error_dataset[str(customer_data[date_name])][emp_key]['sub_errors'] = local_internalerror_data['sub_errors']
                             else:
                                 internal_error_dataset[str(customer_data[date_name])][emp_key]=local_internalerror_data
                     else:
@@ -1535,7 +1657,6 @@ def upload_new(request):
                                 if 'not_applicable' not in local_internalerror_data.values():
                                     internal_error_dataset[str(customer_data[date_name])][emp_key] = local_internalerror_data
 
-            
                 if key == sheet_names.get('external_error_sheet',''):
                     date_name = authoring_dates['extr_error_date']
                     if not external_error_dataset.has_key(customer_data[date_name]):
@@ -1552,16 +1673,29 @@ def upload_new(request):
                                     local_externalerror_data[raw_key] = 'not_applicable'
 
                         elif ('#<>#' not in raw_value) and (raw_value in customer_data.keys()):
-                            if (raw_key== 'error_category') or (raw_key== 'error_count'):
-                                if customer_data.get(external_error_mapping['error_category']) != '' :
-                                    error_count = customer_data[external_error_mapping['error_count']]
-                                    if error_count == '':
-                                        error_count = 0
-                                    local_externalerror_data['individual_errors']={}
-                                    local_externalerror_data['individual_errors'][customer_data[raw_value]] = error_count
-                                else:
-                                    local_externalerror_data['individual_errors']={}
-                                    local_externalerror_data['individual_errors']['no_data']='no_data'
+                            if (raw_key== 'error_category') or (raw_key== 'error_count') or (raw_key== 'type_error'):
+                                if raw_key== 'type_error':
+                                    if customer_data.get(internal_error_mapping['type_error']) != '':
+                                        error_count = customer_data[external_error_mapping['error_count']]
+                                        if error_count == '':
+                                            error_count = 0
+                                        local_externalerror_data['sub_errors']={}
+                                        type_key = customer_data[raw_value].replace(' ','_') +'_' + customer_data['error category'].replace(' ','_')
+                                        local_externalerror_data['sub_errors'][type_key] = error_count
+                                    else:
+                                        local_externalerror_data['sub_errors']={}
+                                        local_externalerror_data['sub_errors']['no_data']='no_data'
+
+                                if (raw_key== 'error_category') or (raw_key== 'error_count'):
+                                    if customer_data.get(external_error_mapping['error_category']) != '' :
+                                        error_count = customer_data[external_error_mapping['error_count']]
+                                        if error_count == '':
+                                            error_count = 0
+                                        local_externalerror_data['individual_errors']={}
+                                        local_externalerror_data['individual_errors'][customer_data[raw_value]] = error_count
+                                    else:
+                                        local_externalerror_data['individual_errors']={}
+                                        local_externalerror_data['individual_errors']['no_data']='no_data'
                             else:
                                 local_externalerror_data[raw_key] = customer_data[raw_value]
 
@@ -1569,10 +1703,13 @@ def upload_new(request):
                     if 'not_applicable' not in local_externalerror_data.values():
                         if external_error_dataset.has_key(str(customer_data[date_name])):
                             if external_error_dataset[str(customer_data[date_name])].has_key(emp_key):
-                                if local_externalerror_data.has_key('individual_errors') and external_error_dataset[str(customer_data[date_name])][emp_key].has_key('individual_errors'):
+                                if (local_externalerror_data.has_key('individual_errors') and external_error_dataset[str(customer_data[date_name])][emp_key].has_key('individual_errors')) or (local_externalerror_data.has_key('sub_errors') and external_error_dataset[str(customer_data[date_name])][emp_key].has_key('sub_errors')):
                                     individual_errors = local_externalerror_data['individual_errors']
+                                    sub_errors = local_externalerror_data['sub_errors']
                                     individual_errors.update(external_error_dataset[str(customer_data[date_name])][emp_key]['individual_errors'])
+                                    sub_errors.update(external_error_dataset[str(customer_data[date_name])][emp_key]['sub_errors'])
                                     external_error_dataset[str(customer_data[date_name])][emp_key]['individual_errors'] = local_externalerror_data['individual_errors']
+                                    external_error_dataset[str(customer_data[date_name])][emp_key]['sub_errors'] = local_externalerror_data['sub_errors']
                             else:
                                 external_error_dataset[str(customer_data[date_name])][emp_key]=local_externalerror_data
                     else:
@@ -1932,11 +2069,12 @@ def dates_sorting(timestamps):
     sorted_values = [datetime.datetime.strftime(ts, "%Y-%m-%d") for ts in dates]
     return sorted_values
 
+"""
 def Error_checking(employee_data,error_match=False):
     employee_data['status'] = 'mis_match'
     if employee_data.has_key('individual_errors'):
         if employee_data['individual_errors'].has_key('no_data'):
-           employee_data['status'] = 'matched' 
+           employee_data['status'] = 'matched'
         try:
             total_errors = int(float(employee_data['total_errors']))
         except:
@@ -1968,6 +2106,74 @@ def Error_checking(employee_data,error_match=False):
             employee_data['error_values'] = error_values 
 
     return employee_data
+"""
+
+def Error_checking(employee_data,error_match=False):
+    employee_data['status'] = 'mis_match'
+    if employee_data.has_key('individual_errors') or employee_data.has_key('sub_errors'):
+        if employee_data['individual_errors'].has_key('no_data'):
+           employee_data['status'] = 'matched'
+        try:
+            total_errors = int(float(employee_data['total_errors']))
+        except:
+            total_errors = 0
+
+        if employee_data['sub_errors'].has_key('no_data'):
+            employee_data['status'] = 'matched'
+        try:
+            total_errors = int(float(employee_data['total_errors']))
+        except:
+            total_errors = 0
+
+        all_error_values = []
+        sub_error_values = []
+
+        for er_value in employee_data['individual_errors'].values():
+            try:
+                er_value = int(float(er_value))
+            except:
+                er_value = 0
+            all_error_values.append(er_value)
+
+        for er_value in employee_data['sub_errors'].values():
+            try:
+                er_value = int(float(er_value))
+            except:
+                er_value = 0
+            sub_error_values.append(er_value)
+        if error_match == True:
+            if total_errors == sum(sub_error_values):
+                sub_error_values = [str(value) for value in sub_error_values]
+                employee_data['status'] = 'matched'
+                type_error = '#<>#'.join(employee_data['sub_errors'].keys())
+                sub_error_count = '#<>#'.join(sub_error_values)
+            else:
+                employee_data['type_error'] = None
+                employee_data['sub_error_count'] = 0
+
+            if total_errors == sum(all_error_values):
+                all_error_values = [str(value) for value in all_error_values ]
+                employee_data['status'] = 'matched'
+                error_types='#<>#'.join(employee_data['individual_errors'].keys())
+                error_values = '#<>#'.join(all_error_values)
+                employee_data['error_types'] = error_types
+                employee_data['error_values'] = error_values
+            else:
+                employee_data['error_types'] = None
+                employee_data['error_values'] = 0
+        else:
+            all_error_values = [str(value) for value in all_error_values]
+            sub_error_values = [str(value) for value in sub_error_values]
+            error_types = '#<>#'.join(employee_data['individual_errors'].keys())
+            type_error = '#<>#'.join(employee_data['sub_errors'].keys())
+            error_values = '#<>#'.join(all_error_values)
+            sub_error_count = '#<>#'.join(sub_error_values)
+            employee_data['error_types'] = error_types
+            employee_data['type_error'] = type_error
+            employee_data['sub_error_count'] = sub_error_count
+            employee_data['error_values'] = error_values
+    return employee_data
+
 
 def worktrack_query_insertion(customer_data, prj_obj, center_obj,teamleader_obj_name, db_check):
     worktrac_date_list = customer_data['date']
@@ -2896,6 +3102,7 @@ def internal_external_graphs_common(request,date_list,prj_id,center_obj,level_st
     extrnl_err_type = {}
     extr_volumes_list_new=[]
     all_error_types = []
+    sub_error_types = []
     for date_va in date_list:
         count =0
         total_done_value = RawTable.objects.filter(project=prj_id, center=center_obj, date=date_va).aggregate(Max('per_day'))
@@ -2930,6 +3137,8 @@ def internal_external_graphs_common(request,date_list,prj_id,center_obj,level_st
                                 for key, value in var.iteritems():
                                     if key == 'types_of_errors':
                                         all_error_types.append(value)
+                                    elif key == 'sub_error_types':
+                                        sub_error_types.append(value)
                                     else:
                                         if value == 'None':
                                             value = "NA"
@@ -2972,6 +3181,8 @@ def internal_external_graphs_common(request,date_list,prj_id,center_obj,level_st
                         for key, value in var.iteritems():
                             if key == 'types_of_errors':
                                 all_error_types.append(value)
+                            elif key == 'sub_error_types':
+                                sub_error_types.append(value)
                             else:
                                 if value == 'None':
                                     value = "NA"
@@ -3228,6 +3439,7 @@ def internal_extrnal_graphs_same_formula(request,date_list,prj_id,center_obj,lev
     extrnl_err_type = {}
     extr_volumes_list_new=[]
     all_error_types = []
+    sub_error_types = []
     volume_list = worktrack_internal_external_workpackets_list(level_structure_key, 'RawTable', query_set)
     date_values = {}
     for date_va in date_list:
@@ -3282,6 +3494,8 @@ def internal_extrnal_graphs_same_formula(request,date_list,prj_id,center_obj,lev
                 for key, value in var2.iteritems():
                     if key == 'types_of_errors':
                         all_error_types.append(value)
+                    elif key == 'sub_error_types':
+                        sub_error_types.append(value)
                     else:
                         if value == 'None':
                             value = "NA"
@@ -3571,6 +3785,7 @@ def sample_pareto_analysis(request,date_list,prj_id,center_obj,level_structure_k
     extrnl_err_type = {}
     extr_volumes_list_new=[]
     all_error_types = []
+    sub_error_types = []
     for date_va in date_list:
         count =0
         total_done_value = RawTable.objects.filter(project=prj_id, center=center_obj, date=date_va).aggregate(Max('per_day'))
@@ -3598,6 +3813,8 @@ def sample_pareto_analysis(request,date_list,prj_id,center_obj,level_structure_k
                 for key, value in var.iteritems():
                     if key == 'types_of_errors':
                         all_error_types.append(value)
+                    elif key == 'sub_error_types':
+                        sub_error_types.append(value)
                     else:
                         if value == 'None':
                             value = "NA"
@@ -5842,7 +6059,7 @@ def from_to(request):
             level_structure_key = {}
         if len(all_count) == 3:
             level_structure_key = {}
-    
+
     center = Center.objects.filter(name=center_id).values_list('id', flat=True)
     prj_id = Project.objects.filter(name=project).values_list('id', flat=True)
     if not level_structure_key:
@@ -6018,8 +6235,12 @@ def from_to(request):
     final_result_dict['Pareto_data'] = agent_internal_pareto_data
     internal_error_types = internal_extrnal_error_types(request, employe_dates['days'], prj_id, center, level_structure_key,"Internal")
     external_error_types = internal_extrnal_error_types(request, employe_dates['days'], prj_id, center,level_structure_key, "External")
+    internal_sub_error_types = internal_extrnal_sub_error_types(request, employe_dates['days'], prj_id, center, level_structure_key,"Internal")
+    external_sub_error_types = internal_extrnal_sub_error_types(request, employe_dates['days'], prj_id, center,level_structure_key, "External")
     final_result_dict['internal_errors_types'] = graph_data_alignment_color(internal_error_types,'y',level_structure_key,prj_id,center,'')
     final_result_dict['external_errors_types'] = graph_data_alignment_color(external_error_types,'y',level_structure_key,prj_id,center,'')
+    final_result_dict['internal_sub_error_types'] = graph_data_alignment_color(internal_sub_error_types,'y',level_structure_key,prj_id,center,'')
+    final_result_dict['external_sub_error_types'] = graph_data_alignment_color(external_sub_error_types,'y',level_structure_key,prj_id,center,'')
     final_result_dict['days_type'] = type
     return HttpResponse(final_result_dict)
 
@@ -7844,8 +8065,9 @@ def Monthly_Volume_graph(date_list, prj_cen_val, level_structure_key):
                 final_work_packet = level_hierarchy_key(local_level_hierarchy_key, vol_type)
                 #import pdb;pdb.set_trace()
                 target_check = Targets.objects.filter(project= prj_cen_val[0][0], center= prj_cen_val[1][0], from_date__lte=date_va,to_date__gte=date_va).values_list('work_packet',flat=True).distinct()
-                if target_check[0]:
-                    target_query_set = target_query_generations(prj_cen_val[0][0], prj_cen_val[1][0], date_va, final_work_packet,level_structure_key)
+                if target_check:
+                    if target_check[0]:
+                        target_query_set = target_query_generations(prj_cen_val[0][0], prj_cen_val[1][0], date_va, final_work_packet,level_structure_key)
                 else:
                     target_query_set = target_query_generations(prj_cen_val[0][0], prj_cen_val[1][0], date_va,'',level_structure_key)
 
