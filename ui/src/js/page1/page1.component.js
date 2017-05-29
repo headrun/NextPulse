@@ -149,6 +149,8 @@
                     'self.chartOptions42':self.chartOptions42,
                     'self.chartOptions43':self.chartOptions43,
                     'self.chartOptions44':self.chartOptions44,
+                    'self.chartOptions45':self.chartOptions45,
+                    'self.chartOptions46':self.chartOptions46
                     };
 
                     var final_layout_list = [];
@@ -750,9 +752,14 @@
                     'self.chartOptions40':self.chartOptions40,
                     'self.chartOptions41':self.chartOptions41,
                     'self.chartOptions42':self.chartOptions42,
+                    'self.chartOptions43':self.chartOptions43,
+                    'self.chartOptions44':self.chartOptions44,
+                    'self.chartOptions45':self.chartOptions45,
+                    'self.chartOptions46':self.chartOptions46
+
                     };
                     var final_layout_list = [];
-                    for (var single in self.layout_list){   
+                    for (var single in self.layout_list){
                         for (var double in self.list_object){
                             if (self.layout_list[single] === double) {
                                 final_layout_list.push(self.list_object[double])
@@ -3260,6 +3267,14 @@ plotOptions: {
                             }
                             });
 
+                            angular.extend(self.chartOptions45,{
+                                series: [{
+                                    name: '',
+                                    colorByPoint: true,
+                                    cursor: 'pointer',
+                                    data: self.high_data_gener[0].internal_sub_error_types
+                                }]
+                            });
 
                             angular.extend(self.chartOptions23,{
                                 series: [{
@@ -3295,6 +3310,77 @@ plotOptions: {
                                     var chart_type = data.result.type;
                                     self.fields_list_drilldown = pro_drill[chart_type];
                                     //self.fields_list_drilldown = self.list_object_drilldown[data.result.type];
+                                    self.chart_type = data.result.type;
+                                    console.log(self.names);
+                                }).error(function(error){ console.log("error")});
+                                }
+                            }
+                            });
+
+                            angular.extend(self.chartOptions45.plotOptions.pie.point.events,{
+                            select: function(e) {
+                            var chart_name = 'internal_sub_error_category_wise';
+                            var is_drill = self.list_object[chart_name].is_drilldown;
+                            if (is_drill){
+                            var addition = '&project=' + pro + '&center=' + loc;
+                            console.log(e.target.name);
+                            var packet_clicked = e.target.name;
+                            var is_exist = packet_clicked.indexOf('&');
+                            if (is_exist > 0){
+                                packet_clicked = packet_clicked.replace(' & ',' and ')
+                            }
+                            var internal_bar_graph ='/api/chart_data/?';
+                            var dates_list = self.get_date();
+                            $http.get( internal_bar_graph + 'packet=' + packet_clicked + '&from=' + dates_list[0] + '&to=' + dates_list[1]
+                             + '&type=' + 'Internal Error Sub Category Wise' + addition).success(
+                            function(data, status)
+                                {
+                                    $('#myModal').modal('show');
+                                    self.names = data.result.data;
+                                    var proj = data.result.project;
+                                    var pro_drill = drilldown_config[proj];
+                                    var chart_type = data.result.type;
+                                    self.fields_list_drilldown = pro_drill[chart_type];
+                                    self.chart_type = data.result.type;
+                                    console.log(self.names);
+                                }).error(function(error){ console.log("error")});
+                                }
+                            }
+                            });
+
+                            angular.extend(self.chartOptions46,{
+                                series: [{
+                                    name: '',
+                                    colorByPoint: true,
+                                    cursor: 'pointer',
+                                    data: self.high_data_gener[0].external_sub_error_types
+                                }]
+                            });
+
+                            angular.extend(self.chartOptions46.plotOptions.pie.point.events,{
+                            select: function(e) {
+                            var chart_name = 'external_sub_error_category_wise';
+                            var is_drill = self.list_object[chart_name].is_drilldown;
+                            if (is_drill){
+                            var addition = '&project=' + pro + '&center=' + loc;
+                            console.log(e.target.name);
+                            var packet_clicked = e.target.name;
+                            var is_exist = packet_clicked.indexOf('&');
+                            if (is_exist > 0){
+                                packet_clicked = packet_clicked.replace(' & ',' and ')
+                            }
+                            var internal_bar_graph ='/api/chart_data/?';
+                            var dates_list = self.get_date();
+                            $http.get( internal_bar_graph + 'packet=' + packet_clicked + '&from=' + dates_list[0] + '&to=' + dates_list[1]
+                             + '&type=' + 'External Error Sub Category Wise' + addition).success(
+                            function(data, status)
+                                {
+                                    $('#myModal').modal('show');
+                                    self.names = data.result.data;
+                                    var proj = data.result.project;
+                                    var pro_drill = drilldown_config[proj];
+                                    var chart_type = data.result.type;
+                                    self.fields_list_drilldown = pro_drill[chart_type];
                                     self.chart_type = data.result.type;
                                     console.log(self.names);
                                 }).error(function(error){ console.log("error")});
@@ -4201,6 +4287,23 @@ plotOptions: {
                                 min:result.result.int_min_value,
                                 max:result.result.int_max_value
                             })
+
+                            angular.extend(self.chartOptions45,{
+                                series: [{
+                                    name: '',
+                                    colorByPoint: true,
+                                    data: self.high_data_gener[0].internal_sub_error_types
+                                }]
+                            });
+
+                            angular.extend(self.chartOptions46,{
+                                series: [{
+                                    name: '',
+                                    colorByPoint: true,
+                                    data: self.high_data_gener[0].external_sub_error_types
+                                }]
+                            });
+
                             angular.extend(self.chartOptions5,{
                                 series: [{
                                     name: '',
@@ -4694,6 +4797,74 @@ angular.extend(self.chartOptions18, {
                 }
              },
             };
+
+            self.chartOptions45 = {
+                chart: {
+                    backgroundColor: "transparent",
+                    plotBackgroundColor: null,
+                    plotBorderWidth: null,
+                    plotShadow: false,
+                    type: 'pie'
+                  },
+                title: {
+                    text: ''
+                  },
+                tooltip: {
+                    pointFormat: '<b>{point.y}</b>'
+                  },
+                plotOptions: {
+                    pie: {
+                        allowPointSelect: true,
+                        point: {
+                           events:{
+                           }
+                        },
+                        cursor: 'pointer',
+                        dataLabels: {
+                            enabled: true,
+                            format: '<b>{point.name}</b>: {point.y} ',
+                            style: {
+                                color:(Highcharts.theme && Highcharts.theme.background2) || '#696969'
+                               }
+                            }
+                        }
+                    },
+                };
+
+            self.chartOptions46 = {
+                chart: {
+                    backgroundColor: "transparent",
+                    plotBackgroundColor: null,
+                    plotBorderWidth: null,
+                    plotShadow: false,
+                    type: 'pie'
+                  },
+                title: {
+                    text: ''
+                  },
+                tooltip: {
+                    pointFormat: '<b>{point.y}</b>'
+                  },
+                plotOptions: {
+                    pie: {
+                        allowPointSelect: true,
+                        point: {
+                           events:{
+                           }
+                        },
+                        cursor: 'pointer',
+                        dataLabels: {
+                            enabled: true,
+                            format: '<b>{point.name}</b>: {point.y} ',
+                            style: {
+                                color:(Highcharts.theme && Highcharts.theme.background2) || '#696969'
+                               }
+                            }
+                        }
+                    },
+                };
+
+
             self.chartOptions5 = {
                 chart: {
                     backgroundColor: "transparent",
