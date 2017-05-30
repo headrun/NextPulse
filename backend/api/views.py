@@ -791,6 +791,26 @@ def latest_dates(request,prj_id):
         result['to_date'] = '2017-01-11'
     return result
 
+def different_sub_error_type(total_type_errors):
+    all_errors = {}
+    new_all_errors = {}
+    if len(total_type_errors) > 0:
+        for error_dict in total_type_errors:
+            error_names= error_dict['type_error'].split('#<>#')
+            error_values = error_dict['sub_error_count'].split('#<>#')
+            for er_key,er_value in zip(error_names,error_values):
+                if all_errors.has_key(er_key):
+                    all_errors[er_key].append(int(er_value))
+                else:
+                    if er_key != '':
+                        all_errors[er_key] = [int(er_value)]
+        for type_error,sub_error_count in all_errors.iteritems():
+            try:
+                new_all_errors[str(type_error)] = sum(sub_error_count)
+            except:
+                type_error = smart_str(type_error)
+                new_all_errors[type_error] = sum(sub_error_count)
+    return new_all_errors
 
 def different_error_type(total_error_types):
     all_errors = {}
@@ -835,7 +855,79 @@ def error_types_sum(error_list):
     #return final_error_dict
     return new_final_dict
 
-
+def internal_extrnal_sub_error_types(request,date_list,prj_id,center_obj,level_structure_key,err_type):
+    prj_name = Project.objects.filter(id=prj_id).values_list('name', flat=True)
+    center_name = Center.objects.filter(id=center_obj).values_list('name', flat=True)
+    query_set = query_set_generation(prj_id, center_obj, level_structure_key,date_list)
+    if err_type =='Internal' :
+        extr_volumes_list = worktrack_internal_external_workpackets_list(level_structure_key, 'Internalerrors',query_set)
+        err_key_type = 'error'
+    if err_type == 'External':
+        extr_volumes_list = worktrack_internal_external_workpackets_list(level_structure_key, 'Externalerrors',query_set)
+        err_key_type = 'externalerror'
+    conn = redis.Redis(host="localhost", port=6379, db=0)
+    result = {}
+    vol_error_values = {}
+    vol_audit_data = {}
+    extrnl_error_values = {}
+    extrnl_err_type = {}
+    extr_volumes_list_new=[]
+    all_error_types = []
+    sub_error_types = []
+    for date_va in date_list:
+        count =0
+        total_done_value = RawTable.objects.filter(project=prj_id, center=center_obj, date=date_va).aggregate(Max('per_day'))
+        if total_done_value['per_day__max'] > 0:
+            for vol_type in extr_volumes_list:
+                final_work_packet = level_hierarchy_key(level_structure_key, vol_type)
+                if not final_work_packet:
+                    final_work_packet = level_hierarchy_key(extr_volumes_list[count],vol_type)
+                count = count+1
+                extr_volumes_list_new.append(final_work_packet)
+                key_pattern = '{0}_{1}_{2}_{3}_{4}'.format(prj_name[0], str(center_name[0]), final_work_packet, date_va,err_key_type)
+                audit_key_list = conn.keys(pattern=key_pattern)
+                if not audit_key_list:
+                    if vol_error_values.has_key(final_work_packet):
+                        vol_error_values[final_work_packet].append("NA")
+                        vol_audit_data[final_work_packet].append("NA")
+                    else:
+                        vol_error_values[final_work_packet] = ["NA"]
+                        vol_audit_data[final_work_packet] = ["NA"]
+                for cur_key in audit_key_list:
+                    var = conn.hgetall(cur_key)
+                    for key, value in var.iteritems():
+                        if key == 'types_of_errors':
+                            all_error_types.append(value)
+                        elif key == 'sub_error_types':
+                            sub_error_types.append(value)
+                        else:
+                            if value == 'None':
+                                value = "NA"
+                            error_vol_type = final_work_packet
+                            if key == 'error_values':
+                                if vol_error_values.has_key(error_vol_type):
+                                    if value =="NA":
+                                        vol_error_values[error_vol_type].append(value)
+                                    else:
+                                        vol_error_values[error_vol_type].append(int(value))
+                                else:
+                                    if value =="NA":
+                                        vol_error_values[error_vol_type] = [value]
+                                    else:
+                                        vol_error_values[error_vol_type] = [int(value)]
+                            else:
+                                if vol_audit_data.has_key(error_vol_type):
+                                    if value=="NA":
+                                        vol_audit_data[error_vol_type].append(value)
+                                    else:
+                                        vol_audit_data[error_vol_type].append(int(value))
+                                else:
+                                    if value=="NA":
+                                        vol_audit_data[error_vol_type] = [value]
+                                    else:
+                                        vol_audit_data[error_vol_type] = [int(value)]
+    sub_error_category_calculations = error_types_sum(sub_error_types)
+    return sub_error_category_calculations
 
 def internal_extrnal_error_types(request,date_list,prj_id,center_obj,level_structure_key,err_type):
     prj_name = Project.objects.filter(id=prj_id).values_list('name', flat=True)
@@ -859,6 +951,7 @@ def internal_extrnal_error_types(request,date_list,prj_id,center_obj,level_struc
     extrnl_err_type = {}
     extr_volumes_list_new=[]
     all_error_types = []
+    sub_error_types = []
     for date_va in date_list:
         count =0
         total_done_value = RawTable.objects.filter(project=prj_id, center=center_obj, date=date_va).aggregate(Max('per_day'))
@@ -884,6 +977,8 @@ def internal_extrnal_error_types(request,date_list,prj_id,center_obj,level_struc
                     for key, value in var.iteritems():
                         if key == 'types_of_errors':
                             all_error_types.append(value)
+                        elif key == 'sub_error_types':
+                            sub_error_types.append(value)
                         else:
                             if value == 'None':
                                 value = "NA"
@@ -963,9 +1058,12 @@ def redis_insertion_final(prj_obj,center_obj,dates_list,key_type,level_structure
                 total_audit = Internalerrors.objects.filter(**query_set).values_list('audited_errors').aggregate(Sum('audited_errors'))
                 total_errors = Internalerrors.objects.filter(**query_set).values_list('total_errors').aggregate(Sum('total_errors'))
                 error_types = Internalerrors.objects.filter(**query_set).values('error_types','error_values')
+                type_errors = Internalerrors.objects.filter(**query_set).values('type_error','sub_error_count')
                 total_error_types = different_error_type(error_types)
+                total_type_errors = different_sub_error_type(type_errors)
                 value_dict['total_audit'] = str(total_audit['audited_errors__sum'])
                 value_dict['total_errors'] = str(total_errors['total_errors__sum'])
+                value_dict['sub_error_types'] = json.dumps(total_type_errors)
                 value_dict['types_of_errors'] = json.dumps(total_error_types)
                 data_dict[redis_key] = value_dict
             if key_type == 'External':
@@ -973,10 +1071,13 @@ def redis_insertion_final(prj_obj,center_obj,dates_list,key_type,level_structure
                 total_audit = Externalerrors.objects.filter(**query_set).values_list('audited_errors').aggregate(Sum('audited_errors'))
                 total_errors = Externalerrors.objects.filter(**query_set).values_list('total_errors').aggregate(Sum('total_errors'))
                 error_types = Externalerrors.objects.filter(**query_set).values('error_types', 'error_values')
+                type_errors = Externalerrors.objects.filter(**query_set).values('type_error','sub_error_count')
+                total_type_errors = different_sub_error_type(type_errors)
                 total_error_types = different_error_type(error_types)
                 value_dict['total_audit'] = str(total_audit['audited_errors__sum'])
                 value_dict['total_errors'] = str(total_errors['total_errors__sum'])
                 value_dict['types_of_errors'] = json.dumps(total_error_types)
+                value_dict['sub_error_types'] = json.dumps(total_type_errors)
                 data_dict[redis_key] = value_dict
             if key_type == 'WorkTrack':
                 redis_key = '{0}_{1}_{2}_{3}_worktrack'.format(prj_name, center_name, final_work_packet,str(date_is))
@@ -1209,6 +1310,8 @@ def internalerror_query_insertion(customer_data, prj_obj, center_obj,teamleader_
                                  total_errors=total_errors,
                                  error_types = customer_data.get('error_types', ''),
                                  error_values = customer_data.get('error_values', ''),
+                                 sub_error_count = customer_data.get('sub_error_count',''),
+                                 type_error = customer_data.get('type_error', ''),
                                  project=prj_obj, center=center_obj)
         if new_can:
             try:
@@ -1256,6 +1359,8 @@ def externalerror_query_insertion(customer_data, prj_obj, center_obj,teamleader_
                                  total_errors=total_errors,
                                  error_types=customer_data.get('error_types', ''),
                                  error_values=customer_data.get('error_values', ''),
+                                 type_error = customer_data.get('type_error', ''),
+                                 sub_error_count = customer_data.get('sub_error_count',''),
                                  project=prj_obj, center=center_obj)
         if new_can:
             try:
@@ -1277,7 +1382,8 @@ def target_table_query_insertion(customer_data,prj_obj,center_obj,teamleader_obj
     prod_date_list = customer_data['from_date']
     new_can = 0
     check_query = Targets.objects.filter(project=prj_obj, sub_project=customer_data.get('sub_project', ''),
-                                          work_packet=customer_data['work_packet'],
+                                          #work_packet=customer_data['work_packet'],
+                                          work_packet=customer_data.get('work_packet', ''),
                                           sub_packet=customer_data.get('sub_packet', ''),
                                           from_date=customer_data['from_date'],
                                          to_date=customer_data['to_date'],
@@ -1299,7 +1405,8 @@ def target_table_query_insertion(customer_data,prj_obj,center_obj,teamleader_obj
 
     if len(check_query) == 0:
         new_can = Targets(project=prj_obj, sub_project=customer_data.get('sub_project', ''),
-                           work_packet=customer_data['work_packet'],
+                           #work_packet=customer_data['work_packet'],
+                           work_packet=customer_data.get('work_packet', ''),
                            sub_packet=customer_data.get('sub_packet', ''),
                            from_date=customer_data['from_date'],
                            to_date=customer_data['to_date'],
@@ -1643,7 +1750,7 @@ def upload_new(request):
                         other_fileds.append(required_filed[1])
                 if map_key == 'date':
                     authoring_dates['intr_error_date'] = map_value.lower()
-        
+
         external_error_map_query = Authoring_mapping(prj_obj,center_obj,'ExternalerrorsAuthoring')
         for map_key,map_value in external_error_map_query.iteritems():
             if map_key == 'sheet_name':
@@ -1830,16 +1937,30 @@ def upload_new(request):
                                     local_internalerror_data[raw_key] = 'not_applicable'
 
                         elif ('#<>#' not in raw_value) and (raw_value in customer_data.keys()):
-                            if (raw_key== 'error_category') or (raw_key== 'error_count'):
-                                if customer_data.get(internal_error_mapping['error_category']) != '' :
-                                    error_count = customer_data[internal_error_mapping['error_count']]
-                                    if error_count == '':
-                                        error_count = 0
-                                    local_internalerror_data['individual_errors']={}
-                                    local_internalerror_data['individual_errors'][customer_data[raw_value]] = error_count
-                                else:
-                                    local_internalerror_data['individual_errors']={}
-                                    local_internalerror_data['individual_errors']['no_data']='no_data'
+                            if (raw_key== 'error_category') or (raw_key== 'error_count') or (raw_key== 'type_error'):
+                                if raw_key== 'type_error':
+                                    if customer_data.get(internal_error_mapping['type_error']) != '':
+                                         error_name = customer_data[internal_error_mapping['type_error']]
+                                         error_count = customer_data[internal_error_mapping['error_count']]
+                                         if error_count == '':
+                                             error_count = 0
+                                         local_internalerror_data['sub_errors']={}
+                                         type_key = customer_data[raw_value].replace(' ','_') +'_' + customer_data['error category'].replace(' ','_')
+                                         local_internalerror_data['sub_errors'][type_key] = error_count
+                                    else:
+                                        local_internalerror_data['sub_errors']={}
+                                        local_internalerror_data['sub_errors']['no_data']='no_data'
+
+                                if (raw_key== 'error_category') or (raw_key== 'error_count'):
+                                    if customer_data.get(internal_error_mapping['error_category']) != '' :
+                                        error_count = customer_data[internal_error_mapping['error_count']]
+                                        if error_count == '':
+                                            error_count = 0
+                                        local_internalerror_data['individual_errors']={}
+                                        local_internalerror_data['individual_errors'][customer_data[raw_value]] = error_count
+                                    else:
+                                        local_internalerror_data['individual_errors']={}
+                                        local_internalerror_data['individual_errors']['no_data']='no_data'
                             else:
                                 local_internalerror_data[raw_key] = customer_data[raw_value]
 
@@ -1847,10 +1968,13 @@ def upload_new(request):
                     if 'not_applicable' not in local_internalerror_data.values():
                         if internal_error_dataset.has_key(str(customer_data[date_name])):
                             if internal_error_dataset[str(customer_data[date_name])].has_key(emp_key):
-                                if local_internalerror_data.has_key('individual_errors') and internal_error_dataset[str(customer_data[date_name])][emp_key].has_key('individual_errors'):
+                                if (local_internalerror_data.has_key('individual_errors') and internal_error_dataset[str(customer_data[date_name])][emp_key].has_key('individual_errors')) or (local_internalerror_data.has_key('sub_errors') and internal_error_dataset[str(customer_data[date_name])][emp_key].has_key('sub_errors')):
                                     individual_errors = local_internalerror_data['individual_errors']
+                                    sub_errors = local_internalerror_data['sub_errors']
                                     individual_errors.update(internal_error_dataset[str(customer_data[date_name])][emp_key]['individual_errors'])
+                                    sub_errors.update(internal_error_dataset[str(customer_data[date_name])][emp_key]['sub_errors'])
                                     internal_error_dataset[str(customer_data[date_name])][emp_key]['individual_errors'] = local_internalerror_data['individual_errors']
+                                    internal_error_dataset[str(customer_data[date_name])][emp_key]['sub_errors'] = local_internalerror_data['sub_errors']
                             else:
                                 internal_error_dataset[str(customer_data[date_name])][emp_key]=local_internalerror_data
                     else:
@@ -1868,7 +1992,6 @@ def upload_new(request):
                                 if 'not_applicable' not in local_internalerror_data.values():
                                     internal_error_dataset[str(customer_data[date_name])][emp_key] = local_internalerror_data
 
-            
                 if key == sheet_names.get('external_error_sheet',''):
                     date_name = authoring_dates['extr_error_date']
                     if not external_error_dataset.has_key(customer_data[date_name]):
@@ -1885,16 +2008,29 @@ def upload_new(request):
                                     local_externalerror_data[raw_key] = 'not_applicable'
 
                         elif ('#<>#' not in raw_value) and (raw_value in customer_data.keys()):
-                            if (raw_key== 'error_category') or (raw_key== 'error_count'):
-                                if customer_data.get(external_error_mapping['error_category']) != '' :
-                                    error_count = customer_data[external_error_mapping['error_count']]
-                                    if error_count == '':
-                                        error_count = 0
-                                    local_externalerror_data['individual_errors']={}
-                                    local_externalerror_data['individual_errors'][customer_data[raw_value]] = error_count
-                                else:
-                                    local_externalerror_data['individual_errors']={}
-                                    local_externalerror_data['individual_errors']['no_data']='no_data'
+                            if (raw_key== 'error_category') or (raw_key== 'error_count') or (raw_key== 'type_error'):
+                                if raw_key== 'type_error':
+                                    if customer_data.get(internal_error_mapping['type_error']) != '':
+                                        error_count = customer_data[external_error_mapping['error_count']]
+                                        if error_count == '':
+                                            error_count = 0
+                                        local_externalerror_data['sub_errors']={}
+                                        type_key = customer_data[raw_value].replace(' ','_') +'_' + customer_data['error category'].replace(' ','_')
+                                        local_externalerror_data['sub_errors'][type_key] = error_count
+                                    else:
+                                        local_externalerror_data['sub_errors']={}
+                                        local_externalerror_data['sub_errors']['no_data']='no_data'
+
+                                if (raw_key== 'error_category') or (raw_key== 'error_count'):
+                                    if customer_data.get(external_error_mapping['error_category']) != '' :
+                                        error_count = customer_data[external_error_mapping['error_count']]
+                                        if error_count == '':
+                                            error_count = 0
+                                        local_externalerror_data['individual_errors']={}
+                                        local_externalerror_data['individual_errors'][customer_data[raw_value]] = error_count
+                                    else:
+                                        local_externalerror_data['individual_errors']={}
+                                        local_externalerror_data['individual_errors']['no_data']='no_data'
                             else:
                                 local_externalerror_data[raw_key] = customer_data[raw_value]
 
@@ -1902,10 +2038,13 @@ def upload_new(request):
                     if 'not_applicable' not in local_externalerror_data.values():
                         if external_error_dataset.has_key(str(customer_data[date_name])):
                             if external_error_dataset[str(customer_data[date_name])].has_key(emp_key):
-                                if local_externalerror_data.has_key('individual_errors') and external_error_dataset[str(customer_data[date_name])][emp_key].has_key('individual_errors'):
+                                if (local_externalerror_data.has_key('individual_errors') and external_error_dataset[str(customer_data[date_name])][emp_key].has_key('individual_errors')) or (local_externalerror_data.has_key('sub_errors') and external_error_dataset[str(customer_data[date_name])][emp_key].has_key('sub_errors')):
                                     individual_errors = local_externalerror_data['individual_errors']
+                                    sub_errors = local_externalerror_data['sub_errors']
                                     individual_errors.update(external_error_dataset[str(customer_data[date_name])][emp_key]['individual_errors'])
+                                    sub_errors.update(external_error_dataset[str(customer_data[date_name])][emp_key]['sub_errors'])
                                     external_error_dataset[str(customer_data[date_name])][emp_key]['individual_errors'] = local_externalerror_data['individual_errors']
+                                    external_error_dataset[str(customer_data[date_name])][emp_key]['sub_errors'] = local_externalerror_data['sub_errors']
                             else:
                                 external_error_dataset[str(customer_data[date_name])][emp_key]=local_externalerror_data
                     else:
@@ -2265,11 +2404,12 @@ def dates_sorting(timestamps):
     sorted_values = [datetime.datetime.strftime(ts, "%Y-%m-%d") for ts in dates]
     return sorted_values
 
+"""
 def Error_checking(employee_data,error_match=False):
     employee_data['status'] = 'mis_match'
     if employee_data.has_key('individual_errors'):
         if employee_data['individual_errors'].has_key('no_data'):
-           employee_data['status'] = 'matched' 
+           employee_data['status'] = 'matched'
         try:
             total_errors = int(float(employee_data['total_errors']))
         except:
@@ -2301,6 +2441,74 @@ def Error_checking(employee_data,error_match=False):
             employee_data['error_values'] = error_values 
 
     return employee_data
+"""
+
+def Error_checking(employee_data,error_match=False):
+    employee_data['status'] = 'mis_match'
+    if employee_data.has_key('individual_errors') or employee_data.has_key('sub_errors'):
+        if employee_data['individual_errors'].has_key('no_data'):
+           employee_data['status'] = 'matched'
+        try:
+            total_errors = int(float(employee_data['total_errors']))
+        except:
+            total_errors = 0
+
+        if employee_data['sub_errors'].has_key('no_data'):
+            employee_data['status'] = 'matched'
+        try:
+            total_errors = int(float(employee_data['total_errors']))
+        except:
+            total_errors = 0
+
+        all_error_values = []
+        sub_error_values = []
+
+        for er_value in employee_data['individual_errors'].values():
+            try:
+                er_value = int(float(er_value))
+            except:
+                er_value = 0
+            all_error_values.append(er_value)
+
+        for er_value in employee_data['sub_errors'].values():
+            try:
+                er_value = int(float(er_value))
+            except:
+                er_value = 0
+            sub_error_values.append(er_value)
+        if error_match == True:
+            if total_errors == sum(sub_error_values):
+                sub_error_values = [str(value) for value in sub_error_values]
+                employee_data['status'] = 'matched'
+                type_error = '#<>#'.join(employee_data['sub_errors'].keys())
+                sub_error_count = '#<>#'.join(sub_error_values)
+            else:
+                employee_data['type_error'] = None
+                employee_data['sub_error_count'] = 0
+
+            if total_errors == sum(all_error_values):
+                all_error_values = [str(value) for value in all_error_values ]
+                employee_data['status'] = 'matched'
+                error_types='#<>#'.join(employee_data['individual_errors'].keys())
+                error_values = '#<>#'.join(all_error_values)
+                employee_data['error_types'] = error_types
+                employee_data['error_values'] = error_values
+            else:
+                employee_data['error_types'] = None
+                employee_data['error_values'] = 0
+        else:
+            all_error_values = [str(value) for value in all_error_values]
+            sub_error_values = [str(value) for value in sub_error_values]
+            error_types = '#<>#'.join(employee_data['individual_errors'].keys())
+            type_error = '#<>#'.join(employee_data['sub_errors'].keys())
+            error_values = '#<>#'.join(all_error_values)
+            sub_error_count = '#<>#'.join(sub_error_values)
+            employee_data['error_types'] = error_types
+            employee_data['type_error'] = type_error
+            employee_data['sub_error_count'] = sub_error_count
+            employee_data['error_values'] = error_values
+    return employee_data
+
 
 def worktrack_query_insertion(customer_data, prj_obj, center_obj,teamleader_obj_name, db_check):
     worktrac_date_list = customer_data['date']
@@ -3030,7 +3238,7 @@ def product_total_graph(date_list,prj_cen_val,work_packets,level_structure_key):
     print 'prod data is cool ----------------------------------------------------------------------------------------'
     return result
 
-
+"""
 def internal_external_graphs_common(request,date_list,prj_id,center_obj,level_structure_key,err_type):
     prj_name = Project.objects.filter(id=prj_id).values_list('name', flat=True)
     center_name = Center.objects.filter(id=center_obj).values_list('name', flat=True)
@@ -3043,18 +3251,18 @@ def internal_external_graphs_common(request,date_list,prj_id,center_obj,level_st
         err_key_type = 'externalerror'
     conn = redis.Redis(host="localhost", port=6379, db=0)
     # below variable for error graphs.
-    result = {} 
-    vol_error_values = {} 
-    vol_audit_data = {} 
+    result = {}
+    vol_error_values = {}
+    vol_audit_data = {}
     # below variable for external errors
-    extrnl_error_values = {} 
-    extrnl_err_type = {} 
+    extrnl_error_values = {}
+    extrnl_err_type = {}
     extr_volumes_list_new=[]
-    all_error_types = [] 
+    all_error_types = []
     for date_va in date_list:
         count =0
         total_done_value = RawTable.objects.filter(project=prj_id, center=center_obj, date=date_va).aggregate(Max('per_day'))
-        if total_done_value['per_day__max'] > 0: 
+        if total_done_value['per_day__max'] > 0:
             for vol_type in extr_volumes_list:
                 final_work_packet = level_hierarchy_key(level_structure_key, vol_type)
                 if not final_work_packet:
@@ -3129,7 +3337,7 @@ def internal_external_graphs_common(request,date_list,prj_id,center_obj,level_st
                         if value == 'None':
                             value = 0
                         if date_values.has_key(key):
-                            if final_target: 
+                            if final_target:
                                 date_values[key].append(int(value)*final_target)
                             else:
                                 date_values[key].append(int(value))
@@ -3160,12 +3368,12 @@ def internal_external_graphs_common(request,date_list,prj_id,center_obj,level_st
 
     error_accuracy = {}
     for key,value in error_data.iteritems():
-        if audit_data[key] != 0:
+        if audit_data[key]:
              percentage = ((float(value)/float(audit_data[key])))*100
              percentage = 100 - float('%.2f' % round(percentage, 2))
              error_accuracy[key] = [percentage]
         else:
-            if audit_data[key] == 0 and date_values_sum[key] != 0:
+            if audit_data[key] == 0 and date_values_sum.has_key(key):
                 percentage = (float(value) / date_values_sum[key]) * 100
                 percentage = 100 - float('%.2f' % round(percentage, 2))
                 error_accuracy[key] = [percentage]
@@ -3175,7 +3383,7 @@ def internal_external_graphs_common(request,date_list,prj_id,center_obj,level_st
                 percentage = 0
                 error_accuracy[key] = [percentage]
     err_acc_name = []
-    err_acc_perc = [] 
+    err_acc_perc = []
     for key, value in error_accuracy.iteritems():
         err_acc_name.append(key)
         err_acc_perc.append(value[0])
@@ -3206,7 +3414,349 @@ def internal_external_graphs_common(request,date_list,prj_id,center_obj,level_st
         #result['external_time_line_date'] = date_list
         #result['external_pareto_data'] = pareto_data_generation(vol_error_values, internal_time_line)
     return result
+"""
 
+def internal_external_graphs_common(request,date_list,prj_id,center_obj,level_structure_key,err_type):
+    prj_name = Project.objects.filter(id=prj_id).values_list('name', flat=True)
+    center_name = Center.objects.filter(id=center_obj).values_list('name', flat=True)
+    query_set = query_set_generation(prj_id, center_obj, level_structure_key,date_list)
+    if err_type =='Internal' :
+        extr_volumes_list = worktrack_internal_external_workpackets_list(level_structure_key, 'Internalerrors', query_set)
+        err_key_type = 'error'
+    if err_type == 'External':
+        extr_volumes_list = worktrack_internal_external_workpackets_list(level_structure_key, 'Externalerrors',query_set)
+        err_key_type = 'externalerror'
+    conn = redis.Redis(host="localhost", port=6379, db=0)
+    # below variable for error graphs.
+    result = {}
+    vol_error_values = {}
+    vol_audit_data = {}
+    # below variable for external errors
+    extrnl_error_values = {}
+    extrnl_err_type = {}
+    extr_volumes_list_new=[]
+    all_error_types = []
+    sub_error_types = []
+    for date_va in date_list:
+        count =0
+        total_done_value = RawTable.objects.filter(project=prj_id, center=center_obj, date=date_va).aggregate(Max('per_day'))
+        if total_done_value['per_day__max'] > 0:
+            for vol_type in extr_volumes_list:
+                final_work_packet = level_hierarchy_key(level_structure_key, vol_type)
+                if not final_work_packet:
+                    final_work_packet = level_hierarchy_key(extr_volumes_list[count],vol_type)
+                count = count+1
+                extr_volumes_list_new.append(final_work_packet)
+                if level_structure_key.get('work_packet','') == 'All':
+                    packets_list = RawTable.objects.filter(project=prj_id, center=center_obj, date=date_va,work_packet=final_work_packet).values_list('sub_packet',flat=True).distinct()
+                    for packet in packets_list:
+                        if '_' in final_work_packet:
+                            packets_values = final_work_packet.split('_')
+                            final_work_packet = packets_values[0]
+                        else:
+                            final_work_packet = final_work_packet
+                        if packet:
+                            final_work_packet = final_work_packet+'_'+packet
+                            key_pattern = '{0}_{1}_{2}_{3}_{4}'.format(prj_name[0], str(center_name[0]), final_work_packet, date_va,err_key_type)
+                            audit_key_list = conn.keys(pattern=key_pattern)
+                            if not audit_key_list:
+                                if vol_error_values.has_key(final_work_packet):
+                                    vol_error_values[final_work_packet].append("NA")
+                                    vol_audit_data[final_work_packet].append("NA")
+                                else:
+                                    vol_error_values[final_work_packet] = ["NA"]
+                                    vol_audit_data[final_work_packet] = ["NA"]
+                            for cur_key in audit_key_list:
+                                var = conn.hgetall(cur_key)
+                                for key, value in var.iteritems():
+                                    if key == 'types_of_errors':
+                                        all_error_types.append(value)
+                                    elif key == 'sub_error_types':
+                                        sub_error_types.append(value)
+                                    else:
+                                        if value == 'None':
+                                            value = "NA"
+                                        error_vol_type = final_work_packet
+                                        if key == 'total_errors':
+                                            if vol_error_values.has_key(error_vol_type):
+                                                if value =="NA":
+                                                    vol_error_values[error_vol_type].append(value)
+                                                else:
+                                                    vol_error_values[error_vol_type].append(int(value))
+                                            else:
+                                                if value =="NA":
+                                                    vol_error_values[error_vol_type] = [value]
+                                                else:
+                                                    vol_error_values[error_vol_type] = [int(value)]
+                                        else:
+                                            if vol_audit_data.has_key(error_vol_type):
+                                                if value=="NA":
+                                                    vol_audit_data[error_vol_type].append(value)
+                                                else:
+                                                    vol_audit_data[error_vol_type].append(int(value))
+                                            else:
+                                                if value=="NA":
+                                                    vol_audit_data[error_vol_type] = [value]
+                                                else:
+                                                    vol_audit_data[error_vol_type] = [int(value)]
+                else:
+                    final_work_packet = final_work_packet
+                    key_pattern = '{0}_{1}_{2}_{3}_{4}'.format(prj_name[0], str(center_name[0]), final_work_packet, date_va,err_key_type)
+                    audit_key_list = conn.keys(pattern=key_pattern)
+                    if not audit_key_list:
+                        if vol_error_values.has_key(final_work_packet):
+                            vol_error_values[final_work_packet].append("NA")
+                            vol_audit_data[final_work_packet].append("NA")
+                        else:
+                            vol_error_values[final_work_packet] = ["NA"]
+                            vol_audit_data[final_work_packet] = ["NA"]
+                    for cur_key in audit_key_list:
+                        var = conn.hgetall(cur_key)
+                        for key, value in var.iteritems():
+                            if key == 'types_of_errors':
+                                all_error_types.append(value)
+                            elif key == 'sub_error_types':
+                                sub_error_types.append(value)
+                            else:
+                                if value == 'None':
+                                    value = "NA"
+                                error_vol_type = final_work_packet
+                                if key == 'total_errors':
+                                    if vol_error_values.has_key(error_vol_type):
+                                        if value =="NA":
+                                            vol_error_values[error_vol_type].append(value)
+                                        else:
+                                            vol_error_values[error_vol_type].append(int(value))
+                                    else:
+                                        if value =="NA":
+                                            vol_error_values[error_vol_type] = [value]
+                                        else:
+                                            vol_error_values[error_vol_type] = [int(value)]
+                                else:
+                                    if vol_audit_data.has_key(error_vol_type):
+                                        if value=="NA":
+                                            vol_audit_data[error_vol_type].append(value)
+                                        else:
+                                            vol_audit_data[error_vol_type].append(int(value))
+                                    else:
+                                        if value=="NA":
+                                            vol_audit_data[error_vol_type] = [value]
+                                        else:
+                                            vol_audit_data[error_vol_type] = [int(value)]
+
+    date_values = {}
+    for date_va in date_list:
+        total_done_value = RawTable.objects.filter(project=prj_id, center=center_obj, date=date_va).aggregate(Max('per_day'))
+        if total_done_value['per_day__max'] > 0:
+            volume_list = worktrack_internal_external_workpackets_list(level_structure_key, 'RawTable', query_set)
+            count =0
+            for vol_type in volume_list:
+                final_work_packet = level_hierarchy_key(level_structure_key,vol_type)
+                if not final_work_packet:
+                    final_work_packet = level_hierarchy_key(volume_list[count],vol_type)
+                count = count+1
+                extr_volumes_list_new.append(final_work_packet)
+                if level_structure_key.get('work_packet','') == 'All':
+                    packets_list = RawTable.objects.filter(project=prj_id, center=center_obj, date=date_va,work_packet=final_work_packet).values_list('sub_packet',flat=True).distinct()
+                    for packet in packets_list:
+                        if '_' in final_work_packet:
+                            packets_values = final_work_packet.split('_')
+                            final_work_packet = packets_values[0]
+                        else:
+                            final_work_packet = final_work_packet
+                        if packet:
+                            final_work_packet = final_work_packet+'_'+packet
+                            target_query_set = target_query_generations(prj_id, center_obj, date_va, final_work_packet,level_structure_key)
+                            target_types = Targets.objects.filter(**target_query_set).values('target_type').distinct()
+                            target_consideration = target_types.filter(target_type = 'Fields').aggregate(Sum('target_value'))
+                            final_target = target_consideration['target_value__sum']
+                            date_pattern = '{0}_{1}_{2}_{3}'.format(prj_name[0], str(center_name[0]), str(final_work_packet), date_va)
+                            key_list = conn.keys(pattern=date_pattern)
+                            if not key_list:
+                                if date_values.has_key(final_work_packet):
+                                    date_values[final_work_packet].append(0)
+                                else:
+                                    date_values[final_work_packet] = [0]
+                            for cur_key in key_list:
+                                var = conn.hgetall(cur_key)
+                                for key,value in var.iteritems():
+                                    if value == 'None':
+                                        value = 0
+                                    if date_values.has_key(key):
+                                        if final_target:
+                                            date_values[key].append(int(value)*final_target)
+                                        else:
+                                            date_values[key].append(int(value))
+                                    else:
+                                        if final_target:
+                                            date_values[key]=[int(value)*final_target]
+                                        else:
+                                            date_values[key]=[int(value)]
+
+                else:
+                    final_work_packet = final_work_packet
+                    target_query_set = target_query_generations(prj_id, center_obj, date_va, final_work_packet,level_structure_key)
+                    target_types = Targets.objects.filter(**target_query_set).values('target_type').distinct()
+                    target_consideration = target_types.filter(target_type = 'Fields').aggregate(Sum('target_value'))
+                    final_target = target_consideration['target_value__sum']
+                    date_pattern = '{0}_{1}_{2}_{3}'.format(prj_name[0], str(center_name[0]), str(final_work_packet), date_va)
+                    key_list = conn.keys(pattern=date_pattern)
+                    if not key_list:
+                        if date_values.has_key(final_work_packet):
+                            date_values[final_work_packet].append(0)
+                        else:
+                            date_values[final_work_packet] = [0]
+                    for cur_key in key_list:
+                        var = conn.hgetall(cur_key)
+                        for key,value in var.iteritems():
+                            if value == 'None':
+                                value = 0
+                            if date_values.has_key(key):
+                                if final_target:
+                                    date_values[key].append(int(value)*final_target)
+                                else:
+                                    date_values[key].append(int(value))
+                            else:
+                                if final_target:
+                                    date_values[key]=[int(value)*final_target]
+                                else:
+                                    date_values[key]=[int(value)]
+    if level_structure_key.get('work_packet','') == 'All':
+        main_dict = {}
+        for key, value in date_values.iteritems():
+            pa_key = key.split('_')[0]
+            if main_dict.has_key(pa_key):
+                main_dict[pa_key].append(value)
+            else:
+                main_dict[pa_key] = [value]
+        date_values_sum = {}
+        for key, value in main_dict.iteritems():
+            production_data = [sum(i) for i in value if i!='NA']
+            date_values_sum[key] = sum(production_data)
+        indicidual_error_calc = error_types_sum(all_error_types)
+        volume_dict = {}
+        error_data = {}
+        error_graph_data = []
+        vol_err_dict = {}
+        for key, value in vol_error_values.iteritems():
+            pa_key = key.split('_')[0]
+            if vol_err_dict.has_key(pa_key):
+                vol_err_dict[pa_key].append(value)
+            else:
+                vol_err_dict[pa_key] = [value]
+        vol_err_dict_sum = {}
+        for key, value in vol_err_dict.iteritems():
+            error_filter = [i for i in value if i !='NA']
+            packet_dict = []
+            for i in error_filter:
+                for number in i:
+                    if number == 'NA':
+                        packet_dict.append(0)
+                    else:
+                        packet_dict.append(number)
+            error_graph = []
+            error_data[key] = sum(packet_dict)
+            error_graph.append(key)
+            error_graph.append(sum(packet_dict))
+            error_graph_data.append(error_graph)
+        vol_audit_dict = {}
+        for key,value in vol_audit_data.iteritems():
+            pa_key = key.split('_')[0]
+            if vol_audit_dict.has_key(pa_key):
+                vol_audit_dict[pa_key].append(value)
+            else:
+                vol_audit_dict[pa_key] = [value]
+
+        audit_data = {}
+        for key, value in vol_audit_dict.iteritems():
+            error_filter = [i for i in value if i!='NA']
+            packet_dict = []
+            for i in error_filter:
+                for number in i:
+                    if number == 'NA':
+                        packet_dict.append(0)
+                    else:
+                        packet_dict.append(number)
+            audit_data[key] = sum(packet_dict)
+        error_accuracy = {}
+        for key,value in error_data.iteritems():
+            if audit_data[key]:
+                 percentage = ((float(value)/float(audit_data[key])))*100
+                 percentage = 100 - float('%.2f' % round(percentage, 2))
+                 error_accuracy[key] = [percentage]
+            else:
+                if audit_data[key] == 0 and date_values_sum.has_key(key):
+                    try:
+                        percentage = (float(value) / date_values_sum[key]) * 100
+                        percentage = 100 - float('%.2f' % round(percentage, 2))
+                        error_accuracy[key] = [percentage]
+                    except:
+                        error_accuracy[key] = [0]
+                else:
+                    percentage = 0
+                    error_accuracy[key] = [percentage]
+        err_acc_name = []
+        err_acc_perc = []
+        for key, value in error_accuracy.iteritems():
+            err_acc_name.append(key)
+            err_acc_perc.append(value[0])
+
+    else:
+        date_values_sum = {}
+        for key, value in date_values.iteritems():
+            production_data = [i for i in value if i!='NA']
+            date_values_sum[key] = sum(production_data)
+        indicidual_error_calc = error_types_sum(all_error_types)
+        volume_dict = {}
+        error_data = {}
+        error_graph_data = []
+        for key, value in vol_error_values.iteritems():
+            error_filter = [i for i in value if i!='NA']
+            error_graph = []
+            error_data[key] = sum(error_filter)
+            error_graph.append(key)
+            error_graph.append(sum(error_filter))
+            error_graph_data.append(error_graph)
+        audit_data = {}
+        for key, value in vol_audit_data.iteritems():
+            error_filter = [i for i in value if i!='NA']
+            audit_data[key] = sum(error_filter)
+
+        error_accuracy = {}
+        for key,value in error_data.iteritems():
+            if audit_data[key]:
+                 percentage = ((float(value)/float(audit_data[key])))*100
+                 percentage = 100 - float('%.2f' % round(percentage, 2))
+                 error_accuracy[key] = [percentage]
+            else:
+                if audit_data[key] == 0 and date_values_sum.has_key(key):
+                    try:
+                        percentage = (float(value) / date_values_sum[key]) * 100
+                        percentage = 100 - float('%.2f' % round(percentage, 2))
+                        error_accuracy[key] = [percentage]
+                    except:
+                        error_accuracy[key] = [0]
+                else:
+                    percentage = 0
+                    error_accuracy[key] = [percentage]
+        err_acc_name = []
+        err_acc_perc = []
+        for key, value in error_accuracy.iteritems():
+            err_acc_name.append(key)
+            err_acc_perc.append(value[0])
+    if err_type == 'Internal':
+        result['intr_err_accuracy'] = {}
+        result['intr_err_accuracy']['packets_percntage'] = error_accuracy
+        result['intr_err_accuracy']['extr_err_name'] = err_acc_name
+        result['intr_err_accuracy']['extr_err_perc'] = err_acc_perc
+        result['internal_field_accuracy_graph'] = error_accuracy
+    if err_type == 'External':
+        result['extr_err_accuracy'] = {}
+        result['extr_err_accuracy']['packets_percntage'] = error_accuracy
+        result['extr_err_accuracy']['extr_err_name'] = err_acc_name
+        result['extr_err_accuracy']['extr_err_perc'] = err_acc_perc
+        result['external_field_accuracy_graph'] = error_accuracy
+    return result
 
 
 def internal_extrnal_graphs_same_formula(date_list,prj_id,center_obj,level_structure_key,err_type):
@@ -3229,6 +3779,7 @@ def internal_extrnal_graphs_same_formula(date_list,prj_id,center_obj,level_struc
     extrnl_err_type = {}
     extr_volumes_list_new=[]
     all_error_types = []
+    sub_error_types = []
     volume_list = worktrack_internal_external_workpackets_list(level_structure_key, 'RawTable', query_set)
     date_values = {}
     for date_va in date_list:
@@ -3283,6 +3834,8 @@ def internal_extrnal_graphs_same_formula(date_list,prj_id,center_obj,level_struc
                 for key, value in var2.iteritems():
                     if key == 'types_of_errors':
                         all_error_types.append(value)
+                    elif key == 'sub_error_types':
+                        sub_error_types.append(value)
                     else:
                         if value == 'None':
                             value = "NA"
@@ -3331,21 +3884,22 @@ def internal_extrnal_graphs_same_formula(date_list,prj_id,center_obj,level_struc
         error_audit_data[key] = sum(error_filter)
     error_accuracy = {}
     for key,value in error_volume_data.iteritems():
-        if error_audit_data[key] != 0:
+        if error_audit_data[key]:
              percentage = ((float(value)/float(error_audit_data[key])))*100
              percentage = 100 - float('%.2f' % round(percentage, 2))
              error_accuracy[key] = [percentage]
         else:
-            if error_audit_data[key] == 0 and date_values_sum[key] != 0:
-                percentage = (float(value) / date_values_sum[key]) * 100
-                percentage = 100 - float('%.2f' % round(percentage, 2))
-                error_accuracy[key] = [percentage]
+            if error_audit_data[key] == 0 and date_values_sum.has_key(key):
+                try:
+                    percentage = (float(value) / date_values_sum[key]) * 100
+                    percentage = 100 - float('%.2f' % round(percentage, 2))
+                    error_accuracy[key] = [percentage]
+                except:
+                    error_accuracy[key] = [0]
             else:
-                #percentage = ((float(value)/float(error_audit_data[key])))*100
-                #percentage = 100 - float('%.2f' % round(percentage, 2))
                 percentage = 0
                 error_accuracy[key] = [percentage]
-    err_acc_name = [] 
+    err_acc_name = []
     err_acc_perc = []
     for key, value in error_accuracy.iteritems():
         err_acc_name.append(key)
@@ -3360,9 +3914,12 @@ def internal_extrnal_graphs_same_formula(date_list,prj_id,center_obj,level_struc
                     percentage = (float(vol_error_values[key][count]) / vol_error_value) * 100
                     percentage = 100-float('%.2f' % round(percentage, 2))
             else:
-                if vol_error_value == 0:
-                    percentage = (float(vol_error_values[key][count]) / date_values_sum[key]) * 100
-                    percentage = 100-float('%.2f' % round(percentage, 2))
+                if vol_error_value == 0 and date_values_sum.has_key(key):
+                    try:
+                        percentage = (float(vol_error_values[key][count]) / date_values_sum[key]) * 100
+                        percentage = 100-float('%.2f' % round(percentage, 2))
+                    except:
+                        percentage = 0
                 else:
                     percentage = 0
             if internal_time_line.has_key(key):
@@ -3371,7 +3928,6 @@ def internal_extrnal_graphs_same_formula(date_list,prj_id,center_obj,level_struc
                 #internal_time_line[key] = [percentage]
                 internal_time_line[key] = [percentage]
             count= count+1
-
 
     range_internal_time_line = {}
     if err_type == 'Internal':
@@ -3386,7 +3942,6 @@ def internal_extrnal_graphs_same_formula(date_list,prj_id,center_obj,level_struc
         result['internal_time_line'] = range_internal_time_line
         result['internal_time_line_date'] = date_list
         result['internal_pareto_data'] = pareto_data_generation(vol_error_values, internal_time_line)
-
 
     if err_type == 'External':
         range_internal_time_line['external_time_line'] = internal_time_line
@@ -3576,6 +4131,7 @@ def sample_pareto_analysis(request,date_list,prj_id,center_obj,level_structure_k
     extrnl_err_type = {}
     extr_volumes_list_new=[]
     all_error_types = []
+    sub_error_types = []
     for date_va in date_list:
         count =0
         total_done_value = RawTable.objects.filter(project=prj_id, center=center_obj, date=date_va).aggregate(Max('per_day'))
@@ -3603,6 +4159,8 @@ def sample_pareto_analysis(request,date_list,prj_id,center_obj,level_structure_k
                 for key, value in var.iteritems():
                     if key == 'types_of_errors':
                         all_error_types.append(value)
+                    elif key == 'sub_error_types':
+                        sub_error_types.append(value)
                     else:
                         if value == 'None':
                             value = "NA"
@@ -3754,6 +4312,25 @@ def errors_week_calcuations(week_names,internal_accuracy_timeline,final_internal
                     final_internal_accuracy_timeline[vol_key].append(0)
     return final_internal_accuracy_timeline
 
+def min_max_value_data(int_value_range):
+    main_max_dict = {}
+    if len(int_value_range) > 0:
+        data_value = []
+        if (min(int_value_range.values()) > 0):
+            for i in int_value_range.values():
+                for values in i:
+                    data_value.append(values)
+            int_min_value = int(round(min(data_value)-2))
+            int_max_value = int(round(max(data_value)+2))
+        else:
+            int_min_value = int(round(min(int_value_range.values())))
+            int_max_value = int(round(max(int_value_range.values()) + 2))
+    else:
+        int_min_value, int_max_value = 0, 0
+    main_max_dict ['min_value'] = int_min_value
+    main_max_dict ['max_value'] = int_max_value
+    return main_max_dict
+
 
 def min_max_num(int_value_range):
     main_max_dict = {}
@@ -3802,13 +4379,13 @@ def volume_status_week(week_names,productivity_list,final_productivity):
 
 
 def received_volume_week(week_names,productivity_list,final_productivity):
-    productivity_data = {} 
+    productivity_data = {}
     for final_key, final_value in productivity_list.iteritems():
         for week_key, week_value in final_value.iteritems():
             if week_key not in final_productivity.keys():
-                final_productivity[week_key] = [] 
+                final_productivity[week_key] = []
     for prod_week_num in week_names:
-        if len(productivity_list.get(prod_week_num,'')) > 0: 
+        if len(productivity_list.get(prod_week_num,'')) > 0:
             values = productivity_list[prod_week_num]
             flag = isinstance(values.get('Received',""), list) & isinstance(values.get('Completed',""), list) & isinstance(values.get('Opening',""), list)
             if flag:
@@ -3816,7 +4393,7 @@ def received_volume_week(week_names,productivity_list,final_productivity):
                     values['Received'][0] = values['Received'][0] + values['Opening'][0]
                     values['Received'] = sum(values['Received'])
                     values['Completed'] = sum(values['Completed'])
-                    values['Opening'] = sum(values['Opening'])
+                    #values['Opening'] = sum(values['Opening'])
                     productivity_data.update(values)
                     del productivity_data['Opening']
                     for vol_key,vol_values in productivity_data.iteritems():
@@ -3831,6 +4408,10 @@ def received_volume_week(week_names,productivity_list,final_productivity):
         else:
             for vol_key, vol_values in final_productivity.iteritems():
                 final_productivity[vol_key].append(0)
+    if final_productivity.has_key('Opening'):
+        del final_productivity['Opening']
+    else:
+        final_productivity = final_productivity
     return final_productivity
 
 def prod_volume_prescan_week_util(week_names,productivity_list,final_productivity):
@@ -4223,15 +4804,16 @@ def tat_graph(date_list, prj_cen_val, level_structure_key):
     else:
         volume_list = []
 
-    from collections import defaultdict
-    ratings = defaultdict(list)
-    data_list_main = RawTable.objects.filter(project=prj_cen_val[0][0],center=prj_cen_val[1][0],date__range=[date_list[0], date_list[-1]]).values('date', 'per_day').order_by('date', 'per_day')
-    for result2 in data_list_main: ratings[result2['date']].append(result2['per_day'])
-    #for date in date_list:
-    for date_va,data in ratings.iteritems():
-        #total_done_value = RawTable.objects.filter(project=prj_cen_val[0][0], center=prj_cen_val[1][0], date=date).aggregate(Max('per_day'))
-        total_done_value = max(data)
-        if total_done_value > 0:
+    #from collections import defaultdict
+    #ratings = defaultdict(list)
+    #data_list_main = RawTable.objects.filter(project=prj_cen_val[0][0],center=prj_cen_val[1][0],date__range=[date_list[0], date_list[-1]]).values('date', 'per_day').order_by('date', 'per_day')
+    #for result2 in data_list_main: ratings[result2['date']].append(result2['per_day'])
+    for date_va in date_list:
+    #for date_va,data in ratings.iteritems():
+        total_done_value = RawTable.objects.filter(project=prj_cen_val[0][0], center=prj_cen_val[1][0], date=date_va).aggregate(Max('per_day'))
+        #total_done_value = max(data)
+        #if total_done_value > 0:
+        if total_done_value['per_day__max'] > 0:
             data_list.append(str(date_va))
             count = 0
             final_data = []
@@ -4327,7 +4909,7 @@ def day_week_month(request, dwm_dict, prj_id, center, work_packets, level_struct
         result_dict['pre_scan_exception_data'] = pre_scan_exception_details
         volume_graph = volume_graph_data(dwm_dict['day'], prj_id, center, level_structure_key)
         result_dict['volume_graphs'] = {}
-        result_dict['volume_graphs']['bar_data'] = graph_data_alignment_color(volume_graph['bar_data'],'data', level_structure_key,prj_id,center,'volume_bar_graph') 
+        result_dict['volume_graphs']['bar_data'] = graph_data_alignment_color(volume_graph['bar_data'],'data', level_structure_key,prj_id,center,'volume_bar_graph')
         result_dict['volume_graphs']['line_data'] = graph_data_alignment_color(volume_graph['line_data'],'data', level_structure_key,prj_id,center,'volume_productivity_graph')
 
         monthly_volume_graph_details = Monthly_Volume_graph(dwm_dict['day'], prj_cen_val, level_structure_key)
@@ -4558,7 +5140,8 @@ def day_week_month(request, dwm_dict, prj_id, center, work_packets, level_struct
             upload_target_dt[month_name]  = upload_target_details
             pre_scan_exception_details = pre_scan_exception_data(month_dates, prj_id, center)
             pre_scan_exception_dt[month_name] = pre_scan_exception_details
-            volume_graph = volume_graph_data(month_dates, prj_id, center, level_structure_key)
+            #volume_graph = volume_graph_data(month_dates, prj_id, center, level_structure_key)
+            volume_graph = volume_graph_data_week_month(month_dates, prj_id, center, level_structure_key)
             vol_graph_line_data[month_name] = volume_graph['line_data']
             vol_graph_bar_data[month_name] = volume_graph['bar_data']
             production_avg_details = production_avg_perday(month_dates, prj_cen_val, work_packets,level_structure_key)
@@ -5077,7 +5660,6 @@ def day_week_month(request, dwm_dict, prj_id, center, work_packets, level_struct
         #final_total_fte_calc = prod_volume_week(week_names, total_fte_list, {})
         #final_total_fte_calc = prod_volume_week_util(week_names, total_fte_list, {})
         result_dict['fte_calc_data']['total_fte'] = graph_data_alignment_color(final_total_fte_calc, 'data',level_structure_key, prj_id, center,'sum_total_fte')
-        #import pdb;pdb.set_trace()
         final_upload_target_details = prod_volume_upload_week_util(week_names,upload_target_dt, {})
         final_data = {}
         final_data['data'] = []
@@ -5479,6 +6061,7 @@ def fte_wp_total(final_fte):
 def fte_calculation_sub_project_sub_packet(prj_id,center_obj,work_packet_query,level_structure_key,date_list):
     packets_target = {}
     new_date_list = []
+    #import pdb;pdb.set_trace()
     conn = redis.Redis(host="localhost", port=6379, db=0)
     prj_name = Project.objects.filter(id=prj_id).values_list('name', flat=True)
     center_name = Center.objects.filter(id=center_obj).values_list('name', flat=True)
@@ -5487,6 +6070,7 @@ def fte_calculation_sub_project_sub_packet(prj_id,center_obj,work_packet_query,l
     new_work_packet_query = work_packet_query
     for wrk_pkt in distinct_wp:
         work_packet_query['work_packet'] = wrk_pkt
+        work_packet_query['target_type'] = 'FTE Target'
         distinct_sub_pkt = Targets.objects.filter(**work_packet_query).values_list('sub_packet', flat=True).distinct()
         wp_subpackets[wrk_pkt] = distinct_sub_pkt
     raw_query_set = {}
@@ -5496,8 +6080,8 @@ def fte_calculation_sub_project_sub_packet(prj_id,center_obj,work_packet_query,l
     volumes_dict = {}
     result = {}
     for date_va in date_list:
-        new_work_packet_query['from_date__gte'] = date_va
-        new_work_packet_query['to_date__lte'] = date_va
+        #new_work_packet_query['from_date__gte'] = date_va
+        #new_work_packet_query['to_date__lte'] = date_va
         if new_work_packet_query.has_key('work_packet'):
             del new_work_packet_query['work_packet']
         work_packets = Targets.objects.filter(**new_work_packet_query).values('sub_project', 'work_packet', 'sub_packet','target_value').distinct()
@@ -5513,9 +6097,12 @@ def fte_calculation_sub_project_sub_packet(prj_id,center_obj,work_packet_query,l
                         new_level_structu_key['sub_project'] = level_structure_key['sub_project']
                     new_level_structu_key['work_packet'] = wp_key
                     new_level_structu_key['sub_packet'] = sub_packet
+                    #new_level_structu_key['from_date__gte'] = date_va
+                    #new_level_structu_key['to_date__lte'] = date_va
                     final_work_packet = level_hierarchy_key(level_structure_key, new_level_structu_key)
-                    date_pattern = '{0}_{1}_{2}_{3}'.format(prj_name[0], str(center_name[0]), str(final_work_packet),date_va)
+                    date_pattern = '{0}_{1}_{2}_{3}'.format(prj_name[0], str(center_name[0]), str(final_work_packet),str(date_va))
                     key_list = conn.keys(pattern=date_pattern)
+                    packets_values = Targets.objects.filter(**new_level_structu_key).values('sub_project', 'work_packet', 'sub_packet','target_value').distinct()
                     if not key_list:
                         if date_values.has_key(final_work_packet):
                             date_values[final_work_packet].append(0)
@@ -5527,9 +6114,12 @@ def fte_calculation_sub_project_sub_packet(prj_id,center_obj,work_packet_query,l
                             if value == 'None':
                                 value = 0
                             if date_values.has_key(key):
-                                try:
-                                    fte_sum = float(value) / packets_target[sub_packet]
-                                except:
+                                if packets_values:
+                                    try:
+                                        fte_sum = float(value) / packets_target[sub_packet]
+                                    except:
+                                        fte_sum = 0
+                                else:
                                     fte_sum = 0
                                 #final_fte = float('%.2f' % round(fte_sum, 2))
                                 #date_values[key].append(final_fte)
@@ -5551,24 +6141,25 @@ def fte_calculation_sub_project_sub_packet(prj_id,center_obj,work_packet_query,l
 
 
 def fte_calculation(request,prj_id,center_obj,date_list,level_structure_key):
-    query_set = {} 
+    query_set = {}
     query_set['project'] = prj_id
     query_set['center'] = center_obj
     prj_name = Project.objects.filter(id=prj_id).values_list('name', flat=True)
     center_name = Center.objects.filter(id=center_obj).values_list('name', flat=True)
     work_packet_query =  query_set_generation(prj_id,center_obj,level_structure_key,[])
-    work_packet_query['from_date__gte'] = date_list[0]
-    work_packet_query['to_date__lte'] = date_list[-1]
+    #work_packet_query['from_date__gte'] = date_list[0]
+    #work_packet_query['to_date__lte'] = date_list[-1]
     work_packet_query['target_type'] = 'FTE Target'
     work_packets = Targets.objects.filter(**work_packet_query).values('sub_project','work_packet','sub_packet','target_value').distinct()
     sub_packet_query = query_set_generation(prj_id,center_obj,level_structure_key,[])
-    sub_packet_query['from_date__gte'] = date_list[0]
-    sub_packet_query['to_date__lte'] = date_list[-1]
+    #sub_packet_query['from_date__gte'] = date_list[0]
+    #sub_packet_query['to_date__lte'] = date_list[-1]
     sub_packet_query['target_type'] = 'FTE Target'
     sub_packets = filter(None,Targets.objects.filter(**sub_packet_query).values_list('sub_packet',flat=True).distinct())
     conn = redis.Redis(host="localhost", port=6379, db=0)
     new_date_list = []
     status = 0
+    #import pdb;pdb.set_trace()
     if len(sub_packets) == 0:
         work_packets = Targets.objects.filter(**work_packet_query).values('sub_project', 'work_packet', 'sub_packet','target_value').distinct()
         date_values = {}
@@ -5580,7 +6171,7 @@ def fte_calculation(request,prj_id,center_obj,date_list,level_structure_key):
                 new_date_list.append(date_va)
                 for wp_packet in work_packets:
                     final_work_packet = level_hierarchy_key(level_structure_key, wp_packet)
-                    date_pattern = '{0}_{1}_{2}_{3}'.format(prj_name[0], str(center_name[0]), str(final_work_packet),date_va)
+                    date_pattern = '{0}_{1}_{2}_{3}'.format(prj_name[0], str(center_name[0]), str(final_work_packet),str(date_va))
                     key_list = conn.keys(pattern=date_pattern)
                     if wp_packet['target_value'] >0:
                         if not key_list:
@@ -5821,7 +6412,7 @@ def from_too(request):
             level_structure_key = {}
         if len(all_count) == 3:
             level_structure_key = {}
-    
+
     center = Center.objects.filter(name=center_id).values_list('id', flat=True)
     prj_id = Project.objects.filter(name=project).values_list('id', flat=True)
     if not level_structure_key:
@@ -5965,8 +6556,15 @@ def from_too(request):
         for perc_key,perc_value in field_internal_error_graph_data['intr_err_accuracy']['packets_percntage'].iteritems():
             final_field_intrn_accuracy[perc_key] = perc_value[0]
         final_dict['internal_field_accuracy_graph'] = graph_data_alignment_color(final_field_intrn_accuracy, 'y', level_structure_key, prj_id, center,'')
+        int_value_range = field_internal_error_graph_data['internal_field_accuracy_graph']
+        int_min_max = min_max_value_data(int_value_range)
+        final_dict['inter_min_value'] = int_min_max['min_value']
+        final_dict['inter_max_value'] = int_min_max['max_value']
+        int_value_range = field_external_error_graph_data['external_field_accuracy_graph']
+        int_min_max = min_max_value_data(int_value_range)
+        final_dict['exter_min_value'] = int_min_max['min_value']
+        final_dict['exter_max_value'] = int_min_max['max_value']
 
- 
     if error_graphs_data.has_key('internal_accuracy_graph'):
         final_dict['internal_accuracy_graph'] = graph_data_alignment_color(error_graphs_data['internal_accuracy_graph'], 'y', level_structure_key, prj_id, center,'internal_error_accuracy')
     if error_graphs_data.has_key('external_accuracy_graph'):
@@ -5990,8 +6588,12 @@ def from_too(request):
     final_result_dict['Pareto_data'] = agent_internal_pareto_data
     internal_error_types = internal_extrnal_error_types(request, employe_dates['days'], prj_id, center, level_structure_key,"Internal")
     external_error_types = internal_extrnal_error_types(request, employe_dates['days'], prj_id, center,level_structure_key, "External")
+    internal_sub_error_types = internal_extrnal_sub_error_types(request, employe_dates['days'], prj_id, center, level_structure_key,"Internal")
+    external_sub_error_types = internal_extrnal_sub_error_types(request, employe_dates['days'], prj_id, center,level_structure_key, "External")
     final_result_dict['internal_errors_types'] = graph_data_alignment_color(internal_error_types,'y',level_structure_key,prj_id,center,'')
     final_result_dict['external_errors_types'] = graph_data_alignment_color(external_error_types,'y',level_structure_key,prj_id,center,'')
+    final_result_dict['internal_sub_error_types'] = graph_data_alignment_color(internal_sub_error_types,'y',level_structure_key,prj_id,center,'')
+    final_result_dict['external_sub_error_types'] = graph_data_alignment_color(external_sub_error_types,'y',level_structure_key,prj_id,center,'')
     final_result_dict['days_type'] = type
     return HttpResponse(final_result_dict)
 
@@ -7159,16 +7761,17 @@ def modified_utilization_calculations(center,prj_id,date_list,level_structure_ke
         utilization_date_values = {} 
         product_date_values['total_prodictivity'] = [] 
         utilization_date_values['total_utilization'] = [] 
-        from collections import defaultdict
-        ratings = defaultdict(list)
-        data_list = RawTable.objects.filter(project=prj_id,center=center,date__range=[date_list[0], date_list[-1]]).values('date', 'per_day').order_by('date', 'per_day')
-        for result2 in data_list: ratings[result2['date']].append(result2['per_day'])
-        #for date_value in date_list:
-        for date_va,data in ratings.iteritems():
-            #total_done_value = RawTable.objects.filter(project=prj_id, center=center, date=date_value).aggregate(Max('per_day'))
-            total_done_value = max(data)
-
-            if total_done_value > 0: 
+        #from collections import defaultdict
+        #ratings = defaultdict(list)
+        #data_list = RawTable.objects.filter(project=prj_id,center=center,date__range=[date_list[0], date_list[-1]]).values('date', 'per_day').order_by('date', 'per_day')
+        #for result2 in data_list: ratings[result2['date']].append(result2['per_day'])
+        for date_va in date_list:
+        #for date_va,data in ratings.iteritems():
+            total_done_value = RawTable.objects.filter(project=prj_id, center=center, date=date_va).aggregate(Max('per_day'))
+            
+            #total_done_value = max(data)
+            if total_done_value['per_day__max'] > 0:
+            #if total_done_value > 0: 
                 headcount_details = Headcount.objects.filter(project=prj_id, center=center, date=date_va).aggregate(Sum('billable_hc'),
                                     Sum('billable_agents'),Sum('buffer_agents'),Sum('qc_or_qa'),Sum('teamlead'),
                                     Sum('trainees_and_trainers'),Sum('managers'),Sum('mis'))
@@ -7610,7 +8213,6 @@ def target_query_generations(pro_id,cen_id,date,main_work_packet,level_structure
     else:
         target_query_set['from_date__lte'] = date
         target_query_set['to_date__gte'] = date
-
     if '_' in main_work_packet:
         packets_list = main_work_packet.split('_')
         if len(packets_list) == 3:
@@ -7953,10 +8555,6 @@ def Monthly_Volume_graph(prj_id,center, date_list,level_structure_key):
     final_done_value = []
     done_value = 0
     volume_list = []
-    #prj_name = Project.objects.filter(id=prj_id).values_list('name', flat=True)
-    #center_name = Center.objects.filter(id=center).values_list('name', flat=True)
-    query_set = query_set_generation(prj_id, center, level_structure_key, date_list)
-    target_query_set=target_query_set_generation(prj_id, center, level_structure_key, date_list)
     noram_query_set = RawTable.objects.filter(**query_set)
     for_target_query_set = Targets.objects.filter(**target_query_set)
     if level_structure_key.has_key('sub_project'):
@@ -8037,18 +8635,13 @@ def Monthly_Volume_graph(prj_id,center, date_list,level_structure_key):
     final_values['total_workdone'] = []
     final_targets['total'] = []
     final_work_packet = ''
-    from collections import defaultdict
-    ratings = defaultdict(list)
-    data_list = RawTable.objects.filter(project=prj_id,center=center,date__range=[date_list[0], date_list[-1]]).values('date', 'per_day').order_by('date', 'per_day')
-    for result2 in data_list: ratings[result2['date']].append(result2['per_day'])
-    new_date_list = [str(i) for i in ratings.keys()]
-    main_loop = [max(i) for i in ratings.values() if max(i) > 0]
     #if len(main_loop) > 1:
-    #for date in date_list:
-    for date_va,data in ratings.iteritems():
-        #total_done_value = RawTable.objects.filter(project=prj_cen_val[0][0], center=prj_cen_val[1][0], date=date).aggregate(Max('per_day'))
-        total_done_value = max(data)
-        if total_done_value > 0:
+    for date_va in date_list:
+    #for date_va,data in ratings.iteritems():
+        total_done_value = RawTable.objects.filter(project=prj_cen_val[0][0], center=prj_cen_val[1][0], date=date_va).aggregate(Max('per_day'))
+        if total_done_value['per_day__max'] > 0:
+        #total_done_value = max(data)
+        #if total_done_value > 0:
             new_date_list.append(str(date_va))
             count = 0
             for vol_type in volume_list:
@@ -8056,8 +8649,6 @@ def Monthly_Volume_graph(prj_id,center, date_list,level_structure_key):
                     local_level_hierarchy_key = vol_type
                 else:
                     local_level_hierarchy_key = level_structure_key
-                final_work_packet = level_hierarchy_key(local_level_hierarchy_key, vol_type) 
-                target_query_set = target_query_generations(prj_id,center, str(date_va), final_work_packet,level_structure_key)
                 targe_master_set = Targets.objects.filter(**target_query_set)
                 rawtable_query_set = rawtable_query_generations(prj_id,center, str(date_va), final_work_packet,level_structure_key)
                 employee_names = RawTable.objects.filter(**rawtable_query_set).values_list('employee_id')
@@ -8084,35 +8675,52 @@ def Monthly_Volume_graph(prj_id,center, date_list,level_structure_key):
                                 #_targets_list[final_work_packet] = [int(targets_list[0])]
                                 _targets_list[final_work_packet] = [int(target_consideration[0])]
                 elif len(target_consideration) > 0 and len(fte_targets_list) == 0:
-                    if _targets_list.has_key(final_work_packet):
-                        _targets_list[final_work_packet].append(int(target_consideration[0]))
+                    if target_check[0]:
+                        if _targets_list.has_key(final_work_packet):
+                            _targets_list[final_work_packet].append(int(target_consideration[0]))
+                        else:
+                            _targets_list[final_work_packet] = [int(target_consideration[0])]
                     else:
-                        _targets_list[final_work_packet] = [int(target_consideration[0])]
+                        if _targets_list.has_key(prj_name[0]):
+                            _targets_list[prj_name[0]].append(int(target_consideration[0]))
+                            break
+                        else:
+                            _targets_list[prj_name[0]] = [int(target_consideration[0])]
+                            break
+
                 elif len(target_consideration) == 0 and len(fte_targets_list) > 0:
                     if _targets_list.has_key(final_work_packet):
-                         _targets_list[final_work_packet].append(int(fte_targets_list[0]))
+                         _targets_list[final_work_packet].append(int(fte_targets_list[0]) * employee_count)
                     else:
-                        _targets_list[final_work_packet] = [int(fte_targets_list[0])]
+                        _targets_list[final_work_packet] = [int(fte_targets_list[0]) * employee_count]
                 else:
                     if _targets_list.has_key(final_work_packet):
                         _targets_list[final_work_packet].append(0)
                     else:
                         _targets_list[final_work_packet] = [0]
-                if not final_work_packet:
-                        final_work_packet = level_hierarchy_key(volume_list[count], vol_type)
 
                 if not final_work_packet:
                         final_work_packet = level_hierarchy_key(volume_list[count], vol_type)
                 count = count + 1
 
-                date_pattern = '{0}_{1}_{2}_{3}'.format(prj_id, center, str(final_work_packet),str(date_va))
+            count = 0
+            #import pdb;pdb.set_trace()
+            for vol_type in volume_list:
+                if level_structure_key.has_key('sub_project'):
+                    local_level_hierarchy_key = vol_type
+                else:
+                    local_level_hierarchy_key = level_structure_key
+                final_work_packet = level_hierarchy_key(local_level_hierarchy_key, vol_type)
+                if not final_work_packet:
+                        final_work_packet = level_hierarchy_key(volume_list[count], vol_type)
+                count = count + 1
+                date_pattern = '{0}_{1}_{2}_{3}'.format(prj_name[0], str(center_name[0]), str(final_work_packet),date_va)
                 key_list = conn.keys(pattern=date_pattern)
                 if not key_list:
                     if date_values.has_key(final_work_packet):
                         date_values[final_work_packet].append(0)
                     else:
                         date_values[final_work_packet] = [0]
-
                 var = [conn.hgetall(cur_key) for cur_key in key_list]
                 for one in var:
                     main = one.items()[0]
@@ -8124,7 +8732,6 @@ def Monthly_Volume_graph(prj_id,center, date_list,level_structure_key):
                         date_values[key].append(int(value))
                     else:
                         date_values[key] = [int(value)]
-
 
     total = 0
     wp_lenght = date_values.keys()
@@ -8143,7 +8750,6 @@ def Monthly_Volume_graph(prj_id,center, date_list,level_structure_key):
         total = total + 1
     volumes_dict = final_values
     new_dict = previous_sum(volumes_dict)
-    import pdb;pdb.set_trace()
     result = 0
     if len(_targets_list)>0:
         first_key = _targets_list[_targets_list.keys()[0]]
