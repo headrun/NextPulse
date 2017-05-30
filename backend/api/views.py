@@ -298,10 +298,9 @@ def monthly_volume(request):
         main_dates_list = [ main_data_dict['dwm_dict']['day']]
     for sing_list in main_dates_list:
         level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], main_data_dict['sub_packet'],main_data_dict['pro_cen_mapping'])
-        monthly_volume_graph_details = Monthly_Volume_graph(main_data_dict['pro_cen_mapping'][1][0],main_data_dict['pro_cen_mapping'][0][0                              ],sing_list,level_structure_key)
+        monthly_volume_graph_details = Monthly_Volume_graph(main_data_dict['pro_cen_mapping'][1][0],main_data_dict['pro_cen_mapping'][0][0],sing_list,level_structure_key)
         final_dict['monthly_volume_graph_details'] = graph_data_alignment_color(monthly_volume_graph_details, 'data',level_structure_key,
                                            main_data_dict['pro_cen_mapping'][0][0], main_data_dict['pro_cen_mapping'][1][0],'monthly_volume') 
-    import pdb;pdb.set_trace()
     return final_dict
 
 def erro_data_all(request):
@@ -7699,7 +7698,7 @@ def tat_table_query_generations(pro_id,cen_id,date,main_work_packet,level_struct
     return tat_table_query_set
 
 
-def Monthly_Volume_graph(date_list, prj_id,center, level_structure_key):
+def Monthly_Volume_graph(date_list, prj_id, center, level_structure_key):
     from datetime import datetime
     startTime = datetime.now()
     data_list = [] 
@@ -7819,8 +7818,7 @@ def Monthly_Volume_graph(date_list, prj_id,center, level_structure_key):
                 else:
                     target_query_set = target_query_generations(prj_id, center, date_va,'',level_structure_key)
 
-                #target_query_set = target_query_generations(prj_cen_val[0][0], prj_cen_val[1][0], str(date_va), final_work_packet,level_struct
-)
+                #target_query_set = target_query_generations(prj_cen_val[0][0], prj_cen_val[1][0], str(date_va), final_work_packet,level_struct)
                 targe_master_set = Targets.objects.filter(**target_query_set)
                 rawtable_query_set = rawtable_query_generations(prj_id, center, str(date_va), final_work_packet,level_structure_key)
                 employee_names = RawTable.objects.filter(**rawtable_query_set).values_list('employee_id')
