@@ -3561,7 +3561,7 @@ def internal_extrnal_graphs_same_formula(request,date_list,prj_id,center_obj,lev
                     percentage = 100 - float('%.2f' % round(percentage, 2))
                     error_accuracy[key] = [percentage]
                 except:
-                    error_accuracy[key] = [percentage]
+                    error_accuracy[key] = [0]
             else:
                 percentage = 0
                 error_accuracy[key] = [percentage]
