@@ -32,7 +32,9 @@
              var project = 'api/project/';
              var drop_down_link = '/api/dropdown_data/';
              var landing_pro = $state.params.selpro;
-             self.pro_landing_url = 'api/project/?name='+landing_pro
+             self.pro_landing_url = 'api/project/?name='+landing_pro;
+             self.project_live = ''
+             self.center_live = ''
 
              //self.sell_proo = $state.params.selpro;
              $scope.singleModel = 1; 
@@ -74,9 +76,11 @@
                         "separator": ' to '
                     },
               }, function(start, end, label) {
+                var callback = [];
                 self.start = start.format('YYYY-MM-DD');
                 self.end = end.format('YYYY-MM-DD');
-                self.click(start,end);
+                callback.push.apply(callback, [self.start, self.end, self.center_live, self.project_live])
+                self.main_widget_function(callback,'');
                });
 
              /*self.dateType = function(key,all_data,name,button_clicked){
@@ -117,24 +121,28 @@
 
 
              self.main_widget_function = function(callback, packet) {
+                        
+                    self.center_live = callback[2];
+
+                    self.project_live = callback[3];
 
                     //self.lastDate+'&to='+self.firstDate+'&type=' + self.day_type;
 
-                    self.data_to_show = '?&project='+callback[3]+'&center='+callback[2]+'&from='+'2017-01-09'+'&to='+'2017-01-15'+packet+'&type=';
-                    self.common_for_all = self.data_to_show + self.day_type
+                    self.data_to_show = '?&project='+callback[3]+'&center='+callback[2]+'&from='+ callback[0]+'&to='+ callback[1]+packet+'&type=';
+                    self.common_for_all = self.data_to_show + self.day_type;
                     //var allo_and_comp = '/api/alloc_and_compl/'+self.common_for_all;
                     var utill_all = '/api/utilisation_all/'+self.common_for_all;
                     var erro_all = '/api/erro_data_all/'+self.common_for_all;
+                    var productivity = '/api/productivity/'+self.common_for_all;
+                    var mont_volume = '/api/monthly_volume'+self.common_for_all;
 
                     self.allo_and_comp = function(final_work, type) {
 
                         if (type == undefined) {
-
                             type = 'day'
                         }
 
                         if (final_work == undefined) {
-
                             final_work = ''
                         }
 
@@ -144,18 +152,30 @@
 
                         $http({method:"GET", url: allo_and_comp}).success(function(result){
 
+                            if (self.type == 'day') {
+                                var date_list = result.result.date;
+                                var data_list_bar = result.result.bar_data;
+                                var data_list_line = result.result.line_data;
+                            }
+
+                            if (self.type == 'week') {
+                                var date_list = result.result.date_week;
+                                var data_list_bar = result.result.volume_graphs.bar_data;
+                                var data_list_line = result.result.volume_graphs.line_data;
+                            }
+
                             angular.extend(self.chartOptions17, {
                                 xAxis: {
-                                    categories: result.result.date,
+                                    categories: date_list,
                                 },
-                                series: result.result.bar_data
+                                series: data_list_bar
                             });
 
                             angular.extend(self.chartOptions18, {
                                 xAxis: {
-                                    categories: result.result.date,
+                                    categories: date_list,
                                 },
-                                series: result.result.line_data
+                                series: data_list_line
                             });
                         })
                     }
@@ -186,6 +206,23 @@
                             });
 
                         })
+
+                       $http({method:"GET", url: productivity}).success(function(result){
+
+                            angular.extend(self.chartOptions19, {
+                                xAxis: {
+                                    categories: result.result.date,
+                                },
+                                series: result.result.result.result.original_productivity_graph
+                            });
+
+                        })
+
+                       $http({method:"GET", url: mont_volume}).success(function(result){
+
+                            debugger;
+
+                       })
 
                        $http({method:"GET", url: erro_all}).success(function(result){
 
@@ -459,6 +496,8 @@
                     "self.chartOptions15":self.chartOptions15,
                     "self.chartOptions9":self.chartOptions9,
                     "self.chartOptions9_2":self.chartOptions9_2,
+                    "self.chartOptions19":self.chartOptions19,
+                    "self.chartOptions26":self.chartOptions26,
                 }
 
                 self.render_data = obj[all_data];

@@ -22,6 +22,8 @@ urlpatterns = [
     url(r'^alloc_and_compl', apiviews.alloc_and_compl),
     url(r'^utilisation_all', apiviews.utilisation_all),
     url(r'^erro_data_all', apiviews.erro_data_all),
+    url(r'^productivity', apiviews.productivity),
+    url(r'^monthly_volume', apiviews.monthly_volume),
     url(r'^get_packet_details', apiviews.get_packet_details),
     #url()
 
