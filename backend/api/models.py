@@ -630,6 +630,7 @@ class TatTable(models.Model):
 class Review(models.Model):
     """ model to store Reviews """
     review_name = models.CharField(max_length=255, db_index=True)
+    review_agenda = models.TextField(null=True, blank = True)
     project = models.ForeignKey(Project, db_index=True)
     team_lead = models.ForeignKey(TeamLead, db_index=True)
     review_date = models.DateTimeField(null=True, db_index=True)

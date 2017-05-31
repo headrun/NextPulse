@@ -19,6 +19,7 @@ from django.db.models import Max
 import redis
 from datetime import timedelta
 from datetime import date
+import calendar
 from dateutil.relativedelta import relativedelta
 import re
 import json
@@ -7779,21 +7780,40 @@ def get_top_reviews(request):
         else:
             rev_objs = Review.objects.filter(project__id = project).order_by('-review_date')
         """
+        all_result = OrderedDict()
         rev_objs = Review.objects.all()
         result = {'all_data' :[]}
+        color = {}
         if rev_objs.count() > 10:
             rev_objs = rev_objs[:10]
+        i = 0
+        colors = ['#3385E8', '#DD4130', '#27B678']
         for item in rev_objs:
+            if i > 2:
+                i = 0
             data = {}
             data['name'] = item.review_name
             review_date = item.review_date
             data['date'] = review_date.strftime("%d %b, %Y")
+            date = review_date.strftime("%d_%m")
             data['time'] = review_date.strftime("%I:%M %p")
             data['id'] = item.id
 
-            result['all_data'].append(data)
+            week_day = calendar.day_name[review_date.weekday()]
+            key = date + "_" +week_day + "_"
 
-        return HttpResponse(result)
+            if key  not in all_result:
+
+                all_result[key] = []
+                color[key] = colors[i]
+                i += 1
+            data['color'] = color[key]
+            all_result[key].append(data)
+
+            result['all_data'].append(data)
+            #i += 1
+
+        return HttpResponse(all_result)
 
     except:
         return HttpResponse("Failed")
@@ -7804,6 +7824,7 @@ def create_reviews(request):
     curdate = datetime.datetime.now()
     project = request.POST.get('project', "")
     review_name = request.POST.get('review_name', "")
+    agenda = request.POST.get('agenda', "")
     _review_date = request.POST.get('review_date', "")
     _review_time = request.POST.get('review_time', "")
     tl = request.POST.get('team_lead', "")
@@ -7811,11 +7832,14 @@ def create_reviews(request):
     try:
         r_obj = Review.objects.get(id = 1)
         for item in attach_files:
+            #item.name = "%s_%s_%s" %(item.name, review_name, review_date)
+            name = item.name.split(".")
+            item.name = "%s_%s_%s.%s" %(name[0], "asdf", str(datetime.datetime.now().date()), name[-1])
             rfo = ReviewFiles.objects.create(file_name = item, review = r_obj)
         """
         review_date = datetime.datetime.strptime((_review_date + _review_time), "%d %b, %Y%I:%M %p")
         rev_obj, created = Review.objects.update_or_create(project__id = project, review_name = review_name, review_date= review_date,
-                                defaults={'team_lead__id': 'tl'},)
+                                defaults={'team_lead__id': tl, 'review_agenda': agenda},)
 
         if attach_files:
             for item in attach_files:
@@ -7848,13 +7872,23 @@ def get_review_details(request):
             data = {}
             data['rev_files'] = []
             data['name'] = item.review_name
+            data['agenda'] = item.review_agenda
             review_date = item.review_date
             data['date'] = review_date.strftime("%d %b, %Y")
             data['time'] = review_date.strftime("%I:%M %p")
             data['tl']   = item.team_lead.name.first_name+ " " + item.team_lead.name.last_name
+            #import pdb;pdb.set_trace()
+            users = Customer.objects.filter(project = item.project).values_list('name__first_name', flat = True)
             rev_fil_objs = ReviewFiles.objects.filter(review__id = item.id)
             for obj in rev_fil_objs:
-                data['rev_files'].append(obj.file_name.url)
+                url = obj.file_name.url
+                name = url.split("/")[-1]
+                ext = name.split(".")[-1]
+                namee = name.split("_")
+                if len(namee) >2:
+                    name = '_'.join(namee[:-2])
+                    name = name + "."+ ext
+                data['rev_files'].append({ 'name' : name, 'path': url})
 
             return HttpResponse(data)
 
