@@ -22,5 +22,6 @@ urlpatterns = [
     url(r'^get_top_reviews',apiviews.get_top_reviews),
     url(r'^create_reviews',apiviews.create_reviews),
     url(r'^get_review_details',apiviews.get_review_details),
+    url(r'^remove_attachment',apiviews.remove_attachment),
 
 ]

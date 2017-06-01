@@ -37,6 +37,30 @@
                  });
              }
 
+             self.submit = function(review) {
+
+                 self.create_rev_url = 'api/create_reviews/'
+                 var data = {}
+                 angular.forEach(review, function(key, value) {
+                     data[value] = key.toString()
+                 })
+
+                 var main_data = $.param({ json: JSON.stringify(data) });
+                 $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
+                 $http.post(self.create_rev_url, main_data).then(function(result){
+                 });
+             }
+
+             self.remove_file = function(file_id) {
+
+                 self.remove_file_url = 'api/remove_attachment/?file_id='+file_id;
+
+                 $http.get(self.remove_file_url).then(function(result){
+                     
+                 });
+
+             }
+
          }],
 
             "bindings": {
@@ -56,6 +80,19 @@
                     date_dd = day.slice(0,3) 
                  }
                return date_dd
+             };
+         })
+         .filter('getfile', function() {
+
+             return function(input, file_id){
+
+                 var file_name = input.split('#')[0];
+                 var fileid = input.split('#')[1];
+
+                 if (file_id) {
+                     file_name = fileid
+                 }
+              return file_name
              };
          });
 

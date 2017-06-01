@@ -75,6 +75,7 @@
     color: white;
     margin-left: 52px;
     padding: 7px 7px 7px 7px;
+    cursor: pointer;
 }
 
 .block-data {
@@ -124,9 +125,13 @@
     margin-top: -20px;
 }
 
+.form-element {
+    margin-bottom: 5px;
+}
+
 </style>
 
-<div class="row">
+<!--<div class="row">
 
     <div class="col-md-3 box-space">
         <p class="main-heading">Meeting Calendar</p>
@@ -137,9 +142,11 @@
                         <span class="date-style">{{key | getdate}}</span>
                         <span>{{key | getdate:true}}</span>
                     </div>
-                    <div ng-repeat="review in value" class="review-list" style="background-color: {{review.color}}"ng-click="$ctrl.get_review(review)">
+                    <div ng-repeat="review in value" class="review-list" style="background-color: {{review.color}}"
+                         ng-click="$ctrl.get_review(review)">
                         <span>{{review.name}}</span><br>
                         <span>{{review.time}}</span>
+                        <i class="fa fa-caret-right" aria-hidden="true"></i>
                     </div>
                 </div>
             </div>
@@ -164,15 +171,111 @@
         <hr>
         <div class="row">
         <span ng-repeat="file in $ctrl.all_review_data" class="tag label label-info">
-          <span>{{file.name}}</span>
-          <a><i class="remove glyphicon glyphicon-remove-sign glyphicon-white"></i></a> 
+          <a href="http://projects.headrun.com:9998{{file.path}}" download>{{file.name | getfile}}</a>
+          <a><i class="remove glyphicon glyphicon-remove-sign glyphicon-white" ng-click="$ctrl.remove_file(file.name | getfile:true)"></i></a> 
           <br><br>
         </span>
         </div>
         <div id="fileuploader" class="review-data">Upload</div>
-        <i class="fa fa-plus-circle fa-2x" aria-hidden="true"></i>
+        <i class="fa fa-plus-circle fa-2x" data-toggle="modal" data-target="#myModal" aria-hidden="true"></i>
       </div>
     </div>
+</div>
+
+  <div class="modal fade" id="myModal" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Create Review</h4>
+        </div>
+        <div class="modal-body">
+          <form name='regForm' novalidate>
+
+          <div class="row">
+            <div class="col-md-3">
+              <label>Review Name: </label>
+            </div>
+            <div class="col-md-9">
+              <input type="text" name="reviewname" ng-model="$ctrl.review.reviewname" required class="form-element">
+              <span ng-if="regForm.reviewname.$error.required && regForm.reviewname.$touched">
+                Review Name is Required
+              </span>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-3">
+              <label>Select Date: </label>
+            </div>
+            <div class="col-md-9">
+              <input type="date" id="exampleInput" name="reviewdate" ng-model="$ctrl.review.reviewdate" class="form-element"
+                placeholder="yyyy-MM-dd" min="2017-01-01" max="2020-12-31" required />
+              <span ng-if="regForm.reviewdate.$error.required && regForm.reviewdate.$touched">
+                Date is Required
+              </span>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-3">
+              <label>Select Time: </label>
+            </div>
+            <div class="col-md-9">
+              <input type="time" id="exampleInput" name="reviewtime" ng-model="$ctrl.review.reviewtime" class="form-element"
+                 placeholder="HH:mm:ss" min="00:00:00" max="24:59:59" required />
+              <span ng-if="regForm.reviewtime.$error.required && regForm.reviewtime.$touched">
+                Time is Required
+              </span>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-3">
+              <label>Meeting Agenda: </label>
+            </div>
+            <div class="col-md-9">
+              <textarea rows="4" cols="50" name="reviewagenda" ng-model="$ctrl.review.reviewagenda" required class="form-element">
+                Enter text here...</textarea>
+              <span ng-if="regForm.reviewagenda.$error.required && regForm.reviewagenda.$touched">
+                Agenda is Required
+              </span>
+            </div>
+          </div>
+
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal" ng-disabled="regForm.$invalid" 
+                  ng-click="$ctrl.submit($ctrl.review)">Submit</button>
+        </div>
+      </div>
+    </div>
+  </div>-->
+
+<div class="container" style="margin-left:0px; margin-right: 0px;">
+  <div class="row">
+    <div class="col-md-3">
+        <p class="main-heading">Meeting Calendar</p>
+        <div class="block-data">
+            <div ng-repeat="(key, value) in $ctrl.all_reviews">
+                <div class="row">
+                    <div class="col-md-2">
+                        <span class="date-style">{{key | getdate}}</span>
+                        <span>{{key | getdate:true}}</span>
+                    </div>
+                    <div ng-repeat="review in value" class="review-list" style="background-color: {{review.color}}"
+                         ng-click="$ctrl.get_review(review)">
+                        <span>{{review.name}}</span><br>
+                        <span>{{review.time}}</span>
+                        <i class="fa fa-caret-right" aria-hidden="true"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-9"></div>
+  </div>
 </div>
 
 <script>

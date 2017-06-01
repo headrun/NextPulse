@@ -7830,6 +7830,7 @@ def create_reviews(request):
     tl = request.POST.get('team_lead', "")
     attach_files = request.FILES.getlist('myfile', "")
     try:
+        """
         r_obj = Review.objects.get(id = 1)
         for item in attach_files:
             #item.name = "%s_%s_%s" %(item.name, review_name, review_date)
@@ -7837,6 +7838,7 @@ def create_reviews(request):
             item.name = "%s_%s_%s.%s" %(name[0], "asdf", str(datetime.datetime.now().date()), name[-1])
             rfo = ReviewFiles.objects.create(file_name = item, review = r_obj)
         """
+        import pdb;pdb.set_trace()
         review_date = datetime.datetime.strptime((_review_date + _review_time), "%d %b, %Y%I:%M %p")
         rev_obj, created = Review.objects.update_or_create(project__id = project, review_name = review_name, review_date= review_date,
                                 defaults={'team_lead__id': tl, 'review_agenda': agenda},)
@@ -7851,8 +7853,12 @@ def create_reviews(request):
                 else:
                     rfo = ReviewFiles.objects.create(file_name = item, review = rev_obj.id)
 
-        """
+        if created:
+            subject = "Review Created"
+        else:
+            subject = "Review Created"
 
+        send_mail("mail is working", 'This mail is for testing reviews', 'nextpulse@nextwealth.in', ['abhishek@headrun.com'])
         return HttpResponse('success')
 
     except:
@@ -7888,6 +7894,7 @@ def get_review_details(request):
                 if len(namee) >2:
                     name = '_'.join(namee[:-2])
                     name = name + "."+ ext
+                name = name + "#" + str(obj.id)
                 data['rev_files'].append({ 'name' : name, 'path': url})
 
             return HttpResponse(data)
@@ -7897,7 +7904,17 @@ def get_review_details(request):
 
 
 
+def remove_attachment(request):
+    """ API to delete atachments from reviews """
+    revies_file_id = request.GET.get('file_id', '')
+    if not revies_file_id:
+        return HttpResponse("ID not given")
 
+    try:
+        ReviewFiles.objects.filter(id = revies_file_id).delete()
+        return HttpResponse('Success')
+    except:
+        return HttpResponse("Failed")
 
 
 
