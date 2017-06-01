@@ -134,7 +134,13 @@
                     var utill_all = '/api/utilisation_all/'+self.common_for_all;
                     var erro_all = '/api/erro_data_all/'+self.common_for_all;
                     var productivity = '/api/productivity/'+self.common_for_all;
-                    var mont_volume = '/api/monthly_volume'+self.common_for_all;
+                    var mont_volume = '/api/monthly_volume/'+self.common_for_all;
+                    var fte_graphs = '/api/fte_graphs/'+self.common_for_all;
+                    var prod_avg = '/api/prod_avg_perday/'+self.common_for_all;
+                    var cate_error = '/api/cate_error/'+self.common_for_all;
+                    var pareto_cate_error = '/api/pareto_cate_error/'+self.common_for_all;
+                    var agent_cate_error = '/api/agent_cate_error/'+self.common_for_all;
+                    var main_prod = '/api/main_prod/'+self.common_for_all;
 
                     self.allo_and_comp = function(final_work, type) {
 
@@ -213,16 +219,134 @@
                                 xAxis: {
                                     categories: result.result.date,
                                 },
-                                series: result.result.result.result.original_productivity_graph
+                                series: result.result.original_productivity_graph
                             });
 
                         })
 
-                       $http({method:"GET", url: mont_volume}).success(function(result){
+                       $http({method:"GET", url: prod_avg}).success(function(result){
 
-                            debugger;
+                           angular.extend(self.chartOptions38, {
+                                xAxis: {
+                                    categories: result.result.date,
+                                },
+                                series: result.result.production_avg_details
+                            });
+
+                       }) 
+
+                       $http({method:"GET", url: main_prod}).success(function(result){
+
+                           angular.extend(self.chartOptions10, {
+                                xAxis: {
+                                    categories: result.result.data.date,
+                                },
+                                series: result.result.data.data
+                            });
 
                        })
+ 
+
+                       $http({method:"GET", url: cate_error}).success(function(result){
+
+                            angular.extend(self.chartOptions5,{
+                                series: [{
+                                    name: '',
+                                    colorByPoint: true,
+                                    cursor: 'pointer',
+                                    data: result.result.internal_errors_types
+                                }]
+                            });
+
+                            angular.extend(self.chartOptions5_2,{
+                                series: [{
+                                    name: '',
+                                    colorByPoint: true,
+                                    cursor: 'pointer',
+                                    data: result.result.external_errors_types
+                                }]
+                            });
+                       })
+
+                       $http({method:"GET", url: mont_volume}).success(function(result){
+
+                            angular.extend(self.chartOptions26, {
+                                xAxis: {
+                                    categories: result.result.date,
+                                },   
+                                series: result.result.monthly_volume_graph_details
+                            });  
+  
+                       })
+
+                       $http({method:"GET", url: fte_graphs}).success(function(result){
+
+                            angular.extend(self.chartOptions16, {
+                                xAxis: {
+                                    categories: result.result.date,
+                                },
+                                series: result.result.fte_calc_data.work_packet_fte
+                            });
+
+                            angular.extend(self.chartOptions16_2, {
+                                xAxis: {
+                                    categories: result.result.date,
+                                },
+                                series: result.result.fte_calc_data.total_fte
+                            });
+
+                       })
+
+
+                       $http({method:"GET", url: pareto_cate_error}).success(function(result){
+                                
+                            angular.extend(self.chartOptions29, {
+                                xAxis: {
+                                    categories: result.result.Internal_Error_Category.category_name,
+                                title: {
+                                    text: '',
+                                 }
+                               },
+                            
+                               series: result.result.Internal_Error_Category.category_pareto 
+                            });
+                            
+                            angular.extend(self.chartOptions30, {
+                                xAxis: {
+                                    categories: result.result.External_Error_Category.category_name,
+                                title: {
+                                    text: '',
+                                 }
+                               },
+                            
+                               series: result.result.External_Error_Category.category_pareto
+                            });
+                       })
+
+                       $http({method:"GET", url: agent_cate_error}).success(function(result){
+                                
+                            angular.extend(self.chartOptions27, {
+                                xAxis: {
+                                    categories: result.result.Pareto_data.emp_names,
+                                title: {
+                                    text: '',
+                                 }
+                               },
+
+                               series: result.result.Pareto_data.agent_pareto_data
+                            });
+
+                            angular.extend(self.chartOptions28, {
+                                xAxis: {
+                                    categories: result.result.External_Pareto_data.emp_names,
+                                title: {
+                                    text: '',
+                                 }
+                               },
+
+                               series: result.result.External_Pareto_data.agent_pareto_data
+                            });
+                       }) 
 
                        $http({method:"GET", url: erro_all}).success(function(result){
 
@@ -348,7 +472,7 @@
                     'self.chartOptions41':self.chartOptions41,
                     'self.chartOptions42':self.chartOptions42,
                     'self.chartOptions43':self.chartOptions43,
-                    'self.chartOptions44':self.chartOptions44
+                    'self.chartOptions44':self.chartOptions44,
                     'self.chartOptions45':self.chartOptions45,
                     'self.chartOptions46':self.chartOptions46
                     };
@@ -492,6 +616,7 @@
 
                 
                 var obj = {
+                    "self.chartOptions10":self.chartOptions10,
                     "self.chartOptions17":self.chartOptions17,
                     "self.chartOptions18":self.chartOptions18,
                     "self.chartOptions25":self.chartOptions25,
@@ -501,6 +626,15 @@
                     "self.chartOptions9_2":self.chartOptions9_2,
                     "self.chartOptions19":self.chartOptions19,
                     "self.chartOptions26":self.chartOptions26,
+                    "self.chartOptions16":self.chartOptions16,
+                    "self.chartOptions16_2":self.chartOptions16_2,
+                    "self.chartOptions38":self.chartOptions38,
+                    "self.chartOptions5":self.chartOptions5,
+                    "self.chartOptions5_2":self.chartOptions5_2,
+                    "self.chartOptions29":self.chartOptions29,
+                    "self.chartOptions30":self.chartOptions30,
+                    "self.chartOptions27":self.chartOptions27,
+                    "self.chartOptions28":self.chartOptions28
                 }
 
                 self.render_data = obj[all_data];

@@ -288,7 +288,7 @@ def productivity(request):
         level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], main_data_dict['sub_packet'],main_data_dict['pro_cen_mapping'])
         productivity_utilization_data = main_productivity_data(main_data_dict['pro_cen_mapping'][1][0],main_data_dict['pro_cen_mapping'][0][0],                                         sing_list, level_structure_key)
         final_dict['original_productivity_graph'] = graph_data_alignment_color(productivity_utilization_data['productivity'], 'data',level_structure_key,main_data_dict['pro_cen_mapping'][0][0], main_data_dict['pro_cen_mapping'][1][0],'productivity_trends')
-    final_dict['date'] = sing_list
+        final_dict['date'] = sing_list
     return HttpResponse(final_dict)
 
 def monthly_volume(request):
@@ -299,9 +299,89 @@ def monthly_volume(request):
     for sing_list in main_dates_list:
         level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], main_data_dict['sub_packet'],main_data_dict['pro_cen_mapping'])
         monthly_volume_graph_details = Monthly_Volume_graph(main_data_dict['pro_cen_mapping'][1][0],main_data_dict['pro_cen_mapping'][0][0],sing_list,level_structure_key)
-        final_dict['monthly_volume_graph_details'] = graph_data_alignment_color(monthly_volume_graph_details, 'data',level_structure_key,
-                                           main_data_dict['pro_cen_mapping'][0][0], main_data_dict['pro_cen_mapping'][1][0],'monthly_volume') 
-    return final_dict
+        final_dict['monthly_volume_graph_details'] = graph_data_alignment_color(monthly_volume_graph_details, 'data',level_structure_key,main_data_dict['pro_cen_mapping'][0][0], main_data_dict['pro_cen_mapping'][1][0],'monthly_volume') 
+        final_dict['date'] = sing_list
+    return HttpResponse(final_dict)
+
+def fte_graphs(request):
+    final_dict = {}
+    result_dict = {}
+    main_data_dict = data_dict(request.GET)
+    if main_data_dict['dwm_dict'].has_key('day'):
+        main_dates_list = [ main_data_dict['dwm_dict']['day']]
+    for sing_list in main_dates_list:
+        level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], main_data_dict['sub_packet'],main_data_dict['pro_cen_mapping'])
+        fte_graph_data = fte_calculation(request, main_data_dict['pro_cen_mapping'][1][0],main_data_dict['pro_cen_mapping'][0][0],sing_list, level_structure_key)
+        result_dict['fte_calc_data'] = {} 
+        result_dict['fte_calc_data']['total_fte'] = graph_data_alignment_color(fte_graph_data['total_fte'], 'data',level_structure_key, main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0],'sum_total_fte')
+        result_dict['fte_calc_data']['work_packet_fte'] = graph_data_alignment_color(fte_graph_data['work_packet_fte'],'data', level_structure_key,main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0])
+        result_dict['date'] = sing_list
+    return HttpResponse(result_dict)
+ 
+def prod_avg_perday(request):
+    final_dict = {}
+    main_data_dict = data_dict(request.GET)
+    if main_data_dict['dwm_dict'].has_key('day'):
+        main_dates_list = [ main_data_dict['dwm_dict']['day']]
+    for sing_list in main_dates_list:
+        level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], main_data_dict['sub_packet'],main_data_dict['pro_cen_mapping'])
+        production_avg_details = production_avg_perday(sing_list, main_data_dict['pro_cen_mapping'][1][0],main_data_dict['pro_cen_mapping'][0][0], level_structure_key)
+        final_dict['production_avg_details'] = graph_data_alignment_color(production_avg_details,'data', level_structure_key,main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0])
+        final_dict['date'] = sing_list
+    return HttpResponse(final_dict)
+
+def cate_error(request):
+    final_dict = {}
+    main_data_dict = data_dict(request.GET)
+    if main_data_dict['dwm_dict'].has_key('day'):
+        main_dates_list = [ main_data_dict['dwm_dict']['day']]
+    for sing_list in main_dates_list:
+        level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], main_data_dict['sub_packet'],main_data_dict['pro_cen_mapping'])
+        internal_error_types = internal_extrnal_error_types(request, sing_list, main_data_dict['pro_cen_mapping'][1][0],main_data_dict['pro_cen_mapping'][0][0], level_structure_key,"Internal")
+        external_error_types = internal_extrnal_error_types(request, sing_list, main_data_dict['pro_cen_mapping'][1][0],main_data_dict['pro_cen_mapping'][0][0],level_structure_key, "External")
+        final_dict['internal_errors_types'] = graph_data_alignment_color(internal_error_types,'y',level_structure_key,main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0],'')
+        final_dict['external_errors_types'] = graph_data_alignment_color(external_error_types,'y',level_structure_key,main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0],'')
+    return HttpResponse(final_dict)
+
+def pareto_cate_error(request):
+    final_dict = {} 
+    main_data_dict = data_dict(request.GET)
+    if main_data_dict['dwm_dict'].has_key('day'):
+        main_dates_list = [ main_data_dict['dwm_dict']['day']]
+    for sing_list in main_dates_list:
+        level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], main_data_dict['sub_packet'],main_data_dict['pro_cen_mapping'])
+        category_error_count = sample_pareto_analysis(request,sing_list, main_data_dict['pro_cen_mapping'][1][0],main_data_dict['pro_cen_mapping'][0][0],level_structure_key,"Internal")
+        extrnl_category_error_count = sample_pareto_analysis(request,sing_list, main_data_dict['pro_cen_mapping'][1][0],main_data_dict['pro_cen_mapping'][0][0], level_structure_key, "External")
+        final_dict['Internal_Error_Category'] = category_error_count
+        final_dict['External_Error_Category'] = extrnl_category_error_count
+    return HttpResponse(final_dict)
+
+def agent_cate_error(request):
+    final_dict = {}
+    main_data_dict = data_dict(request.GET)
+    if main_data_dict['dwm_dict'].has_key('day'):
+        main_dates_list = [ main_data_dict['dwm_dict']['day']]
+    for sing_list in main_dates_list:
+        level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], main_data_dict['sub_packet'],main_data_dict['pro_cen_mapping'])
+        agent_internal_pareto_data = agent_pareto_data_generation(request,sing_list, main_data_dict['pro_cen_mapping'][1][0],main_data_dict['pro_cen_mapping'][0][0],level_structure_key)
+        extrnl_agent_pareto_data = agent_external_pareto_data_generation(request,sing_list, main_data_dict['pro_cen_mapping'][1][0],main_data_dict['pro_cen_mapping'][0][0], level_structure_key)
+        final_dict['External_Pareto_data'] = extrnl_agent_pareto_data
+        final_dict['Pareto_data'] = agent_internal_pareto_data
+    return HttpResponse(final_dict)
+
+def main_prod(request):
+    final_dict = {}
+    main_data_dict = data_dict(request.GET)
+    if main_data_dict['dwm_dict'].has_key('day'):
+        main_dates_list = [ main_data_dict['dwm_dict']['day']]
+    for sing_list in main_dates_list:
+        level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], main_data_dict['sub_packet'],main_data_dict['pro_cen_mapping'])
+        final_dict = product_total_graph(sing_list, main_data_dict['pro_cen_mapping'][1][0],main_data_dict['pro_cen_mapping'][0][0], level_structure_key)
+        if len(final_dict['prod_days_data']) > 0:
+            final_dict['productivity_data'] = graph_data_alignment_color(final_dict['prod_days_data'], 'data',level_structure_key,main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0])
+        else:
+            final_dict['productivity_data'] = []
+    return HttpResponse(final_dict)
 
 def erro_data_all(request):
     final_dict = {}
@@ -3004,21 +3084,21 @@ def target_query_set_generation(prj_id,center_obj,level_structure_key,date_list)
     return query_set
 
 
-def production_avg_perday(date_list,prj_cen_val,work_packets,level_structure_key):
+def production_avg_perday(date_list,prj_id,center,level_structure_key):
     from datetime import datetime
     startTime = datetime.now()
-    work = work_packets
+    #work = work_packets
     conn = redis.Redis(host="localhost", port=6379, db=0)
     result = {}
     volumes_dict = {}
     date_values = {}
-    #prj_name = Project.objects.filter(id=prj_id).values_list('name', flat=True)
-    #center_name = Center.objects.filter(id=center_obj).values_list('name', flat=True)
-    query_set = query_set_generation(prj_cen_val[0][0], prj_cen_val[1][0], level_structure_key, date_list)
+    prj_name = Project.objects.filter(id=prj_id).values_list('name', flat=True)
+    center_name = Center.objects.filter(id=center).values_list('name', flat=True)
+    query_set = query_set_generation(prj_id, center, level_structure_key, date_list)
     master_raw_set = RawTable.objects.filter(**query_set)
     from collections import defaultdict
     ratings = defaultdict(list)
-    data_list = RawTable.objects.filter(project=prj_cen_val[0][0],center=prj_cen_val[1][0],date__range=[date_list[0], date_list[-1]]).values('date', 'per_day').order_by('date', 'per_day')
+    data_list = RawTable.objects.filter(project=prj_id,center=center,date__range=[date_list[0], date_list[-1]]).values('date', 'per_day').order_by('date', 'per_day')
     for result2 in data_list: ratings[result2['date']].append(result2['per_day'])
     #new_date_list = []
     new_date_list = [str(i) for i in ratings.keys()]
@@ -3056,7 +3136,7 @@ def production_avg_perday(date_list,prj_cen_val,work_packets,level_structure_key
                 if not final_work_packet:
                     final_work_packet = level_hierarchy_key(volume_list[count], vol_type)
                 count = count + 1
-                date_pattern = '{0}_{1}_{2}_{3}'.format(prj_cen_val[0][1], prj_cen_val[1][1], str(final_work_packet), str(date_va))
+                date_pattern = '{0}_{1}_{2}_{3}'.format(prj_name[0], str(center_name[0]), str(final_work_packet), str(date_va))
                 key_list = conn.keys(pattern=date_pattern)
                 if not key_list:
                     if date_values.has_key(final_work_packet):
@@ -3081,17 +3161,17 @@ def production_avg_perday(date_list,prj_cen_val,work_packets,level_structure_key
 
 
 
-def product_total_graph(date_list,prj_cen_val,work_packets,level_structure_key):
+def product_total_graph(date_list,prj_id,center_obj,level_structure_key):
     from collections import defaultdict
     ratings = defaultdict(list)
-    work = work_packets
+    #work = work_packets
     conn = redis.Redis(host="localhost", port=6379, db=0)
     result = {}
     volumes_dict = {}
     date_values = {}
-    #prj_name = Project.objects.filter(id=prj_id).values_list('name',flat=True)
-    #center_name = Center.objects.filter(id=center_obj).values_list('name', flat=True)
-    query_set = query_set_generation(prj_cen_val[0][0],prj_cen_val[1][0],level_structure_key,date_list)
+    prj_name = Project.objects.filter(id=prj_id).values_list('name',flat=True)
+    center_name = Center.objects.filter(id=center_obj).values_list('name', flat=True)
+    query_set = query_set_generation(prj_id,center_obj,level_structure_key,date_list)
     main_set = RawTable.objects.filter(**query_set)
     new_date_list = []
     #data_list = RawTable.objects.filter(project=prj_cen_val[0][0],center=prj_cen_val[1][0],date__range=[date_list[0], date_list[-1]]).values('date', 'per_day').order_by('date', 'per_day')
@@ -3100,7 +3180,7 @@ def product_total_graph(date_list,prj_cen_val,work_packets,level_structure_key):
     #main_loop = [sum(i) for i in ratings.values() if max(i) > 0] 
     #if len(main_loop) > 1: 
     for date_va in date_list:
-        total_done_value = RawTable.objects.filter(project=prj_cen_val[0][0],center=prj_cen_val[1][0],date=date_va).aggregate(Max('per_day'))
+        total_done_value = RawTable.objects.filter(project=prj_id,center=center_obj,date=date_va).aggregate(Max('per_day'))
         if total_done_value['per_day__max'] > 0:
             new_date_list.append(date_va)
             if level_structure_key.has_key('sub_project'):
@@ -3134,7 +3214,7 @@ def product_total_graph(date_list,prj_cen_val,work_packets,level_structure_key):
                 if not final_work_packet:
                     final_work_packet = level_hierarchy_key(volume_list[count],vol_type)
                 count = count+1
-                date_pattern = '{0}_{1}_{2}_{3}'.format(prj_cen_val[0][1], str(prj_cen_val[1][1]), str(final_work_packet), str(date_va))
+                date_pattern = '{0}_{1}_{2}_{3}'.format(prj_name[0], str(center_name[0]), str(final_work_packet), str(date_va))
                 key_list = conn.keys(pattern=date_pattern)
                 if not key_list:
                     if date_values.has_key(final_work_packet):
@@ -3169,7 +3249,7 @@ def product_total_graph(date_list,prj_cen_val,work_packets,level_structure_key):
     #productivity_series_list = graph_data_alignment_other(volumes_data,work,name_key='data')
     #productivity_series_list = graph_data_alignment(volumes_data,name_key='data')
     result['prod_days_data'] = volumes_data
-    query_set = query_set_generation(prj_cen_val[0][0], prj_cen_val[1][0], level_structure_key, [])
+    query_set = query_set_generation(prj_id,center_obj,level_structure_key, [])
     main_target_set = Targets.objects.filter(**query_set)
 
     if 'All' not in level_structure_key.values():
@@ -8300,7 +8380,7 @@ def tat_table_query_generations(pro_id,cen_id,date,main_work_packet,level_struct
     return tat_table_query_set
 
 
-def Monthly_Volume_graph(date_list, prj_id, center, level_structure_key):
+def Monthly_Volume_graph(prj_id,center,date_list, level_structure_key):
     from datetime import datetime
     startTime = datetime.now()
     data_list = [] 
@@ -8427,6 +8507,8 @@ def Monthly_Volume_graph(date_list, prj_id, center, level_structure_key):
                 employee_count = len(employee_names)
                 target_types = Targets.objects.filter(**target_query_set).values('target_type').distinct()
                 target_consideration = target_types.filter(target_type = 'Target').values_list('target_value',flat=True).distinct()
+                fte_targets_list = target_types.filter(target_type = 'FTE Target').values_list('target_value',flat=True).distinct()
+
                 if len(target_consideration) > 0 and len(fte_targets_list) > 0:
                     #if target_consideration[0]['target'] < target_consideration[0]['fte_target']:
                     if target_consideration[0] < fte_targets_list[0]:

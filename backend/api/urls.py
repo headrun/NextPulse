@@ -24,6 +24,12 @@ urlpatterns = [
     url(r'^erro_data_all', apiviews.erro_data_all),
     url(r'^productivity', apiviews.productivity),
     url(r'^monthly_volume', apiviews.monthly_volume),
+    url(r'^fte_graphs', apiviews.fte_graphs),
+    url(r'^prod_avg_perday', apiviews.prod_avg_perday),
+    url(r'^cate_error', apiviews.cate_error),
+    url(r'^pareto_cate_error', apiviews.pareto_cate_error),
+    url(r'^agent_cate_error', apiviews.agent_cate_error),
+    url(r'^main_prod', apiviews.main_prod),
     url(r'^get_packet_details', apiviews.get_packet_details),
     #url()
 
