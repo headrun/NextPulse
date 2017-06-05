@@ -13,7 +13,11 @@
 
              self.hideLoading();
 
+             self.mail_options = ["Asifa", "Abhishek", "Yeswanth", "Rishi", "Kannan", "Poornima", "Sankar"]
+
              self.review_url = 'api/get_top_reviews/'
+
+             debugger;
 
              $http.get(self.review_url).then(function(result){
 

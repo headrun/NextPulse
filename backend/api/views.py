@@ -7766,26 +7766,26 @@ def dropdown_data_types(request):
     return HttpResponse(result)
 
 
-
 def get_top_reviews(request):
     """ get list of reviews """
-    project = request.GET.get('project', "")
+    project = request.GET.get('project', 1)
     #team_lead = request.GET.get('team_lead', "")
     search_term = request.GET.get('search', "")
 
     try:
-        """
+
         if search_term:
             rev_objs = Review.objects.filter(review_name__contains = search_term, project__id = project).order_by('-review_date')
         else:
-            rev_objs = Review.objects.filter(project__id = project).order_by('-review_date')
-        """
+            rev_objs = Review.objects.filter(project__id = project, review_date__gte=datetime.datetime.now()).order_by('-review_date')
+            #rev_objs = Review.objects.filter(project__id = project).order_by('-review_date')
         all_result = OrderedDict()
-        rev_objs = Review.objects.all()
         result = {'all_data' :[]}
         color = {}
+        """
         if rev_objs.count() > 10:
             rev_objs = rev_objs[:10]
+        """
         i = 0
         colors = ['#3385E8', '#DD4130', '#27B678']
         for item in rev_objs:
@@ -7822,43 +7822,36 @@ def get_top_reviews(request):
 def create_reviews(request):
     """ creating reviews """
     curdate = datetime.datetime.now()
-    project = request.POST.get('project', "")
-    review_name = request.POST.get('review_name', "")
-    agenda = request.POST.get('agenda', "")
-    _review_date = request.POST.get('review_date', "")
-    _review_time = request.POST.get('review_time', "")
-    tl = request.POST.get('team_lead', "")
-    attach_files = request.FILES.getlist('myfile', "")
-    try:
-        """
-        r_obj = Review.objects.get(id = 1)
-        for item in attach_files:
-            #item.name = "%s_%s_%s" %(item.name, review_name, review_date)
-            name = item.name.split(".")
-            item.name = "%s_%s_%s.%s" %(name[0], "asdf", str(datetime.datetime.now().date()), name[-1])
-            rfo = ReviewFiles.objects.create(file_name = item, review = r_obj)
-        """
-        import pdb;pdb.set_trace()
-        review_date = datetime.datetime.strptime((_review_date + _review_time), "%d %b, %Y%I:%M %p")
-        rev_obj, created = Review.objects.update_or_create(project__id = project, review_name = review_name, review_date= review_date,
-                                defaults={'team_lead__id': tl, 'review_agenda': agenda},)
+    #project = request.POST.get('project', "")
+    review_name = eval(request.POST['json'])['reviewname']
+    agenda =  eval(request.POST['json'])['reviewagenda']
+    _review_date = eval(request.POST['json'])['reviewdate']
+    _review_time = eval(request.POST['json'])['reviewtime']
+    _review_date = _review_date.split(" ")[1:4]
+    _review_time = _review_time.split(" ")[4]
+    _date = ' '.join(_review_date) + " "+ _review_time
 
-        if attach_files:
-            for item in attach_files:
-                rev_fil_objs = ReviewFiles.objects.filter(file_name = item, review__id = rev_obj.id)
-                if rev_fil_objs:
-                    rfo = rev_fil_objs[0]
-                    rfo.file_name = item
-                    rfo.save()
-                else:
-                    rfo = ReviewFiles.objects.create(file_name = item, review = rev_obj.id)
+    user_id = request.user.id
+    tl_objs = TeamLead.objects.filter(name = user_id)
+    tl = ""
+    project = ""
+    if not tl_objs:
+        return HttpResponse('User is not TeamLead')
+    tl_obj = tl_objs[0]
+    tl = tl_obj
+    project = tl_obj.project
+    try:
+        review_date = datetime.datetime.strptime(_date, "%b %d %Y %H:%M:%S")
+
+        rev_obj, created = Review.objects.update_or_create(project = project, review_name = review_name, review_date= review_date,
+                                defaults={'team_lead': tl, 'review_agenda': agenda},)
 
         if created:
             subject = "Review Created"
         else:
-            subject = "Review Created"
+            subject = "Review Updated"
 
-        send_mail("mail is working", 'This mail is for testing reviews', 'nextpulse@nextwealth.in', ['abhishek@headrun.com'])
+        #send_mail("mail is working", 'This mail is for testing reviews', 'nextpulse@nextwealth.in', ['abhishek@headrun.com'])
         return HttpResponse('success')
 
     except:
@@ -7897,25 +7890,113 @@ def get_review_details(request):
                 name = name + "#" + str(obj.id)
                 data['rev_files'].append({ 'name' : name, 'path': url})
 
+            data['members'] = get_rel_users(item.id)
             return HttpResponse(data)
 
         except:
             return HttpResponse("Failed")
 
 
+def get_rel_users(review_id):
+    """ function to display all related users """
+    all_users = []
+    users = ReviewMembers.objects.filter(review__id = review_id)
+    for user in users:
+        name = user.first_name + " " + user.last_name
+        _id = user.id
+        all_users.append({'name': name, 'id': _id})
+    return all_users
+
 
 def remove_attachment(request):
     """ API to delete atachments from reviews """
+    term_type = request.GET.get('term_type', '')
     revies_file_id = request.GET.get('file_id', '')
     if not revies_file_id:
         return HttpResponse("ID not given")
 
     try:
-        ReviewFiles.objects.filter(id = revies_file_id).delete()
+        if term_type == "attachment":
+            table = "ReviewFiles"
+        elif term_type == "member":
+            table = "ReviewMembers"
+
+        eval(table).objects.filter(id = revies_file_id).delete()
         return HttpResponse('Success')
     except:
         return HttpResponse("Failed")
 
+def upload_review_doc(request):
+    """ to upload the review documents """
+    attach_files = request.FILES.getlist('myfile', "")
+    review_id = request.POST.get('review_id', "")
+    try:
+        if not attach_files or not review_id:
+            return HttpResponse('Improper data')
+
+        r_obj = Review.objects.get(id = review_id)
+        for item in attach_files:
+            #item.name = "%s_%s_%s" %(item.name, review_name, review_date)
+            name = item.name.split(".")
+            item.name = "%s_%s_%s.%s" %(name[0], r_obj.review_name.lower().replace(" ", "_"), str(datetime.datetime.now().date()), name[-1])
+            rev_fil_objs = ReviewFiles.objects.filter(file_name = item.name, review = r_obj)
+            if rev_fil_objs:
+                rfo = rev_fil_objs[0]
+                rfo.file_name = item
+                rfo.save()
+            else:
+                rfo = ReviewFiles.objects.create(file_name = item, review = r_obj)
+
+        return HttpResponse('Success')
+    except:
+        return HttpResponse("Failed")
+
+def get_related_user(request):
+    """ Get all the users Related to that project """
+    user_id = request.user.id
+    tl_objs = TeamLead.objects.filter(name = user_id)
+    tl = ""
+    project = ""
+    result_data = []
+    if not tl_objs:
+        return HttpResponse('User is not TeamLead')
+    tl_obj = tl_objs[0]
+    project = tl_obj.project
+    center = tl_obj.center
+    tls = TeamLead.objects.filter(project = project, center = center).exclude(id = tl_obj.id)
+    if tls:
+        for tl in tls:
+            result_data.append({'name': tl.name.first_name + " " + tl.name.last_name, 'id': tl.name.id})
+
+    customers = Customer.objects.filter(project = project, center = center)
+    if customers:
+        for customer in customers:
+            result_data.append({'name': customer.name.first_name + " " + customer.name.last_name, 'id' : customer.name.id})
+
+    centermanagers = Centermanager.objects.filter(center = center)
+    if centermanagers:
+        for centermanager in centermanagers:
+            result_data.append({'name': centermanager.name.first_name + " " + centermanager.name.last_name, 'id' : centermanager.name.id})
+
+    return HttpResponse(result_data)
+
+
+def saving_members(review_id, users):
+    """ saving members to DB """
+    review_id = request.POST.get(review_id, "")
+
+    users = request.POST.get(uids, "")
+    if not review_id or not users:
+        return HttpResponse("Improper Data")
+
+    for uid in users:
+        try:
+            ReviewMembers.objects.create(review__id = review_id, member__id = uid)
+            send_mail("mail is working", 'This mail is for testing reviews', 'nextpulse@nextwealth.in', ['abhishek@headrun.com'])
+        except:
+            pass
+
+    return HttpResponse("Success")
 
 
 

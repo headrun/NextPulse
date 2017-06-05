@@ -97,7 +97,7 @@
                     if (result.result.list[0] != "none"){
                         if ((result.result.list.length) == 2) {
                             var option = map_list[0];
-                        }   
+                        }
                         else {
                         var option = map_list[1];
                         }

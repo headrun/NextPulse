@@ -658,12 +658,14 @@ class ReviewFiles(models.Model):
         unique_together = (('review', 'file_name'), )
 
 
+class ReviewMembers(models.Model):
+    """ Model to store name of all persons associated in a review """
+    review = models.ForeignKey(Review, db_index=True)
+    member = models.ForeignKey(User, null=True)
+    creation_date = models.DateTimeField(auto_now_add=True)
 
-
-
-
-
-
+    class Meta:
+        db_table = u'review_members'
 
 
 

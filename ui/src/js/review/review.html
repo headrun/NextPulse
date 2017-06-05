@@ -1,63 +1,3 @@
-<!--<style>
-
-.card {
-    font-size: 1em;
-    overflow: hidden;
-    padding: 0;
-    border: none;
-    border-radius: .28571429rem;
-    box-shadow: 0 1px 3px 0 #d4d4d5, 0 0 0 1px #d4d4d5;
-}
-
-.card-block {
-    font-size: 1em;
-    position: relative;
-    margin: 0;
-    padding: 1em;
-    border: none;
-    border-top: 1px solid rgba(34, 36, 38, .1);
-    box-shadow: none;
-}
-
-.text-bold {
-    font-weight: 700;
-}
-
-.review {
-    margin-top: 20px;
-    cursor: pointer;
-}
-
-.details {
-    text-align: center;
-    padding-top: 100px;
-}
-
-</style>
-
-<div class="row">
-    <div class="col-md-3">
-        <div class="row">
-        <div class="col-md-6 review" ng-repeat="review in $ctrl.all_reviews" ng-click="$ctrl.get_review(review)">
-            <div class="card">
-                <div class="card-block">
-                    <h4 class="card-title">{{review.name}}</h4>
-                    <h4 class="card-title">{{review.date}}</h4>
-                    <h4 class="card-title">{{review.time}}</h4>
-                </div>
-            </div>
-        </div>
-        </div>
-    </div>
-    <div class="col-md-9 details">
-        <h1>{{$ctrl.rev_tl}}</h1>
-        <h1>{{$ctrl.rev_date}}</h1>
-        <h1>{{$ctrl.rev_name}}</h1>
-        <h1>{{$ctrl.rev_time}}</h1>
-        <h1>{{$dtrl.files_list}}</h1>
-        <div id="fileuploader">Upload</div>
-    </div>
-</div>-->
 <style>
 
 .main-heading {
@@ -65,6 +5,9 @@
     text-align: center;
     background-color: white;
     padding-bottom: 10px;
+    width: 100%;
+    position: absolute;
+    top: 0;
 }
 
 .review-list {
@@ -73,7 +16,6 @@
     margin-bottom: 5px;
     border-radius: 3px;
     color: white;
-    margin-left: 52px;
     padding: 7px 7px 7px 7px;
     cursor: pointer;
 }
@@ -81,6 +23,10 @@
 .block-data {
     padding-left: 25px;
     padding-top: 10px;
+    height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
 .date-style {
@@ -100,13 +46,7 @@
 
 .cal-image {
     height: 250px;
-    width: 1066px;
-}
-
-.box-space {
-    padding-right: 0px;
-    background-color: #F1EFF1;
-    width: 300px;
+    width: 100%;
 }
 
 .details-block {
@@ -129,11 +69,21 @@
     margin-bottom: 5px;
 }
 
+.margin-class {
+    margin-left: 0px;
+    margin-right: 0px;
+}
+
+.padding-class {
+    padding-left: 0px;
+    padding-right: 0px;
+}
+
 </style>
 
-<!--<div class="row">
-
-    <div class="col-md-3 box-space">
+<div class="fluid-container" style="margin-left:0px; margin-right: 0px;">
+  <div class="row margin-class">
+    <div class="col-md-3 padding-class" style="height: 100vh; padding-top: 60px;">
         <p class="main-heading">Meeting Calendar</p>
         <div class="block-data">
             <div ng-repeat="(key, value) in $ctrl.all_reviews">
@@ -142,20 +92,21 @@
                         <span class="date-style">{{key | getdate}}</span>
                         <span>{{key | getdate:true}}</span>
                     </div>
+                    <div class="col-md-10">
                     <div ng-repeat="review in value" class="review-list" style="background-color: {{review.color}}"
                          ng-click="$ctrl.get_review(review)">
                         <span>{{review.name}}</span><br>
                         <span>{{review.time}}</span>
                         <i class="fa fa-caret-right" aria-hidden="true"></i>
                     </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-
-    <div clas="col-md-9">
+    <div class="col-md-9 padding-class">
         <img src="/images/cal.png" class="cal-image">
-        <h1 style="font-size: 30px;margin-left: 330px;">{{$ctrl.rev_text}}</h1>
+        <h1 style="font-size: 30px;padding-left: 20px;">{{$ctrl.rev_text}}</h1>
       <div class="details-block">
         <span>Meeting agenda:</span><br><br>
         <span class="agenda-style">{{$ctrl.rev_agenda}}</span>
@@ -179,7 +130,9 @@
         <div id="fileuploader" class="review-data">Upload</div>
         <i class="fa fa-plus-circle fa-2x" data-toggle="modal" data-target="#myModal" aria-hidden="true"></i>
       </div>
+
     </div>
+  </div>
 </div>
 
   <div class="modal fade" id="myModal" role="dialog">
@@ -243,6 +196,15 @@
             </div>
           </div>
 
+          <div class="row">
+            <div class="col-md-3">
+              <label>Participants: </label>
+            </div>
+            <div class="col-md-9">
+              <multiselect ng-model="$ctrl.review.selection" options="$ctrl.mail_options" show-search="true"></multiselect>
+            </div>
+          </div>
+
           </form>
         </div>
         <div class="modal-footer">
@@ -251,33 +213,7 @@
         </div>
       </div>
     </div>
-  </div>-->
-
-<div class="container" style="margin-left:0px; margin-right: 0px;">
-  <div class="row">
-    <div class="col-md-3">
-        <p class="main-heading">Meeting Calendar</p>
-        <div class="block-data">
-            <div ng-repeat="(key, value) in $ctrl.all_reviews">
-                <div class="row">
-                    <div class="col-md-2">
-                        <span class="date-style">{{key | getdate}}</span>
-                        <span>{{key | getdate:true}}</span>
-                    </div>
-                    <div ng-repeat="review in value" class="review-list" style="background-color: {{review.color}}"
-                         ng-click="$ctrl.get_review(review)">
-                        <span>{{review.name}}</span><br>
-                        <span>{{review.time}}</span>
-                        <i class="fa fa-caret-right" aria-hidden="true"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-9"></div>
   </div>
-</div>
-
 <script>
 $(document).ready(function()
 {

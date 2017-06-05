@@ -23,5 +23,7 @@ urlpatterns = [
     url(r'^create_reviews',apiviews.create_reviews),
     url(r'^get_review_details',apiviews.get_review_details),
     url(r'^remove_attachment',apiviews.remove_attachment),
+    url(r'^upload_review_doc',apiviews.upload_review_doc),
+    url(r'^get_related_user',apiviews.get_related_user),
 
 ]

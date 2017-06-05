@@ -91,6 +91,7 @@
                 {   $('#emp_widget').hide();
                     $('#volume_table').hide();
                     var pro_cen_nam = $state.params.selpro;
+                    self.hiden_tag = pro_cen_nam;
                     self.first = result.result.dates.from_date;
                     self.lastDate = self.first;
                     self.last = result.result.dates.to_date;
