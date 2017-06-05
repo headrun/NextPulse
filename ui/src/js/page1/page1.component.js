@@ -131,16 +131,16 @@
                     self.data_to_show = '?&project='+callback[3]+'&center='+callback[2]+'&from='+ callback[0]+'&to='+ callback[1]+packet+'&type=';
                     self.common_for_all = self.data_to_show + self.day_type;
                     //var allo_and_comp = '/api/alloc_and_compl/'+self.common_for_all;
-                    var utill_all = '/api/utilisation_all/'+self.common_for_all;
+                    //var utill_all = '/api/utilisation_all/'+self.common_for_all;
                     var erro_all = '/api/erro_data_all/'+self.common_for_all;
-                    var productivity = '/api/productivity/'+self.common_for_all;
-                    var mont_volume = '/api/monthly_volume/'+self.common_for_all;
-                    var fte_graphs = '/api/fte_graphs/'+self.common_for_all;
-                    var prod_avg = '/api/prod_avg_perday/'+self.common_for_all;
+                    //var productivity = '/api/productivity/'+self.common_for_all;
+                    //var mont_volume = '/api/monthly_volume/'+self.common_for_all;
+                    //var fte_graphs = '/api/fte_graphs/'+self.common_for_all;
+                    //var prod_avg = '/api/prod_avg_perday/'+self.common_for_all;
                     var cate_error = '/api/cate_error/'+self.common_for_all;
                     var pareto_cate_error = '/api/pareto_cate_error/'+self.common_for_all;
                     var agent_cate_error = '/api/agent_cate_error/'+self.common_for_all;
-                    var main_prod = '/api/main_prod/'+self.common_for_all;
+                    //var main_prod = '/api/main_prod/'+self.common_for_all;
 
                     self.allo_and_comp = function(final_work, type) {
 
@@ -188,64 +188,266 @@
 
                     self.allo_and_comp(undefined, undefined);
 
-                    $http({method:"GET", url: utill_all}).success(function(result){
+                    self.utill_all = function(final_work, type) {
+
+                        if (type == undefined) {
+                            type = 'day'
+                        }
+
+                        if (final_work == undefined) {
+                            final_work = ''
+                        }
+
+                        self.type = type;
+
+                        var utill_all = '/api/utilisation_all/'+self.data_to_show + type + final_work;
+
+                        $http({method:"GET", url: utill_all}).success(function(result){
+
+                            if (self.type == 'day') {
+                                var date_list = result.result.date;
+                                var utili_opera_data = result.result.utilization_operational_details;
+                                var utili_fte_data = result.result.utilization_fte_details;
+                                var overall_utili_data = result.result.original_utilization_graph;
+                            }
+
+                            if (self.type == 'week') {
+                                var date_list = result.result.date_week;
+                                var utili_opera_data = result.result.utilization_operational_details;
+                                var utili_fte_data = result.result.utilization_fte_details;
+                                var overall_utili_data = result.result.original_utilization_graph;
+                            }
+
+                            if (self.type == 'month') {
+                                var date_list = result.result.date_month;
+                                var utili_opera_data = result.result.utilization_operational_details;
+                                var utili_fte_data = result.result.utilization_fte_details;
+                                var overall_utili_data = result.result.original_utilization_graph;
+                            }
+
 
                             angular.extend(self.chartOptions25, {
                                 xAxis: {
-                                    categories: result.result.date,
+                                    categories: date_list,
                                 },
-                                series: result.result.utilization_operational_details
+                                series: utili_opera_data
                             });
 
                             angular.extend(self.chartOptions24, {
                                 xAxis: {
-                                    categories: result.result.date,
+                                    categories: date_list,
                                 },
-                                series: result.result.utilization_fte_details
+                                series: utili_fte_data
                             });
 
                             angular.extend(self.chartOptions15, {
                                 xAxis: {
-                                    categories: result.result.date,
+                                    categories: date_list,
                                 },
-                                series: result.result.original_utilization_graph
+                                series: overall_utili_data
                             });
 
                         })
+                    }
+                    
+                    self.utill_all(undefined, undefined);
 
-                       $http({method:"GET", url: productivity}).success(function(result){
+                    self.productivity = function(final_work, type) {
+
+                        if (type == undefined) {
+                            type = 'day'
+                        }
+
+                        if (final_work == undefined) {
+                            final_work = ''
+                        }
+
+                        self.type = type;
+
+                        var productivity = '/api/productivity/'+self.data_to_show + type + final_work;
+
+                        $http({method:"GET", url: productivity}).success(function(result){
+
+                            if (self.type == 'day') {
+                                var date_list = result.result.date;
+                                var productivity = result.result.original_productivity_graph;
+                            }
+
+                            if (self.type == 'week') {
+                                var date_list = result.result.date_week;
+                                var productivity = result.result.original_productivity_graph;
+                            }
 
                             angular.extend(self.chartOptions19, {
                                 xAxis: {
-                                    categories: result.result.date,
+                                    categories: date_list,
                                 },
-                                series: result.result.original_productivity_graph
+                                series: productivity
                             });
-
                         })
+                    }
+                    self.productivity(undefined, undefined);
 
-                       $http({method:"GET", url: prod_avg}).success(function(result){
+                    self.prod_avg = function(final_work, type) {
+
+                        if (type == undefined) {
+                            type = 'day'
+                        }
+
+                        if (final_work == undefined) {
+                            final_work = ''
+                        }
+ 
+                        self.type = type;
+
+                        var prod_avg = '/api/prod_avg_perday/'+self.data_to_show + type + final_work;
+
+                        $http({method:"GET", url: prod_avg}).success(function(result){
+
+                            if (self.type == 'day') {
+                                var date_list = result.result.date;
+                                var prod_avg_data = result.result.production_avg_details
+                            }
+
+                            if (self.type == 'week') {
+                                var date_list = result.result.date_week;
+                                var prod_avg_data = result.result.production_avg_details
+                            }
 
                            angular.extend(self.chartOptions38, {
                                 xAxis: {
-                                    categories: result.result.date,
+                                    categories: date_list,
                                 },
-                                series: result.result.production_avg_details
+                                series: prod_avg_data
                             });
-
                        }) 
+                    }
+                    self.prod_avg(undefined, undefined)
 
-                       $http({method:"GET", url: main_prod}).success(function(result){
+                    self.mont_volume = function(final_work, type) {
 
-                           angular.extend(self.chartOptions10, {
+                        if (type == undefined) {
+                            type = 'day'
+                        }
+
+                        if (final_work == undefined) {
+                            final_work = ''
+                        }
+
+                        self.type = type;
+
+                        var mont_volume = '/api/monthly_volume/'+self.data_to_show + type + final_work;
+
+                        $http({method:"GET", url: mont_volume}).success(function(result){
+
+                            if (self.type == 'day') {
+                                var date_list = result.result.date;
+                                var monthly_volume = result.result.monthly_volume_graph_details
+                            }
+
+                            if (self.type == 'week') {
+                                var date_list = result.result.date_week;
+                                var monthly_volume = result.result.monthly_volume_graph_details
+                            }
+
+                            angular.extend(self.chartOptions26, {
                                 xAxis: {
-                                    categories: result.result.data.date,
+                                    categories: date_list,
                                 },
-                                series: result.result.data.data
+                                series: monthly_volume
                             });
 
+                        })
+                    }
+                    self.mont_volume(undefined, undefined)
+
+                    self.fte_graphs = function(final_work, type) {
+
+                        if (type == undefined) {
+                            type = 'day'
+                        }
+
+                        if (final_work == undefined) {
+                            final_work = ''
+                        }
+
+                        self.type = type;
+
+                        var fte_graphs = '/api/fte_graphs/'+self.data_to_show + type + final_work;
+
+                        $http({method:"GET", url: fte_graphs}).success(function(result){
+
+                            if (self.type == 'day') {
+                                var date_list = result.result.date;
+                                var work_packet_fte = result.result.fte_calc_data.work_packet_fte;
+                                var total_fte = result.result.fte_calc_data.total_fte;
+                            }
+
+                            if (self.type == 'week') {
+                                var date_list = result.result.date_week;
+                                var work_packet_fte = result.result.fte_calc_data.work_packet_fte;
+                                var total_fte = result.result.fte_calc_data.total_fte;
+                            }
+
+                            angular.extend(self.chartOptions16, {
+                                xAxis: {
+                                    categories: date_list,
+                                },
+                                series: work_packet_fte
+                            });
+
+                            angular.extend(self.chartOptions16_2, {
+                                xAxis: {
+                                    categories: date_list,
+                                },
+                                series: total_fte
+                            });
                        })
- 
+                    }
+                    self.fte_graphs(undefined, undefined)
+
+                    self.main_prod = function(final_work, type) {
+
+                        if (type == undefined) {
+                            type = 'day'
+                        }
+
+                        if (final_work == undefined) {
+                            final_work = ''
+                        }
+
+                        self.type = type;
+
+                        var main_prod = '/api/main_prod/'+self.data_to_show + type + final_work;
+
+                        $http({method:"GET", url: main_prod}).success(function(result){
+
+                            if (self.type == 'day') {
+                                var date_list = result.result.data.date;
+                                var main_prod_data = result.result.productivity_data;
+                            }
+
+                            if (self.type == 'week') {
+                                var date_list = result.result.data.date;
+                                var main_prod_data = result.result.productivity_data;
+                            }
+
+                            angular.extend(self.chartOptions10, {
+                               xAxis: {
+                                    categories: date_list,
+                                },
+                                series: main_prod_data
+                            });
+
+                            angular.extend(self.chartOptions, {
+                               xAxis: {
+                                    categories: date_list,
+                                },
+                                series: main_prod_data
+                            });     
+                        })
+                    }
+                    self.main_prod(undefined, undefined)
 
                        $http({method:"GET", url: cate_error}).success(function(result){
 
@@ -267,36 +469,6 @@
                                 }]
                             });
                        })
-
-                       $http({method:"GET", url: mont_volume}).success(function(result){
-
-                            angular.extend(self.chartOptions26, {
-                                xAxis: {
-                                    categories: result.result.date,
-                                },   
-                                series: result.result.monthly_volume_graph_details
-                            });  
-  
-                       })
-
-                       $http({method:"GET", url: fte_graphs}).success(function(result){
-
-                            angular.extend(self.chartOptions16, {
-                                xAxis: {
-                                    categories: result.result.date,
-                                },
-                                series: result.result.fte_calc_data.work_packet_fte
-                            });
-
-                            angular.extend(self.chartOptions16_2, {
-                                xAxis: {
-                                    categories: result.result.date,
-                                },
-                                series: result.result.fte_calc_data.total_fte
-                            });
-
-                       })
-
 
                        $http({method:"GET", url: pareto_cate_error}).success(function(result){
                                 
@@ -354,14 +526,14 @@
                                 xAxis: {
                                     categories: result.result.date,
                                 },
-                                series: result.result.external_time_line
+                                series: result.result.internal_time_line
                             });
 
                             angular.extend(self.chartOptions9_2, {
                                 xAxis: {
                                     categories: result.result.date,
                                 },
-                                series: result.result.internal_time_line
+                                series: result.result.external_time_line
                             });
 
                             angular.extend(self.chartOptions4.yAxis,{
@@ -634,7 +806,8 @@
                     "self.chartOptions29":self.chartOptions29,
                     "self.chartOptions30":self.chartOptions30,
                     "self.chartOptions27":self.chartOptions27,
-                    "self.chartOptions28":self.chartOptions28
+                    "self.chartOptions28":self.chartOptions28,
+                    "self.chartOptions":self.chartOptions
                 }
 
                 self.render_data = obj[all_data];
@@ -650,8 +823,27 @@
                                      self.day_type + packet;
                 var allo_and_comp = '/api/alloc_and_compl/'+common_for_all;*/
 
-                self.allo_and_comp(final_work, key);
-
+                if ((name == 'chartOptions17') || (name == 'chartOptions18')) {
+                    self.allo_and_comp(final_work, key);
+                }
+                if ((name == 'chartOptions25') || (name == 'chartOptions15') || (name == 'chartOptions24')) {
+                    self.utill_all(final_work, key);
+                }
+                if (name == 'chartOptions19') {
+                    self.productivity(final_work, key);
+                }
+                if (name == 'chartOptions38') {
+                    self.prod_avg(final_work, key);
+                }
+                if (name == 'chartOptions26') {
+                    self.mont_volume(final_work, key);
+                }
+                if ((name == 'chartOptions16') || (name == 'chartOptions16_2')) {
+                    self.fte_graphs(final_work, key);
+                }
+                if ((name == 'chartOptions10') || (name == 'chartOptions')) {
+                    self.main_prod(final_work, key);
+                }
              }                    
             })
                             /*if ((result.result.fin.sub_project) && (result.result.fin.work_packet)){
