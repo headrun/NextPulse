@@ -170,6 +170,14 @@
                                 var data_list_line = result.result.volume_graphs.line_data;
                             }
 
+                            if (self.type == 'month') {
+                                var date_list = result.result.date_month;
+                                var data_list_bar = result.result.volume_graphs.bar_data;
+                                var data_list_line = result.result.volume_graphs.line_data;
+                            }
+
+                            self.hideLoading();                                
+                                   
                             angular.extend(self.chartOptions17, {
                                 xAxis: {
                                     categories: date_list,
@@ -225,7 +233,6 @@
                                 var overall_utili_data = result.result.original_utilization_graph;
                             }
 
-
                             angular.extend(self.chartOptions25, {
                                 xAxis: {
                                     categories: date_list,
@@ -278,6 +285,10 @@
                                 var productivity = result.result.original_productivity_graph;
                             }
 
+                            if (self.type == 'month') {
+                                var date_list = result.result.date_month;
+                                var productivity = result.result.original_productivity_graph;
+                            }
                             angular.extend(self.chartOptions19, {
                                 xAxis: {
                                     categories: date_list,
@@ -314,6 +325,10 @@
                                 var prod_avg_data = result.result.production_avg_details
                             }
 
+                            if (self.type == 'month') {
+                                var date_list = result.result.date_month;
+                                var prod_avg_data = result.result.production_avg_details
+                            }
                            angular.extend(self.chartOptions38, {
                                 xAxis: {
                                     categories: date_list,
@@ -347,6 +362,11 @@
 
                             if (self.type == 'week') {
                                 var date_list = result.result.date_week;
+                                var monthly_volume = result.result.monthly_volume_graph_details
+                            }
+
+                            if (self.type == 'month') {
+                                var date_list  = result.result.date_month;
                                 var monthly_volume = result.result.monthly_volume_graph_details
                             }
 
@@ -388,7 +408,12 @@
                                 var work_packet_fte = result.result.fte_calc_data.work_packet_fte;
                                 var total_fte = result.result.fte_calc_data.total_fte;
                             }
-
+                            
+                            if (self.type == 'month') {
+                                var date_list = result.result.date_month;
+                                var work_packet_fte = result.result.fte_calc_data.work_packet_fte;
+                                var total_fte = result.result.fte_calc_data.total_fte;
+                            }
                             angular.extend(self.chartOptions16, {
                                 xAxis: {
                                     categories: date_list,
@@ -563,7 +588,6 @@
                                    data: result.result.external_accuracy_graph
                                }]
                            });
-
 
                self.hideLoading();
                 }) 
@@ -748,7 +772,7 @@
                 else {
 
                 if (result.data.result.fin.work_packet){ 
-
+                    self.showLoading();
                     $('#0').on('change', function(){ 
                         self.drop_work_pack = this.value;
                         self.drop_sub_proj = 'undefined';
@@ -783,9 +807,10 @@
             }).then(function(callback){
 
                 self.dateType = function(key,all_data,name,button_clicked){
+                
+                self.showLoading();
 
                 self.call_back = callback;
-
                 
                 var obj = {
                     "self.chartOptions10":self.chartOptions10,
@@ -824,7 +849,9 @@
                 var allo_and_comp = '/api/alloc_and_compl/'+common_for_all;*/
 
                 if ((name == 'chartOptions17') || (name == 'chartOptions18')) {
+
                     self.allo_and_comp(final_work, key);
+                    
                 }
                 if ((name == 'chartOptions25') || (name == 'chartOptions15') || (name == 'chartOptions24')) {
                     self.utill_all(final_work, key);
@@ -845,7 +872,31 @@
                     self.main_prod(final_work, key);
                 }
              }                    
+
+             self.active_filters = function(key,button_clicked){
+
+                self.showLoading();
+
+                var final_work =  '&sub_project=' + self.drop_sub_proj + '&sub_packet=' + self.drop_sub_pack + '&work_packet=' + self.drop_work_pack + '&is_clicked=' + self.button_clicked;
+
+                self.allo_and_comp(final_work, key);
+
+                self.utill_all(final_work, key);
+
+                self.productivity(final_work, key);
+
+                self.prod_avg(final_work, key);
+
+                self.mont_volume(final_work, key);
+
+                self.fte_graphs(final_work, key);
+ 
+                self.main_prod(final_work, key);
+
+             }  
             })
+
+
                             /*if ((result.result.fin.sub_project) && (result.result.fin.work_packet)){
                                 $('#0').on('change', function(){
                                             if (self.day_type === 'week'){
