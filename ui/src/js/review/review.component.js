@@ -13,20 +13,51 @@
 
              self.hideLoading();
 
+             self.rev_id = '';
+
+             self.email_data = 'api/get_related_user/'
+
+             /*self.mail_options = [];
+
+                 $http.get(self.email_data).then(function(result){
+
+                     self.mail_options.push(result.data.result.name_list);
+                 });*/
+
              self.mail_options = ["Asifa", "Abhishek", "Yeswanth", "Rishi", "Kannan", "Poornima", "Sankar"]
 
              self.review_url = 'api/get_top_reviews/'
 
-             debugger;
-
              $http.get(self.review_url).then(function(result){
 
                  self.all_reviews = result.data.result;
+                 self.rev_id = self.all_reviews[Object.keys(self.all_reviews)[0]][0].id;
+                 self.get_review(self.all_reviews[Object.keys(self.all_reviews)[0]][0]);
+                 return self.rev_id;
+             }).then(function(callback){
+
+             $("#fileuploader").uploadFile({
+                url:"/api/create_reviews/",
+                dragDrop:false,
+                fileName:"myfile",
+                formData:{"review_id": callback }
+             });
+
              });
 
              self.get_review = function(review){
 
                  self.rev_id = review.id;
+
+             $("#fileuploader").uploadFile({
+                url:"/api/upload_review_doc/",
+                dragDrop:false,
+                fileName:"myfile",
+                formData:{"review_id": self.rev_id },
+                onSuccess:function(files,data,xhr,pd){
+                  debugger;
+                }
+             });
 
                  self.get_data_url = 'api/get_review_details/?review_id='+self.rev_id;
 
@@ -43,7 +74,7 @@
 
              self.submit = function(review) {
 
-                 self.create_rev_url = 'api/create_reviews/'
+                 self.create_rev_url = 'api/create_reviews/';
                  var data = {}
                  angular.forEach(review, function(key, value) {
                      data[value] = key.toString()
@@ -52,6 +83,12 @@
                  var main_data = $.param({ json: JSON.stringify(data) });
                  $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
                  $http.post(self.create_rev_url, main_data).then(function(result){
+                 }).then(function(callback){
+             $http.get(self.review_url).then(function(result){
+
+                 self.all_reviews = result.data.result;
+                 self.get_review(self.all_reviews[Object.keys(self.all_reviews)[0]][0]);
+             });
                  });
              }
 

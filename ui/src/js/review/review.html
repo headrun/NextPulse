@@ -50,9 +50,7 @@
 }
 
 .details-block {
-    margin-left: 340px;
-    margin-right: 200px;
-    margin-top: 10px;
+    padding-left: 30px;
     color: #9d9d9d;
 }
 
@@ -128,7 +126,7 @@
         </span>
         </div>
         <div id="fileuploader" class="review-data">Upload</div>
-        <i class="fa fa-plus-circle fa-2x" data-toggle="modal" data-target="#myModal" aria-hidden="true"></i>
+        <i class="fa fa-plus-circle fa-2x" data-toggle="modal" data-target="#myModal" ng-click="$ctrl.get_maildata()" aria-hidden="true"></i>
       </div>
 
     </div>
@@ -214,7 +212,7 @@
       </div>
     </div>
   </div>
-<script>
+<!--<script>
 $(document).ready(function()
 {
     $("#fileuploader").uploadFile({
@@ -223,4 +221,4 @@ $(document).ready(function()
     fileName:"myfile"
     });
 });
-</script>
+</script>-->

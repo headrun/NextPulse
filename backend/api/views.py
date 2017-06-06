@@ -7912,7 +7912,7 @@ def remove_attachment(request):
     """ API to delete atachments from reviews """
     term_type = request.GET.get('term_type', '')
     revies_file_id = request.GET.get('file_id', '')
-    if not revies_file_id:
+    if not revies_file_id or not term_type:
         return HttpResponse("ID not given")
 
     try:
@@ -7957,7 +7957,7 @@ def get_related_user(request):
     tl_objs = TeamLead.objects.filter(name = user_id)
     tl = ""
     project = ""
-    result_data = []
+    result_data = {'name_list' : [], 'id_list' : []}
     if not tl_objs:
         return HttpResponse('User is not TeamLead')
     tl_obj = tl_objs[0]
@@ -7966,17 +7966,23 @@ def get_related_user(request):
     tls = TeamLead.objects.filter(project = project, center = center).exclude(id = tl_obj.id)
     if tls:
         for tl in tls:
-            result_data.append({'name': tl.name.first_name + " " + tl.name.last_name, 'id': tl.name.id})
+            _name = tl.name.first_name + " " + tl.name.last_name
+            result_data['name_list'].append(_name)
+            result_data['id_list'].append(tl.name.id)
 
     customers = Customer.objects.filter(project = project, center = center)
     if customers:
         for customer in customers:
-            result_data.append({'name': customer.name.first_name + " " + customer.name.last_name, 'id' : customer.name.id})
+            _name = customer.name.first_name + " " + customer.name.last_name
+            result_data['name_list'].append(_name)
+            result_data['id_list'].append(customer.name.id)
 
     centermanagers = Centermanager.objects.filter(center = center)
     if centermanagers:
         for centermanager in centermanagers:
-            result_data.append({'name': centermanager.name.first_name + " " + centermanager.name.last_name, 'id' : centermanager.name.id})
+            _name = centermanager.name.first_name + " " + centermanager.name.last_name
+            result_data['name_list'].append(_name)
+            result_data['id_list'].append(centermanager.name.id)
 
     return HttpResponse(result_data)
 
