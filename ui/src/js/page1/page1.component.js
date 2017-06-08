@@ -121,15 +121,22 @@
 
 
              self.main_widget_function = function(callback, packet) {
-                        
+                               
                     self.center_live = callback[2];
 
                     self.project_live = callback[3];
 
                     //self.lastDate+'&to='+self.firstDate+'&type=' + self.day_type;
+                    
+                    /*var dateEntered = document.getElementById('select').value
+                    dateEntered = dateEntered.replace(' to ','to');
+                    callback[0] = dateEntered.split('to')[0].replace(' ','');
+                    callback[1] = dateEntered.split('to')[1].replace(' ',''); */
 
                     self.data_to_show = '?&project='+callback[3]+'&center='+callback[2]+'&from='+ callback[0]+'&to='+ callback[1]+packet+'&type=';
                     self.common_for_all = self.data_to_show + self.day_type;
+
+                    var date_values = callback[0] + 'to' + callback[1];
                     //var allo_and_comp = '/api/alloc_and_compl/'+self.common_for_all;
                     //var utill_all = '/api/utilisation_all/'+self.common_for_all;
                     var erro_all = '/api/erro_data_all/'+self.common_for_all;
@@ -141,8 +148,7 @@
                     var pareto_cate_error = '/api/pareto_cate_error/'+self.common_for_all;
                     var agent_cate_error = '/api/agent_cate_error/'+self.common_for_all;
                     //var main_prod = '/api/main_prod/'+self.common_for_all;
-
-                    self.allo_and_comp = function(final_work, type) {
+                    self.allo_and_comp = function(final_work, type, date_values) {
 
                         if (type == undefined) {
                             type = 'day'
@@ -152,9 +158,14 @@
                             final_work = ''
                         }
 
+                        if (date_values == undefined) {
+                            date_values = ''
+                        }
+
                         self.type = type;
 
-                        var allo_and_comp = '/api/alloc_and_compl/'+self.data_to_show + type + final_work;
+
+                        var allo_and_comp = '/api/alloc_and_compl/'+self.data_to_show + type + final_work + date_values;
 
                         $http({method:"GET", url: allo_and_comp}).success(function(result){
 
@@ -194,9 +205,9 @@
                         })
                     }
 
-                    self.allo_and_comp(undefined, undefined);
+                    self.allo_and_comp(undefined, undefined, undefined);
 
-                    self.utill_all = function(final_work, type) {
+                    self.utill_all = function(final_work, type,date_values) {
 
                         if (type == undefined) {
                             type = 'day'
@@ -206,9 +217,12 @@
                             final_work = ''
                         }
 
+                        if (date_values == undefined) {
+                            date_values = ''
+                        }
                         self.type = type;
 
-                        var utill_all = '/api/utilisation_all/'+self.data_to_show + type + final_work;
+                        var utill_all = '/api/utilisation_all/'+self.data_to_show + type + final_work + date_values;
 
                         $http({method:"GET", url: utill_all}).success(function(result){
 
@@ -257,7 +271,7 @@
                         })
                     }
                     
-                    self.utill_all(undefined, undefined);
+                    self.utill_all(undefined, undefined, undefined);
 
                     self.productivity = function(final_work, type) {
 
@@ -841,7 +855,6 @@
 
                 var final_work =  '&sub_project=' + self.drop_sub_proj + '&sub_packet=' + self.drop_sub_pack + '&work_packet=' + 
                                   self.drop_work_pack + '&is_clicked=' + self.button_clicked;
-
                 //self.main_widget_function(self.call_back, final_work);
 
                 /*var common_for_all = '?&project='+callback[3]+'&center='+callback[2]+'&from='+'2017-01-09'+'&to='+'2017-01-15'+'&type=' +
@@ -2634,7 +2647,7 @@
                          });
             }*/
 
-            self.active_filters = function(type,button_clicked){
+            /*self.active_filters = function(type,button_clicked){
                 self.button_clicked = button_clicked;
                 var some = '' 
                 if (type == 'day') { some = 'Day';}
@@ -2669,7 +2682,7 @@
                     self.chart_render(result,self.project,self.location);
                 });  
 
-            } 
+            } */
 
             self.chart_render = function(result,pro,loc){
 

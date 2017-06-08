@@ -421,8 +421,6 @@ class TargetsAuthoring(models.Model):
     def __unicode__(self):
         return self.work_packet
 
-
-
 class Worktrack(models.Model):
     date = models.DateField()
     sub_project = models.CharField(max_length=255, blank=True,db_index=True)
