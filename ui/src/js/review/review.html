@@ -27,6 +27,7 @@
     position: relative;
     overflow-x: hidden;
     overflow-y: auto;
+    background-color: #F0F0F0;
 }
 
 .date-style {
@@ -77,6 +78,43 @@
     padding-right: 0px;
 }
 
+.image {
+   position: relative;
+   width: 100%;
+}
+
+.time-format {
+  position: absolute;
+  top: 200px;
+  left: 0;
+  width: 100%;
+  color: white;
+  font-size: 30px;
+  padding-left: 10px;
+
+}
+
+.date-format {
+  position: absolute;
+  top: 200px;
+  left: 67%;
+  width: 100%;
+  color: white;
+  font-size: 30px;
+  padding-left: 10px;
+}
+
+.tag-format {
+  position: absolute;
+  top: 150px;
+  left: 90%;
+  color: white;
+  font-size: 26px;
+  padding: 3px;
+  background-color: #D24631;
+  border-radius: 5px;
+}
+
 </style>
 
 <div class="fluid-container" style="margin-left:0px; margin-right: 0px;">
@@ -87,8 +125,9 @@
             <div ng-repeat="(key, value) in $ctrl.all_reviews">
                 <div class="row">
                     <div class="col-md-2">
+                        <span>{{key | getdate:"had"}}</span>
                         <span class="date-style">{{key | getdate}}</span>
-                        <span>{{key | getdate:true}}</span>
+                        <!--<span>{{key | getdate:true}}</span>-->
                     </div>
                     <div class="col-md-10">
                     <div ng-repeat="review in value" class="review-list" style="background-color: {{review.color}}"
@@ -103,13 +142,20 @@
         </div>
     </div>
     <div class="col-md-9 padding-class">
-        <img src="/images/cal.png" class="cal-image">
+        <div class="image">
+            <img src="/images/cal.png" class="cal-image">
+            <div class="extra-data">
+              <span class="time-format">{{$ctrl.rev_time}} onwards</span>
+              <span class="date-format">{{$ctrl.rev_date}}, {{$ctrl.rev_day}}</span>
+              <span class="tag-format">Today</span>
+            </div>
+        </div>
         <h1 style="font-size: 30px;padding-left: 20px;">{{$ctrl.rev_text}}</h1>
       <div class="details-block">
-        <span>Meeting agenda:</span><br><br>
+        <span>Meeting agenda:</span><br>
         <span class="agenda-style">{{$ctrl.rev_agenda}}</span>
-        <br><br>
-        <i class="fa fa-user icon-padd" aria-hidden="true"></i><span style="padding-right: 50px;">Team Lead</span><span>{{$ctrl.rev_tl}}</span><br>
+        <br>
+        <i class="fa fa-user icon-padd" aria-hidden="true"></i><span style="padding-right: 50px;">Team Lead</span><span>{{$ctrl.rev_tl}}</span>
         <br>
         <i class="fa fa-users icon-padd" aria-hidden="true"></i><span>Participants</span>
         <div class="attend">
@@ -118,7 +164,7 @@
             <span>Asifa</span><br>
         </div>
         <hr>
-        <div class="row">
+        <div class="row" style="width:100%;">
         <span ng-repeat="file in $ctrl.all_review_data" class="tag label label-info">
           <a href="http://projects.headrun.com:9998{{file.path}}" download>{{file.name | getfile}}</a>
           <a><i class="remove glyphicon glyphicon-remove-sign glyphicon-white" ng-click="$ctrl.remove_file(file.name | getfile:true)"></i></a> 

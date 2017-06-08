@@ -7792,10 +7792,11 @@ def get_top_reviews(request):
             if i > 2:
                 i = 0
             data = {}
+
             data['name'] = item.review_name
             review_date = item.review_date
             data['date'] = review_date.strftime("%d %b, %Y")
-            date = review_date.strftime("%d_%m")
+            date = review_date.strftime("%d_%b")
             data['time'] = review_date.strftime("%I:%M %p")
             data['id'] = item.id
 
@@ -7859,7 +7860,7 @@ def create_reviews(request):
 
 def get_review_details(request):
     """ getting detail of the review """
-
+    from django.utils import timezone
     review_id = request.GET.get('review_id', "")
     rev_objs = Review.objects.filter(id = review_id)
     #import pdb;pdb.set_trace()
@@ -7873,6 +7874,25 @@ def get_review_details(request):
             data['name'] = item.review_name
             data['agenda'] = item.review_agenda
             review_date = item.review_date
+            """
+            import pdb;pdb.set_trace()
+            _df_time = review_date - timezone.now()
+            _df_time = _df_time.days
+            if _df_time <1:
+                data[remained] = "Today"
+            elif _df_time < 2:
+                data[remained] = "Tomorrow"
+            elif _df_time < 8:
+                data[remained] = "This Week"
+            elif _df_time < 32:
+                data[remained] = "This Month"
+            else:
+                data[remained] = ""
+
+            """
+
+
+            data['day'] = review_date.strftime("%A")
             data['date'] = review_date.strftime("%d %b, %Y")
             data['time'] = review_date.strftime("%I:%M %p")
             data['tl']   = item.team_lead.name.first_name+ " " + item.team_lead.name.last_name
@@ -7921,8 +7941,10 @@ def remove_attachment(request):
         elif term_type == "member":
             table = "ReviewMembers"
 
-        eval(table).objects.filter(id = revies_file_id).delete()
-        return HttpResponse('Success')
+        objs = eval(table).objects.filter(id = revies_file_id)
+        rev_id = objs[0].review.id
+        objs.delete()
+        return HttpResponse(rev_id)
     except:
         return HttpResponse("Failed")
 
@@ -7947,7 +7969,7 @@ def upload_review_doc(request):
             else:
                 rfo = ReviewFiles.objects.create(file_name = item, review = r_obj)
 
-        return HttpResponse('Success')
+        return HttpResponse(review_id)
     except:
         return HttpResponse("Failed")
 

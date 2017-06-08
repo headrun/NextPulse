@@ -36,26 +36,33 @@
                  return self.rev_id;
              }).then(function(callback){
 
-             $("#fileuploader").uploadFile({
+             /*$("#fileuploader").uploadFile({
                 url:"/api/create_reviews/",
                 dragDrop:false,
                 fileName:"myfile",
                 formData:{"review_id": callback }
-             });
+             });*/
 
              });
 
              self.get_review = function(review){
 
                  self.rev_id = review.id;
+                 var sel_rev_id = self.rev_id;
 
              $("#fileuploader").uploadFile({
                 url:"/api/upload_review_doc/",
                 dragDrop:false,
                 fileName:"myfile",
                 formData:{"review_id": self.rev_id },
-                onSuccess:function(files,data,xhr,pd){
-                  debugger;
+                onSuccess:function(files,data,xhr,pd,sel_rev_id){
+                    $('.ajax-file-upload-statusbar').hide();
+                    self.get_data_url = 'api/get_review_details/?review_id='+data.result;
+
+                 $http.get(self.get_data_url).then(function(result){
+
+                    self.all_review_data = result.data.result.rev_files;
+                 });
                 }
              });
 
@@ -65,6 +72,8 @@
 
                     self.rev_text = result.data.result.name;
                     self.rev_time = result.data.result.time;
+                    self.rev_date = result.data.result.date;
+                    self.rev_day = result.data.result.day;
                     self.rev_tl = result.data.result.tl;
                     self.rev_agenda = result.data.result.agenda;
                     self.all_review_data = result.data.result.rev_files;
@@ -94,10 +103,17 @@
 
              self.remove_file = function(file_id) {
 
-                 self.remove_file_url = 'api/remove_attachment/?file_id='+file_id;
+                 self.remove_file_url = 'api/remove_attachment/?file_id='+file_id+'&term_type=attachment';
 
                  $http.get(self.remove_file_url).then(function(result){
-                     
+                    
+                    self.get_data_url = 'api/get_review_details/?review_id='+result.data.result;
+
+                 $http.get(self.get_data_url).then(function(result){
+
+                    self.all_review_data = result.data.result.rev_files;
+                 });
+
                  });
 
              }
@@ -116,8 +132,12 @@
 
                  var date_dd = input.split('_')[0];
                  var day = input.split('_')[2];
+                 var month = input.split('_')[1];
 
-                 if (day_data) {
+                 if (day_data == 'had') {
+                    date_dd = month;
+                 }
+                 if (day_data == true) {
                     date_dd = day.slice(0,3) 
                  }
                return date_dd
@@ -129,7 +149,6 @@
 
                  var file_name = input.split('#')[0];
                  var fileid = input.split('#')[1];
-
                  if (file_id) {
                      file_name = fileid
                  }
