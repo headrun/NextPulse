@@ -30,6 +30,12 @@ urlpatterns = [
     url(r'^pareto_cate_error', apiviews.pareto_cate_error),
     url(r'^agent_cate_error', apiviews.agent_cate_error),
     url(r'^main_prod', apiviews.main_prod),
+    url(r'^error_bar_graph',apiviews.error_bar_graph),
+    url(r'^pre_scan_exce',apiviews.pre_scan_exce),
+    url(r'^nw_exce', apiviews.nw_exce),
+    url(r'^overall_exce', apiviews.overall_exce),
+    url(r'^upload_acc', apiviews.upload_acc),
+    url(r'^err_field_graph',apiviews.err_field_graph),
     url(r'^get_packet_details', apiviews.get_packet_details),
     #url()
 
