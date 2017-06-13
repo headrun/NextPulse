@@ -7766,6 +7766,11 @@ def dropdown_data_types(request):
     return HttpResponse(result)
 
 
+
+
+#============================= Codes for REVIEW ========================================
+
+
 def get_top_reviews(request):
     """ get list of reviews """
     project = request.GET.get('project', 1)
@@ -7773,11 +7778,10 @@ def get_top_reviews(request):
     search_term = request.GET.get('search', "")
 
     try:
-
         if search_term:
-            rev_objs = Review.objects.filter(review_name__contains = search_term, project__id = project).order_by('-review_date')
+            rev_objs = Review.objects.filter(review_name__contains = search_term, project__id = project).order_by('review_date')
         else:
-            rev_objs = Review.objects.filter(project__id = project, review_date__gte=datetime.datetime.now()).order_by('-review_date')
+            rev_objs = Review.objects.filter(project__id = project, review_date__gte=datetime.datetime.now()).order_by('review_date')
             #rev_objs = Review.objects.filter(project__id = project).order_by('-review_date')
         all_result = OrderedDict()
         result = {'all_data' :[]}
@@ -7801,7 +7805,7 @@ def get_top_reviews(request):
             data['id'] = item.id
 
             week_day = calendar.day_name[review_date.weekday()]
-            key = date + "_" +week_day + "_"
+            key = date + "_" + week_day
 
             if key  not in all_result:
 
@@ -7874,23 +7878,20 @@ def get_review_details(request):
             data['name'] = item.review_name
             data['agenda'] = item.review_agenda
             review_date = item.review_date
-            """
-            import pdb;pdb.set_trace()
-            _df_time = review_date - timezone.now()
+
+            #import pdb;pdb.set_trace()
+            _df_time = review_date.date() -  timezone.now().date()
             _df_time = _df_time.days
-            if _df_time <1:
-                data[remained] = "Today"
+            if _df_time < 1:
+                data['remained'] = "Today"
             elif _df_time < 2:
-                data[remained] = "Tomorrow"
+                data['remained'] = "Tomorrow"
             elif _df_time < 8:
-                data[remained] = "This Week"
+                data['remained'] = "This Week"
             elif _df_time < 32:
-                data[remained] = "This Month"
+                data['remained'] = "This Month"
             else:
-                data[remained] = ""
-
-            """
-
+                data['remained'] = ""
 
             data['day'] = review_date.strftime("%A")
             data['date'] = review_date.strftime("%d %b, %Y")
@@ -7960,7 +7961,7 @@ def upload_review_doc(request):
         for item in attach_files:
             #item.name = "%s_%s_%s" %(item.name, review_name, review_date)
             name = item.name.split(".")
-            item.name = "%s_%s_%s.%s" %(name[0], r_obj.review_name.lower().replace(" ", "_"), str(datetime.datetime.now().date()), name[-1])
+            item.name = "%s_%s_%s.%s" %(name[0], r_obj.review_name.lower().replace(" ", "_"), str(r_obj.review_date.date()), name[-1])
             rev_fil_objs = ReviewFiles.objects.filter(file_name = item.name, review = r_obj)
             if rev_fil_objs:
                 rfo = rev_fil_objs[0]
@@ -8009,13 +8010,28 @@ def get_related_user(request):
     return HttpResponse(result_data)
 
 
-def saving_members(review_id, users):
+def saving_members(request):
     """ saving members to DB """
     review_id = request.POST.get(review_id, "")
-
     users = request.POST.get(uids, "")
+
     if not review_id or not users:
         return HttpResponse("Improper Data")
+
+    rev_objs = Review.objects.filter(id = review_id)
+
+    if not rev_objs:
+        return HttpResponse("Wrong Review ID")
+
+    item = rev_objs[0]
+    data = {}
+    data['name'] = item.review_name
+    data['agenda'] = item.review_agenda
+    review_date = item.review_date
+    data['day'] = review_date.strftime("%A")
+    data['date'] = review_date.strftime("%d %b, %Y")
+    data['time'] = review_date.strftime("%I:%M %p")
+    data['tl']   = item.team_lead.name.first_name+ " " + item.team_lead.name.last_name
 
     for uid in users:
         try:
@@ -8028,7 +8044,7 @@ def saving_members(review_id, users):
 
 
 
-
+#====================================== REVIEW code ends here ======================================
 
 
 
