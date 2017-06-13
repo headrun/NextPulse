@@ -128,7 +128,7 @@ def project(request):
         #manager_prj =  request.GET.get('name','')
         #manager_prj = manager_prj.strip(' -')
         multi_center, multi_project = request.GET.get('name').split(' - ')
-    except: 
+    except:
         #manager_prj = ''
         multi_center, multi_project = '',''
     user_group = request.user.groups.values_list('name', flat=True)[0]
@@ -137,19 +137,19 @@ def project(request):
     list_wid = []
     layout_list = []
     final_dict = {}
-    
+
     if 'team_lead' in user_group:
         center = TeamLead.objects.filter(name_id=request.user.id).values_list('center')
         prj_id = TeamLead.objects.filter(name_id=request.user.id).values_list('project')
 
     if 'customer' in user_group:
-        select_list = [] 
-        details = {} 
+        select_list = []
+        details = {}
         center_list = Customer.objects.filter(name_id=request.user.id).values_list('center')
         project_list = Customer.objects.filter(name_id=request.user.id).values_list('project')
         if (len(center_list) & len(project_list)) == 1:
             select_list.append('none')
-        if len(center_list) < 2: 
+        if len(center_list) < 2:
             center_name = str(Center.objects.filter(id=center_list[0][0])[0])
             for project in project_list:
                 project_name = str(Project.objects.filter(id=project[0])[0])
@@ -160,21 +160,20 @@ def project(request):
                 center_name = str(Center.objects.filter(id=center[0])[0])
                 for project in project_list:
                     project_name = str(Project.objects.filter(id=project[0])[0])
-                    select_list.append(center_name + ' - ' + project_name) 
+                    select_list.append(center_name + ' - ' + project_name)
         details['list'] = select_list
-    
-        if len(select_list) > 1: 
+
+        if len(select_list) > 1:
               if multi_project:
                  prj_id = Project.objects.filter(name=multi_project).values_list('id','center_id')
               else:
                  prj_name = select_list[1].split(' - ')[1]
-                 prj_id = Project.objects.filter(name=prj_name).values_list('id','center_id') 
+                 prj_id = Project.objects.filter(name=prj_name).values_list('id','center_id')
 
     if 'nextwealth_manager' in user_group:
-        select_list = []  
-        #layout_list = []
+        select_list = []
         center_list = Nextwealthmanager.objects.filter(name_id=request.user.id).values_list('center')
-        if len(center_list) < 2: 
+        if len(center_list) < 2:
             center_name = str(Center.objects.filter(id=center_list[0][0])[0])
             center_id = Center.objects.filter(name = center_name)[0].id
             project_list = Project.objects.filter(center_id=center_id)
@@ -190,7 +189,7 @@ def project(request):
                 project_list = Project.objects.filter(center_id=center_id)
                 for project in project_list:
                     project_name = str(project)
-                    select_list.append(project_name)    
+                    select_list.append(project_name)
 
         if len(select_list) > 1:
             if multi_project:
@@ -219,22 +218,19 @@ def project(request):
                 for project in project_list:
                     project_name = str(project)
                     select_list.append(project_name)
-          
         if len(select_list) > 1:
             if multi_project:
                 prj_id = Project.objects.filter(name=multi_project).values_list('id','center_id')
             else:
                 prj_name = select_list[1]
-                prj_id = Project.objects.filter(name=prj_name).values_list('id','center_id')    
+                prj_id = Project.objects.filter(name=prj_name).values_list('id','center_id')
 
         else:
             if multi_project:
                 prj_id = Project.objects.filter(name=multi_project).values_list('id','center_id')
             else:
                 prj_name = select_list[0]
-                prj_id = Project.objects.filter(name=prj_name).values_list('id','center_id') 
-
-    
+                prj_id = Project.objects.filter(name=prj_name).values_list('id','center_id')
 
     if user_group in ['nextwealth_manager','center_manager','customer']:
         widgets_id = Widgets_group.objects.filter(User_Group_id=user_group_id, project=prj_id[0][0],center=prj_id[0][1]).values('widget_priority', 'is_drilldown','is_display', 'widget_name','col')
@@ -253,13 +249,13 @@ def project(request):
                 if alias_name[0]['alias_widget_name']:
                     #new_dict['name'] = str(alias_name[0]['alias_widget_name'])
                     for wd_key,wd_value in widgets_data[0].iteritems():
-                        if wd_key == 'name': 
+                        if wd_key == 'name':
                             new_dict[wd_key] = str(alias_name[0]['alias_widget_name'])
                         else:
-                            new_dict[wd_key] = wd_value 
+                            new_dict[wd_key] = wd_value
                     widgets_data[0].update(new_dict)
                     #widgets_data[0]['name'] = str(alias_name[0]['alias_widget_name'])
-            if new_dict: 
+            if new_dict:
                 wid_dict = new_dict
             else:
                 wid_dict = widgets_data[0]
@@ -268,15 +264,13 @@ def project(request):
             wid_dict['col'] = data['col']
             list_wid.append(wid_dict)
     sorted_dict = sorted(list_wid, key=lambda k: k['widget_priority'])
-    lay_out_order = [] 
+    lay_out_order = []
     for i in sorted_dict:
         config_name = i.pop('config_name')
         lay_out_order.append(config_name)
         final_dict[config_name] = i
     layout_list.append(final_dict)
-    layout_list.append({'layout': lay_out_order}) 
-
-
+    layout_list.append({'layout': lay_out_order})
 
     if 'team_lead' in user_group:
         final_details = {}
@@ -326,7 +320,7 @@ def project(request):
         details['role'] = 'center_manager'
         details['lay'] = layout_list
         details['final'] = final_details
-        if len(project_names) > 1: 
+        if len(project_names) > 1:
             if multi_project:
                 prj_id = Project.objects.filter(name=multi_project).values_list('id',flat=True)
             else:
@@ -426,7 +420,7 @@ def project(request):
         details['lay'] = layout_list
         details['final'] = final_details
         project_names = project_list
-        if len(project_names) > 1: 
+        if len(project_names) > 1:
             if multi_project:
                 prj_id = Project.objects.filter(name=multi_project).values_list('id',flat=True)
             else:
@@ -2457,8 +2451,8 @@ def user_data(request):
 
 
 def Packet_Alias_Names(prj_id,center_obj,widget_config_name):
-    new_pkt_names = {} 
-    productivity_series_list = [] 
+    new_pkt_names = {}
+    productivity_series_list = []
     widget_id = Widgets.objects.filter(config_name=widget_config_name).values_list('id',flat=True)
     alias_packet_names = []
     if len(widget_id)>0:
@@ -2470,10 +2464,8 @@ def Packet_Alias_Names(prj_id,center_obj,widget_config_name):
         new_pkt_names[packet_name['existed_name']] = packet_name['alias_name']
     return new_pkt_names
 
-
 def graph_data_alignment_color(volumes_data,name_key,level_structure_key,prj_id,center_obj,widget_config_name=''):
-    
-    packet_color_query = query_set_generation(prj_id[0],center_obj[0],level_structure_key,[]) 
+    packet_color_query = query_set_generation(prj_id[0],center_obj[0],level_structure_key,[])
     color_query_set = Color_Mapping.objects.filter(**packet_color_query)
     if level_structure_key.has_key('sub_project'):
         if level_structure_key['sub_project'] == "All":
@@ -2502,10 +2494,10 @@ def graph_data_alignment_color(volumes_data,name_key,level_structure_key,prj_id,
         #colors_list = Color_Mapping.objects.filter(**packet_color_query).values('sub_project','work_packet','sub_packet','color_code').distinct()
         colors_list = color_query_set.values('sub_project','work_packet','sub_packet','color_code').distinct()
     else:
-        colors_list = [] 
-    color_mapping = {} 
+        colors_list = []
+    color_mapping = {}
     for local_wp_color in colors_list :
-        wp_color = {} 
+        wp_color = {}
         for wp_key,wp_value in local_wp_color.iteritems():
             if wp_value != '':
                 wp_color[wp_key] = wp_value
@@ -2717,7 +2709,7 @@ def production_avg_perday(date_list,prj_cen_val,work_packets,level_structure_key
 
         count = 0
         for date_va in date_list:
-            for vol_type in volume_list:    
+            for vol_type in volume_list:
                 final_work_packet = level_hierarchy_key(level_structure_key, vol_type)
                 if not final_work_packet:
                     final_work_packet = level_hierarchy_key(volume_list[count], vol_type)
@@ -3561,7 +3553,7 @@ def internal_extrnal_graphs_same_formula(request,date_list,prj_id,center_obj,lev
                     percentage = 100 - float('%.2f' % round(percentage, 2))
                     error_accuracy[key] = [percentage]
                 except:
-                    error_accuracy[key] = [percentage]
+                    error_accuracy[key] = [0]
             else:
                 percentage = 0
                 error_accuracy[key] = [percentage]
@@ -4579,7 +4571,6 @@ def day_week_month(request, dwm_dict, prj_id, center, work_packets, level_struct
         result_dict['volume_graphs']['line_data'] = graph_data_alignment_color(volume_graph['line_data'],'data', level_structure_key,prj_id,center,'volume_productivity_graph')
 
         monthly_volume_graph_details = Monthly_Volume_graph(dwm_dict['day'], prj_cen_val, level_structure_key)
-        #import pdb;pdb.set_trace()
         result_dict['monthly_volume_graph_details'] = graph_data_alignment_color(monthly_volume_graph_details,'data', level_structure_key,prj_id, center,'monthly_volume')
 
         result_dict['tat_graph_details'] = graph_data_alignment_color(tat_graph_details, 'data', level_structure_key, prj_id,center,'TAT Graph')
@@ -5206,7 +5197,6 @@ def day_week_month(request, dwm_dict, prj_id, center, work_packets, level_struct
                 #internal_accuracy_timeline[month_name] = internal_accuracy_packets
                 internal_accuracy_timeline[internal_week_name] = internal_accuracy_packets
                 internal_week_num = internal_week_num + 1
-
             if len(error_graphs_data['external_time_line']) > 0:
                 external_week_name = str('week' + str(external_week_num))
                 external_accuracy_timeline[external_week_name] = error_graphs_data['external_time_line']['external_time_line']
@@ -5229,7 +5219,6 @@ def day_week_month(request, dwm_dict, prj_id, center, work_packets, level_struct
                 #external_accuracy_timeline[month_name] = external_accuracy_packets
                 external_accuracy_timeline[external_week_name] = external_accuracy_packets
                 external_week_num = external_week_num + 1
-
 
             if error_graphs_data.has_key('extr_err_accuracy'):
                 for vol_key, vol_values in error_graphs_data['extr_err_accuracy']['packets_percntage'].iteritems():
@@ -5377,7 +5366,6 @@ def day_week_month(request, dwm_dict, prj_id, center, work_packets, level_struct
         result_dict['volume_graphs'] = {}
         result_dict['volume_graphs']['bar_data'] = graph_data_alignment_color(final_vol_graph_bar_data,'data', level_structure_key,prj_id,center,'volume_bar_graph')
         result_dict['volume_graphs']['line_data'] = graph_data_alignment_color(final_vol_graph_line_data,'data', level_structure_key,prj_id,center,'volume_productivity_graph')
-
         final_internal_accuracy_timeline = errors_week_calcuations(week_names, internal_accuracy_timeline,final_internal_accuracy_timeline)
         final_external_accuracy_timeline = errors_week_calcuations(week_names, external_accuracy_timeline,final_external_accuracy_timeline)
         #final_main_productivity_timeline = errors_week_calcuations(week_names, main_productivity_timeline, {})
@@ -6238,6 +6226,14 @@ def from_to(request):
         for perc_key,perc_value in error_graphs_data['intr_err_accuracy']['packets_percntage'].iteritems():
             final_intrn_accuracy[perc_key] = perc_value[0]
         final_dict['internal_accuracy_graph'] = graph_data_alignment_color(final_intrn_accuracy, 'y', level_structure_key, prj_id, center,'intenal_error_accuracy')
+    int_value_range = error_graphs_data['internal_accuracy_graph']
+    int_min_max = min_max_value_data(int_value_range)
+    final_dict['int_min_value'] = int_min_max['min_value']
+    final_dict['int_max_value'] = int_min_max['max_value']
+    int_value_range = error_graphs_data['external_accuracy_graph']
+    int_min_max = min_max_value_data(int_value_range)
+    final_dict['ext_min_value'] = int_min_max['min_value']
+    final_dict['ext_max_value'] = int_min_max['max_value']
 
     final_result_dict.update(final_dict)
     final_result_dict['volumes_graphs_details'] = volumes_graphs_details
@@ -6408,13 +6404,16 @@ def volume_graph_data_week_month(date_list,prj_id,center_obj,level_structure_key
                     closing_bal.append(vol_values)
                 elif volume_key == 'non_workable_count':
                     nwc.append(vol_values)
-        worktrack_volumes= {}
-        worktrack_volumes['Received'] = [sum(i) for i in zip(*received)]
+        #worktrack_volumes= {}
+        worktrack_volumes = OrderedDict()
+        #worktrack_volumes['Received'] = [sum(i) for i in zip(*received)]
         worktrack_volumes['Opening'] = [sum(i) for i in zip(*opening)]
+        worktrack_volumes['Received'] = [sum(i) for i in zip(*received)]
         worktrack_volumes['Non Workable Count'] = [sum(i) for i in zip(*nwc)]
         worktrack_volumes['Completed'] = [sum(i) for i in zip(*completed)]
         worktrack_volumes['Closing balance'] = [sum(i) for i in zip(*closing_bal)]
-        worktrack_timeline = {}
+        #worktrack_timeline = {}
+        worktrack_timeline = OrderedDict()
         worktrack_timeline['Completed'] = worktrack_volumes['Completed']
         worktrack_timeline['Received'] = worktrack_volumes['Received']
         worktrack_timeline['Opening'] = worktrack_volumes['Opening']
@@ -8075,15 +8074,25 @@ def Monthly_Volume_graph(date_list, prj_cen_val, level_structure_key):
                 else:
                     local_level_hierarchy_key = level_structure_key
                 final_work_packet = level_hierarchy_key(local_level_hierarchy_key, vol_type)
-                #import pdb;pdb.set_trace()
                 target_check = Targets.objects.filter(project= prj_cen_val[0][0], center= prj_cen_val[1][0], from_date__lte=date_va,to_date__gte=date_va).values_list('work_packet',flat=True).distinct()
-                if target_check:
+                target_check1 = Targets.objects.filter(project= prj_cen_val[0][0], center= prj_cen_val[1][0], from_date__lte=date_va,to_date__gte=date_va).values_list('sub_project',flat=True).distinct()
+                if (target_check) or (target_check1):
                     if target_check[0]:
                         target_query_set = target_query_generations(prj_cen_val[0][0], prj_cen_val[1][0], date_va, final_work_packet,level_structure_key)
+                    elif target_check1:
+                        if '_' in final_work_packet:
+                            final_work_packet = final_work_packet.split('_')
+                            final_work_packet = final_work_packet[0]
+                        target_query_set = target_query_generations(prj_cen_val[0][0], prj_cen_val[1][0], date_va, final_work_packet,level_structure_key)
+
                 else:
                     target_query_set = target_query_generations(prj_cen_val[0][0], prj_cen_val[1][0], date_va,'',level_structure_key)
 
                 #target_query_set = target_query_generations(prj_cen_val[0][0], prj_cen_val[1][0], str(date_va), final_work_packet,level_structure_key)
+                """if target_check1:
+                    if '_' in final_work_packet:
+                        final_work_packet = final_work_packet.split('_')
+                        final_work_packet = final_work_packet[0]"""
                 targe_master_set = Targets.objects.filter(**target_query_set)
                 rawtable_query_set = rawtable_query_generations(prj_cen_val[0][0], prj_cen_val[1][0], str(date_va), final_work_packet,level_structure_key)
                 employee_names = RawTable.objects.filter(**rawtable_query_set).values_list('employee_id')
@@ -8130,7 +8139,7 @@ def Monthly_Volume_graph(date_list, prj_cen_val, level_structure_key):
                                 #_targets_list[final_work_packet] = [int(targets_list[0])]
                                 _targets_list[final_work_packet] = [int(target_consideration[0])]
                 elif len(target_consideration) > 0 and len(fte_targets_list) == 0:
-                    if target_check[0]:
+                    if (target_check[0]) or (target_check1[0]):
                         if _targets_list.has_key(final_work_packet):
                             _targets_list[final_work_packet].append(int(target_consideration[0]))
                         else:

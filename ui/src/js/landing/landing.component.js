@@ -44,7 +44,7 @@
 
                         self.mapping_list = map_list;
                     }
-                    
+
                     if (self.mapping_list.length == 1) {
 
                         window.location = "#!/page1/"+self.mapping_list[0];

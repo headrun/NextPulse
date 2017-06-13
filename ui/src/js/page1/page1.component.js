@@ -43,19 +43,19 @@
                 day: true,
                 week: false,
                 month: false
-             };   
+             };
 
              $scope.checkResults = [];
 
-             $scope.$watchCollection('checkModel', function () { 
+             $scope.$watchCollection('checkModel', function () {
                 $scope.checkResults = [];
                 angular.forEach($scope.checkModel, function (value, key) {
                     if (value) {
                         $scope.checkResults.push(key);
 
                     }
-                });  
-             }); 
+                });
+             });
 
              self.annotations_data = {};
 
@@ -243,14 +243,14 @@
                                     //$('#1').remove();
                                 }
                             }
-                            
+
                             if (result.result.fin.sub_packet) {
                                     console.log('sub_packet_exist');
                                 }
                             else {
                                     $('#2').hide();
                                     //$('#1').remove();
-                              }                            
+                              }
 
 
                         for (var sub_pro in self.drop_list) {
@@ -394,7 +394,7 @@
                                                 $('.month').addClass('active btn-success');
                                                 $('.month').siblings().removeClass('active btn-success');
                                             }
-                                    self.showLoading();        
+                                    self.showLoading();
                                     self.drop_sub_proj = self.sub_pro_sel.value
                                     self.drop_work_pack = this.value;
                                     self.drop_sub_pack = self.sub_pac_sel.value;
