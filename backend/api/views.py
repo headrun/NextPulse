@@ -7784,7 +7784,14 @@ def get_top_reviews(request):
             rev_objs = Review.objects.filter(project__id = project, review_date__gte=datetime.datetime.now()).order_by('review_date')
             #rev_objs = Review.objects.filter(project__id = project).order_by('-review_date')
         all_result = OrderedDict()
-        result = {'all_data' :[]}
+        user_id = request.user.id
+        tl_objs = TeamLead.objects.filter(name = user_id)
+
+        if tl_objs:
+            is_team_lead = True
+        else:
+            is_team_lead = False
+        #result = {'all_data' :[]}
         color = {}
         """
         if rev_objs.count() > 10:
@@ -7813,9 +7820,10 @@ def get_top_reviews(request):
                 color[key] = colors[i]
                 i += 1
             data['color'] = color[key]
+            data['is_team_lead'] = is_team_lead
             all_result[key].append(data)
 
-            result['all_data'].append(data)
+            #result['all_data'].append(data)
             #i += 1
 
         return HttpResponse(all_result)
