@@ -313,6 +313,7 @@ def worktrack(request):
             final_dict['volume_graphs']['bar_data'] = graph_data_alignment_color(final_vol_graph_bar_data,'data', level_structure_key,prj_id,center,'volume_bar_graph')
             final_dict['volume_graphs']['line_data'] = graph_data_alignment_color(final_vol_graph_line_data,'data', level_structure_key,prj_id,center,'volume_productivity_graph')
             final_dict['date_month'] = data_date
+    final_dict['type'] = main_data_dict['type']            
     return HttpResponse(final_dict)
 
 def alloc_and_compl(request):
@@ -349,6 +350,7 @@ def alloc_and_compl(request):
             final_dict['volume_graphs']['line_data'] = graph_data_alignment_color(vol_graph_line_data,'data', level_structure_key,
                                           main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0],'volume_productivity_graph')
             final_dict['date'] = new_date_list
+            #final_dict['date'] = sing_list
     elif main_data_dict['dwm_dict'].has_key('week') and main_data_dict['type'] == 'week':
         for sing_list in main_dates_list:
             data_date.append(sing_list[0] + ' to ' + sing_list[-1])
@@ -380,6 +382,7 @@ def alloc_and_compl(request):
             final_dict['volume_graphs']['bar_data'] = graph_data_alignment_color(final_vol_graph_bar_data,'data', level_structure_key,prj_id,center,'volume_bar_graph')
             final_dict['volume_graphs']['line_data'] = graph_data_alignment_color(final_vol_graph_line_data,'data', level_structure_key,prj_id,center,'volume_productivity_graph')
             final_dict['date'] = data_date
+    final_dict['type'] = main_data_dict['type']    
     return HttpResponse(final_dict)
 
 def utilisation_all(request):
@@ -511,6 +514,7 @@ def productivity(request):
         final_main_productivity_timeline = prod_volume_week_util(prj_id,month_names, main_productivity_timeline, {},'month')
         final_dict['original_productivity_graph'] = graph_data_alignment_color(final_main_productivity_timeline,'data', level_structure_key, prj_id,center,'productivity_trends')
         final_dict['date'] = data_date
+    final_dict['type'] = main_data_dict['type']
     return HttpResponse(final_dict)
 
 def monthly_volume(request):
@@ -584,6 +588,7 @@ def monthly_volume(request):
         final_dict['monthly_volume_graph_details'] = graph_data_alignment_color(final_montly_vol_data, 'data',level_structure_key, prj_id, center)
         final_dict['monthly_volume_graph_details'] = graph_data_alignment_color(final_montly_vol_data, 'data',level_structure_key, prj_id, center,'monthly_volume')    
         final_dict['date'] = data_date
+    final_dict['type'] = main_data_dict['type']
     return HttpResponse(final_dict)
 
 def fte_graphs(request):
@@ -644,12 +649,13 @@ def fte_graphs(request):
             fte_graph_data = fte_calculation(request, prj_id, center, month_dates, level_structure_key)
             total_fte_list[month_name] = fte_graph_data['total_fte']
             wp_fte_list[month_name] = fte_graph_data['work_packet_fte']
-            final_total_fte_calc = prod_volume_week_util(prj_id,month_names, total_fte_list, {},'month')
-            final_total_wp_fte_calc = prod_volume_week_util(prj_id,month_names, wp_fte_list, {},'month')
-            result_dict['fte_calc_data'] = {}
-            result_dict['fte_calc_data']['total_fte'] = graph_data_alignment_color(final_total_fte_calc, 'data',level_structure_key, prj_id, center,'sum_total_fte')
-            result_dict['fte_calc_data']['work_packet_fte'] = graph_data_alignment_color(final_total_wp_fte_calc, 'data',level_structure_key, prj_id,center,'total_fte')
-            result_dict['date'] = data_date
+        final_total_fte_calc = prod_volume_week_util(prj_id,month_names, total_fte_list, {},'month')
+        final_total_wp_fte_calc = prod_volume_week_util(prj_id,month_names, wp_fte_list, {},'month')
+        result_dict['fte_calc_data'] = {}
+        result_dict['fte_calc_data']['total_fte'] = graph_data_alignment_color(final_total_fte_calc, 'data',level_structure_key, prj_id, center,'sum_total_fte')
+        result_dict['fte_calc_data']['work_packet_fte'] = graph_data_alignment_color(final_total_wp_fte_calc, 'data',level_structure_key, prj_id,center,'total_fte')
+        result_dict['date'] = data_date
+    final_dict['type'] = main_data_dict['type']    
     return HttpResponse(result_dict)
  
 def prod_avg_perday(request):
@@ -687,9 +693,9 @@ def prod_avg_perday(request):
             level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], main_data_dict['sub_packet'],main_data_dict['pro_cen_mapping'])
             production_avg_details = production_avg_perday(sing_list, main_data_dict['pro_cen_mapping'][1][0],main_data_dict['pro_cen_mapping'][0][0], level_structure_key)
             prod_avg_dt[week_name] = production_avg_details
-            final_prod_avg_details = prod_volume_week_util(prj_id,week_names, prod_avg_dt, {},'week')
-            final_dict['production_avg_details'] = graph_data_alignment_color(final_prod_avg_details, 'data',level_structure_key, prj_id, center)
-            final_dict['date'] = data_date
+        final_prod_avg_details = prod_volume_week_util(prj_id,week_names, prod_avg_dt, {},'week')
+        final_dict['production_avg_details'] = graph_data_alignment_color(final_prod_avg_details, 'data',level_structure_key, prj_id, center)
+        final_dict['date'] = data_date
     else:
         for month_na,month_va in zip(main_data_dict['dwm_dict']['month']['month_names'],main_data_dict['dwm_dict']['month']['month_dates']):
             month_name = month_na
@@ -699,9 +705,10 @@ def prod_avg_perday(request):
             level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], main_data_dict['sub_packet'],main_data_dict['pro_cen_mapping'])
             production_avg_details = production_avg_perday(month_dates,prj_id,center,level_structure_key)
             prod_avg_dt[month_name] = production_avg_details
-            final_prod_avg_details = prod_volume_week_util(prj_id,month_names, prod_avg_dt, {},'month')
-            final_dict['production_avg_details'] = graph_data_alignment_color(final_prod_avg_details,'data',level_structure_key, prj_id, center)
-            final_dict['date'] = data_date
+        final_prod_avg_details = prod_volume_week_util(prj_id,month_names, prod_avg_dt, {},'month')
+        final_dict['production_avg_details'] = graph_data_alignment_color(final_prod_avg_details,'data',level_structure_key, prj_id, center)
+        final_dict['date'] = data_date
+    final_dict['type'] = main_data_dict['type']    
     return HttpResponse(final_dict)
 
 def cate_error(request):
@@ -899,6 +906,7 @@ def main_prod(request):
         final_dict['volumes_data'] = {}
         final_dict['volumes_data']['volume_new_data'] = volume_new_data
         final_dict['data']['date'] = data_date
+    final_dict['type'] = main_data_dict['type']    
     return HttpResponse(final_dict)
 
 def erro_data_all(request):
@@ -1060,6 +1068,7 @@ def erro_data_all(request):
         final_dict['max_external_time_line'] = ext_error_timeline_min_max['max_value']
         final_dict['external_time_line'] = graph_data_alignment_color(final_external_accuracy_timeline, 'data',level_structure_key, prj_id, center,'external_accuracy_timeline')
         final_dict['date'] = data_date
+    final_dict['type'] = main_data_dict['type']    
     print main_data_dict['type']
     return HttpResponse(final_dict)
 
@@ -1246,6 +1255,7 @@ def pre_scan_exce(request):
         final_pre_scan_exception_details = prod_volume_prescan_week_util(month_names,pre_scan_exception_dt, {})
         final_dict['pre_scan_exception_data'] = [final_pre_scan_exception_details]
         final_dict['date'] = data_date
+    final_dict['type'] = main_data_dict['type']
     return HttpResponse(final_dict)
     
 def nw_exce(request):
@@ -1299,6 +1309,7 @@ def nw_exce(request):
         final_nw_exception = prod_volume_week_util(prj_id,month_names, nw_exception_dt, {},'month')
         final_dict['nw_exception_details'] = graph_data_alignment_color(final_nw_exception, 'data',level_structure_key, prj_id, center,'')
         final_dict['date'] = data_date
+    final_dict['type'] = main_data_dict['type']    
     return HttpResponse(final_dict)
 
 def overall_exce(request):
@@ -1352,6 +1363,7 @@ def overall_exce(request):
         final_overall_exception = prod_volume_week_util(prj_id,month_names, overall_exception_dt, {},'month')
         final_dict['overall_exception_details'] = graph_data_alignment_color(final_overall_exception, 'data',level_structure_key, prj_id, center,'')
         final_dict['date'] = data_date
+    final_dict['type'] = main_data_dict['type']    
     return HttpResponse(final_dict)
 
 def upload_acc(request):
@@ -1419,6 +1431,7 @@ def upload_acc(request):
         pre_final_data['data'] = final_data['data']
         final_data['data'] = [pre_final_data]
         final_dict['upload_target_data'] = final_data
+    final_dict['type'] = main_data_dict['type']    
     return HttpResponse(final_dict)
 
 def error_insert(request):
@@ -6799,10 +6812,10 @@ def num_of_days(to_date,from_date):
         date_list.append(str(from_date + timedelta(days=i)))
     return date_list
 
-def static_production_data(request):
+"""def static_production_data(request):
     return HttpResponse('cool')
-
-def static_production_dataa(request):
+"""
+def static_production_data(request):
     final_data_dict = {}
     try:
         work_packet = request.GET.get('work_packet')
@@ -6921,7 +6934,8 @@ def static_production_dataa(request):
             if len(sub_pac_level) >= 1:
                 level_structure_key['sub_packet'] = "All"
 
-    final_data = product_total_graph(days_list,pro_cen_val,work_packet,level_structure_key)
+    #final_data = product_total_graph(days_list,pro_cen_val,work_packet,level_structure_key)
+    final_data = product_total_graph(days_list,prj_id,center,level_structure_key)
     del final_data['prod_days_data']
     del final_data['volumes_data']['volume_type']
     del final_data['volumes_data']['volume_new_data']
@@ -6942,7 +6956,8 @@ def static_production_dataa(request):
     for week_key, week_dates in dwm_dict.iteritems():
         for week in week_dates:
             data_date.append(week[0] + ' to ' + week[-1])
-            result = product_total_graph(week, pro_cen_val, work_packet, level_structure_key)
+            #result = product_total_graph(week, pro_cen_val, work_packet, level_structure_key)
+            result = product_total_graph(week, prj_id,center,level_structure_key)
             if len(result['prod_days_data']) > 0:
                 week_name = str('week' + str(week_num))
                 week_names.append(week_name)
@@ -7006,7 +7021,8 @@ def static_production_dataa(request):
         month_name = month_na
         month_dates = month_va
         data_date.append(month_dates[0] + ' to ' + month_dates[-1])
-        result = product_total_graph(month_dates, pro_cen_val, work_packet, level_structure_key)
+        #result = product_total_graph(month_dates, pro_cen_val, work_packet, level_structure_key)
+        result = product_total_graph(month_dates, prj_id, center,level_structure_key)
         if len(result['prod_days_data']) > 0:
             production_list[month_name] = result['volumes_data']['volume_values']
             month_names.append(month_name)

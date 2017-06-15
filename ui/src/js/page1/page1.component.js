@@ -79,6 +79,7 @@
                 var callback = [];
                 self.start = start.format('YYYY-MM-DD');
                 self.end = end.format('YYYY-MM-DD');
+                $('.input-sm').prop('selectedIndex',0);
                 callback.push.apply(callback, [self.start, self.end, self.center_live, self.project_live])
 
                     if ((self.day_type === 'week') || (self.sel_type === 'week')){
@@ -100,7 +101,8 @@
                         $('.day').addClass('active btn-success');
                         $('.day').siblings().removeClass('active btn-success');
                     }
-
+                
+                
                 self.main_widget_function(callback, '');
                });
 
@@ -155,9 +157,11 @@
                     callback[1] = dateEntered.split('to')[1].replace(' ',''); */
 
                     self.data_to_show = '?&project='+callback[3]+'&center='+callback[2]+'&from='+ callback[0]+'&to='+ callback[1]+packet+'&type=';
+                
+                    self.static_widget_data = '&project='+callback[3]+'&center='+callback[2]
                     self.common_for_all = self.data_to_show + self.day_type;
 
-                    var date_values = callback[0] + 'to' + callback[1];
+                    //var date_values = callback[0] + 'to' + callback[1];
                     //var allo_and_comp = '/api/alloc_and_compl/'+self.common_for_all;
                     //var utill_all = '/api/utilisation_all/'+self.common_for_all;
                     //var erro_all = '/api/erro_data_all/'+self.common_for_all;
@@ -174,7 +178,8 @@
                     //var pre_scan = '/api/pre_scan_exce/'+self.common_for_all;
                     var nw_exce = '/api/nw_exce/'+self.common_for_all;
                     var overall_exce = '/api/overall_exce'+self.common_for_all;
-                    self.allo_and_comp = function(final_work, type) {
+                    //var static_ajax = static_data + self.static_widget_data;
+                    self.allo_and_comp = function(final_work, type, name) {
 
                         if (type == undefined) {
                             type = 'day'
@@ -184,41 +189,74 @@
                             final_work = ''
                         }
 
-                        /*if (date_values == undefined) {
-                            date_values = ''
-                        }*/
+                        if (name == undefined) {
+                            name = ''
+                        }
 
                         self.type = type;
-
-
+                        
                         var allo_and_comp = '/api/alloc_and_compl/'+self.data_to_show + type + final_work;
 
                         $http({method:"GET", url: allo_and_comp}).success(function(result){
-                           
+                            
+                            if (type == 'day' && final_work == '') {
+                                if (result.result.type == 'day') {
+                                    $('.day2').addClass('active btn-success');
+                                    $('.day2').siblings().removeClass('active btn-success');
+                                    $('.day').addClass('active btn-success');
+                                    $('.day').siblings().removeClass('active btn-success');
+                                }
+                               
+                                if (result.result.type == 'week') {
+                                    $('.week2').addClass('active btn-success');
+                                    $('.week2').siblings().removeClass('active btn-success');
+                                    $('.week').addClass('active btn-success');
+                                    $('.week').siblings().removeClass('active btn-success');
+                                }
+
+                                if (result.result.type == 'month') {
+                                    $('.month2').addClass('active btn-success');
+                                    $('.month2').siblings().removeClass('active btn-success');
+                                    $('.month').addClass('active btn-success');
+                                    $('.month').siblings().removeClass('active btn-success');
+                                }
+                            }
                             var date_list = result.result.date;
                             var data_list_bar = result.result.volume_graphs.bar_data;
                             var data_list_line = result.result.volume_graphs.line_data;
-                                                           
-                            self.hideLoading();
-                            angular.extend(self.chartOptions17, {
-                                xAxis: {
-                                    categories: date_list,
-                                },
-                                series: data_list_bar
-                            });
 
-                            angular.extend(self.chartOptions18, {
-                                xAxis: {
-                                    categories: date_list,
-                                },
-                                series: data_list_line
-                            });
+                            //self.hideLoading();
+                            if ((name == "self.chartOptions17") || (name == "")) {
+                                angular.extend(self.chartOptions17, {
+                                    xAxis: {
+                                        categories: date_list,
+                                    },
+                                    series: data_list_bar
+                                });
+                                /*setTimeout(function(){
+                                    $('.widget-13a').removeClass('widget-loader-show');
+                                    $('.widget-13b').removeClass('widget-data-hide');
+                                    }, 5000)*/
+                                    $('.widget-13a').removeClass('widget-loader-show');
+                                    $('.widget-13b').removeClass('widget-data-hide');
+                            }
+
+                            if ((name == "self.chartOptions18") || (name == "")) {
+                                angular.extend(self.chartOptions18, {
+                                    xAxis: {
+                                        categories: date_list,
+                                    },
+                                    series: data_list_line
+                                });
+                                $('.widget-17a').removeClass('widget-loader-show');
+                                $('.widget-17b').removeClass('widget-data-hide');
+                           }
                         })
                     }
 
-                    self.allo_and_comp(undefined, undefined);
+                    self.allo_and_comp(undefined, undefined, undefined);
 
-                    self.utill_all = function(final_work, type) {
+                    self.utill_all = function(final_work, type,name) {
                         if (type == undefined) {
                             type = 'day'
                         }
@@ -227,6 +265,9 @@
                             final_work = ''
                         }
 
+                        if (name == undefined) {
+                            name = ''
+                        }
                         /*if (date_values == undefined) {
                             date_values = ''
                         }*/
@@ -236,36 +277,72 @@
 
                         $http({method:"GET", url: utill_all}).success(function(result){
 
+                            if (result.result.type == 'day') {
+                                $('.day2').addClass('active btn-success');
+                                $('.day2').siblings().removeClass('active btn-success');
+                                $('.day').addClass('active btn-success');
+                                $('.day').siblings().removeClass('active btn-success');
+                            }
+                           
+                            if (result.result.type == 'week') {
+                                $('.week2').addClass('active btn-success');
+                                $('.week2').siblings().removeClass('active btn-success');
+                                $('.week').addClass('active btn-success');
+                                $('.week').siblings().removeClass('active btn-success');
+                            }
+
+                            if (result.result.type == 'month') {
+                                $('.month2').addClass('active btn-success');
+                                $('.month2').siblings().removeClass('active btn-success');
+                                $('.month').addClass('active btn-success');
+                                $('.month').siblings().removeClass('active btn-success');
+                            }
+
                             var date_list  = result.result.date;
                             var utili_opera_data = result.result.utilization_operational_details;
                             var utili_fte_data = result.result.utilization_fte_details;
                             var overall_utili_data = result.result.original_utilization_graph;
 
-                            angular.extend(self.chartOptions25, {
-                                xAxis: {
-                                    categories: date_list,
-                                },
-                                series: utili_opera_data
-                            });
+                            if ((name == "self.chartOptions25") || (name == "")) {
 
-                            angular.extend(self.chartOptions24, {
-                                xAxis: {
-                                    categories: date_list,
-                                },
-                                series: utili_fte_data
-                            });
+                                angular.extend(self.chartOptions25, {
+                                    xAxis: {
+                                        categories: date_list,
+                                    },
+                                    series: utili_opera_data
+                                });
+                            
+                                $('.widget-20a').removeClass('widget-loader-show');
+                                $('.widget-20b').removeClass('widget-data-hide');
+                            }
+                            
+                            if ((name == "self.chartOptions24") || (name == "")) {
 
-                            angular.extend(self.chartOptions15, {
-                                xAxis: {
-                                    categories: date_list,
-                                },
-                                series: overall_utili_data
-                            });
+                                angular.extend(self.chartOptions24, {
+                                    xAxis: {
+                                        categories: date_list,
+                                    },
+                                    series: utili_fte_data
+                                });
+                                $('.widget-19a').removeClass('widget-loader-show');
+                                $('.widget-19b').removeClass('widget-data-hide');
+                            }
 
+                            if ((name == "self.chartOptions15") || (name == "")) {
+
+                                angular.extend(self.chartOptions15, {
+                                    xAxis: {
+                                        categories: date_list,
+                                    },
+                                    series: overall_utili_data
+                                });
+                               $('.widget-9a').removeClass('widget-loader-show');
+                               $('.widget-9b').removeClass('widget-data-hide');
+                            }
                         })
                     }
                     
-                    self.utill_all(undefined, undefined);
+                    self.utill_all(undefined, undefined, undefined);
 
                     self.productivity = function(final_work, type) {
 
@@ -283,6 +360,27 @@
 
                         $http({method:"GET", url: productivity}).success(function(result){
 
+                            /*if (result.result.type == 'day') {
+                                $('.day2').addClass('active btn-success');
+                                $('.day2').siblings().removeClass('active btn-success');
+                                $('.day').addClass('active btn-success');
+                                $('.day').siblings().removeClass('active btn-success');
+                            }
+                           
+                            if (result.result.type == 'week') {
+                                $('.week2').addClass('active btn-success');
+                                $('.week2').siblings().removeClass('active btn-success');
+                                $('.week').addClass('active btn-success');
+                                $('.week').siblings().removeClass('active btn-success');
+                            }
+
+                            if (result.result.type == 'month') {
+                                $('.month2').addClass('active btn-success');
+                                $('.month2').siblings().removeClass('active btn-success');
+                                $('.month').addClass('active btn-success');
+                                $('.month').siblings().removeClass('active btn-success');
+                            }*/
+
                             var date_list = result.result.date;
                             var productivity = result.result.original_productivity_graph;
 
@@ -292,6 +390,8 @@
                                 },
                                 series: productivity
                             });
+                            $('.widget-14a').removeClass('widget-loader-show');
+                            $('.widget-14b').removeClass('widget-data-hide');
                         })
                     }
                     self.productivity(undefined, undefined);
@@ -312,6 +412,27 @@
 
                         $http({method:"GET", url: prod_avg}).success(function(result){
 
+                            /*if (result.result.type == 'day') {
+                                $('.day2').addClass('active btn-success');
+                                $('.day2').siblings().removeClass('active btn-success');
+                                $('.day').addClass('active btn-success');
+                                $('.day').siblings().removeClass('active btn-success');
+                            }
+                           
+                            if (result.result.type == 'week') {
+                                $('.week2').addClass('active btn-success');
+                                $('.week2').siblings().removeClass('active btn-success');
+                                $('.week').addClass('active btn-success');
+                                $('.week').siblings().removeClass('active btn-success');
+                            }
+
+                            if (result.result.type == 'month') {
+                                $('.month2').addClass('active btn-success');
+                                $('.month2').siblings().removeClass('active btn-success');
+                                $('.month').addClass('active btn-success');
+                                $('.month').siblings().removeClass('active btn-success');
+                            }*/
+
                            var date_list = result.result.date;
                            var prod_avg_data = result.result.production_avg_details
                             
@@ -321,6 +442,8 @@
                                 },
                                 series: prod_avg_data
                             });
+                            $('.widget-33a').removeClass('widget-loader-show');
+                            $('.widget-33b').removeClass('widget-data-hide');
                        }) 
                     }
                     self.prod_avg(undefined, undefined)
@@ -341,6 +464,27 @@
 
                         $http({method:"GET", url: mont_volume}).success(function(result){
 
+                            /*if (result.result.type == 'day') {
+                                $('.day2').addClass('active btn-success');
+                                $('.day2').siblings().removeClass('active btn-success');
+                                $('.day').addClass('active btn-success');
+                                $('.day').siblings().removeClass('active btn-success');
+                            }
+                           
+                            if (result.result.type == 'week') {
+                                $('.week2').addClass('active btn-success');
+                                $('.week2').siblings().removeClass('active btn-success');
+                                $('.week').addClass('active btn-success');
+                                $('.week').siblings().removeClass('active btn-success');
+                            }
+
+                            if (result.result.type == 'month') {
+                                $('.month2').addClass('active btn-success');
+                                $('.month2').siblings().removeClass('active btn-success');
+                                $('.month').addClass('active btn-success');
+                                $('.month').siblings().removeClass('active btn-success');
+                            }*/
+
                             var date_list  = result.result.date;
                             var monthly_volume = result.result.monthly_volume_graph_details
                             
@@ -350,12 +494,13 @@
                                 },
                                 series: monthly_volume
                             });
-
+                            $('.widget-21a').removeClass('widget-loader-show');
+                            $('.widget-21b').removeClass('widget-data-hide');
                         })
                     }
                     self.mont_volume(undefined, undefined)
 
-                    self.fte_graphs = function(final_work, type) {
+                    self.fte_graphs = function(final_work, type, name) {
 
                         if (type == undefined) {
                             type = 'day'
@@ -363,6 +508,10 @@
 
                         if (final_work == undefined) {
                             final_work = ''
+                        }
+
+                        if (name == undefined) {
+                            name = ''
                         }
 
                         self.type = type;
@@ -370,29 +519,61 @@
                         var fte_graphs = '/api/fte_graphs/'+self.data_to_show + type + final_work;
 
                         $http({method:"GET", url: fte_graphs}).success(function(result){
+    
+                            if (type == 'day' && final_work == '') {
+                                if (result.result.type == 'day') {
+                                    $('.day2').addClass('active btn-success');
+                                    $('.day2').siblings().removeClass('active btn-success');
+                                    $('.day').addClass('active btn-success');
+                                    $('.day').siblings().removeClass('active btn-success');
+                                }
+                               
+                                if (result.result.type == 'week') {
+                                    $('.week2').addClass('active btn-success');
+                                    $('.week2').siblings().removeClass('active btn-success');
+                                    $('.week').addClass('active btn-success');
+                                    $('.week').siblings().removeClass('active btn-success');
+                                }
 
-                                var date_list = result.result.date;
-                                var work_packet_fte = result.result.fte_calc_data.work_packet_fte;
-                                var total_fte = result.result.fte_calc_data.total_fte;
+                                if (result.result.type == 'month') {
+                                    $('.month2').addClass('active btn-success');
+                                    $('.month2').siblings().removeClass('active btn-success');
+                                    $('.month').addClass('active btn-success');
+                                    $('.month').siblings().removeClass('active btn-success');
+                                }
+                            }
+                            var date_list = result.result.date;
+                            var work_packet_fte = result.result.fte_calc_data.work_packet_fte;
+                            var total_fte = result.result.fte_calc_data.total_fte;
                             
-                            angular.extend(self.chartOptions16, {
-                                xAxis: {
-                                    categories: date_list,
-                                },
-                                series: work_packet_fte
-                            });
+                            if ((name == "self.chartOptions16") || (name == "")) {
 
-                            angular.extend(self.chartOptions16_2, {
-                                xAxis: {
-                                    categories: date_list,
-                                },
-                                series: total_fte
-                            });
+                                angular.extend(self.chartOptions16, {
+                                    xAxis: {
+                                        categories: date_list,
+                                    },
+                                    series: work_packet_fte
+                                });
+                                $('.widget-11a').removeClass('widget-loader-show');
+                                $('.widget-11b').removeClass('widget-data-hide');
+                            }
+
+                            if ((name == "self.chartOptions16_2") || (name == "")) {
+
+                                angular.extend(self.chartOptions16_2, {
+                                    xAxis: {
+                                        categories: date_list,
+                                    },
+                                    series: total_fte
+                                });
+                                $('.widget-12a').removeClass('widget-loader-show');
+                                $('.widget-12b').removeClass('widget-data-hide');
+                          }
                        })
                     }
-                    self.fte_graphs(undefined, undefined)
+                    self.fte_graphs(undefined, undefined, undefined)
 
-                    self.main_prod = function(final_work, type) {
+                    self.main_prod = function(final_work, type, name) {
 
                         if (type == undefined) {
                             type = 'day'
@@ -402,31 +583,66 @@
                             final_work = ''
                         }
 
+                        if (name == undefined) {
+                            name = ''
+                        }
+
                         self.type = type;
 
                         var main_prod = '/api/main_prod/'+self.data_to_show + type + final_work;
 
                         $http({method:"GET", url: main_prod}).success(function(result){
+            
+                            if (type == 'day' && final_work == '') {
+                                if (result.result.type == 'day') {
+                                    $('.day2').addClass('active btn-success');
+                                    $('.day2').siblings().removeClass('active btn-success');
+                                    $('.day').addClass('active btn-success');
+                                    $('.day').siblings().removeClass('active btn-success');
+                                }
+                               
+                                if (result.result.type == 'week') {
+                                    $('.week2').addClass('active btn-success');
+                                    $('.week2').siblings().removeClass('active btn-success');
+                                    $('.week').addClass('active btn-success');
+                                    $('.week').siblings().removeClass('active btn-success');
+                                }
 
+                                if (result.result.type == 'month') {
+                                    $('.month2').addClass('active btn-success');
+                                    $('.month2').siblings().removeClass('active btn-success');
+                                    $('.month').addClass('active btn-success');
+                                    $('.month').siblings().removeClass('active btn-success');
+                                }
+                            }
                             var date_list = result.result.data.date;
                             var main_prod_data = result.result.productivity_data;
                             
-                            angular.extend(self.chartOptions10, {
-                               xAxis: {
-                                    categories: date_list,
-                                },
-                                series: main_prod_data
-                            });
+                            if ((name == "self.chartOptions10") || (name == "")) {
 
-                            angular.extend(self.chartOptions, {
-                               xAxis: {
-                                    categories: date_list,
-                                },
-                                series: main_prod_data
-                            });     
+                                angular.extend(self.chartOptions10, {
+                                   xAxis: {
+                                        categories: date_list,
+                                    },
+                                    series: main_prod_data
+                                });
+                                $('.widget-6a').removeClass('widget-loader-show');
+                                $('.widget-6b').removeClass('widget-data-hide');
+                            }
+
+                            if ((name == "self.chartOptions") || (name == "")) {
+                                angular.extend(self.chartOptions, {
+                                   xAxis: {
+                                        categories: date_list,
+                                    },
+                                    series: main_prod_data
+                                });     
+                                $('.widget-1a').removeClass('widget-loader-show');
+                                $('.widget-1b').removeClass('widget-data-hide');
+                           }  
                         })
                     }
-                    self.main_prod(undefined, undefined)
+                    self.main_prod(undefined, undefined, undefined)
 
                        $http({method:"GET", url: cate_error}).success(function(result){
 
@@ -438,6 +654,8 @@
                                     data: result.result.internal_errors_types
                                 }]
                             });
+                            $('.widget-4a').removeClass('widget-loader-show');
+                            $('.widget-4b').removeClass('widget-data-hide');
 
                             angular.extend(self.chartOptions5_2,{
                                 series: [{
@@ -447,6 +665,8 @@
                                     data: result.result.external_errors_types
                                 }]
                             });
+                            $('.widget-5a').removeClass('widget-loader-show');
+                            $('.widget-5b').removeClass('widget-data-hide');
                        })
 
                        $http({method:"GET", url: pareto_cate_error}).success(function(result){
@@ -461,7 +681,9 @@
                             
                                series: result.result.Internal_Error_Category.category_pareto 
                             });
-                            
+                            $('.widget-24a').removeClass('widget-loader-show');
+                            $('.widget-24b').removeClass('widget-data-hide');
+
                             angular.extend(self.chartOptions30, {
                                 xAxis: {
                                     categories: result.result.External_Error_Category.category_name,
@@ -472,6 +694,8 @@
                             
                                series: result.result.External_Error_Category.category_pareto
                             });
+                            $('.widget-25a').removeClass('widget-loader-show');
+                            $('.widget-25b').removeClass('widget-data-hide');
                        })
 
                        $http({method:"GET", url: agent_cate_error}).success(function(result){
@@ -486,6 +710,8 @@
 
                                series: result.result.Pareto_data.agent_pareto_data
                             });
+                            $('.widget-22a').removeClass('widget-loader-show');
+                            $('.widget-22b').removeClass('widget-data-hide');
 
                             angular.extend(self.chartOptions28, {
                                 xAxis: {
@@ -497,6 +723,8 @@
 
                                series: result.result.External_Pareto_data.agent_pareto_data
                             });
+                            $('.widget-23a').removeClass('widget-loader-show');
+                            $('.widget-23b').removeClass('widget-data-hide');
                        }) 
                 
                     self.pre_scan = function(final_work, type) {
@@ -515,8 +743,30 @@
 
                         $http({method:"GET", url: pre_scan}).success(function(result){
 
-                                var date_list  = result.result.date;
-                                var pre_scan_details = result.result.pre_scan_exception_data;
+                            /*if (result.result.type == 'day') {
+                                $('.day2').addClass('active btn-success');
+                                $('.day2').siblings().removeClass('active btn-success');
+                                $('.day').addClass('active btn-success');
+                                $('.day').siblings().removeClass('active btn-success');
+                            }
+                           
+                            if (result.result.type == 'week') {
+                                $('.week2').addClass('active btn-success');
+                                $('.week2').siblings().removeClass('active btn-success');
+                                $('.week').addClass('active btn-success');
+                                $('.week').siblings().removeClass('active btn-success');
+                            }
+
+                            if (result.result.type == 'month') {
+                                $('.month2').addClass('active btn-success');
+                                $('.month2').siblings().removeClass('active btn-success');
+                                $('.month').addClass('active btn-success');
+                                $('.month').siblings().removeClass('active btn-success');
+                            }*/
+
+
+                            var date_list  = result.result.date;
+                            var pre_scan_details = result.result.pre_scan_exception_data;
 
                             angular.extend(self.chartOptions40, {
 
@@ -529,6 +779,8 @@
 
                                series: pre_scan_details
                             });
+                            $('.widget-35a').removeClass('widget-loader-show');
+                            $('.widget-35b').removeClass('widget-data-hide');
                         }) 
                     }
                     self.pre_scan(undefined, undefined)    
@@ -549,6 +801,27 @@
 
                         $http({method:"GET", url: nw_exce}).success(function(result){
                                                                     
+                            /*if (result.result.type == 'day') {
+                                $('.day2').addClass('active btn-success');
+                                $('.day2').siblings().removeClass('active btn-success');
+                                $('.day').addClass('active btn-success');
+                                $('.day').siblings().removeClass('active btn-success');
+                            }
+
+                            if (result.result.type == 'week') {
+                                $('.week2').addClass('active btn-success');
+                                $('.week2').siblings().removeClass('active btn-success');
+                                $('.week').addClass('active btn-success');
+                                $('.week').siblings().removeClass('active btn-success');
+                            }
+
+                            if (result.result.type == 'month') {
+                                $('.month2').addClass('active btn-success');
+                                $('.month2').siblings().removeClass('active btn-success');
+                                $('.month').addClass('active btn-success');
+                                $('.month').siblings().removeClass('active btn-success');
+                            }*/
+
                             var date_list  = result.result.date;
                             var nw_details = result.result.nw_exception_details;
 
@@ -563,6 +836,8 @@
 
                                series: nw_details
                             });
+                            $('.widget-37a').removeClass('widget-loader-show');
+                            $('.widget-37b').removeClass('widget-data-hide');
                         })
                     }
                     self.nw_exce(undefined, undefined)
@@ -582,6 +857,27 @@
                         var overall_exce = '/api/overall_exce/'+self.data_to_show + type + final_work;
 
                         $http({method:"GET", url: overall_exce}).success(function(result){
+
+                            /*if (result.result.type == 'day') {
+                                $('.day2').addClass('active btn-success');
+                                $('.day2').siblings().removeClass('active btn-success');
+                                $('.day').addClass('active btn-success');
+                                $('.day').siblings().removeClass('active btn-success');
+                            }
+
+                            if (result.result.type == 'week') {
+                                $('.week2').addClass('active btn-success');
+                                $('.week2').siblings().removeClass('active btn-success');
+                                $('.week').addClass('active btn-success');
+                                $('.week').siblings().removeClass('active btn-success');
+                            }
+
+                            if (result.result.type == 'month') {
+                                $('.month2').addClass('active btn-success');
+                                $('.month2').siblings().removeClass('active btn-success');
+                                $('.month').addClass('active btn-success');
+                                $('.month').siblings().removeClass('active btn-success');
+                            }*/
                                                                     
                             var date_list  = result.result.date;
                             var overall_details = result.result.overall_exception_details;
@@ -597,6 +893,8 @@
 
                                series: overall_details
                             });
+                            $('.widget-36a').removeClass('widget-loader-show');
+                            $('.widget-36b').removeClass('widget-data-hide');
                         })
                     }
                     self.overall_exce(undefined, undefined)
@@ -617,6 +915,27 @@
 
                         $http({method:"GET", url: upload_acc}).success(function(result){
 
+                            /*if (result.result.type == 'day') {
+                                $('.day2').addClass('active btn-success');
+                                $('.day2').siblings().removeClass('active btn-success');
+                                $('.day').addClass('active btn-success');
+                                $('.day').siblings().removeClass('active btn-success');
+                            }
+
+                            if (result.result.type == 'week') {
+                                $('.week2').addClass('active btn-success');
+                                $('.week2').siblings().removeClass('active btn-success');
+                                $('.week').addClass('active btn-success');
+                                $('.week').siblings().removeClass('active btn-success');
+                            }
+
+                            if (result.result.type == 'month') {
+                                $('.month2').addClass('active btn-success');
+                                $('.month2').siblings().removeClass('active btn-success');
+                                $('.month').addClass('active btn-success');
+                                $('.month').siblings().removeClass('active btn-success');
+                            }*/
+
                             var date_list  = result.result.upload_target_data.date;
                             var upload_target_data = result.result.upload_target_data.data;
 
@@ -631,12 +950,14 @@
 
                                series: upload_target_data
                             });
+                            $('.widget-34a').removeClass('widget-loader-show');
+                            $('.widget-34b').removeClass('widget-data-hide');
                         })
                     }
                     self.upload_acc(undefined, undefined)
 
 
-                    self.erro_all = function(final_work, type) {
+                    self.erro_all = function(final_work, type, name) {
 
                         if (type == undefined) {
                             type = 'day'
@@ -646,32 +967,67 @@
                             final_work = ''
                         }
 
+                        if (name == undefined) {
+                            name = ''
+                        }
+
                         self.type = type;
 
                         var erro_all = '/api/erro_data_all/'+self.data_to_show + type + final_work;
 
                         $http({method:"GET", url: erro_all}).success(function(result){
 
+                            /*if (result.result.type == 'day') {
+                                $('.day2').addClass('active btn-success');
+                                $('.day2').siblings().removeClass('active btn-success');
+                                $('.day').addClass('active btn-success');
+                                $('.day').siblings().removeClass('active btn-success');
+                            }
+
+                            if (result.result.type == 'week') {
+                                $('.week2').addClass('active btn-success');
+                                $('.week2').siblings().removeClass('active btn-success');
+                                $('.week').addClass('active btn-success');
+                                $('.week').siblings().removeClass('active btn-success');
+                            }
+
+                            if (result.result.type == 'month') {
+                                $('.month2').addClass('active btn-success');
+                                $('.month2').siblings().removeClass('active btn-success');
+                                $('.month').addClass('active btn-success');
+                                $('.month').siblings().removeClass('active btn-success');
+                            }*/
+
                             var date_list = result.result.date;
                             var external_error_timeline = result.result.external_time_line;
                             var internal_error_timeline = result.result.internal_time_line;
-                            
-                            angular.extend(self.chartOptions9, {
-                                xAxis: {
-                                    categories: date_list,
-                                },
-                                series: internal_error_timeline
-                            });
+                                                
+                            if ((name == "self.chartOptions9") || (name == "")) {
 
-                            angular.extend(self.chartOptions9_2, {
-                                xAxis: {
-                                    categories: date_list,
-                                },
-                                series: external_error_timeline
-                            });
+                                angular.extend(self.chartOptions9, {
+                                    xAxis: {
+                                        categories: date_list,
+                                    },
+                                    series: internal_error_timeline
+                                });
+                                $('.widget-8a').removeClass('widget-loader-show');
+                                $('.widget-8b').removeClass('widget-data-hide');
+                            }
+
+                            if ((name == "self.chartOptions9_2") || (name == "")) {
+
+                                angular.extend(self.chartOptions9_2, {
+                                    xAxis: {
+                                        categories: date_list,
+                                    },
+                                    series: external_error_timeline
+                                });
+                                $('.widget-7a').removeClass('widget-loader-show');
+                                $('.widget-7b').removeClass('widget-data-hide');
+                          }
                        })
                     }
-                    self.erro_all(undefined, undefined)
+                    self.erro_all(undefined, undefined, undefined)
 
                        $http({method:"GET", url: err_field_graph}).success(function(result){
                            angular.extend(self.chartOptions43.yAxis,{
@@ -692,6 +1048,9 @@
                                 max:result.result.exter_max_value
                             });
 
+                            $('.widget-38a').removeClass('widget-loader-show');
+                            $('.widget-38b').removeClass('widget-data-hide');
+
                            angular.extend(self.chartOptions44,{
                                series: [{
                                    name: 'accuracy',
@@ -700,13 +1059,15 @@
                                    data: result.result.external_field_accuracy_graph
                                }]
                            });
+                           $('.widget-39a').removeClass('widget-loader-show');
+                           $('.widget-39b').removeClass('widget-data-hide');
                        })
 
 
                        $http({method:"GET", url: error_bar_graph}).success(function(result){
                            angular.extend(self.chartOptions4.yAxis,{
-                                min:result.result.ext_min_value,
-                                max:result.result.ext_max_value
+                                min:result.result.int_min_value,
+                                max:result.result.int_max_value
                             });
                            angular.extend(self.chartOptions4,{
                                series: [{
@@ -716,6 +1077,8 @@
                                    data: result.result.internal_accuracy_graph
                                }]
                            });
+                           $('.widget-2a').removeClass('widget-loader-show');
+                           $('.widget-2b').removeClass('widget-data-hide');
 
                            angular.extend(self.chartOptions6.yAxis,{
                                 min:result.result.ext_min_value,
@@ -730,8 +1093,93 @@
                                    data: result.result.external_accuracy_graph
                                }]
                            });
+                           $('.widget-3a').removeClass('widget-loader-show');
+                           $('.widget-3b').removeClass('widget-data-hide');
                        })
                 self.hideLoading();
+                var static_ajax = static_data + self.static_widget_data;
+                //self.main_widget_function(self.call_back, '')
+                $http({method:"GET", url:static_ajax}).success(function(result){
+
+                    angular.extend(self.chartOptions32, {
+                        xAxis: {
+                            categories: result.result.month_productivity_data.date,
+                        title: {
+                            text: '',
+                         }
+                       },
+
+                       series: result.result.month_productivity_data.data
+                    });                   
+                    $('.widget-27a').removeClass('widget-loader-show');
+                    $('.widget-27b').removeClass('widget-data-hide');
+
+                    angular.extend(self.chartOptions33, {
+                        xAxis: {
+                            categories: result.result.week_productivity_data.date,
+                        title: {
+                            text: '',
+                         }
+                       },
+
+                       series: result.result.week_productivity_data.data
+                    });
+                    $('.widget-28a').removeClass('widget-loader-show');
+                    $('.widget-28b').removeClass('widget-data-hide');
+
+                    angular.extend(self.chartOptions34, {
+                        xAxis: {
+                            categories: result.result.data.date,
+                        title: {
+                            text: '',
+                         }
+                       },
+
+                       series: result.result.data.data
+                    });
+                    $('.widget-29a').removeClass('widget-loader-show');
+                    $('.widget-29b').removeClass('widget-data-hide');
+
+                    angular.extend(self.chartOptions35, {
+                        xAxis: {
+                            categories: result.result.data.date,
+                        title: {
+                            text: '',
+                         }
+                       },
+
+                       series: result.result.data.data
+                    });
+                    $('.widget-30a').removeClass('widget-loader-show');
+                    $('.widget-30b').removeClass('widget-data-hide');
+
+                    angular.extend(self.chartOptions36, {
+                        xAxis: {
+                            categories: result.result.week_productivity_data.date,
+                        title: {
+                            text: '',
+                         }
+                       },
+
+                       series: result.result.week_productivity_data.data
+                    });
+                    $('.widget-31a').removeClass('widget-loader-show');
+                    $('.widget-31b').removeClass('widget-data-hide');
+
+                    angular.extend(self.chartOptions37, {
+                        xAxis: {
+                            categories: result.result.month_productivity_data.date,
+                        title: {
+                            text: '',
+                         }
+                       },
+
+                       series: result.result.month_productivity_data.data
+                    });
+                    $('.widget-32a').removeClass('widget-loader-show');
+                    $('.widget-32b').removeClass('widget-data-hide');
+
+                });
             }
              /*self.allo_and_comp = function() {
 
@@ -757,7 +1205,7 @@
 
                 self.list_object = result.data.result.lay[0];
                 self.layout_list = result.data.result.lay[1].layout;
-
+                    
                 var pro_cen_nam = $state.params.selpro;                                                                                           
                 self.call_back = [];
 
@@ -1134,7 +1582,7 @@
                     var placeholder = ''
                     self.call_back = [];
                     self.call_back.push(from);
-                    self.call_back.push(to);                                                                                                                       var pro_cen_nam = $state.params.selpro;                                                                                                        self.location = pro_cen_nam.split('-')[0].replace(' ','') + ' - '
+                    self.call_back.push(to);                                                                                                                               var pro_cen_nam = $state.params.selpro;                                                                                                                self.location = pro_cen_nam.split('-')[0].replace(' ','') + ' - '
                     self.project = pro_cen_nam.split('-')[1].replace(' ','') + ' - '
                     self.call_back.push(self.location);
                     self.call_back.push(self.project);
@@ -1149,7 +1597,7 @@
                 else {
 
                 if (result.data.result.fin.work_packet){ 
-                    self.showLoading();
+                    //self.showLoading();
                     $('#0').on('change', function(){ 
 
                     if ((self.day_type === 'week') || (self.sel_type === 'week')){
@@ -1217,8 +1665,8 @@
             }).then(function(callback){
 
                 self.dateType = function(key,all_data,name,button_clicked){
-                
-                self.showLoading();
+
+                //self.showLoading();
 
                 self.call_back = callback;
                 
@@ -1264,12 +1712,11 @@
                 var allo_and_comp = '/api/alloc_and_compl/'+common_for_all;*/
 
                 if ((name == 'chartOptions17') || (name == 'chartOptions18')) {
-
-                    self.allo_and_comp(final_work, key);
-                    
+                  
+                    self.allo_and_comp(final_work, key, all_data);                   
                 }
                 if ((name == 'chartOptions25') || (name == 'chartOptions15') || (name == 'chartOptions24')) {
-                    self.utill_all(final_work, key);
+                    self.utill_all(final_work, key, all_data);
                 }
                 if (name == 'chartOptions19') {
                     self.productivity(final_work, key);
@@ -1281,13 +1728,13 @@
                     self.mont_volume(final_work, key);
                 }
                 if ((name == 'chartOptions16') || (name == 'chartOptions16_2')) {
-                    self.fte_graphs(final_work, key);
+                    self.fte_graphs(final_work, key, all_data);
                 }
                 if ((name == 'chartOptions10') || (name == 'chartOptions')) {
-                    self.main_prod(final_work, key);
+                    self.main_prod(final_work, key, all_data);
                 }
                 if ((name == 'chartOptions9') || (name == 'chartOptions9_2')) {
-                    self.erro_all(final_work, key);
+                    self.erro_all(final_work, key, all_data);
                 }
                 if (name == 'chartOptions40') {
                     self.pre_scan(final_work, key);
@@ -1305,7 +1752,7 @@
 
              self.active_filters = function(key,button_clicked){
 
-                self.showLoading();
+                //self.showLoading();
 
                 var some = '' 
                 if (key == 'day') { some = 'Day';}
@@ -1879,10 +2326,30 @@
                              '&center=' + self.location + '&type=' + 'day';
                         }
                         self.tabData.state = JSON.parse("{}");
+
+                        //var static_ajax = static_data + '&project=' + self.project + '&center=' + self.location
+                        //self.main_render(from_to_data)
                         var static_ajax = static_data + '&project=' + self.project + '&center=' + self.location
+                        //self.main_widget_function(self.call_back, '')
                         self.main_render(from_to_data)
                         $http({method:"GET", url:static_ajax}).success(function(result){
                            self.static_widget_render(result,self.project,self.location);
+
+                            $('.widget-27a').removeClass('widget-loader-show');
+                            $('.widget-27b').removeClass('widget-data-hide');
+                            $('.widget-30a').removeClass('widget-loader-show');
+                            $('.widget-30b').removeClass('widget-data-hide');
+                            $('.widget-28a').removeClass('widget-loader-show');
+                            $('.widget-28b').removeClass('widget-data-hide');
+                            $('.widget-27a').removeClass('widget-loader-show');
+                            $('.widget-27b').removeClass('widget-data-hide');
+                            $('.widget-29a').removeClass('widget-loader-show');
+                            $('.widget-29b').removeClass('widget-data-hide');
+                            $('.widget-31a').removeClass('widget-loader-show');
+                            $('.widget-31b').removeClass('widget-data-hide');
+                            $('.widget-32a').removeClass('widget-loader-show');
+                            $('.widget-32b').removeClass('widget-data-hide');
+
                             });
                         });
                     }
@@ -4921,6 +5388,7 @@ plotOptions: {
                     series: self.high_data_gener[0].month_productivity_data.data,
                 });
 
+
                 angular.extend(self.chartOptions33, {
                     xAxis: {
                         categories: self.high_data_gener[0].week_productivity_data.date,
@@ -4941,6 +5409,7 @@ plotOptions: {
                     },
                     series: self.high_data_gener[0].week_productivity_data.data,
                 });
+
 
                 angular.extend(self.chartOptions35, {
                     xAxis: {
@@ -4970,6 +5439,7 @@ plotOptions: {
                         }
                     }
                 });
+
 
                 angular.extend(self.chartOptions36, {
                     xAxis: {
