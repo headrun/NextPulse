@@ -7865,7 +7865,7 @@ def create_reviews(request):
             subject = "Review Updated"
 
         #send_mail("mail is working", 'This mail is for testing reviews', 'nextpulse@nextwealth.in', ['abhishek@headrun.com'])
-        return HttpResponse('success')
+        return HttpResponse(rev_obj.id)
 
     except:
         return HttpResponse("Failed")

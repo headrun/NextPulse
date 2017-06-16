@@ -221,9 +221,10 @@
             </span>
         </div>
         <div id="fileuploader" class="review-data">Upload</div>
-            <i class="fa fa-plus-circle fa-2x" id="add-revi" data-toggle="modal" data-target="#myModal" ng-click="$ctrl.get_maildata()" aria-hidden="true"></i>
-            <i class="fa fa-trash fa-2x" aria-hidden="true"></i>
-            <i class="fa fa-pencil fa-2x" aria-hidden="true"></i>
+            <i class="fa fa-plus-circle fa-2x" id="add-revi" data-toggle="modal" data-target="#myModal" ng-click="$ctrl.get_maildata()" 
+               aria-hidden="true"></i>
+            <i class="fa fa-trash fa-2x" aria-hidden="true" ng-click="$ctrl.del_review()"></i>
+            <!--<i class="fa fa-pencil fa-2x" aria-hidden="true"></i>-->
         </div>
 
     </div>

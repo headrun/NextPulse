@@ -13,48 +13,13 @@
 
              self.rev_id = '';
 
-             /*self.get_maildata = function() {
-               self.email_data = 'api/get_related_user/'
-               self.mail_options = [];
+             self.email_data = 'api/get_related_user/';
 
-               $http.get(self.email_data).then(function(result){
-                 debugger;
-                 self.mail_options.push(result.data.result.name_list);
+             self.mail_options = [ "Shanmugasundaram v", "Monica M", "Abhijith A", "Sasikumar G", "Ranjithkumar M", "Shailesh dube", 
+                                   "Atul shinghal", "Navin Ramachandran", "Goutam Dan", "rajesh r", "Damodaran Selvaraj", "Balasubramanian A", 
+                                   "Anuradha G", "Arun L", "Sunilbabu S", "Hariharan N", "Anandram J", "Venkatesh D" ];
 
-               });
-             };*/
-             self.email_data = 'api/get_related_user/'
-
-             self.mail_options = [];
-
-
-                self.mail_options = ["A"]
-
-                /*$http.get(self.email_data, async: false).then(function(result){
-
-                     self.mail_options.push(result.data.result.name_list);
-                 });*/
-
-                 /*$http({method:"GET", url: self.email_data, async: false}).success( function(result){
-                    var names_list = result.result.name_list;
-                    for (var i=0; i<names_list.length; i++) {
-                        var html_data = '';
-                        html_data += '<li role="presentation" ng-repeat="option in unselectedOptions | filter:search() | limitTo: searchLimit" '
-                        html_data += 'ng-if="!isSelected(option)" ng-class="{disabled : selectionLimit &amp;&amp; '
-                        html_data += 'selectedOptions.length >= selectionLimit}" class="ng-scope">'
-                        html_data += '<a class="item-unselected ng-binding" href="" title="" ng-click="toggleItem(option); $event.stopPropagation()">'
-                        html_data += names_list[i]+'</a>' 
-                        $('.dropdown-menu-form li').append(html_data);
-                    }
-                 });*/
-
-                self.mail_options = [ "Shanmugasundaram v", "Monica M", "Abhijith A", "Sasikumar G", "Ranjithkumar M", "Shailesh dube", 
-                                      "Atul shinghal", "Navin Ramachandran", "Goutam Dan", "rajesh r", "Damodaran Selvaraj", "Balasubramanian A", 
-                                      "Anuradha G", "Arun L", "Sunilbabu S", "Hariharan N", "Anandram J", "Venkatesh D" ]
-
-             //self.example1data = [ {id: 1, label: "David"}, {id: 2, label: "Jhon"}, {id: 3, label: "Danny"} ];
-
-             self.review_url = 'api/get_top_reviews/'
+             self.review_url = 'api/get_top_reviews/';
 
              $http.get(self.review_url).then(function(result){
 
@@ -131,13 +96,21 @@
                  var main_data = $.param({ json: JSON.stringify(data) });
                  $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
                  $http.post(self.create_rev_url, main_data).then(function(result){
-                 }).then(function(callback){
-             $http.get(self.review_url).then(function(result){
 
-                 self.all_reviews = result.data.result;
-                 self.get_review(self.all_reviews[Object.keys(self.all_reviews)[0]][0]);
-                 $('.loading').removeClass('show').addClass('hide');
-             });
+                    return result.data.result;
+                 }).then(function(callback){
+
+                   $http.get(self.review_url).then(function(result){
+
+                     var data2 = {'review_id': callback, 'uids': self.uids_list}
+                     var data_to_send = $.param({ json: JSON.stringify(data2)})
+                     $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
+                     $http.post('api/saving_members/', data_to_send).then(function(result){
+                     });
+                     self.all_reviews = result.data.result;
+                     self.get_review(self.all_reviews[Object.keys(self.all_reviews)[0]][0]);
+                     $('.loading').removeClass('show').addClass('hide');
+                   });
                  });
              }
 
@@ -161,6 +134,16 @@
                  });
 
              }
+
+         self.del_review = function() {
+            console.log(self.rev_id);
+
+            self.remove_review_url = 'api/remove_attachment/?review_id='+self.rev_id;
+
+            $http.get(self.remove_review_url).then(function(result){
+            
+            });
+         }
 
          }],
 
