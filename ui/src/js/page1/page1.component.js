@@ -80,8 +80,64 @@
                 self.start = start.format('YYYY-MM-DD');
                 self.end = end.format('YYYY-MM-DD');
                 $('.input-sm').prop('selectedIndex',0);
-                callback.push.apply(callback, [self.start, self.end, self.center_live, self.project_live])
+                $('.widget-13a').addClass('widget-loader-show');
+                $('.widget-13b').addClass('widget-data-hide');
+                $('.widget-17a').addClass('widget-loader-show');
+                $('.widget-17b').addClass('widget-data-hide');
+                $('.widget-20a').addClass('widget-loader-show');
+                $('.widget-20b').addClass('widget-data-hide');
+                $('.widget-19a').addClass('widget-loader-show');
+                $('.widget-19b').addClass('widget-data-hide');
+                $('.widget-9a').addClass('widget-loader-show');
+                $('.widget-9b').addClass('widget-data-hide');
+                $('.widget-14a').addClass('widget-loader-show');
+                $('.widget-14b').addClass('widget-data-hide');
+                $('.widget-33a').addClass('widget-loader-show');
+                $('.widget-33b').addClass('widget-data-hide');
+                $('.widget-11a').addClass('widget-loader-show');
+                $('.widget-11b').addClass('widget-data-hide');
+                $('.widget-21a').addClass('widget-loader-show');
+                $('.widget-21b').addClass('widget-data-hide');
+                $('.widget-12a').addClass('widget-loader-show');
+                $('.widget-12b').addClass('widget-data-hide');
+                $('.widget-6a').addClass('widget-loader-show');
+                $('.widget-6b').addClass('widget-data-hide');
+                $('.widget-1a').addClass('widget-loader-show');
+                $('.widget-1b').addClass('widget-data-hide');
+                $('.widget-8a').addClass('widget-loader-show');
+                $('.widget-8b').addClass('widget-data-hide');
+                $('.widget-7a').addClass('widget-loader-show');
+                $('.widget-7b').addClass('widget-data-hide');
+                $('.widget-35a').addClass('widget-loader-show');
+                $('.widget-35b').addClass('widget-data-hide');
+                $('.widget-37a').addClass('widget-loader-show');
+                $('.widget-37b').addClass('widget-data-hide');
+                $('.widget-34a').addClass('widget-loader-show');
+                $('.widget-34b').addClass('widget-data-hide');
+                $('.widget-36a').addClass('widget-loader-show');
+                $('.widget-36b').addClass('widget-data-hide');
+                $('.widget-4a').addClass('widget-loader-show');
+                $('.widget-4b').addClass('widget-data-hide');
+                $('.widget-5a').addClass('widget-loader-show');
+                $('.widget-5b').addClass('widget-data-hide');
+                $('.widget-3a').addClass('widget-loader-show');
+                $('.widget-3b').addClass('widget-data-hide');
+                $('.widget-2a').addClass('widget-loader-show');
+                $('.widget-2b').addClass('widget-data-hide');
+                $('.widget-23a').addClass('widget-loader-show');
+                $('.widget-23b').addClass('widget-data-hide');
+                $('.widget-22a').addClass('widget-loader-show');
+                $('.widget-22b').addClass('widget-data-hide');
+                $('.widget-24a').addClass('widget-loader-show');
+                $('.widget-24b').addClass('widget-data-hide');
+                $('.widget-25a').addClass('widget-loader-show');
+                $('.widget-25b').addClass('widget-data-hide');
+                $('.widget-38a').addClass('widget-loader-show');
+                $('.widget-38b').addClass('widget-data-hide');
+                $('.widget-39a').addClass('widget-loader-show');
+                $('.widget-39b').addClass('widget-data-hide');
 
+                callback.push.apply(callback, [self.start, self.end, self.center_live, self.project_live])
                     if ((self.day_type === 'week') || (self.sel_type === 'week')){
                         $('.week2').addClass('active btn-success');
                         $('.week2').siblings().removeClass('active btn-success');
@@ -101,9 +157,9 @@
                         $('.day').addClass('active btn-success');
                         $('.day').siblings().removeClass('active btn-success');
                     }
-                
-                
                 self.main_widget_function(callback, '');
+                $('.widget17b').addClass('widget-data-hide');
+
                });
 
              /*self.dateType = function(key,all_data,name,button_clicked){
@@ -174,6 +230,7 @@
                     var cate_error = '/api/cate_error/'+self.common_for_all;
                     var pareto_cate_error = '/api/pareto_cate_error/'+self.common_for_all;
                     var agent_cate_error = '/api/agent_cate_error/'+self.common_for_all;
+                    var err_external_bar_graph = '/api/err_external_bar_graph/'+self.common_for_all;
                     //var main_prod = '/api/main_prod/'+self.common_for_all;
                     //var pre_scan = '/api/pre_scan_exce/'+self.common_for_all;
                     var nw_exce = '/api/nw_exce/'+self.common_for_all;
@@ -198,6 +255,14 @@
                         var allo_and_comp = '/api/alloc_and_compl/'+self.data_to_show + type + final_work;
 
                         $http({method:"GET", url: allo_and_comp}).success(function(result){
+                           if ((name == "self.chartOptions17") || (name == "")) {
+                                $('.widget-17a').removeClass('widget-loader-show');
+                                $('.widget-17b').removeClass('widget-data-hide');
+                            }
+                           if ((name == "self.chartOptions18") || (name == "")) {
+                                $('.widget-13a').removeClass('widget-loader-show');
+                                $('.widget-13b').removeClass('widget-data-hide');
+                            }
                             
                             if (type == 'day' && final_work == '') {
                                 if (result.result.type == 'day') {
@@ -232,13 +297,13 @@
                                         categories: date_list,
                                     },
                                     series: data_list_bar
-                                });
+                                })
                                 /*setTimeout(function(){
                                     $('.widget-13a').removeClass('widget-loader-show');
                                     $('.widget-13b').removeClass('widget-data-hide');
                                     }, 5000)*/
-                                    $('.widget-13a').removeClass('widget-loader-show');
-                                    $('.widget-13b').removeClass('widget-data-hide');
+                                    /*$('.widget-17a').removeClass('widget-loader-show');
+                                    $('.widget-17b').removeClass('widget-data-hide');*/
                             }
 
                             if ((name == "self.chartOptions18") || (name == "")) {
@@ -248,8 +313,8 @@
                                     },
                                     series: data_list_line
                                 });
-                                $('.widget-17a').removeClass('widget-loader-show');
-                                $('.widget-17b').removeClass('widget-data-hide');
+                                /*$('.widget-13a').removeClass('widget-loader-show');
+                                $('.widget-13b').removeClass('widget-data-hide');*/
                            }
                         })
                     }
@@ -277,7 +342,20 @@
 
                         $http({method:"GET", url: utill_all}).success(function(result){
 
-                            if (result.result.type == 'day') {
+                            /*if ((name == "self.chartOptions25") || (name == "")) {
+                                $('.widget-20a').removeClass('widget-loader-show');
+                                $('.widget-20b').removeClass('widget-data-hide');
+                            }
+                            if ((name == "self.chartOptions24") || (name == "")) {
+                                $('.widget-19a').removeClass('widget-loader-show');
+                                $('.widget-19b').removeClass('widget-data-hide');
+                            }
+                            if ((name == "self.chartOptions15") || (name == "")) {
+                               $('.widget-9a').removeClass('widget-loader-show');
+                               $('.widget-9b').removeClass('widget-data-hide');
+                            }*/
+
+                            /*if (result.result.type == 'day') {
                                 $('.day2').addClass('active btn-success');
                                 $('.day2').siblings().removeClass('active btn-success');
                                 $('.day').addClass('active btn-success');
@@ -296,7 +374,7 @@
                                 $('.month2').siblings().removeClass('active btn-success');
                                 $('.month').addClass('active btn-success');
                                 $('.month').siblings().removeClass('active btn-success');
-                            }
+                            }*/
 
                             var date_list  = result.result.date;
                             var utili_opera_data = result.result.utilization_operational_details;
@@ -977,29 +1055,8 @@
 
                         $http({method:"GET", url: erro_all}).success(function(result){
 
-                            /*if (result.result.type == 'day') {
-                                $('.day2').addClass('active btn-success');
-                                $('.day2').siblings().removeClass('active btn-success');
-                                $('.day').addClass('active btn-success');
-                                $('.day').siblings().removeClass('active btn-success');
-                            }
-
-                            if (result.result.type == 'week') {
-                                $('.week2').addClass('active btn-success');
-                                $('.week2').siblings().removeClass('active btn-success');
-                                $('.week').addClass('active btn-success');
-                                $('.week').siblings().removeClass('active btn-success');
-                            }
-
-                            if (result.result.type == 'month') {
-                                $('.month2').addClass('active btn-success');
-                                $('.month2').siblings().removeClass('active btn-success');
-                                $('.month').addClass('active btn-success');
-                                $('.month').siblings().removeClass('active btn-success');
-                            }*/
-
                             var date_list = result.result.date;
-                            var external_error_timeline = result.result.external_time_line;
+                            //var external_error_timeline = result.result.external_time_line;
                             var internal_error_timeline = result.result.internal_time_line;
                                                 
                             if ((name == "self.chartOptions9") || (name == "")) {
@@ -1013,6 +1070,32 @@
                                 $('.widget-8a').removeClass('widget-loader-show');
                                 $('.widget-8b').removeClass('widget-data-hide');
                             }
+                       })
+                    }
+                    self.erro_all(undefined, undefined, undefined)
+
+                    self.erro_extrnl_timeline = function(final_work, type, name) {
+
+                        if (type == undefined) {
+                            type = 'day'
+                        }
+
+                        if (final_work == undefined) {
+                            final_work = ''
+                        }
+
+                        if (name == undefined) {
+                            name = ''
+                        }
+
+                        self.type = type;
+
+                        var erro_extrnl_timeline = '/api/erro_extrnl_timeline/'+self.data_to_show + type + final_work;
+
+                        $http({method:"GET", url: erro_extrnl_timeline}).success(function(result){
+                            var date_list = result.result.date;
+                            var external_error_timeline = result.result.external_time_line;
+                            //var internal_error_timeline = result.result.internal_time_line;
 
                             if ((name == "self.chartOptions9_2") || (name == "")) {
 
@@ -1024,10 +1107,10 @@
                                 });
                                 $('.widget-7a').removeClass('widget-loader-show');
                                 $('.widget-7b').removeClass('widget-data-hide');
-                          }
-                       })
-                    }
-                    self.erro_all(undefined, undefined, undefined)
+                            }
+                         })
+                       }
+                       self.erro_extrnl_timeline(undefined, undefined, undefined)                         
 
                        $http({method:"GET", url: err_field_graph}).success(function(result){
                            angular.extend(self.chartOptions43.yAxis,{
@@ -1080,6 +1163,24 @@
                            $('.widget-2a').removeClass('widget-loader-show');
                            $('.widget-2b').removeClass('widget-data-hide');
 
+                           /*angular.extend(self.chartOptions6.yAxis,{
+                                min:result.result.ext_min_value,
+                                max:result.result.ext_max_value
+                            });
+
+                           angular.extend(self.chartOptions6,{
+                               series: [{
+                                   name: 'accuracy',
+                                   colorByPoint: true,
+                                   cursor: 'pointer',
+                                   data: result.result.external_accuracy_graph
+                               }]
+                           });
+                           $('.widget-3a').removeClass('widget-loader-show');
+                           $('.widget-3b').removeClass('widget-data-hide');*/
+                       })
+
+                       $http({method:"GET", url: err_external_bar_graph}).success(function(result){
                            angular.extend(self.chartOptions6.yAxis,{
                                 min:result.result.ext_min_value,
                                 max:result.result.ext_max_value
@@ -1095,7 +1196,7 @@
                            });
                            $('.widget-3a').removeClass('widget-loader-show');
                            $('.widget-3b').removeClass('widget-data-hide');
-                       })
+                        })
                 self.hideLoading();
                 var static_ajax = static_data + self.static_widget_data;
                 //self.main_widget_function(self.call_back, '')
@@ -1394,6 +1495,73 @@
                         $('.day').siblings().removeClass('active btn-success');
                     }
 
+                    /*$('.widget13a').addClass('widget-loader-show');
+                    $('.widget13b').addClass('widget-data-hide');
+                    $('.widget17a').addClass('widget-loader-show'); 
+                    $('.widget17b').addClass('widget-data-hide');*/
+
+                        $('.widget-13a').addClass('widget-loader-show');
+                        $('.widget-13b').addClass('widget-data-hide');
+                        $('.widget-17a').addClass('widget-loader-show');
+                        $('.widget-17b').addClass('widget-data-hide');
+                        $('.widget-20a').addClass('widget-loader-show');
+                        $('.widget-20b').addClass('widget-data-hide');
+                        $('.widget-19a').addClass('widget-loader-show');
+                        $('.widget-19b').addClass('widget-data-hide');
+                        $('.widget-9a').addClass('widget-loader-show');
+                        $('.widget-9b').addClass('widget-data-hide');
+                        $('.widget-14a').addClass('widget-loader-show');
+                        $('.widget-14b').addClass('widget-data-hide');
+                        $('.widget-33a').addClass('widget-loader-show');
+                        $('.widget-33b').addClass('widget-data-hide');
+                        $('.widget-11a').addClass('widget-loader-show');
+                        $('.widget-11b').addClass('widget-data-hide');
+                        $('.widget-21a').addClass('widget-loader-show');
+                        $('.widget-21b').addClass('widget-data-hide');
+                        $('.widget-12a').addClass('widget-loader-show');
+                        $('.widget-12b').addClass('widget-data-hide');
+                        $('.widget-6a').addClass('widget-loader-show');
+                        $('.widget-6b').addClass('widget-data-hide');
+                        $('.widget-1a').addClass('widget-loader-show');
+                        $('.widget-1b').addClass('widget-data-hide');
+                        $('.widget-13a').addClass('widget-loader-show');
+                        $('.widget-13b').addClass('widget-data-hide');
+                        $('.widget-8a').addClass('widget-loader-show');
+                        $('.widget-8b').addClass('widget-data-hide');
+                        $('.widget-7a').addClass('widget-loader-show');
+                        $('.widget-7b').addClass('widget-data-hide');
+                        $('.widget-35a').addClass('widget-loader-show');
+                        $('.widget-35b').addClass('widget-data-hide');
+                        $('.widget-34a').addClass('widget-loader-show');
+                        $('.widget-34b').addClass('widget-data-hide');
+                        $('.widget-36a').addClass('widget-loader-show');
+                        $('.widget-36b').addClass('widget-data-hide');
+                        $('.widget-37a').addClass('widget-loader-show');
+                        $('.widget-37b').addClass('widget-data-hide');
+                        $('.widget-2a').addClass('widget-loader-show');
+                        $('.widget-2b').addClass('widget-data-hide');
+                        $('.widget-3a').addClass('widget-loader-show');
+                        $('.widget-3b').addClass('widget-data-hide');
+                        $('.widget-4a').addClass('widget-loader-show');
+                        $('.widget-4b').addClass('widget-data-hide');
+                        $('.widget-5a').addClass('widget-loader-show');
+                        $('.widget-5b').addClass('widget-data-hide');
+                        $('.widget-22a').addClass('widget-loader-show');
+                        $('.widget-22b').addClass('widget-data-hide');
+                        $('.widget-23a').addClass('widget-loader-show');
+                        $('.widget-23b').addClass('widget-data-hide');
+                        $('.widget-24a').addClass('widget-loader-show');
+                        $('.widget-24b').addClass('widget-data-hide');
+                        $('.widget-25a').addClass('widget-loader-show');
+                        $('.widget-25b').addClass('widget-data-hide');
+                        $('.widget-38a').addClass('widget-loader-show');
+                        $('.widget-38b').addClass('widget-data-hide');
+                        $('.widget-39a').addClass('widget-loader-show');
+                        $('.widget-39b').addClass('widget-data-hide');
+                        $('.widget-34a').addClass('widget-loader-show');
+                        $('.widget-34b').addClass('widget-data-hide');
+
+
                     self.drop_sub_proj = this.value;
                     self.drop_work_pack = self.wor_pac_sel.value;
                     self.drop_sub_pack = self.sub_pac_sel.value;
@@ -1438,6 +1606,68 @@
                         $('.day').siblings().removeClass('active btn-success');
                     }
 
+                        $('.widget-13a').addClass('widget-loader-show');
+                        $('.widget-13b').addClass('widget-data-hide');
+                        $('.widget-17a').addClass('widget-loader-show');
+                        $('.widget-17b').addClass('widget-data-hide');
+                        $('.widget-20a').addClass('widget-loader-show');
+                        $('.widget-20b').addClass('widget-data-hide');
+                        $('.widget-19a').addClass('widget-loader-show');
+                        $('.widget-19b').addClass('widget-data-hide');
+                        $('.widget-9a').addClass('widget-loader-show');
+                        $('.widget-9b').addClass('widget-data-hide');
+                        $('.widget-14a').addClass('widget-loader-show');
+                        $('.widget-14b').addClass('widget-data-hide');
+                        $('.widget-33a').addClass('widget-loader-show');
+                        $('.widget-33b').addClass('widget-data-hide');
+                        $('.widget-11a').addClass('widget-loader-show');
+                        $('.widget-11b').addClass('widget-data-hide');
+                        $('.widget-21a').addClass('widget-loader-show');
+                        $('.widget-21b').addClass('widget-data-hide');
+                        $('.widget-12a').addClass('widget-loader-show');
+                        $('.widget-12b').addClass('widget-data-hide');
+                        $('.widget-6a').addClass('widget-loader-show');
+                        $('.widget-6b').addClass('widget-data-hide');
+                        $('.widget-1a').addClass('widget-loader-show');
+                        $('.widget-1b').addClass('widget-data-hide');
+                        $('.widget-13a').addClass('widget-loader-show');
+                        $('.widget-13b').addClass('widget-data-hide');
+                        $('.widget-8a').addClass('widget-loader-show');
+                        $('.widget-8b').addClass('widget-data-hide');
+                        $('.widget-7a').addClass('widget-loader-show');
+                        $('.widget-7b').addClass('widget-data-hide');
+                        $('.widget-35a').addClass('widget-loader-show');
+                        $('.widget-35b').addClass('widget-data-hide');
+                        $('.widget-34a').addClass('widget-loader-show');
+                        $('.widget-34b').addClass('widget-data-hide');
+                        $('.widget-36a').addClass('widget-loader-show');
+                        $('.widget-36b').addClass('widget-data-hide');
+                        $('.widget-37a').addClass('widget-loader-show');
+                        $('.widget-37b').addClass('widget-data-hide');
+                        $('.widget-2a').addClass('widget-loader-show');
+                        $('.widget-2b').addClass('widget-data-hide');
+                        $('.widget-3a').addClass('widget-loader-show');
+                        $('.widget-3b').addClass('widget-data-hide');
+                        $('.widget-4a').addClass('widget-loader-show');
+                        $('.widget-4b').addClass('widget-data-hide');
+                        $('.widget-5a').addClass('widget-loader-show');
+                        $('.widget-5b').addClass('widget-data-hide');
+                        $('.widget-22a').addClass('widget-loader-show');
+                        $('.widget-22b').addClass('widget-data-hide');
+                        $('.widget-23a').addClass('widget-loader-show');
+                        $('.widget-23b').addClass('widget-data-hide');
+                        $('.widget-24a').addClass('widget-loader-show');
+                        $('.widget-24b').addClass('widget-data-hide');
+                        $('.widget-25a').addClass('widget-loader-show');
+                        $('.widget-25b').addClass('widget-data-hide');
+                        $('.widget-38a').addClass('widget-loader-show');
+                        $('.widget-38b').addClass('widget-data-hide');
+                        $('.widget-39a').addClass('widget-loader-show');
+                        $('.widget-39b').addClass('widget-data-hide');
+                        $('.widget-34a').addClass('widget-loader-show');
+                        $('.widget-34b').addClass('widget-data-hide');
+
+
                     self.drop_sub_proj = self.sub_pro_sel.value;
                     self.drop_work_pack = this.value;
                     self.drop_sub_pack = self.sub_pac_sel.value;
@@ -1481,6 +1711,68 @@
                         $('.day').addClass('active btn-success');
                         $('.day').siblings().removeClass('active btn-success');
                     }
+
+                        $('.widget-13a').addClass('widget-loader-show');
+                        $('.widget-13b').addClass('widget-data-hide');
+                        $('.widget-17a').addClass('widget-loader-show');
+                        $('.widget-17b').addClass('widget-data-hide');
+                        $('.widget-20a').addClass('widget-loader-show');
+                        $('.widget-20b').addClass('widget-data-hide');
+                        $('.widget-19a').addClass('widget-loader-show');
+                        $('.widget-19b').addClass('widget-data-hide');
+                        $('.widget-9a').addClass('widget-loader-show');
+                        $('.widget-9b').addClass('widget-data-hide');
+                        $('.widget-14a').addClass('widget-loader-show');
+                        $('.widget-14b').addClass('widget-data-hide');
+                        $('.widget-33a').addClass('widget-loader-show');
+                        $('.widget-33b').addClass('widget-data-hide');
+                        $('.widget-11a').addClass('widget-loader-show');
+                        $('.widget-11b').addClass('widget-data-hide');
+                        $('.widget-21a').addClass('widget-loader-show');
+                        $('.widget-21b').addClass('widget-data-hide');
+                        $('.widget-12a').addClass('widget-loader-show');
+                        $('.widget-12b').addClass('widget-data-hide');
+                        $('.widget-6a').addClass('widget-loader-show');
+                        $('.widget-6b').addClass('widget-data-hide');
+                        $('.widget-1a').addClass('widget-loader-show');
+                        $('.widget-1b').addClass('widget-data-hide');
+                        $('.widget-13a').addClass('widget-loader-show');
+                        $('.widget-13b').addClass('widget-data-hide');
+                        $('.widget-8a').addClass('widget-loader-show');
+                        $('.widget-8b').addClass('widget-data-hide');
+                        $('.widget-7a').addClass('widget-loader-show');
+                        $('.widget-7b').addClass('widget-data-hide');
+                        $('.widget-35a').addClass('widget-loader-show');
+                        $('.widget-35b').addClass('widget-data-hide');
+                        $('.widget-34a').addClass('widget-loader-show');
+                        $('.widget-34b').addClass('widget-data-hide');
+                        $('.widget-36a').addClass('widget-loader-show');
+                        $('.widget-36b').addClass('widget-data-hide');
+                        $('.widget-37a').addClass('widget-loader-show');
+                        $('.widget-37b').addClass('widget-data-hide');
+                        $('.widget-2a').addClass('widget-loader-show');
+                        $('.widget-2b').addClass('widget-data-hide');
+                        $('.widget-3a').addClass('widget-loader-show');
+                        $('.widget-3b').addClass('widget-data-hide');
+                        $('.widget-4a').addClass('widget-loader-show');
+                        $('.widget-4b').addClass('widget-data-hide');
+                        $('.widget-5a').addClass('widget-loader-show');
+                        $('.widget-5b').addClass('widget-data-hide');
+                        $('.widget-22a').addClass('widget-loader-show');
+                        $('.widget-22b').addClass('widget-data-hide');
+                        $('.widget-23a').addClass('widget-loader-show');
+                        $('.widget-23b').addClass('widget-data-hide');
+                        $('.widget-24a').addClass('widget-loader-show');
+                        $('.widget-24b').addClass('widget-data-hide');
+                        $('.widget-25a').addClass('widget-loader-show');
+                        $('.widget-25b').addClass('widget-data-hide');
+                        $('.widget-38a').addClass('widget-loader-show');
+                        $('.widget-38b').addClass('widget-data-hide');
+                        $('.widget-39a').addClass('widget-loader-show');
+                        $('.widget-39b').addClass('widget-data-hide');
+                        $('.widget-34a').addClass('widget-loader-show');
+                        $('.widget-34b').addClass('widget-data-hide');
+
 
                     self.drop_work_pack = self.wor_pac_sel.value;
                     self.drop_sub_proj = self.sub_pro_sel.value;
@@ -1530,6 +1822,68 @@
                         $('.day').siblings().removeClass('active btn-success');
                     }
 
+                        $('.widget-13a').addClass('widget-loader-show');
+                        $('.widget-13b').addClass('widget-data-hide');
+                        $('.widget-17a').addClass('widget-loader-show');
+                        $('.widget-17b').addClass('widget-data-hide');
+                        $('.widget-20a').addClass('widget-loader-show');
+                        $('.widget-20b').addClass('widget-data-hide');
+                        $('.widget-19a').addClass('widget-loader-show');
+                        $('.widget-19b').addClass('widget-data-hide');
+                        $('.widget-9a').addClass('widget-loader-show');
+                        $('.widget-9b').addClass('widget-data-hide');
+                        $('.widget-14a').addClass('widget-loader-show');
+                        $('.widget-14b').addClass('widget-data-hide');
+                        $('.widget-33a').addClass('widget-loader-show');
+                        $('.widget-33b').addClass('widget-data-hide');
+                        $('.widget-11a').addClass('widget-loader-show');
+                        $('.widget-11b').addClass('widget-data-hide');
+                        $('.widget-21a').addClass('widget-loader-show');
+                        $('.widget-21b').addClass('widget-data-hide');
+                        $('.widget-12a').addClass('widget-loader-show');
+                        $('.widget-12b').addClass('widget-data-hide');
+                        $('.widget-6a').addClass('widget-loader-show');
+                        $('.widget-6b').addClass('widget-data-hide');
+                        $('.widget-1a').addClass('widget-loader-show');
+                        $('.widget-1b').addClass('widget-data-hide');
+                        $('.widget-13a').addClass('widget-loader-show');
+                        $('.widget-13b').addClass('widget-data-hide');
+                        $('.widget-8a').addClass('widget-loader-show');
+                        $('.widget-8b').addClass('widget-data-hide');
+                        $('.widget-7a').addClass('widget-loader-show');
+                        $('.widget-7b').addClass('widget-data-hide');
+                        $('.widget-35a').addClass('widget-loader-show');
+                        $('.widget-35b').addClass('widget-data-hide');
+                        $('.widget-34a').addClass('widget-loader-show');
+                        $('.widget-34b').addClass('widget-data-hide');
+                        $('.widget-36a').addClass('widget-loader-show');
+                        $('.widget-36b').addClass('widget-data-hide');
+                        $('.widget-37a').addClass('widget-loader-show');
+                        $('.widget-37b').addClass('widget-data-hide');
+                        $('.widget-2a').addClass('widget-loader-show');
+                        $('.widget-2b').addClass('widget-data-hide');
+                        $('.widget-3a').addClass('widget-loader-show');
+                        $('.widget-3b').addClass('widget-data-hide');
+                        $('.widget-4a').addClass('widget-loader-show');
+                        $('.widget-4b').addClass('widget-data-hide');
+                        $('.widget-5a').addClass('widget-loader-show');
+                        $('.widget-5b').addClass('widget-data-hide');
+                        $('.widget-22a').addClass('widget-loader-show');
+                        $('.widget-22b').addClass('widget-data-hide');
+                        $('.widget-23a').addClass('widget-loader-show');
+                        $('.widget-23b').addClass('widget-data-hide');
+                        $('.widget-24a').addClass('widget-loader-show');
+                        $('.widget-24b').addClass('widget-data-hide');
+                        $('.widget-25a').addClass('widget-loader-show');
+                        $('.widget-25b').addClass('widget-data-hide');
+                        $('.widget-38a').addClass('widget-loader-show');
+                        $('.widget-38b').addClass('widget-data-hide');
+                        $('.widget-39a').addClass('widget-loader-show');
+                        $('.widget-39b').addClass('widget-data-hide');
+                        $('.widget-34a').addClass('widget-loader-show');
+                        $('.widget-34b').addClass('widget-data-hide');
+
+
                     self.drop_work_pack = this.value;
                     self.drop_sub_proj = 'undefined';
                     self.drop_sub_pack = self.sub_pac_sel.value;
@@ -1571,6 +1925,68 @@
                         $('.day').addClass('active btn-success');
                         $('.day').siblings().removeClass('active btn-success');
                     }
+
+                        $('.widget-13a').addClass('widget-loader-show');
+                        $('.widget-13b').addClass('widget-data-hide');
+                        $('.widget-17a').addClass('widget-loader-show');
+                        $('.widget-17b').addClass('widget-data-hide');
+                        $('.widget-20a').addClass('widget-loader-show');
+                        $('.widget-20b').addClass('widget-data-hide');
+                        $('.widget-19a').addClass('widget-loader-show');
+                        $('.widget-19b').addClass('widget-data-hide');
+                        $('.widget-9a').addClass('widget-loader-show');
+                        $('.widget-9b').addClass('widget-data-hide');
+                        $('.widget-14a').addClass('widget-loader-show');
+                        $('.widget-14b').addClass('widget-data-hide');
+                        $('.widget-33a').addClass('widget-loader-show');
+                        $('.widget-33b').addClass('widget-data-hide');
+                        $('.widget-11a').addClass('widget-loader-show');
+                        $('.widget-11b').addClass('widget-data-hide');
+                        $('.widget-21a').addClass('widget-loader-show');
+                        $('.widget-21b').addClass('widget-data-hide');
+                        $('.widget-12a').addClass('widget-loader-show');
+                        $('.widget-12b').addClass('widget-data-hide');
+                        $('.widget-6a').addClass('widget-loader-show');
+                        $('.widget-6b').addClass('widget-data-hide');
+                        $('.widget-1a').addClass('widget-loader-show');
+                        $('.widget-1b').addClass('widget-data-hide');
+                        $('.widget-13a').addClass('widget-loader-show');
+                        $('.widget-13b').addClass('widget-data-hide');
+                        $('.widget-8a').addClass('widget-loader-show');
+                        $('.widget-8b').addClass('widget-data-hide');
+                        $('.widget-7a').addClass('widget-loader-show');
+                        $('.widget-7b').addClass('widget-data-hide');
+                        $('.widget-35a').addClass('widget-loader-show');
+                        $('.widget-35b').addClass('widget-data-hide');
+                        $('.widget-34a').addClass('widget-loader-show');
+                        $('.widget-34b').addClass('widget-data-hide');
+                        $('.widget-36a').addClass('widget-loader-show');
+                        $('.widget-36b').addClass('widget-data-hide');
+                        $('.widget-37a').addClass('widget-loader-show');
+                        $('.widget-37b').addClass('widget-data-hide');
+                        $('.widget-2a').addClass('widget-loader-show');
+                        $('.widget-2b').addClass('widget-data-hide');
+                        $('.widget-3a').addClass('widget-loader-show');
+                        $('.widget-3b').addClass('widget-data-hide');
+                        $('.widget-4a').addClass('widget-loader-show');
+                        $('.widget-4b').addClass('widget-data-hide');
+                        $('.widget-5a').addClass('widget-loader-show');
+                        $('.widget-5b').addClass('widget-data-hide');
+                        $('.widget-22a').addClass('widget-loader-show');
+                        $('.widget-22b').addClass('widget-data-hide');
+                        $('.widget-23a').addClass('widget-loader-show');
+                        $('.widget-23b').addClass('widget-data-hide');
+                        $('.widget-24a').addClass('widget-loader-show');
+                        $('.widget-24b').addClass('widget-data-hide');
+                        $('.widget-25a').addClass('widget-loader-show');
+                        $('.widget-25b').addClass('widget-data-hide');
+                        $('.widget-38a').addClass('widget-loader-show');
+                        $('.widget-38b').addClass('widget-data-hide');
+                        $('.widget-39a').addClass('widget-loader-show');
+                        $('.widget-39b').addClass('widget-data-hide');
+                        $('.widget-34a').addClass('widget-loader-show');
+                        $('.widget-34b').addClass('widget-data-hide');
+
 
                     self.drop_sub_pack = this.value;
                     self.drop_sub_proj = 'undefined';
@@ -1619,6 +2035,67 @@
                         $('.day').addClass('active btn-success');
                         $('.day').siblings().removeClass('active btn-success');
                     }
+                        $('.widget-13a').addClass('widget-loader-show');
+                        $('.widget-13b').addClass('widget-data-hide');
+                        $('.widget-17a').addClass('widget-loader-show');
+                        $('.widget-17b').addClass('widget-data-hide');
+                        $('.widget-20a').addClass('widget-loader-show');
+                        $('.widget-20b').addClass('widget-data-hide');
+                        $('.widget-19a').addClass('widget-loader-show');
+                        $('.widget-19b').addClass('widget-data-hide');
+                        $('.widget-9a').addClass('widget-loader-show');
+                        $('.widget-9b').addClass('widget-data-hide');
+                        $('.widget-14a').addClass('widget-loader-show');
+                        $('.widget-14b').addClass('widget-data-hide');
+                        $('.widget-33a').addClass('widget-loader-show');
+                        $('.widget-33b').addClass('widget-data-hide');
+                        $('.widget-11a').addClass('widget-loader-show');
+                        $('.widget-11b').addClass('widget-data-hide');
+                        $('.widget-21a').addClass('widget-loader-show');
+                        $('.widget-21b').addClass('widget-data-hide');
+                        $('.widget-12a').addClass('widget-loader-show');
+                        $('.widget-12b').addClass('widget-data-hide');
+                        $('.widget-6a').addClass('widget-loader-show');
+                        $('.widget-6b').addClass('widget-data-hide');
+                        $('.widget-1a').addClass('widget-loader-show');
+                        $('.widget-1b').addClass('widget-data-hide');
+                        $('.widget-13a').addClass('widget-loader-show');
+                        $('.widget-13b').addClass('widget-data-hide');
+                        $('.widget-8a').addClass('widget-loader-show');
+                        $('.widget-8b').addClass('widget-data-hide');
+                        $('.widget-7a').addClass('widget-loader-show');
+                        $('.widget-7b').addClass('widget-data-hide');
+                        $('.widget-35a').addClass('widget-loader-show');
+                        $('.widget-35b').addClass('widget-data-hide');
+                        $('.widget-34a').addClass('widget-loader-show');
+                        $('.widget-34b').addClass('widget-data-hide');
+                        $('.widget-36a').addClass('widget-loader-show');
+                        $('.widget-36b').addClass('widget-data-hide');
+                        $('.widget-37a').addClass('widget-loader-show');
+                        $('.widget-37b').addClass('widget-data-hide');
+                        $('.widget-2a').addClass('widget-loader-show');
+                        $('.widget-2b').addClass('widget-data-hide');
+                        $('.widget-3a').addClass('widget-loader-show');
+                        $('.widget-3b').addClass('widget-data-hide');
+                        $('.widget-4a').addClass('widget-loader-show');
+                        $('.widget-4b').addClass('widget-data-hide');
+                        $('.widget-5a').addClass('widget-loader-show');
+                        $('.widget-5b').addClass('widget-data-hide');
+                        $('.widget-22a').addClass('widget-loader-show');
+                        $('.widget-22b').addClass('widget-data-hide');
+                        $('.widget-23a').addClass('widget-loader-show');
+                        $('.widget-23b').addClass('widget-data-hide');
+                        $('.widget-24a').addClass('widget-loader-show');
+                        $('.widget-24b').addClass('widget-data-hide');
+                        $('.widget-25a').addClass('widget-loader-show');
+                        $('.widget-25b').addClass('widget-data-hide');
+                        $('.widget-38a').addClass('widget-loader-show');
+                        $('.widget-38b').addClass('widget-data-hide');
+                        $('.widget-39a').addClass('widget-loader-show');
+                        $('.widget-39b').addClass('widget-data-hide');
+                        $('.widget-34a').addClass('widget-loader-show');
+                        $('.widget-34b').addClass('widget-data-hide');
+
 
                         self.drop_work_pack = this.value;
                         self.drop_sub_proj = 'undefined';
@@ -1712,40 +2189,98 @@
                 var allo_and_comp = '/api/alloc_and_compl/'+common_for_all;*/
 
                 if ((name == 'chartOptions17') || (name == 'chartOptions18')) {
-                  
-                    self.allo_and_comp(final_work, key, all_data);                   
+
+                    if (name == 'chartOptions17') {
+                        $('.widget-17a').addClass('widget-loader-show');
+                        $('.widget-17b').addClass('widget-data-hide');
+                    }
+                    if (name == 'chartOptions18') {
+                        $('.widget-13a').addClass('widget-loader-show');
+                        $('.widget-13b').addClass('widget-data-hide');
+                    }
+                    self.allo_and_comp(final_work, key, all_data); 
                 }
                 if ((name == 'chartOptions25') || (name == 'chartOptions15') || (name == 'chartOptions24')) {
+                    if (name == 'chartOptions25') {
+                        $('.widget-20a').addClass('widget-loader-show');
+                        $('.widget-20b').addClass('widget-data-hide');
+                    }
+                    if (name == 'chartOptions24') {
+                        $('.widget-19a').addClass('widget-loader-show');
+                        $('.widget-19b').addClass('widget-data-hide');
+                    }
+                    if (name == 'chartOptions15') {
+                        $('.widget-9a').addClass('widget-loader-show');
+                        $('.widget-9b').addClass('widget-data-hide');
+                    }
                     self.utill_all(final_work, key, all_data);
                 }
                 if (name == 'chartOptions19') {
+                    $('.widget-14a').addClass('widget-loader-show');
+                    $('.widget-14b').addClass('widget-data-hide');
                     self.productivity(final_work, key);
                 }
                 if (name == 'chartOptions38') {
+                    $('.widget-33a').addClass('widget-loader-show');
+                    $('.widget-33b').addClass('widget-data-hide');
                     self.prod_avg(final_work, key);
                 }
                 if (name == 'chartOptions26') {
+                    $('.widget-21a').addClass('widget-loader-show');
+                    $('.widget-21b').addClass('widget-data-hide');
                     self.mont_volume(final_work, key);
                 }
                 if ((name == 'chartOptions16') || (name == 'chartOptions16_2')) {
+                    if (name == 'chartOptions16') {
+                        $('.widget-11a').addClass('widget-loader-show');
+                        $('.widget-11b').addClass('widget-data-hide');
+                    }
+                    if (name == 'chartOptions16_2') {
+                        $('.widget-12a').addClass('widget-loader-show');
+                        $('.widget-12b').addClass('widget-data-hide');
+                    }
                     self.fte_graphs(final_work, key, all_data);
                 }
                 if ((name == 'chartOptions10') || (name == 'chartOptions')) {
+                    if (name == 'chartOptions10') {
+                        $('.widget-6a').addClass('widget-loader-show');
+                        $('.widget-6b').addClass('widget-data-hide');
+                    }
+                    if (name == 'chartOptions') {
+                        $('.widget-1a').addClass('widget-loader-show');
+                        $('.widget-1b').addClass('widget-data-hide');
+                    }
                     self.main_prod(final_work, key, all_data);
                 }
-                if ((name == 'chartOptions9') || (name == 'chartOptions9_2')) {
+                if (name == 'chartOptions9') {
+                    $('.widget-8a').addClass('widget-loader-show');
+                    $('.widget-8b').addClass('widget-data-hide');
                     self.erro_all(final_work, key, all_data);
                 }
+
+                if (name == 'chartOptions9_2') {
+                    $('.widget-7a').addClass('widget-loader-show');
+                    $('.widget-7b').addClass('widget-data-hide');
+                    self.erro_extrnl_timeline(final_work, key);
+                }
                 if (name == 'chartOptions40') {
+                    $('.widget-35a').addClass('widget-loader-show');
+                    $('.widget-35b').addClass('widget-data-hide');
                     self.pre_scan(final_work, key);
                 }
                 if (name == 'chartOptions42') {
+                    $('.widget-37a').addClass('widget-loader-show');
+                    $('.widget-37b').addClass('widget-data-hide');
                     self.nw_exce(final_work, key);
                 }
                 if (name == 'chartOptions41') {
+                    $('.widget-36a').addClass('widget-loader-show');
+                    $('.widget-36b').addClass('widget-data-hide');
                     self.overall_exce(final_work, key);
                 }
                 if (name == 'chartOptions39') {
+                    $('.widget-34a').addClass('widget-loader-show');
+                    $('.widget-34b').addClass('widget-data-hide');
                     self.upload_acc(final_work, key);
                 }
              }                    
@@ -1776,27 +2311,77 @@
 
                 var final_work =  '&sub_project=' + self.drop_sub_proj + '&sub_packet=' + self.drop_sub_pack + '&work_packet=' + self.drop_work_pack + '&is_clicked=' + self.button_clicked;
 
+                $('.widget-17a').addClass('widget-loader-show');    
+                $('.widget-17b').addClass('widget-data-hide');
+                $('.widget-13a').addClass('widget-loader-show');        
+                $('.widget-13b').addClass('widget-data-hide');
+
                 self.allo_and_comp(final_work, key);
+
+                $('.widget-20a').addClass('widget-loader-show');    
+                $('.widget-20b').addClass('widget-data-hide');
+                $('.widget-19a').addClass('widget-loader-show');    
+                $('.widget-19b').addClass('widget-data-hide');
+                $('.widget-9a').addClass('widget-loader-show');    
+                $('.widget-9b').addClass('widget-data-hide');
 
                 self.utill_all(final_work, key);
 
+                $('.widget-14a').addClass('widget-loader-show');     
+                $('.widget-14b').addClass('widget-data-hide');
+
                 self.productivity(final_work, key);
+
+                $('.widget-33a').addClass('widget-loader-show');   
+                $('.widget-33b').addClass('widget-data-hide');
 
                 self.prod_avg(final_work, key);
 
+                $('.widget-21a').addClass('widget-loader-show');     
+                $('.widget-21b').addClass('widget-data-hide');
+
                 self.mont_volume(final_work, key);
+
+                $('.widget-11a').addClass('widget-loader-show');    
+                $('.widget-11b').addClass('widget-data-hide');
+                $('.widget-12a').addClass('widget-loader-show');   
+                $('.widget-12b').addClass('widget-data-hide');
 
                 self.fte_graphs(final_work, key);
  
+                $('.widget-6a').addClass('widget-loader-show');   
+                $('.widget-6b').addClass('widget-data-hide');
+                $('.widget-1a').addClass('widget-loader-show');   
+                $('.widget-1b').addClass('widget-data-hide');
+
                 self.main_prod(final_work, key);
+
+                $('.widget-8a').addClass('widget-loader-show');    
+                $('.widget-8b').addClass('widget-data-hide');
+                $('.widget-7a').addClass('widget-loader-show');   
+                $('.widget-7b').addClass('widget-data-hide');
 
                 self.erro_all(final_work, key);
 
+                self.erro_extrnl_timeline(final_work, key);
+
+                $('.widget-35a').addClass('widget-loader-show');    
+                $('.widget-35b').addClass('widget-data-hide');
+
                 self.pre_scan(final_work, key);
+
+                $('.widget-37a').addClass('widget-loader-show');   
+                $('.widget-37b').addClass('widget-data-hide');
 
                 self.nw_exce(final_work, key);
 
+                $('.widget-36a').addClass('widget-loader-show');   
+                $('.widget-36b').addClass('widget-data-hide');
+
                 self.overall_exce(final_work, key);
+
+                $('.widget-34a').addClass('widget-loader-show');   
+                $('.widget-34b').addClass('widget-data-hide');
 
                 self.upload_acc(final_work, key);
              }  
