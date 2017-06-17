@@ -1163,24 +1163,6 @@
                            $('.widget-2a').removeClass('widget-loader-show');
                            $('.widget-2b').removeClass('widget-data-hide');
 
-                           /*angular.extend(self.chartOptions6.yAxis,{
-                                min:result.result.ext_min_value,
-                                max:result.result.ext_max_value
-                            });
-
-                           angular.extend(self.chartOptions6,{
-                               series: [{
-                                   name: 'accuracy',
-                                   colorByPoint: true,
-                                   cursor: 'pointer',
-                                   data: result.result.external_accuracy_graph
-                               }]
-                           });
-                           $('.widget-3a').removeClass('widget-loader-show');
-                           $('.widget-3b').removeClass('widget-data-hide');*/
-                       })
-
-                       $http({method:"GET", url: err_external_bar_graph}).success(function(result){
                            angular.extend(self.chartOptions6.yAxis,{
                                 min:result.result.ext_min_value,
                                 max:result.result.ext_max_value
@@ -1196,7 +1178,79 @@
                            });
                            $('.widget-3a').removeClass('widget-loader-show');
                            $('.widget-3b').removeClass('widget-data-hide');
-                        })
+                       })
+
+                       /*$http({method:"GET", url: err_external_bar_graph}).success(function(result){
+                           angular.extend(self.chartOptions6.yAxis,{
+                                min:result.result.ext_min_value,
+                                max:result.result.ext_max_value
+                            });
+
+                           angular.extend(self.chartOptions6,{
+                               series: [{
+                                   name: 'accuracy',
+                                   colorByPoint: true,
+                                   cursor: 'pointer',
+                                   data: result.result.external_accuracy_graph
+                               }]
+                           });
+                           $('.widget-3a').removeClass('widget-loader-show');
+                           $('.widget-3b').removeClass('widget-data-hide');
+                        })*/
+
+                    self.from_to = function(final_work, type, name) {
+
+                        if (type == undefined) {
+                            type = 'day'
+                        }
+
+                        if (final_work == undefined) {
+                            final_work = ''
+                        }
+
+                        if (name == undefined) {
+                            name = ''
+                        }
+
+                        self.type = type;
+
+                        var from_to = '/api/from_to/'+self.data_to_show + type + final_work;
+
+                        $http({method:"GET", url: from_to}).success(function(result){
+
+                            var date_list = result.result.date;
+                            var external_error_timeline = result.result.external_time_line;
+                            //var internal_error_timeline = result.result.internal_time_line;
+
+                            if ((name == "self.chartOptions9_2") || (name == "")) {
+
+                                angular.extend(self.chartOptions9_2, {
+                                    xAxis: {
+                                        categories: date_list,
+                                    },
+                                    series: external_error_timeline
+                                });
+                                $('.widget-7a').removeClass('widget-loader-show');
+                                $('.widget-7b').removeClass('widget-data-hide');
+                            }
+
+                            if ((name == "self.chartOptions9") || (name == "")) {
+
+                                angular.extend(self.chartOptions9, {
+                                    xAxis: {
+                                        categories: date_list,
+                                    },
+                                    series: internal_error_timeline
+                                });
+                                $('.widget-8a').removeClass('widget-loader-show');
+                                $('.widget-8b').removeClass('widget-data-hide');
+                            }
+
+                         })
+                       }
+                       self.from_to(undefined, undefined, undefined)
+
+
                 self.hideLoading();
                 var static_ajax = static_data + self.static_widget_data;
                 //self.main_widget_function(self.call_back, '')
@@ -2787,7 +2841,9 @@
                             self.useful_layout = [];
                             self.list_object = result.result.lay[0];
                 if((result.result.role === 'customer') || (result.result.role === 'team_lead') || (result.result.role === 'center_manager') || (result.result.role === 'nextwealth_manager'))
-                {
+                {   
+                    $('#emp_widget').hide();
+                    $('#volume_table').hide();
                     self.first = result.result.dates.from_date;
                     self.lastDate = self.first;
                     self.last = result.result.dates.to_date;
@@ -2795,9 +2851,13 @@
                     $('#select').val(self.first + ' to ' + self.last)
 
                     if ((result.result.role === 'customer') || (result.result.role === 'team_lead') || (result.result.role === 'nextwealth_manager') || (result.result.role === 'center_manager')){
+                       $('#emp_widget').hide();
+                        $('#volume_table').hide();
                        self.layout_list = result.result.lay[1].layout;
                     }
                     else {
+                    $('#emp_widget').hide();
+                    $('#volume_table').hide();
                         if (result.result.lay.length == 1){
                             self.layout_list = result.result.lay[0][pro_cen_nam]
                         }
