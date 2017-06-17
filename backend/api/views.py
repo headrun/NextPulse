@@ -7875,7 +7875,6 @@ def get_review_details(request):
     from django.utils import timezone
     review_id = request.GET.get('review_id', "")
     rev_objs = Review.objects.filter(id = review_id)
-    #import pdb;pdb.set_trace()
     if not rev_objs:
         return HttpResponse('Failed')
     else:
@@ -7887,7 +7886,6 @@ def get_review_details(request):
             data['agenda'] = item.review_agenda
             review_date = item.review_date
 
-            #import pdb;pdb.set_trace()
             _df_time = review_date.date() -  timezone.now().date()
             _df_time = _df_time.days
             if _df_time < 1:
@@ -7905,7 +7903,6 @@ def get_review_details(request):
             data['date'] = review_date.strftime("%d %b, %Y")
             data['time'] = review_date.strftime("%I:%M %p")
             data['tl']   = item.team_lead.name.first_name+ " " + item.team_lead.name.last_name
-            #import pdb;pdb.set_trace()
             users = Customer.objects.filter(project = item.project).values_list('name__first_name', flat = True)
             rev_fil_objs = ReviewFiles.objects.filter(review__id = item.id)
             for obj in rev_fil_objs:
@@ -7931,7 +7928,7 @@ def get_rel_users(review_id):
     all_users = []
     users = ReviewMembers.objects.filter(review__id = review_id)
     for user in users:
-        name = user.first_name + " " + user.last_name
+        name = user.member.first_name + " " + user.member.last_name
         _id = user.id
         all_users.append({'name': name, 'id': _id})
     return all_users
@@ -7949,6 +7946,8 @@ def remove_attachment(request):
             table = "ReviewFiles"
         elif term_type == "member":
             table = "ReviewMembers"
+        elif term_type == "review":
+            table = "Review"
 
         objs = eval(table).objects.filter(id = revies_file_id)
         rev_id = objs[0].review.id
@@ -8020,8 +8019,10 @@ def get_related_user(request):
 
 def saving_members(request):
     """ saving members to DB """
-    review_id = request.POST.get(review_id, "")
-    users = request.POST.get(uids, "")
+    data = request.POST.get('json', "")
+    data = json.loads(data)
+    review_id = data.get("review_id", "")
+    users = data.get('uids', "")
 
     if not review_id or not users:
         return HttpResponse("Improper Data")
@@ -8041,9 +8042,10 @@ def saving_members(request):
     data['time'] = review_date.strftime("%I:%M %p")
     data['tl']   = item.team_lead.name.first_name+ " " + item.team_lead.name.last_name
 
+    users = User.objects.filter(id__in = users)
     for uid in users:
         try:
-            ReviewMembers.objects.create(review__id = review_id, member__id = uid)
+            ReviewMembers.objects.create(review = item, member = uid)
             send_mail("mail is working", 'This mail is for testing reviews', 'nextpulse@nextwealth.in', ['abhishek@headrun.com'])
         except:
             pass
