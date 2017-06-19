@@ -70,6 +70,7 @@
                     self.rev_agenda = result.data.result.agenda;
                     self.all_review_data = result.data.result.rev_files;
                     self.is_when = result.data.result.remained;
+                    self.membs = result.data.result.members;
                     $('.loading').removeClass('show').addClass('hide');
 
                  });
@@ -116,14 +117,27 @@
 
              self.remove_file = function(file_id) {
 
+                swal({
+                  title: "Are you sure?",
+                  text: "You will not be able to recover this attachment file!",
+                  type: "warning",
+                  showCancelButton: true,
+                  confirmButtonColor: "#DD6B55",
+                  confirmButtonText: "Yes, delete it!",
+                  cancelButtonText: "No, cancel pls!",
+                  closeOnConfirm: false,
+                  closeOnCancel: false
+                },
+
+                function(isConfirm){
+                    if (isConfirm) {
                  $('.loading').removeClass('hide').addClass('show');
 
                  self.remove_file_url = 'api/remove_attachment/?file_id='+file_id+'&term_type=attachment';
 
                  $http.get(self.remove_file_url).then(function(result){
 
-                    self.get_data_url = 'api/get_review_details/?review_id='+result.data.result;
-
+                    self.get_data_url = 'api/get_review_details/?review_id='+result.data.result.rev_id;
 
                  $http.get(self.get_data_url).then(function(result){
 
@@ -132,16 +146,48 @@
                  });
 
                  });
-
+                    swal("Deleted!", "Your attachment file has been deleted.", "success");
+                }
+                else {
+                    swal("Cancelled", "Your attachment file is safe :)", "error");
+                 }
+                }
+                });
              }
 
          self.del_review = function() {
-            console.log(self.rev_id);
 
-            self.remove_review_url = 'api/remove_attachment/?review_id='+self.rev_id;
+            swal({
+              title: "Are you sure?",
+              text: "You will not be able to recover this review!",
+              type: "warning",
+              showCancelButton: true,
+              confirmButtonColor: "#DD6B55",
+              confirmButtonText: "Yes, delete it!",
+              cancelButtonText: "No, cancel pls!",
+              closeOnConfirm: false,
+              closeOnCancel: false
+            },
+            function(isConfirm){
+              if (isConfirm) {
+                    $('.loading').removeClass('hide').addClass('show');
 
-            $http.get(self.remove_review_url).then(function(result){
-            
+                    self.remove_review_url = 'api/remove_attachment/?file_id='+self.rev_id+'&term_type=review';
+
+                    $http.get(self.remove_review_url).then(function(result){}).then(function (result){
+                      $http.get(self.review_url).then(function(result){
+
+                         self.all_reviews = result.data.result;
+                         self.rev_id = self.all_reviews[Object.keys(self.all_reviews)[0]][0].id;
+                         self.get_review(self.all_reviews[Object.keys(self.all_reviews)[0]][0]);
+                         return self.rev_id;
+                         $('.loading').removeClass('show').addClass('hide');
+                      });
+                    });
+                swal("Deleted!", "Your Review has been deleted.", "success");
+              } else {
+                swal("Cancelled", "Your Review is safe :)", "error");
+              }
             });
          }
 

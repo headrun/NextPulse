@@ -7950,9 +7950,14 @@ def remove_attachment(request):
             table = "Review"
 
         objs = eval(table).objects.filter(id = revies_file_id)
-        rev_id = objs[0].review.id
+        if term_type != "review":
+            rev_id = objs[0].review.id
+            res = {'rev_id': rev_id}
+        else:
+            rev_id = "success"
+            res = {'status': rev_id}
         objs.delete()
-        return HttpResponse(rev_id)
+        return HttpResponse(res)
     except:
         return HttpResponse("Failed")
 

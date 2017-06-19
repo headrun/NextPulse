@@ -208,9 +208,11 @@
         <br>
         <div class="participant"><i class="fa fa-users icon-padd" aria-hidden="true"></i><span style="margin-left:9px;"><i>Participants</i></span></div>
         <div class="attend">
-            <span>Yeswanth</span><br>
-            <span>Abhishek</span><br>
-            <span>Asifa</span><br>
+            <div ng-repeat="member in $ctrl.membs">
+            <span>{{member.name}}</span><br>
+            </div>
+            <!--<span>Abhishek</span><br>
+            <span>Asifa</span><br>-->
         </div>
         <hr>
         <div class="row" style="width:100%;">
