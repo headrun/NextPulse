@@ -40,7 +40,7 @@ urlpatterns = [
     url(r'^nw_exce', apiviews.nw_exce),
     url(r'^overall_exce', apiviews.overall_exce),
     url(r'^upload_acc', apiviews.upload_acc),
-    url(r'^err_field_graph',apiviews.err_field_graph),
+    #url(r'^err_field_graph',apiviews.err_field_graph),
     #url(r'^erro_extrnl_timeline',apiviews.erro_extrnl_timeline),
     #url(r'^err_external_bar_graph',apiviews.err_external_bar_graph),
     url(r'^get_packet_details', apiviews.get_packet_details),
