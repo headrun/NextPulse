@@ -6238,7 +6238,14 @@ def from_to(request):
         for perc_key,perc_value in error_graphs_data['intr_err_accuracy']['packets_percntage'].iteritems():
             final_intrn_accuracy[perc_key] = perc_value[0]
         final_dict['internal_accuracy_graph'] = graph_data_alignment_color(final_intrn_accuracy, 'y', level_structure_key, prj_id, center,'intenal_error_accuracy')
-
+    int_value_range = error_graphs_data['internal_accuracy_graph']
+    int_min_max = min_max_value_data(int_value_range)
+    final_dict['int_min_value'] = int_min_max['min_value']
+    final_dict['int_max_value'] = int_min_max['max_value']
+    int_value_range = error_graphs_data['external_accuracy_graph']
+    int_min_max = min_max_value_data(int_value_range)
+    final_dict['ext_min_value'] = int_min_max['min_value']
+    final_dict['ext_max_value'] = int_min_max['max_value']
     final_result_dict.update(final_dict)
     final_result_dict['volumes_graphs_details'] = volumes_graphs_details
     final_result_dict['Internal_Error_Category'] = category_error_count
@@ -6408,13 +6415,16 @@ def volume_graph_data_week_month(date_list,prj_id,center_obj,level_structure_key
                     closing_bal.append(vol_values)
                 elif volume_key == 'non_workable_count':
                     nwc.append(vol_values)
-        worktrack_volumes= {}
-        worktrack_volumes['Received'] = [sum(i) for i in zip(*received)]
+        #worktrack_volumes= {}
+	worktrack_volumes = OrderedDict()
+        #worktrack_volumes['Received'] = [sum(i) for i in zip(*received)]
         worktrack_volumes['Opening'] = [sum(i) for i in zip(*opening)]
+	worktrack_volumes['Received'] = [sum(i) for i in zip(*received)]
         worktrack_volumes['Non Workable Count'] = [sum(i) for i in zip(*nwc)]
         worktrack_volumes['Completed'] = [sum(i) for i in zip(*completed)]
         worktrack_volumes['Closing balance'] = [sum(i) for i in zip(*closing_bal)]
-        worktrack_timeline = {}
+        #worktrack_timeline = {}
+	worktrack_timeline = OrderedDict()
         worktrack_timeline['Completed'] = worktrack_volumes['Completed']
         worktrack_timeline['Received'] = worktrack_volumes['Received']
         worktrack_timeline['Opening'] = worktrack_volumes['Opening']

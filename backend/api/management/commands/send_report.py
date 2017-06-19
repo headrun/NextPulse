@@ -20,6 +20,9 @@ class Command(BaseCommand):
 
         proj_list = Project.objects.all()
 
+        not_req = ["Nextgen", "Quarto", "Bridgei2i", "3i VAPP", "E4U"]
+	proj_list = filter(lambda x: x.name not in not_req, list(proj_list))
+
         details = []
         mail_data = ''
 

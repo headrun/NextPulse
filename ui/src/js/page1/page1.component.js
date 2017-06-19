@@ -32,7 +32,9 @@
              var project = 'api/project/';
              var drop_down_link = '/api/dropdown_data/';
              var landing_pro = $state.params.selpro;
-             self.pro_landing_url = 'api/project/?name='+landing_pro
+             self.pro_landing_url = 'api/project/?name='+landing_pro;
+
+             
 
              //self.sell_proo = $state.params.selpro;
              $scope.singleModel = 1; 
@@ -95,6 +97,10 @@
                     self.lastDate = self.first;
                     self.last = result.result.dates.to_date;
                     self.firstDate = self.last;
+
+ 		    /*var login_user = $('#login-user').text()
+		    var user = "ga('set', 'userId', "+login_user+");"
+		    $('#analytics').append(user);*/
                     $('#select').val(self.first + ' to ' + self.last)
 
                     if ((result.result.role === 'customer') || (result.result.role === 'team_lead') || (result.result.role === 'nextwealth_manager') || (result.result.role === 'center_manager')){
