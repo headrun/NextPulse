@@ -83,6 +83,21 @@ div.content {
 thead {
     border: 1px solid black;
 }
+
+.widget-loader-show {
+  background: rgba( 255, 255, 255, .8 ) url('http://sampsonresume.com/labs/pIkfp.gif') 50% 50% no-repeat;
+}
+
+.widget-loader-hide {
+}
+
+.widget-data-hide {
+  display: none;    
+}
+
+.widget-data-show {
+}
+
 </style>
 <div class="container volume">
  <div class="row">
@@ -114,11 +129,11 @@ thead {
     <div class="row">
     <div ng-repeat="i in $ctrl.final_layout_list">
         <div class="col-sm-{{i.col}} widget">
-            <div class="widget-content">
+            <div class="widget-content widget-loader-show widget-{{i.id_num}}a">
                 <div class="widget-title clearfix" title="Sample Widg">
                     <span  id="title-name" class="pull-left">{{i.name}}</span>
                 </div>
-                <div class="widget-body">
+                <div class="widget-body widget-data-hide widget-{{i.id_num}}b">
                     <div ng-if="i.day_type_widget" class="input-group"id="inner2">
                         <div class="btn-group">
                             <button type="button" id="day" ng-model="radioModel" class="btn btn-default day2" ng-click="$ctrl.dateType('day', i.opt, i.api, 'day_yes')" uib-btn-radio="'Day'" style="cursor:pointer;">Day</button>
