@@ -19,7 +19,7 @@ class Project(models.Model):
     days_month = models.IntegerField(max_length=125,default=21)
     project_db_handlings_choices = (('update','Update'),('aggregate','Aggregate'),('ignore','Ignore'),)
     project_db_handling = models.CharField(max_length=30,choices=project_db_handlings_choices,default='ignore',) 
-
+    sub_project_check = models.BooleanField(default=None)
     class Meta:
         db_table = u'project'
         index_together = (('name', 'center',),)

@@ -253,69 +253,6 @@ def get_packet_details(request):
     final_dict['drop_value'] = big_dict
     return HttpResponse(final_dict)
 
-def worktrack(request):
-    final_dict = {}
-    vol_graph_bar_data = {}
-    final_vol_graph_bar_data = {}
-    data_date, new_date_list = [], []
-    week_names = []
-    week_num = 0
-    month_names = []
-    final_dict['volume_graphs'] = {}
-    main_data_dict = data_dict(request.GET)
-    if main_data_dict['dwm_dict'].has_key('day'):
-        main_dates_list = [ main_data_dict['dwm_dict']['day']]
-    elif main_data_dict['dwm_dict'].has_key('week'):
-        main_dates_list = main_data_dict['dwm_dict']['week']
-    elif main_data_dict['dwm_dict'].has_key('month'):
-        main_dates_list = main_data_dict['dwm_dict']['month']['month_dates']
-    prj_id = main_data_dict['pro_cen_mapping'][0][0]
-    center = main_data_dict['pro_cen_mapping'][1][0]
-
-    if main_data_dict['dwm_dict'].has_key('day'):
-        for sing_list in main_dates_list:
-            for date_va in sing_list:
-                total_done_value = RawTable.objects.filter(project=prj_id,center=center,date=date_va).aggregate(Max('per_day'))
-                if total_done_value['per_day__max'] > 0:
-                    new_date_list.append(date_va)
-            level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], main_data_dict['sub_packet'], main_data_dict['pro_cen_mapping'])
-            volume_graph = volume_graph_data(sing_list, main_data_dict['pro_cen_mapping'][0][0], main_data_dict['pro_cen_mapping'][1][0], level_structure_key)
-            final_dict['bar_data'] = graph_data_alignment_color(volume_graph['bar_data'],'data',level_structure_key,
-                                           main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0],'volume_bar_graph')
-            final_dict['date'] = new_date_list
-    elif main_data_dict['dwm_dict'].has_key('week'):
-        for sing_list in main_dates_list:
-            data_date.append(sing_list[0] + ' to ' + sing_list[-1])
-            week_name = str('week' + str(week_num))
-            week_names.append(week_name)
-            week_num = week_num + 1
-            level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], main_data_dict['sub_packet'],main_data_dict['pro_cen_mapping'])
-            volume_graph = volume_graph_data_week_month(sing_list, main_data_dict['pro_cen_mapping'][0][0], main_data_dict['pro_cen_mapping'][1][0], level_structure_key)
-            vol_graph_bar_data[week_name] = volume_graph['bar_data']
-            final_vol_graph_bar_data = volume_status_week(week_names, vol_graph_bar_data, final_vol_graph_bar_data)
-            final_dict['volume_graphs']['bar_data'] = graph_data_alignment_color(final_vol_graph_bar_data,'data', level_structure_key,prj_id,center,'volume_bar_graph')
-            final_dict['date_week'] = data_date
-    else:
-        for month_na,month_va in zip(main_data_dict['dwm_dict']['month']['month_names'],main_data_dict['dwm_dict']['month']['month_dates']):
-            month_name = month_na
-            month_dates = month_va
-            data_date.append(month_dates[0] + ' to ' + month_dates[-1])
-            month_names.append(month_name)
-            prj_id = main_data_dict['pro_cen_mapping'][0][0]
-            center = main_data_dict['pro_cen_mapping'][1][0]
-            level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], main_data_dict['sub_packet'],main_data_dict['pro_cen_mapping'])
-            volume_graph = volume_graph_data_week_month(month_dates, prj_id, center, level_structure_key)
-            vol_graph_line_data[month_name] = volume_graph['line_data']
-            vol_graph_bar_data[month_name] = volume_graph['bar_data']
-            final_vol_graph_bar_data = volume_status_week(month_names, vol_graph_bar_data, final_vol_graph_bar_data)
-            final_vol_graph_line_data = received_volume_week(month_names, vol_graph_line_data, final_vol_graph_line_data)
-            final_dict['volume_graphs'] = {}
-            final_dict['volume_graphs']['bar_data'] = graph_data_alignment_color(final_vol_graph_bar_data,'data', level_structure_key,prj_id,center,'volume_bar_graph')
-            final_dict['volume_graphs']['line_data'] = graph_data_alignment_color(final_vol_graph_line_data,'data', level_structure_key,prj_id,center,'volume_productivity_graph')
-            final_dict['date_month'] = data_date
-    final_dict['type'] = main_data_dict['type']            
-    return HttpResponse(final_dict)
-
 def alloc_and_compl(request):
     final_dict = {}
     vol_graph_line_data, vol_graph_bar_data = {}, {}
@@ -910,7 +847,7 @@ def main_prod(request):
     return HttpResponse(final_dict)
 
 
-def erro_data_all(request):
+"""def erro_data_all(request):
     final_dict = {}
     data_date, new_date_list = [], []
     week_names, month_names = [], []
@@ -1016,7 +953,7 @@ def erro_data_all(request):
         final_dict['date'] = data_date
     final_dict['type'] = main_data_dict['type']    
     print main_data_dict['type']
-    return HttpResponse(final_dict)
+    return HttpResponse(final_dict)"""
 
 """def erro_extrnl_timeline(request):
     final_dict = {}
@@ -1212,7 +1149,7 @@ def error_bar_graph(request):
 
     return HttpResponse(final_dict)
 
-def err_external_bar_graph(request):
+"""def err_external_bar_graph(request):
     final_dict = {}
     data_date = []
     main_data_dict = data_dict(request.GET)
@@ -1268,7 +1205,7 @@ def err_external_bar_graph(request):
                 final_dict['external_accuracy_graph'] = graph_data_alignment_color(final_extrn_accuracy, 'y', level_structure_key,
                      main_data_dict['pro_cen_mapping'][0][0], main_data_dict['pro_cen_mapping'][1][0],'external_error_accuracy')
 
-    return HttpResponse(final_dict)
+    return HttpResponse(final_dict)"""
 
 def err_field_graph(request):
     final_dict = {}
@@ -2870,14 +2807,32 @@ def Authoring_mapping(prj_obj,center_obj,model_name):
         map_query = {}
     return map_query
 
+def sub_project_names(fname,open_book):
+    import pdb;pdb.set_trace()
+    sub_prj_names = []
+    open_sheet = open_book.sheet_by_index(0)
+    prj_names = set(open_sheet.col_values(2)[1:])
+    sub_prj_len = len(prj_names)       
+    #center_name = Center.objects.filter(id=1).values_list('name',flat=True)[0]
+    center_name = Center.objects.filter(name = 'Salem').values_list('id',flat=True)[0]
+    for project_name in prj_names:
+        #project_id = Project(name = project_name, center= center_name)
+        project_id = Project.objects.get_or_create(name = project_name, center = center_name).save()
+        project_id = project_id.id
+        sub_prj_names.add(project_name)
+        sub_prj_names.add(project_id)
+    return sub_prj_names
+
 def upload_new(request):
     teamleader_obj_name = TeamLead.objects.filter(name_id=request.user.id)[0]
     teamleader_obj = TeamLead.objects.filter(name_id=request.user.id).values_list('project_id','center_id')[0]
     prj_obj = Project.objects.filter(id=teamleader_obj[0])[0]
     prj_name= prj_obj.name
     center_obj = Center.objects.filter(id=teamleader_obj[1])[0]
+    prj_id = Project.objects.filter(name=prj_obj).values_list('id',flat=True)[0]
     fname = request.FILES['myfile']
     var = fname.name.split('.')[-1].lower()
+    #import pdb;pdb.set_trace()
     if var not in ['xls', 'xlsx', 'xlsb']:
         return HttpResponse("Invalid File")
     else:
@@ -2886,7 +2841,6 @@ def upload_new(request):
             #open_sheet = open_book.sheet_by_index(0)
         except:
             return HttpResponse("Invalid File")
-
         excel_sheet_names = open_book.sheet_names()
         file_sheet_names = Authoringtable.objects.filter(project=prj_obj,center=center_obj).values_list('sheet_name',flat=True).distinct()
         sheet_names = {}
@@ -2902,6 +2856,12 @@ def upload_new(request):
         ignorablable_fields = []
         other_fileds = []
         authoring_dates = {}
+        # for sub_project_check functionality
+        #import pdb;pdb.set_trace()
+        sub_project_boolean_check = Project.objects.filter(id=prj_id).values_list('sub_project_check',flat=True)[0]
+        if sub_project_boolean_check == True:
+            import pdb;pdb.set_trace()
+            project_names = sub_project_names(fname, open_book)
         mapping_ignores = ['project_id','center_id','_state','sheet_name','id','total_errors_require']
         raw_table_map_query = Authoring_mapping(prj_obj,center_obj,'RawtableAuthoring')
         for map_key,map_value in raw_table_map_query.iteritems():
@@ -3020,7 +2980,7 @@ def upload_new(request):
                     other_fileds.append(required_filed[1])
                 if map_key == 'date':
                     authoring_dates['incoming_error_date'] = map_value.lower()
-
+        #import pdb;pdb.set_trace()
         other_fileds = filter(None, other_fileds)
         file_sheet_names = sheet_names.values()
         sheet_index_dict = {}
@@ -3045,6 +3005,7 @@ def upload_new(request):
             sheet_headers = validate_sheet(open_sheet,request,SOH_XL_HEADERS,SOH_XL_MAN_HEADERS)
             for row_idx in range(1, open_sheet.nrows):
                 customer_data = {}
+                #import pdb;pdb.set_trace()
                 for column, col_idx in sheet_headers:
                     cell_data = get_cell_data(open_sheet, row_idx, col_idx)
                     if column in authoring_dates.values():
@@ -3102,7 +3063,6 @@ def upload_new(request):
                                                 raw_table_dataset[str(customer_data[date_name])][emp_key][pdct_key] = pdct_value
                             else:
                                 raw_table_dataset[str(customer_data[date_name])][emp_key] = local_raw_data
-
 
                 if key == sheet_names.get('internal_error_sheet',''):
                     date_name = authoring_dates['intr_error_date']
@@ -6243,6 +6203,14 @@ def day_week_month(request, dwm_dict, prj_id, center, work_packets, level_struct
             final_dict['ext_min_value'] = ext_min_value
             final_dict['ext_max_value'] = ext_max_value
         # final_dict.update(error_graphs_data)
+        new_date_list = []
+        for date_va in dwm_dict['day']:
+            total_done_value = RawTable.objects.filter(project=prj_id,center=center,date=date_va).aggregate(Max('per_day'))
+            if total_done_value['per_day__max'] > 0:
+                new_date_list.append(date_va)
+
+        final_dict['date'] = new_date_list
+        #print dates
         return final_dict
 
     if dwm_dict.has_key('month'):

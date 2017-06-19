@@ -230,7 +230,7 @@
                     var cate_error = '/api/cate_error/'+self.common_for_all;
                     var pareto_cate_error = '/api/pareto_cate_error/'+self.common_for_all;
                     var agent_cate_error = '/api/agent_cate_error/'+self.common_for_all;
-                    var err_external_bar_graph = '/api/err_external_bar_graph/'+self.common_for_all;
+                    //var err_external_bar_graph = '/api/err_external_bar_graph/'+self.common_for_all;
                     //var main_prod = '/api/main_prod/'+self.common_for_all;
                     //var pre_scan = '/api/pre_scan_exce/'+self.common_for_all;
                     var nw_exce = '/api/nw_exce/'+self.common_for_all;
@@ -1220,7 +1220,7 @@
 
                             var date_list = result.result.date;
                             var external_error_timeline = result.result.external_time_line;
-                            //var internal_error_timeline = result.result.internal_time_line;
+                            var internal_error_timeline = result.result.internal_time_line;
 
                             if ((name == "self.chartOptions9_2") || (name == "")) {
 
