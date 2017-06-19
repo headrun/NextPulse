@@ -83,6 +83,21 @@ div.content {
 thead {
     border: 1px solid black;
 }
+
+.widget-loader-show {
+  background: rgba( 255, 255, 255, .8 ) url('http://sampsonresume.com/labs/pIkfp.gif') 50% 50% no-repeat;
+}
+
+.widget-loader-hide {
+}
+
+.widget-data-hide {
+  display: none;    
+}
+
+.widget-data-show {
+}
+
 </style>
 <div class="container volume">
  <div class="row">
@@ -111,24 +126,26 @@ thead {
     </div>
 </div>
     <div class="scroll">
-    <div class="row" ng-repeat="i in $ctrl.useful_layout">
-        <div ng-repeat="j in i" class="col-sm-{{j.col}} widget">
-            <div class="widget-content">
+    <div class="row">
+    <div ng-repeat="i in $ctrl.final_layout_list">
+        <div class="col-sm-{{i.col}} widget">
+            <div class="widget-content widget-loader-show widget-{{i.id_num}}a">
                 <div class="widget-title clearfix" title="Sample Widg">
-                    <span  id="title-name" class="pull-left">{{j.name}}</span>
+                    <span  id="title-name" class="pull-left">{{i.name}}</span>
                 </div>
-                <div class="widget-body">
-                    <div ng-if="j.day_type_widget" class="input-group"id="inner2">
+                <div class="widget-body widget-data-hide widget-{{i.id_num}}b">
+                    <div ng-if="i.day_type_widget" class="input-group"id="inner2">
                         <div class="btn-group">
-                            <button type="button" id="day" ng-model="radioModel" class="btn btn-default day2" ng-click="$ctrl.dateType('day', j.opt, j.api, 'day_yes')" uib-btn-radio="'Day'" style="cursor:pointer;">Day</button>
-                            <button type="button" id="week" ng-model="radioModel" class="btn btn-default week2" ng-click="$ctrl.dateType('week', j.opt, j.api, 'week_yes')" uib-btn-radio="'Week'" style="cursor:pointer;">Week</button>
-                            <button type="button" id="Month" ng-model="radioModel" class="btn btn-default month2" ng-click="$ctrl.dateType('month', j.opt, j.api, 'month_yes')" uib-btn-radio="'Month'" style="cursor:pointer;">Month</button>
+                            <button type="button" id="day" ng-model="radioModel" class="btn btn-default day2" ng-click="$ctrl.dateType('day', i.opt, i.api, 'day_yes')" uib-btn-radio="'Day'" style="cursor:pointer;">Day</button>
+                            <button type="button" id="week" ng-model="radioModel" class="btn btn-default week2" ng-click="$ctrl.dateType('week', i.opt, i.api, 'week_yes')" uib-btn-radio="'Week'" style="cursor:pointer;">Week</button>
+                            <button type="button" id="Month" ng-model="radioModel" class="btn btn-default month2" ng-click="$ctrl.dateType('month', i.opt, i.api, 'month_yes')" uib-btn-radio="'Month'" style="cursor:pointer;">Month</button>
                          </div>
                      </div>
-                    <highcharts options="$ctrl.final_layout_values_list[j.opt]"></highcharts>
+                    <highcharts options="$ctrl.final_layout_values_list[i.opt]"></highcharts>
                 </div>
             </div>
         </div>
+    </div>
     </div>
 
     <div class="row">
