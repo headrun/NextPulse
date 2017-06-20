@@ -82,6 +82,7 @@
                 self.start = start.format('YYYY-MM-DD');
                 self.end = end.format('YYYY-MM-DD');
                 $('.input-sm').prop('selectedIndex',0);
+
                 $('.widget-13a').addClass('widget-loader-show');
                 $('.widget-13b').addClass('widget-data-hide');
                 $('.widget-17a').addClass('widget-loader-show');
@@ -166,25 +167,6 @@
 
              /*self.dateType = function(key,all_data,name,button_clicked){
 
-                if (result.result.role === 'customer'){
-                    $('#emp_widget').hide();
-                    $('#volume_table').hide();
-                     }
-                self.list_object = result.result.lay[0];
-                /*self.list_object = result.result.lay[0];*/
-                if((result.result.role === 'customer') || (result.result.role === 'team_lead') || (result.result.role === 'center_manager') || (result.result.role === 'nextwealth_manager'))
-                {   $('#emp_widget').hide();
-                    $('#volume_table').hide();
-                    var pro_cen_nam = $state.params.selpro;
-                    self.first = result.result.dates.from_date;
-                    self.lastDate = self.first;
-                    self.last = result.result.dates.to_date;
-                    self.firstDate = self.last;
-
- 		    /*var login_user = $('#login-user').text()
-		    var user = "ga('set', 'userId', "+login_user+");"
-		    $('#analytics').append(user);*/
-                    $('#select').val(self.first + ' to ' + self.last)
                 var obj = {
                     "self.chartOptions17":self.chartOptions17,
                     "self.chartOptions18":self.chartOptions18,
@@ -225,6 +207,11 @@
                     self.center_live = callback[2];
 
                     self.project_live = callback[3];
+
+                    $('#emp_widget').hide();
+
+                    $('#volume_table').hide();
+
 
                     //self.lastDate+'&to='+self.firstDate+'&type=' + self.day_type;
                     
@@ -1056,7 +1043,7 @@
                     self.upload_acc(undefined, undefined)
 
 
-                    self.erro_all = function(final_work, type, name) {
+                    /*self.erro_all = function(final_work, type, name) {
 
                         if (type == undefined) {
                             type = 'day'
@@ -1093,9 +1080,9 @@
                             }
                        })
                     }
-                    self.erro_all(undefined, undefined, undefined)
+                    self.erro_all(undefined, undefined, undefined)*/
 
-                    self.erro_extrnl_timeline = function(final_work, type, name) {
+                    /*self.erro_extrnl_timeline = function(final_work, type, name) {
 
                         if (type == undefined) {
                             type = 'day'
@@ -1131,7 +1118,7 @@
                             }
                          })
                        }
-                       self.erro_extrnl_timeline(undefined, undefined, undefined)                         
+                       self.erro_extrnl_timeline(undefined, undefined, undefined)*/                         
 
                        $http({method:"GET", url: err_field_graph}).success(function(result){
                            angular.extend(self.chartOptions43.yAxis,{
