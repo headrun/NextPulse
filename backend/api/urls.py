@@ -34,7 +34,7 @@ urlpatterns = [
     url(r'^main_prod', apiviews.main_prod),
     url(r'^fte_graphs', apiviews.fte_graphs),
     url(r'^monthly_volume', apiviews.monthly_volume),
-    url(r'^error_bar_graph', apiviews.error_bar_graph),
+    #url(r'^error_bar_graph', apiviews.error_bar_graph),
 #    url(r'^erro_data_all', apiviews.erro_data_all),
     url(r'^pre_scan_exce',apiviews.pre_scan_exce),
     url(r'^nw_exce', apiviews.nw_exce),

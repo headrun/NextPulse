@@ -80,6 +80,7 @@
                 self.start = start.format('YYYY-MM-DD');
                 self.end = end.format('YYYY-MM-DD');
                 $('.input-sm').prop('selectedIndex',0);
+
                 $('.widget-13a').addClass('widget-loader-show');
                 $('.widget-13b').addClass('widget-data-hide');
                 $('.widget-17a').addClass('widget-loader-show');
@@ -204,6 +205,10 @@
                     self.center_live = callback[2];
 
                     self.project_live = callback[3];
+
+                    $('#emp_widget').hide();
+
+                    $('#volume_table').hide();
 
                     //self.lastDate+'&to='+self.firstDate+'&type=' + self.day_type;
                     
@@ -2862,6 +2867,7 @@
                             self.layout_list = result.result.lay[0][pro_cen_nam]
                         }
                         else {
+
                             self.layout_list = result.result.lay[1][pro_cen_nam]
                         }
                     }

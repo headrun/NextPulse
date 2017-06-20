@@ -479,7 +479,6 @@ def monthly_volume(request):
                 if total_done_value['per_day__max'] > 0:
                     new_date_list.append(date_va)
             level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], main_data_dict['sub_packet'],main_data_dict['pro_cen_mapping'])
-            #import pdb;pdb.set_trace()
             monthly_volume_graph_details = Monthly_Volume_graph(main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0],sing_list,level_structure_key)
             final_dict['monthly_volume_graph_details'] = graph_data_alignment_color(monthly_volume_graph_details, 'data',level_structure_key,main_data_dict['pro_cen_mapping'][0][0], main_data_dict['pro_cen_mapping'][1][0],'monthly_volume') 
             final_dict['date'] = new_date_list
@@ -1064,7 +1063,7 @@ def main_prod(request):
         final_dict['date'] = data_date
     return HttpResponse(final_dict)"""
 
-def error_bar_graph(request):
+"""def error_bar_graph(request):
     final_dict = {}
     data_date = []
     main_data_dict = data_dict(request.GET)
@@ -1147,7 +1146,7 @@ def error_bar_graph(request):
                 final_dict['external_accuracy_graph'] = graph_data_alignment_color(final_extrn_accuracy, 'y', level_structure_key,
                      main_data_dict['pro_cen_mapping'][0][0], main_data_dict['pro_cen_mapping'][1][0],'external_error_accuracy')
 
-    return HttpResponse(final_dict)
+    return HttpResponse(final_dict)"""
 
 """def err_external_bar_graph(request):
     final_dict = {}
@@ -2807,21 +2806,21 @@ def Authoring_mapping(prj_obj,center_obj,model_name):
         map_query = {}
     return map_query
 
-def sub_project_names(fname,open_book):
-    import pdb;pdb.set_trace()
+"""def sub_project_names(fname,open_book):
     sub_prj_names = []
+    #final_prj_names = []
     open_sheet = open_book.sheet_by_index(0)
     prj_names = set(open_sheet.col_values(2)[1:])
     sub_prj_len = len(prj_names)       
-    #center_name = Center.objects.filter(id=1).values_list('name',flat=True)[0]
-    center_name = Center.objects.filter(name = 'Salem').values_list('id',flat=True)[0]
+    import pdb;pdb.set_trace()
     for project_name in prj_names:
-        #project_id = Project(name = project_name, center= center_name)
-        project_id = Project.objects.get_or_create(name = project_name, center = center_name).save()
-        project_id = project_id.id
-        sub_prj_names.add(project_name)
-        sub_prj_names.add(project_id)
-    return sub_prj_names
+        proj_name = Project(name = project_name, sub_project_check=0)
+        proj_name.save()
+        proj_name.id
+        sub_prj_names.append(project_name)
+        sub_prj_names.append(proj_name.id)
+    final_prj_names = [[sub_prj_names[i],sub_prj_names[i+1]] for i in range(0,len(sub_prj_names),2)]
+    return final_prj_names"""
 
 def upload_new(request):
     teamleader_obj_name = TeamLead.objects.filter(name_id=request.user.id)[0]
@@ -2858,10 +2857,10 @@ def upload_new(request):
         authoring_dates = {}
         # for sub_project_check functionality
         #import pdb;pdb.set_trace()
-        sub_project_boolean_check = Project.objects.filter(id=prj_id).values_list('sub_project_check',flat=True)[0]
+        """sub_project_boolean_check = Project.objects.filter(id=prj_id).values_list('sub_project_check',flat=True)[0]
         if sub_project_boolean_check == True:
             import pdb;pdb.set_trace()
-            project_names = sub_project_names(fname, open_book)
+            project_names = sub_project_names(fname, open_book)"""
         mapping_ignores = ['project_id','center_id','_state','sheet_name','id','total_errors_require']
         raw_table_map_query = Authoring_mapping(prj_obj,center_obj,'RawtableAuthoring')
         for map_key,map_value in raw_table_map_query.iteritems():
@@ -5005,6 +5004,7 @@ def internal_extrnal_graphs_same_formula(date_list,prj_id,center_obj,level_struc
         error_filter = [i for i in value if i!='NA']
         error_audit_data[key] = sum(error_filter)
     error_accuracy = {}
+    #import pdb;pdb.set_trace()
     for key,value in error_volume_data.iteritems():
         if error_audit_data[key]:
              percentage = ((float(value)/float(error_audit_data[key])))*100
@@ -7690,7 +7690,7 @@ def from_to(request):
     ###extrnl_category_error_count = sample_pareto_analysis(request, date_list, prj_id, center, level_structure_key, "External")
     #extrnl_category_error_count = sample_pareto_analysis(request, employe_dates['days'], prj_id, center, level_structure_key, "External")
     ###error_graphs_data = internal_extrnal_graphs(request, employe_dates['days'], prj_id, center,{},level_structure_key)
-    #error_graphs_data = internal_extrnal_graphs(employe_dates['days'], prj_id, center,level_structure_key)
+    error_graphs_data = internal_extrnal_graphs(employe_dates['days'], prj_id, center,level_structure_key)
     final_dict = {}
     """field_internal_error_graph_data = internal_external_graphs_common(request,employe_dates['days'],prj_id,center,level_structure_key,'Internal')
     if field_internal_error_graph_data.has_key('internal_field_accuracy_graph'):
@@ -7719,7 +7719,7 @@ def from_to(request):
         final_dict['exter_max_value'] = int_min_max['max_value']
     """
       
-    """if error_graphs_data.has_key('internal_accuracy_graph'):
+    if error_graphs_data.has_key('internal_accuracy_graph'):
         final_dict['internal_accuracy_graph'] = graph_data_alignment_color(error_graphs_data['internal_accuracy_graph'], 'y', level_structure_key, prj_id, center,'internal_error_accuracy')
     if error_graphs_data.has_key('external_accuracy_graph'):
         final_dict['external_accuracy_graph'] = graph_data_alignment_color(error_graphs_data['external_accuracy_graph'], 'y', level_structure_key, prj_id, center,'external_error_accuracy')
@@ -7732,7 +7732,7 @@ def from_to(request):
         final_intrn_accuracy = {} 
         for perc_key,perc_value in error_graphs_data['intr_err_accuracy']['packets_percntage'].iteritems():
             final_intrn_accuracy[perc_key] = perc_value[0]
-        final_dict['internal_accuracy_graph'] = graph_data_alignment_color(final_intrn_accuracy, 'y', level_structure_key, prj_id, center,'intenal_error_accuracy')"""
+        final_dict['internal_accuracy_graph'] = graph_data_alignment_color(final_intrn_accuracy, 'y', level_structure_key, prj_id, center,'intenal_error_accuracy')
     
     final_result_dict.update(final_dict)
     #final_result_dict['volumes_graphs_details'] = volumes_graphs_details
