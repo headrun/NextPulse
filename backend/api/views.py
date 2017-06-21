@@ -7917,6 +7917,8 @@ def get_review_details(request):
                 data['rev_files'].append({ 'name' : name, 'path': url})
 
             data['members'] = get_rel_users(item.id)
+
+            send_review_mail(data)
             return HttpResponse(data)
 
         except:
@@ -8057,7 +8059,82 @@ def saving_members(request):
 
     return HttpResponse("Success")
 
+def send_review_mail(data):
+    "mail sending module for review"
+    import pdb;pdb.set_trace()
+    mail_body = "<html>\
+            <head>\
+                <style>\
+                table {\
+                    font-family: arial, sans-serif;\
+                    border-collapse: collapse;\
+                    width: 50%;\
+                    margin-top: 15%;\
+                }\
+                td, th {\
+                    border: 1px solid #dddddd;\
+                    text-align: center;\
+                    padding: 8px;\
+                }\
+                tr:nth-child(even) {\
+                    background-color: #dddddd;\
+                }\
+                </style>\
+            </head>\
+            <body>\
+                <table align= 'center'>"
 
+    _time  = "<tr>\
+                <td>\
+                <label> <b>Time </b></label>\
+                </td>\
+                <td>\
+                  %s\
+                </td>\
+                </tr>" % data['time']
+
+    _date = "<tr>\
+             <td>\
+             <label> <b>Date </b></label>\
+             </td>\
+             <td>\
+              %s\
+             </td>\
+             </tr>" % data['date']
+
+    _day = "<tr>\
+            <td>\
+            <label> <b>Day </b></label>\
+            </td>\
+            <td>\
+             %s\
+            </td>\
+            </tr>" % data['day']
+
+    _name = "<tr>\
+             <td>\
+             <label> <b>Name </b></label>\
+             </td>\
+             <td>\
+              %s\
+             </td>\
+             </tr>" % data['name']
+
+    _agenda = " <tr>\
+                <td>\
+                <b>Agenda </b>\
+                </td>\
+                <td>\
+                %s\
+                </td>\
+                </tr>\
+                </table>\
+            </body>\
+        </html>" % data['agenda']
+
+
+    # % (data['time'], data['date'], data['day'], data['name'], data['agenda'])
+    send_mail("mail is working", mail_body, 'nextpulse@nextwealth.in', ['abhishek@headrun.com'])
 
 #====================================== REVIEW code ends here ======================================
 

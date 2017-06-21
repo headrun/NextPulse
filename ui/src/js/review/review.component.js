@@ -151,7 +151,6 @@
                 else {
                     swal("Cancelled", "Your attachment file is safe :)", "error");
                  }
-                }
                 });
              }
 
