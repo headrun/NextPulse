@@ -2806,21 +2806,27 @@ def Authoring_mapping(prj_obj,center_obj,model_name):
         map_query = {}
     return map_query
 
-"""def sub_project_names(fname,open_book):
-    sub_prj_names = []
-    #final_prj_names = []
+# IBM sub_project functionality
+def sub_project_names(request,open_book):
+    sub_prj_names = {}
     open_sheet = open_book.sheet_by_index(0)
     prj_names = set(open_sheet.col_values(2)[1:])
-    sub_prj_len = len(prj_names)       
-    import pdb;pdb.set_trace()
     for project_name in prj_names:
-        proj_name = Project(name = project_name, sub_project_check=0)
-        proj_name.save()
-        proj_name.id
-        sub_prj_names.append(project_name)
-        sub_prj_names.append(proj_name.id)
-    final_prj_names = [[sub_prj_names[i],sub_prj_names[i+1]] for i in range(0,len(sub_prj_names),2)]
-    return final_prj_names"""
+        main_prj_name = Project.objects.filter(name = project_name).values_list('id',flat=True)
+        if main_prj_name:
+            if sub_prj_names.has_key(project_name):
+                sub_prj_names[project_name].append(main_prj_name[0])
+            else:
+                sub_prj_names[project_name] = main_prj_name[0]
+        else:
+            proj_name = Project(name = project_name, sub_project_check=0)
+            proj_name.save()
+            proj_name.id
+            if sub_prj_names.has_key(project_name):
+                sub_prj_names[project_name].append(proj_name.id)
+            else:
+                sub_prj_names[project_name] = proj_name.id
+    return sub_prj_names
 
 def upload_new(request):
     teamleader_obj_name = TeamLead.objects.filter(name_id=request.user.id)[0]
@@ -2856,11 +2862,16 @@ def upload_new(request):
         other_fileds = []
         authoring_dates = {}
         # for sub_project_check functionality
-        #import pdb;pdb.set_trace()
-        """sub_project_boolean_check = Project.objects.filter(id=prj_id).values_list('sub_project_check',flat=True)[0]
+        sub_project_boolean_check = Project.objects.filter(id=prj_id).values_list('sub_project_check',flat=True)[0]
         if sub_project_boolean_check == True:
-            import pdb;pdb.set_trace()
-            project_names = sub_project_names(fname, open_book)"""
+            project_names = sub_project_names(request, open_book)
+            prj_obj = project_names['Pakistan']
+            #prj_obj = Project.objects.filter(id = project_id).values_list('name',flat=True)[0]
+            #prj_obj = Project.objects.filter(name = prj_name)[0]
+            center_obj = center_obj
+        else:
+            prj_obj = prj_obj
+            center_obj = center_obj
         mapping_ignores = ['project_id','center_id','_state','sheet_name','id','total_errors_require']
         raw_table_map_query = Authoring_mapping(prj_obj,center_obj,'RawtableAuthoring')
         for map_key,map_value in raw_table_map_query.iteritems():
@@ -2979,15 +2990,14 @@ def upload_new(request):
                     other_fileds.append(required_filed[1])
                 if map_key == 'date':
                     authoring_dates['incoming_error_date'] = map_value.lower()
-        #import pdb;pdb.set_trace()
         other_fileds = filter(None, other_fileds)
         file_sheet_names = sheet_names.values()
         sheet_index_dict = {}
         for sh_name in file_sheet_names:
             if sh_name in excel_sheet_names:
                 sheet_index_dict[sh_name] = open_book.sheet_names().index(sh_name)
-
-        db_check = str(Project.objects.filter(name=prj_obj.name,center=center_obj).values_list('project_db_handling',flat=True)[0])
+        #db_check = str(Project.objects.filter(name=prj_obj.name,center=center_obj).values_list('project_db_handling',flat=True)[0])
+        db_check = str(Project.objects.filter(name=prj_obj,center=center_obj).values_list('project_db_handling',flat=True))
         raw_table_dataset, internal_error_dataset, external_error_dataset, work_track_dataset,headcount_dataset = {}, {}, {}, {},{}
         target_dataset = {}
         tats_table_dataset = {}
@@ -3483,25 +3493,35 @@ def upload_new(request):
                                 else:
                                     upload_table_dataset[str(customer_data[date_name])][emp_key] = local_upload_data
 
-        #import pdb;pdb.set_trace()
         for date_key,date_value in internal_error_dataset.iteritems():
             for emp_key,emp_value in date_value.iteritems():
+                #import pdb;pdb.set_trace()
+                proje_id = date_value[emp_key]['sub_project']
+                prj_obj = Project.objects.filter(name = proje_id)[0]
                 emp_data = Error_checking(emp_value,intrnl_error_check)
                 #if emp_data['status'] == 'matched':
                 internalerror_insert = internalerror_query_insertion(emp_data, prj_obj, center_obj,teamleader_obj_name,db_check)
         for date_key,date_value in external_error_dataset.iteritems():
             for emp_key,emp_value in date_value.iteritems():
+                proje_id = date_value[emp_key]['sub_project']
+                prj_obj = Project.objects.filter(name = proje_id)[0]
                 emp_data = Error_checking(emp_value,extrnl_error_check)
                 #if emp_data['status'] == 'matched':
                 externalerror_insert = externalerror_query_insertion(emp_value, prj_obj, center_obj,teamleader_obj_name,db_check)
         for date_key,date_value in work_track_dataset.iteritems():
             for emp_key,emp_value in date_value.iteritems():
+                proje_id = date_value[emp_key]['sub_project']
+                prj_obj = Project.objects.filter(name = proje_id)[0]
                 externalerror_insert = worktrack_query_insertion(emp_value, prj_obj, center_obj,teamleader_obj_name,db_check)
         for date_key, date_value in headcount_dataset.iteritems():
             for emp_key, emp_value in date_value.iteritems():
+                proje_id = date_value[emp_key]['sub_project']
+                prj_obj = Project.objects.filter(name = proje_id)[0]
                 headcount_insert = headcount_query_insertion(emp_value, prj_obj, center_obj, teamleader_obj_name,db_check)
         for date_key, date_value in target_dataset.iteritems():
             for emp_key, emp_value in date_value.iteritems():
+                proje_id = date_value[emp_key]['sub_project']
+                prj_obj = Project.objects.filter(name = proje_id)[0]
                 externalerror_insert = target_table_query_insertion(emp_value, prj_obj, center_obj, teamleader_obj_name,db_check)
 
         for date_key, date_value in tats_table_dataset.iteritems():
@@ -3519,6 +3539,8 @@ def upload_new(request):
 
         for date_key,date_value in raw_table_dataset.iteritems():
             for emp_key,emp_value in date_value.iteritems():
+                proje_id = date_value[emp_key]['sub_project']
+                prj_obj = Project.objects.filter(name = proje_id)[0]
                 try:
                     per_day_value = int(float(emp_value.get('per_day', '')))
                 except:
@@ -3527,16 +3549,30 @@ def upload_new(request):
 
         if len(raw_table_dataset)>0:
             sorted_dates = dates_sorting(raw_table_dataset)
-            insert = redis_insert(prj_obj, center_obj,sorted_dates , key_type='Production')
+            for emp_key,emp_value in date_value.iteritems():
+                proje_id = date_value[emp_key]['sub_project']
+                prj_obj = Project.objects.filter(name = proje_id)[0]
+                insert = redis_insert(prj_obj, center_obj,sorted_dates , key_type='Production')
+
         if len(internal_error_dataset) > 0:
             sorted_dates = dates_sorting(internal_error_dataset)
-            insert = redis_insert(prj_obj, center_obj, sorted_dates, key_type='Internal')
+            for emp_key,emp_value in date_value.iteritems():
+                proje_id = date_value[emp_key]['sub_project']
+                prj_obj = Project.objects.filter(name = proje_id)[0]
+                #import pdb;pdb.set_trace()
+                insert = redis_insert(prj_obj, center_obj, sorted_dates, key_type='Internal')
         if len(external_error_dataset):
             sorted_dates = dates_sorting(external_error_dataset)
-            insert = redis_insert(prj_obj, center_obj, sorted_dates, key_type='External')
+            for emp_key,emp_value in date_value.iteritems():
+                proje_id = date_value[emp_key]['sub_project']
+                prj_obj = Project.objects.filter(name = proje_id)[0]
+                insert = redis_insert(prj_obj, center_obj, sorted_dates, key_type='External')
         if len(work_track_dataset) > 0:
             sorted_dates = dates_sorting(work_track_dataset)
-            insert = redis_insert(prj_obj, center_obj, sorted_dates, key_type='WorkTrack')
+            for emp_key,emp_value in date_value.iteritems():
+                proje_id = date_value[emp_key]['sub_project']
+                prj_obj = Project.objects.filter(name = proje_id)[0]
+                insert = redis_insert(prj_obj, center_obj, sorted_dates, key_type='WorkTrack')
         var ='hello'
         return HttpResponse(var)
 
@@ -5004,6 +5040,7 @@ def internal_extrnal_graphs_same_formula(date_list,prj_id,center_obj,level_struc
         error_filter = [i for i in value if i!='NA']
         error_audit_data[key] = sum(error_filter)
     error_accuracy = {}
+    #import pdb;pdb.set_trace()
     for key,value in error_volume_data.iteritems():
         if error_audit_data[key]:
              percentage = ((float(value)/float(error_audit_data[key])))*100
@@ -7689,7 +7726,7 @@ def from_to(request):
     ###extrnl_category_error_count = sample_pareto_analysis(request, date_list, prj_id, center, level_structure_key, "External")
     #extrnl_category_error_count = sample_pareto_analysis(request, employe_dates['days'], prj_id, center, level_structure_key, "External")
     ###error_graphs_data = internal_extrnal_graphs(request, employe_dates['days'], prj_id, center,{},level_structure_key)
-    #error_graphs_data = internal_extrnal_graphs(employe_dates['days'], prj_id, center,level_structure_key)
+    error_graphs_data = internal_extrnal_graphs(employe_dates['days'], prj_id, center,level_structure_key)
     final_dict = {}
     """field_internal_error_graph_data = internal_external_graphs_common(request,employe_dates['days'],prj_id,center,level_structure_key,'Internal')
     if field_internal_error_graph_data.has_key('internal_field_accuracy_graph'):
@@ -7718,7 +7755,7 @@ def from_to(request):
         final_dict['exter_max_value'] = int_min_max['max_value']
     """
       
-    """if error_graphs_data.has_key('internal_accuracy_graph'):
+    if error_graphs_data.has_key('internal_accuracy_graph'):
         final_dict['internal_accuracy_graph'] = graph_data_alignment_color(error_graphs_data['internal_accuracy_graph'], 'y', level_structure_key, prj_id, center,'internal_error_accuracy')
     if error_graphs_data.has_key('external_accuracy_graph'):
         final_dict['external_accuracy_graph'] = graph_data_alignment_color(error_graphs_data['external_accuracy_graph'], 'y', level_structure_key, prj_id, center,'external_error_accuracy')
@@ -7731,7 +7768,7 @@ def from_to(request):
         final_intrn_accuracy = {} 
         for perc_key,perc_value in error_graphs_data['intr_err_accuracy']['packets_percntage'].iteritems():
             final_intrn_accuracy[perc_key] = perc_value[0]
-        final_dict['internal_accuracy_graph'] = graph_data_alignment_color(final_intrn_accuracy, 'y', level_structure_key, prj_id, center,'intenal_error_accuracy')"""
+        final_dict['internal_accuracy_graph'] = graph_data_alignment_color(final_intrn_accuracy, 'y', level_structure_key, prj_id, center,'intenal_error_accuracy')
     
     final_result_dict.update(final_dict)
     #final_result_dict['volumes_graphs_details'] = volumes_graphs_details
