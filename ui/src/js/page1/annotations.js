@@ -80,7 +80,7 @@
 
                     key_used = 'annotation-' + key_used;
 
-                    data = {"id": _.uniqueId(key_used)};
+                    data = {"id": _.uniqueId("annotation-")};
                 }
             }
 

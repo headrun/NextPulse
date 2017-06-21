@@ -638,7 +638,44 @@
                                     xAxis: {
                                         categories: date_list,
                                     },
-                                    series: work_packet_fte
+                                    plotOptions: {
+                                        series: {
+                                          allowPointSelect: true,
+                                          cursor: 'pointer',
+                                            point: {
+                                              events:{
+                                                contextmenu: function() {
+                                                  if (self.data_to_show.split('&').length == 6) {
+                                                    var sub_proj = '';
+                                                    var work_pack = '';
+                                                    var sub_pack = '';
+                                                  }
+                                                  else {
+                                                    var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
+                                                    var work_pack = self.data_to_show.split('&')[6].split('=')[1];
+                                                    var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
+                                                  }
+                                            var str = '11<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
+                                                    return new Annotation(str, $(event.currentTarget),this.series.chart, this);
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    series: work_packet_fte,
+                                    onComplete: function(chart){
+
+                                    var series = null;
+                                    var chart_data = chart.series;
+
+                                    for(var i in chart_data){
+                                        series = chart_data[i];
+                                        (function(series){
+                                          $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type=week'+'&chart_name='+'productivity_chart'}).success(function(annotations){
+                                        });
+                                        }(series));
+                                    }
+                                    }
                                 });
                                 $('.widget-11a').removeClass('widget-loader-show');
                                 $('.widget-11b').removeClass('widget-data-hide');

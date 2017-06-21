@@ -9999,7 +9999,7 @@ def get_annotations(request):
         day_type = request.GET['type']
     except:
         day_type = ''
-
+    import pdb;pdb.set_trace()
     if day_type:
         series_name = series_name + '<##>annotation-week'
         annotations = Annotation.objects.filter(key__contains=series_name)
@@ -10027,21 +10027,19 @@ def get_annotations(request):
     return HttpResponse(annotations_data)
 
 def add_annotation(request):
-
-    anno_id = request.POST.get('id')
-    epoch = request.POST.get("epoch")
-    text = request.POST.get("text")
-    graph_name = request.POST.get("graph_name")
-    series_name = request.POST.get("series_name")
-    key = request.POST.get("series_name")
-    key = key + '<##>' + anno_id
-    widget_name = request.POST.get("widget_name")
+    anno_id = request.POST.get('id','')
+    epoch = request.POST.get('epoch','')
+    text = request.POST.get("text",'')
+    graph_name = request.POST.get("graph_name",'')
+    series_name = request.POST.get("series_name",'')
+    key = series_name + '<##>' + anno_id
+    #widget_name = request.POST.get("widget_name")
     created_by = request.user
     dt_created = datetime.datetime.now()
     prj_obj = Project.objects.filter(name='Probe')
     center = Center.objects.filter(name='Salem')
     if '<##>' in graph_name:
-        widget_obj = Widgets.objects.filter(config_name=graph_name.split('<##>')[0])[0]
+        widget_obj = Widgets.objects.filter(id_num=graph_name.split('<##>')[0])[0]
     else:
         widget_obj = Widgets.objects.filter(config_name=graph_name)[0]
     #widget_obj = Widgets.objects.filter(config_name=graph_name)[0]
