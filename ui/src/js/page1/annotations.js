@@ -146,7 +146,6 @@
         $("body").append(_get_popover_tmpl(data));
 
         this.$popover = $("#annotation-popover-" + data.id);
-
         var get_xpos = function(){
 
             //xpos is graph xpos  - half popover width - popover borderwidth + x offset

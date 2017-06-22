@@ -9999,12 +9999,14 @@ def get_annotations(request):
         day_type = request.GET['type']
     except:
         day_type = ''
-    import pdb;pdb.set_trace()
+    """
     if day_type:
         series_name = series_name + '<##>annotation-week'
         annotations = Annotation.objects.filter(key__contains=series_name)
     else:
         annotations = Annotation.objects.filter(Q(key__contains=series_name) & ~Q(key__contains='week') & Q(key__contains=chart_name))
+    """
+    annotations = Annotation.objects.filter(key__contains=series_name)
 
     annotations_data = []
 

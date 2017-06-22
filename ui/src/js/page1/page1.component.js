@@ -664,14 +664,30 @@
                                     },
                                     series: work_packet_fte,
                                     onComplete: function(chart){
-
                                     var series = null;
                                     var chart_data = chart.series;
 
                                     for(var i in chart_data){
                                         series = chart_data[i];
                                         (function(series){
-                                          $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type=week'+'&chart_name='+'productivity_chart'}).success(function(annotations){
+                                          
+                                          $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+self.type+'&chart_name=11'}).success(function(annotations){
+                               annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
+
+                               $.each(annotations, function(j, annotation){
+
+                                 var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
+
+                                 point = point[0];
+
+                                 if(annotation.epoch){
+                                   var a = new Annotation("productivity_chart", $(self.chartOptions.chart.renderTo.innerHTML),
+                                        chart, point, annotation);
+
+                                   console.log(a);
+                                   }
+                               })
+
                                         });
                                         }(series));
                                     }
