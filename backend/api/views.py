@@ -29,6 +29,7 @@ from django.utils.timezone import utc
 from django.utils.encoding import smart_str, smart_unicode
 from collections import OrderedDict
 from django.core.mail import send_mail
+from django.core.mail import EmailMultiAlternatives
 import collections
 import hashlib
 import random
@@ -7918,7 +7919,7 @@ def get_review_details(request):
 
             data['members'] = get_rel_users(item.id)
 
-            send_review_mail(data)
+            #send_review_mail(data)
             return HttpResponse(data)
 
         except:
@@ -8052,16 +8053,19 @@ def saving_members(request):
     users = User.objects.filter(id__in = users)
     for uid in users:
         try:
-            ReviewMembers.objects.create(review = item, member = uid)
-            send_mail("mail is working", 'This mail is for testing reviews', 'nextpulse@nextwealth.in', ['abhishek@headrun.com'])
+            memb_obj = ReviewMembers.objects.create(review = item, member = uid)
+            send_review_mail(data, memb_obj)
         except:
             pass
 
     return HttpResponse("Success")
 
-def send_review_mail(data):
-    "mail sending module for review"
-    import pdb;pdb.set_trace()
+def send_review_mail(data, memb_obj = ""):
+    """mail sending module for review"""
+    if memb_obj:
+        _text = "Hi %s %s, <p> One Review meeting is organised with given details </p>" %( memb_obj.member.first_name, memb_obj.member.last_name)
+    else:
+        _text = "Hi %s, %s, <p> One Review meeting is organised with given details </p>" %("Abhishek", "Yeswanth")
     mail_body = "<html>\
             <head>\
                 <style>\
@@ -8120,6 +8124,7 @@ def send_review_mail(data):
              </td>\
              </tr>" % data['name']
 
+    #mail_body = mail_body + _date + _day + _name
     _agenda = " <tr>\
                 <td>\
                 <b>Agenda </b>\
@@ -8132,9 +8137,10 @@ def send_review_mail(data):
             </body>\
         </html>" % data['agenda']
 
-
-    # % (data['time'], data['date'], data['day'], data['name'], data['agenda'])
-    send_mail("mail is working", mail_body, 'nextpulse@nextwealth.in', ['abhishek@headrun.com'])
+    mail_body = _text + mail_body + _time + _date + _day + _name + _agenda
+    msg = EmailMultiAlternatives("Review Meeting Scheduled %s" % data['date'], "", 'nextpulse@nextwealth.in', ['abhishek@headrun.com', 'yeswanth@headrun.com'])
+    msg.attach_alternative(mail_body, "text/html")
+    msg.send()
 
 #====================================== REVIEW code ends here ======================================
 
