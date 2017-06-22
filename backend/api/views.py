@@ -2811,21 +2811,31 @@ def sub_project_names(request,open_book):
     sub_prj_names = {}
     open_sheet = open_book.sheet_by_index(0)
     prj_names = set(open_sheet.col_values(2)[1:])
+    #teamleader_obj_name = TeamLead.objects.filter(name_id=request.user.id)[0]
+    teamleader_obj = TeamLead.objects.filter(name_id=request.user.id).values_list('project_id','center_id')[0]
+    prj_obj = Project.objects.filter(id=teamleader_obj[0])[0]
+    #center = Center.objects.filter(id=teamleader_obj[1])[0]
+    center = TeamLead.objects.filter(name_id=request.user.id).values_list('center_id',flat=True)[0]
+    import pdb;pdb.set_trace()
     for project_name in prj_names:
         main_prj_name = Project.objects.filter(name = project_name).values_list('id',flat=True)
         if main_prj_name:
             if sub_prj_names.has_key(project_name):
-                sub_prj_names[project_name].append(main_prj_name[0])
+                #sub_prj_names[project_name].append(main_prj_name[0])
+                sub_prj_names[prj_obj.name +  " " + project_name].append(main_prj_name[0])
             else:
-                sub_prj_names[project_name] = main_prj_name[0]
+                #sub_prj_names[project_name] = main_prj_name[0]
+                sub_prj_names[prj_obj.name +  " " + project_name] = main_prj_name[0]
         else:
-            proj_name = Project(name = project_name, sub_project_check=0)
+            proj_name = Project(name = project_name, sub_project_check=0, center_id = center)
             proj_name.save()
             proj_name.id
             if sub_prj_names.has_key(project_name):
-                sub_prj_names[project_name].append(proj_name.id)
+                #sub_prj_names[project_name].append(proj_name.id)
+                sub_prj_names[prj_obj.name +  " " + project_name].append(proj_name.id)
             else:
-                sub_prj_names[project_name] = proj_name.id
+                #sub_prj_names[project_name] = proj_name.id
+                sub_prj_names[prj_obj.name +  " " + project_name] = proj_name.id
     return sub_prj_names
 
 def upload_new(request):
@@ -2861,7 +2871,8 @@ def upload_new(request):
         ignorablable_fields = []
         other_fileds = []
         authoring_dates = {}
-        # for sub_project_check functionality
+        #for sub_project_check functionality
+        #import pdb;pdb.set_trace()
         sub_project_boolean_check = Project.objects.filter(id=prj_id).values_list('sub_project_check',flat=True)[0]
         if sub_project_boolean_check == True:
             project_names = sub_project_names(request, open_book)
@@ -3493,35 +3504,60 @@ def upload_new(request):
                                 else:
                                     upload_table_dataset[str(customer_data[date_name])][emp_key] = local_upload_data
 
+        sub_prj_check = Project.objects.filter(id=prj_id).values_list('sub_project_check',flat=True)[0]
         for date_key,date_value in internal_error_dataset.iteritems():
             for emp_key,emp_value in date_value.iteritems():
-                #import pdb;pdb.set_trace()
-                proje_id = date_value[emp_key]['sub_project']
-                prj_obj = Project.objects.filter(name = proje_id)[0]
+                if sub_prj_check == True:
+                    proje_id = date_value[emp_key]['sub_project']
+                    proje_obj = Project.objects.filter(name = proje_id)[0]
+                    internalerror_insert = internalerror_query_insertion(emp_data, proje_obj, center_obj,teamleader_obj_name,db_check)
+                    prj_obj = prj_obj
+                    internalerror_insert = internalerror_query_insertion(emp_data, proje_obj, center_obj,teamleader_obj_name,db_check)
+                else:
+                    prj_obj = prj_obj
+                    center_obj = center_obj
                 emp_data = Error_checking(emp_value,intrnl_error_check)
-                #if emp_data['status'] == 'matched':
                 internalerror_insert = internalerror_query_insertion(emp_data, prj_obj, center_obj,teamleader_obj_name,db_check)
+
         for date_key,date_value in external_error_dataset.iteritems():
             for emp_key,emp_value in date_value.iteritems():
-                proje_id = date_value[emp_key]['sub_project']
-                prj_obj = Project.objects.filter(name = proje_id)[0]
+                if sub_prj_check == True:
+                    proje_id = date_value[emp_key]['sub_project']
+                    prj_obj = Project.objects.filter(name = proje_id)[0]
+                else:
+                    prj_obj = prj_obj
+                    center_obj = center_obj
                 emp_data = Error_checking(emp_value,extrnl_error_check)
-                #if emp_data['status'] == 'matched':
                 externalerror_insert = externalerror_query_insertion(emp_value, prj_obj, center_obj,teamleader_obj_name,db_check)
+
         for date_key,date_value in work_track_dataset.iteritems():
             for emp_key,emp_value in date_value.iteritems():
-                proje_id = date_value[emp_key]['sub_project']
-                prj_obj = Project.objects.filter(name = proje_id)[0]
+                if sub_prj_check == True:
+                    proje_id = date_value[emp_key]['sub_project']
+                    prj_obj = Project.objects.filter(name = proje_id)[0]
+                else:
+                    prj_obj = prj_obj
+                    center_obj = center_obj
                 externalerror_insert = worktrack_query_insertion(emp_value, prj_obj, center_obj,teamleader_obj_name,db_check)
+
         for date_key, date_value in headcount_dataset.iteritems():
             for emp_key, emp_value in date_value.iteritems():
-                proje_id = date_value[emp_key]['sub_project']
-                prj_obj = Project.objects.filter(name = proje_id)[0]
+                if sub_prj_check == True:
+                    proje_id = date_value[emp_key]['sub_project']
+                    prj_obj = Project.objects.filter(name = proje_id)[0]
+                else:
+                    prj_obj = prj_obj
+                    center_obj = center_obj
                 headcount_insert = headcount_query_insertion(emp_value, prj_obj, center_obj, teamleader_obj_name,db_check)
+
         for date_key, date_value in target_dataset.iteritems():
             for emp_key, emp_value in date_value.iteritems():
-                proje_id = date_value[emp_key]['sub_project']
-                prj_obj = Project.objects.filter(name = proje_id)[0]
+                if sub_prj_check == True:
+                    proje_id = date_value[emp_key]['sub_project']
+                    prj_obj = Project.objects.filter(name = proje_id)[0]
+                else:
+                    prj_obj = prj_obj
+                    center_obj = center_obj
                 externalerror_insert = target_table_query_insertion(emp_value, prj_obj, center_obj, teamleader_obj_name,db_check)
 
         for date_key, date_value in tats_table_dataset.iteritems():
@@ -3536,11 +3572,14 @@ def upload_new(request):
             for emp_key, emp_value in date_value.iteritems():
                 externalerror_insert = incoming_error_query_insertion(emp_value, prj_obj, center_obj, teamleader_obj_name,db_check)
 
-
         for date_key,date_value in raw_table_dataset.iteritems():
             for emp_key,emp_value in date_value.iteritems():
-                proje_id = date_value[emp_key]['sub_project']
-                prj_obj = Project.objects.filter(name = proje_id)[0]
+                if sub_prj_check == True:
+                    proje_id = date_value[emp_key]['sub_project']
+                    prj_obj = Project.objects.filter(name = proje_id)[0]
+                else:
+                    prj_obj = prj_obj
+                    center_obj = center_obj
                 try:
                     per_day_value = int(float(emp_value.get('per_day', '')))
                 except:
@@ -3549,29 +3588,43 @@ def upload_new(request):
 
         if len(raw_table_dataset)>0:
             sorted_dates = dates_sorting(raw_table_dataset)
-            for emp_key,emp_value in date_value.iteritems():
-                proje_id = date_value[emp_key]['sub_project']
-                prj_obj = Project.objects.filter(name = proje_id)[0]
+            #import pdb;pdb.set_trace()
+            if sub_prj_check == True:
+                for emp_key,emp_value in date_value.iteritems():
+                    proje_id = date_value[emp_key]['sub_project']
+                    prj_obj = Project.objects.filter(name = proje_id)[0]
+                    insert = redis_insert(prj_obj, center_obj,sorted_dates , key_type='Production')
+            else:
                 insert = redis_insert(prj_obj, center_obj,sorted_dates , key_type='Production')
 
         if len(internal_error_dataset) > 0:
             sorted_dates = dates_sorting(internal_error_dataset)
-            for emp_key,emp_value in date_value.iteritems():
-                proje_id = date_value[emp_key]['sub_project']
-                prj_obj = Project.objects.filter(name = proje_id)[0]
-                #import pdb;pdb.set_trace()
+            if sub_prj_check == True:
+                for emp_key,emp_value in date_value.iteritems():
+                    proje_id = date_value[emp_key]['sub_project']
+                    prj_obj = Project.objects.filter(name = proje_id)[0]
+                    insert = redis_insert(prj_obj, center_obj, sorted_dates, key_type='Internal')
+            else:
                 insert = redis_insert(prj_obj, center_obj, sorted_dates, key_type='Internal')
+
         if len(external_error_dataset):
             sorted_dates = dates_sorting(external_error_dataset)
-            for emp_key,emp_value in date_value.iteritems():
-                proje_id = date_value[emp_key]['sub_project']
-                prj_obj = Project.objects.filter(name = proje_id)[0]
+            if sub_prj_check == True:
+                for emp_key,emp_value in date_value.iteritems():
+                    proje_id = date_value[emp_key]['sub_project']
+                    prj_obj = Project.objects.filter(name = proje_id)[0]
+                    insert = redis_insert(prj_obj, center_obj, sorted_dates, key_type='External')
+            else:
                 insert = redis_insert(prj_obj, center_obj, sorted_dates, key_type='External')
+
         if len(work_track_dataset) > 0:
             sorted_dates = dates_sorting(work_track_dataset)
-            for emp_key,emp_value in date_value.iteritems():
-                proje_id = date_value[emp_key]['sub_project']
-                prj_obj = Project.objects.filter(name = proje_id)[0]
+            if sub_prj_check == True:
+                for emp_key,emp_value in date_value.iteritems():
+                    proje_id = date_value[emp_key]['sub_project']
+                    prj_obj = Project.objects.filter(name = proje_id)[0]
+                    insert = redis_insert(prj_obj, center_obj, sorted_dates, key_type='WorkTrack')
+            else:
                 insert = redis_insert(prj_obj, center_obj, sorted_dates, key_type='WorkTrack')
         var ='hello'
         return HttpResponse(var)
