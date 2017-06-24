@@ -21,6 +21,10 @@
     cursor: pointer;
 }
 
+.review-list:hover {
+    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.3);
+}
+
 .block-data {
     padding-left: 25px;
     padding-top: 10px;
@@ -37,6 +41,7 @@
 
 .review-data {
     float: right;
+    margin-right: 2.2%;
 }
 
 .tag {
@@ -150,6 +155,18 @@
     .ajax-file-upload {
         background : deepskyblue !important;
     }
+.add-review {
+    float: right;
+    margin-right: 4%;
+    margin-top: -79px;
+}
+.create {
+    margin-right: 50px;
+}
+.edit {
+    margin-right: 50px;
+    font-size: 25px;
+}
 </style>
 
 <div class="fluid-container" style="margin-left:0px; margin-right: 0px;">
@@ -181,7 +198,7 @@
                          ng-click="$ctrl.get_review(review)">
                         <span>{{review.name}}</span><br>
                         <span>{{review.time}}</span>
-                        <i class="fa fa-caret-right" aria-hidden="true"></i>
+                        <!--<i class="fa fa-caret-right" aria-hidden="true"></i>-->
                     </div>
                     </div>
                 </div>
@@ -199,8 +216,14 @@
         </div>
         <h1 style="font-size: 23px;padding-left: 25px;">{{$ctrl.rev_text}}</h1>
       <div class="details-block">
-        <div class="meeet-agenda"><span><i>Meeting agenda:</i></span></div><br>
-        <div class="data-agenda"><span class="agenda-style">{{$ctrl.rev_agenda}}</span></div>
+        <div class="meeet-agenda" style="color: black;"><span><i>Meeting agenda:</i></span></div><br>
+        <div class="data-agenda"><span class="agenda-style">{{$ctrl.rev_agenda}}</span>
+            <div class="add-review" style="float:right;margin-right:4%;margin-top:-79px;">
+                <i class="fa fa-plus-circle fa-2x create" id="add-revi" data-toggle="modal" data-target="#myModal" ng-click="$ctrl.get_maildata()" style="margin-right:50px;" aria-hidden="true"></i>
+                <i class="fa fa-pencil-square-o edit" style = "margin-right:50px;font-size:25px;" aria-hidden="true"></i>
+                <i class="fa fa-trash fa-2x" aria-hidden="true" ng-click="$ctrl.del_review()"></i>
+            </div>
+        </div>
         <br>
         <hr>
         <!--<i class="fa fa-user icon-padd" aria-hidden="true"></i><span style="padding-right: 50px;">Team Lead</span><span>{{$ctrl.rev_tl}}</span>-->
@@ -214,6 +237,7 @@
             <!--<span>Abhishek</span><br>
             <span>Asifa</span><br>-->
         </div>
+        <br>
         <hr>
         <div class="row" style="width:100%;">
             <span ng-repeat="file in $ctrl.all_review_data" class="tag label label-info">
@@ -223,9 +247,9 @@
             </span>
         </div>
         <div id="fileuploader" class="review-data">Upload</div>
-            <i class="fa fa-plus-circle fa-2x" id="add-revi" data-toggle="modal" data-target="#myModal" ng-click="$ctrl.get_maildata()" 
+            <!--<i class="fa fa-plus-circle fa-2x" id="add-revi" data-toggle="modal" data-target="#myModal" ng-click="$ctrl.get_maildata()" 
                aria-hidden="true"></i>
-            <i class="fa fa-trash fa-2x" aria-hidden="true" ng-click="$ctrl.del_review()"></i>
+            <i class="fa fa-trash fa-2x" aria-hidden="true" ng-click="$ctrl.del_review()"></i>-->
             <!--<i class="fa fa-pencil fa-2x" aria-hidden="true"></i>-->
         </div>
 
