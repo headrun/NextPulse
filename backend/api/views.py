@@ -2807,7 +2807,7 @@ def Authoring_mapping(prj_obj,center_obj,model_name):
         map_query = {}
     return map_query
 
-def sub_project_names(fname,open_book):
+"""def sub_project_names(fname,open_book):
     import pdb;pdb.set_trace()
     sub_prj_names = []
     open_sheet = open_book.sheet_by_index(0)
@@ -2821,7 +2821,7 @@ def sub_project_names(fname,open_book):
         project_id = project_id.id
         sub_prj_names.add(project_name)
         sub_prj_names.add(project_id)
-    return sub_prj_names
+    return sub_prj_names"""
 
 def upload_new(request):
     teamleader_obj_name = TeamLead.objects.filter(name_id=request.user.id)[0]
@@ -2858,10 +2858,10 @@ def upload_new(request):
         authoring_dates = {}
         # for sub_project_check functionality
         #import pdb;pdb.set_trace()
-        sub_project_boolean_check = Project.objects.filter(id=prj_id).values_list('sub_project_check',flat=True)[0]
+        """sub_project_boolean_check = Project.objects.filter(id=prj_id).values_list('sub_project_check',flat=True)[0]
         if sub_project_boolean_check == True:
             import pdb;pdb.set_trace()
-            project_names = sub_project_names(fname, open_book)
+            project_names = sub_project_names(fname, open_book)"""
         mapping_ignores = ['project_id','center_id','_state','sheet_name','id','total_errors_require']
         raw_table_map_query = Authoring_mapping(prj_obj,center_obj,'RawtableAuthoring')
         for map_key,map_value in raw_table_map_query.iteritems():
