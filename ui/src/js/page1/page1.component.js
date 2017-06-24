@@ -33,6 +33,8 @@
              var drop_down_link = '/api/dropdown_data/';
              var landing_pro = $state.params.selpro;
              self.pro_landing_url = 'api/project/?name='+landing_pro;
+
+             
              self.project_live = ''
              self.center_live = ''
 
@@ -80,6 +82,7 @@
                 self.start = start.format('YYYY-MM-DD');
                 self.end = end.format('YYYY-MM-DD');
                 $('.input-sm').prop('selectedIndex',0);
+
                 $('.widget-13a').addClass('widget-loader-show');
                 $('.widget-13b').addClass('widget-data-hide');
                 $('.widget-17a').addClass('widget-loader-show');
@@ -204,6 +207,11 @@
                     self.center_live = callback[2];
 
                     self.project_live = callback[3];
+
+                    $('#emp_widget').hide();
+
+                    $('#volume_table').hide();
+
 
                     //self.lastDate+'&to='+self.firstDate+'&type=' + self.day_type;
                     
@@ -1035,7 +1043,7 @@
                     self.upload_acc(undefined, undefined)
 
 
-                    self.erro_all = function(final_work, type, name) {
+                    /*self.erro_all = function(final_work, type, name) {
 
                         if (type == undefined) {
                             type = 'day'
@@ -1072,9 +1080,9 @@
                             }
                        })
                     }
-                    self.erro_all(undefined, undefined, undefined)
+                    self.erro_all(undefined, undefined, undefined)*/
 
-                    self.erro_extrnl_timeline = function(final_work, type, name) {
+                    /*self.erro_extrnl_timeline = function(final_work, type, name) {
 
                         if (type == undefined) {
                             type = 'day'
@@ -1110,7 +1118,7 @@
                             }
                          })
                        }
-                       self.erro_extrnl_timeline(undefined, undefined, undefined)                         
+                       self.erro_extrnl_timeline(undefined, undefined, undefined)*/                         
 
                        $http({method:"GET", url: err_field_graph}).success(function(result){
                            angular.extend(self.chartOptions43.yAxis,{
