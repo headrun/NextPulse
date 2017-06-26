@@ -24,13 +24,14 @@
              $http.get(self.review_url).then(function(result){
 
                  self.all_reviews = result.data.result;
+                 $('.loading').removeClass('show').addClass('hide');
                  self.rev_id = self.all_reviews[Object.keys(self.all_reviews)[0]][0].id;
                  self.get_review(self.all_reviews[Object.keys(self.all_reviews)[0]][0]);
                  if (result.data.result[Object.keys(result.data.result)[0]][0].is_team_lead == false){
                     $('#fileuploader').hide();
                     $('#add-revi').hide();
                  }
-                 $('.loading').removeClass('show').addClass('hide');
+                 //$('.loading').removeClass('show').addClass('hide');
                  return self.rev_id;
              });
 
@@ -76,10 +77,11 @@
                  });
              }
 
+
              self.submit = function(review) {
                  self.map_list_item = { "Shanmugasundaram v": 15, "Monica M": 18, "Abhijith A": 19, "Sasikumar G": 101, "Ranjithkumar M": 107, 
-                                        "Shailesh dube": 2, "Atul shinghal": 116,  "Navin Ramachandran": 123, "Goutam Dan": 127, "rajesh r": 25, 
-                                        "Damodaran Selvaraj": 52, "Balasubramanian A": 59, "Anuradha G": 60, "Arun L": 61, "Sunilbabu S": 62, 
+                                        "Shailesh dube": 2, "Atul shinghal": 116,  "Navin Ramachandran": 123, "Goutam Dan": 127, "rajesh r": 25,
+                                        "Damodaran Selvaraj": 52, "Balasubramanian A": 59, "Anuradha G": 60, "Arun L": 61, "Sunilbabu S": 62,
                                         "Hariharan N": 63, "Anandram J": 90, "Venkatesh D":91 }
                  self.uids_list = []
                  for (var i=0; i<review.selection.length; i++) {
@@ -92,28 +94,30 @@
                  var data = {}
                  angular.forEach(review, function(key, value) {
                      data[value] = key.toString()
-                 })
-
+                 });
                  var main_data = $.param({ json: JSON.stringify(data) });
                  $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
                  $http.post(self.create_rev_url, main_data).then(function(result){
-
                     return result.data.result;
                  }).then(function(callback){
 
+                   var data2 = {'review_id': callback, 'uids': self.uids_list};
+                   var data_to_send = $.param({ json: JSON.stringify(data2)});
+                   $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
+                   $http.post('api/saving_members/', data_to_send).then(function(result){
+                   }).then(function() {
+
                    $http.get(self.review_url).then(function(result){
 
-                     var data2 = {'review_id': callback, 'uids': self.uids_list}
-                     var data_to_send = $.param({ json: JSON.stringify(data2)})
-                     $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
-                     $http.post('api/saving_members/', data_to_send).then(function(result){
-                     });
                      self.all_reviews = result.data.result;
                      self.get_review(self.all_reviews[Object.keys(self.all_reviews)[0]][0]);
                      $('.loading').removeClass('show').addClass('hide');
-                   });
+
+                   })
+
                  });
-             }
+                });
+                }
 
              self.remove_file = function(file_id) {
 

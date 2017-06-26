@@ -167,8 +167,12 @@
     margin-right: 50px;
     font-size: 25px;
 }
+.txt-edit{
+    width: 50%;
+    margin-top: 15px;
+    margin-left: 25px;
+}
 </style>
-
 <div class="fluid-container" style="margin-left:0px; margin-right: 0px;">
   <div class="row margin-class">
   <div class="loading show" style="
@@ -209,15 +213,20 @@
         <div class="image">
             <img src="/images/cal.png" class="cal-image">
             <div class="extra-data">
-              <span class="time-format">{{$ctrl.rev_time}} onwards</span>
-              <span class="date-format">{{$ctrl.rev_date}}, {{$ctrl.rev_day}}</span>
+              <span class="time-format" id="meet-time">{{$ctrl.rev_time}} onwards</span>
+              <!--<input class="input-clear" type="time" id="edit-time" style="display:none;" placeholder="HH:mm:ss" min="00:00:00" max="24:59:59" required />-->
+              <span class="date-format" id="meet-date">{{$ctrl.rev_date}}, {{$ctrl.rev_day}}</span>
+              <!--<input class="input-clear" type="date" id="edit-date" style="display:none;" placeholder="yyyy-MM-dd" min="2017-01-01" max="2020-12-31" required />-->
               <span class="tag-format">{{$ctrl.is_when}}</span>
             </div>
         </div>
-        <h1 style="font-size: 23px;padding-left: 25px;">{{$ctrl.rev_text}}</h1>
+        <h1 style="font-size: 23px;padding-left: 25px;" id="meeting-name">{{$ctrl.rev_text}}</h1>
+        <!--<input type="password" class="form-control" id="eidt-name" style="display:none;">-->
+        <!--<input class="form-control input-sm txt-edit" id="edit-name" type="text" style="display:none;">-->
       <div class="details-block">
         <div class="meeet-agenda" style="color: black;"><span><i>Meeting agenda:</i></span></div><br>
-        <div class="data-agenda"><span class="agenda-style">{{$ctrl.rev_agenda}}</span>
+        <div class="data-agenda"><span class="agenda-style" id="agenda-name">{{$ctrl.rev_agenda}}</span>
+          <!--<input class="form-control input-sm" id="edit-agenda" type="text" name= "editagenda" style="display:none;width:50%;">-->
             <div class="add-review" style="float:right;margin-right:4%;margin-top:-79px;">
                 <i class="fa fa-plus-circle fa-2x create" id="add-revi" data-toggle="modal" data-target="#myModal" ng-click="$ctrl.get_maildata()" style="margin-right:50px;" aria-hidden="true"></i>
                 <i class="fa fa-pencil-square-o edit" style = "margin-right:50px;font-size:25px;" aria-hidden="true"></i>

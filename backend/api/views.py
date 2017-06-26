@@ -7777,14 +7777,15 @@ def get_top_reviews(request):
     project = request.GET.get('project', 1)
     #team_lead = request.GET.get('team_lead', "")
     search_term = request.GET.get('search', "")
-
     try:
         rev_ids = ReviewMembers.objects.filter(member = request.user).values_list("review__id", flat = True)
         if search_term:
-            rev_objs = Review.objects.filter(review_name__contains = search_term, project__id = project, id__in = rev_ids).order_by('review_date')
+            rev_objs = Review.objects.filter(review_name__contains = search_term, project__id = project, id__in = rev_ids)\
+                        .order_by('review_date')
         else:
-            rev_objs = Review.objects.filter(project__id = project, review_date__gte=datetime.datetime.now()).order_by('review_date')
-            #rev_objs = Review.objects.filter(project__id = project).order_by('-review_date')
+            rev_objs = Review.objects.filter(project__id = project, review_date__gte=datetime.datetime.now(), id__in = rev_ids)\
+                            .order_by('review_date')
+            #rev_objs = Review.objects.filter(project__id = project, review_date__gte=datetime.datetime.now()).order_by('-review_date')
         all_result = OrderedDict()
         user_id = request.user.id
         tl_objs = TeamLead.objects.filter(name = user_id)
@@ -7921,7 +7922,7 @@ def get_review_details(request):
 
             data['members'] = get_rel_users(item.id)
 
-            send_review_mail(data)
+            #send_review_mail(data)
             return HttpResponse(data)
 
         except:
@@ -8053,6 +8054,7 @@ def saving_members(request):
     data['time'] = review_date.strftime("%I:%M %p")
     data['tl']   = item.team_lead.name.first_name+ " " + item.team_lead.name.last_name
 
+    users.append(request.user.id)
     users = User.objects.filter(id__in = users)
     for uid in users:
         try:
@@ -8076,7 +8078,6 @@ def send_review_mail(data, memb_obj = ""):
                     font-family: arial, sans-serif;\
                     border-collapse: collapse;\
                     width: 50%;\
-                    margin-top: 15%;\
                 }\
                 td, th {\
                     border: 1px solid #dddddd;\
@@ -8117,8 +8118,6 @@ def send_review_mail(data, memb_obj = ""):
              %s\
             </td>\
             </tr>" % data['day']
-
-
 
     _name = "<tr>\
              <td>\
@@ -8161,16 +8160,17 @@ def send_review_mail(data, memb_obj = ""):
     extra = "<p> </p> <p> </p> Kindly log into NextPulse - http://nextpulse.nextwealth.in/ \
             with your userid and password to view all the metrics ahead of the meeting.\
             <p>Additional documents for the review can be found in the Review Section of the NextPulse itself. </p>\
-            <p>If you have any difficulty please reach to your Project Team Lead. </p> \
+            <p>If you have any difficulty please reach to your Project Team Lead (%s). </p> \
             <p> </p>\
             <p>Thanks and Regards,</p>\
             <p>NextPulse Team</p>\
             </body>\
-        </html>"
+        </html>" %(data['tl'])
 
     mail_body = _text + mail_body + _date + _time + _name + _agenda + _venue + _bridge + extra
     print "mail is coming"
-    msg = EmailMultiAlternatives("Review for NextWealth-%s" % data['project'], "", 'nextpulse@nextwealth.in', ['abhishek@headrun.com', 'yeswanth@headrun.com'])
+    msg = EmailMultiAlternatives("Review for NextWealth - %s" % data['project'], "", 'nextpulse@nextwealth.in',
+                                ['abhishek@headrun.com', 'yeswanth@headrun.com'])
     msg.attach_alternative(mail_body, "text/html")
     msg.send()
 
