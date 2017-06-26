@@ -1,4 +1,6 @@
 import datetime
+import os
+import mimetypes
 import traceback
 from django.shortcuts import render
 from common.utils import getHttpResponse as HttpResponse
@@ -17,6 +19,7 @@ from django.db.models import Max
 import redis
 from datetime import timedelta
 from datetime import date
+import calendar
 from dateutil.relativedelta import relativedelta
 import re
 import json
@@ -26,9 +29,11 @@ from django.utils.timezone import utc
 from django.utils.encoding import smart_str, smart_unicode
 from collections import OrderedDict
 from django.core.mail import send_mail
+from django.core.mail import EmailMultiAlternatives
 import collections
 import hashlib
 import random
+from wsgiref.util import FileWrapper
 
 def get_level_structure_key(work_packet, sub_project, sub_packet, pro_cen_mapping):
     """It will generate level structure key with existing packet, project, and sub packey types"""
@@ -1592,13 +1597,13 @@ def project(request):
     list_wid = []
     layout_list = []
     final_dict = {}
-    
+
     if 'team_lead' in user_group:
         center = TeamLead.objects.filter(name_id=request.user.id).values_list('center')
         prj_id = TeamLead.objects.filter(name_id=request.user.id).values_list('project')
 
     if 'customer' in user_group:
-        select_list = [] 
+        select_list = []
         details = {} 
         center_list = Customer.objects.filter(name_id=request.user.id).values_list('center')
         project_list = Customer.objects.filter(name_id=request.user.id).values_list('project')
@@ -1617,8 +1622,8 @@ def project(request):
                     project_name = str(Project.objects.filter(id=project[0])[0])
                     select_list.append(center_name + ' - ' + project_name) 
         details['list'] = select_list
-    
-        if len(select_list) > 1: 
+
+        if len(select_list) > 1:
               if multi_project:
                  prj_id = Project.objects.filter(name=multi_project).values_list('id','center_id')
               else:
@@ -1626,10 +1631,10 @@ def project(request):
                  prj_id = Project.objects.filter(name=prj_name).values_list('id','center_id') 
 
     if 'nextwealth_manager' in user_group:
-        select_list = []  
+        select_list = []
         #layout_list = []
         center_list = Nextwealthmanager.objects.filter(name_id=request.user.id).values_list('center')
-        if len(center_list) < 2: 
+        if len(center_list) < 2:
             center_name = str(Center.objects.filter(id=center_list[0][0])[0])
             center_id = Center.objects.filter(name = center_name)[0].id
             project_list = Project.objects.filter(center_id=center_id)
@@ -1645,7 +1650,7 @@ def project(request):
                 project_list = Project.objects.filter(center_id=center_id)
                 for project in project_list:
                     project_name = str(project)
-                    select_list.append(project_name)    
+                    select_list.append(project_name)
 
         if len(select_list) > 1:
             if multi_project:
@@ -1674,13 +1679,13 @@ def project(request):
                 for project in project_list:
                     project_name = str(project)
                     select_list.append(project_name)
-          
+
         if len(select_list) > 1:
             if multi_project:
                 prj_id = Project.objects.filter(name=multi_project).values_list('id','center_id')
             else:
                 prj_name = select_list[1]
-                prj_id = Project.objects.filter(name=prj_name).values_list('id','center_id')    
+                prj_id = Project.objects.filter(name=prj_name).values_list('id','center_id')
 
         else:
             if multi_project:
@@ -1689,7 +1694,7 @@ def project(request):
                 prj_name = select_list[0]
                 prj_id = Project.objects.filter(name=prj_name).values_list('id','center_id') 
 
-    
+
 
     if user_group in ['nextwealth_manager','center_manager','customer']:
         widgets_id = Widgets_group.objects.filter(User_Group_id=user_group_id, project=prj_id[0][0],center=prj_id[0][1]).values('widget_priority', 'is_drilldown','is_display', 'widget_name','col')
@@ -10213,7 +10218,7 @@ def update_annotation(request):
     annotation_id = request.POST.get("id")
     series = request.POST.get('series_name')
     text = request.POST.get("text")
-    
+
     if action == "delete":
         anno = Annotation.objects.filter(key__contains = request.POST['id'])
         if anno:
@@ -10235,7 +10240,7 @@ def dropdown_data_types(request):
     center_id = request.GET['center'].split('-')[0].strip()
     center = Center.objects.filter(name=center_id).values_list('id', flat=True)
     prj_id = Project.objects.filter(name=project).values_list('id', flat=True)
-    result = {} 
+    result = {}
     sub_project = RawTable.objects.filter(project_id=prj_id[0],center_id = center[0]).values_list('sub_project',flat=True).distinct()
     sub_project = filter(None, sub_project)
     print 'dropdown' , sub_project
@@ -10245,13 +10250,425 @@ def dropdown_data_types(request):
     sub_packet = RawTable.objects.filter(project_id=prj_id[0], center_id=center[0]).values_list('sub_packet',flat=True).distinct()
     sub_packet = filter(None, sub_packet)
     result['sub_project'] = 0
-    if len(sub_project) > 0: 
+    if len(sub_project) > 0:
         result['sub_project'] = 1
     result['work_packet'] = 0
-    if len(work_packet) > 0: 
+    if len(work_packet) > 0:
         result['work_packet'] = 1
     result['sub_packet'] = 0
-    if len(sub_packet) > 0: 
+    if len(sub_packet) > 0:
         result['sub_packet'] = 1
     return HttpResponse(result)
+
+
+
+
+#============================= Codes for REVIEWS ========================================
+
+
+def get_top_reviews(request):
+    """ get list of reviews """
+    project = request.GET.get('project', 1)
+    #team_lead = request.GET.get('team_lead', "")
+    search_term = request.GET.get('search', "")
+    try:
+        rev_ids = ReviewMembers.objects.filter(member = request.user).values_list("review__id", flat = True)
+        if search_term:
+            rev_objs = Review.objects.filter(review_name__contains = search_term, project__id = project, id__in = rev_ids)\
+                        .order_by('review_date')
+        else:
+            rev_objs = Review.objects.filter(project__id = project, review_date__gte=datetime.datetime.now(), id__in = rev_ids)\
+                            .order_by('review_date')
+            #rev_objs = Review.objects.filter(project__id = project, review_date__gte=datetime.datetime.now()).order_by('-review_date')
+        all_result = OrderedDict()
+        user_id = request.user.id
+        tl_objs = TeamLead.objects.filter(name = user_id)
+
+        if tl_objs:
+            is_team_lead = True
+        else:
+            is_team_lead = False
+        #result = {'all_data' :[]}
+        color = {}
+        """
+        if rev_objs.count() > 10:
+            rev_objs = rev_objs[:10]
+        """
+        i = 0
+        colors = ['#3385E8', '#DD4130', '#27B678']
+        for item in rev_objs:
+            if i > 2:
+                i = 0
+            data = {}
+
+            data['name'] = item.review_name
+            review_date = item.review_date
+            data['date'] = review_date.strftime("%d %b, %Y")
+            date = review_date.strftime("%d_%b")
+            data['time'] = review_date.strftime("%I:%M %p")
+            data['id'] = item.id
+
+            week_day = calendar.day_name[review_date.weekday()]
+            key = date + "_" + week_day
+
+            if key  not in all_result:
+
+                all_result[key] = []
+                color[key] = colors[i]
+                i += 1
+            data['color'] = color[key]
+            data['is_team_lead'] = is_team_lead
+            all_result[key].append(data)
+
+            #result['all_data'].append(data)
+            #i += 1
+
+        return HttpResponse(all_result)
+
+    except:
+        return HttpResponse("Failed")
+
+
+def create_reviews(request):
+    """ creating reviews """
+    curdate = datetime.datetime.now()
+    #project = request.POST.get('project', "")
+    review_name = eval(request.POST['json'])['reviewname']
+    agenda =  eval(request.POST['json'])['reviewagenda']
+    _review_date = eval(request.POST['json'])['reviewdate']
+    _review_time = eval(request.POST['json'])['reviewtime']
+    _review_date = _review_date.split(" ")[1:4]
+    _review_time = _review_time.split(" ")[4]
+    _date = ' '.join(_review_date) + " "+ _review_time
+
+    user_id = request.user.id
+    tl_objs = TeamLead.objects.filter(name = user_id)
+    tl = ""
+    project = ""
+    if not tl_objs:
+        return HttpResponse('User is not TeamLead')
+    tl_obj = tl_objs[0]
+    tl = tl_obj
+    project = tl_obj.project
+    try:
+        review_date = datetime.datetime.strptime(_date, "%b %d %Y %H:%M:%S")
+
+        rev_obj, created = Review.objects.update_or_create(project = project, review_name = review_name, review_date= review_date,
+                                defaults={'team_lead': tl, 'review_agenda': agenda},)
+
+        if created:
+            subject = "Review Created"
+        else:
+            subject = "Review Updated"
+
+        #send_mail("mail is working", 'This mail is for testing reviews', 'nextpulse@nextwealth.in', ['abhishek@headrun.com'])
+        return HttpResponse(rev_obj.id)
+
+    except:
+        return HttpResponse("Failed")
+
+def get_review_details(request):
+    """ getting detail of the review """
+    from django.utils import timezone
+    review_id = request.GET.get('review_id', "")
+    rev_objs = Review.objects.filter(id = review_id)
+    if not rev_objs:
+        return HttpResponse('Failed')
+    else:
+        try:
+            item = rev_objs[0]
+            data = {}
+            data['rev_files'] = []
+            data['name'] = item.review_name
+            data['agenda'] = item.review_agenda
+            review_date = item.review_date
+
+            _df_time = review_date.date() -  timezone.now().date()
+            _df_time = _df_time.days
+            if _df_time < 1:
+                data['remained'] = "Today"
+            elif _df_time < 2:
+                data['remained'] = "Tomorrow"
+            elif _df_time < 8:
+                data['remained'] = "This Week"
+            elif _df_time < 32:
+                data['remained'] = "This Month"
+            else:
+                data['remained'] = ""
+
+            data['day'] = review_date.strftime("%A")
+            data['date'] = review_date.strftime("%d %b, %Y")
+            data['time'] = review_date.strftime("%I:%M %p")
+            data['tl']   = item.team_lead.name.first_name+ " " + item.team_lead.name.last_name
+            data['project'] = item.project.name
+            users = Customer.objects.filter(project = item.project).values_list('name__first_name', flat = True)
+            rev_fil_objs = ReviewFiles.objects.filter(review__id = item.id)
+            for obj in rev_fil_objs:
+                url = obj.file_name.url
+                name = url.split("/")[-1]
+                ext = name.split(".")[-1]
+                namee = name.split("_")
+                if len(namee) >2:
+                    name = '_'.join(namee[:-2])
+                    name = name + "."+ ext
+                name = name + "#" + str(obj.id)
+                data['rev_files'].append({ 'name' : name, 'path': url})
+
+            data['members'] = get_rel_users(item.id)
+
+            #send_review_mail(data)
+            return HttpResponse(data)
+
+        except:
+            return HttpResponse("Failed")
+
+
+def get_rel_users(review_id):
+    """ function to display all related users """
+    all_users = []
+    users = ReviewMembers.objects.filter(review__id = review_id)
+    for user in users:
+        name = user.member.first_name + " " + user.member.last_name
+        _id = user.id
+        all_users.append({'name': name, 'id': _id})
+    return all_users
+
+
+def remove_attachment(request):
+    """ API to delete atachments from reviews """
+    term_type = request.GET.get('term_type', '')
+    revies_file_id = request.GET.get('file_id', '')
+    if not revies_file_id or not term_type:
+        return HttpResponse("ID not given")
+
+    try:
+        if term_type == "attachment":
+            table = "ReviewFiles"
+        elif term_type == "member":
+            table = "ReviewMembers"
+        elif term_type == "review":
+            table = "Review"
+
+        objs = eval(table).objects.filter(id = revies_file_id)
+        if term_type != "review":
+            rev_id = objs[0].review.id
+            res = {'rev_id': rev_id}
+        else:
+            rev_id = "success"
+            res = {'status': rev_id}
+        objs.delete()
+        return HttpResponse(res)
+    except:
+        return HttpResponse("Failed")
+
+def upload_review_doc(request):
+    """ to upload the review documents """
+    attach_files = request.FILES.getlist('myfile', "")
+    review_id = request.POST.get('review_id', "")
+    try:
+        if not attach_files or not review_id:
+            return HttpResponse('Improper data')
+
+        r_obj = Review.objects.get(id = review_id)
+        for item in attach_files:
+            #item.name = "%s_%s_%s" %(item.name, review_name, review_date)
+            name = item.name.split(".")
+            item.name = "%s_%s_%s.%s" %(name[0], r_obj.review_name.lower().replace(" ", "_"), str(r_obj.review_date.date()), name[-1])
+            rev_fil_objs = ReviewFiles.objects.filter(file_name = item.name, review = r_obj)
+            if rev_fil_objs:
+                rfo = rev_fil_objs[0]
+                rfo.file_name = item
+                rfo.save()
+            else:
+                rfo = ReviewFiles.objects.create(file_name = item, review = r_obj)
+
+        return HttpResponse(review_id)
+    except:
+        return HttpResponse("Failed")
+
+def get_related_user(request):
+    """ Get all the users Related to that project """
+    user_id = request.user.id
+    tl_objs = TeamLead.objects.filter(name = user_id)
+    tl = ""
+    project = ""
+    result_data = {'name_list' : [], 'id_list' : []}
+    if not tl_objs:
+        return HttpResponse('User is not TeamLead')
+    tl_obj = tl_objs[0]
+    project = tl_obj.project
+    center = tl_obj.center
+    tls = TeamLead.objects.filter(project = project, center = center).exclude(id = tl_obj.id)
+    if tls:
+        for tl in tls:
+            _name = tl.name.first_name + " " + tl.name.last_name
+            result_data['name_list'].append(_name)
+            result_data['id_list'].append(tl.name.id)
+
+    customers = Customer.objects.filter(project = project, center = center)
+    if customers:
+        for customer in customers:
+            _name = customer.name.first_name + " " + customer.name.last_name
+            result_data['name_list'].append(_name)
+            result_data['id_list'].append(customer.name.id)
+
+    centermanagers = Centermanager.objects.filter(center = center)
+    if centermanagers:
+        for centermanager in centermanagers:
+            _name = centermanager.name.first_name + " " + centermanager.name.last_name
+            result_data['name_list'].append(_name)
+            result_data['id_list'].append(centermanager.name.id)
+
+    return HttpResponse(result_data)
+
+
+def saving_members(request):
+    """ saving members to DB """
+    data = request.POST.get('json', "")
+    data = json.loads(data)
+    review_id = data.get("review_id", "")
+    users = data.get('uids', "")
+
+    if not review_id or not users:
+        return HttpResponse("Improper Data")
+
+    rev_objs = Review.objects.filter(id = review_id)
+
+    if not rev_objs:
+        return HttpResponse("Wrong Review ID")
+
+    item = rev_objs[0]
+    data = {}
+    data['name'] = item.review_name
+    data['agenda'] = item.review_agenda
+    review_date = item.review_date
+    data['project'] = item.project.name
+    data['day'] = review_date.strftime("%A")
+    data['date'] = review_date.strftime("%d %b, %Y")
+    data['time'] = review_date.strftime("%I:%M %p")
+    data['tl']   = item.team_lead.name.first_name+ " " + item.team_lead.name.last_name
+
+    users.append(request.user.id)
+    users = User.objects.filter(id__in = users)
+    for uid in users:
+        try:
+            memb_obj = ReviewMembers.objects.create(review = item, member = uid)
+            send_review_mail(data, memb_obj)
+        except:
+            pass
+
+    return HttpResponse("Success")
+
+def send_review_mail(data, memb_obj = ""):
+    """mail sending module for review"""
+    if memb_obj:
+        _text = "Hi %s %s, <p> One Review meeting is organised with given details </p>" %( memb_obj.member.first_name, memb_obj.member.last_name)
+    else:
+        _text = "Hi %s, %s, <p> One Review meeting is organised with given details </p>" %("Abhishek", "Yeswanth")
+    mail_body = "<html>\
+            <head>\
+                <style>\
+                table {\
+                    font-family: arial, sans-serif;\
+                    border-collapse: collapse;\
+                    width: 50%;\
+                }\
+                td, th {\
+                    border: 1px solid #dddddd;\
+                    text-align: center;\
+                    padding: 8px;\
+                }\
+                tr:nth-child(even) {\
+                    background-color: #dddddd;\
+                }\
+                </style>\
+            </head>\
+            <body>\
+                <table align= 'center'>"
+
+    _time  = "<tr>\
+                <td>\
+                <label> <b>Time </b></label>\
+                </td>\
+                <td>\
+                  %s\
+                </td>\
+                </tr>" % data['time']
+
+    _date = "<tr>\
+             <td>\
+             <label> <b>Date </b></label>\
+             </td>\
+             <td>\
+              %s, %s\
+             </td>\
+             </tr>" % (data['date'], data['day'])
+
+    _day = "<tr>\
+            <td>\
+            <label> <b>Day </b></label>\
+            </td>\
+            <td>\
+             %s\
+            </td>\
+            </tr>" % data['day']
+
+    _name = "<tr>\
+             <td>\
+             <label> <b>Name </b></label>\
+             </td>\
+             <td>\
+              %s\
+             </td>\
+             </tr>" % data['name']
+
+    _venue = "<tr>\
+             <td>\
+             <label> <b>Venue </b></label>\
+             </td>\
+             <td>\
+              %s\
+             </td>\
+             </tr>" % 'venue'
+
+    _bridge = "<tr>\
+             <td>\
+             <label> <b>Bridge </b></label>\
+             </td>\
+             <td>\
+              %s\
+             </td>\
+             </tr>\
+             </table> </br> </br>" % 'bridge'
+
+    #mail_body = mail_body + _date + _day + _name
+    _agenda = " <tr>\
+                <td>\
+                <b>Agenda </b>\
+                </td>\
+                <td>\
+                %s\
+                </td>\
+                </tr>" % data['agenda']
+
+    extra = "<p> </p> <p> </p> Kindly log into NextPulse - http://nextpulse.nextwealth.in/ \
+            with your userid and password to view all the metrics ahead of the meeting.\
+            <p>Additional documents for the review can be found in the Review Section of the NextPulse itself. </p>\
+            <p>If you have any difficulty please reach to your Project Team Lead (%s). </p> \
+            <p> </p>\
+            <p>Thanks and Regards,</p>\
+            <p>NextPulse Team</p>\
+            </body>\
+        </html>" %(data['tl'])
+
+    mail_body = _text + mail_body + _date + _time + _name + _agenda + _venue + _bridge + extra
+    print "mail is coming"
+    msg = EmailMultiAlternatives("Review for NextWealth - %s" % data['project'], "", 'nextpulse@nextwealth.in',
+                                ['abhishek@headrun.com', 'yeswanth@headrun.com'])
+    msg.attach_alternative(mail_body, "text/html")
+    msg.send()
+
+#====================================== REVIEW code ends here ======================================
+
+
 

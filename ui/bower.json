@@ -32,5 +32,8 @@
   },
   "resolutions": {
     "webcomponentsjs": "~0.5.4"
+  },
+  "devDependencies": {
+    "angular-bootstrap-multiselect": "https://github.com/bentorfs/angular-bootstrap-multiselect.git#^1.1.7"
   }
 }

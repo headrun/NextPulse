@@ -1,0 +1,358 @@
+<style>
+
+.main-heading {
+    font-size: 25px;
+    text-align: center;
+    background-color: white;
+    padding-bottom: 10px;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    margin-top: 10px;
+}
+
+.review-list {
+    width: 200px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    border-radius: 3px;
+    color: white;
+    padding: 7px 7px 7px 7px;
+    cursor: pointer;
+}
+
+.review-list:hover {
+    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.3);
+}
+
+.block-data {
+    padding-left: 25px;
+    padding-top: 10px;
+    height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+    overflow-y: auto;
+    background-color: #F0F0F0;
+}
+
+.date-style {
+    font-size: 25px;
+}
+
+.review-data {
+    float: right;
+    margin-right: 2.2%;
+}
+
+.tag {
+    /*font-size: 14px;*/
+    /*padding: .3em .4em .4em;*/
+    padding: 10px 10px;
+    /*margin-right: 30px;*/
+    margin-left: 15px;
+    background : whitesmoke;
+    border-radius : 1px;
+}
+
+.cal-image {
+    height: 250px;
+    width: 100%;
+}
+
+.details-block {
+    padding-left: 30px;
+    color: #9d9d9d;
+    padding-top: 4px;
+}
+
+.icon-padd {
+    /*padding-right: 10px;*/
+    font-size : 20px;
+}
+
+.attend {
+    padding-left: 140px;
+    margin-top: -20px;
+    color: #666666;
+}
+
+.form-element {
+    margin-bottom: 5px;
+}
+
+.margin-class {
+    margin-left: 0px;
+    margin-right: 0px;
+}
+
+.padding-class {
+    padding-left: 0px;
+    padding-right: 0px;
+}
+
+.image {
+   position: relative;
+   width: 100%;
+}
+
+.time-format {
+  position: absolute;
+  top: 210px;
+  left: 0;
+  width: 100%;
+  color: white;
+  font-size: 23px;
+  padding-left: 10px;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.date-format {
+  position: absolute;
+  top: 210px;
+  width: 100%;
+  color: white;
+  font-size: 23px;
+  padding-left: 660px;
+}
+
+.tag-format {
+  position: absolute;
+  top: 150px;
+  color: white;
+  font-size: 22px;
+  /*padding: 3px;*/
+  background-color: #D24631;
+  border-radius: 5px;
+  /*margin-left: 850px*/
+  margin-left: 779px;
+  padding-left: 6px;
+  padding-right: 6px;
+}
+.teamlead {
+    margin-right: 10px;
+    color: deepskyblue;
+}
+.participant {
+    margin-top: 13px;
+}
+.widget-loader-show {
+    background: rgba( 255, 255, 255, .8 ) url('/img/preload.gif) 50% 50% no-repeat;
+}
+.file-data {
+    color : #9d9d9d;
+    font-size : small;
+    margin-left : 4px;
+}
+.data-agenda {
+    margin-top: -10px;
+}
+/*#back {
+    font-size : 26px;
+    margin-right : 10px;
+    color : yellowgreen;
+}*/
+@media screen and (min-width: 960px)
+    .ajax-file-upload {
+        background : deepskyblue !important;
+    }
+.add-review {
+    float: right;
+    margin-right: 4%;
+    margin-top: -79px;
+}
+.create {
+    margin-right: 50px;
+}
+.edit {
+    margin-right: 50px;
+    font-size: 25px;
+}
+.txt-edit{
+    width: 50%;
+    margin-top: 15px;
+    margin-left: 25px;
+}
+</style>
+<div class="fluid-container" style="margin-left:0px; margin-right: 0px;">
+  <div class="row margin-class">
+  <div class="loading show" style="
+    position: fixed;
+    z-index:    1000;
+    top:        0;
+    left:       0;
+    height:     100%;
+    width:      100%;
+    background: rgba( 255, 255, 255, .8 ) url('http://sampsonresume.com/labs/pIkfp.gif') 50% 50% no-repeat;"></div>
+
+    <div class="col-md-3 padding-class" style="height: 100vh; padding-top: 60px;">
+        <p class="main-heading">
+        <a href="/#!/landing"><i class="fa fa-arrow-left" id="back" aria-hidden="true" 
+           style="color:yellowgreen;margin-right:15px;font-size:26px;cursor: pointer;"></i></a>
+        Meeting Calendar</p>
+        <div class="block-data">
+            <div ng-repeat="(key, value) in $ctrl.all_reviews">
+                <div class="row">
+                    <div class="col-md-2">
+                        <span>{{key | getdate:"had"}}</span>
+                        <span class="date-style">{{key | getdate}}</span>
+                        <!--<span>{{key | getdate:true}}</span>-->
+                    </div>
+                    <div class="col-md-10">
+                    <div ng-repeat="review in value" class="review-list" style="background-color: {{review.color}}"
+                         ng-click="$ctrl.get_review(review)">
+                        <span>{{review.name}}</span><br>
+                        <span>{{review.time}}</span>
+                        <!--<i class="fa fa-caret-right" aria-hidden="true"></i>-->
+                    </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-9 padding-class">
+        <div class="image">
+            <img src="/images/cal.png" class="cal-image">
+            <div class="extra-data">
+              <span class="time-format" id="meet-time">{{$ctrl.rev_time}} onwards</span>
+              <!--<input class="input-clear" type="time" id="edit-time" style="display:none;" placeholder="HH:mm:ss" min="00:00:00" max="24:59:59" required />-->
+              <span class="date-format" id="meet-date">{{$ctrl.rev_date}}, {{$ctrl.rev_day}}</span>
+              <!--<input class="input-clear" type="date" id="edit-date" style="display:none;" placeholder="yyyy-MM-dd" min="2017-01-01" max="2020-12-31" required />-->
+              <span class="tag-format">{{$ctrl.is_when}}</span>
+            </div>
+        </div>
+        <h1 style="font-size: 23px;padding-left: 25px;" id="meeting-name">{{$ctrl.rev_text}}</h1>
+        <!--<input type="password" class="form-control" id="eidt-name" style="display:none;">-->
+        <!--<input class="form-control input-sm txt-edit" id="edit-name" type="text" style="display:none;">-->
+      <div class="details-block">
+        <div class="meeet-agenda" style="color: black;"><span><i>Meeting agenda:</i></span></div><br>
+        <div class="data-agenda"><span class="agenda-style" id="agenda-name">{{$ctrl.rev_agenda}}</span>
+          <!--<input class="form-control input-sm" id="edit-agenda" type="text" name= "editagenda" style="display:none;width:50%;">-->
+            <div class="add-review" style="float:right;margin-right:4%;margin-top:-79px;">
+                <i class="fa fa-plus-circle fa-2x create" id="add-revi" data-toggle="modal" data-target="#myModal" ng-click="$ctrl.get_maildata()" style="margin-right:50px;" aria-hidden="true"></i>
+                <i class="fa fa-pencil-square-o edit" style = "margin-right:50px;font-size:25px;" aria-hidden="true"></i>
+                <i class="fa fa-trash fa-2x" aria-hidden="true" ng-click="$ctrl.del_review()"></i>
+            </div>
+        </div>
+        <br>
+        <hr>
+        <!--<i class="fa fa-user icon-padd" aria-hidden="true"></i><span style="padding-right: 50px;">Team Lead</span><span>{{$ctrl.rev_tl}}</span>-->
+        <span class="glyphicon glyphicon-user teamlead"></span><span><i> Team Lead</i></span><span style="margin-left:40px;color:black;"><b>{{$ctrl.rev_tl}}</b></span>
+        <br>
+        <div class="participant"><i class="fa fa-users icon-padd" aria-hidden="true"></i><span style="margin-left:9px;"><i>Participants</i></span></div>
+        <div class="attend">
+            <div ng-repeat="member in $ctrl.membs">
+            <span>{{member.name}}</span><br>
+            </div>
+            <!--<span>Abhishek</span><br>
+            <span>Asifa</span><br>-->
+        </div>
+        <br>
+        <hr>
+        <div class="row" style="width:100%;">
+            <span ng-repeat="file in $ctrl.all_review_data" class="tag label label-info">
+                <a href="http://projects.headrun.com:9998{{file.path}}" download class="file-data" style="color:#666666;font-size:small;">{{file.name | getfile}}</a>
+                <span style="color:#2a2a2a;margin-left:11px;margin-right:8px;font-size:18px;" ng-click="$ctrl.remove_file(file.name | getfile:true)">x</span>
+                <br><br>
+            </span>
+        </div>
+        <div id="fileuploader" class="review-data">Upload</div>
+            <!--<i class="fa fa-plus-circle fa-2x" id="add-revi" data-toggle="modal" data-target="#myModal" ng-click="$ctrl.get_maildata()" 
+               aria-hidden="true"></i>
+            <i class="fa fa-trash fa-2x" aria-hidden="true" ng-click="$ctrl.del_review()"></i>-->
+            <!--<i class="fa fa-pencil fa-2x" aria-hidden="true"></i>-->
+        </div>
+
+    </div>
+  </div>
+</div>
+
+  <div class="modal fade" id="myModal" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Create Review</h4>
+        </div>
+        <div class="modal-body">
+          <form name='regForm' novalidate>
+
+          <div class="row">
+            <div class="col-md-3">
+              <label>Review Name: </label>
+            </div>
+            <div class="col-md-9">
+              <input class="input-clear" type="text" name="reviewname" ng-model="$ctrl.review.reviewname" required class="form-element">
+              <span ng-if="regForm.reviewname.$error.required && regForm.reviewname.$touched">
+                Review Name is Required
+              </span>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-3">
+              <label>Select Date: </label>
+            </div>
+            <div class="col-md-9">
+              <input class="input-clear" type="date" id="exampleInput" name="reviewdate" ng-model="$ctrl.review.reviewdate" class="form-element"
+                placeholder="yyyy-MM-dd" min="2017-01-01" max="2020-12-31" required />
+              <span ng-if="regForm.reviewdate.$error.required && regForm.reviewdate.$touched">
+                Date is Required
+              </span>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-3">
+              <label>Select Time: </label>
+            </div>
+            <div class="col-md-9">
+              <input class="input-clear" type="time" id="exampleInput" name="reviewtime" ng-model="$ctrl.review.reviewtime" class="form-element"
+                 placeholder="HH:mm:ss" min="00:00:00" max="24:59:59" required />
+              <span ng-if="regForm.reviewtime.$error.required && regForm.reviewtime.$touched">
+                Time is Required
+              </span>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-3">
+              <label>Meeting Agenda: </label>
+            </div>
+            <div class="col-md-9">
+              <textarea  class="input-clear" rows="4" cols="50" name="reviewagenda" ng-model="$ctrl.review.reviewagenda" 
+                         required class="form-element">
+                Enter text here...</textarea>
+              <span ng-if="regForm.reviewagenda.$error.required && regForm.reviewagenda.$touched">
+                Agenda is Required
+              </span>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-3">
+              <label>Participants: </label>
+            </div>
+            <div class="col-md-9">
+              <multiselect  class="input-clear" ng-model="$ctrl.review.selection" options="$ctrl.mail_options" show-search="true"></multiselect>
+            </div>
+          </div>
+
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal" ng-disabled="regForm.$invalid" 
+                  ng-click="$ctrl.submit($ctrl.review)">Submit</button>
+        </div>
+      </div>
+    </div>
+  </div>
+<!--<script>
+$(document).ready(function()
+{
+    $("#fileuploader").uploadFile({
+    url:"/api/create_reviews/",
+    dragDrop:false,
+    fileName:"myfile"
+    });
+});
+</script>-->

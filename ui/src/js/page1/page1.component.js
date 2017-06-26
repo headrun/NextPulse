@@ -212,7 +212,6 @@
 
                     $('#volume_table').hide();
 
-
                     //self.lastDate+'&to='+self.firstDate+'&type=' + self.day_type;
                     
                     /*var dateEntered = document.getElementById('select').value

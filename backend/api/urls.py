@@ -19,6 +19,13 @@ urlpatterns = [
     url(r'^static_production_data/',apiviews.static_production_data),
     url(r'^change_password/', apiviews.change_password),
     url(r'^forgot_password/', apiviews.forgot_password),
+    url(r'^get_top_reviews',apiviews.get_top_reviews),
+    url(r'^create_reviews',apiviews.create_reviews),
+    url(r'^get_review_details',apiviews.get_review_details),
+    url(r'^remove_attachment',apiviews.remove_attachment),
+    url(r'^upload_review_doc',apiviews.upload_review_doc),
+    url(r'^get_related_user',apiviews.get_related_user),
+    url(r'^saving_members',apiviews.saving_members),
     #url(r'^alloc_and_compl', apiviews.alloc_and_compl),
     url(r'^utilisation_all', apiviews.utilisation_all),
     #url(r'^erro_data_all', apiviews.erro_data_all),
@@ -45,5 +52,4 @@ urlpatterns = [
     #url(r'^err_external_bar_graph',apiviews.err_external_bar_graph),
     url(r'^get_packet_details', apiviews.get_packet_details),
     #url()
-
 ]

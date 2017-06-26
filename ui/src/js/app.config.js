@@ -36,6 +36,9 @@
              }).state("reset_password", {
                "url"     : "/reset/:userId/:authKey",
                "template": "<reset></reset>"
+             }).state("review", {
+               "url"     : "/review",
+               "template": "<review></review>"
              });
 
              $urp.otherwise("/");

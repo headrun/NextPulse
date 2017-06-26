@@ -15,8 +15,8 @@ class Center(models.Model):
 class Project(models.Model):
     name    = models.CharField(max_length=255,db_index=True)
     center  = models.ForeignKey(Center, null=True)
-    days_week = models.IntegerField(max_length=125,default=5)
-    days_month = models.IntegerField(max_length=125,default=21)
+    days_week = models.IntegerField(default=5)
+    days_month = models.IntegerField(default=21)
     project_db_handlings_choices = (('update','Update'),('aggregate','Aggregate'),('ignore','Ignore'),)
     project_db_handling = models.CharField(max_length=30,choices=project_db_handlings_choices,default='ignore',) 
     sub_project_check = models.BooleanField(default=None)
@@ -65,9 +65,9 @@ class Widgets(models.Model):
     #col = models.IntegerField(max_length=125)
     api = models.CharField(max_length=255,null=True, blank=True)
     opt = models.CharField(max_length=225)
-    id_num = models.IntegerField(max_length=125)
+    id_num = models.IntegerField()
     day_type_widget = models.BooleanField(default=None)
-    priority = models.IntegerField(max_length=125,null=True, blank=True)
+    priority = models.IntegerField(null=True, blank=True)
     chart_type_name = models.ForeignKey(ChartType, null=True)
 
     class Meta:
@@ -81,9 +81,9 @@ class Widgets_group(models.Model):
     project = models.ForeignKey(Project, null=True,db_index=True)
     center = models.ForeignKey(Center, null=True,db_index=True)
     widget_name = models.ForeignKey(Widgets, null=True,db_index=True)
-    col = models.IntegerField(max_length=125,default=0)
+    col = models.IntegerField(default=0)
     #widget_col = models.IntegerField(default=None)
-    widget_priority = models.IntegerField(max_length=125)
+    widget_priority = models.IntegerField()
     is_display = models.BooleanField(default=None)
     is_drilldown = models.BooleanField(default=None)
 
@@ -98,7 +98,7 @@ class Widgets_group(models.Model):
 class Widget_Mapping(models.Model):
     user_name = models.ForeignKey(User, null=True)
     widget_name = models.ForeignKey(Widgets, null=True)
-    widget_priority = models.IntegerField(max_length=125)
+    widget_priority = models.IntegerField()
     is_display = models.BooleanField(default=None)
     is_drilldown = models.BooleanField(default=None)
 
@@ -201,7 +201,7 @@ class RawTable(models.Model):
     per_hour    = models.IntegerField(max_length=255, default=0)
     per_day     = models.IntegerField(max_length=255, default=0,db_index=True)
     date = models.DateField()
-    norm        = models.IntegerField(max_length=255, blank=True)
+    norm        = models.IntegerField(blank=True)
     created_at  = models.DateTimeField(auto_now_add=True, null=True)
     modified_at = models.DateTimeField(auto_now=True,null=True)
     center      = models.ForeignKey(Center, null=True,db_index=True)
@@ -229,7 +229,7 @@ class RawtableAuthoring(models.Model):
     class Meta:
         db_table = u'rawtable_authoring'
         index_together = (('project', 'center',),)
-    
+
     def __unicode__(self):
         return self.work_packet
 
@@ -243,8 +243,8 @@ class Internalerrors(models.Model):
     sub_error_count = models.CharField(max_length=512, blank=True)
     error_types = models.CharField(max_length=512, blank=True)
     error_values = models.CharField(max_length=512, blank=True)
-    audited_errors = models.IntegerField(max_length=255,blank=True,default=0)
-    total_errors = models.IntegerField(max_length=255,default=0,verbose_name='total_errors')
+    audited_errors = models.IntegerField(blank=True,default=0)
+    total_errors = models.IntegerField(default=0,verbose_name='total_errors')
     date = models.DateField()
     employee_id = models.CharField(max_length=255,blank=True)
     center      = models.ForeignKey(Center, null=True,db_index=True)
@@ -302,8 +302,8 @@ class Externalerrors(models.Model):
     sub_error_count = models.CharField(max_length=512, blank=True)
     error_types = models.CharField(max_length=512, blank=True)
     error_values = models.CharField(max_length=512, blank=True)
-    audited_errors = models.IntegerField(max_length=255, blank=True, default=0)
-    total_errors = models.IntegerField(max_length=255, default=0, verbose_name='total_errors')
+    audited_errors = models.IntegerField(blank=True, default=0)
+    total_errors = models.IntegerField(default=0, verbose_name='total_errors')
     date = models.DateField()
     employee_id = models.CharField(max_length=255, blank=True)
     center = models.ForeignKey(Center, null=True)
@@ -387,10 +387,10 @@ class Targets(models.Model):
     sub_project = models.CharField(max_length=255, blank=True,db_index=True)
     work_packet = models.CharField(max_length=255,db_index=True)
     sub_packet  = models.CharField(max_length=255, blank=True,db_index=True)
-    target      = models.IntegerField(max_length=125)
-    fte_target  = models.IntegerField(max_length=125,default=0)
+    target      = models.IntegerField()
+    fte_target  = models.IntegerField(default=0)
     target_type = models.CharField(max_length=255, blank=True)
-    target_value = models.IntegerField(max_length=125,default=0)
+    target_value = models.IntegerField(default=0)
     center = models.ForeignKey(Center, null=True)
     project = models.ForeignKey(Project, null=True,db_index=True)
 
@@ -426,11 +426,11 @@ class Worktrack(models.Model):
     sub_project = models.CharField(max_length=255, blank=True,db_index=True)
     work_packet = models.CharField(max_length=255,db_index=True)
     sub_packet = models.CharField(max_length=255, blank=True,db_index=True)
-    opening    = models.IntegerField(max_length=125)
-    received   = models.IntegerField(max_length=125)
-    non_workable_count = models.IntegerField(max_length=125,blank=True,default=0)
-    completed   = models.IntegerField(max_length=125)
-    closing_balance  = models.IntegerField(max_length=125)
+    opening    = models.IntegerField()
+    received   = models.IntegerField()
+    non_workable_count = models.IntegerField(blank=True,default=0)
+    completed   = models.IntegerField()
+    closing_balance  = models.IntegerField()
     center = models.ForeignKey(Center, null=True,db_index=True)
     project = models.ForeignKey(Project, null=True,db_index=True)
 
@@ -547,8 +547,8 @@ class UploadAuthoring(models.Model):
 class UploadDataTable(models.Model):
     date = models.DateField()
     sub_project = models.CharField(max_length=255, blank=True)
-    target = models.IntegerField(max_length=125,default = 0)
-    upload = models.IntegerField(max_length=125)
+    target = models.IntegerField(default = 0)
+    upload = models.IntegerField()
     center = models.ForeignKey(Center, null=True,db_index=True)
     project = models.ForeignKey(Project, null=True,db_index=True)
 
@@ -579,7 +579,7 @@ class Incomingerror(models.Model):
     sub_project = models.CharField(max_length=255, blank=True,db_index=True)
     work_packet = models.CharField(max_length=255,db_index=True)
     sub_packet = models.CharField(max_length=255, blank=True,db_index=True)
-    error_values = models.IntegerField(max_length=125)
+    error_values = models.IntegerField()
     project = models.ForeignKey(Project, null=True)
     center = models.ForeignKey(Center, null=True)
 
@@ -619,9 +619,9 @@ class TatTable(models.Model):
     date = models.DateField()
     completed_date = models.DateField(null=True)
     scan_date = models.DateField(null=True)
-    total_received = models.IntegerField(max_length=255)
-    met_count = models.IntegerField(max_length=125)
-    non_met_count = models.IntegerField(max_length=125, blank= True)
+    total_received = models.IntegerField()
+    met_count = models.IntegerField()
+    non_met_count = models.IntegerField(blank= True)
     tat_status = models.CharField(max_length=255)
 
     class Meta:
@@ -629,3 +629,54 @@ class TatTable(models.Model):
 
     def __unicode__(self):
         return self.tat_status
+
+
+class Review(models.Model):
+    """ model to store Reviews """
+    review_name = models.CharField(max_length=255, db_index=True)
+    review_agenda = models.TextField(null=True, blank = True)
+    project = models.ForeignKey(Project, db_index=True)
+    team_lead = models.ForeignKey(TeamLead, db_index=True)
+    review_date = models.DateTimeField(null=True, db_index=True)
+    creation_date = models.DateTimeField(auto_now_add=True)
+    updation_date = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = u'review_system'
+        unique_together = (('review_name', 'project', 'review_date'), )
+
+    def __unicode__(self):
+        return self.review_name
+
+
+class ReviewFiles(models.Model):
+    """ model to store files for reviews """
+    file_name = models.FileField(upload_to='reviews/%Y%m')
+    review = models.ForeignKey(Review, db_index=True)
+    creation_date = models.DateTimeField(auto_now_add=True)
+    updation_date = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = u'review_files'
+        index_together = (('review', 'file_name'), )
+        unique_together = (('review', 'file_name'), )
+
+
+class ReviewMembers(models.Model):
+    """ Model to store name of all persons associated in a review """
+    review = models.ForeignKey(Review, db_index=True)
+    member = models.ForeignKey(User, null=True)
+    creation_date = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = u'review_members'
+
+
+
+
+
+
+
+
+
+
