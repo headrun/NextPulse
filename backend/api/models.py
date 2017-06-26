@@ -19,7 +19,7 @@ class Project(models.Model):
     days_month = models.IntegerField(default=21)
     project_db_handlings_choices = (('update','Update'),('aggregate','Aggregate'),('ignore','Ignore'),)
     project_db_handling = models.CharField(max_length=30,choices=project_db_handlings_choices,default='ignore',) 
-
+    sub_project_check = models.BooleanField(default=None)
     class Meta:
         db_table = u'project'
         index_together = (('name', 'center',),)
@@ -198,8 +198,8 @@ class RawTable(models.Model):
     sub_project = models.CharField(max_length=255, blank=True,db_index=True)
     work_packet = models.CharField(max_length=255,db_index=True)
     sub_packet  = models.CharField(max_length=255, blank=True,db_index=True)
-    per_hour    = models.IntegerField(default=0)
-    per_day     = models.IntegerField(default=0)
+    per_hour    = models.IntegerField(max_length=255, default=0)
+    per_day     = models.IntegerField(max_length=255, default=0,db_index=True)
     date = models.DateField()
     norm        = models.IntegerField(blank=True)
     created_at  = models.DateTimeField(auto_now_add=True, null=True)
@@ -239,6 +239,8 @@ class Internalerrors(models.Model):
     work_packet = models.CharField(max_length=255,db_index=True)
     sub_packet = models.CharField(max_length=255, blank=True,db_index=True)
     #error_name = models.CharField(max_length=255, blank=True)
+    type_error = models.CharField(max_length=255, blank=True)
+    sub_error_count = models.CharField(max_length=512, blank=True)
     error_types = models.CharField(max_length=512, blank=True)
     error_values = models.CharField(max_length=512, blank=True)
     audited_errors = models.IntegerField(blank=True,default=0)
@@ -273,6 +275,7 @@ class InternalerrorsAuthoring(models.Model):
     #error_type9 = models.CharField(max_length=255, blank=True)
     audited_errors = models.CharField(max_length=255,blank=True,verbose_name='Audited_errors')
     total_errors = models.CharField(max_length=255,default=0,verbose_name='total_errors')
+    type_error = models.CharField(max_length=255, blank=True)
     error_category = models.CharField(max_length=255, blank=True)
     error_count = models.CharField(max_length=255, blank=True)
     date = models.CharField(max_length=255)
@@ -295,6 +298,8 @@ class Externalerrors(models.Model):
     work_packet = models.CharField(max_length=255)
     sub_packet = models.CharField(max_length=255, blank=True)
     #error_name = models.CharField(max_length=255, blank=True)
+    type_error = models.CharField(max_length=255, blank=True)
+    sub_error_count = models.CharField(max_length=512, blank=True)
     error_types = models.CharField(max_length=512, blank=True)
     error_values = models.CharField(max_length=512, blank=True)
     audited_errors = models.IntegerField(blank=True, default=0)
@@ -327,6 +332,7 @@ class ExternalerrorsAuthoring(models.Model):
     #error_type7 = models.CharField(max_length=255, blank=True)
     #error_type8 = models.CharField(max_length=255, blank=True)
     #error_type9 = models.CharField(max_length=255, blank=True)
+    type_error = models.CharField(max_length=255, blank=True)
     audited_errors = models.CharField(max_length=255,blank=True,verbose_name='Audited_errors')
     total_errors = models.CharField(max_length=255,default=0,verbose_name='total_errors')
     error_category = models.CharField(max_length=255, blank=True)
@@ -399,7 +405,7 @@ class TargetsAuthoring(models.Model):
     from_date = models.CharField(max_length=255)
     to_date   = models.CharField(max_length=255)
     sub_project = models.CharField(max_length=255, blank=True)
-    work_packet = models.CharField(max_length=255)
+    work_packet = models.CharField(max_length=255, blank=True)
     sub_packet  = models.CharField(max_length=255, blank=True)
     target      = models.CharField(max_length=125)
     fte_target = models.CharField(max_length=125, blank=True)
@@ -414,8 +420,6 @@ class TargetsAuthoring(models.Model):
 
     def __unicode__(self):
         return self.work_packet
-
-
 
 class Worktrack(models.Model):
     date = models.DateField()
