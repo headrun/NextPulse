@@ -2831,7 +2831,7 @@ def sub_project_names(request,open_book):
                 sub_prj_names[project_name] = main_prj_name[0]
                 #sub_prj_names[prj_obj.name +  " " + project_name] = main_prj_name[0]
         else:
-            project_name = prj_obj.name +  " " + project_name
+            #project_name = prj_obj.name +  " " + project_name
             proj_name = Project(name = project_name, sub_project_check=0, center_id = center)
             proj_name.save()
             proj_name.id
@@ -2881,7 +2881,7 @@ def upload_new(request):
         sub_project_boolean_check = Project.objects.filter(id=prj_id).values_list('sub_project_check',flat=True)[0]
         if sub_project_boolean_check == True:
             project_names = sub_project_names(request, open_book)
-            prj_obj = project_names['IBM Pakistan']
+            prj_obj = prj_obj
             #prj_obj = Project.objects.filter(id = project_id).values_list('name',flat=True)[0]
             #prj_obj = Project.objects.filter(name = prj_name)[0]
             center_obj = center_obj
