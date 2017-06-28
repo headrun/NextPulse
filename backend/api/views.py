@@ -138,6 +138,7 @@ def data_dict(variable):
         for week in week_list:
             if week and  employe_dates.has_key('days'):
                 employe_dates['days'] = employe_dates['days']+week
+
             else:
                 employe_dates['days'] = week
         
@@ -632,7 +633,7 @@ def prod_avg_perday(request):
             week_names.append(week_name)
             week_num = week_num + 1
             level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], main_data_dict['sub_packet'],main_data_dict['pro_cen_mapping'])
-            production_avg_details = production_avg_perday(sing_list, main_data_dict['pro_cen_mapping'][1][0],main_data_dict['pro_cen_mapping'][0][0], level_structure_key)
+            production_avg_details = production_avg_perday(sing_list, main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0], level_structure_key)
             prod_avg_dt[week_name] = production_avg_details
         final_prod_avg_details = prod_volume_week_util(prj_id,week_names, prod_avg_dt, {},'week')
         final_dict['production_avg_details'] = graph_data_alignment_color(final_prod_avg_details, 'data',level_structure_key, prj_id, center)
@@ -1151,6 +1152,10 @@ def error_bar_graph(request):
                 final_dict['external_accuracy_graph'] = graph_data_alignment_color(final_extrn_accuracy, 'y', level_structure_key,
                      main_data_dict['pro_cen_mapping'][0][0], main_data_dict['pro_cen_mapping'][1][0],'external_error_accuracy')
 
+    int_value_range = error_graphs_data['external_accuracy_graph']
+    int_min_max = min_max_value_data(int_value_range)
+    final_dict['ext_min_value'] = int_min_max['min_value']
+    final_dict['ext_max_value'] = int_min_max['max_value']
     return HttpResponse(final_dict)
 
 """def err_external_bar_graph(request):
@@ -7846,7 +7851,7 @@ def from_to(request):
     ###extrnl_category_error_count = sample_pareto_analysis(request, date_list, prj_id, center, level_structure_key, "External")
     #extrnl_category_error_count = sample_pareto_analysis(request, employe_dates['days'], prj_id, center, level_structure_key, "External")
     ###error_graphs_data = internal_extrnal_graphs(request, employe_dates['days'], prj_id, center,{},level_structure_key)
-    error_graphs_data = internal_extrnal_graphs(employe_dates['days'], prj_id, center,level_structure_key)
+    #error_graphs_data = internal_extrnal_graphs(employe_dates['days'], prj_id, center,level_structure_key)
     final_dict = {}
     """field_internal_error_graph_data = internal_external_graphs_common(request,employe_dates['days'],prj_id,center,level_structure_key,'Internal')
     if field_internal_error_graph_data.has_key('internal_field_accuracy_graph'):
@@ -7875,7 +7880,7 @@ def from_to(request):
         final_dict['exter_max_value'] = int_min_max['max_value']
     """
       
-    if error_graphs_data.has_key('internal_accuracy_graph'):
+    """if error_graphs_data.has_key('internal_accuracy_graph'):
         final_dict['internal_accuracy_graph'] = graph_data_alignment_color(error_graphs_data['internal_accuracy_graph'], 'y', level_structure_key, prj_id, center,'internal_error_accuracy')
     if error_graphs_data.has_key('external_accuracy_graph'):
         final_dict['external_accuracy_graph'] = graph_data_alignment_color(error_graphs_data['external_accuracy_graph'], 'y', level_structure_key, prj_id, center,'external_error_accuracy')
@@ -7889,7 +7894,7 @@ def from_to(request):
         for perc_key,perc_value in error_graphs_data['intr_err_accuracy']['packets_percntage'].iteritems():
             final_intrn_accuracy[perc_key] = perc_value[0]
         final_dict['internal_accuracy_graph'] = graph_data_alignment_color(final_intrn_accuracy, 'y', level_structure_key, prj_id, center,'intenal_error_accuracy')    
-    final_result_dict.update(final_dict)
+    final_result_dict.update(final_dict)"""
     #final_result_dict['volumes_graphs_details'] = volumes_graphs_details
     #final_result_dict['Internal_Error_Category'] = category_error_count
     #final_result_dict['External_Error_Category'] = extrnl_category_error_count
@@ -10146,12 +10151,14 @@ def get_annotations(request):
         day_type = request.GET['type']
     except:
         day_type = ''
-
+    """
     if day_type:
         series_name = series_name + '<##>annotation-week'
         annotations = Annotation.objects.filter(key__contains=series_name)
     else:
         annotations = Annotation.objects.filter(Q(key__contains=series_name) & ~Q(key__contains='week') & Q(key__contains=chart_name))
+    """
+    annotations = Annotation.objects.filter(key__contains=series_name+'<##>')
 
     annotations_data = []
 
@@ -10167,28 +10174,26 @@ def get_annotations(request):
             final_data['key'] = annotation.key
             final_data['created_by_id'] = annotation.created_by_id
             final_data['project_id'] = annotation.project_id
-            final_data['id'] = annotation.key.split('<##>')[1]
+            final_data['id'] = annotation.id
 
             annotations_data.append(final_data)
 
     return HttpResponse(annotations_data)
 
 def add_annotation(request):
-
-    anno_id = request.POST.get('id')
-    epoch = request.POST.get("epoch")
-    text = request.POST.get("text")
-    graph_name = request.POST.get("graph_name")
-    series_name = request.POST.get("series_name")
-    key = request.POST.get("series_name")
-    key = key + '<##>' + anno_id
-    widget_name = request.POST.get("widget_name")
+    anno_id = request.POST.get('id','')
+    epoch = request.POST.get('epoch','')
+    text = request.POST.get("text",'')
+    graph_name = request.POST.get("graph_name",'')
+    series_name = request.POST.get("series_name",'')
+    key = series_name + '<##>' + anno_id
+    #widget_name = request.POST.get("widget_name")
     created_by = request.user
     dt_created = datetime.datetime.now()
     prj_obj = Project.objects.filter(name='Probe')
     center = Center.objects.filter(name='Salem')
     if '<##>' in graph_name:
-        widget_obj = Widgets.objects.filter(config_name=graph_name.split('<##>')[0])[0]
+        widget_obj = Widgets.objects.filter(id_num=graph_name.split('<##>')[0])[0]
     else:
         widget_obj = Widgets.objects.filter(config_name=graph_name)[0]
     #widget_obj = Widgets.objects.filter(config_name=graph_name)[0]
@@ -10322,8 +10327,8 @@ def get_top_reviews(request):
 
             #result['all_data'].append(data)
             #i += 1
-
-        return HttpResponse(all_result)
+	all_data = {'all_data': all_result, 'is_team_lead': is_team_lead}
+        return HttpResponse(all_data)
 
     except:
         return HttpResponse("Failed")
@@ -10661,10 +10666,11 @@ def send_review_mail(data, memb_obj = ""):
             </body>\
         </html>" %(data['tl'])
 
+    to = ['yeswanth@headrun.com']
+    to.append(memb_obj.member.email)
     mail_body = _text + mail_body + _date + _time + _name + _agenda + _venue + _bridge + extra
     print "mail is coming"
-    msg = EmailMultiAlternatives("Review for NextWealth - %s" % data['project'], "", 'nextpulse@nextwealth.in',
-                                ['abhishek@headrun.com', 'yeswanth@headrun.com'])
+    msg = EmailMultiAlternatives("Review for NextWealth - %s" % data['project'], "", 'nextpulse@nextwealth.in', to)
     msg.attach_alternative(mail_body, "text/html")
     msg.send()
 

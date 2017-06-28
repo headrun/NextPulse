@@ -80,7 +80,7 @@
 
                     key_used = 'annotation-' + key_used;
 
-                    data = {"id": _.uniqueId(key_used)};
+                    data = {"id": _.uniqueId("annotation-")};
                 }
             }
 
@@ -146,11 +146,13 @@
         $("body").append(_get_popover_tmpl(data));
 
         this.$popover = $("#annotation-popover-" + data.id);
-
         var get_xpos = function(){
 
             //xpos is graph xpos  - half popover width - popover borderwidth + x offset
+            //var wid_index = $graph[0].outerHTML.indexOf('width');
+            //var wid_beg = $graph[0].outerHTML.slice(wid_index+7,wid_index+10);
             return $graph.offset().left + parseInt(that.$el.attr("x")) - that.$popover.width()/2 - 2 + 20;
+            //return wid_beg + parseInt(that.$el.attr("x")) + that.$popover.width();
 
         }
 
@@ -230,10 +232,10 @@
 
             $("body > div.annotation-popover").filter(".show").removeClass("show");
 
-            var xPos = get_xpos();
-            var yPos = get_ypos();
-
-            that.$popover.css({"top": (yPos) + "px", "left": (xPos) + "px"}).addClass("show").addClass("in");
+            var xPos = get_xpos()-30;
+            var yPos = get_ypos()-100;
+            //that.$popover.css({"top": (yPos) + "px", "left": (xPos) + "px"}).addClass("show").addClass("in");
+	    that.$popover.css({"top": 99 + "px", "left": 270 + "px"}).addClass("show").addClass("in");
 
             var $arrow = that.$popover.find("div.arrow").css({"left": "50%"});
 
@@ -432,7 +434,7 @@
             $.post("/api/annotations/create/", data, function(resp){
 
                 resp = resp.result;
-
+                    
                 var id = resp.id,
                     old_id = that.id;
 
@@ -463,7 +465,6 @@
     Annotation.prototype.collection = [];
 
     $(function () {
-
       _get_popover_tmpl = _.template($("#annotation-popover-tmpl").text());
     });
 }(window.jQuery));

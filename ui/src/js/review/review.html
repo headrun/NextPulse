@@ -136,7 +136,7 @@
     margin-top: 13px;
 }
 .widget-loader-show {
-    background: rgba( 255, 255, 255, .8 ) url('/img/preload.gif) 50% 50% no-repeat;
+    background: rgba( 255, 255, 255, .8 ) url('/img/preload.gif') 50% 50% no-repeat;
 }
 .file-data {
     color : #9d9d9d;
@@ -213,7 +213,7 @@
         <div class="image">
             <img src="/images/cal.png" class="cal-image">
             <div class="extra-data">
-              <span class="time-format" id="meet-time">{{$ctrl.rev_time}} onwards</span>
+              <span class="time-format" id="meet-time" ng-hide="$ctrl.no_reviews">{{$ctrl.rev_time}} onwards</span>
               <!--<input class="input-clear" type="time" id="edit-time" style="display:none;" placeholder="HH:mm:ss" min="00:00:00" max="24:59:59" required />-->
               <span class="date-format" id="meet-date">{{$ctrl.rev_date}}, {{$ctrl.rev_day}}</span>
               <!--<input class="input-clear" type="date" id="edit-date" style="display:none;" placeholder="yyyy-MM-dd" min="2017-01-01" max="2020-12-31" required />-->
@@ -223,14 +223,14 @@
         <h1 style="font-size: 23px;padding-left: 25px;" id="meeting-name">{{$ctrl.rev_text}}</h1>
         <!--<input type="password" class="form-control" id="eidt-name" style="display:none;">-->
         <!--<input class="form-control input-sm txt-edit" id="edit-name" type="text" style="display:none;">-->
-      <div class="details-block">
+      <div class="details-block" ng-hide="$ctrl.no_reviews">
         <div class="meeet-agenda" style="color: black;"><span><i>Meeting agenda:</i></span></div><br>
         <div class="data-agenda"><span class="agenda-style" id="agenda-name">{{$ctrl.rev_agenda}}</span>
           <!--<input class="form-control input-sm" id="edit-agenda" type="text" name= "editagenda" style="display:none;width:50%;">-->
-            <div class="add-review" style="float:right;margin-right:4%;margin-top:-79px;">
+            <div class="add-review" style="float:right;margin-right:4%;padding-top: 50px;">
                 <i class="fa fa-plus-circle fa-2x create" id="add-revi" data-toggle="modal" data-target="#myModal" ng-click="$ctrl.get_maildata()" style="margin-right:50px;" aria-hidden="true"></i>
-                <i class="fa fa-pencil-square-o edit" style = "margin-right:50px;font-size:25px;" aria-hidden="true"></i>
-                <i class="fa fa-trash fa-2x" aria-hidden="true" ng-click="$ctrl.del_review()"></i>
+                <i class="fa fa-pencil-square-o edit" style = "margin-right:50px;font-size:25px;" aria-hidden="true" id="edit-revi"></i>
+                <i class="fa fa-trash fa-2x" aria-hidden="true" ng-click="$ctrl.del_review()" id="del-revi" ng-hide="$ctrl.no_reviews"></i>
             </div>
         </div>
         <br>
@@ -250,8 +250,8 @@
         <hr>
         <div class="row" style="width:100%;">
             <span ng-repeat="file in $ctrl.all_review_data" class="tag label label-info">
-                <a href="http://projects.headrun.com:9998{{file.path}}" download class="file-data" style="color:#666666;font-size:small;">{{file.name | getfile}}</a>
-                <span style="color:#2a2a2a;margin-left:11px;margin-right:8px;font-size:18px;" ng-click="$ctrl.remove_file(file.name | getfile:true)">x</span>
+                <a href="http://nextpulse.nextwealth.in{{file.path}}" download class="file-data" style="color:#666666;font-size:small;">{{file.name | getfile}}</a>
+                <span class="del-x" style="color:#2a2a2a;margin-left:11px;margin-right:8px;font-size:18px;" ng-click="$ctrl.remove_file(file.name | getfile:true)">x</span>
                 <br><br>
             </span>
         </div>

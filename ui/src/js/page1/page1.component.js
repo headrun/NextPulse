@@ -525,7 +525,60 @@
                                 xAxis: {
                                     categories: date_list,
                                 },
-                                series: prod_avg_data
+				plotOptions: {
+				    series: {
+				      allowPointSelect: true,
+				      cursor: 'pointer',
+					point: {
+					  events:{
+					    contextmenu: function() {
+					      if (self.data_to_show.split('&').length == 6) {
+						var sub_proj = '';
+						var work_pack = '';
+						var sub_pack = '';
+					      }
+					      else {
+					      	var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
+						var work_pack = self.data_to_show.split('&')[6].split('=')[1];
+						var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
+					      }
+				      var str = '33<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
+					      return new Annotation(str, $(event.currentTarget),this.series.chart, this);
+						    }
+						}
+					    }
+					}
+				    },
+
+                                series: prod_avg_data,
+			    	onComplete: function(chart){
+			    	var series = null;
+			    	var chart_data = chart.series;
+
+			    	for(var i in chart_data){
+				   series = chart_data[i];
+			           (function(series){
+				      $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+self.type+'&chart_name=33'}).success(function(annotations){
+		       annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
+		       $.each(annotations, function(j, annotation){
+
+			 var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
+
+			 point = point[0];
+
+			 if(annotation.epoch){
+			   var a = new Annotation("33", $(self.chartOptions.chart.renderTo.innerHTML),
+				chart, point, annotation);
+
+			   console.log(a);
+			   } 
+		       })
+
+				});
+				}(series));  
+			    }
+			    }
+
                             });
                             $('.widget-33a').removeClass('widget-loader-show');
                             $('.widget-33b').removeClass('widget-data-hide');

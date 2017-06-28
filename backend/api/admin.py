@@ -172,6 +172,10 @@ class ReviewAdmin(admin.ModelAdmin):
     list_filter =  ['review_name', 'project', 'team_lead']
 admin.site.register(Review,ReviewAdmin)
 
+class ReviewMembersAdmin(admin.ModelAdmin):
+    list_display = ['review', 'member']
+    list_filter = ['review', 'member']
+admin.site.register(ReviewMembers, ReviewMembersAdmin)
 """
 class ReviewFilesAdmin(admin.ModelAdmin):
     list_display = ['file_name', 'review__review_name', 'updation_date']

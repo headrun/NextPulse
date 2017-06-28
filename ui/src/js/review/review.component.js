@@ -15,22 +15,36 @@
 
              self.email_data = 'api/get_related_user/';
 
-             self.mail_options = [ "Shanmugasundaram v", "Monica M", "Abhijith A", "Sasikumar G", "Ranjithkumar M", "Shailesh dube", 
+             /*self.mail_options = [ "Shanmugasundaram v", "Monica M", "Abhijith A", "Sasikumar G", "Ranjithkumar M", "Shailesh dube", 
                                    "Atul shinghal", "Navin Ramachandran", "Goutam Dan", "rajesh r", "Damodaran Selvaraj", "Balasubramanian A", 
-                                   "Anuradha G", "Arun L", "Sunilbabu S", "Hariharan N", "Anandram J", "Venkatesh D" ];
+                                   "Anuradha G", "Arun L", "Sunilbabu S", "Hariharan N", "Anandram J", "Venkatesh D" ];*/
+       	     self.mail_options = [ "sankar K", "poornima mitta", "Kannan sundar", "Sriram ."];
 
              self.review_url = 'api/get_top_reviews/';
 
              $http.get(self.review_url).then(function(result){
 
-                 self.all_reviews = result.data.result;
+                 self.all_reviews = result.data.result.all_data;
+
+		 if (result.data.result.is_team_lead == false) {
+		    $('#fileuploader').hide();                                                                                  
+                    $('#add-revi').hide();                                                                                                      
+                    $('#edit-revi').hide();                                                                                                     
+                    $('#del-revi').hide();   
+		    self.is_lead = false;
+		 }
+ 		 if (Object.keys(result.data.result.all_data).length === 0) {
+		    self.no_reviews = true;
+		 }
                  $('.loading').removeClass('show').addClass('hide');
                  self.rev_id = self.all_reviews[Object.keys(self.all_reviews)[0]][0].id;
                  self.get_review(self.all_reviews[Object.keys(self.all_reviews)[0]][0]);
-                 if (result.data.result[Object.keys(result.data.result)[0]][0].is_team_lead == false){
+                 /*if (result.data.result[Object.keys(result.data.result)[0]][0].is_team_lead == false){
                     $('#fileuploader').hide();
                     $('#add-revi').hide();
-                 }
+	            $('#edit-revi').hide();
+		    $('#del-revi').hide();
+                 }*/
                  //$('.loading').removeClass('show').addClass('hide');
                  return self.rev_id;
              });
@@ -79,10 +93,11 @@
 
 
              self.submit = function(review) {
-                 self.map_list_item = { "Shanmugasundaram v": 15, "Monica M": 18, "Abhijith A": 19, "Sasikumar G": 101, "Ranjithkumar M": 107, 
+                 /*self.map_list_item = { "Shanmugasundaram v": 15, "Monica M": 18, "Abhijith A": 19, "Sasikumar G": 101, "Ranjithkumar M": 107, 
                                         "Shailesh dube": 2, "Atul shinghal": 116,  "Navin Ramachandran": 123, "Goutam Dan": 127, "rajesh r": 25,
                                         "Damodaran Selvaraj": 52, "Balasubramanian A": 59, "Anuradha G": 60, "Arun L": 61, "Sunilbabu S": 62,
-                                        "Hariharan N": 63, "Anandram J": 90, "Venkatesh D":91 }
+                                        "Hariharan N": 63, "Anandram J": 90, "Venkatesh D":91 }*/
+		 self.map_list_item = {"sankar K": 3, "poornima mitta": 14, "Kannan sundar":13, "Sriram .": 157};
                  self.uids_list = []
                  for (var i=0; i<review.selection.length; i++) {
                     self.uids_list.push(self.map_list_item[review.selection[i]]);
@@ -109,7 +124,7 @@
 
                    $http.get(self.review_url).then(function(result){
 
-                     self.all_reviews = result.data.result;
+                     self.all_reviews = result.data.result.all_data;
                      self.get_review(self.all_reviews[Object.keys(self.all_reviews)[0]][0]);
                      $('.loading').removeClass('show').addClass('hide');
 
@@ -180,7 +195,7 @@
                     $http.get(self.remove_review_url).then(function(result){}).then(function (result){
                       $http.get(self.review_url).then(function(result){
 
-                         self.all_reviews = result.data.result;
+                         self.all_reviews = result.data.result.all_data;
                          self.rev_id = self.all_reviews[Object.keys(self.all_reviews)[0]][0].id;
                          self.get_review(self.all_reviews[Object.keys(self.all_reviews)[0]][0]);
                          return self.rev_id;
