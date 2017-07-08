@@ -2366,7 +2366,7 @@
                     }
                     self.main_prod(final_work, key, all_data);
                 }
-                if (name == 'chartOptions9') {
+                /*if (name == 'chartOptions9') {
                     $('.widget-8a').addClass('widget-loader-show');
                     $('.widget-8b').addClass('widget-data-hide');
                     self.erro_all(final_work, key, all_data);
@@ -2376,7 +2376,20 @@
                     $('.widget-7a').addClass('widget-loader-show');
                     $('.widget-7b').addClass('widget-data-hide');
                     self.erro_extrnl_timeline(final_work, key);
-                }
+                }*/
+
+		if ((name == 'chartOptions9_2') || (name == 'chartOptions9')) {
+		    if (name == 'chartOptions9') {
+		       $('.widget-8a').addClass('widget-loader-show');
+                       $('.widget-8b').addClass('widget-data-hide');		
+		    }
+		    if (name == 'chartOptions9_2') {
+			$('.widget-7a').addClass('widget-loader-show');
+			$('.widget-7b').addClass('widget-data-hide');
+		    }
+	            self.from_to(final_work, key, all_data);		
+		}
+
                 if (name == 'chartOptions40') {
                     $('.widget-35a').addClass('widget-loader-show');
                     $('.widget-35b').addClass('widget-data-hide');
@@ -2475,9 +2488,11 @@
                 $('.widget-7a').addClass('widget-loader-show');   
                 $('.widget-7b').addClass('widget-data-hide');
 
-                self.erro_all(final_work, key);
+                /*self.erro_all(final_work, key);
 
-                self.erro_extrnl_timeline(final_work, key);
+                self.erro_extrnl_timeline(final_work, key);*/
+
+		self.from_to(final_work, key)
 
                 $('.widget-35a').addClass('widget-loader-show');    
                 $('.widget-35b').addClass('widget-data-hide');
