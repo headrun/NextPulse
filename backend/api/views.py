@@ -3,7 +3,7 @@ import os
 import mimetypes
 import traceback
 from django.shortcuts import render
-from common.utils import getHttpResponse as HttpResponse
+from common.utils import getHttpResponse as json_HttpResponse
 from models import *
 from django.views.decorators.csrf import csrf_exempt
 from auth.decorators import loginRequired
@@ -34,6 +34,7 @@ import collections
 import hashlib
 import random
 from wsgiref.util import FileWrapper
+from django.http import HttpResponse
 
 def get_level_structure_key(work_packet, sub_project, sub_packet, pro_cen_mapping):
     """It will generate level structure key with existing packet, project, and sub packey types"""
@@ -257,7 +258,7 @@ def get_packet_details(request):
     final_dict['level'] = [1, 2]
     final_dict['fin'] = final_details
     final_dict['drop_value'] = big_dict
-    return HttpResponse(final_dict)
+    return json_HttpResponse(final_dict)
 
 def alloc_and_compl(request):
     final_dict = {}
@@ -326,7 +327,7 @@ def alloc_and_compl(request):
             final_dict['volume_graphs']['line_data'] = graph_data_alignment_color(final_vol_graph_line_data,'data', level_structure_key,prj_id,center,'volume_productivity_graph')
             final_dict['date'] = data_date
     final_dict['type'] = main_data_dict['type']    
-    return HttpResponse(final_dict)
+    return json_HttpResponse(final_dict)
 
 def utilisation_all(request):
     final_dict = {}
@@ -402,7 +403,7 @@ def utilisation_all(request):
             final_dict['date'] = data_date
     final_dict['type'] = main_data_dict['type']
     print main_data_dict['type']
-    return HttpResponse(final_dict)
+    return json_HttpResponse(final_dict)
 
 def productivity(request):
     final_dict = {}
@@ -458,7 +459,7 @@ def productivity(request):
         final_dict['original_productivity_graph'] = graph_data_alignment_color(final_main_productivity_timeline,'data', level_structure_key, prj_id,center,'productivity_trends')
         final_dict['date'] = data_date
     final_dict['type'] = main_data_dict['type']
-    return HttpResponse(final_dict)
+    return json_HttpResponse(final_dict)
 
 def monthly_volume(request):
     final_dict = {}
@@ -531,7 +532,7 @@ def monthly_volume(request):
         final_dict['monthly_volume_graph_details'] = graph_data_alignment_color(final_montly_vol_data, 'data',level_structure_key, prj_id, center,'monthly_volume')    
         final_dict['date'] = data_date
     final_dict['type'] = main_data_dict['type']
-    return HttpResponse(final_dict)
+    return json_HttpResponse(final_dict)
 
 def fte_graphs(request):
     final_dict = {}
@@ -598,7 +599,7 @@ def fte_graphs(request):
         result_dict['fte_calc_data']['work_packet_fte'] = graph_data_alignment_color(final_total_wp_fte_calc, 'data',level_structure_key, prj_id,center,'total_fte')
         result_dict['date'] = data_date
     final_dict['type'] = main_data_dict['type']    
-    return HttpResponse(result_dict)
+    return json_HttpResponse(result_dict)
  
 def prod_avg_perday(request):
     final_dict = {}
@@ -651,7 +652,7 @@ def prod_avg_perday(request):
         final_dict['production_avg_details'] = graph_data_alignment_color(final_prod_avg_details,'data',level_structure_key, prj_id, center)
         final_dict['date'] = data_date
     final_dict['type'] = main_data_dict['type']    
-    return HttpResponse(final_dict)
+    return json_HttpResponse(final_dict)
 
 def cate_error(request):
     final_dict = {}
@@ -689,7 +690,7 @@ def cate_error(request):
         final_dict['internal_errors_types'] = graph_data_alignment_color(internal_error_types,'y',level_structure_key,main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0],'')
         final_dict['external_errors_types'] = graph_data_alignment_color(external_error_types,'y',level_structure_key,main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0],'')
  
-    return HttpResponse(final_dict)
+    return json_HttpResponse(final_dict)
 
 def pareto_cate_error(request):
     final_dict = {} 
@@ -725,7 +726,7 @@ def pareto_cate_error(request):
         extrnl_category_error_count = sample_pareto_analysis(request,date_value, main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0], level_structure_key, "External")
         final_dict['Internal_Error_Category'] = category_error_count
         final_dict['External_Error_Category'] = extrnl_category_error_count
-    return HttpResponse(final_dict)
+    return json_HttpResponse(final_dict)
 
 def agent_cate_error(request):
     final_dict = {}
@@ -762,7 +763,7 @@ def agent_cate_error(request):
         extrnl_agent_pareto_data = agent_external_pareto_data_generation(request,date_value, main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0], level_structure_key)
         final_dict['External_Pareto_data'] = extrnl_agent_pareto_data
         final_dict['Pareto_data'] = agent_internal_pareto_data
-    return HttpResponse(final_dict)
+    return json_HttpResponse(final_dict)
 
 def main_prod(request):
     final_dict = {}
@@ -849,7 +850,7 @@ def main_prod(request):
         final_dict['volumes_data']['volume_new_data'] = volume_new_data
         final_dict['data']['date'] = data_date
     final_dict['type'] = main_data_dict['type']    
-    return HttpResponse(final_dict)
+    return json_HttpResponse(final_dict)
 
 
 """def erro_data_all(request):
@@ -958,7 +959,7 @@ def main_prod(request):
         final_dict['date'] = data_date
     final_dict['type'] = main_data_dict['type']    
     print main_data_dict['type']
-    return HttpResponse(final_dict)"""
+    return json_HttpResponse(final_dict)"""
 
 """def erro_extrnl_timeline(request):
     final_dict = {}
@@ -1067,7 +1068,7 @@ def main_prod(request):
         final_dict['max_external_time_line'] = ext_error_timeline_min_max['max_value']
         final_dict['external_time_line'] = graph_data_alignment_color(final_external_accuracy_timeline, 'data',level_structure_key, prj_id, center,'external_accuracy_timeline')
         final_dict['date'] = data_date
-    return HttpResponse(final_dict)"""
+    return json_HttpResponse(final_dict)"""
 
 def error_bar_graph(request):
     final_dict = {}
@@ -1156,7 +1157,12 @@ def error_bar_graph(request):
     int_min_max = min_max_value_data(int_value_range)
     final_dict['ext_min_value'] = int_min_max['min_value']
     final_dict['ext_max_value'] = int_min_max['max_value']
-    return HttpResponse(final_dict)
+    int_value_range = error_graphs_data['internal_accuracy_graph']
+    int_min_max = min_max_value_data(int_value_range)
+    #import pdb;pdb.set_trace()
+    final_dict['int_min_value'] = int_min_max['min_value']
+    final_dict['int_max_value'] = int_min_max['max_value']
+    return json_HttpResponse(final_dict)
 
 """def err_external_bar_graph(request):
     final_dict = {}
@@ -1214,7 +1220,7 @@ def error_bar_graph(request):
                 final_dict['external_accuracy_graph'] = graph_data_alignment_color(final_extrn_accuracy, 'y', level_structure_key,
                      main_data_dict['pro_cen_mapping'][0][0], main_data_dict['pro_cen_mapping'][1][0],'external_error_accuracy')
 
-    return HttpResponse(final_dict)"""
+    return json_HttpResponse(final_dict)"""
 
 def err_field_graph(request):
     final_dict = {}
@@ -1263,7 +1269,7 @@ def err_field_graph(request):
                 int_min_max = min_max_value_data(int_value_range)
                 final_dict['exter_min_value'] = int_min_max['min_value']
                 final_dict['exter_max_value'] = int_min_max['max_value']
-    return HttpResponse(final_dict)
+    return json_HttpResponse(final_dict)
 
 
 def pre_scan_exce(request):
@@ -1317,7 +1323,7 @@ def pre_scan_exce(request):
         final_dict['pre_scan_exception_data'] = [final_pre_scan_exception_details]
         final_dict['date'] = data_date
     final_dict['type'] = main_data_dict['type']
-    return HttpResponse(final_dict)
+    return json_HttpResponse(final_dict)
     
 def nw_exce(request):
     final_dict = {}
@@ -1371,7 +1377,7 @@ def nw_exce(request):
         final_dict['nw_exception_details'] = graph_data_alignment_color(final_nw_exception, 'data',level_structure_key, prj_id, center,'')
         final_dict['date'] = data_date
     final_dict['type'] = main_data_dict['type']    
-    return HttpResponse(final_dict)
+    return json_HttpResponse(final_dict)
 
 def overall_exce(request):
     final_dict = {}
@@ -1425,7 +1431,7 @@ def overall_exce(request):
         final_dict['overall_exception_details'] = graph_data_alignment_color(final_overall_exception, 'data',level_structure_key, prj_id, center,'')
         final_dict['date'] = data_date
     final_dict['type'] = main_data_dict['type']    
-    return HttpResponse(final_dict)
+    return json_HttpResponse(final_dict)
 
 def upload_acc(request):
     final_dict = {}
@@ -1493,7 +1499,7 @@ def upload_acc(request):
         final_data['data'] = [pre_final_data]
         final_dict['upload_target_data'] = final_data
     final_dict['type'] = main_data_dict['type']    
-    return HttpResponse(final_dict)
+    return json_HttpResponse(final_dict)
 
 def error_insert(request):
     pass
@@ -1534,7 +1540,7 @@ def change_password(request):
         user_obj = User.objects.filter(username=request.user.username)[0]
         user_obj.set_password(new_pass)
         user_obj.save()
-    return HttpResponse('cool')
+    return json_HttpResponse('cool')
 
 def get_details(email_id):
     user_obj = User.objects.filter(email=email_id)
@@ -1555,9 +1561,9 @@ def forgot_password(request):
     var = 'http://nextpulse.nextwealth.in/#!/reset/'+str(user_id)+'/'+str(auth_key)
     if auth_key:
         send_mail('Password Reset', 'click here to reset your password...'+var, 'nextpulse@nextwealth.in', [email_id])
-        return HttpResponse('Cool')
+        return json_HttpResponse('Cool')
     else:
-        return HttpResponse('Email id not found')
+        return json_HttpResponse('Email id not found')
 
 def validate_sheet(open_sheet, request, SOH_XL_HEADERS, SOH_XL_MAN_HEADERS):
     sheet_headers = []
@@ -1772,7 +1778,7 @@ def project(request):
         details['final'] = final_details
         new_dates = latest_dates(request, project_list)
         details['dates'] = new_dates
-        return HttpResponse(details)
+        return json_HttpResponse(details)
 
     if 'center_manager' in user_group:
         final_details = {}
@@ -1800,7 +1806,7 @@ def project(request):
         else:
             new_dates = latest_dates(request, project_names)
         details['dates'] = new_dates
-        return HttpResponse(details)
+        return json_HttpResponse(details)
 
     if 'nextwealth_manager' in user_group:
         final_details = {}
@@ -1856,7 +1862,7 @@ def project(request):
         else:
             new_dates = latest_dates(request, project_list)
         details['dates'] = new_dates
-        return HttpResponse(details)
+        return json_HttpResponse(details)
 
     if 'customer' in user_group:
         final_details = {}
@@ -1902,7 +1908,7 @@ def project(request):
         details['dates'] = new_dates
 
         details['dates'] = new_dates
-        return HttpResponse(details)
+        return json_HttpResponse(details)
 
 def latest_dates(request,prj_id):
     result= {}
@@ -2377,7 +2383,7 @@ def redis_insert_old(prj_obj,center_obj,dates_list,key_type):
 def dropdown_data(request):
     final_dict = {}
     final_dict['level'] = [1,2,3]
-    return HttpResponse(final_dict)
+    return json_HttpResponse(final_dict)
 
 
 def raw_table_query_insertion(customer_data,prj_obj,center_obj,teamleader_obj_name,per_day_value,db_check):
@@ -2571,13 +2577,13 @@ def upload(request):
     fname = request.FILES['myfile']
     var = fname.name.split('.')[-1].lower()
     if var not in ['xls', 'xlsx', 'xlsb']:
-        return HttpResponse("Invalid File")
+        return json_HttpResponse("Invalid File")
     else:
         try:
             open_book = open_workbook(filename=None, file_contents=fname.read())
             #open_sheet = open_book.sheet_by_index(0)
         except:
-            return HttpResponse("Invalid File")
+            return json_HttpResponse("Invalid File")
         excel_sheet_names = open_book.sheet_names()
         file_sheet_names = Authoringtable.objects.filter(project=prj_obj,center=center_obj).values_list('sheet_name',flat=True).distinct()
         #file_sheet_names = [x.encode('UTF8') for x in file_sheet_name]
@@ -2723,7 +2729,7 @@ def upload(request):
                     insert = redis_insert(prj_obj, center_obj, internal_date_list, key_type='Internal')
 
             var ='hello'
-        return HttpResponse(var)
+        return json_HttpResponse(var)
 
 def sheet_upload_one(prj_obj,center_obj,teamleader_obj,key,one_sheet_data):
     customer_data={}
@@ -2864,13 +2870,13 @@ def upload_new(request):
     var = fname.name.split('.')[-1].lower()
     #import pdb;pdb.set_trace()
     if var not in ['xls', 'xlsx', 'xlsb']:
-        return HttpResponse("Invalid File")
+        return json_HttpResponse("Invalid File")
     else:
         try:
             open_book = open_workbook(filename=None, file_contents=fname.read())
             #open_sheet = open_book.sheet_by_index(0)
         except:
-            return HttpResponse("Invalid File")
+            return json_HttpResponse("Invalid File")
         excel_sheet_names = open_book.sheet_names()
         file_sheet_names = Authoringtable.objects.filter(project=prj_obj,center=center_obj).values_list('sheet_name',flat=True).distinct()
         sheet_names = {}
@@ -3699,7 +3705,7 @@ def upload_new(request):
                 insert = redis_insert(prj_obj, center_obj, sorted_dates, key_type='WorkTrack')
                 print 'work track redis-----------------------------------'
         var ='hello'
-        return HttpResponse(var)
+        return json_HttpResponse(var)
 
 def dates_sorting(timestamps):
     dates = [datetime.datetime.strptime(ts, "%Y-%m-%d") for ts in timestamps]
@@ -4091,7 +4097,7 @@ def user_data(request):
         manager_dict[center_name]= str(project_names)
     if 'Nextwealth_Manager' in user_group:
         center_id = Nextwealthmanager.objects.filter(id=request.user.id).values_list('center_name')
-    return HttpResponse(manager_dict)
+    return json_HttpResponse(manager_dict)
 
 
 def Packet_Alias_Names(prj_id,center_obj,widget_config_name):
@@ -5271,7 +5277,48 @@ def agent_pareto_data_generation(request,date_list,prj_id,center_obj,level_struc
     count = 0
     for agent in extr_volumes_list:
         #total_errors = Internalerrors.objects.filter(project=prj_id, center=center_obj, employee_id=agent,date__range=[date_list[0], date_list[-1]]).aggregate(Sum('total_errors'))
-        total_errors = Internalerrors.objects.filter(project=prj_id, center=center_obj, employee_id=agent,date__range=[date_list[0], date_list[-1]]).aggregate(Sum('total_errors'))
+        if level_structure_key.get('work_packet','') == "All" and level_structure_key.get('sub_project','') == "All":
+            total_errors = Internalerrors.objects.filter(project=prj_id, center=center_obj, employee_id=agent,
+            date__range=[date_list[0], date_list[-1]]).aggregate(Sum('total_errors'))
+        elif level_structure_key.get('sub_packet','') == "All" and level_structure_key.get('work_packet','') == "All" and level_structure_key.get('sub_project','') == "All":
+            total_errors = Internalerrors.objects.filter(project=prj_id, center=center_obj, employee_id=agent,
+            date__range=[date_list[0], date_list[-1]]).aggregate(Sum('total_errors'))
+        elif level_structure_key.get('work_packet','') == "All" and len(level_structure_key) == 1:
+            total_errors = Internalerrors.objects.filter(project=prj_id, center=center_obj, employee_id=agent,
+            date__range=[date_list[0], date_list[-1]]).aggregate(Sum('total_errors'))
+        elif level_structure_key.get('sub_project','') == "All":
+            total_errors = Internalerrors.objects.filter(project=prj_id, center=center_obj, employee_id=agent,
+            date__range=[date_list[0], date_list[-1]]).aggregate(Sum('total_errors'))
+        else:
+            if level_structure_key.get('sub_project','') != 'All' and level_structure_key.get('work_packet','') == 'All' and level_structure_key.get('sub_packet','') == 'All':
+                sub_proj = level_structure_key['sub_project']
+                total_errors = Internalerrors.objects.filter(project=prj_id, center=center_obj, employee_id=agent,
+                date__range=[date_list[0], date_list[-1]],sub_project = sub_proj).aggregate(Sum('total_errors'))
+            elif level_structure_key.get('sub_project','') != 'All' and level_structure_key.get('work_packet','') != 'All' and level_structure_key.get('sub_packet', '') == "All" and len(level_structure_key) == 3:
+                sub_proj = level_structure_key['sub_project']
+                wk_packet = level_structure_key['work_packet']
+                total_errors = Internalerrors.objects.filter(project=prj_id, center=center_obj, employee_id=agent,
+                date__range=[date_list[0], date_list[-1]],sub_project = sub_proj, work_packet = wk_packet).aggregate(Sum('total_errors'))
+            elif level_structure_key.get('sub_project','') != 'All' and level_structure_key.get('work_packet','') != 'All' and level_structure_key.get('sub_packet','') != "All" and len(level_structure_key) == 3:
+                sub_proj = level_structure_key['sub_project']
+                wk_packet = level_structure_key['work_packet']
+                sb_packet = level_structure_key['sub_packet']
+                total_errors = Internalerrors.objects.filter(project=prj_id, center=center_obj, employee_id=agent,
+                date__range=[date_list[0], date_list[-1]],sub_project = sub_proj, work_packet = wk_packet, sub_packet = sb_packet).aggregate(Sum('total_errors'))
+            elif level_structure_key.get('work_packet','') != "All" and level_structure_key.get('sub_packet','') == "All" and len(level_structure_key) == 2:
+                wk_packet = level_structure_key['work_packet']
+                total_errors = Internalerrors.objects.filter(project=prj_id, center=center_obj, employee_id=agent,
+                date__range=[date_list[0], date_list[-1]],work_packet = wk_packet).aggregate(Sum('total_errors'))
+            elif level_structure_key.get('work_packet','') != "All" and level_structure_key.get('sub_packet','') != "All" and len(level_structure_key) == 2:
+                wk_packet = level_structure_key['work_packet']
+                sb_packet = level_structure_key['sub_packet']
+                total_errors = Internalerrors.objects.filter(project=prj_id, center=center_obj, employee_id=agent,
+                date__range=[date_list[0], date_list[-1]],work_packet = wk_packet, sub_packet = sb_packet).aggregate(Sum('total_errors'))
+            else:
+                wk_packet = level_structure_key['work_packet']
+                total_errors = Internalerrors.objects.filter(project=prj_id, center=center_obj, employee_id=agent,
+                date__range=[date_list[0], date_list[-1]],work_packet = wk_packet).aggregate(Sum('total_errors'))
+
         if total_errors['total_errors__sum'] > 0:
             for key, value in total_errors.iteritems():
                 agent_name[agent] = value
@@ -5342,7 +5389,48 @@ def agent_external_pareto_data_generation(request,date_list,prj_id,center_obj,le
     count = 0
     for agent in extrnal_volumes_list:
         #total_errors = Externalerrors.objects.filter(project=prj_id, center=center_obj, employee_id=agent,date__range=[date_list[0], date_list[-1]]).aggregate(Sum('total_errors'))
-        total_errors = Externalerrors.objects.filter(project=prj_id, center=center_obj, employee_id=agent,date__range=[date_list[0], date_list[-1]]).aggregate(Sum('total_errors'))
+        if level_structure_key.get('work_packet','') == "All" and level_structure_key.get('sub_project','') == "All" and len(level_structure_key) == 2:
+            total_errors = Externalerrors.objects.filter(project=prj_id, center=center_obj, employee_id=agent,
+            date__range=[date_list[0], date_list[-1]]).aggregate(Sum('total_errors'))
+        elif level_structure_key.get('sub_packet','') == "All" and level_structure_key.get('work_packet','') == "All" and level_structure_key.get('sub_project','') == "All":
+            total_errors = Externalerrors.objects.filter(project=prj_id, center=center_obj, employee_id=agent,
+            date__range=[date_list[0], date_list[-1]]).aggregate(Sum('total_errors'))
+        elif level_structure_key.get('work_packet','') == "All" and len(level_structure_key) == 1:
+            total_errors = Externalerrors.objects.filter(project=prj_id, center=center_obj, employee_id=agent,
+            date__range=[date_list[0], date_list[-1]]).aggregate(Sum('total_errors'))
+        elif level_structure_key.get('sub_project','') == "All":
+            total_errors = Externalerrors.objects.filter(project=prj_id, center=center_obj, employee_id=agent,
+            date__range=[date_list[0], date_list[-1]]).aggregate(Sum('total_errors'))
+        else:
+            if level_structure_key.get('sub_project','') != 'All' and level_structure_key.get('work_packet','') == 'All' and level_structure_key.get('sub_packet','') == 'All':
+                sub_proj = level_structure_key['sub_project']
+                total_errors = Externalerrors.objects.filter(project=prj_id, center=center_obj, employee_id=agent,
+                date__range=[date_list[0], date_list[-1]],sub_project = sub_proj).aggregate(Sum('total_errors'))
+            elif level_structure_key.get('sub_project','') != 'All' and level_structure_key.get('work_packet','') != 'All' and level_structure_key.get('sub_packet', '') == "All" and len(level_structure_key) == 3:
+                sub_proj = level_structure_key['sub_project']
+                wk_packet = level_structure_key['work_packet']
+                total_errors = Externalerrors.objects.filter(project=prj_id, center=center_obj, employee_id=agent,
+                date__range=[date_list[0], date_list[-1]],sub_project = sub_proj, work_packet = wk_packet).aggregate(Sum('total_errors'))
+            elif level_structure_key.get('sub_project','') != 'All' and level_structure_key.get('work_packet','') != 'All' and level_structure_key.get('sub_packet','') != "All" and len(level_structure_key) == 3:
+                sub_proj = level_structure_key['sub_project']
+                wk_packet = level_structure_key['work_packet']
+                sb_packet = level_structure_key['sub_packet']
+                total_errors = Externalerrors.objects.filter(project=prj_id, center=center_obj, employee_id=agent,
+                date__range=[date_list[0], date_list[-1]],sub_project = sub_proj, work_packet = wk_packet, sub_packet = sb_packet).aggregate(Sum('total_errors'))
+            elif level_structure_key.get('work_packet','') != "All" and level_structure_key.get('sub_packet','') == "All" and len(level_structure_key) == 2:   
+                wk_packet = level_structure_key['work_packet']
+                total_errors = Externalerrors.objects.filter(project=prj_id, center=center_obj, employee_id=agent,
+                date__range=[date_list[0], date_list[-1]],work_packet = wk_packet).aggregate(Sum('total_errors'))
+            elif level_structure_key.get('work_packet','') != "All" and level_structure_key.get('sub_packet','') != "All" and len(level_structure_key) == 2:
+                wk_packet = level_structure_key['work_packet']
+                sb_packet = level_structure_key['sub_packet']
+                total_errors = Externalerrors.objects.filter(project=prj_id, center=center_obj, employee_id=agent,
+                date__range=[date_list[0], date_list[-1]],work_packet = wk_packet, sub_packet = sb_packet).aggregate(Sum('total_errors'))
+            else:
+                wk_packet = level_structure_key['work_packet']
+                total_errors = Externalerrors.objects.filter(project=prj_id, center=center_obj, employee_id=agent,
+                date__range=[date_list[0], date_list[-1]],work_packet = wk_packet).aggregate(Sum('total_errors'))
+
         if total_errors['total_errors__sum'] > 0:
             for key, value in total_errors.iteritems():
                 extrnl_agent_name[agent] = value
@@ -5923,8 +6011,8 @@ def error_timeline_min_max(min_max_dict):
         int_timeline_min_max = int_timeline_min_max + wp_value
     final_min_max={}
     if len(int_timeline_min_max)>0:
-        min_value = int(round(min(int_timeline_min_max) - 5))
-        max_value = int(round(max(int_timeline_min_max) + 5))
+        min_value = int(round(min(int_timeline_min_max) - 2))
+        max_value = int(round(max(int_timeline_min_max) + 2))
         final_min_max['min_value'] = 0
         if min_value > 0:
             final_min_max['min_value'] = min_value
@@ -7067,7 +7155,7 @@ def num_of_days(to_date,from_date):
     return date_list
 
 """def static_production_data(request):
-    return HttpResponse('cool')
+    return json_HttpResponse('cool')
 """
 def static_production_data(request):
     final_data_dict = {}
@@ -7299,7 +7387,7 @@ def static_production_data(request):
     del result['volumes_data']
     del result['prod_days_data']
     del result['data']
-    return HttpResponse(final_data_dict)
+    return json_HttpResponse(final_data_dict)
 
 
 def fte_calculation_sub_project_work_packet(result,level_structure_key):
@@ -7674,7 +7762,7 @@ def top_five_emp(center,prj_id,dwm_dict,level_key_structure):
         return all_details_list
 
 def from_too(request):
-    return HttpResponse('Cool')
+    return json_HttpResponse('Cool')
 
 def from_to(request):
     from_date = datetime.datetime.strptime(request.GET['from'],'%Y-%m-%d').date()
@@ -7909,7 +7997,7 @@ def from_to(request):
     #final_result_dict['internal_sub_error_types'] = graph_data_alignment_color(internal_sub_error_types,'y',level_structure_key,prj_id,center,'')
     #final_result_dict['external_sub_error_types'] = graph_data_alignment_color(external_sub_error_types,'y',level_structure_key,prj_id,center,'')
     final_result_dict['days_type'] = type
-    return HttpResponse(final_result_dict)
+    return json_HttpResponse(final_result_dict)
 
 def volume_graph_data(date_list,prj_id,center_obj,level_structure_key):
     conn = redis.Redis(host="localhost", port=6379, db=0)
@@ -8975,9 +9063,9 @@ def chart_data(request):
             final_dict = internal_bar_data(pro_id, cen_id, from_, to_, work_packet, chart_type,project)
         else:
             final_dict = productivity_chart_data(pro_id,cen_id,drilldown_dates,work_packet,chart_type,project)
-        return HttpResponse(final_dict)
+        return json_HttpResponse(final_dict)
     else:
-        return HttpResponse('Drilldown disabled')
+        return json_HttpResponse('Drilldown disabled')
 
 
 def workpackets_list(level_structure_key,table_model_name,query_set):
@@ -10139,7 +10227,7 @@ def yesterdays_data(request):
             volume_keys_data[vol]=0
     volume_bar_data['volume_values'] = volume_keys_data
     result['volumes_data'] = volume_bar_data
-    return HttpResponse(result)
+    return json_HttpResponse(result)
 
 from django.db.models import Q
 
@@ -10147,6 +10235,14 @@ def get_annotations(request):
 
     series_name = request.GET['series_name']
     chart_name = request.GET.get('chart_name')
+    project_name = request.GET.get('proj_name', '')
+    center_name = request.GET.get('cen_name', '')
+
+    if project_name:
+        project_name = project_name.split(' - ')[0];
+    if center_name:
+        center_name = center_name.split(' -')[0];
+
     try:
         day_type = request.GET['type']
     except:
@@ -10158,7 +10254,9 @@ def get_annotations(request):
     else:
         annotations = Annotation.objects.filter(Q(key__contains=series_name) & ~Q(key__contains='week') & Q(key__contains=chart_name))
     """
-    annotations = Annotation.objects.filter(key__contains=series_name+'<##>')
+
+    annotations = Annotation.objects.filter(key__contains='<##>' + chart_name + '<##>' + series_name + '<##>', center__name = center_name,
+                                            project__name = project_name)
 
     annotations_data = []
 
@@ -10178,7 +10276,7 @@ def get_annotations(request):
 
             annotations_data.append(final_data)
 
-    return HttpResponse(annotations_data)
+    return json_HttpResponse(annotations_data)
 
 def add_annotation(request):
     anno_id = request.POST.get('id','')
@@ -10186,16 +10284,22 @@ def add_annotation(request):
     text = request.POST.get("text",'')
     graph_name = request.POST.get("graph_name",'')
     series_name = request.POST.get("series_name",'')
-    key = series_name + '<##>' + anno_id
+    widget_id = request.POST.get('widget_id','')
+    key = '<##>' + widget_id + '<##>' + series_name + '<##>' + anno_id
     #widget_name = request.POST.get("widget_name")
     created_by = request.user
     dt_created = datetime.datetime.now()
-    prj_obj = Project.objects.filter(name='Probe')
-    center = Center.objects.filter(name='Salem')
-    if '<##>' in graph_name:
+    prj_name = request.POST.get('project_live', '')
+    prj_name = prj_name.split(' - ')[0];
+    cen_name = request.POST.get('center_live', '')
+    cen_name = cen_name.split(' - ')[0]
+    prj_obj = Project.objects.filter(name = prj_name)
+    center = Center.objects.filter(name = cen_name)
+    widget_obj = Widgets.objects.filter(id_num = widget_id)[0]
+    """if '<##>' in graph_name:
         widget_obj = Widgets.objects.filter(id_num=graph_name.split('<##>')[0])[0]
     else:
-        widget_obj = Widgets.objects.filter(config_name=graph_name)[0]
+        widget_obj = Widgets.objects.filter(config_name=graph_name)[0]"""
     #widget_obj = Widgets.objects.filter(config_name=graph_name)[0]
     annotation = Annotation.objects.create(epoch=epoch, text=text, key=key, project=prj_obj[0],\
                                             dt_created=dt_created, created_by=created_by,\
@@ -10215,7 +10319,7 @@ def add_annotation(request):
     entity_json['level_name'] = 12
     entity_json['series_name'] = series_name
 
-    return HttpResponse(entity_json)
+    return json_HttpResponse(entity_json)
 
 def update_annotation(request):
     action = request.POST.get("action", "update")
@@ -10223,21 +10327,24 @@ def update_annotation(request):
     annotation_id = request.POST.get("id")
     series = request.POST.get('series_name')
     text = request.POST.get("text")
+    widget_id = request.POST.get('widget_id','')
+    key_to = request.POST.get('key', '')
 
     if action == "delete":
-        anno = Annotation.objects.filter(key__contains = request.POST['id'])
+        anno = Annotation.objects.filter(epoch = epoch, created_by = request.user, key = key_to)
         if anno:
             anno = anno[0]
             anno.delete()
         return HttpResponse(json.dumps({"status": "success", "message": "deleted successfully"}))
 
     if series is not None:
+        to_query = '<##>' + widget_id + '<##>' + series + '<##>'
         series = series.split('<##>')[0]
-        annotation = Annotation.objects.filter(epoch=epoch,created_by=request.user,key__contains=series)
+        annotation = Annotation.objects.filter(epoch = epoch,created_by = request.user,key__contains = to_query)
         annotation = annotation[0]
         annotation.text = text
         annotation.save()
-        return HttpResponse(json.dumps({"status": "success", "message": "successfully updated"}))
+        return json_HttpResponse(json.dumps({"status": "success", "message": "successfully updated"}))
 
 
 def dropdown_data_types(request):
@@ -10263,7 +10370,7 @@ def dropdown_data_types(request):
     result['sub_packet'] = 0
     if len(sub_packet) > 0:
         result['sub_packet'] = 1
-    return HttpResponse(result)
+    return json_HttpResponse(result)
 
 
 
@@ -10273,18 +10380,28 @@ def dropdown_data_types(request):
 
 def get_top_reviews(request):
     """ get list of reviews """
-    project = request.GET.get('project', 1)
+    #project = request.GET.get('project', 1)
     #team_lead = request.GET.get('team_lead', "")
     search_term = request.GET.get('search', "")
+    timeline = request.GET.get('timeline', "future")
+    filter_param = {}
+
     try:
         rev_ids = ReviewMembers.objects.filter(member = request.user).values_list("review__id", flat = True)
+
+        filter_param.update({'id__in' : rev_ids})
+
         if search_term:
-            rev_objs = Review.objects.filter(review_name__contains = search_term, project__id = project, id__in = rev_ids)\
-                        .order_by('review_date')
+            filter_param.update({'review_name__contains': search_term})
+
+        if timeline == 'past':
+            filter_param.update({'review_date__lt' :datetime.datetime.now()})
+            search_param = "-review_date"
         else:
-            rev_objs = Review.objects.filter(project__id = project, review_date__gte=datetime.datetime.now(), id__in = rev_ids)\
-                            .order_by('review_date')
-            #rev_objs = Review.objects.filter(project__id = project, review_date__gte=datetime.datetime.now()).order_by('-review_date')
+            filter_param.update({'review_date__gte' :datetime.datetime.now()})
+            search_param = "review_date"
+
+        rev_objs = Review.objects.filter( **filter_param).order_by(search_param)
         all_result = OrderedDict()
         user_id = request.user.id
         tl_objs = TeamLead.objects.filter(name = user_id)
@@ -10327,50 +10444,70 @@ def get_top_reviews(request):
 
             #result['all_data'].append(data)
             #i += 1
-	all_data = {'all_data': all_result, 'is_team_lead': is_team_lead}
-        return HttpResponse(all_data)
+
+        all_data = {'all_data': all_result, 'is_team_lead': is_team_lead}
+        return json_HttpResponse(all_data)
 
     except:
-        return HttpResponse("Failed")
+        return json_HttpResponse("Failed")
 
 
 def create_reviews(request):
     """ creating reviews """
     curdate = datetime.datetime.now()
-    #project = request.POST.get('project', "")
+    #project = request.POST.get('project', ""i)
     review_name = eval(request.POST['json'])['reviewname']
     agenda =  eval(request.POST['json'])['reviewagenda']
     _review_date = eval(request.POST['json'])['reviewdate']
+    review_type = eval(request.POST['json'])['review_type']
+    _venue = eval(request.POST['json']).get('venue', "")
+    _bridge = eval(request.POST['json']).get('bridge', "")
     _review_time = eval(request.POST['json'])['reviewtime']
     _review_date = _review_date.split(" ")[1:4]
     _review_time = _review_time.split(" ")[4]
     _date = ' '.join(_review_date) + " "+ _review_time
+    _id = eval(request.POST['json'])['track_id']
 
     user_id = request.user.id
     tl_objs = TeamLead.objects.filter(name = user_id)
     tl = ""
     project = ""
     if not tl_objs:
-        return HttpResponse('User is not TeamLead')
+        return json_HttpResponse('User is not TeamLead')
     tl_obj = tl_objs[0]
     tl = tl_obj
     project = tl_obj.project
     try:
         review_date = datetime.datetime.strptime(_date, "%b %d %Y %H:%M:%S")
+        if not _id:
+            review_obj = Review.objects.create(project = project, review_name = review_name, review_date= review_date, team_lead = tl,
+                            review_agenda = agenda, review_type = review_type, bridge = _bridge, venue = _venue)
 
-        rev_obj, created = Review.objects.update_or_create(project = project, review_name = review_name, review_date= review_date,
-                                defaults={'team_lead': tl, 'review_agenda': agenda},)
-
-        if created:
-            subject = "Review Created"
         else:
-            subject = "Review Updated"
+            review_obj = Review.objects.filter(id = _id)
+            ext_objs = Review.objects.filter(project = project, review_name = review_name, review_date__contains= review_date.date())\
+                    .exclude(id = _id)
+            if ext_objs:
+                return json_HttpResponse("Review with same name already exist in same date.")
 
-        #send_mail("mail is working", 'This mail is for testing reviews', 'nextpulse@nextwealth.in', ['abhishek@headrun.com'])
-        return HttpResponse(rev_obj.id)
+            if review_obj:
+                review_obj = review_obj[0]
+                review_obj.review_name = review_name
+                review_obj.review_date = review_date
+                review_obj.agenda = agenda
+                review_obj.review_type = review_type
+                review_obj.bridge = _bridge
+                review_obj.venue = _venue
+                review_obj.save()
+                users = ReviewMembers.objects.filter(review = review_obj)
+                data = create_dict_data(review_obj)
+                for user in users:
+                    send_review_mail(data, 'edited', user)
+
+        return json_HttpResponse(review_obj.id)
 
     except:
-        return HttpResponse("Failed")
+        return json_HttpResponse("Failed")
 
 def get_review_details(request):
     """ getting detail of the review """
@@ -10378,17 +10515,18 @@ def get_review_details(request):
     review_id = request.GET.get('review_id', "")
     rev_objs = Review.objects.filter(id = review_id)
     if not rev_objs:
-        return HttpResponse('Failed')
+        return json_HttpResponse('Failed')
     else:
         try:
             item = rev_objs[0]
-            data = {}
+            data = create_dict_data(item)
             data['rev_files'] = []
-            data['name'] = item.review_name
-            data['agenda'] = item.review_agenda
+            #data['name'] = item.review_name
+            #data['agenda'] = item.review_agenda
             review_date = item.review_date
 
-            _df_time = review_date.date() -  timezone.now().date()
+            data['jq_date'] = review_date.strftime("%Y %m %d %H %M %S").split(" ")
+            _df_time = review_date.date() - timezone.now().date()
             _df_time = _df_time.days
             if _df_time < 1:
                 data['remained'] = "Today"
@@ -10401,31 +10539,25 @@ def get_review_details(request):
             else:
                 data['remained'] = ""
 
-            data['day'] = review_date.strftime("%A")
+            """ data['day'] = review_date.strftime("%A")
             data['date'] = review_date.strftime("%d %b, %Y")
             data['time'] = review_date.strftime("%I:%M %p")
             data['tl']   = item.team_lead.name.first_name+ " " + item.team_lead.name.last_name
-            data['project'] = item.project.name
+            data['project'] = item.project.name"""
             users = Customer.objects.filter(project = item.project).values_list('name__first_name', flat = True)
             rev_fil_objs = ReviewFiles.objects.filter(review__id = item.id)
             for obj in rev_fil_objs:
                 url = obj.file_name.url
-                name = url.split("/")[-1]
-                ext = name.split(".")[-1]
-                namee = name.split("_")
-                if len(namee) >2:
-                    name = '_'.join(namee[:-2])
-                    name = name + "."+ ext
-                name = name + "#" + str(obj.id)
-                data['rev_files'].append({ 'name' : name, 'path': url})
+                name = obj.original_file_name + "#" + str(obj.id)
+                data['rev_files'].append({ 'name' : name, 'file_id': str(obj.id)})
 
             data['members'] = get_rel_users(item.id)
 
             #send_review_mail(data)
-            return HttpResponse(data)
+            return json_HttpResponse(data)
 
         except:
-            return HttpResponse("Failed")
+            return json_HttpResponse("Failed")
 
 
 def get_rel_users(review_id):
@@ -10444,7 +10576,7 @@ def remove_attachment(request):
     term_type = request.GET.get('term_type', '')
     revies_file_id = request.GET.get('file_id', '')
     if not revies_file_id or not term_type:
-        return HttpResponse("ID not given")
+        return json_HttpResponse("ID not given")
 
     try:
         if term_type == "attachment":
@@ -10459,12 +10591,18 @@ def remove_attachment(request):
             rev_id = objs[0].review.id
             res = {'rev_id': rev_id}
         else:
+            obj = objs[0]
+            users = ReviewMembers.objects.filter(review = obj)
+            data = create_dict_data(obj)
+            for user in users:
+                send_review_mail(data, 'deleted', user)
+
             rev_id = "success"
             res = {'status': rev_id}
         objs.delete()
-        return HttpResponse(res)
+        return json_HttpResponse(res)
     except:
-        return HttpResponse("Failed")
+        return json_HttpResponse("Failed")
 
 def upload_review_doc(request):
     """ to upload the review documents """
@@ -10472,11 +10610,12 @@ def upload_review_doc(request):
     review_id = request.POST.get('review_id', "")
     try:
         if not attach_files or not review_id:
-            return HttpResponse('Improper data')
+            return json_HttpResponse('Improper data')
 
         r_obj = Review.objects.get(id = review_id)
         for item in attach_files:
             #item.name = "%s_%s_%s" %(item.name, review_name, review_date)
+            original_file_name = item.name
             name = item.name.split(".")
             item.name = "%s_%s_%s.%s" %(name[0], r_obj.review_name.lower().replace(" ", "_"), str(r_obj.review_date.date()), name[-1])
             rev_fil_objs = ReviewFiles.objects.filter(file_name = item.name, review = r_obj)
@@ -10487,9 +10626,9 @@ def upload_review_doc(request):
             else:
                 rfo = ReviewFiles.objects.create(file_name = item, review = r_obj)
 
-        return HttpResponse(review_id)
+        return json_HttpResponse(review_id)
     except:
-        return HttpResponse("Failed")
+        return json_HttpResponse("Failed")
 
 def get_related_user(request):
     """ Get all the users Related to that project """
@@ -10499,10 +10638,18 @@ def get_related_user(request):
     project = ""
     result_data = {'name_list' : [], 'id_list' : []}
     if not tl_objs:
-        return HttpResponse('User is not TeamLead')
+        return json_HttpResponse('User is not TeamLead')
     tl_obj = tl_objs[0]
     project = tl_obj.project
     center = tl_obj.center
+
+    nxtwlth_managers = Nextwealthmanager.objects.all()
+    if nxtwlth_managers:
+        for nxtwlth_manager in nxtwlth_managers:
+            _name = nxtwlth_manager.name.first_name + " " + nxtwlth_manager.name.last_name
+            result_data['name_list'].append(_name)
+            result_data['id_list'].append(nxtwlth_manager.name.id)
+
     tls = TeamLead.objects.filter(project = project, center = center).exclude(id = tl_obj.id)
     if tls:
         for tl in tls:
@@ -10524,7 +10671,7 @@ def get_related_user(request):
             result_data['name_list'].append(_name)
             result_data['id_list'].append(centermanager.name.id)
 
-    return HttpResponse(result_data)
+    return json_HttpResponse(result_data)
 
 
 def saving_members(request):
@@ -10535,41 +10682,73 @@ def saving_members(request):
     users = data.get('uids', "")
 
     if not review_id or not users:
-        return HttpResponse("Improper Data")
+        return json_HttpResponse("Improper Data")
 
     rev_objs = Review.objects.filter(id = review_id)
 
     if not rev_objs:
-        return HttpResponse("Wrong Review ID")
+        return json_HttpResponse("Wrong Review ID")
 
     item = rev_objs[0]
+    data = create_dict_data(item)
+    #users.append(request.user.id)
+    users = [request.user.id] + users
+
+    #users.append(request.user.id)
+    users = User.objects.filter(id__in = users)
+    for uid in users:
+        try:
+            exs_mem_obj = ReviewMembers.objects.filter(review = item, member = uid)
+            if not exs_mem_obj:
+                memb_obj = ReviewMembers.objects.create(review = item, member = uid)
+                send_review_mail(data, 'created', memb_obj)
+        except:
+            pass
+
+    return json_HttpResponse("Success")
+
+def send_review_mail(data, task, memb_obj = ""):
+    """mail sending module for review"""
+    process = {
+        'created' : "Our Review is organised with given details",
+        'edited' : "Our Review is updated with given details",
+        'deleted': "Our Review is deleted with given details",
+        'reminder' : "It is a reminder for our review with given details"
+        }
+    if memb_obj:
+        _text = "Hi %s %s, <p> %s </p>" %( memb_obj.member.first_name, memb_obj.member.last_name, process[task])
+    else:
+        _text = "Hi %s, %s, <p> %s </p>" %("Abhishek", "Yeswanth", process[task] )
+    print "mail is coming"
+
+    mail_body = create_mail_body(_text, data)
+    to = ['yeswanth@headrun.com']
+    to.append(memb_obj.member.email)
+    msg = EmailMultiAlternatives("%s - %s Review for NextWealth - %s" % (task.upper(), data['review_type'], data['project']), "",
+                            'nextpulse@nextwealth.in', to)
+    msg.attach_alternative(mail_body, "text/html")
+    msg.send()
+
+
+def create_dict_data(item):
+    """ create review dictionary from object """
     data = {}
+    data['review_type'] = item.review_type
     data['name'] = item.review_name
     data['agenda'] = item.review_agenda
     review_date = item.review_date
     data['project'] = item.project.name
     data['day'] = review_date.strftime("%A")
-    data['date'] = review_date.strftime("%d %b, %Y")
+    data['date'] = review_date.strftime("%d %b %Y")
     data['time'] = review_date.strftime("%I:%M %p")
+    data['venue'] = item.venue
+    data['bridge'] = item.bridge
     data['tl']   = item.team_lead.name.first_name+ " " + item.team_lead.name.last_name
 
-    users.append(request.user.id)
-    users = User.objects.filter(id__in = users)
-    for uid in users:
-        try:
-            memb_obj = ReviewMembers.objects.create(review = item, member = uid)
-            send_review_mail(data, memb_obj)
-        except:
-            pass
+    return data
 
-    return HttpResponse("Success")
-
-def send_review_mail(data, memb_obj = ""):
-    """mail sending module for review"""
-    if memb_obj:
-        _text = "Hi %s %s, <p> One Review meeting is organised with given details </p>" %( memb_obj.member.first_name, memb_obj.member.last_name)
-    else:
-        _text = "Hi %s, %s, <p> One Review meeting is organised with given details </p>" %("Abhishek", "Yeswanth")
+def create_mail_body(text, data):
+    """ create mail box to send """
     mail_body = "<html>\
             <head>\
                 <style>\
@@ -10634,7 +10813,7 @@ def send_review_mail(data, memb_obj = ""):
              <td>\
               %s\
              </td>\
-             </tr>" % 'venue'
+             </tr>" % data['venue']
 
     _bridge = "<tr>\
              <td>\
@@ -10644,7 +10823,7 @@ def send_review_mail(data, memb_obj = ""):
               %s\
              </td>\
              </tr>\
-             </table> </br> </br>" % 'bridge'
+             </table> </br> </br>" % data['bridge']
 
     #mail_body = mail_body + _date + _day + _name
     _agenda = " <tr>\
@@ -10666,15 +10845,27 @@ def send_review_mail(data, memb_obj = ""):
             </body>\
         </html>" %(data['tl'])
 
-    to = ['yeswanth@headrun.com']
-    to.append(memb_obj.member.email)
-    mail_body = _text + mail_body + _date + _time + _name + _agenda + _venue + _bridge + extra
-    print "mail is coming"
-    msg = EmailMultiAlternatives("Review for NextWealth - %s" % data['project'], "", 'nextpulse@nextwealth.in', to)
-    msg.attach_alternative(mail_body, "text/html")
-    msg.send()
+    text +=  mail_body + _date + _time + _name + _agenda + _venue + _bridge + extra
+    return text
 
-#====================================== REVIEW code ends here ======================================
+
+
+def download_attachments(request):
+    """ Downloading attachment for reviews """
+    doc_id = request.GET.get("doc_id", "")
+    if not doc_id:
+        return json_HttpResponse("ID is not sent")
+
+    rev_fil_objs = ReviewFiles.objects.filter(id = doc_id)
+    obj = rev_fil_objs[0]
+
+    with open(obj.file_name.path, 'r') as x:
+        data = x.read()
+    #application/force-download
+    response = HttpResponse(data, content_type='application/force-download')
+    #response = json_HttpResponse(data, content_type='application/*')
+    response['Content-Disposition'] = "attachment; filename= %s" % (obj.original_file_name)
+    return response
 
 
 

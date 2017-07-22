@@ -39,6 +39,10 @@
 
     // The Annotation constructor
     var Annotation = buzz_data.Annotation = function(graph_name, $graph, chart, point, data){
+        //if ($graph[0].id == 'highcharts-4') { debugger; };
+
+        //$graph = '#'+$graph[0].id;
+
 
         graph_name = graph_name || "overview";
 
@@ -88,12 +92,16 @@
             data["epoch"] = point.category;
             data["graph_name"] = graph_name;
             data["series_name"] = point.series.name;
+            data["widget_id"] = graph_name.split('<##>')[0];
+            data["project_live"] = point.project_live;
+            data["center_live"] = point.center_live;
         }
-        if(graph_name == 'productivity_bar_graph'){
+
+        if((point.barX) & (point.pointWidth < 55)){
 
             var instance = chart.renderer.image('/img/marker.png',
-                                                point.barX + 45,
-                                                point.plotY - 15,
+                                                point.barX + point.plotX - 10,
+                                                point.plotY - chart.plotTop -30,
                                                 20,
                                                 24)
                                          .attr({
@@ -114,7 +122,7 @@
                                             "class": "annotation-marker",
                                             "id": "annotation-" + data.id
                                           });
-            }
+           }
             else {
                            var instance = chart.renderer.image('/img/marker.png',
                                             chart.plotLeft - 10,
@@ -151,7 +159,12 @@
             //xpos is graph xpos  - half popover width - popover borderwidth + x offset
             //var wid_index = $graph[0].outerHTML.indexOf('width');
             //var wid_beg = $graph[0].outerHTML.slice(wid_index+7,wid_index+10);
+            //return $graph.offset().left + parseInt(that.$el.attr("x")) - that.$popover.width()/2 - 2 + 20;
+            
+            //return $($graph).position().left + parseInt(that.$el.attr("x")) - that.$popover.width()/2 - 2 + 20;
+            //return parseInt(that.$el.attr("x")) - that.$popover.width()/2 - 2 + 20;
             return $graph.offset().left + parseInt(that.$el.attr("x")) - that.$popover.width()/2 - 2 + 20;
+
             //return wid_beg + parseInt(that.$el.attr("x")) + that.$popover.width();
 
         }
@@ -159,17 +172,20 @@
         var get_ypos = function(){
 
             // ypos is graph ypos - popover height - popover worderwith + y offset
+            //return $graph.offset().top + parseInt(that.$el.attr("y")) - that.$popover.height() - 2 + 40;
+
+            //return $($graph).position().top + parseInt(that.$el.attr("y")) - that.$popover.height() - 2 + 40;
+            //return parseInt(that.$el.attr("y")) - that.$popover.height() - 2 + 40;
             return $graph.offset().top + parseInt(that.$el.attr("y")) - that.$popover.height() - 2 + 40;
         }
 
         var on_mouseenter = function(){
-
             show_annotation();
             setCaret(that.$popover.find("p").get(0));
         };
 
         var on_mouseleave = function(){
-
+            
             that.$popover.find("p").blur();
             $(this).removeClass("in").removeClass("show");
         };
@@ -219,7 +235,7 @@
             that.delete_annotation();
         };
 
-        var show_annotation = function(){
+        var show_annotation = function(vari){
 
             /*
             var other_series = _.without(that.chart.series, that.point.series);
@@ -231,11 +247,16 @@
             */
 
             $("body > div.annotation-popover").filter(".show").removeClass("show");
-
-            var xPos = get_xpos()-30;
-            var yPos = get_ypos()-100;
-            //that.$popover.css({"top": (yPos) + "px", "left": (xPos) + "px"}).addClass("show").addClass("in");
-	    that.$popover.css({"top": 99 + "px", "left": 270 + "px"}).addClass("show").addClass("in");
+            if (vari == 'new') {
+                var xPos = get_xpos()-46.64;
+                var yPos = (get_ypos()-10)/2;
+            }
+            else {
+                var xPos = get_xpos()-10;
+                var yPos = get_ypos()-10;
+            }
+            that.$popover.css({"top": (yPos) + "px", "left": (xPos) + "px"}).addClass("show").addClass("in");
+            //that.$popover.css({"top": 99 + "px", "left": 270 + "px"}).addClass("show").addClass("in");
 
             var $arrow = that.$popover.find("div.arrow").css({"left": "50%"});
 
@@ -270,7 +291,7 @@
         };
 
         if(new_annotation){
-            show_annotation();
+            show_annotation('new');
             setCaret(this.$popover.find("p").get(0));
         }
 

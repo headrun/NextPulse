@@ -640,6 +640,9 @@ class Review(models.Model):
     review_date = models.DateTimeField(null=True, db_index=True)
     creation_date = models.DateTimeField(auto_now_add=True)
     updation_date = models.DateTimeField(auto_now=True)
+    review_type = models.CharField(max_length=16, blank = True)
+    venue = models.TextField(null=True, blank = True)
+    bridge = models.CharField(max_length=64, blank = True)
 
     class Meta:
         db_table = u'review_system'
@@ -655,6 +658,7 @@ class ReviewFiles(models.Model):
     review = models.ForeignKey(Review, db_index=True)
     creation_date = models.DateTimeField(auto_now_add=True)
     updation_date = models.DateTimeField(auto_now=True)
+    original_file_name = models.CharField(max_length=64)
 
     class Meta:
         db_table = u'review_files'
@@ -666,6 +670,7 @@ class ReviewMembers(models.Model):
     """ Model to store name of all persons associated in a review """
     review = models.ForeignKey(Review, db_index=True)
     member = models.ForeignKey(User, null=True)
+    reminder_mail = models.BooleanField(default = False, db_index=True)
     creation_date = models.DateTimeField(auto_now_add=True)
 
     class Meta:

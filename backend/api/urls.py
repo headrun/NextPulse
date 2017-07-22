@@ -26,6 +26,7 @@ urlpatterns = [
     url(r'^upload_review_doc',apiviews.upload_review_doc),
     url(r'^get_related_user',apiviews.get_related_user),
     url(r'^saving_members',apiviews.saving_members),
+    url(r'^download_attachments',apiviews.download_attachments),
     #url(r'^alloc_and_compl', apiviews.alloc_and_compl),
     url(r'^utilisation_all', apiviews.utilisation_all),
     #url(r'^erro_data_all', apiviews.erro_data_all),
@@ -47,9 +48,8 @@ urlpatterns = [
     url(r'^nw_exce', apiviews.nw_exce),
     url(r'^overall_exce', apiviews.overall_exce),
     url(r'^upload_acc', apiviews.upload_acc),
-    #url(r'^err_field_graph',apiviews.err_field_graph),
+    url(r'^err_field_graph',apiviews.err_field_graph),
     #url(r'^erro_extrnl_timeline',apiviews.erro_extrnl_timeline),
     #url(r'^err_external_bar_graph',apiviews.err_external_bar_graph),
     url(r'^get_packet_details', apiviews.get_packet_details),
-    #url()
 ]

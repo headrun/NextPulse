@@ -146,15 +146,6 @@
 .data-agenda {
     margin-top: -10px;
 }
-/*#back {
-    font-size : 26px;
-    margin-right : 10px;
-    color : yellowgreen;
-}*/
-@media screen and (min-width: 960px)
-    .ajax-file-upload {
-        background : deepskyblue !important;
-    }
 .add-review {
     float: right;
     margin-right: 4%;
@@ -172,6 +163,126 @@
     margin-top: 15px;
     margin-left: 25px;
 }
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+}
+
+.switch input {display:none;}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #2196F3;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #2196F3;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(26px);
+  -ms-transform: translateX(26px);
+  transform: translateX(26px);
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+</style>
+<style>
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+}
+
+.switch input {display:none;}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #2196F3;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #2196F3;
+}
+ 
+input:checked + .slider:before {
+  -webkit-transform: translateX(26px);
+  -ms-transform: translateX(26px);
+  transform: translateX(26px);
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+.past{
+    font-style: italic;
+    color: #9d9d9d;
+    float: right;
+    margin-right: 10%;
+    margin-top: 8px;
+}
+
 </style>
 <div class="fluid-container" style="margin-left:0px; margin-right: 0px;">
   <div class="row margin-class">
@@ -190,50 +301,63 @@
            style="color:yellowgreen;margin-right:15px;font-size:26px;cursor: pointer;"></i></a>
         Meeting Calendar</p>
         <div class="block-data">
+            <p class="past" id="past-meet">Click to view Past Meetings</p>
+            <p class="past" id="ong-meet">Click to view Ongoing Meetings</p>
+            <label class="switch">
+                <input ng-click="$ctrl.get_all_reviews()" type="checkbox" id="check-past">
+                <div class="slider round"></div>
+            </label>
             <div ng-repeat="(key, value) in $ctrl.all_reviews">
-                <div class="row">
-                    <div class="col-md-2">
-                        <span>{{key | getdate:"had"}}</span>
-                        <span class="date-style">{{key | getdate}}</span>
-                        <!--<span>{{key | getdate:true}}</span>-->
-                    </div>
-                    <div class="col-md-10">
-                    <div ng-repeat="review in value" class="review-list" style="background-color: {{review.color}}"
-                         ng-click="$ctrl.get_review(review)">
-                        <span>{{review.name}}</span><br>
-                        <span>{{review.time}}</span>
-                        <!--<i class="fa fa-caret-right" aria-hidden="true"></i>-->
-                    </div>
-                    </div>
+            <div class="row">
+                <div class="col-md-2">
+                    <span>{{key | getdate:"had"}}</span>
+                    <span class="date-style">{{key | getdate}}</span>
+                    <!--<span>{{key | getdate:true}}</span>-->
+                </div>
+                <div class="col-md-10">
+                <div ng-repeat="review in value" class="review-list" style="background-color: {{review.color}}"
+                     ng-click="$ctrl.get_review(review)">
+                    <span>{{review.name}}</span><br>
+                    <span>{{review.time}}</span>
+                    <!--<i class="fa fa-caret-right" aria-hidden="true"></i>-->
+                </div>
                 </div>
             </div>
         </div>
+    </div>
     </div>
     <div class="col-md-9 padding-class">
         <div class="image">
             <img src="/images/cal.png" class="cal-image">
             <div class="extra-data">
-              <span class="time-format" id="meet-time" ng-hide="$ctrl.no_reviews">{{$ctrl.rev_time}} onwards</span>
+              <span class="time-format" id="meet-time">{{$ctrl.rev_time}} onwards</span>
               <!--<input class="input-clear" type="time" id="edit-time" style="display:none;" placeholder="HH:mm:ss" min="00:00:00" max="24:59:59" required />-->
               <span class="date-format" id="meet-date">{{$ctrl.rev_date}}, {{$ctrl.rev_day}}</span>
               <!--<input class="input-clear" type="date" id="edit-date" style="display:none;" placeholder="yyyy-MM-dd" min="2017-01-01" max="2020-12-31" required />-->
               <span class="tag-format">{{$ctrl.is_when}}</span>
             </div>
         </div>
-        <h1 style="font-size: 23px;padding-left: 25px;" id="meeting-name">{{$ctrl.rev_text}}</h1>
+        <h1 style="font-size: 23px;padding-left: 25px;" id="meeting-name">{{$ctrl.edit_review.reviewname}}</h1>
         <!--<input type="password" class="form-control" id="eidt-name" style="display:none;">-->
         <!--<input class="form-control input-sm txt-edit" id="edit-name" type="text" style="display:none;">-->
-      <div class="details-block" ng-hide="$ctrl.no_reviews">
+      <div class="details-block">
         <div class="meeet-agenda" style="color: black;"><span><i>Meeting agenda:</i></span></div><br>
-        <div class="data-agenda"><span class="agenda-style" id="agenda-name">{{$ctrl.rev_agenda}}</span>
+        <div class="data-agenda"><span class="agenda-style" id="agenda-name">{{$ctrl.edit_review.reviewagenda}}</span>
           <!--<input class="form-control input-sm" id="edit-agenda" type="text" name= "editagenda" style="display:none;width:50%;">-->
-            <div class="add-review" style="float:right;margin-right:4%;padding-top: 50px;">
-                <i class="fa fa-plus-circle fa-2x create" id="add-revi" data-toggle="modal" data-target="#myModal" ng-click="$ctrl.get_maildata()" style="margin-right:50px;" aria-hidden="true"></i>
-                <i class="fa fa-pencil-square-o edit" style = "margin-right:50px;font-size:25px;" aria-hidden="true" id="edit-revi"></i>
-                <i class="fa fa-trash fa-2x" aria-hidden="true" ng-click="$ctrl.del_review()" id="del-revi" ng-hide="$ctrl.no_reviews"></i>
+            <div class="add-review" style="float:right;margin-right:4%;margin-top:-29px;">
+                <i class="fa fa-plus-circle fa-2x create" id="add-revi" data-toggle="modal" data-target="#myModal" 
+                   ng-click="$ctrl.get_maildata('create')" style="margin-right:50px;" aria-hidden="true"></i>
+                <i class="fa fa-pencil-square-o edit" style = "margin-right:50px;font-size:25px;" ng-click="$ctrl.get_maildata('edit')" 
+                   data-toggle="modal" data-target="#myModal" aria-hidden="true"></i>
+                <i class="fa fa-trash fa-2x" aria-hidden="true" ng-click="$ctrl.del_review()"></i>
             </div>
         </div>
         <br>
+        <hr>
+          <div><span style="color: black;"><i>Bridge:</i></span>
+          <span class="agenda-style" id="agenda-name">{{$ctrl.edit_review.bridge}}</span></div>
+          <div><span style="color: black;"><i>Venue:</i></span>
+          <span class="agenda-style" id="agenda-name">{{$ctrl.edit_review.venue}}</span></div>
         <hr>
         <!--<i class="fa fa-user icon-padd" aria-hidden="true"></i><span style="padding-right: 50px;">Team Lead</span><span>{{$ctrl.rev_tl}}</span>-->
         <span class="glyphicon glyphicon-user teamlead"></span><span><i> Team Lead</i></span><span style="margin-left:40px;color:black;"><b>{{$ctrl.rev_tl}}</b></span>
@@ -250,8 +374,9 @@
         <hr>
         <div class="row" style="width:100%;">
             <span ng-repeat="file in $ctrl.all_review_data" class="tag label label-info">
-                <a href="http://nextpulse.nextwealth.in{{file.path}}" download class="file-data" style="color:#666666;font-size:small;">{{file.name | getfile}}</a>
-                <span class="del-x" style="color:#2a2a2a;margin-left:11px;margin-right:8px;font-size:18px;" ng-click="$ctrl.remove_file(file.name | getfile:true)">x</span>
+                <a href="http://projects.headrun.com:9998/api/download_attachments/?doc_id={{file.file_id}}" download class="file-data" style="color:#666666;font-size:small;">{{file.name | getfile}}</a>
+                <!---<a ng-click="$ctrl.download_file(file)" download class="file-data" style="color:#666666;font-size:small;">{{file.name | getfile}}</a>-->
+                <span style="color:#2a2a2a;margin-left:11px;margin-right:8px;font-size:18px;" ng-click="$ctrl.remove_file(file.name | getfile:true)">x</span>
                 <br><br>
             </span>
         </div>
@@ -271,7 +396,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal">&times;</button>
-          <h4 class="modal-title">Create Review</h4>
+          <h4 class="modal-title">{{$ctrl.review.rev_str}}</h4>
         </div>
         <div class="modal-body">
           <form name='regForm' novalidate>
@@ -306,10 +431,59 @@
               <label>Select Time: </label>
             </div>
             <div class="col-md-9">
-              <input class="input-clear" type="time" id="exampleInput" name="reviewtime" ng-model="$ctrl.review.reviewtime" class="form-element"
+              <input class="input-clear" type="time" id="exampleInput" name="input" ng-model="$ctrl.review.reviewtime" class="form-element"
                  placeholder="HH:mm:ss" min="00:00:00" max="24:59:59" required />
               <span ng-if="regForm.reviewtime.$error.required && regForm.reviewtime.$touched">
                 Time is Required
+              </span>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-3">
+              <label>Bridge: </label>
+            </div>
+            <div class="col-md-9">
+              <input class="input-clear" name="bridge" ng-model="$ctrl.review.bridge" class="form-element" required />
+              <span ng-if="regForm.bridge.$error.required && regForm.bridge.$touched">
+                Bridge is Required
+              </span>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-3">
+              <label>Venue: </label>
+            </div>
+            <div class="col-md-9">
+              <input class="input-clear" name="venue" ng-model="$ctrl.review.venue" class="form-element" required />
+              <span ng-if="regForm.venue.$error.required && regForm.venue.$touched">
+                Venue is Required
+              </span>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-3">
+              <label>Review Type: </label>
+            </div>
+            <div class="col-md-9">
+            <!--<select name="singleSelect" ng-model="$ctrl.review.review_type">
+              <option value="Weekly">Weekly</option>
+              <option value="Monthly">Monthly</option>
+              <option value="Quarterly">Quarterly</option>
+              <option value="Adhoc">Adhoc</option>
+            </select>-->
+            <!--<select ng-model="$ctrl.review.review_type" ng-options="type in $ctrl.review_types_all"></select>-->
+            <select ng-model="$ctrl.review.review_type">
+                <option ng-repeat="type in $ctrl.review_types_all" value="{{type}}" 
+                        ng-selected="$ctrl.review.review_type == type">{{type}}</option>
+            </select>
+
+                <!--<option ng-repeat="type in $ctrl.review_types_all" value="{{type}}">{{type}}</option>
+            </select>-->
+              <span ng-if="regForm.review_type.$error.required && regForm.review_type.$touched">
+                Review Type is Required
               </span>
             </div>
           </div>
@@ -332,15 +506,15 @@
             <div class="col-md-3">
               <label>Participants: </label>
             </div>
-            <div class="col-md-9">
-              <multiselect  class="input-clear" ng-model="$ctrl.review.selection" options="$ctrl.mail_options" show-search="true"></multiselect>
+            <div class="col-md-9" ng-if="$ctrl.stat">
+              <multiselect  class="input-clear" ng-model="$ctrl.review.participants" options="$ctrl.mail_options" show-search="true"></multiselect>
             </div>
           </div>
 
           </form>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal" ng-disabled="regForm.$invalid" 
+          <button type="button" class="btn btn-default" data-dismiss="modal" 
                   ng-click="$ctrl.submit($ctrl.review)">Submit</button>
         </div>
       </div>

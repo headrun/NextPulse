@@ -158,6 +158,10 @@ dashboard div.dashboard-content {
     top: 13px;
     left: 9px;
   }
+
+  #drpdown_btn {
+	padding-top: 2px;
+  }
   #admin_but {
     padding: 5px;
     margin-top: 12px;
@@ -301,6 +305,10 @@ dashboard div.dashboard-content {
         <li><a ><p class="title"><font color="#0EBFE9">Next</font><font color="#308014">Pulse</font></p></a></li>
       </ul>
       <ul class="nav navbar-nav navbar-right menu">
+	<li>
+            <a href="/#!/review" id="rev-but" class="btn btn-info" role="button"><i class="fa fa-calendar-check-o" aria-hidden="true" style="font-size:20px;margin-top: -2px;margin-right: 13px;"></i></a>
+        </li>
+
         <li class="dropdown active span8" id="drpdown_btn">
             <a class="dropdown-toggle" id="select_dropdown" data-toggle="dropdown">
                 <span id="dropdown_title">{{$ctrl.select_option}}</span><span class="caret"></span>
@@ -313,9 +321,9 @@ dashboard div.dashboard-content {
                 </li>
             </ul>
         </li>
-        <li>
+        <!--<li>
             <a href="/#!/review" id="rev-but" class="btn btn-info" style="padding-right: 20px;" role="button">Reviews</a>
-        </li>
+        </li>-->
         <li>
             <a href="/admin/api" id="admin_but" class="btn btn-info" role="button" target="_blank">Admin</a>
         </li>
