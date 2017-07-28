@@ -7405,6 +7405,8 @@ def fte_calculation_sub_project_work_packet(result,level_structure_key):
                         new_level_structu_key['sub_project'] = level_structure_key['sub_project']
                     new_level_structu_key['work_packet'] = wp_key_new
                     new_level_structu_key['sub_packet'] = sub_packet
+		    new_level_structu_key['from_date__lte'] = date_va
+		    new_level_structu_key['to_date__gte'] = date_va
                     final_work_packet = level_hierarchy_key(level_structure_key, new_level_structu_key)
 
                     if result['data']['data'].has_key(final_work_packet):
@@ -7470,8 +7472,8 @@ def fte_calculation_sub_project_sub_packet(prj_id,center_obj,work_packet_query,l
     volumes_dict = {}
     result = {}
     for date_va in date_list:
-        #new_work_packet_query['from_date__gte'] = date_va
-        #new_work_packet_query['to_date__lte'] = date_va
+        new_work_packet_query['from_date__lte'] = date_va
+        new_work_packet_query['to_date__gte'] = date_va
         if new_work_packet_query.has_key('work_packet'):
             del new_work_packet_query['work_packet']
         work_packets = Targets.objects.filter(**new_work_packet_query).values('sub_project', 'work_packet', 'sub_packet','target_value').distinct()
@@ -7487,8 +7489,8 @@ def fte_calculation_sub_project_sub_packet(prj_id,center_obj,work_packet_query,l
                         new_level_structu_key['sub_project'] = level_structure_key['sub_project']
                     new_level_structu_key['work_packet'] = wp_key
                     new_level_structu_key['sub_packet'] = sub_packet
-                    #new_level_structu_key['from_date__gte'] = date_va
-                    #new_level_structu_key['to_date__lte'] = date_va
+                    new_level_structu_key['from_date__lte'] = date_va
+                    new_level_structu_key['to_date__gte'] = date_va
                     final_work_packet = level_hierarchy_key(level_structure_key, new_level_structu_key)
                     date_pattern = '{0}_{1}_{2}_{3}'.format(prj_name[0], str(center_name[0]), str(final_work_packet),str(date_va))
                     key_list = conn.keys(pattern=date_pattern)
@@ -10335,17 +10337,31 @@ def update_annotation(request):
         if anno:
             anno = anno[0]
             anno.delete()
-        return HttpResponse(json.dumps({"status": "success", "message": "deleted successfully"}))
-
+            return json_HttpResponse(json.dumps({"status": "success", "message": "deleted successfully"}))
+    """"
+    else:
+	anno = Annotation.objects.filter(epoch = epoch, created_by = request.user, key = key_to)
+	if anno:
+            anno = anno[0]
+	    anno.text = text
+	    anno.save()
+            return json_HttpResponse(json.dumps({"status": "success", "message": "successfully updated"}))
+    """
     if series is not None:
-        to_query = '<##>' + widget_id + '<##>' + series + '<##>'
         series = series.split('<##>')[0]
-        annotation = Annotation.objects.filter(epoch = epoch,created_by = request.user,key__contains = to_query)
+        annotation = Annotation.objects.filter(epoch=epoch,created_by=request.user,key__contains=series)
         annotation = annotation[0]
-        annotation.text = text
+        annotation.text = text 
         annotation.save()
-        return json_HttpResponse(json.dumps({"status": "success", "message": "successfully updated"}))
+        return HttpResponse(json.dumps({"status": "success", "message": "successfully updated"}))
+    else:
+        annotation = Annotation.objects.filter(epoch=epoch,created_by=request.user,key = key_to)
+	annotation = annotation[0]
+	annotation.text = text
+	annotation.save()
+	return HttpResponse(json.dumps({"status": "success", "message": "successfully updated"}))
 
+    return HttpResponse('Nothing happened')
 
 def dropdown_data_types(request):
     project = request.GET['project'].split('-')[0].strip()
@@ -10454,15 +10470,20 @@ def get_top_reviews(request):
 
 def create_reviews(request):
     """ creating reviews """
+
     curdate = datetime.datetime.now()
     #project = request.POST.get('project', ""i)
-    review_name = eval(request.POST['json'])['reviewname']
-    agenda =  eval(request.POST['json'])['reviewagenda']
-    _review_date = eval(request.POST['json'])['reviewdate']
-    review_type = eval(request.POST['json'])['review_type']
+    review_name = eval(request.POST['json']).get('reviewname', "")
+    agenda =  eval(request.POST['json']).get('reviewagenda', "")
+    _review_date = eval(request.POST['json']).get('reviewdate', '')
+    review_type = eval(request.POST['json']).get('review_type', '')
     _venue = eval(request.POST['json']).get('venue', "")
     _bridge = eval(request.POST['json']).get('bridge', "")
-    _review_time = eval(request.POST['json'])['reviewtime']
+    _review_time = eval(request.POST['json']).get('reviewtime', '')
+
+    if not review_name or not agenda or not review_type or not _review_date or _review_time:
+	return json_HttpResponse('Mandatory Field Not present')
+
     _review_date = _review_date.split(" ")[1:4]
     _review_time = _review_time.split(" ")[4]
     _date = ' '.join(_review_date) + " "+ _review_time
@@ -10474,6 +10495,11 @@ def create_reviews(request):
     project = ""
     if not tl_objs:
         return json_HttpResponse('User is not TeamLead')
+    res = check_string(review_name)
+    if not res:
+        return HttpResponse("Improper File name")
+
+
     tl_obj = tl_objs[0]
     tl = tl_obj
     project = tl_obj.project
@@ -10494,16 +10520,17 @@ def create_reviews(request):
                 review_obj = review_obj[0]
                 review_obj.review_name = review_name
                 review_obj.review_date = review_date
-                review_obj.agenda = agenda
+                review_obj.review_agenda = agenda
                 review_obj.review_type = review_type
                 review_obj.bridge = _bridge
                 review_obj.venue = _venue
                 review_obj.save()
+		"""
                 users = ReviewMembers.objects.filter(review = review_obj)
                 data = create_dict_data(review_obj)
                 for user in users:
                     send_review_mail(data, 'edited', user)
-
+		"""
         return json_HttpResponse(review_obj.id)
 
     except:
@@ -10528,7 +10555,9 @@ def get_review_details(request):
             data['jq_date'] = review_date.strftime("%Y %m %d %H %M %S").split(" ")
             _df_time = review_date.date() - timezone.now().date()
             _df_time = _df_time.days
-            if _df_time < 1:
+	    if _df_time < 0:
+		data['remained'] = "PAST"
+            elif _df_time < 1:
                 data['remained'] = "Today"
             elif _df_time < 2:
                 data['remained'] = "Tomorrow"
@@ -10615,20 +10644,39 @@ def upload_review_doc(request):
         r_obj = Review.objects.get(id = review_id)
         for item in attach_files:
             #item.name = "%s_%s_%s" %(item.name, review_name, review_date)
+	    res = check_string(item.name)
+	    if not res:
+		return HttpResponse("Improper File name")
             original_file_name = item.name
             name = item.name.split(".")
             item.name = "%s_%s_%s.%s" %(name[0], r_obj.review_name.lower().replace(" ", "_"), str(r_obj.review_date.date()), name[-1])
-            rev_fil_objs = ReviewFiles.objects.filter(file_name = item.name, review = r_obj)
+            rev_fil_objs = ReviewFiles.objects.filter(original_file_name = original_file_name, review = r_obj)
             if rev_fil_objs:
                 rfo = rev_fil_objs[0]
-                rfo.file_name = item
-                rfo.save()
+		rfo.file_name = item
+		rfo.save()
             else:
-                rfo = ReviewFiles.objects.create(file_name = item, review = r_obj)
+            	rfo, created = ReviewFiles.objects.get_or_create(file_name = item, review = r_obj,
+				defaults = {'original_file_name': original_file_name})
 
         return json_HttpResponse(review_id)
     except:
         return json_HttpResponse("Failed")
+
+def check_string(word):
+    """ Check the string is proper or not"""
+    result = True
+    """
+    if re.match("^[a-zA-Z0-9_ -.]*$", word):
+	result = True
+    """
+    symbol = "~`!@#$%^&*+={}[]:>;,</?*+"
+    for i in word:
+        if i in symbol:
+           result = False
+    	   return result
+    return result
+    
 
 def get_related_user(request):
     """ Get all the users Related to that project """
@@ -10681,7 +10729,7 @@ def saving_members(request):
     review_id = data.get("review_id", "")
     users = data.get('uids', "")
 
-    if not review_id or not users:
+    if not review_id:
         return json_HttpResponse("Improper Data")
 
     rev_objs = Review.objects.filter(id = review_id)
@@ -10692,16 +10740,26 @@ def saving_members(request):
     item = rev_objs[0]
     data = create_dict_data(item)
     #users.append(request.user.id)
-    users = [request.user.id] + users
+    _users = [request.user.id] + users
 
     #users.append(request.user.id)
-    users = User.objects.filter(id__in = users)
+    users = User.objects.filter(id__in = _users)
+    existing_member_objs = ReviewMembers.objects.filter(review = item)
+    existing_members = existing_member_objs.values_list('member__id', flat = True)
+    _remove_member = list(set(existing_members) - set(_users))
+    if _remove_member:
+	for r in _remove_member:
+	    memb_obj = ReviewMembers.objects.get(member__id = r, review = item)
+	    send_review_mail(data, 'deleted', memb_obj)
+            memb_obj.delete()
     for uid in users:
         try:
             exs_mem_obj = ReviewMembers.objects.filter(review = item, member = uid)
             if not exs_mem_obj:
                 memb_obj = ReviewMembers.objects.create(review = item, member = uid)
                 send_review_mail(data, 'created', memb_obj)
+	    else:
+                send_review_mail(data, 'edited', exs_mem_obj[0])
         except:
             pass
 
@@ -10715,19 +10773,24 @@ def send_review_mail(data, task, memb_obj = ""):
         'deleted': "Our Review is deleted with given details",
         'reminder' : "It is a reminder for our review with given details"
         }
-    if memb_obj:
-        _text = "Hi %s %s, <p> %s </p>" %( memb_obj.member.first_name, memb_obj.member.last_name, process[task])
-    else:
-        _text = "Hi %s, %s, <p> %s </p>" %("Abhishek", "Yeswanth", process[task] )
-    print "mail is coming"
+    try:
+	if memb_obj:
+	    _text = "Hi %s %s, <p> %s </p>" %( memb_obj.member.first_name, memb_obj.member.last_name, process[task])
+        else:
+	    _text = "Hi %s, %s, <p> %s </p>" %("Abhishek", "Yeswanth", process[task] )
+        print "mail is coming"
 
-    mail_body = create_mail_body(_text, data)
-    to = ['yeswanth@headrun.com']
-    to.append(memb_obj.member.email)
-    msg = EmailMultiAlternatives("%s - %s Review for NextWealth - %s" % (task.upper(), data['review_type'], data['project']), "",
-                            'nextpulse@nextwealth.in', to)
-    msg.attach_alternative(mail_body, "text/html")
-    msg.send()
+        mail_body = create_mail_body(_text, data)
+        to = ['yeswanth@headrun.com', 'abhishek@headrun.com']
+        to.append(memb_obj.member.email)
+        msg = EmailMultiAlternatives("%s - %s Review for NextWealth - %s" % (task.upper(), data['review_type'], data['project']), "",
+			    'nextpulse@nextwealth.in', to)
+        msg.attach_alternative(mail_body, "text/html")
+
+        msg.send()
+    except:
+	pass
+	
 
 
 def create_dict_data(item):

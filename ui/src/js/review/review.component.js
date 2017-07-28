@@ -29,6 +29,10 @@
 
              self.email_data = 'api/get_related_user/';
 
+             self.no_data = true;
+
+             self.part_disable = true;
+
              $http.get(self.email_data).then(function(result){
 		if (result.data.result == 'User is not TeamLead'){
 		self.stat = false;
@@ -67,6 +71,8 @@
                  //self.mail_options = [ "Shanmugasundaram v", "Monica M", "Abhijith A", "Sasikumar G", "Ranjithkumar M", "Shailesh dube"];
 
                  self.all_reviews = result.data.result.all_data;
+		 self.no_data = true;
+                 self.part_disable = true;
                  $('.loading').removeClass('show').addClass('hide');
                  self.rev_id = self.all_reviews[Object.keys(self.all_reviews)[0]][0].id;
                  self.get_review(self.all_reviews[Object.keys(self.all_reviews)[0]][0]);
@@ -81,6 +87,8 @@
 		}
 		else {
 		 $('.loading').removeClass('show').addClass('hide');
+		 self.no_data = false;
+		 self.part_disable = false;
 		}
              });
 
@@ -96,6 +104,11 @@
                 fileName:"myfile",
                 formData:{"review_id": self.rev_id },
                 onSuccess:function(files,data,xhr,pd,sel_rev_id){
+
+                    if (data == "Improper File name") {
+		        swal('File name in not proper');	
+		    }
+		    else {
                     $('.ajax-file-upload-statusbar').hide();
                     $('.loading').removeClass('hide').addClass('show');
                     self.get_data_url = 'api/get_review_details/?review_id='+data.result;
@@ -103,8 +116,11 @@
                  $http.get(self.get_data_url).then(function(result){
 
                     self.all_review_data = result.data.result.rev_files;
+		    self.no_data = true;
+		    self.part_disable = true;
                     $('.loading').removeClass('show').addClass('hide');
                  });
+		}
                 }
              });
 
@@ -113,6 +129,8 @@
                  $http.get(self.get_data_url).then(function(result){
 
                     self.edit_review['participants'] = [];
+		    self.no_data = true;
+		    self.part_disable = true;
                     var all_selec = result.data.result.members;
                     for (var i=0; i<all_selec.length; i++){
                         self.edit_review['participants'].push(all_selec[i]['name']);
@@ -133,6 +151,8 @@
                     self.all_review_data = result.data.result.rev_files;
                     self.is_when = result.data.result.remained;
                     self.membs = result.data.result.members;
+
+                    self.review = self.edit_review;
                     $('.loading').removeClass('show').addClass('hide');
 
                  });
@@ -153,6 +173,7 @@
 
                  self.all_reviews = result.data.result.all_data;
                  $('.loading').removeClass('show').addClass('hide');
+		 if (Object.keys(self.all_reviews).length != 0){
                  self.rev_id = self.all_reviews[Object.keys(self.all_reviews)[0]][0].id;
                  self.get_review(self.all_reviews[Object.keys(self.all_reviews)[0]][0]);
                  /*if (result.data.result[Object.keys(result.data.result)[0]][0].is_team_lead == false){
@@ -161,6 +182,23 @@
                  }*/
                  //$('.loading').removeClass('show').addClass('hide');
                  return self.rev_id;
+		 }
+		 else { console.log('No reviews to show');
+             self.edit_review = { 
+                    'reviewname': '', 'reviewdate': '', 'reviewtime': '', 'bridge': '', 'venue': '', 'review_type': '', 
+                    'reviewagenda': '', 'participants': '', 'rev_str': 'Edit Review'
+                    };
+			self.rev_time = '';
+			self.rev_date = '';
+			self.rev_day = '';
+			self.rev_tl = '';
+			self.all_review_data = '';
+			self.is_when = '';
+			self.membs = ''; 
+			self.no_data = false;
+
+			self.part_disable = false;
+		      }
                });
             };
 
@@ -178,6 +216,10 @@
                 self.review = self.add_review;
                 self.submit_type = 0;
                 self.track_id = 0;
+                self.add_review = { 
+                    'reviewname': '', 'reviewdate': '', 'reviewtime': '', 'bridge': '', 'venue': '', 'review_type': self.review_types_all[0], 
+                    'reviewagenda': '', 'participants': '', 'rev_str': 'Add Review'
+                    };
               }
               else {
                 self.review = self.edit_review;
@@ -188,28 +230,28 @@
 
 
              self.submit = function(review) {
-                 /*self.map_list_item = { "Shanmugasundaram v": 15, "Monica M": 18, "Abhijith A": 19, "Sasikumar G": 101, "Ranjithkumar M": 107, 
-                                        "Shailesh dube": 2, "Atul shinghal": 116,  "Navin Ramachandran": 123, "Goutam Dan": 127, "rajesh r": 25,
-                                        "Damodaran Selvaraj": 52, "Balasubramanian A": 59, "Anuradha G": 60, "Arun L": 61, "Sunilbabu S": 62,
-                                        "Hariharan N": 63, "Anandram J": 90, "Venkatesh D":91 }*/
-		 //self.map_list_item = {"sankar K": 3, "poornima mitta": 14, "Kannan sundar":13, "Sriram .": 157};
                  self.uids_list = []
                  for (var i=0; i<review.participants.length; i++) {
                     self.uids_list.push(self.map_list_item[review.participants[i]]);
                  }
                  $('.input-clear').val('');
-                 //$('.input-clear')
                  $('.loading').removeClass('hide').addClass('show');
                  self.create_rev_url = 'api/create_reviews/';
                  var data = {}
                  angular.forEach(review, function(key, value) {
-                     data[value] = key.toString()
+                     if (key) {
+                         data[value] = key.toString()
+                     }
+		     else { data[value] = ''}
                  });
                  data['id'] = self.submit_type;
                  data['track_id'] = self.track_id;
                  var main_data = $.param({ json: JSON.stringify(data) });
                  $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
                  $http.post(self.create_rev_url, (main_data)).then(function(result){
+		    if (result.data == "Improper File name"){
+			swal("Improper review name");
+		    }
                     return result.data.result;
                  }).then(function(callback){
 
@@ -222,7 +264,9 @@
                    $http.get(self.review_url).then(function(result){
 
                      self.all_reviews = result.data.result.all_data;
-                     self.get_review(self.all_reviews[Object.keys(self.all_reviews)[0]][0]);
+		     if ((Object.keys(result.data.result.all_data).length) != 0){
+                         self.get_review(self.all_reviews[Object.keys(self.all_reviews)[0]][0]);
+		     }
                      $('.loading').removeClass('show').addClass('hide');
 
                    })
@@ -258,6 +302,8 @@
                  $http.get(self.get_data_url).then(function(result){
 
                     self.all_review_data = result.data.result.rev_files;
+		    self.no_data = true;
+		    self.part_disable = true;
                     $('.loading').removeClass('show').addClass('hide');
                  });
 
@@ -291,7 +337,6 @@
 
                     $http.get(self.remove_review_url).then(function(result){}).then(function (result){
                       $http.get(self.review_url).then(function(result){
-
 			if (Object.keys(result.data.result.all_data).length != 0) {
 			 self.all_reviews = result.data.result.all_data;
                          self.rev_id = self.all_reviews[Object.keys(self.all_reviews)[0]][0].id;
@@ -299,6 +344,22 @@
                          return self.rev_id;
                          $('.loading').removeClass('show').addClass('hide');
 			}else{
+			self.all_reviews = result.data.result.all_data;
+                   self.edit_review = {
+                    'reviewname': '', 'reviewdate': '', 'reviewtime': '', 'bridge': '', 'venue': '', 'review_type': '',
+                    'reviewagenda': '', 'participants': '', 'rev_str': 'Edit Review'
+                    };  
+                        self.rev_time = '';
+                        self.rev_date = '';
+                        self.rev_day = '';
+                        self.rev_tl = '';
+                        self.all_review_data = '';
+                        self.is_when = '';
+                        self.membs = '';
+                        self.no_data = false;
+
+                        self.part_disable = false;
+
 			$('.loading').removeClass('show').addClass('hide');
 			}
                       });

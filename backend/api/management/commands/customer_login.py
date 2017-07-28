@@ -50,9 +50,11 @@ class Command(BaseCommand):
         """msg = EmailMessage("Customer last login details" , mail_data, 'nextpulse@nextwealth.in', \
             ['asifa@headrun.net', 'yeswanth@headrun.com'])"""
 
-        msg = EmailMessage("Next Pulse : Customer last login details" , mail_data, 'nextpulse@nextwealth.in', \
-            ['yeswanth@headrun.com','asifa@headrun.net','yatish@headrun.com','rishi@headrun.com', \
-	    'kannan.sundar@nextwealth.in','poornima.mitta@nextwealth.in','sankar.k@mnxw.org'])
+	to = ['yeswanth@headrun.com','asifa@headrun.net','yatish@headrun.com','rishi@headrun.com', \
+            'kannan.sundar@nextwealth.in','poornima.mitta@nextwealth.in','sankar.k@mnxw.org']
+
+	#to = ['abhishek@headrun.com', 'asifa@headrun.net']
+        msg = EmailMessage("Next Pulse : Customer last login details" , mail_data, 'nextpulse@nextwealth.in', to) 
 
         msg.content_subtype = "html"
         msg.send()
