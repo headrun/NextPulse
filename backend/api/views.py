@@ -10480,10 +10480,10 @@ def create_reviews(request):
     _venue = eval(request.POST['json']).get('venue', "")
     _bridge = eval(request.POST['json']).get('bridge', "")
     _review_time = eval(request.POST['json']).get('reviewtime', '')
-
-    if not review_name or not agenda or not review_type or not _review_date or _review_time:
+    
+    if not review_name or not agenda or not review_type or not _review_date or not _review_time:
 	return json_HttpResponse('Mandatory Field Not present')
-
+    
     _review_date = _review_date.split(" ")[1:4]
     _review_time = _review_time.split(" ")[4]
     _date = ' '.join(_review_date) + " "+ _review_time

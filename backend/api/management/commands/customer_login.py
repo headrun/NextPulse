@@ -53,7 +53,7 @@ class Command(BaseCommand):
 	to = ['yeswanth@headrun.com','asifa@headrun.net','yatish@headrun.com','rishi@headrun.com', \
             'kannan.sundar@nextwealth.in','poornima.mitta@nextwealth.in','sankar.k@mnxw.org']
 
-	#to = ['abhishek@headrun.com', 'asifa@headrun.net']
+	to = ['abhishek@headrun.com', 'asifa@headrun.net']
         msg = EmailMessage("Next Pulse : Customer last login details" , mail_data, 'nextpulse@nextwealth.in', to) 
 
         msg.content_subtype = "html"
