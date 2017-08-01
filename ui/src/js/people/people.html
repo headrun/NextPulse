@@ -1,0 +1,262 @@
+<style>
+body {
+    background : #f1f1f1;
+}
+.menu {
+    display : none;	
+}
+#cen-drp {
+    margin-top: -34px;
+    /*margin-left: 170px;*/
+    float:right;
+    margin-right: 15px;
+}
+#drp_data {
+    margin-top: 15px;
+}
+#dropdownMenu1 {
+    margin-left: 14px;
+}
+#tab-data {
+   padding-top : 30px; 
+}
+tr,th{
+    text-align : center;
+}
+tr>td {
+    color: #308014;    
+ }
+table.dataTable, table.dataTable.no-footer,table.dataTable.row-border tbody td {
+    border-top: none !important;
+    border-bottom: none !important;
+    margin: 0px 0px;
+}
+table.dataTable tbody td {
+    padding: 20px 18px;
+}    
+
+label,#left-items,.dataTables_wrapper .dataTables_info, .dataTables_paginate {
+    display: none;
+ }
+ .dataTables_wrapper {
+    padding : 0px 0px;
+    margin-left: 34px;
+    margin-right: 34px;
+    border: 1px solid #DDDDDD;     
+ }
+ /*tbody>tr:nth-child(odd) {
+     background: #F8FAFD !important;
+ }
+ tbody>tr:nth-child(even) {
+     background: #fff;
+ }*/
+
+ .table>thead>tr>th {
+    border: none;     
+}
+
+.table>tbody+tbody {
+    border: none;    
+}
+
+.table>tbody>tr>td, .table>tbody>tr>th {
+    padding: 16px;
+}
+
+.table>thead>tr>th {
+    padding: 16px;    
+}
+ .panel {
+    border-top: none !important;
+    border-left: 1px solid #ddd !important;    
+    border-right: 1px solid #ddd !important; 
+    border-bottom: 4px solid #8bc34a !important;
+    border-radius: 0px;
+    background: #fff;
+ }
+ .panel-body {
+    padding: 0px;
+    border-top: none !important;    
+ }
+
+ table.dataTable thead .sorting,table.dataTable thead .sorting_asc {
+    background-image: none;
+ }
+
+ #heads {
+    color: #0EBFE9;    
+ }
+
+ /*.container {
+     background: #77c5e9;
+  }*/
+.people {
+    padding-bottom: 9px;
+    padding-left: 71px;
+}
+a {
+    color: black;    
+}
+.nav-tabs>li>a:hover {
+    /*background: #0aea19;*/
+    background-color : rgb(48, 140, 20);
+    color: white;
+    border: none;
+}
+
+.nav-tabs>li>a {
+      /*border: 1px solid #DDDDDD;*/
+      /*background: #0aea19;*/
+      background-color : rgb(48, 140, 20);
+      color: white; 
+      border-radius: 8px 8px 0 0;
+}
+.nav-tabs>li.active>a, .nav-tabs>li.active>a:focus, .nav-tabs>li.active>a:hover{
+    color: #000000;
+    background : #fff;
+}
+.datatable_wrapper {
+    margin-right: 34px;
+    margin-left: 34px;
+}
+/*.nav-tabs>li>a {
+    margin-right: 6px;    
+ }*/
+</style>
+<header></header>
+<h3 class="people"><font color="#0EBFE9">People</font><font color="#308014" style="margin-left:7px;">Dashboard</font></h3>
+<div class="container" > 
+  <div class="row_data" id="tab-data">
+   <uib-tabset active="active" style="margin-top: -19px;">
+    <uib-tab index="0" heading="SLA" style="width:50%;text-align: center; font-weight: bold;">
+        <div class = "panel panel-default" style="width:99.8%;">
+          <div class="panel-body" style="margin-bottom:30px;">
+             <ul class="nav nav-tabs" style="width:100%;border-bottom:none;">
+                 <li class="active" style="width:100%;"><a data-toggle="tab" href=""style="background-color:#0EBFE9;text-align:center;margin-top:4%;margin-right:34px;margin-left:34px;color: white;"><b>SALEM</b></a></li>
+                     
+            </ul>
+            <div class="datatable_wrapper">
+                <table class="table" style="border:1px solid #DDDDDD;background-color:#f1f1f1;">
+                     <thead>
+                        <tr>
+                            <th>
+                            </th>
+                            <th>Project</th>
+                            <!--<th>Center</th>-->
+                            <th>Month</th>
+                            <th>Productivity(%)</th>
+                            <th>Production(%)</th>
+                            <th>Internal Accuracy(%)</th>
+                            <th>External Accuracy(%)</th>
+                            <th>TAT(%)</th>
+                        </tr>
+                     </thead>
+                     <tbody ng-repeat="single in $ctrl.data">
+                        <tr style="background-color: white;">
+                            <td>
+                                <button ng-click="expanded = !expanded" expand>
+                                    <span ng-bind="expanded ? '-' : '+'"></span>
+                                </button>
+                            </td>
+                            <td style="width:27%;">{{single.project}}</td>
+                            <!--<td>{{single.center}}</td>-->
+                            <td>{{single.Month1}}</td>
+                            <td>{{single.productivity_Month1}}</td>
+                            <td>{{single.production_Month1}}</td>
+                            <td>{{single.internal_accuracy_Month1}}</td>
+                            <td>{{single.external_accuracy_Month1}}</td>
+                            <td>{{single.tat_Month1}}</td>
+                        </tr>
+                        <tr ng-show="expanded" style="background:#b5dda1;">
+                            <td></td>
+                            <td></td>
+                            <!--<td></td>-->
+                            <td style="width:15%;">{{single.Month2}}</td>
+                            <td style="width:15%;">{{single.productivity_Month2}}</td>
+                            <td style="width:15%;">{{single.production_Month2}}</td>
+                            <td style="width:15%;">{{single.internal_accuracy_Month2}}</td>
+                            <td style="width:15%;">{{single.external_accuracy_Month2}}</td>
+                            <td style="width:15%;">{{single.tat_Month2}}</td>
+                        </tr>
+                        <tr ng-show="expanded" style="background:#b5dda1;">
+                            <td></td>
+                            <td></td>
+                            <!--<td></td>-->
+                            <td style="width:15%;">{{single.Month3}}</td>
+                            <td style="width:15%;">{{single.productivity_Month3}}</td>
+                            <td style="width:15%;">{{single.production_Month3}}</td>
+                            <td style="width:15%;">{{single.internal_accuracy_Month3}}</td>
+                            <td style="width:15%;">{{single.external_accuracy_Month3}}</td>
+                            <td style="width:15%;">{{single.tat_Month3}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+          </div>
+        </div>
+    </uib-tab>
+    <uib-tab index="1" heading="PEOPLE" disable="tab.disabled" style="width: 50%; padding-left: 14px;text-align: center; font-weight: bold;">
+        <div class="panel panel-default">
+          <div class="panel-body" style="margin-bottom:30px;">
+            <ul class="nav nav-tabs" style="width:100%;border-bottom:none;">
+                 <li class="active" style="width:100%;"><a data-toggle="tab" href=""style="background-color:#0EBFE9;text-align:center;margin-top:4%;margin-right:34px;margin-left:34px;"><b>SALEM</b></a></li>             
+            </ul>
+            <div class="datatable_wrapper">
+                <table class="table" style="border:1px solid #DDDDDD;background-color:#f1f1f1;">
+                    <thead>
+                        <tr>
+                            <th>
+                            </th>
+                            <th>Project</th>
+                            <!--<th>Center</th>-->
+                            <th>Month</th>
+                            <th>FTE Utilisation(%)</th>
+                            <th>Operational Utilisation(%)</th>
+                            <th>Absenteeism(%)</th>
+                            <th>Attrition(%)</th>
+                        </tr>
+                     </thead>
+                     <tbody ng-repeat="value in $ctrl.data_2">
+                        <tr style="background-color:white;">
+                            <td>
+                                <button ng-click="expanded = !expanded" expand>
+                                    <span ng-bind="expanded ? '-' : '+'"></span>
+                                </button>
+                            </td>
+                            <td style="width:27%;">{{value.project}}</td>
+                            <!--<td>{{single.center}}</td>-->
+                            <td>{{value.Month1}}</td>
+                            <td>{{value.fte_utilisation_Month1}}</td>
+                            <td>{{value.operational_utilization_Month1}}</td>
+                            <td>{{value.absenteeism_Month1}}</td>
+                            <td>{{value.attrition_Month1}}</td>
+                        </tr>
+                        <tr ng-show="expanded" style="background:#b5dda1;">
+                            <td></td>
+                            <td></td>
+                            <!--<td></td>-->
+                            <td style="width:15%;">{{value.Month2}}</td>
+                            <td style="width:15%;">{{value.fte_utilisation_Month2}}</td>
+                            <td style="width:15%;">{{value.operational_utilization_Month2}}</td>
+                            <td style="width:15%;">{{value.absenteeism_Month2}}</td>
+                            <td style="width:15%;">{{value.attrition_Month2}}</td>
+                        </tr>
+                        <tr ng-show="expanded" style="background:#b5dda1;">
+                            <td></td>
+                            <td></td>
+                            <!--<td></td>-->
+                            <td style="width:15%;">{{value.Month3}}</td>
+                            <td style="width:15%;">{{value.fte_utilisation_Month3}}</td>
+                            <td style="width:15%;">{{value.operational_utilization_Month3}}</td>
+                            <td style="width:15%;">{{value.absenteeism_Month3}}</td>
+                            <td style="width:15%;">{{value.attrition_Month3}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+           </div>
+        </div>
+    </uib-tab>
+   </uib-tabset>
+  </div>
+</div>
