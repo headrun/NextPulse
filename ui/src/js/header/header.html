@@ -139,10 +139,12 @@ dashboard div.dashboard-content {
      margin-top: -25px;
   }
   #home {
-    margin-top: 5px;
+    /*margin-top: 5px;*/
+    margin-top: 16px;
     font-size: 29px;
     color: #63AB62;
-    margin-left: -450%;
+    /*margin-left: -450%;*/
+    margin-left: -399%;
   }
   .title {
     margin-right: 10px;
@@ -286,7 +288,16 @@ dashboard div.dashboard-content {
     .navbar-default .navbar-nav>.active>a:hover {
         background: none;
     }
-  }     
+  }
+
+#people {
+    margin-right: 0px;
+    /*margin-top: 4px;*/
+    font-size: 20px;
+    color: #2a2a2a;
+    font-weight: bold;
+    background: white;	 	
+}     
 </style>
 <nav class="navbar navbar-default">
   <div class="container-fluid">
@@ -300,7 +311,7 @@ dashboard div.dashboard-content {
     </div>
     <div class="collapse navbar-collapse" id="myNavbar">
       <ul class="nav navbar-nav">
-        <li><a href="http://nextpulse.nextwealth.in/#!/landing"><span class="glyphicon glyphicon-home" id="home" aria-hidden="true"></span>            </a>
+        <li><abbr title="Click to View Dashboard"><a href="http://nextpulse.nextwealth.in/#!/landing"><span class="glyphicon glyphicon-home" id="home" aria-hidden="true"></span></a></abbr>
         </li>
         <li><a ><p class="title"><font color="#0EBFE9">Next</font><font color="#308014">Pulse</font></p></a></li>
       </ul>
@@ -308,6 +319,10 @@ dashboard div.dashboard-content {
 	<li>
             <abbr title="Reviews"><a href="/#!/review" id="rev-but" class="btn btn-info" role="button"><i class="fa fa-calendar-check-o" aria-hidden="true" style="font-size:20px;margin-top: -2px;margin-right: 13px;"></i></a></abbr>
         </li>
+        
+        <li>
+           <abbr title="People's Dashboard"><a href="/#!/people" id="people"><i class="fa fa-users" aria-hidden="true" style="margin-top:16px;"></i></a></abbr>
+       </li>
 
         <li class="dropdown active span8" id="drpdown_btn">
             <a class="dropdown-toggle" id="select_dropdown" data-toggle="dropdown">
@@ -322,7 +337,7 @@ dashboard div.dashboard-content {
             </ul>
         </li>
         <!--<li>
-            <a href="/#!/review" id="rev-but" class="btn btn-info" style="padding-right: 20px;" role="button">Reviews</a>
+            <abbr title="People"><a href="/#!/people" id="people"><i class="fa fa-users" aria-hidden="true" style="margin-top:16px;"></i></a></abbr>
         </li>-->
         <li>
             <a href="/admin/api" id="admin_but" class="btn btn-info" role="button" target="_blank">Admin</a>

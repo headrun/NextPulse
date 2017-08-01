@@ -230,6 +230,12 @@
 
 
              self.submit = function(review) {
+
+		 if (review.reviewname || review.reviewdate || review.reviewtime || review.reviewagenda || review.review_type == 'select'){
+			swal('All required fields are not filled');
+			$('#myModal').modal('show');
+                 }
+		 else {
                  self.uids_list = []
                  for (var i=0; i<review.participants.length; i++) {
                     self.uids_list.push(self.map_list_item[review.participants[i]]);
@@ -273,6 +279,7 @@
 
                  });
                 });
+		}
                 }
 
              self.remove_file = function(file_id) {

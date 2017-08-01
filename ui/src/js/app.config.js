@@ -39,6 +39,9 @@
              }).state("review", {
                "url"     : "/review",
                "template": "<review></review>"
+             }).state("people", {
+               "url"     : "/people",
+               "template": "<people></people>"
              });
 
              $urp.otherwise("/");

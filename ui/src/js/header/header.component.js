@@ -52,6 +52,7 @@
                 if (this.user.roles.indexOf("center_manager") >= 0) {
                     $('#fileupload').hide();
                     $('#admin_but').hide();
+                    $('#people').hide()
                     this.user.role = "Center Manager";
                 }
                 if (this.user.roles.indexOf("nextwealth_manager") >= 0) {
@@ -62,10 +63,12 @@
                 if (this.user.role == "Customer") {
                     $('#fileupload').hide();
                     $('#home').hide();
+	            $('#people').hide()			
                 }
                 if (this.user.role == "Team Lead") {
                     $('#select_dropdown').hide();
                     $('#home').hide();
+		    $('#people').hide()	
                 }
                this.collapsed = false;
 

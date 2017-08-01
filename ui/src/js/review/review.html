@@ -446,7 +446,7 @@ input:checked + .slider:before {
               <label>Bridge: </label>
             </div>
             <div class="col-md-9">
-              <input class="input-clear" name="bridge" ng-model="$ctrl.review.bridge" class="form-element" required />
+              <input class="input-clear" name="bridge" ng-model="$ctrl.review.bridge" class="form-element"/>
 
 	      <!--     <span ng-if="regForm.bridge.$error.required && regForm.bridge.$touched">
                 Bridge is Required
@@ -459,7 +459,7 @@ input:checked + .slider:before {
               <label>Venue: </label>
             </div>
             <div class="col-md-9">
-              <input class="input-clear" name="venue" ng-model="$ctrl.review.venue" class="form-element" required />
+              <input class="input-clear" name="venue" ng-model="$ctrl.review.venue" class="form-element" />
               <!--<span ng-if="regForm.venue.$error.required && regForm.venue.$touched">
                 Venue is Required
               </span> -->
@@ -478,7 +478,7 @@ input:checked + .slider:before {
               <option value="Adhoc">Adhoc</option>
             </select>-->
             <!--<select ng-model="$ctrl.review.review_type" ng-options="type in $ctrl.review_types_all"></select>-->
-            <select ng-model="$ctrl.review.review_type">
+            <select ng-model="$ctrl.review.review_type" required>
                 <option ng-repeat="type in $ctrl.review_types_all" value="{{type}}" 
                         ng-selected="$ctrl.review.review_type == type">{{type}}</option>
             </select>

@@ -678,6 +678,104 @@ class ReviewMembers(models.Model):
 
 
 
+class HRMMovementTracker(models.Model):
+    recordid = models.AutoField(primary_key=True)
+    empid = models.CharField(max_length = 20, null = False)
+    oldteam = models.CharField(max_length = 100, null = False)
+    oldscope = models.CharField(max_length = 100, null = False)
+    oldrole = models.CharField(max_length = 100, null = False)
+    newteam = models.CharField(max_length = 100, null = False)
+    newscope =models.CharField(max_length = 100, null = False)
+    newrole = models.CharField(max_length = 100, null = False)
+    movedate = models.DateField(null = False)
+    reason = models.CharField(max_length = 500, null = False)
+    approval = models.CharField(max_length = 3, null = False)
+    hc_tracker = models.CharField(max_length = 3, null = False)
+    misreport = models.CharField(max_length = 3, null = False)
+    e4e = models.CharField(max_length = 3, null = False)
+    boimetric = models.CharField(max_length = 3, null = False)
+    domain = models.CharField(max_length = 3, null = False)
+    teamdata = models.CharField(max_length = 3, null = False)
+    risedfrom = models.CharField(max_length = 150, null = False)
+    approvedby = models.CharField(max_length = 150, null = False)
+
+    class Meta:
+        db_table = u'hrm_movement_tracker'
+
+class HRMAttendance(models.Model):
+    sno =  models.AutoField(primary_key=True)
+    empid = models.CharField(max_length = 20, null = False)
+    A01 = models.CharField(max_length = 5, null = False)
+    A02 = models.CharField(max_length = 5, null = False)
+    A03 = models.CharField(max_length = 5, null = False)
+    A04 = models.CharField(max_length = 5, null = False)
+    A05 = models.CharField(max_length = 5, null = False)
+    A06 = models.CharField(max_length = 5, null = False)
+    A07 = models.CharField(max_length = 5, null = False)
+    A08 = models.CharField(max_length = 5, null = False)
+    A09 = models.CharField(max_length = 5, null = False)
+    A10 = models.CharField(max_length = 5, null = False)
+    A11 = models.CharField(max_length = 5, null = False)
+    A11 = models.CharField(max_length = 5, null = False)
+    A12 = models.CharField(max_length = 5, null = False)
+    A13 = models.CharField(max_length = 5, null = False)
+    A14 = models.CharField(max_length = 5, null = False)
+    A15 = models.CharField(max_length = 5, null = False)
+    A16 = models.CharField(max_length = 5, null = False)
+    A17 = models.CharField(max_length = 5, null = False)
+    A18 = models.CharField(max_length = 5, null = False)
+    A19 = models.CharField(max_length = 5, null = False)
+    A20 = models.CharField(max_length = 5, null = False)
+    A21 = models.CharField(max_length = 5, null = False)
+    A22 = models.CharField(max_length = 5, null = False)
+    A23 = models.CharField(max_length = 5, null = False)
+    A24 = models.CharField(max_length = 5, null = False)
+    A25 = models.CharField(max_length = 5, null = False)
+    A26 = models.CharField(max_length = 5, null = False)
+    A27 = models.CharField(max_length = 5, null = False)
+    A28 = models.CharField(max_length = 5, null = False)
+    A29 = models.CharField(max_length = 5, null = False)
+    A30 = models.CharField(max_length = 5, null = False)
+    A31 = models.CharField(max_length = 5, null = False)
+    month = models.CharField(max_length = 20, null = False)
+
+    class Meta:
+        db_table = u'hrm_attendance'
+
+class HRMEmployeeProcess(models.Model):
+    empid = models.CharField(max_length = 10, null = False)
+    team = models.CharField(max_length = 50, null = False)
+    start_date = models.DateField(null = False)
+    end_date = models.DateField(null = False)
+
+    class Meta:
+        db_table = u'hrm_employee_process'
+
+class HRMEmployeeReportingPerson(models.Model):
+    empid = models.CharField(max_length = 12, primary_key=True)
+    name = models.CharField(max_length = 150, null = False)
+    reporting_person = models.CharField(max_length = 12, null = False)
+
+    class Meta:
+        db_table = u'hrm_employee_reportingperson'
+
+class HRMEmployeeResignation(models.Model):
+    empid =  models.CharField(max_length = 15, null = False)
+    relivingtype =  models.CharField(max_length = 25, null = False)
+    resignedon =  models.CharField(max_length = 10, null = False)
+    noticeperiod =  models.CharField(max_length = 5, null = False)
+    ulsince =  models.CharField(max_length = 10, null = False)
+    memoon =  models.CharField(max_length = 10, null = False)
+    raplymemo =  models.CharField(max_length = 5, null = False)
+    lastday =  models.CharField(max_length = 10, null = False)
+    idcard = models.CharField(max_length = 10, null = False)
+    resion =  models.CharField(max_length = 1000, null = False)
+    status =  models.CharField(max_length = 5, null = False)
+    rdate =  models.CharField(max_length = 50, null = False)
+
+    class Meta:
+        db_table = u'hrm_employee_resignation'
+
 
 
 
