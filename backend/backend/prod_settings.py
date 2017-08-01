@@ -1,4 +1,4 @@
 from backend.settings import *
-from db_config import *
+import db_config
 
 DATABASES['default'].update(db_config. DEFAULT_PROD_DATABASE_CONFIG)
