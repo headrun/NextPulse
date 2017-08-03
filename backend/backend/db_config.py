@@ -31,3 +31,19 @@ DEFAULT_STAGING_DATABASE_CONFIG = {
     'PASSWORD': 'Mbch@He@drn232017Mar',
     'HOST': 'localhost',
 }
+
+# LOCAL DB CONFIG
+#*******************************************************************************#
+
+DEFAULT_LOCAL_DATABASE_CONFIG = {
+    'ENGINE': 'django.db.backends.mysql',
+    'OPTIONS': {
+         'charset' : 'utf8',
+    },
+    'NAME': 'nextpulse',
+    'USER': 'root',
+    'PASSWORD': 'root',
+    'HOST': 'localhost',
+}
+
+#*******************************************************************************#
