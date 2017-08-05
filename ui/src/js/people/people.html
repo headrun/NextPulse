@@ -161,7 +161,7 @@ a {
                             <td style="width:27%;">{{single.project}}</td>
                             <!--<td>{{single.center}}</td>-->
                             <td>{{single.Month1}}</td>
-                            <td>{{single.productivity_Month1}}</td>
+                            <td ng-click="$ctrl.get_popup(single, 'productivity', 'Month1')">{{single.productivity_Month1}}</td>
                             <td>{{single.production_Month1}}</td>
                             <td>{{single.internal_accuracy_Month1}}</td>
                             <td>{{single.external_accuracy_Month1}}</td>
@@ -260,3 +260,27 @@ a {
    </uib-tabset>
   </div>
 </div>
+
+  <div class="modal fade" id="people_pop" role="dialog">
+    <div class="modal-dialog">
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+        <div class="modal-body">
+          <p>{{$ctrl.month_to_display}}</p>
+          <p>{{$ctrl.widget_type}}</p>
+          <p>{{$ctrl.project_to_display}}</p>
+          <p>{{$ctrl.center_to_display}}</p>
+
+          <highcharts options="$ctrl.widget_data"></highcharts>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+

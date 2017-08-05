@@ -1,7 +1,7 @@
 ;(function (angular) {
   "use strict";
 
-  angular.module("people", ['datatables','ngResource']);
+  angular.module("people", ['ngResource', 'highcharts']);
 
 }(window.angular));
 
