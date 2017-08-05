@@ -119,6 +119,13 @@ a {
     margin-right: 34px;
     margin-left: 34px;
 }
+.widget-loader-show {
+  background: rgba( 255, 255, 255, .8 ) url('http://sampsonresume.com/labs/pIkfp.gif') 50% 50% no-repeat;
+}
+
+.widget-data-hide {
+  display: none;
+}
 /*.nav-tabs>li>a {
     margin-right: 6px;    
  }*/
@@ -161,11 +168,11 @@ a {
                             <td style="width:27%;">{{single.project}}</td>
                             <!--<td>{{single.center}}</td>-->
                             <td>{{single.Month1}}</td>
-                            <td ng-click="$ctrl.get_popup(single, 'productivity', 'Month1')">{{single.productivity_Month1}}</td>
-                            <td>{{single.production_Month1}}</td>
-                            <td>{{single.internal_accuracy_Month1}}</td>
-                            <td>{{single.external_accuracy_Month1}}</td>
-                            <td>{{single.tat_Month1}}</td>
+                            <td ng-click="$ctrl.get_popup(single, 'productivity', 'Month1', 'Productivity')">{{single.productivity_Month1}}</td>
+                            <td ng-click="$ctrl.get_popup(single, 'main_prod', 'Month1', 'Production')">{{single.production_Month1}}</td>
+                            <td ng-click="$ctrl.get_popup(single, 'productivity', 'Month1', 'Productivity')">{{single.internal_accuracy_Month1}}</td>
+                            <td ng-click="$ctrl.get_popup(single, 'productivity', 'Month1', 'Productivity')">{{single.external_accuracy_Month1}}</td>
+                            <td ng-click="$ctrl.get_popup(single, 'productivity', 'Month1', 'Productivity')">{{single.tat_Month1}}</td>
                         </tr>
                         <tr ng-show="expanded" style="background:#b5dda1;">
                             <td></td>
@@ -199,7 +206,7 @@ a {
         <div class="panel panel-default">
           <div class="panel-body" style="margin-bottom:30px;">
             <ul class="nav nav-tabs" style="width:100%;border-bottom:none;">
-                 <li class="active" style="width:100%;"><a data-toggle="tab" href=""style="background-color:#0EBFE9;text-align:center;margin-top:4%;margin-right:34px;margin-left:34px;"><b>SALEM</b></a></li>             
+                 <li class="active" style="width:100%;"><a data-toggle="tab" href=""style="background-color:#0EBFE9;text-align:center;margin-top:4%;margin-right:34px;margin-left:34px;"><b>SALEM</b></a></li>
             </ul>
             <div class="datatable_wrapper">
                 <table class="table" style="border:1px solid #DDDDDD;background-color:#f1f1f1;">
@@ -267,14 +274,27 @@ a {
       <div class="modal-content">
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">{{$ctrl.widget_name}}</h4>
         </div>
-        <div class="modal-body">
-          <p>{{$ctrl.month_to_display}}</p>
+        <div class="modal-body" style="min-height: 450px;">
+          <!--<p>{{$ctrl.month_to_display}}</p>
           <p>{{$ctrl.widget_type}}</p>
           <p>{{$ctrl.project_to_display}}</p>
-          <p>{{$ctrl.center_to_display}}</p>
+          <p>{{$ctrl.center_to_display}}</p>-->
+          <div class="col-sm-12 widget">
+            <div class="widget-content">
+                <div class="widget-body">
+                        <div class="btn-group" style="float: right;">
+                            <button type="button" id="day" class="btn btn-default" ng-click="$ctrl.day_type('day')">Day</button>
+                            <button type="button" id="week" class="btn btn-default" ng-click="$ctrl.day_type('week')">Week</button>
+                            <button type="button" id="Month" class="btn btn-default" ng-click="$ctrl.day_type('month')">Month</button>
+                         </div>
+            <highcharts options="$ctrl.widget_data"></highcharts>
+                </div>
+            </div>
+          </div>
 
-          <highcharts options="$ctrl.widget_data"></highcharts>
+          <!--<highcharts options="$ctrl.widget_data"></highcharts>-->
 
         </div>
         <div class="modal-footer">

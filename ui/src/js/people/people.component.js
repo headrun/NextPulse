@@ -13,64 +13,96 @@
                 var people_data = '/pd/get_sla_data';
                 var people_data_2 = '/pd/get_peoples_data';
 
+                vm.render_chart_from_url = function(url) {
 
-                vm.get_popup = function(data, type, month) {
+                  $http({method:"GET", url: url}).success(function(result){
+
+                    var date_list = result.result.date;
+                    var main_data = result.result.original_productivity_graph;
+
+                    $('.widget-content').removeClass('widget-loader-show');
+
+                    angular.extend(vm.widget_data, {
+
+                      xAxis: {
+                        categories: date_list,
+                      },
+                      series: main_data
+
+                    });
+
+                  });
+
+               }
+
+               vm.get_popup = function(data, type, month, name) {
 
                   vm.month_to_display = data[month];
                   vm.widget_type = type;
+                  vm.widget_name = name;
                   vm.project_to_display = data.project;
                   vm.center_to_display = data.center;
 
+                  $('.widget-content').addClass('widget-loader-show');
+
+                  vm.date_mapping = {'August': '2017-08-01',
+                                     'July': '2017-07-01',
+                                     'June': '2017-06-01',
+                                     'May': '2017-05-01'
+                                    };
+
+                  vm.start_date = vm.date_mapping[vm.month_to_display];
+
+                  var date_obj = new Date(vm.start_date);
+                  var firstDay = new Date(date_obj.getFullYear(), date_obj.getMonth(), 1);
+                  var lastDay = new Date(date_obj.getFullYear(), date_obj.getMonth() + 1, 0);
+
+                  vm.end_date = '';
+                  vm.end_date += lastDay.getFullYear() +'-';
+                  vm.end_date += lastDay.getMonth()+1+'-';
+                  vm.end_date += lastDay.getDate();
+
+                  vm.day_type = function(type) {
+
+                    $('.widget-content').addClass('widget-loader-show');
+
+                    var url_to = '/api/'+vm.widget_type+'/?&project='+vm.project_to_display+
+                          '&center='+vm.center_to_display+'&from=2017-05-01&to=2017-05-31&type='+type+'&is_clicked='+type+'_yes';
+                        vm.render_chart_from_url(url_to);
+                  }
+
+                  /*vm.url = '/api/'+vm.widget_type+'/?&project='+vm.project_to_display+
+                        '&center='+vm.center_to_display+'&from='+vm.start_date+'&to='+vm.end_date+'&type=week';*/
                   vm.url = '/api/'+vm.widget_type+'/?&project='+vm.project_to_display+
                         '&center='+vm.center_to_display+'&from=2017-05-01&to=2017-05-31&type=week';
 
-                  $http({method:"GET", url: vm.url}).success(function(result){
-
-                    debugger;
-                  })
-
-                  //vm.updateState({'state': vm.data_for_widget, 'pageName':'page1'});
+                  vm.render_chart_from_url(vm.url);
 
                   $('#people_pop').modal('show');
                 }
 
-                vm.widget_data = {
-
-                    yAxis: {
-                        title: {
-                            text: 'Number of Employees'
-                        }
+              vm.widget_data = {
+                chart : {
+                 backgroundColor: "transparent"
+                },
+                yAxis: {
+                  gridLineColor: 'a2a2a2',
+                  min: 0,
+                    title: {
+                      text: '',
+                      align: 'high'
                     },
-                    legend: {
-                        layout: 'vertical',
-                        align: 'right',
-                        verticalAlign: 'middle'
-                    },
-
-                    plotOptions: {
-                        series: {
-                            pointStart: 2010
-                        }
-                    },
-
-                    series: [{
-                        name: 'Installation',
-                        data: [43934, 52503, 57177, 69658, 97031, 119931, 137133, 154175]
-                    }, {
-                        name: 'Manufacturing',
-                        data: [24916, 24064, 29742, 29851, 32490, 30282, 38121, 40434]
-                    }, {
-                        name: 'Sales & Distribution',
-                        data: [11744, 17722, 16005, 19771, 20185, 24377, 32147, 39387]
-                    }, {
-                        name: 'Project Development',
-                        data: [null, null, 7988, 12169, 15112, 22452, 34400, 34227]
-                    }, {
-                        name: 'Other',
-                        data: [12908, 5948, 8105, 11248, 8989, 11816, 18274, 18111]
-                    }]
-
-                };
+                    labels: {
+                      overflow: 'justify'
+                    }
+                },
+                tooltip: {
+                  valueSuffix: ''
+                },
+                credits: {
+                  enabled: false
+                },
+              };
 
                 $http({method:"GET", url:people_data}).success(function(result){
 
