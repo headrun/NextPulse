@@ -374,9 +374,9 @@ def utilisation_all(request):
             utilization_operational_dt[week_name] = utilization_details['operational_utilization']
             utilization_fte_dt[week_name] = utilization_details['fte_utilization']
             utilization_ovearll_dt[week_name] = utilization_details['overall_utilization']
-            final_utlil_operational = prod_volume_week_util(prj_id,week_names, utilization_operational_dt, {},'week')
-            final_util_fte = prod_volume_week_util(prj_id,week_names, utilization_fte_dt, {},'week')
-            final_overall_util = prod_volume_week_util(prj_id,week_names, utilization_ovearll_dt, {},'week')
+            final_utlil_operational = prod_volume_week_util_headcount(week_names, utilization_operational_dt, {})
+            final_util_fte = prod_volume_week_util_headcount(week_names, utilization_fte_dt, {})
+            final_overall_util = prod_volume_week_util_headcount(week_names, utilization_ovearll_dt, {})
             final_dict['utilization_fte_details'] = graph_data_alignment_color(final_util_fte, 'data',level_structure_key, prj_id, center,'fte_utilization')
             final_dict['utilization_operational_details'] = graph_data_alignment_color(final_utlil_operational,'data', level_structure_key, prj_id,center,'operational_utilization')
             final_dict['original_utilization_graph'] = graph_data_alignment_color(final_overall_util, 'data',level_structure_key, prj_id, center,'utilisation_wrt_work_packet')
@@ -394,9 +394,9 @@ def utilisation_all(request):
             utilization_operational_dt[month_name] = utilization_details['operational_utilization']
             utilization_fte_dt[month_name] = utilization_details['fte_utilization']
             utilization_ovearll_dt[month_name] = utilization_details['overall_utilization']
-            final_utlil_operational = prod_volume_week_util(prj_id,month_names, utilization_operational_dt, {},'month')
-            final_util_fte = prod_volume_week_util(prj_id,month_names, utilization_fte_dt, {},'month')
-            final_overall_util = prod_volume_week_util(prj_id,month_names, utilization_ovearll_dt, {},'month')
+            final_utlil_operational = prod_volume_week_util_headcount(month_names, utilization_operational_dt, {})
+            final_util_fte = prod_volume_week_util_headcount(month_names, utilization_fte_dt, {})
+            final_overall_util = prod_volume_week_util_headcount(month_names, utilization_ovearll_dt, {})
             final_dict['utilization_fte_details'] = graph_data_alignment_color(final_util_fte, 'data',level_structure_key, prj_id, center,'fte_utilization')
             final_dict['utilization_operational_details'] = graph_data_alignment_color(final_utlil_operational,'data', level_structure_key, prj_id,center,'operational_utilization')
             final_dict['original_utilization_graph'] = graph_data_alignment_color(final_overall_util, 'data',level_structure_key, prj_id, center,'utilisation_wrt_work_packet')
@@ -653,6 +653,60 @@ def prod_avg_perday(request):
         final_dict['date'] = data_date
     final_dict['type'] = main_data_dict['type']    
     return json_HttpResponse(final_dict)
+
+def tat_data(request):
+    final_dict = {}
+    data_date, new_date_list = [], []
+    week_names = []
+    week_num = 0
+    tat_graph_dt = {}
+    month_names = []
+    main_data_dict = data_dict(request.GET)
+    if main_data_dict['dwm_dict'].has_key('day') and main_data_dict['type'] == 'day':
+        main_dates_list = [ main_data_dict['dwm_dict']['day']]
+    elif main_data_dict['dwm_dict'].has_key('week') and main_data_dict['type'] == 'week':
+        main_dates_list = main_data_dict['dwm_dict']['week']
+    elif main_data_dict['dwm_dict'].has_key('month') and main_data_dict['type'] == 'month':
+        main_dates_list = main_data_dict['dwm_dict']['month']['month_dates']
+    prj_id = main_data_dict['pro_cen_mapping'][0][0]
+    center = main_data_dict['pro_cen_mapping'][1][0]
+    if main_data_dict['dwm_dict'].has_key('day') and main_data_dict['type'] == 'day':
+        for sing_list in main_dates_list:
+            for date_va in sing_list:
+                total_done_value = RawTable.objects.filter(project=prj_id,center=center,date=date_va).aggregate(Max('per_day'))
+                if total_done_value['per_day__max'] > 0:
+                    new_date_list.append(date_va)
+            level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], main_data_dict['sub_packet'],main_data_dict['pro_cen_mapping'])
+            tat_graph_details = tat_graph(sing_list, main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0], level_structure_key)
+            final_dict['tat_graph_details'] = graph_data_alignment_color(tat_graph_details,'data', level_structure_key,main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0])
+            final_dict['date'] = new_date_list
+    elif main_data_dict['dwm_dict'].has_key('week') and main_data_dict['type'] == 'week':
+        for sing_list in main_dates_list:
+            data_date.append(sing_list[0] + ' to ' + sing_list[-1])
+            week_name = str('week' + str(week_num))
+            week_names.append(week_name)
+            week_num = week_num + 1
+            level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], main_data_dict['sub_packet'],main_data_dict['pro_cen_mapping'])
+            tat_graph_details = tat_graph(sing_list, main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0], level_structure_key)  
+            tat_graph_dt[week_name] = tat_graph_details
+        final_tat_details = prod_volume_week_util_headcount(week_names,tat_graph_dt, {})
+        final_dict['tat_graph_details'] = graph_data_alignment_color(final_tat_details, 'data',level_structure_key, prj_id, center)
+        final_dict['date'] = data_date
+    else:
+        for month_na,month_va in zip(main_data_dict['dwm_dict']['month']['month_names'],main_data_dict['dwm_dict']['month']['month_dates']):
+            month_name = month_na
+            month_dates = month_va
+            data_date.append(month_dates[0] + ' to ' + month_dates[-1])
+            month_names.append(month_name)
+            level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], main_data_dict['sub_packet'],main_data_dict['pro_cen_mapping'])
+            tat_graph_details = tat_graph(month_dates,prj_id,center,level_structure_key)
+            tat_graph_dt[month_name] = tat_graph_details
+        final_tat_details = prod_volume_week_util_headcount(month_names, tat_graph_dt, {})
+        final_dict['tat_graph_details'] = graph_data_alignment_color(final_tat_details,'data',level_structure_key, prj_id, center)
+        final_dict['date'] = data_date
+    final_dict['type'] = main_data_dict['type']
+    return json_HttpResponse(final_dict)
+
 
 def cate_error(request):
     final_dict = {}
@@ -3046,7 +3100,6 @@ def upload_new(request):
             sheet_headers = validate_sheet(open_sheet,request,SOH_XL_HEADERS,SOH_XL_MAN_HEADERS)
             for row_idx in range(1, open_sheet.nrows):
                 customer_data = {}
-                #import pdb;pdb.set_trace()
                 for column, col_idx in sheet_headers:
                     cell_data = get_cell_data(open_sheet, row_idx, col_idx)
                     if column in authoring_dates.values():
@@ -5880,8 +5933,7 @@ def prod_volume_week(week_names,productivity_list,final_productivity):
                 final_productivity[vol_key].append(0)
     return final_productivity
 
-
-""" prod_volume_week_util(week_names,productivity_list,final_productivity):
+def prod_volume_week_util_headcount(week_names,productivity_list,final_productivity):
     #import pdb;pdb.set_trace()
     for final_key, final_value in productivity_list.iteritems():
         for week_key, week_value in final_value.iteritems():
@@ -5892,28 +5944,28 @@ def prod_volume_week(week_names,productivity_list,final_productivity):
             for vol_key, vol_values in productivity_list[prod_week_num].iteritems():
                 if final_productivity.has_key(vol_key):
                     if isinstance(vol_values,list):
-                        new_values= [k for k in vol_values if k!=0]
+                        new_values= [k for k in vol_values if k!=0] 
                         if len(new_values)>0:
                             vol_values = float(float(sum(vol_values))/len(new_values))
-                        else:
+                        else: 
                             vol_values = sum(vol_values)
                     vol_values = float('%.2f' % round(vol_values, 2))
                     final_productivity[vol_key].append(vol_values)
-                else:
+                else: 
                     if isinstance(vol_values,list):
                         if len(vol_values)>0:
                             vol_values = float(float(sum(vol_values))/len(vol_values))
-                        else:
+                        else: 
                             vol_values = sum(vol_values)
                     final_productivity[vol_key] = [vol_values]
             for prod_key, prod_values in final_productivity.iteritems():
                 if prod_key not in productivity_list[prod_week_num].keys():
                     final_productivity[prod_key].append(0)
-        else:
+        else: 
             for vol_key, vol_values in final_productivity.iteritems():
                 final_productivity[vol_key].append(0)
     return final_productivity
-"""
+
 
 def prod_volume_week_util(prj_id,week_names,productivity_list,final_productivity,week_or_month):
     var = Project.objects.filter(id=prj_id).values('days_week','days_month')[0]
@@ -6138,110 +6190,26 @@ def nw_exception_data(date_list, prj_id, center,level_structure_key):
                         result[packet] = [percentage]
     return result
 
-
-def tat_graph(date_list, prj_cen_val, level_structure_key):
-    data_list = []
-    conn = redis.Redis(host="localhost", port=6379, db=0)
-    date_values = {}
-    #prj_name = Project.objects.filter(id=prj_id).values_list('name', flat=True)
-    #center_name = Center.objects.filter(id=center).values_list('name', flat=True)
-    query_set = query_set_generation(prj_cen_val[0][0], prj_cen_val[1][0], level_structure_key, date_list)
-    tat_master_set = TatTable.objects.filter(**query_set)
-    new_date_list = []
+def tat_graph(date_list, prj_id, center,level_structure_key):
     new_dict = {}
-    if level_structure_key.has_key('sub_project'):
-        if level_structure_key['sub_project'] == "All":
-            #volume_list = TatTable.objects.filter(**query_set).values('sub_project').distinct()
-            volume_list = tat_master_set.values('sub_project').distinct()
-        else:
-            if level_structure_key.has_key('work_packet'):
-                if level_structure_key['work_packet'] == "All":
-                    #volume_list = TatTable.objects.filter(**query_set).values('sub_project', 'work_packet').distinct()
-                    volume_list = tat_master_set.values('sub_project', 'work_packet').distinct()
-                else:
-                    #volume_list = TatTable.objects.filter(**query_set).values('sub_project', 'work_packet','sub_packet').distinct()
-                    volume_list = tat_master_set.values('sub_project', 'work_packet','sub_packet').distinct()
-    elif level_structure_key.has_key('work_packet') and len(level_structure_key) == 1:
-        if level_structure_key['work_packet'] == "All":
-            #volume_list = TatTable.objects.filter(**query_set).values('sub_project', 'work_packet').distinct()
-            volume_list = tat_master_set.values('sub_project', 'work_packet').distinct()
-        else:
-            #volume_list = TatTable.objects.filter(**query_set).values('sub_project', 'work_packet','sub_packet').distinct()
-            volume_list = tat_master_set.values('sub_project', 'work_packet','sub_packet').distinct()
-    elif level_structure_key.has_key('work_packet') and level_structure_key.has_key('sub_packet'):
-        #volume_list = TatTable.objects.filter(**query_set).values('sub_project', 'work_packet', 'sub_packet').distinct()
-        volume_list = tat_master_set.values('sub_project', 'work_packet', 'sub_packet').distinct()
-    else:
-        volume_list = []
-
-    #from collections import defaultdict
-    #ratings = defaultdict(list)
-    #data_list_main = RawTable.objects.filter(project=prj_cen_val[0][0],center=prj_cen_val[1][0],date__range=[date_list[0], date_list[-1]]).values('date', 'per_day').order_by('date', 'per_day')
-    #for result2 in data_list_main: ratings[result2['date']].append(result2['per_day'])
+    final_data,final_notmet_data = [],[]
+    data_list, tat_val_list = [],[]
     for date_va in date_list:
-    #for date_va,data in ratings.iteritems():
-        total_done_value = RawTable.objects.filter(project=prj_cen_val[0][0], center=prj_cen_val[1][0], date=date_va).aggregate(Max('per_day'))
-        #total_done_value = max(data)
-        #if total_done_value > 0:
+        total_done_value = RawTable.objects.filter(project=prj_id, center=center, date=date_va).aggregate(Max('per_day'))
         if total_done_value['per_day__max'] > 0:
             data_list.append(str(date_va))
             count = 0
-            final_data = []
-            final_notmet_data = []
-            if level_structure_key.get('work_packet','') == "All":
-                tat_status = TatTable.objects.filter(project = prj_cen_val[0][0],center= prj_cen_val[1][0],date=date_va).values_list('tat_status',flat=True)
-                for i in tat_status:
-                    if i == 'Met':
-                        tat_value = 100
-                        final_data.append(tat_value)
-                    else:
-                        tat_value = 0
-                        final_notmet_data.append(tat_value)
-
-                tat_count = len(final_data)
-                tat_not_count = len(final_notmet_data)
-                if tat_count != 0:
-                    tat_accuracy = float((float(tat_not_count) / float(tat_count + tat_not_count)) * 100)
-                    tat_accuracy = 100 - (float('%.2f' % round(tat_accuracy, 2)))
-                    new_date_list.append(tat_accuracy)
-
-            elif level_structure_key.get('sub_project', '') == "All":
-                tat_status = TatTable.objects.filter(project=prj_cen_val[0][0], center=prj_cen_val[1][0], date=date_va).values_list(
-                    'tat_status', flat=True)
-                for i in tat_status:
-                    if i == 'Met':
-                        tat_value = 100
-                        final_data.append(tat_value)
-                    else:
-                        tat_value = 0
-                        final_notmet_data.append(tat_value)
-
-                tat_count = len(final_data)
-                tat_not_count = len(final_notmet_data)
-                if tat_count != 0:
-                    tat_accuracy = float((float(tat_not_count)/float(tat_count+tat_not_count))*100)
-                    tat_accuracy = 100 - (float('%.2f' % round(tat_accuracy, 2)))
-                    new_date_list.append(tat_accuracy)
+            tat_da = TatTable.objects.filter(project = prj_id,center= center,date=date_va)
+            tat_met_value = tat_da.aggregate(Sum('met_count'))
+            tat_not_met_value = tat_da.aggregate(Sum('non_met_count'))
+            met_val = tat_met_value['met_count__sum']
+            not_met_val = tat_not_met_value['non_met_count__sum']
+            if met_val:
+                tat_acc = (met_val/(met_val + not_met_val)) * 100
             else:
-                for vol_type in volume_list:
-                    if level_structure_key.has_key('sub_project'):
-                        local_level_hierarchy_key = vol_type
-                    else:
-                        local_level_hierarchy_key = level_structure_key
-                    final_work_packet = level_hierarchy_key(local_level_hierarchy_key, vol_type)
-                    tat_table_query_set = tat_table_query_generations(prj_cen_val[0][0], prj_cen_val[1][0], str(date_va), final_work_packet,level_structure_key)
-
-                    if not final_work_packet:
-                        final_work_packet = level_hierarchy_key(volume_list[count], vol_type)
-                    count = count + 1
-                    tat_status_value = TatTable.objects.filter(**tat_table_query_set).values_list('tat_status',flat=True)
-                    for i in tat_status_value:
-                        if  i == 'Met':
-                            tat_value = 100
-                        else:
-                            tat_value = 0
-                        new_date_list.append(tat_value)
-        new_dict['tat_graph_details'] = new_date_list
+                tat_acc = 0
+            tat_val_list.append(tat_acc)
+    new_dict['tat_graph_details'] = tat_val_list
     print 'tat data is here ..........................................................................................'
     return new_dict
 
@@ -9227,7 +9195,6 @@ def main_productivity_data(center,prj_id,date_list,level_structure_key):
     final_data = []
     final_prodictivity['utilization'] = {}
     final_prodictivity['utilization']['utilization']= []
-    #packet_names = Headcount.objects.filter(project=prj_cen_val[0][0], center=prj_cen_val[1][0], date__range=[date_list[0],date_list[-1]]).values('sub_project', 'work_packet', 'sub_packet').distinct()
     packet_names = Headcount.objects.filter(project=prj_id, center=center, date__range=[date_list[0],date_list[-1]]).values('sub_project', 'work_packet', 'sub_packet').distinct()
     count = 0
     if prj_id in ['Probe']:
@@ -9247,24 +9214,17 @@ def main_productivity_data(center,prj_id,date_list,level_structure_key):
         utilization_date_values = {}
         product_date_values['total_prodictivity'] = []
         utilization_date_values['total_utilization'] = []
-        #from collections import defaultdict
-        #ratings = defaultdict(list)
-        #data_list = RawTable.objects.filter(project=prj_cen_val[0][0],center=prj_cen_val[1][0],date__range=[date_list[0], date_list[-1]]).values('date', 'per_day').order_by('date', 'per_day')
-        #for result2 in data_list: ratings[result2['date']].append(result2['per_day'])
         for date_va in date_list:
-        #for date_va,data in ratings.iteritems():
             total_done_value = RawTable.objects.filter(project=prj_id, center=center, date=date_va).aggregate(Max('per_day'))
-            #total_done_value = max(data)
             if total_done_value['per_day__max'] > 0:
-            #if total_done_value > 0:
-                billable_emp_count = Headcount.objects.filter(project=prj_id, center=center, date=date_va).values_list('billable_agents', flat=True)
-                #total_emp_count = Headcount.objects.filter(project=prj_id, center=center, date=date_value).values_list('total', flat=True)
-                total_work_done = RawTable.objects.filter(project=prj_id, center=center, date=date_va).values_list('per_day').aggregate(Sum('per_day'))
-                total_work_done = total_work_done.get('per_day__sum')
+                billable_emp_count = Headcount.objects.filter(project=prj_id, center=center, date=date_va).aggregate(Sum('billable_agents'))
+                total_work_done = RawTable.objects.filter(project=prj_id, center=center, date=date_va).aggregate(Sum('per_day'))
+                total_work_done = total_work_done['per_day__sum']
+                billable_emp_count = billable_emp_count['billable_agents__sum']
             # below code for productivity
 
                 #if len(billable_emp_count) > 0 and billable_emp_count[0] != 0:
-                if len(billable_emp_count) > 0:
+                if billable_emp_count and total_work_done:
                     try:
                         productivity_value = float(total_work_done / float(sum(billable_emp_count)))
                     except:
@@ -9275,24 +9235,16 @@ def main_productivity_data(center,prj_id,date_list,level_structure_key):
                 product_date_values['total_prodictivity'].append(final_prodictivity_value)
                 # below code for utilization
         final_prodictivity['productivity'] = product_date_values
-        final_prodictivity['utilization'] = utilization_date_values
     else:
         new_date_list = []
         product_date_values = {}
         utilization_date_values = {}
         query_set = query_set_generation(prj_id, center, level_structure_key, date_list)
         volume_list = workpackets_list(level_structure_key, 'Headcount', query_set)
-        #from collections import defaultdict
-        #ratings = defaultdict(list)
-        #data_list = RawTable.objects.filter(project=prj_cen_val[0][0],center=prj_cen_val[1][0],date__range=[date_list[0], date_list[-1]]).values('date', 'per_day').order_by('date', 'per_day')
-        #for result2 in data_list: ratings[result2['date']].append(result2['per_day'])
-        #for date_va,data in ratings.iteritems():
         for date_va in date_list:
             packet_count = 0
             total_done_value = RawTable.objects.filter(project=prj_id, center=center, date=date_va).aggregate(Max('per_day'))
-            #total_done_value = max(data)
             if total_done_value['per_day__max'] > 0:
-            #if total_done_value > 0:
                 for vol_type in volume_list:
                     if level_structure_key.has_key('sub_project'):
                         local_level_hierarchy_key = vol_type
@@ -9305,17 +9257,12 @@ def main_productivity_data(center,prj_id,date_list,level_structure_key):
                     total_work_query_set['date'] = str(date_va)
                     for vol_key, vol_value in vol_type.iteritems():
                         total_work_query_set[vol_key] = vol_value
-                    billable_emp_count = Headcount.objects.filter(**total_work_query_set).values_list('billable_agents',flat=True)
-                    #total_emp_count = Headcount.objects.filter(**total_work_query_set).values_list('total', flat=True)
-                    total_work_done = RawTable.objects.filter(**total_work_query_set).values_list('per_day').aggregate(Sum('per_day'))
-                    total_work_done = total_work_done.get('per_day__sum')
-                    # below code for productivity
-                    #import pdb;pdb.set_trace()
-                    if len(billable_emp_count) > 0 and total_work_done != None:
-                        if billable_emp_count[0] != 0:
-                            productivity_value = float(total_work_done / float(billable_emp_count[0]))
-                        else: 
-                            productivity_value = 0
+                    billable_emp_count = Headcount.objects.filter(**total_work_query_set).aggregate(Sum('billable_agents'))
+                    billable_emp_count = billable_emp_count['billable_agents__sum']
+                    total_work_done = RawTable.objects.filter(**total_work_query_set).aggregate(Sum('per_day'))
+                    total_work_done = total_work_done['per_day__sum']
+                    if billable_emp_count and total_work_done:
+                        productivity_value = float(total_work_done / float(billable_emp_count))
                     else:
                         productivity_value = 0
                     final_prodictivity_value = float('%.2f' % round(productivity_value, 2))
@@ -9326,7 +9273,6 @@ def main_productivity_data(center,prj_id,date_list,level_structure_key):
                         product_date_values[final_work_packet] = [final_prodictivity_value]
 
         final_prodictivity['productivity'] = product_date_values
-        #final_prodictivity['utilization'] = utilization_date_values
     print 'main productivity data is cool.......................................................'
     return final_prodictivity
 
