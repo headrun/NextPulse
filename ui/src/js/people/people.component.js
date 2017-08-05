@@ -12,15 +12,37 @@
                 var vm = this;
                 var people_data = '/pd/get_sla_data';
                 var people_data_2 = '/pd/get_peoples_data';
+                vm.render_chart_from_url = function(url, name) {
+                 
+                    vm.chart_name = name;
+                    $http({method:"GET", url: url}).success(function(result){
+                    
+                      if (vm.chart_name == 'Productivity') {
+                        var main_data = result.result.original_productivity_graph;    
+                        var date_list = result.result.date;
+                      }
 
-                vm.render_chart_from_url = function(url) {
+                      if (vm.chart_name == 'Production') {
 
-                  $http({method:"GET", url: url}).success(function(result){
-
-                    var date_list = result.result.date;
-                    var main_data = result.result.original_productivity_graph;
+                        var main_data = result.result.productivity_data;
+                        var date_list = result.result.data.date;      
+                      }
 
                     $('.widget-content').removeClass('widget-loader-show');
+
+                    angular.extend(vm.widget_data, {
+
+                      xAxis: {
+                        categories: date_list,
+                      },  
+                      series: main_data
+
+                    });    
+
+                  });  
+             }
+
+               /*vm.graph_rend = function(main_data, date_list) {
 
                     angular.extend(vm.widget_data, {
 
@@ -29,14 +51,10 @@
                       },
                       series: main_data
 
-                    });
-
-                  });
-
-               }
+                    });    
+                }*/ 
 
                vm.get_popup = function(data, type, month, name) {
-
                   vm.month_to_display = data[month];
                   vm.widget_type = type;
                   vm.widget_name = name;
@@ -63,20 +81,20 @@
                   vm.end_date += lastDay.getDate();
 
                   vm.day_type = function(type) {
-
+                    
                     $('.widget-content').addClass('widget-loader-show');
-
                     var url_to = '/api/'+vm.widget_type+'/?&project='+vm.project_to_display+
                           '&center='+vm.center_to_display+'&from=2017-05-01&to=2017-05-31&type='+type+'&is_clicked='+type+'_yes';
-                        vm.render_chart_from_url(url_to);
+                        vm.render_chart_from_url(url_to, vm.widget_name);
                   }
 
                   /*vm.url = '/api/'+vm.widget_type+'/?&project='+vm.project_to_display+
                         '&center='+vm.center_to_display+'&from='+vm.start_date+'&to='+vm.end_date+'&type=week';*/
                   vm.url = '/api/'+vm.widget_type+'/?&project='+vm.project_to_display+
                         '&center='+vm.center_to_display+'&from=2017-05-01&to=2017-05-31&type=week';
-
-                  vm.render_chart_from_url(vm.url);
+      
+                    vm.render_chart_from_url(vm.url, vm.widget_name);
+                  
 
                   $('#people_pop').modal('show');
                 }
