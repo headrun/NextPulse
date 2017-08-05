@@ -1,3 +1,10 @@
+
+
 from django.contrib import admin
 
-# Register your models here.
+from .models import *
+
+class ColorCodingAdmin(admin.ModelAdmin):
+    list_display = ['project', 'widget', 'month', 'hard_limit', 'soft_limit']
+admin.site.register(ColorCoding,ColorCodingAdmin)
+

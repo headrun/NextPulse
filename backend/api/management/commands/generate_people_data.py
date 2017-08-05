@@ -43,7 +43,7 @@ class Command(BaseCommand):
                 month_list.append([str(date)])
         final_project_data = []
         proje_cent = Project.objects.values_list('name',flat=True)
-        not_req = ["3i VAPP", "3iKYC", "Bridgei2i", "E4U", "IBM Africa", "IBM Arabia", "IBM DCIW", "IBM DCIW Arabia", "IBM India & Sri Lanka", "IBM India and Sri Lanka", "IBM Latin America", "IBM NA & EU", "IBM NA and EU", "IBM Pakistan", "IBM Quality Control", "IBM South East Asia","IBM Sri Lanka P2P", "indix", "Mobius", "Nextgen", "Quarto","Tally", "Sulekha", "Webtrade", "Walmart Chittor","Bigbasket","Future Energie Tech"]
+        not_req = ["3i VAPP", "3iKYC", "Bridgei2i", "E4U", "IBM Africa", "IBM Arabia", "IBM DCIW", "IBM DCIW Arabia", "IBM India & Sri Lanka", "IBM India and Sri Lanka", "IBM Latin America", "IBM NA & EU", "IBM NA and EU", "IBM Pakistan", "IBM Quality Control", "IBM South East Asia","IBM Sri Lanka P2P", "indix",  "Nextgen", "Quarto","Tally", "Sulekha", "Webtrade", "Walmart Chittor","Bigbasket","Future Energie Tech"]
         proje_cent = filter(lambda x: x not in not_req, list(proje_cent))
         #proje_cent = ["Probe"]
         for pro_cen in proje_cent:
@@ -91,23 +91,33 @@ class Command(BaseCommand):
                                 final_work_packet = final_work_packet['sub_project']
                                 #targets = Targets.objects.filter(project=prj_id,center=center_id,from_date__lte=date_va,to_date__gte=date_va,sub_project=final_work_packet,target_type = 'FTE Target').aggregate(Sum('target_value'))
                                 #to_target = Targets.objects.filter(project=prj_id,center=center_id,from_date__lte=date_va,to_date__gte=date_va,sub_project=final_work_packet,target_type = 'Target').aggregate(Sum('target_value'))
-				tar = Targets.objects.filter(project=prj_id,center=center_id,from_date__lte=date_va,to_date__gte=date_va,sub_project=final_work_packet,target_type = 'FTE Target').values_list('target_value',flat=True).distinct() 
+                                tar = Targets.objects.filter(project=prj_id,center=center_id,from_date__lte=date_va,to_date__gte=date_va,sub_project=final_work_packet,target_type = 'FTE Target').values_list('target_value',flat=True).distinct()
                                 targets = sum(tar)
-				to_tar = Targets.objects.filter(project=prj_id,center=center_id,from_date__lte=date_va,to_date__gte=date_va,sub_project=final_work_packet,target_type = 'Target').values_list('target_value',flat=True).distinct()
-				to_target = sum(to_tar)
+                                to_tar = Targets.objects.filter(project=prj_id,center=center_id,from_date__lte=date_va,to_date__gte=date_va,sub_project=final_work_packet,target_type = 'Target').values_list('target_value',flat=True).distinct()
+                                to_target = sum(to_tar)
                                 emp_count = Headcount.objects.filter(project=prj_id, center=center_id, date=date_va,sub_project = final_work_packet).aggregate(Sum('billable_agents'))
-                                tat_values = TatTable.objects.filter(project=prj_id, center=center_id, date=date_va, sub_project = final_work_packet).values_list('tat_status',flat=True)
+                                #tat_values = TatTable.objects.filter(project=prj_id, center=center_id, date=date_va, sub_project = final_work_packet).values_list('tat_status',flat=True)
+                                tat_da = TatTable.objects.filter(project=prj_id, center=center_id, date=date_va, sub_project = final_work_packet)
+                                met_va = tat_da.aggregate(Sum('met_count'))
+                                not_met_va = tat_da.aggregate(Sum('non_met_count'))
+                                tat_met_va = met_va['met_count__sum']
+                                tat_not_met_va = not_met_va['non_met_count__sum']
                             else:
                                 final_work_packet = final_work_packet
                                 #to_target = Targets.objects.filter(project=prj_id,center=center_id,from_date__gte=date_va,to_date__lte=date_va,work_packet=final_work_packet,target_type = 'Target').aggregate(Sum('target_value'))
-				to_tar = Targets.objects.filter(project=prj_id,center=center_id,from_date=date_va,to_date=date_va,work_packet=final_work_packet,target_type = 'Target').values_list('target_value',flat=True).distinct()
+                                to_tar = Targets.objects.filter(project=prj_id,center=center_id,from_date=date_va,to_date=date_va,work_packet=final_work_packet,target_type = 'Target').values_list('target_value',flat=True).distinct()
                                 to_target = sum(to_tar)
                                 #targets = Targets.objects.filter(project=prj_id,center=center_id,from_date__gte=date_va,to_date__lte=date_va,work_packet=final_work_packet,target_type = 'FTE Target').aggregate(Sum('target_value'))
-				tar = Targets.objects.filter(project=prj_id,center=center_id,from_date=date_va,to_date=date_va,work_packet=final_work_packet,target_type = 'FTE Target').values_list('target_value',flat=True).distinct()
+                                tar = Targets.objects.filter(project=prj_id,center=center_id,from_date=date_va,to_date=date_va,work_packet=final_work_packet,target_type = 'FTE Target').values_list('target_value',flat=True).distinct()
                                 targets = sum(tar)
                                 emp_count = Headcount.objects.filter(project=prj_id, center=center_id, date=date_va,work_packet = final_work_packet).aggregate(Sum('billable_agents'))
                                 #import pdb;pdb.set_trace()
-                                tat_values = TatTable.objects.filter(project=prj_id, center=center_id, date=date_va, work_packet = final_work_packet).values_list('tat_status',flat=True)
+                                #tat_values = TatTable.objects.filter(project=prj_id, center=center_id, date=date_va, work_packet = final_work_packet).values_list('tat_status',flat=True)
+                                tat_da = TatTable.objects.filter(project=prj_id, center=center_id, date=date_va, work_packet = final_work_packet)
+                                met_va = tat_da.aggregate(Sum('met_count'))
+                                not_met_va = tat_da.aggregate(Sum('non_met_count'))
+                                tat_met_va = met_va['met_count__sum']
+                                tat_not_met_va = not_met_va['non_met_count__sum']    
                             if emp_count['billable_agents__sum'] == None:
                                 emp_count['billable_agents__sum'] = 0
                             if targets:
@@ -161,15 +171,15 @@ class Command(BaseCommand):
                                     #generating tat code
                                     #import pdb;pdb.set_trace()
                                     if tat_data.has_key(key):
-                                        if tat_values:
-                                            if tat_values[0] == "Met":
-                                                tat_data[key].append(100)
+                                        if tat_met_va:
+                                            met_val = (tat_met_va/(tat_met_va + tat_not_met_va)) * 100
+                                            tat_data[key].append(met_val)
                                         else:
                                             tat_data[key].append(0)
                                     else:
-                                        if tat_values:
-                                            if tat_values[0] == "Met":
-                                                tat_data[key] = [100]
+                                        if tat_met_va:
+                                            met_val = (tat_met_va/(tat_met_va + tat_not_met_va)) * 100
+                                            tat_data[key] = [met_val]
                                         else:
                                             tat_data[key] = [0]
                         #generation of external accuracy code
@@ -469,8 +479,8 @@ class Command(BaseCommand):
                 no_of_days = Project.objects.filter(name = prj_name).values('days_month')
                 month_days = no_of_days[0]['days_month']
                 if len(new_date_list):
-                    fte_utiliti_value = sum(fte_data)/month_days
-                    operational_utiliti_value = sum(operational_data)/month_days
+                    fte_utiliti_value = sum(fte_data)/len(new_date_list)
+                    operational_utiliti_value = sum(operational_data)/len(new_date_list)
                     final_fte = float('%.2f' % round(fte_utiliti_value,2))
                     final_operational = float('%.2f' % round(operational_utiliti_value,2))
                 else:
