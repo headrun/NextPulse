@@ -59,7 +59,7 @@
 
 
                       /*if (vm.chart_name == 'Internal Accuracy') {
-                        debugger;    
+                        //debugger;    
                         //var main_data = result.result.internal_accuracy_graph;
                         angular.extend(vm.widget_acc_data,{
 
@@ -141,11 +141,27 @@
 
                   vm.chart_name = name;
                   vm.day_type = function(type) {
+
                     $('.widget-content').addClass('widget-loader-show');
                     var url_to = '/api/'+vm.widget_type+'/?&project='+vm.project_to_display+
                           '&center='+vm.center_to_display+'&from='+vm.start_date+'&to='+vm.end_date+'&type='+
                           type+'&is_clicked='+type+'_yes';
                         vm.render_chart_from_url(url_to, vm.widget_name);
+
+                        if (type === 'day') {
+                            $('.day').addClass('active btn-success');
+                            $('.day').siblings().removeClass('active btn-success');
+                        }
+
+                        if (type === 'week') {
+                            $('.week').addClass('active btn-success');
+                            $('.week').siblings().removeClass('active btn-success');
+                        }
+
+                        if (type === 'month') {
+                            $('.month').addClass('active btn-success');
+                            $('.month').siblings().removeClass('active btn-success');
+                        }
                     }
                     /*if (vm.chart_name != 'Internal Accuracy') {
                         vm.url = '/api/'+vm.widget_type+'/?&project='+vm.project_to_display+
@@ -157,11 +173,13 @@
                               '&center='+vm.center_to_display+'&from=2017-05-01&to=2017-05-31&type=day';
                         vm.render_chart_from_url(url_acc, vm.widget_name);
                     }*/
-
+                    //debugger;    
                     vm.url = '/api/'+vm.widget_type+'/?&project='+vm.project_to_display+
                         '&center='+vm.center_to_display+'&from='+vm.start_date+'&to='+vm.end_date+'&type=week';
                     vm.render_chart_from_url(vm.url, vm.widget_name);
-
+                    var type = week;
+                    $('.week').addClass('active btn-success');
+                    $('.week').siblings().removeClass('active btn-success');
                     $('#people_pop').modal('show');
                 }
 
