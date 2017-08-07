@@ -56,8 +56,13 @@ def get_dash_data(projects=PROJECTS, tab=SLA):
                 _key = pro + "_" + m_key
                 row_data.update({_key : conn.hgetall(key).get(pro, 0)})
                 #row_data.update({_key : 0})
-                #_target = ColorCoding.objects.get(project__id =_id, widget__id = WIDGET_SYNC[pro]).soft_target
-                _target = 99
+
+                _target_objs = ColorCoding.objects.filter(project__id =_id, widget__config_name = WIDGET_SYNC[pro])
+                if not _target_objs:
+                    _target = 99
+                else:
+                    _target = _target_objs[0].soft_target
+
                 row_data['color'].update({_key : get_color(row_data[_key], _target)}) 
             i +=1
         result.append(row_data)
