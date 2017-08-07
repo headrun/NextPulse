@@ -82,7 +82,7 @@
                 self.start = start.format('YYYY-MM-DD');
                 self.end = end.format('YYYY-MM-DD');
                 $('.input-sm').prop('selectedIndex',0);
-
+                
                 $('.widget-13a').addClass('widget-loader-show');
                 $('.widget-13b').addClass('widget-data-hide');
                 $('.widget-17a').addClass('widget-loader-show');
@@ -97,6 +97,8 @@
                 $('.widget-14b').addClass('widget-data-hide');
                 $('.widget-33a').addClass('widget-loader-show');
                 $('.widget-33b').addClass('widget-data-hide');
+                $('.widget-26a').addClass('widget-loader-show');
+                $('.widget-26b').addClass('widget-data-hide');
                 $('.widget-11a').addClass('widget-loader-show');
                 $('.widget-11b').addClass('widget-data-hide');
                 $('.widget-21a').addClass('widget-loader-show');
@@ -203,7 +205,7 @@
 
 
              self.main_widget_function = function(callback, packet) {
-                               
+                    
                     self.center_live = callback[2];
 
                     self.project_live = callback[3];
@@ -218,7 +220,6 @@
                     dateEntered = dateEntered.replace(' to ','to');
                     callback[0] = dateEntered.split('to')[0].replace(' ','');
                     callback[1] = dateEntered.split('to')[1].replace(' ',''); */
-
                     self.data_to_show = '?&project='+callback[3]+'&center='+callback[2]+'&from='+ callback[0]+'&to='+ callback[1]+packet+'&type=';
                 
                     self.static_widget_data = '&project='+callback[3]+'&center='+callback[2]
@@ -918,6 +919,90 @@
                        }) 
                     }
                     //self.prod_avg(undefined, undefined)
+
+                    self.tat_data = function(final_work, type) {
+
+                        if (type == undefined) {
+                            type = 'day'
+                        }
+
+                        if (final_work == undefined) {
+                            final_work = ''
+                        }
+
+                        self.type = type;
+
+                        var tat_data = '/api/tat_data/'+ self.data_to_show + type + final_work;
+
+                        $http({method:"GET", url: tat_data}).success(function(result){
+                           var date_list = result.result.date;
+                           var tat_values = result.result.tat_graph_details
+
+                           angular.extend(self.chartOptions31, {
+                                xAxis: {
+                                    categories: date_list,
+                                },
+                plotOptions: {
+                    series: {
+                      allowPointSelect: true,
+                      cursor: 'pointer',
+                    point: {
+                      events:{
+                        contextmenu: function() {
+                          if (self.data_to_show.split('&').length == 6) {
+                        var sub_proj = '';
+                        var work_pack = '';
+                        var sub_pack = '';
+                          }
+                          else {
+                            var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
+                        var work_pack = self.data_to_show.split('&')[6].split('=')[1];
+                        var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
+                          }
+                      var str = '26<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
+                                                this['project_live'] = self.project_live;
+                                                this['center_live'] = self.center_live;
+                          return new Annotation(str, $(event.currentTarget),this.series.chart, this);
+                            }
+                        }
+                        }
+                    }
+                    },
+                                series: tat_values,
+                    onComplete: function(chart){
+                    var series = null;
+                    var chart_data = chart.series;
+
+                    for(var i in chart_data){
+                   series = chart_data[i];
+                       (function(series){
+                      $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+self.type+'&chart_name=26&proj_name='+self.project_live+'&cen_name='+self.center_live}).success(function(annotations){
+               annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
+               $.each(annotations, function(j, annotation){
+
+             var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
+
+             point = point[0];
+
+             if(annotation.epoch){
+               var a = new Annotation("26", $(self.chartOptions31.chart.renderTo.innerHTML),
+                chart, point, annotation);
+
+               console.log(a);
+               }
+               })  
+
+                });
+                }(series));
+                }
+                }
+
+                            });
+                            $('.widget-26a').removeClass('widget-loader-show');
+                            $('.widget-26b').removeClass('widget-data-hide');
+                       })
+                    }
+
 
                     self.mont_volume = function(final_work, type) {
 
@@ -2869,7 +2954,7 @@
            $q.all([self.overall_exce(undefined, undefined), self.upload_acc(undefined, undefined),
                    self.error_field_graph(err_field_graph), self.fte_graphs(undefined, undefined, undefined)]).then(function(){
 
-               $q.all([self.mont_volume(undefined, undefined), self.static_data_call(static_ajax)])
+               $q.all([self.mont_volume(undefined, undefined), self.tat_data(undefined, undefined),self.static_data_call(static_ajax)])
 
            });
 
@@ -2901,7 +2986,7 @@
                 })  
              }*/
 
-             $http.get(self.pro_landing_url).then(function(result){
+             self.packet_data = $http.get(self.pro_landing_url).then(function(result){
 
                 self.list_object = result.data.result.lay[0];
                 self.layout_list = result.data.result.lay[1].layout;
@@ -2982,6 +3067,9 @@
 
            }).then(function(callback){
                     //var packet_url = '/api/get_packet_details/?&project='+callback[3]+'&center='+callback[2]+'&from='+'2017-01-09'+'&to='+'2017-01-15';             
+                    var final_work =  '&sub_project=' + self.drop_sub_proj + '&sub_packet=' + self.drop_sub_pack + '&work_packet=' +
+                                                                self.drop_work_pack;
+                                                                
                     var packet_url = '/api/get_packet_details/?&project='+callback[3]+'&center='+callback[2]+'&from='+callback[0]+'&to='+callback[1];
                     self.call_back = callback;
                     $http.get(packet_url).then(function(result){
@@ -3113,6 +3201,8 @@
                         $('.widget-14b').addClass('widget-data-hide');
                         $('.widget-33a').addClass('widget-loader-show');
                         $('.widget-33b').addClass('widget-data-hide');
+                        $('.widget-26a').addClass('widget-loader-show');
+                        $('.widget-26b').addClass('widget-data-hide');
                         $('.widget-11a').addClass('widget-loader-show');
                         $('.widget-11b').addClass('widget-data-hide');
                         $('.widget-21a').addClass('widget-loader-show');
@@ -3219,6 +3309,8 @@
                         $('.widget-14b').addClass('widget-data-hide');
                         $('.widget-33a').addClass('widget-loader-show');
                         $('.widget-33b').addClass('widget-data-hide');
+                        $('.widget-26a').addClass('widget-loader-show');
+                        $('.widget-26b').addClass('widget-data-hide');
                         $('.widget-11a').addClass('widget-loader-show');
                         $('.widget-11b').addClass('widget-data-hide');
                         $('.widget-21a').addClass('widget-loader-show');
@@ -3325,6 +3417,8 @@
                         $('.widget-14b').addClass('widget-data-hide');
                         $('.widget-33a').addClass('widget-loader-show');
                         $('.widget-33b').addClass('widget-data-hide');
+                        $('.widget-26a').addClass('widget-loader-show');
+                        $('.widget-26b').addClass('widget-data-hide');
                         $('.widget-11a').addClass('widget-loader-show');
                         $('.widget-11b').addClass('widget-data-hide');
                         $('.widget-21a').addClass('widget-loader-show');
@@ -3435,6 +3529,8 @@
                         $('.widget-14b').addClass('widget-data-hide');
                         $('.widget-33a').addClass('widget-loader-show');
                         $('.widget-33b').addClass('widget-data-hide');
+                        $('.widget-26a').addClass('widget-loader-show');
+                        $('.widget-26b').addClass('widget-data-hide');
                         $('.widget-11a').addClass('widget-loader-show');
                         $('.widget-11b').addClass('widget-data-hide');
                         $('.widget-21a').addClass('widget-loader-show');
@@ -3539,6 +3635,8 @@
                         $('.widget-14b').addClass('widget-data-hide');
                         $('.widget-33a').addClass('widget-loader-show');
                         $('.widget-33b').addClass('widget-data-hide');
+                        $('.widget-26a').addClass('widget-loader-show');
+                        $('.widget-26b').addClass('widget-data-hide');
                         $('.widget-11a').addClass('widget-loader-show');
                         $('.widget-11b').addClass('widget-data-hide');
                         $('.widget-21a').addClass('widget-loader-show');
@@ -3648,6 +3746,8 @@
                         $('.widget-14b').addClass('widget-data-hide');
                         $('.widget-33a').addClass('widget-loader-show');
                         $('.widget-33b').addClass('widget-data-hide');
+                        $('.widget-26a').addClass('widget-loader-show');
+                        $('.widget-26b').addClass('widget-data-hide');
                         $('.widget-11a').addClass('widget-loader-show');
                         $('.widget-11b').addClass('widget-data-hide');
                         $('.widget-21a').addClass('widget-loader-show');
@@ -3772,7 +3872,8 @@
                     "self.chartOptions42":self.chartOptions42,
                     "self.chartOptions39":self.chartOptions39,
                     "self.chartOptions43":self.chartOptions43,
-                    "self.chartOptions44":self.chartOptions44
+                    "self.chartOptions44":self.chartOptions44,
+                    "self.chartOptions31":self.chartOptions31
                 }
 
                 self.render_data = obj[all_data];
@@ -3824,6 +3925,12 @@
                     $('.widget-33b').addClass('widget-data-hide');
                     self.prod_avg(final_work, key);
                 }
+                if (name == 'chartOptions31') {
+                    $('.widget-26a').addClass('widget-loader-show');
+                    $('.widget-26b').addClass('widget-data-hide');
+                    self.tat_data(final_work, key);
+                }
+
                 if (name == 'chartOptions26') {
                     $('.widget-21a').addClass('widget-loader-show');
                     $('.widget-21b').addClass('widget-data-hide');
@@ -3900,7 +4007,6 @@
              self.active_filters = function(key,button_clicked){
 
                 //self.showLoading();
-
                 var some = '' 
                 if (key == 'day') { some = 'Day';}
                 if (key == 'week') { some = 'Week';}
@@ -3948,6 +4054,12 @@
                 $('.widget-33b').addClass('widget-data-hide');
 
                 self.prod_avg(final_work, key);
+
+                $('.widget-26a').addClass('widget-loader-show');
+                $('.widget-26b').addClass('widget-data-hide');
+
+                self.tat_data(final_work, key);
+
 
                 $('.widget-21a').addClass('widget-loader-show');     
                 $('.widget-21b').addClass('widget-data-hide');
