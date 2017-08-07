@@ -18,14 +18,14 @@ MONTH_CHOICES = (
 
 
 WIDGET_SYNC = {
-		'productivity': 14, 
-		'external_accuracy': 3, 
-		'internal_accuracy': 2, 
-		'production': 1, 
-		'tat':26, 
-		'fte_utilisation': 19, 
-		'operational_utilization': 20, 
-		'absenteeism': 43,
-		'attrition': 42
+		'productivity': 'productivity_trends', 
+		'external_accuracy': 'external_error_accuracy', 
+		'internal_accuracy': 'internal_error_accuracy', 
+		'production': 'productivity_chart', 
+		'tat': 'TAT Graph', 
+		'fte_utilisation': 'fte_utilization', 
+		'operational_utilization': 'operational_utilization', 
+		'absenteeism': 'absenteeism',
+		'attrition': 'attrition'
 
 }
