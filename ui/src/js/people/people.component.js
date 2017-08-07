@@ -16,7 +16,7 @@
 
                     vm.chart_name = name;
                     $http({method:"GET", url: url}).success(function(result){
-                    
+
                       if (vm.chart_name == 'Productivity') {
                         var main_data = result.result.original_productivity_graph;    
                         var date_list = result.result.date;
@@ -59,7 +59,6 @@
 
 
                       /*if (vm.chart_name == 'Internal Accuracy') {
-                        //debugger;    
                         //var main_data = result.result.internal_accuracy_graph;
                         angular.extend(vm.widget_acc_data,{
 
@@ -73,9 +72,8 @@
                         });
 
                       }*/
-
+                    $("#data-show").show();
                     $('.widget-content').removeClass('widget-loader-show');
-
                     angular.extend(vm.widget_data, {
 
                         xAxis: {
@@ -119,9 +117,9 @@
                   vm.widget_name = name;
                   vm.project_to_display = data.project;
                   vm.center_to_display = data.center;
-
-                  $('.widget-content').addClass('widget-loader-show');
-
+                
+                  //$('.widget-content').addClass('widget-loader-show');
+                  //$("#people_pop").empty();  
                   vm.date_mapping = {'August': '2017-08-01',
                                      'July': '2017-07-01',
                                      'June': '2017-06-01',
@@ -173,14 +171,15 @@
                               '&center='+vm.center_to_display+'&from=2017-05-01&to=2017-05-31&type=day';
                         vm.render_chart_from_url(url_acc, vm.widget_name);
                     }*/
-                    //debugger;    
                     vm.url = '/api/'+vm.widget_type+'/?&project='+vm.project_to_display+
                         '&center='+vm.center_to_display+'&from='+vm.start_date+'&to='+vm.end_date+'&type=week';
                     vm.render_chart_from_url(vm.url, vm.widget_name);
-                    var type = week;
+                    
                     $('.week').addClass('active btn-success');
                     $('.week').siblings().removeClass('active btn-success');
                     $('#people_pop').modal('show');
+                    $("#data-show").hide();
+                    //$('.widget-content').addClass('widget-loader-show');
                 }
 
               vm.widget_data = {

@@ -60,11 +60,12 @@ def get_dash_data(projects=PROJECTS, tab=SLA):
 
                 _target_objs = ColorCoding.objects.filter(project__id =_id, widget__config_name = WIDGET_SYNC[pro])
                 if not _target_objs:
-                    _target = '99.0'
+                    _target = 99.0
                 else:
                     _target = _target_objs[0].soft_target
-
-                row_data['color'].update({_key : get_color(float(row_data[_key]), _target)}) 
+                row_data['color'].update({_key : 'Green'})
+                if not row_data[_key] == "NA":
+                    row_data['color'].update({_key : get_color(float(row_data[_key]), _target)}) 
             i +=1
         result.append(row_data)
     return result
