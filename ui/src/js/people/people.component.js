@@ -111,12 +111,13 @@
                     });    
                 }*/ 
 
-               vm.get_popup = function(data, type, month, name) {
+               vm.get_popup = function(data, type, month, name, target) {
                   vm.month_to_display = data[month];
                   vm.widget_type = type;
                   vm.widget_name = name;
                   vm.project_to_display = data.project;
                   vm.center_to_display = data.center;
+                  vm.target_to_display = data.color[target][1];
                 
                   //$('.widget-content').addClass('widget-loader-show');
                   //$("#people_pop").empty();  
