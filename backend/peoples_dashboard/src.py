@@ -63,9 +63,11 @@ def get_dash_data(projects=PROJECTS, tab=SLA):
                     _target = 99.0
                 else:
                     _target = _target_objs[0].soft_target
-                row_data['color'].update({_key : 'Green'})
+                
+                row_data['color'].update({_key : ['Green', _target]})
                 if not row_data[_key] == "NA":
-                    row_data['color'].update({_key : get_color(float(row_data[_key]), _target)}) 
+                    row_data['color'].update({_key : [get_color(float(row_data[_key]), _target), _target]}) 
+
             i +=1
         result.append(row_data)
     return result
