@@ -72,8 +72,10 @@
                         });
 
                       }*/
-                    $("#data-show").show();
+                    //$("#data-show").show();
                     $('.widget-content').removeClass('widget-loader-show');
+                    $('.widget-body').removeClass('widget-data-hide');
+
                     angular.extend(vm.widget_data, {
 
                         xAxis: {
@@ -95,7 +97,7 @@
 
                         });
                     }*/
-                    $('.widget-content').removeClass('widget-loader-show');
+                    //$('.widget-content').removeClass('widget-loader-show');
                   });  
              }
 
@@ -119,7 +121,8 @@
                   vm.center_to_display = data.center;
                   vm.target_to_display = data.color[target][1];
                 
-                  //$('.widget-content').addClass('widget-loader-show');
+                  $('.widget-content').addClass('widget-loader-show');
+                  $('.widget-body').addClass('widget-data-hide');
                   //$("#people_pop").empty();  
                   vm.date_mapping = {'August': '2017-08-01',
                                      'July': '2017-07-01',
@@ -141,7 +144,8 @@
                   vm.chart_name = name;
                   vm.day_type = function(type) {
 
-                    $('.widget-content').addClass('widget-loader-show');
+                  $('.widget-content').addClass('widget-loader-show');
+                  $('.widget-body').addClass('widget-data-hide');
                     var url_to = '/api/'+vm.widget_type+'/?&project='+vm.project_to_display+
                           '&center='+vm.center_to_display+'&from='+vm.start_date+'&to='+vm.end_date+'&type='+
                           type+'&is_clicked='+type+'_yes';
@@ -179,7 +183,7 @@
                     $('.week').addClass('active btn-success');
                     $('.week').siblings().removeClass('active btn-success');
                     $('#people_pop').modal('show');
-                    $("#data-show").hide();
+                    //$("#data-show").hide();
                     //$('.widget-content').addClass('widget-loader-show');
                 }
 
