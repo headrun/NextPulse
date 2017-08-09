@@ -58,21 +58,6 @@
                        }  
 
 
-                      /*if (vm.chart_name == 'Internal Accuracy') {
-                        //var main_data = result.result.internal_accuracy_graph;
-                        angular.extend(vm.widget_acc_data,{
-
-                               series: [{
-                                   name: 'accuracy',
-                                   colorByPoint: true,
-                                   cursor: 'pointer',
-                                   data: result.result.internal_accuracy_graph
-                               }],  
-
-                        });
-
-                      }*/
-                    //$("#data-show").show();
                     $('.widget-content').removeClass('widget-loader-show');
                     $('.widget-body').removeClass('widget-data-hide');
 
@@ -85,33 +70,9 @@
 
                     });
                     
-                    /*if (vm.chart_name == 'Internal Accuracy') {
-                        angular.extend(vm.widget_acc_data,{
-
-                               series: [{
-                                   name: 'accuracy',
-                                   colorByPoint: true,
-                                   cursor: 'pointer',
-                                   data: result.result.internal_accuracy_graph
-                               }],  
-
-                        });
-                    }*/
-                    //$('.widget-content').removeClass('widget-loader-show');
                   });  
              }
 
-               /*vm.graph_rend = function(main_data, date_list) {
-
-                    angular.extend(vm.widget_data, {
-
-                      xAxis: {
-                        categories: date_list,
-                      },
-                      series: main_data
-
-                    });    
-                }*/ 
 
                vm.get_popup = function(data, type, month, name, target) {
                   vm.month_to_display = data[month];
@@ -123,7 +84,6 @@
                 
                   $('.widget-content').addClass('widget-loader-show');
                   $('.widget-body').addClass('widget-data-hide');
-                  //$("#people_pop").empty();  
                   vm.date_mapping = {'August': '2017-08-01',
                                      'July': '2017-07-01',
                                      'June': '2017-06-01',
@@ -166,16 +126,6 @@
                             $('.month').siblings().removeClass('active btn-success');
                         }
                     }
-                    /*if (vm.chart_name != 'Internal Accuracy') {
-                        vm.url = '/api/'+vm.widget_type+'/?&project='+vm.project_to_display+
-                            '&center='+vm.center_to_display+'&from=2017-05-01&to=2017-05-31&type=week';
-                        vm.render_chart_from_url(vm.url, vm.widget_name);
-                    }
-                    if (vm.chart_name == 'Internal Accuracy') {
-                        var url_acc = '/api/'+vm.widget_type+'/?&project='+vm.project_to_display+
-                              '&center='+vm.center_to_display+'&from=2017-05-01&to=2017-05-31&type=day';
-                        vm.render_chart_from_url(url_acc, vm.widget_name);
-                    }*/
                     vm.url = '/api/'+vm.widget_type+'/?&project='+vm.project_to_display+
                         '&center='+vm.center_to_display+'&from='+vm.start_date+'&to='+vm.end_date+'&type=week';
                     vm.render_chart_from_url(vm.url, vm.widget_name);
@@ -183,8 +133,6 @@
                     $('.week').addClass('active btn-success');
                     $('.week').siblings().removeClass('active btn-success');
                     $('#people_pop').modal('show');
-                    //$("#data-show").hide();
-                    //$('.widget-content').addClass('widget-loader-show');
                 }
 
               vm.widget_data = {
@@ -210,50 +158,6 @@
                 },
               };
 
-          /*vm.widget_acc_data = {
-            chart: {
-                type: 'column',
-                backgroundColor: "transparent"
-             },
-            title: {
-                text: ''
-            },
-            subtitle: {
-                text: ''
-            },
-            xAxis: {
-                type: 'category'
-            },
-            legend: {
-                enabled: false
-            },
-            yAxis: {
-                min:'',
-                max:'',
-                gridLineColor: 'a2a2a2',
-                title: {
-                    text: ''
-                }
-            },
-            tooltip: {
-                valueSuffix: ' %',
-            },
-            plotOptions:{
-                series:{
-                    allowPointSelect: true,
-                point: {
-                    events:{
-                    }
-                },
-                dataLabels: {
-                enabled: true,
-                format: '{y} %',
-                valueDecimals: 2
-                }
-                }
-            },
-            };*/
- 
 
                 $http({method:"GET", url:people_data}).success(function(result){
 
