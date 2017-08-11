@@ -10,7 +10,7 @@ urlpatterns = [
     url(r'^from_to/', apiviews.from_to),
     url(r'^project/', apiviews.project),
     url(r'^chart_data/', apiviews.chart_data),
-    url(r'^yesterdays_data/', apiviews.yesterdays_data),
+    #url(r'^yesterdays_data/', apiviews.yesterdays_data),
     url(r'^dropdown_data/', apiviews.dropdown_data),
     url(r'^dropdown_data_types/', apiviews.dropdown_data_types, name="dropdown_data_types"),
     url(r'^annotations/$', apiviews.get_annotations),
