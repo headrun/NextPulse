@@ -23,7 +23,7 @@ class Project(models.Model):
     sub_project_check = models.BooleanField(default=None)
     class Meta:
         db_table = u'project'
-        index_together = (('name', 'center',), ('name', 'sub_project', 'center'),)
+        index_together = (('name', 'center',), ('name', 'sub_project_check', 'center'),)
     def __unicode__(self):
         return self.name
 
@@ -207,9 +207,12 @@ class RawTable(models.Model):
         db_table = u'raw_table'
         index_together = (('project', 'sub_project','work_packet','sub_packet','date', 'center'), ('project', 'center'),
                 ('project', 'center', 'date'), ('project', 'sub_project', 'date'), ('project', 'sub_project', 'work_packet', 'date'),
-                ('project', 'work_packet', 'date'), ('project', 'center', 'date', 'work_packet'), ('project', 'center'),
+                ('project', 'work_packet', 'date'), ('project', 'center', 'date', 'work_packet'), 
                 ('project', 'center', 'date', 'work_packet', 'employee_id'), ('employee_id', 'date', 'work_packet', 'sub_project'),
-                ('project', 'sub_project', 'work_packet', 'sub_packet', 'employee_id', 'date', 'center'),)
+                ('project', 'sub_project', 'work_packet', 'sub_packet', 'employee_id', 'date', 'center'),
+                ('project', 'center', 'date', 'work_packet', 'sub_packet'), ('employee_id','date','work_packet'),
+                ('employee_id','date','work_packet'), ('employee_id','date','work_packet','sub_packet'),
+                ('project','center', 'date','sub_project'), ('project','center', 'date','work_packet'),)
 
 
 class RawtableAuthoring(models.Model):
@@ -256,7 +259,9 @@ class Internalerrors(models.Model):
                             ('project', 'center','sub_project','work_packet','sub_packet', 'employee_id', 'date'),
                             ('project', 'center', 'date', 'work_packet'), ('project', 'center', 'work_packet'),
                             ('project', 'center', 'sub_project'), ('project', 'center', 'date', 'sub_project'),
-                            ('project', 'center'), )
+                            ('project', 'center'), ('project', 'center', 'employee_id', 'date'),
+                            ('project', 'center', 'date', 'sub_project', 'work_packet'),
+                            ('center', 'project', 'date','work_packet','sub_packet'), )
         #unique_together = ("audited_errors","error_value","date","employee_id","volume_type")
 
     def __unicode__(self):
@@ -319,7 +324,12 @@ class Externalerrors(models.Model):
         index_together = (('project', 'center', 'date'), ('project', 'center', 'sub_project', 'date'),
                 ('project', 'center', 'work_packet', 'date'), ('project', 'center', 'sub_packet', 'date'),
                 ('project', 'center', 'sub_project', 'work_packet', 'sub_packet', 'date'), ('project', 'center'),
-                ('project', 'center', 'sub_project', 'work_packet', 'sub_packet', 'employee_id', 'date'),)
+                ('project', 'center', 'sub_project', 'work_packet', 'sub_packet', 'employee_id', 'date'),
+                ('project', 'center', 'employee_id', 'date', 'work_packet', 'sub_packet'), 
+                ('project', 'center', 'employee_id', 'date', 'sub_project'),
+                ('project', 'center', 'date','sub_project','work_packet'),
+                ('center', 'project', 'date', 'work_packet', 'sub_packet'),
+                )
         #unique_together = ("audited_errors","error_value","date","employee_id","volume_type")
 
     def __unicode__(self):
@@ -400,7 +410,7 @@ class Targets(models.Model):
     sub_packet  = models.CharField(max_length=255, blank=True,db_index=True)
     target      = models.IntegerField()
     fte_target  = models.IntegerField(default=0)
-    target_type = models.CharField(max_length=255, blank=True)
+    target_type = models.CharField(max_length=255, blank=True, db_index=True)
     target_value = models.IntegerField(default=0)
     center = models.ForeignKey(Center, null=True)
     project = models.ForeignKey(Project, null=True,db_index=True)
@@ -612,7 +622,8 @@ class Incomingerror(models.Model):
     class Meta:
         db_table = u'incoming_error'
         index_together = (('project', 'center', 'sub_project', 'work_packet', 'sub_packet', 'date'),
-                            ('project', 'center', 'work_packet', 'date'), ('project', 'center', 'sub_packet', 'date'), )
+                            ('project', 'center', 'work_packet', 'date'), ('project', 'center', 'sub_packet', 'date'),
+                            ('project', 'center', 'work_packet','sub_packet', 'date'), )
 
     def __unicode__(self):
         return self.work_packet

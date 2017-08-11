@@ -4419,7 +4419,7 @@ def agent_external_pareto_data_generation(request,date_list,prj_id,center_obj,le
                 wk_packet = level_structure_key['work_packet']
                 sb_packet = level_structure_key['sub_packet']
                 total_errors = Externalerrors.objects.filter(project=prj_id, center=center_obj, employee_id=agent,
-                date__range=[date_list[0], date_list[-1]],sub_project = sub_proj, work_packet = wk_packet, sub_packet = sb_packet).aggregate(Sum('total_errors'))
+                sub_project = sub_proj, work_packet = wk_packet, sub_packet = sb_packet, date__range=[date_list[0], date_list[-1]]).aggregate(Sum('total_errors'))
             elif level_structure_key.get('work_packet','') != "All" and level_structure_key.get('sub_packet','') == "All" and len(level_structure_key) == 2:   
                 wk_packet = level_structure_key['work_packet']
                 total_errors = Externalerrors.objects.filter(project=prj_id, center=center_obj, employee_id=agent,
@@ -4947,8 +4947,8 @@ def upload_target_data(date_list, prj_id, center):
     for date in date_list:
         total_done_value = RawTable.objects.filter(project=prj_id, center=center, date=date).aggregate(Max('per_day'))
         if total_done_value['per_day__max'] > 0:
-            target = UploadDataTable.objects.filter(date=date,project=prj_id,center=center).aggregate(Sum('target'))
-            upload = UploadDataTable.objects.filter(date=date,project=prj_id,center=center).aggregate(Sum('upload'))
+            target = UploadDataTable.objects.filter(project=prj_id,center=center,date=date).aggregate(Sum('target'))
+            upload = UploadDataTable.objects.filter(project=prj_id,center=center,date=date).aggregate(Sum('upload'))
             if target['target__sum'] > 0 and upload['upload__sum'] > 0:
                 percentage = (float(upload['upload__sum'])/float(target['target__sum'])) * 100
                 final_percentage = (float('%.2f' % round(percentage, 2)))
@@ -5008,8 +5008,8 @@ def nw_exception_data(date_list, prj_id, center,level_structure_key):
             packets = Incomingerror.objects.filter(project=prj_id, center=center, date=date_value).values_list('work_packet',flat =True).distinct()
             for packet in packets:
                 if packet == 'Data Entry' or packet =='KYC Check':
-                    sub_packets = Incomingerror.objects.filter(project=prj_id, center=center, date=date_value,work_packet = packet).values_list('sub_packet',flat = True).distinct()
-                    error_value = Incomingerror.objects.filter(project=prj_id, center=center, date=date_value,work_packet=packet,sub_packet='NW Exception').aggregate(Sum('error_values'))
+                    sub_packets = Incomingerror.objects.filter(project=prj_id, center=center,work_packet = packet, date=date_value).values_list('sub_packet',flat = True).distinct()
+                    error_value = Incomingerror.objects.filter(project=prj_id, center=center, work_packet=packet,sub_packet='NW Exception', date=date_value).aggregate(Sum('error_values'))
                     if error_value['error_values__sum'] > 0: 
                         percentage = float(error_value['error_values__sum'])
                     else:
@@ -5481,38 +5481,40 @@ def fte_calculation_sub_project_work_packet(result,level_structure_key):
                         new_level_structu_key['sub_project'] = level_structure_key['sub_project']
                     new_level_structu_key['work_packet'] = wp_key_new
                     new_level_structu_key['sub_packet'] = sub_packet
-		    new_level_structu_key['from_date__lte'] = date_va
-		    new_level_structu_key['to_date__gte'] = date_va
-                    final_work_packet = level_hierarchy_key(level_structure_key, new_level_structu_key)
+            new_level_structu_key['from_date__lte'] = date_va
+            new_level_structu_key['to_date__gte'] = date_va
+            final_work_packet = level_hierarchy_key(level_structure_key, new_level_structu_key)
 
-                    if result['data']['data'].has_key(final_work_packet):
-			if len(result['data']['data'][final_work_packet]) >= count:
-			    try:
-                            	local_sum = local_sum + result['data']['data'][final_work_packet][count]
-			    except:
-				local_sum = local_sum
-			else:
-			    local_sum = local_sum
-                    else:
+            if result['data']['data'].has_key(final_work_packet):
+                if len(result['data']['data'][final_work_packet]) >= count:
+                    try:
+                        local_sum = local_sum + result['data']['data'][final_work_packet][count]
+                    except:
                         local_sum = local_sum
-                    if level_structure_key.get('work_packet', '') != 'All':
-                        if final_fte.has_key(final_work_packet):
-                            final_fte_sum = float('%.2f' % round(local_sum, 2))
-                            final_fte[final_work_packet].append(final_fte_sum)
-                        else:
-                            final_fte_sum = float('%.2f' % round(local_sum, 2))
-                            final_fte[final_work_packet] = [final_fte_sum]
-                if level_structure_key.get('work_packet', '') == 'All':
-                    if level_structure_key.has_key('sub_project'):
-                        new_level_structu_key['sub_project'] = level_structure_key['sub_project']
-                    new_level_structu_key['work_packet'] = wp_key_new
-                    wp_final_work_packet = level_hierarchy_key(level_structure_key, new_level_structu_key)
-                    if final_fte.has_key(wp_final_work_packet):
+                else:
+                    local_sum = local_sum
+            else:
+                local_sum = local_sum
+
+                    
+                if level_structure_key.get('work_packet', '') != 'All':
+                    if final_fte.has_key(final_work_packet):
                         final_fte_sum = float('%.2f' % round(local_sum, 2))
-                        final_fte[wp_final_work_packet].append(final_fte_sum)
+                        final_fte[final_work_packet].append(final_fte_sum)
                     else:
                         final_fte_sum = float('%.2f' % round(local_sum, 2))
-                        final_fte[wp_final_work_packet] = [final_fte_sum]
+                        final_fte[final_work_packet] = [final_fte_sum]
+            if level_structure_key.get('work_packet', '') == 'All':
+                if level_structure_key.has_key('sub_project'):
+                    new_level_structu_key['sub_project'] = level_structure_key['sub_project']
+                new_level_structu_key['work_packet'] = wp_key_new
+                wp_final_work_packet = level_hierarchy_key(level_structure_key, new_level_structu_key)
+                if final_fte.has_key(wp_final_work_packet):
+                    final_fte_sum = float('%.2f' % round(local_sum, 2))
+                    final_fte[wp_final_work_packet].append(final_fte_sum)
+                else:
+                    final_fte_sum = float('%.2f' % round(local_sum, 2))
+                    final_fte[wp_final_work_packet] = [final_fte_sum]
             count = count + 1
         return final_fte
 
@@ -6093,13 +6095,13 @@ def volume_graph_data_week_month(date_list,prj_id,center_obj,level_structure_key
                 elif volume_key == 'non_workable_count':
                     nwc.append(vol_values)
         
-	worktrack_volumes = OrderedDict()
+        worktrack_volumes = OrderedDict()
         worktrack_volumes['Opening'] = [sum(i) for i in zip(*opening)]
-	worktrack_volumes['Received'] = [sum(i) for i in zip(*received)]
+        worktrack_volumes['Received'] = [sum(i) for i in zip(*received)]
         worktrack_volumes['Non Workable Count'] = [sum(i) for i in zip(*nwc)]
         worktrack_volumes['Completed'] = [sum(i) for i in zip(*completed)]
         worktrack_volumes['Closing balance'] = [sum(i) for i in zip(*closing_bal)]
-	worktrack_timeline = OrderedDict()
+        worktrack_timeline = OrderedDict()
         worktrack_timeline['Completed'] = worktrack_volumes['Completed']
         worktrack_timeline['Received'] = worktrack_volumes['Received']
         worktrack_timeline['Opening'] = worktrack_volumes['Opening']
@@ -6280,7 +6282,7 @@ def internal_bar_data(pro_id, cen_id, from_, to_, main_work_packet, chart_type,p
             packets_list = main_work_packet.split('_')
             packets_list_type = ''
             if len(packets_list) == 2:
-                sub_project_statuts = Internalerrors.objects.filter(center=cen_id, project=pro_id,date=date).values_list('sub_project',flat=True)
+                sub_project_statuts = Internalerrors.objects.filter(project=pro_id, center=cen_id, date=date).values_list('sub_project',flat=True)
                 sub_project_statuts = filter(None, sub_project_statuts)
                 if len(sub_project_statuts) > 0:
                     sub_project, work_packet = main_work_packet.split('_')
@@ -6289,45 +6291,45 @@ def internal_bar_data(pro_id, cen_id, from_, to_, main_work_packet, chart_type,p
                 work_packet_statuts = filter(None, work_packet_statuts)
                 if len(sub_project_statuts) == 0 and len(work_packet_statuts)>0:
                     work_packet, sub_packet = main_work_packet.split('_')
-                    is_work_pac_exist = Internalerrors.objects.filter(center=cen_id, project=pro_id, date=date).values_list('work_packet', 'sub_packet').distinct()
+                    is_work_pac_exist = Internalerrors.objects.filter(project=pro_id, center=cen_id, date=date).values_list('work_packet', 'sub_packet').distinct()
                     if len(is_work_pac_exist) > 1:
-                        list_of = Internalerrors.objects.filter(center=cen_id, project=pro_id, date=date,work_packet=work_packet).values_list('employee_id', 'date', 'work_packet', 'audited_errors', 'total_errors')
+                        list_of = Internalerrors.objects.filter(project=pro_id, center=cen_id, date=date,work_packet=work_packet).values_list('employee_id', 'date', 'work_packet', 'audited_errors', 'total_errors')
                     else:
-                        list_of = Internalerrors.objects.filter(center=cen_id, project=pro_id, date=date,work_packet=work_packet).values_list('employee_id', 'date', 'work_packet', 'audited_errors', 'total_errors')
+                        list_of = Internalerrors.objects.filter(project=pro_id, center=cen_id, date=date,work_packet=work_packet).values_list('employee_id', 'date', 'work_packet', 'audited_errors', 'total_errors')
             elif len(packets_list) == 3:
                 if '_' in work_packet:
                     sub_project, work_packet, sub_packet = main_work_packet.split('_')
-                    list_of = Internalerrors.objects.filter(center=cen_id, project=pro_id, date=date,work_packet=work_packet,sub_packet=sub_packet).values_list('employee_id', 'date', 'work_packet', 'audited_errors', 'total_errors')
+                    list_of = Internalerrors.objects.filter(project=pro_id, center=cen_id, date=date,work_packet=work_packet,sub_packet=sub_packet).values_list('employee_id', 'date', 'work_packet', 'audited_errors', 'total_errors')
                 else:
-                    is_work_pac_exist = Internalerrors.objects.filter(center=cen_id, project=pro_id, date=date).values_list('work_packet', 'sub_packet').distinct()
+                    is_work_pac_exist = Internalerrors.objects.filter(project=pro_id, center=cen_id, date=date).values_list('work_packet', 'sub_packet').distinct()
                     if len(is_work_pac_exist) > 1:
-                        list_of = Internalerrors.objects.filter(center=cen_id, project=pro_id, date=date,work_packet=work_packet).values_list('employee_id', 'date', 'work_packet', 'audited_errors', 'total_errors')
+                        list_of = Internalerrors.objects.filter(project=pro_id, center=cen_id, date=date,work_packet=work_packet).values_list('employee_id', 'date', 'work_packet', 'audited_errors', 'total_errors')
                     else:
-                        list_of = Internalerrors.objects.filter(center=cen_id, project=pro_id, date=date,work_packet=work_packet).values_list('employee_id', 'date', 'work_packet', 'audited_errors', 'total_errors')
+                        list_of = Internalerrors.objects.filter(project=pro_id, center=cen_id, date=date,work_packet=work_packet).values_list('employee_id', 'date', 'work_packet', 'audited_errors', 'total_errors')
             else:
-                sub_project_statuts = Internalerrors.objects.filter(center=cen_id, project=pro_id,date=date).values_list('sub_project',flat=True)
+                sub_project_statuts = Internalerrors.objects.filter(project=pro_id,center=cen_id, date=date).values_list('sub_project',flat=True)
                 sub_project_statuts = filter(None, sub_project_statuts)
                 if len(sub_project_statuts) > 0:
                     packets_list_type = 'sub_project'
-                    is_work_pac_exist = Internalerrors.objects.filter(center=cen_id, project=pro_id, date=date).values_list('sub_project', 'work_packet', 'sub_packet').distinct()
+                    is_work_pac_exist = Internalerrors.objects.filter(project=pro_id,center=cen_id,date=date).values_list('sub_project', 'work_packet', 'sub_packet').distinct()
                     if len(is_work_pac_exist) > 1:
-                        list_of = Internalerrors.objects.filter(center=cen_id, project=pro_id, date=date,sub_project=packets_list[0]).values_list('employee_id', 'date', 'work_packet', 'audited_errors', 'total_errors')
+                        list_of = Internalerrors.objects.filter(project=pro_id,center=cen_id, date=date,sub_project=packets_list[0]).values_list('employee_id', 'date', 'work_packet', 'audited_errors', 'total_errors')
                     else:
-                        list_of = Internalerrors.objects.filter(center=cen_id, project=pro_id, date=date,sub_project=packets_list[0]).values_list('employee_id', 'date', 'work_packet', 'audited_errors', 'total_errors')
+                        list_of = Internalerrors.objects.filter(project=pro_id,center=cen_id, date=date,sub_project=packets_list[0]).values_list('employee_id', 'date', 'work_packet', 'audited_errors', 'total_errors')
                 else:
                     packets_list_type = 'work_packet'
-                    is_work_pac_exist = Internalerrors.objects.filter(center=cen_id, project=pro_id, date=date).values_list('work_packet', 'sub_packet').distinct()
+                    is_work_pac_exist = Internalerrors.objects.filter(project=pro_id,center=cen_id, date=date).values_list('work_packet', 'sub_packet').distinct()
                     if len(is_work_pac_exist) > 1:
-                        list_of = Internalerrors.objects.filter(center=cen_id, project=pro_id, date=date,work_packet=packets_list[0]).values_list('employee_id', 'date', 'work_packet', 'audited_errors', 'total_errors')
+                        list_of = Internalerrors.objects.filter(project=pro_id,center=cen_id, date=date,work_packet=packets_list[0]).values_list('employee_id', 'date', 'work_packet', 'audited_errors', 'total_errors')
                     else:
-                        list_of = Internalerrors.objects.filter(center=cen_id, project=pro_id, date=date,work_packet=packets_list[0]).values_list('employee_id', 'date', 'work_packet', 'audited_errors', 'total_errors')
+                        list_of = Internalerrors.objects.filter(project=pro_id,center=cen_id, date=date,work_packet=packets_list[0]).values_list('employee_id', 'date', 'work_packet', 'audited_errors', 'total_errors')
                         
         else:
             packets_list = main_work_packet.split('_')
             packets_list_type = ''
             list_of =[]
             if len(packets_list) == 2:
-                sub_project_statuts = Externalerrors.objects.filter(center=cen_id, project=pro_id,date=date).values_list('sub_project', flat=True)
+                sub_project_statuts = Externalerrors.objects.filter(project=pro_id,center=cen_id,date=date).values_list('sub_project', flat=True)
                 sub_project_statuts = filter(None, sub_project_statuts)
                 sub_project, work_packet = main_work_packet.split('_')
                 if len(sub_project_statuts) > 0:
@@ -6336,38 +6338,38 @@ def internal_bar_data(pro_id, cen_id, from_, to_, main_work_packet, chart_type,p
                 work_packet_statuts = filter(None, work_packet_statuts)
                 if len(sub_project_statuts) == 0 and len(work_packet_statuts) > 0:
                     work_packet, sub_packet = main_work_packet.split('_')
-                    is_work_pac_exist = Externalerrors.objects.filter(center=cen_id, project=pro_id,date=date).values_list('work_packet','sub_packet').distinct()
+                    is_work_pac_exist = Externalerrors.objects.filter(project=pro_id,center=cen_id,date=date).values_list('work_packet','sub_packet').distinct()
                     if len(is_work_pac_exist) > 1:
-                        list_of = Externalerrors.objects.filter(center=cen_id, project=pro_id, date=date,work_packet=work_packet).values_list('employee_id','date','sub_packet','audited_errors','total_errors')
+                        list_of = Externalerrors.objects.filter(project=pro_id,center=cen_id,work_packet=work_packet,date=date).values_list('employee_id','date','sub_packet','audited_errors','total_errors')
 
             elif len(packets_list) == 3:
                 if '_' in work_packet:
                     sub_project, work_packet, sub_packet = main_work_packet.split('_')
                     list_of = Externalerrors.objects.filter(center=cen_id, project=pro_id, date=date,work_packet=work_packet, sub_packet=sub_packet).values_list('employee_id', 'date', 'work_packet', 'audited_errors', 'total_errors')
                 else:
-                    is_work_pac_exist = Externalerrors.objects.filter(center=cen_id, project=pro_id,date=date).values_list('work_packet','sub_packet').distinct()
+                    is_work_pac_exist = Externalerrors.objects.filter(project=pro_id, center=cen_id, date=date).values_list('work_packet','sub_packet').distinct()
                     if len(is_work_pac_exist) > 1:
-                        list_of = Externalerrors.objects.filter(center=cen_id, project=pro_id, date=date,work_packet=work_packet).values_list('employee_id','date','work_packet','audited_errors','total_errors')
+                        list_of = Externalerrors.objects.filter(project=pro_id,center=cen_id,work_packet=work_packet, data=date).values_list('employee_id','date','work_packet','audited_errors','total_errors')
                     else:
-                        list_of = Externalerrors.objects.filter(center=cen_id, project=pro_id, date=date,work_packet=work_packet).values_list('employee_id','date','work_packet','audited_errors','total_errors')
+                        list_of = Externalerrors.objects.filter(project=pro_id,center=cen_id,work_packet=work_packet, data=date).values_list('employee_id','date','work_packet','audited_errors','total_errors')
             else:
-                sub_project_statuts = Externalerrors.objects.filter(center=cen_id, project=pro_id,date=date).values_list('sub_project', flat=True)
+                sub_project_statuts = Externalerrors.objects.filter(project=pro_id, center=cen_id, date=date).values_list('sub_project', flat=True)
                 sub_project_statuts = filter(None, sub_project_statuts)
 
                 if len(sub_project_statuts) > 0:
                     packets_list_type = 'sub_project'
-                    is_work_pac_exist = Externalerrors.objects.filter(center=cen_id, project=pro_id,date=date).values_list('sub_project','work_packet','sub_packet').distinct()
+                    is_work_pac_exist = Externalerrors.objects.filter(project=pro_id,center=cen_id, date=date).values_list('sub_project','work_packet','sub_packet').distinct()
                     if len(is_work_pac_exist) > 1:
-                        list_of = Externalerrors.objects.filter(center=cen_id, project=pro_id, date=date,sub_project=packets_list[0]).values_list('employee_id','date','work_packet','audited_errors','total_errors')
+                        list_of = Externalerrors.objects.filter(project=pro_id, center=cen_id, sub_project=packets_list[0], date=date).values_list('employee_id','date','work_packet','audited_errors','total_errors')
                     else:
-                        list_of = Externalerrors.objects.filter(center=cen_id, project=pro_id, date=date,sub_project=packets_list[0]).values_list('employee_id','date','work_packet','audited_errors','total_errors')
+                        list_of = Externalerrors.objects.filter(project=pro_id, center=cen_id, sub_project=packets_list[0], date=date).values_list('employee_id','date','work_packet','audited_errors','total_errors')
                 else:
                     packets_list_type = 'work_packet'
-                    is_work_pac_exist = Externalerrors.objects.filter(center=cen_id, project=pro_id,date=date).values_list('work_packet','sub_packet').distinct()
+                    is_work_pac_exist = Externalerrors.objects.filter(project=pro_id,center=cen_id, date=date).values_list('work_packet','sub_packet').distinct()
                     if len(is_work_pac_exist) > 1:
-                        list_of = Externalerrors.objects.filter(center=cen_id, project=pro_id, date=date,work_packet=packets_list[0]).values_list('employee_id','date','work_packet','audited_errors','total_errors')
+                        list_of = Externalerrors.objects.filter(project=pro_id, center=cen_id, work_packet=packets_list[0],date=date).values_list('employee_id','date','work_packet','audited_errors','total_errors')
                     else:
-                        list_of = Externalerrors.objects.filter(center=cen_id, project=pro_id, date=date,work_packet=packets_list[0]).values_list('employee_id','date','work_packet','audited_errors','total_errors')
+                        list_of = Externalerrors.objects.filter(project=pro_id, center=cen_id, work_packet=packets_list[0],date=date).values_list('employee_id','date','work_packet','audited_errors','total_errors')
         for i in list_of:
             internal_bar_list.append({'date':str(i[1]), 'audited_count':i[3], 'total_errors':i[4]})
             audited_value = 0
@@ -6467,92 +6469,92 @@ def internal_chart_data_multi(pro_id,cen_id,to_date,work_packet,chart_type,proje
         packets_list = work_packet.split('_')
         packets_list_type = ''
         if len(packets_list) == 2:
-            sub_project_statuts = Internalerrors.objects.filter(center=cen_id, project=pro_id,date__range=[to_date[0], to_date[-1]]).values_list('sub_project', flat=True)
+            sub_project_statuts = Internalerrors.objects.filter(project=pro_id, center=cen_id, date__range=[to_date[0], to_date[-1]]).values_list('sub_project', flat=True)
             sub_project_statuts = filter(None, sub_project_statuts)
             if len(sub_project_statuts) > 0:
                 sub_project, work_packet = work_packet.split('_')
                 list_of_internal = Internalerrors.objects.filter(project=pro_id, center=cen_id, date__range=[to_date[0], to_date[-1]],sub_project=sub_project,work_packet=work_packet).values_list('employee_id','audited_errors','total_errors','date')
-            work_packet_statuts = Internalerrors.objects.filter(center=cen_id, project=pro_id,date__range=[to_date[0], to_date[-1]]).values_list('work_packet',flat=True)
+            work_packet_statuts = Internalerrors.objects.filter(project=pro_id,center=cen_id, date__range=[to_date[0], to_date[-1]]).values_list('work_packet',flat=True)
             work_packet_statuts = filter(None, work_packet_statuts)
             if len(sub_project_statuts) == 0 and len(work_packet_statuts) > 0:
                 work_packet, sub_packet = work_packet.split('_')
-                is_work_pac_exist = Internalerrors.objects.filter(center=cen_id, project=pro_id, date__range=[to_date[0], to_date[-1]]).values_list('work_packet','sub_packet').distinct()[0]
+                is_work_pac_exist = Internalerrors.objects.filter(project=pro_id, center=cen_id, date__range=[to_date[0], to_date[-1]]).values_list('work_packet','sub_packet').distinct()[0]
                 if len(is_work_pac_exist) > 1:
-                    list_of_internal = Internalerrors.objects.filter(center=cen_id, project=pro_id, date__range=[to_date[0], to_date[-1]],work_packet=work_packet).values_list('employee_id','audited_errors','total_errors','date')
+                    list_of_internal = Internalerrors.objects.filter(project=pro_id, center=cen_id, date__range=[to_date[0], to_date[-1]],work_packet=work_packet).values_list('employee_id','audited_errors','total_errors','date')
                 else:
-                    list_of_internal = Internalerrors.objects.filter(center=cen_id, project=pro_id, date__range=[to_date[0], to_date[-1]],work_packet=work_packet).values_list('employee_id','audited_errors','total_errors','date')
+                    list_of_internal = Internalerrors.objects.filter(project=pro_id, center=cen_id, date__range=[to_date[0], to_date[-1]],work_packet=work_packet).values_list('employee_id','audited_errors','total_errors','date')
         elif len(packets_list) == 3:
             if '_' in work_packet:
                 sub_project, work_packet, sub_packet = work_packet.split('_')
                 list_of_internal = Internalerrors.objects.filter(center=cen_id, project=pro_id, date__range=[to_date[0], to_date[-1]],work_packet=work_packet,sub_packet=sub_packet).values_list('employee_id','audited_errors','total_errors','date')
             else:
-                is_work_pac_exist = Internalerrors.objects.filter(center=cen_id, project=pro_id, date__range=[to_date[0], to_date[-1]]).values_list('work_packet','sub_packet').distinct()[0]
+                is_work_pac_exist = Internalerrors.objects.filter(project=pro_id, center=cen_id, date__range=[to_date[0], to_date[-1]]).values_list('work_packet','sub_packet').distinct()[0]
                 if len(is_work_pac_exist) > 1:
-                    list_of_internal = Internalerrors.objects.filter(center=cen_id, project=pro_id, date__range=[to_date[0], to_date[-1]],work_packet=work_packet).values_list('employee_id','audited_errors','total_errors','date')
+                    list_of_internal = Internalerrors.objects.filter(project=pro_id, center=cen_id, date__range=[to_date[0], to_date[-1]],work_packet=work_packet).values_list('employee_id','audited_errors','total_errors','date')
                 else:
-                    list_of_internal = Internalerrors.objects.filter(center=cen_id, project=pro_id, date__range=[to_date[0], to_date[-1]],work_packet=work_packet).values_list('employee_id','audited_errors','total_errors','date')
+                    list_of_internal = Internalerrors.objects.filter(project=pro_id, center=cen_id, date__range=[to_date[0], to_date[-1]],work_packet=work_packet).values_list('employee_id','audited_errors','total_errors','date')
         else:
-            sub_project_statuts = Internalerrors.objects.filter(center=cen_id, project=pro_id,date__range=[to_date[0], to_date[-1]]).values_list('sub_project', flat=True)
+            sub_project_statuts = Internalerrors.objects.filter(project=pro_id,center=cen_id, date__range=[to_date[0], to_date[-1]]).values_list('sub_project', flat=True)
             sub_project_statuts = filter(None, sub_project_statuts)
             if len(sub_project_statuts) > 0:
                 packets_list_type = 'sub_project'
-                is_work_pac_exist = Internalerrors.objects.filter(center=cen_id, project=pro_id, date__range=[to_date[0], to_date[-1]]).values_list('sub_project','work_packet','sub_packet').distinct()[0]
+                is_work_pac_exist = Internalerrors.objects.filter(project=pro_id,center=cen_id, date__range=[to_date[0], to_date[-1]]).values_list('sub_project','work_packet','sub_packet').distinct()[0]
                 if len(is_work_pac_exist) > 1:
-                    list_of_internal = Internalerrors.objects.filter(center=cen_id, project=pro_id, date__range=[to_date[0], to_date[-1]],sub_project=packets_list[0]).values_list('employee_id', 'audited_errors', 'total_errors','date')
+                    list_of_internal = Internalerrors.objects.filter(project=pro_id, center=cen_id, date__range=[to_date[0], to_date[-1]],sub_project=packets_list[0]).values_list('employee_id', 'audited_errors', 'total_errors','date')
                 else:
-                    list_of_internal = Internalerrors.objects.filter(center=cen_id, project=pro_id, date__range=[to_date[0], to_date[-1]],sub_project=packets_list[0]).values_list('employee_id', 'audited_errors', 'total_errors','date')
+                    list_of_internal = Internalerrors.objects.filter(project=pro_id, center=cen_id, date__range=[to_date[0], to_date[-1]],sub_project=packets_list[0]).values_list('employee_id', 'audited_errors', 'total_errors','date')
             else:
                 packets_list_type = 'work_packet'
-                is_work_pac_exist = Internalerrors.objects.filter(center=cen_id, project=pro_id, date__range=[to_date[0], to_date[-1]]).values_list('work_packet','sub_packet').distinct()[0]
+                is_work_pac_exist = Internalerrors.objects.filter(project=pro_id,center=cen_id,  date__range=[to_date[0], to_date[-1]]).values_list('work_packet','sub_packet').distinct()[0]
                 if len(is_work_pac_exist) > 1:
-                    list_of_internal = Internalerrors.objects.filter(center=cen_id, project=pro_id, date__range=[to_date[0], to_date[-1]],work_packet=work_packet).values_list('employee_id','audited_errors','total_errors','date')
+                    list_of_internal = Internalerrors.objects.filter(project=pro_id,center=cen_id, date__range=[to_date[0], to_date[-1]],work_packet=work_packet).values_list('employee_id','audited_errors','total_errors','date')
                 else:
-                    list_of_internal = Internalerrors.objects.filter(center=cen_id, project=pro_id, date__range=[to_date[0], to_date[-1]],work_packet=work_packet).values_list('employee_id','audited_errors','total_errors','date')
+                    list_of_internal = Internalerrors.objects.filter(project=pro_id,center=cen_id, date__range=[to_date[0], to_date[-1]],work_packet=work_packet).values_list('employee_id','audited_errors','total_errors','date')
     else:
         packets_list = work_packet.split('_')
         packets_list_type = ''
         if len(packets_list) == 2:
-            sub_project_statuts = Externalerrors.objects.filter(center=cen_id, project=pro_id,date__range=[to_date[0], to_date[-1]]).values_list('sub_project', flat=True)
+            sub_project_statuts = Externalerrors.objects.filter(project=pro_id,center=cen_id, date__range=[to_date[0], to_date[-1]]).values_list('sub_project', flat=True)
             sub_project_statuts = filter(None, sub_project_statuts)
             if len(sub_project_statuts) > 0:
                 sub_project, work_packet = work_packet.split('_')
                 list_of_internal = Externalerrors.objects.filter(project=pro_id, center=cen_id,date__range=[to_date[0], to_date[-1]],sub_project=sub_project,work_packet=work_packet).values_list('employee_id','audited_errors','total_errors','date')
-            work_packet_statuts = Externalerrors.objects.filter(center=cen_id, project=pro_id,date__range=[to_date[0], to_date[-1]]).values_list('work_packet',flat=True)
+            work_packet_statuts = Externalerrors.objects.filter(project=pro_id,center=cen_id, date__range=[to_date[0], to_date[-1]]).values_list('work_packet',flat=True)
             work_packet_statuts = filter(None, work_packet_statuts)
             if len(sub_project_statuts) == 0 and len(work_packet_statuts) > 0:
                 work_packet, sub_packet = work_packet.split('_')
-                is_work_pac_exist = Externalerrors.objects.filter(center=cen_id, project=pro_id,date__range=[to_date[0], to_date[-1]]).values_list('work_packet', 'sub_packet').distinct()[0]
+                is_work_pac_exist = Externalerrors.objects.filter(project=pro_id,center=cen_id, date__range=[to_date[0], to_date[-1]]).values_list('work_packet', 'sub_packet').distinct()[0]
                 if len(is_work_pac_exist) > 1:
-                    list_of_internal = Externalerrors.objects.filter(center=cen_id, project=pro_id,date__range=[to_date[0], to_date[-1]],work_packet=work_packet).values_list('employee_id','audited_errors','total_errors','date')
+                    list_of_internal = Externalerrors.objects.filter(project=pro_id,center=cen_id, date__range=[to_date[0], to_date[-1]],work_packet=work_packet).values_list('employee_id','audited_errors','total_errors','date')
                 else:
-                    list_of_internal = Externalerrors.objects.filter(center=cen_id, project=pro_id,date__range=[to_date[0], to_date[-1]],work_packet=work_packet).values_list('employee_id','audited_errors','total_errors','date')
+                    list_of_internal = Externalerrors.objects.filter(project=pro_id,center=cen_id, date__range=[to_date[0], to_date[-1]],work_packet=work_packet).values_list('employee_id','audited_errors','total_errors','date')
         elif len(packets_list) == 3:
             if '_' in work_packet:
                 sub_project, work_packet, sub_packet = work_packet.split('_')
                 list_of_internal = Externalerrors.objects.filter(center=cen_id, project=pro_id,date__range=[to_date[0], to_date[-1]],work_packet=work_packet,sub_packet=sub_packet).values_list('employee_id','audited_errors','total_errors','date')
             else:
-                is_work_pac_exist = Externalerrors.objects.filter(center=cen_id, project=pro_id,date__range=[to_date[0], to_date[-1]]).values_list('work_packet', 'sub_packet').distinct()[0]
+                is_work_pac_exist = Externalerrors.objects.filter(project=pro_id,center=cen_id, date__range=[to_date[0], to_date[-1]]).values_list('work_packet', 'sub_packet').distinct()[0]
                 if len(is_work_pac_exist) > 1:
-                    list_of_internal = Externalerrors.objects.filter(center=cen_id, project=pro_id,date__range=[to_date[0], to_date[-1]],work_packet=work_packet).values_list('employee_id','audited_errors','total_errors','date')
+                    list_of_internal = Externalerrors.objects.filter(project=pro_id,center=cen_id, date__range=[to_date[0], to_date[-1]],work_packet=work_packet).values_list('employee_id','audited_errors','total_errors','date')
                 else:
-                    list_of_internal = Externalerrors.objects.filter(center=cen_id, project=pro_id,date__range=[to_date[0], to_date[-1]],work_packet=work_packet).values_list('employee_id','audited_errors','total_errors','date')
+                    list_of_internal = Externalerrors.objects.filter(project=pro_id,center=cen_id, date__range=[to_date[0], to_date[-1]],work_packet=work_packet).values_list('employee_id','audited_errors','total_errors','date')
         else:
-            sub_project_statuts = Externalerrors.objects.filter(center=cen_id, project=pro_id,date__range=[to_date[0], to_date[-1]]).values_list('sub_project', flat=True)
+            sub_project_statuts = Externalerrors.objects.filter(project=pro_id,center=cen_id, date__range=[to_date[0], to_date[-1]]).values_list('sub_project', flat=True)
             sub_project_statuts = filter(None, sub_project_statuts)
             if len(sub_project_statuts) > 0:
                 packets_list_type = 'sub_project'
-                is_work_pac_exist = Externalerrors.objects.filter(center=cen_id, project=pro_id,date__range=[to_date[0], to_date[-1]]).values_list('sub_project', 'work_packet', 'sub_packet').distinct()[0]
+                is_work_pac_exist = Externalerrors.objects.filter(project=pro_id,center=cen_id, date__range=[to_date[0], to_date[-1]]).values_list('sub_project', 'work_packet', 'sub_packet').distinct()[0]
                 if len(is_work_pac_exist) > 1:
-                    list_of_internal = Externalerrors.objects.filter(center=cen_id, project=pro_id,date__range=[to_date[0], to_date[-1]],sub_project=packets_list[0]).values_list('employee_id', 'audited_errors', 'total_errors', 'date')
+                    list_of_internal = Externalerrors.objects.filter(project=pro_id,center=cen_id, date__range=[to_date[0], to_date[-1]],sub_project=packets_list[0]).values_list('employee_id', 'audited_errors', 'total_errors', 'date')
                 else:
-                    list_of_internal = Externalerrors.objects.filter(center=cen_id, project=pro_id,date__range=[to_date[0], to_date[-1]],sub_project=packets_list[0]).values_list('employee_id', 'audited_errors', 'total_errors', 'date')
+                    list_of_internal = Externalerrors.objects.filter( project=pro_id, center=cen_id,date__range=[to_date[0], to_date[-1]],sub_project=packets_list[0]).values_list('employee_id', 'audited_errors', 'total_errors', 'date')
             else:
                 packets_list_type = 'work_packet'
-                is_work_pac_exist = Externalerrors.objects.filter(center=cen_id, project=pro_id,date__range=[to_date[0], to_date[-1]]).values_list('work_packet', 'sub_packet').distinct()[0]
+                is_work_pac_exist = Externalerrors.objects.filter(project=pro_id,center=cen_id,date__range=[to_date[0], to_date[-1]]).values_list('work_packet', 'sub_packet').distinct()[0]
                 if len(is_work_pac_exist) > 1:
-                    list_of_internal = Externalerrors.objects.filter(center=cen_id, project=pro_id,date__range=[to_date[0], to_date[-1]],work_packet=work_packet).values_list('employee_id','audited_errors','total_errors','date')
+                    list_of_internal = Externalerrors.objects.filter(project=pro_id,center=cen_id,date__range=[to_date[0], to_date[-1]],work_packet=work_packet).values_list('employee_id','audited_errors','total_errors','date')
                 else:
-                    list_of_internal = Externalerrors.objects.filter(center=cen_id, project=pro_id,date__range=[to_date[0], to_date[-1]],work_packet=work_packet).values_list('employee_id','audited_errors','total_errors','date')
+                    list_of_internal = Externalerrors.objects.filter(project=pro_id,center=cen_id,date__range=[to_date[0], to_date[-1]],work_packet=work_packet).values_list('employee_id','audited_errors','total_errors','date')
     internal_list, table_headers = [], []
     final_internal_drilldown = {}
     final_internal_drilldown['type'] = chart_type
@@ -6641,7 +6643,7 @@ def internal_chart_data(pro_id,cen_id,to_date,work_packet,chart_type,project):
             packets_list = work_packet.split('_')
             packets_list_type = ''
             if len(packets_list) == 2:
-                sub_project_statuts = Internalerrors.objects.filter(center=cen_id, project=pro_id,date=to_date[0]).values_list('sub_project', flat=True)
+                sub_project_statuts = Internalerrors.objects.filter(project=pro_id,center=cen_id, date=to_date[0]).values_list('sub_project', flat=True)
                 sub_project_statuts = filter(None, sub_project_statuts)
                 if len(sub_project_statuts) > 0:
                     sub_project, work_packet = work_packet.split('_')
@@ -6650,38 +6652,38 @@ def internal_chart_data(pro_id,cen_id,to_date,work_packet,chart_type,project):
                 work_packet_statuts = filter(None, work_packet_statuts)
                 if len(sub_project_statuts) == 0 and len(work_packet_statuts) > 0:
                     work_packet, sub_packet = work_packet.split('_')
-                    is_work_pac_exist = Internalerrors.objects.filter(center=cen_id, project=pro_id, date=to_date[0]).values_list('work_packet','sub_packet').distinct()[0]
+                    is_work_pac_exist = Internalerrors.objects.filter(project=pro_id, center=cen_id, date=to_date[0]).values_list('work_packet','sub_packet').distinct()[0]
                     if len(is_work_pac_exist) > 1:
-                        list_of_internal = Internalerrors.objects.filter(center=cen_id, project=pro_id, date=to_date[0],work_packet=work_packet).values_list('employee_id','audited_errors','total_errors','date')
+                        list_of_internal = Internalerrors.objects.filter(project=pro_id, center=cen_id, date=to_date[0],work_packet=work_packet).values_list('employee_id','audited_errors','total_errors','date')
                     else:
-                        list_of_internal = Internalerrors.objects.filter(center=cen_id, project=pro_id, date=to_date[0],work_packet=work_packet).values_list('employee_id','audited_errors','total_errors','date')
+                        list_of_internal = Internalerrors.objects.filter(project=pro_id, center=cen_id, date=to_date[0],work_packet=work_packet).values_list('employee_id','audited_errors','total_errors','date')
             elif len(packets_list) == 3:
                 if '_' in work_packet:
                     sub_project, work_packet, sub_packet = work_packet.split('_')
-                    list_of_internal = Internalerrors.objects.filter(center=cen_id, project=pro_id, date=to_date[0],work_packet=work_packet, sub_packet=sub_packet).values_list('employee_id','audited_errors','total_errors','date')
+                    list_of_internal = Internalerrors.objects.filter(project=pro_id,center=cen_id,  date=to_date[0],work_packet=work_packet, sub_packet=sub_packet).values_list('employee_id','audited_errors','total_errors','date')
                 else:
-                    is_work_pac_exist = Internalerrors.objects.filter(center=cen_id, project=pro_id, date=to_date[0]).values_list('work_packet','sub_packet').distinct()[0]
+                    is_work_pac_exist = Internalerrors.objects.filter(project=pro_id,center=cen_id, date=to_date[0]).values_list('work_packet','sub_packet').distinct()[0]
                     if len(is_work_pac_exist) > 1:
-                        list_of_internal = Internalerrors.objects.filter(center=cen_id, project=pro_id, date=to_date[0],work_packet=work_packet).values_list('employee_id','audited_errors','total_errors','date')
+                        list_of_internal = Internalerrors.objects.filter(project=pro_id, date=to_date[0], center=cen_id, work_packet=work_packet).values_list('employee_id','audited_errors','total_errors','date')
                     else:
-                        list_of_internal = Internalerrors.objects.filter(center=cen_id, project=pro_id, date=to_date[0],work_packet=work_packet).values_list('employee_id','audited_errors','total_errors','date')
+                        list_of_internal = Internalerrors.objects.filter(project=pro_id, center=cen_id, date=to_date[0],work_packet=work_packet).values_list('employee_id','audited_errors','total_errors','date')
             else:
-                sub_project_statuts = Internalerrors.objects.filter(center=cen_id, project=pro_id,date=to_date[0]).values_list('sub_project', flat=True)
+                sub_project_statuts = Internalerrors.objects.filter(project=pro_id,center=cen_id, date=to_date[0]).values_list('sub_project', flat=True)
                 sub_project_statuts = filter(None, sub_project_statuts)
                 if len(sub_project_statuts) > 0:
                     packets_list_type = 'sub_project'
-                    is_work_pac_exist = Internalerrors.objects.filter(center=cen_id, project=pro_id, date=to_date[0]).values_list('sub_project','work_packet','sub_packet').distinct()[0]
+                    is_work_pac_exist = Internalerrors.objects.filter(project=pro_id, center=cen_id, date=to_date[0]).values_list('sub_project','work_packet','sub_packet').distinct()[0]
                     if len(is_work_pac_exist) > 1:
-                        list_of_internal = Internalerrors.objects.filter(center=cen_id, project=pro_id, date=to_date[0],sub_project=packets_list[0]).values_list('employee_id','audited_errors','total_errors','date')
+                        list_of_internal = Internalerrors.objects.filter(project=pro_id, center=cen_id, date=to_date[0],sub_project=packets_list[0]).values_list('employee_id','audited_errors','total_errors','date')
                     else:
-                        list_of_internal = Internalerrors.objects.filter(center=cen_id, project=pro_id, date=to_date[0],sub_project=packets_list[0]).values_list('employee_id','audited_errors','total_errors','date')
+                        list_of_internal = Internalerrors.objects.filter(project=pro_id,center=cen_id, date=to_date[0],sub_project=packets_list[0]).values_list('employee_id','audited_errors','total_errors','date')
                 else:
                     packets_list_type = 'work_packet'
-                    is_work_pac_exist = Internalerrors.objects.filter(center=cen_id, project=pro_id, date=to_date[0]).values_list('work_packet','sub_packet').distinct()[0]
+                    is_work_pac_exist = Internalerrors.objects.filter(project=pro_id,center=cen_id,  date=to_date[0]).values_list('work_packet','sub_packet').distinct()[0]
                     if len(is_work_pac_exist) > 1:
-                        list_of_internal = Internalerrors.objects.filter(center=cen_id, project=pro_id, date=to_date[0],work_packet=work_packet).values_list('employee_id','audited_errors','total_errors','date')
+                        list_of_internal = Internalerrors.objects.filter(project=pro_id,center=cen_id,  date=to_date[0],work_packet=work_packet).values_list('employee_id','audited_errors','total_errors','date')
                     else:
-                        list_of_internal = Internalerrors.objects.filter(center=cen_id, project=pro_id, date=to_date[0],work_packet=work_packet).values_list('employee_id','audited_errors','total_errors','date')
+                        list_of_internal = Internalerrors.objects.filter(project=pro_id,center=cen_id, date=to_date[0],work_packet=work_packet).values_list('employee_id','audited_errors','total_errors','date')
 
     else:
         packets_list = work_packet.split('_')
@@ -6695,47 +6697,47 @@ def internal_chart_data(pro_id,cen_id,to_date,work_packet,chart_type,project):
             final_external_drilldown['table_headers'] = final_val_res['table_headers']
             return final_external_drilldown
         if len(packets_list) == 2:
-            sub_project_statuts = Externalerrors.objects.filter(center=cen_id, project=pro_id,date=to_date[0]).values_list('sub_project', flat=True)
+            sub_project_statuts = Externalerrors.objects.filter(project=pro_id,center=cen_id, date=to_date[0]).values_list('sub_project', flat=True)
             sub_project_statuts = filter(None, sub_project_statuts)
             if len(sub_project_statuts) > 0:
                 sub_project, work_packet = work_packet.split('_')
                 list_of_internal = Externalerrors.objects.filter(project=pro_id, center=cen_id, date=to_date[0],sub_project=sub_project,work_packet=work_packet).values_list('employee_id','audited_errors','total_errors','date')
-            work_packet_statuts = Externalerrors.objects.filter(center=cen_id, project=pro_id,date=to_date[0]).values_list('work_packet', flat=True)
+            work_packet_statuts = Externalerrors.objects.filter(project=pro_id,center=cen_id, date=to_date[0]).values_list('work_packet', flat=True)
             work_packet_statuts = filter(None, work_packet_statuts)
             if len(sub_project_statuts) == 0 and len(work_packet_statuts) > 0:
                 work_packet, sub_packet = work_packet.split('_')
-                is_work_pac_exist = Externalerrors.objects.filter(center=cen_id, project=pro_id, date=to_date[0]).values_list('work_packet','sub_packet').distinct()
+                is_work_pac_exist = Externalerrors.objects.filter(project=pro_id,center=cen_id, date=to_date[0]).values_list('work_packet','sub_packet').distinct()
                 if len(is_work_pac_exist) > 1:
-                    list_of_internal = Externalerrors.objects.filter(center=cen_id, project=pro_id, date=to_date[0],work_packet=work_packet).values_list('employee_id','audited_errors','total_errors','date')
+                    list_of_internal = Externalerrors.objects.filter(project=pro_id,center=cen_id, date=to_date[0],work_packet=work_packet).values_list('employee_id','audited_errors','total_errors','date')
                 else:
-                    list_of_internal = Externalerrors.objects.filter(center=cen_id, project=pro_id, date=to_date[0],work_packet=work_packet).values_list('employee_id','audited_errors','total_errors','date')
+                    list_of_internal = Externalerrors.objects.filter(project=pro_id,center=cen_id, date=to_date[0],work_packet=work_packet).values_list('employee_id','audited_errors','total_errors','date')
         elif len(packets_list) == 3:
             if '_' in work_packet:
                 sub_project, work_packet, sub_packet = work_packet.split('_')
                 list_of_internal = Externalerrors.objects.filter(center=cen_id, project=pro_id, date=to_date[0],work_packet=work_packet,sub_packet=sub_packet).values_list('employee_id','audited_errors','total_errors','date')
             else:
-                is_work_pac_exist = Externalerrors.objects.filter(center=cen_id, project=pro_id, date=to_date[0]).values_list('work_packet','sub_packet').distinct()[0]
+                is_work_pac_exist = Externalerrors.objects.filter(project=pro_id,center=cen_id, date=to_date[0]).values_list('work_packet','sub_packet').distinct()[0]
                 if len(is_work_pac_exist) > 1:
-                    list_of_internal = Externalerrors.objects.filter(center=cen_id, project=pro_id, date=to_date[0],work_packet=work_packet).values_list('employee_id','audited_errors','total_errors','date')
+                    list_of_internal = Externalerrors.objects.filter(project=pro_id,center=cen_id, date=to_date[0],work_packet=work_packet).values_list('employee_id','audited_errors','total_errors','date')
                 else:
-                    list_of_internal = Externalerrors.objects.filter(center=cen_id, project=pro_id, date=to_date[0],work_packet=work_packet).values_list('employee_id','audited_errors','total_errors','date')
+                    list_of_internal = Externalerrors.objects.filter(project=pro_id, center=cen_id, date=to_date[0],work_packet=work_packet).values_list('employee_id','audited_errors','total_errors','date')
         else:
-            sub_project_statuts = Externalerrors.objects.filter(center=cen_id, project=pro_id,date=to_date[0]).values_list('sub_project', flat=True)
+            sub_project_statuts = Externalerrors.objects.filter(project=pro_id,center=cen_id, date=to_date[0]).values_list('sub_project', flat=True)
             sub_project_statuts = filter(None, sub_project_statuts)
             if len(sub_project_statuts) > 0:
                 packets_list_type = 'sub_project'
-                is_work_pac_exist = Externalerrors.objects.filter(center=cen_id, project=pro_id, date=to_date[0]).values_list('sub_project','work_packet','sub_packet').distinct()[0]
+                is_work_pac_exist = Externalerrors.objects.filter(project=pro_id, center=cen_id, date=to_date[0]).values_list('sub_project','work_packet','sub_packet').distinct()[0]
                 if len(is_work_pac_exist) > 1:
-                    list_of_internal = Externalerrors.objects.filter(center=cen_id, project=pro_id, date=to_date[0],sub_project=packets_list[0]).values_list('employee_id', 'audited_errors', 'total_errors','date')
+                    list_of_internal = Externalerrors.objects.filter(project=pro_id, center=cen_id,sub_project=packets_list[0], date=to_date[0]).values_list('employee_id', 'audited_errors', 'total_errors','date')
                 else:
-                    list_of_internal = Externalerrors.objects.filter(center=cen_id, project=pro_id, date=to_date[0],sub_project=packets_list[0]).values_list('employee_id', 'audited_errors', 'total_errors','date')
+                    list_of_internal = Externalerrors.objects.filter(project=pro_id, center=cen_id,sub_project=packets_list[0], date=to_date[0]).values_list('employee_id', 'audited_errors', 'total_errors','date')
             else:
                 packets_list_type = 'work_packet'
-                is_work_pac_exist = Externalerrors.objects.filter(center=cen_id, project=pro_id, date=to_date[0]).values_list('work_packet','sub_packet').distinct()
+                is_work_pac_exist = Externalerrors.objects.filter(project=pro_id, center=cen_id, date=to_date[0]).values_list('work_packet','sub_packet').distinct()
                 if len(is_work_pac_exist) > 1:
-                    list_of_internal = Externalerrors.objects.filter(center=cen_id, project=pro_id, date=to_date[0],work_packet=work_packet).values_list('employee_id','audited_errors','total_errors','date')
+                    list_of_internal = Externalerrors.objects.filter(project=pro_id, center=cen_id, date=to_date[0],work_packet=work_packet).values_list('employee_id','audited_errors','total_errors','date')
                 else:
-                    list_of_internal = Externalerrors.objects.filter(center=cen_id, project=pro_id, date=to_date[0],work_packet=work_packet).values_list('employee_id','audited_errors','total_errors','date')
+                    list_of_internal = Externalerrors.objects.filter(project=pro_id, center=cen_id, date=to_date[0],work_packet=work_packet).values_list('employee_id','audited_errors','total_errors','date')
 
     final_internal_drilldown = {}
     final_internal_drilldown['type'] = chart_type
@@ -6771,7 +6773,7 @@ def productivity_chart_data_multi(pro_id,cen_id,to_date,work_packet,chart_type,p
     packets_list = work_packet.split('_')
     packets_list_type = ''
     if len(packets_list) == 2:
-        sub_project_statuts = RawTable.objects.filter(center=cen_id, project=pro_id,date__range=[to_date[0], to_date[-1]]).values_list('sub_project', flat=True)
+        sub_project_statuts = RawTable.objects.filter(project=pro_id,center=cen_id, date__range=[to_date[0], to_date[-1]]).values_list('sub_project', flat=True)
         sub_project_statuts = filter(None, sub_project_statuts)
         if len(sub_project_statuts) > 0:
             sub_project, work_packet = work_packet.split('_')
@@ -6779,46 +6781,46 @@ def productivity_chart_data_multi(pro_id,cen_id,to_date,work_packet,chart_type,p
             packets_list_type = 'sub_packet'
         else:
             packets_list_type = 'sub_packet'
-            is_work_pac_exist = RawTable.objects.filter(center=cen_id, project=pro_id, date__range=[to_date[0], to_date[-1]]).values_list('work_packet','sub_packet').distinct()[0]
+            is_work_pac_exist = RawTable.objects.filter(project=pro_id, center=cen_id, date__range=[to_date[0], to_date[-1]]).values_list('work_packet','sub_packet').distinct()[0]
             if len(is_work_pac_exist) > 1:
-                detail_list = RawTable.objects.filter(center=cen_id, project=pro_id, date__range=[to_date[0], to_date[-1]],work_packet=packets_list[0]).values_list('employee_id', 'per_day','date')
+                detail_list = RawTable.objects.filter(project=pro_id,center=cen_id,  date__range=[to_date[0], to_date[-1]],work_packet=packets_list[0]).values_list('employee_id', 'per_day','date')
             else:
-                detail_list = RawTable.objects.filter(center=cen_id, project=pro_id, date__range=[to_date[0], to_date[-1]],work_packet=work_packet).values_list('employee_id', 'per_day','date')
+                detail_list = RawTable.objects.filter(project=pro_id, center=cen_id, date__range=[to_date[0], to_date[-1]],work_packet=work_packet).values_list('employee_id', 'per_day','date')
         packet_dict = []
     elif len(packets_list) == 3:
         if '_' in work_packet:
             sub_project,work_packet,sub_packet = work_packet.split('_')
-            detail_list = RawTable.objects.filter(center=cen_id,project=pro_id,date__range=[to_date[0], to_date[-1]],work_packet=work_packet,sub_packet=sub_packet).values_list('employee_id','per_day','date')
+            detail_list = RawTable.objects.filter(project=pro_id,center=cen_id,date__range=[to_date[0], to_date[-1]],work_packet=work_packet,sub_packet=sub_packet).values_list('employee_id','per_day','date')
         else:
-            is_work_pac_exist = RawTable.objects.filter(center=cen_id,project=pro_id,date__range=[to_date[0], to_date[-1]]).values_list('work_packet','sub_packet').distinct()[0]
+            is_work_pac_exist = RawTable.objects.filter(project=pro_id,center=cen_id, date__range=[to_date[0], to_date[-1]]).values_list('work_packet','sub_packet').distinct()[0]
             if len(is_work_pac_exist) > 1:
-                detail_list = RawTable.objects.filter(center=cen_id,project=pro_id,date__range=[to_date[0], to_date[-1]],work_packet=work_packet).values_list('employee_id','per_day','sub_packet','date')
+                detail_list = RawTable.objects.filter(project=pro_id,center=cen_id, date__range=[to_date[0], to_date[-1]],work_packet=work_packet).values_list('employee_id','per_day','sub_packet','date')
             else:
-                detail_list = RawTable.objects.filter(center=cen_id,project=pro_id,date__range=[to_date[0], to_date[-1]],work_packet=work_packet).values_list('employee_id','per_day','date')
+                detail_list = RawTable.objects.filter(project=pro_id,center=cen_id, date__range=[to_date[0], to_date[-1]],work_packet=work_packet).values_list('employee_id','per_day','date')
         packet_dict = []
     else:
-        sub_project_statuts = RawTable.objects.filter(center=cen_id, project=pro_id, date__range=[to_date[0], to_date[-1]]).values_list('sub_project', flat=True)
+        sub_project_statuts = RawTable.objects.filter(project=pro_id,center=cen_id, date__range=[to_date[0], to_date[-1]]).values_list('sub_project', flat=True)
         sub_project_statuts = filter(None, sub_project_statuts)
         if len(sub_project_statuts) > 0:
-            is_work_pac_exist = RawTable.objects.filter(center=cen_id,project=pro_id,date__range=[to_date[0], to_date[-1]]).values_list('sub_project','work_packet','sub_packet').distinct()[0]
+            is_work_pac_exist = RawTable.objects.filter(project=pro_id,center=cen_id, date__range=[to_date[0], to_date[-1]]).values_list('sub_project','work_packet','sub_packet').distinct()[0]
             if len(is_work_pac_exist) > 1:
-                detail_list = RawTable.objects.filter(center=cen_id,project=pro_id,date__range=[to_date[0], to_date[-1]],sub_project=packets_list[0]).values_list('employee_id', 'per_day', 'work_packet','date')
+                detail_list = RawTable.objects.filter(project=pro_id,center=cen_id, date__range=[to_date[0], to_date[-1]],sub_project=packets_list[0]).values_list('employee_id', 'per_day', 'work_packet','date')
             else:
-                detail_list = RawTable.objects.filter(center=cen_id,project=pro_id,date__range=[to_date[0], to_date[-1]],sub_project=packets_list[0]).values_list('employee_id','per_day','date')
+                detail_list = RawTable.objects.filter(project=pro_id,center=cen_id, date__range=[to_date[0], to_date[-1]],sub_project=packets_list[0]).values_list('employee_id','per_day','date')
             packets_list_type = 'work_packet'
         else:
-            sub_packet_statuts = RawTable.objects.filter(center=cen_id, project=pro_id,date__range=[to_date[0], to_date[-1]]).values_list('sub_packet', flat=True)
+            sub_packet_statuts = RawTable.objects.filter(project=pro_id,center=cen_id, date__range=[to_date[0], to_date[-1]]).values_list('sub_packet', flat=True)
             sub_packet_statuts = filter(None, sub_packet_statuts) 
             packets_list_type = 'work_packet'
             if sub_packet_statuts:
-                detail_list = RawTable.objects.filter(center=cen_id, project=pro_id,date__range=[to_date[0], to_date[-1]],work_packet=work_packet).values_list('employee_id', 'per_day', 'sub_packet','date')
+                detail_list = RawTable.objects.filter(project=pro_id,center=cen_id, date__range=[to_date[0], to_date[-1]],work_packet=work_packet).values_list('employee_id', 'per_day', 'sub_packet','date')
                 packets_list_type = 'sub_packet'
             else: 
-                is_work_pac_exist = RawTable.objects.filter(center=cen_id, project=pro_id, date__range=[to_date[0], to_date[-1]]).values_list('work_packet','sub_packet').distinct()[0]
+                is_work_pac_exist = RawTable.objects.filter(project=pro_id, center=cen_id, date__range=[to_date[0], to_date[-1]]).values_list('work_packet','sub_packet').distinct()[0]
                 if len(is_work_pac_exist) > 1:
-                    detail_list = RawTable.objects.filter(center=cen_id, project=pro_id, date__range=[to_date[0], to_date[-1]],work_packet=work_packet).values_list('employee_id', 'per_day','date')
+                    detail_list = RawTable.objects.filter(project=pro_id, center=cen_id, date__range=[to_date[0], to_date[-1]],work_packet=work_packet).values_list('employee_id', 'per_day','date')
                 else:
-                    detail_list = RawTable.objects.filter(center=cen_id, project=pro_id, date__range=[to_date[0], to_date[-1]],work_packet=work_packet).values_list('employee_id', 'per_day','date')
+                    detail_list = RawTable.objects.filter(project=pro_id, center=cen_id, date__range=[to_date[0], to_date[-1]],work_packet=work_packet).values_list('employee_id', 'per_day','date')
         packet_dict = []
     table_headers = []
     for i in detail_list:
@@ -6846,55 +6848,55 @@ def productivity_chart_data(pro_id,cen_id,to_date,work_packet,chart_type,project
         packets_list = work_packet.split('_')
         packets_list_type = ''
         if len(packets_list) == 2:
-            sub_project_statuts = RawTable.objects.filter(center=cen_id,project=pro_id,date=to_date[0]).values_list('sub_project',flat=True)
+            sub_project_statuts = RawTable.objects.filter(project=pro_id,center=cen_id, date=to_date[0]).values_list('sub_project',flat=True)
             sub_project_statuts  = filter(None,sub_project_statuts)
             if len(sub_project_statuts) > 0:
                 sub_project,work_packet = work_packet.split('_')
-                detail_list = RawTable.objects.filter(center=cen_id,project=pro_id,date=to_date[0],sub_project=sub_project,work_packet=work_packet).values_list('employee_id','per_day','sub_packet')
+                detail_list = RawTable.objects.filter(project=pro_id,center=cen_id,date=to_date[0],sub_project=sub_project,work_packet=work_packet).values_list('employee_id','per_day','sub_packet')
                 packets_list_type = 'sub_packet'
             else:
                 packets_list_type = 'sub_packet'
-                is_work_pac_exist = RawTable.objects.filter(center=cen_id,project=pro_id,date=to_date[0]).values_list('work_packet','sub_packet').distinct()[0]
+                is_work_pac_exist = RawTable.objects.filter(project=pro_id, center=cen_id,date=to_date[0]).values_list('work_packet','sub_packet').distinct()[0]
                 if len(is_work_pac_exist) > 1:
-                    detail_list = RawTable.objects.filter(center=cen_id,project=pro_id,date=to_date[0],work_packet=packets_list[0]).values_list('employee_id','per_day')
+                    detail_list = RawTable.objects.filter(project=pro_id,center=cen_id,date=to_date[0],work_packet=packets_list[0]).values_list('employee_id','per_day')
                 else:
-                    detail_list = RawTable.objects.filter(center=cen_id,project=pro_id,date=to_date[0],work_packet=work_packet).values_list('employee_id','per_day')
+                    detail_list = RawTable.objects.filter(project=pro_id,center=cen_id,date=to_date[0],work_packet=work_packet).values_list('employee_id','per_day')
             packet_dict = []
         elif len(packets_list) == 3:
             if '_' in work_packet:
                 sub_project,work_packet,sub_packet = work_packet.split('_')
-                detail_list = RawTable.objects.filter(center=cen_id,project=pro_id,date=to_date[0],work_packet=work_packet,sub_packet=sub_packet).values_list('employee_id','per_day')
+                detail_list = RawTable.objects.filter(project=pro_id,center=cen_id,date=to_date[0],work_packet=work_packet,sub_packet=sub_packet).values_list('employee_id','per_day')
             else:
-                is_work_pac_exist = RawTable.objects.filter(center=cen_id,project=pro_id,date=to_date[0]).values_list('work_packet','sub_packet').distinct()[0]
+                is_work_pac_exist = RawTable.objects.filter(project=pro_id,center=cen_id,date=to_date[0]).values_list('work_packet','sub_packet').distinct()[0]
                 if len(is_work_pac_exist) > 1:
-                    detail_list = RawTable.objects.filter(center=cen_id,project=pro_id,date=to_date[0],work_packet=work_packet).values_list('employee_id','per_day','sub_packet')
+                    detail_list = RawTable.objects.filter(project=pro_id, center=cen_id, date=to_date[0],work_packet=work_packet).values_list('employee_id','per_day','sub_packet')
                 else:
-                    detail_list = RawTable.objects.filter(center=cen_id,project=pro_id,date=to_date[0],work_packet=work_packet).values_list('employee_id','per_day')
+                    detail_list = RawTable.objects.filter(project=pro_id,center=cen_id,date=to_date[0],work_packet=work_packet).values_list('employee_id','per_day')
             packet_dict = []
         else:
-            sub_project_statuts = RawTable.objects.filter(center=cen_id, project=pro_id, date=to_date[0]).values_list('sub_project', flat=True)
+            sub_project_statuts = RawTable.objects.filter(project=pro_id,center=cen_id, date=to_date[0]).values_list('sub_project', flat=True)
             sub_project_statuts = filter(None, sub_project_statuts)
             if len(sub_project_statuts) > 0:
                 packets_list_type = 'work_packet'
-                is_work_pac_exist = RawTable.objects.filter(center=cen_id,project=pro_id,date=to_date[0]).values_list('sub_project','work_packet','sub_packet').distinct()[0]
+                is_work_pac_exist = RawTable.objects.filter(project=pro_id,center=cen_id,date=to_date[0]).values_list('sub_project','work_packet','sub_packet').distinct()[0]
                 if len(is_work_pac_exist) > 1:
-                    detail_list = RawTable.objects.filter(center=cen_id, project=pro_id, date=to_date[0],sub_project=packets_list[0]).values_list('employee_id', 'per_day','work_packet', 'date')
+                    detail_list = RawTable.objects.filter(project=pro_id,center=cen_id, date=to_date[0],sub_project=packets_list[0]).values_list('employee_id', 'per_day','work_packet', 'date')
                 else:
-                    detail_list = RawTable.objects.filter(center=cen_id,project=pro_id,date=to_date[0],sub_project=packets_list[0]).values_list('employee_id','per_day','date')
+                    detail_list = RawTable.objects.filter(project=pro_id,center=cen_id,date=to_date[0],sub_project=packets_list[0]).values_list('employee_id','per_day','date')
             else:
-                sub_packet_statuts = RawTable.objects.filter(center=cen_id, project=pro_id,date=to_date[0]).values_list('sub_packet', flat=True)
+                sub_packet_statuts = RawTable.objects.filter(project=pro_id,center=cen_id,date=to_date[0]).values_list('sub_packet', flat=True)
                 sub_packet_statuts = filter(None, sub_packet_statuts) 
                 packets_list_type = 'work_packet'
                 if sub_packet_statuts:
-                    detail_list = RawTable.objects.filter(center=cen_id, project=pro_id,date=to_date[0],work_packet=work_packet).values_list('employee_id', 'per_day','sub_packet')
+                    detail_list = RawTable.objects.filter(project=pro_id,center=cen_id,date=to_date[0],work_packet=work_packet).values_list('employee_id', 'per_day','sub_packet')
                     packets_list_type = 'sub_packet'
                 else:
                     packets_list_type = 'work_packet'
-                    is_work_pac_exist = RawTable.objects.filter(center=cen_id, project=pro_id, date=to_date[0]).values_list('work_packet','sub_packet').distinct()[0]
+                    is_work_pac_exist = RawTable.objects.filter(project=pro_id, center=cen_id, date=to_date[0]).values_list('work_packet','sub_packet').distinct()[0]
                     if len(is_work_pac_exist) > 1:
-                        detail_list = RawTable.objects.filter(center=cen_id, project=pro_id, date=to_date[0],work_packet=work_packet).values_list('employee_id', 'per_day')
+                        detail_list = RawTable.objects.filter(project=pro_id, center=cen_id, date=to_date[0],work_packet=work_packet).values_list('employee_id', 'per_day')
                     else:
-                        detail_list = RawTable.objects.filter(center=cen_id, project=pro_id, date=to_date[0],work_packet=work_packet).values_list('employee_id', 'per_day','date')
+                        detail_list = RawTable.objects.filter(project=pro_id,center=cen_id, date=to_date[0],work_packet=work_packet).values_list('employee_id', 'per_day','date')
             packet_dict = []
         table_headers = []
         for i in detail_list:
@@ -7558,10 +7560,10 @@ def update_annotation(request):
         return HttpResponse(json.dumps({"status": "success", "message": "successfully updated"}))
     else:
         annotation = Annotation.objects.filter(epoch=epoch,created_by=request.user,key = key_to)
-	annotation = annotation[0]
-	annotation.text = text
-	annotation.save()
-	return HttpResponse(json.dumps({"status": "success", "message": "successfully updated"}))
+    annotation = annotation[0]
+    annotation.text = text
+    annotation.save()
+    return HttpResponse(json.dumps({"status": "success", "message": "successfully updated"}))
 
     return HttpResponse('Nothing happened')
 
@@ -7661,7 +7663,7 @@ def create_reviews(request):
     _review_time = eval(request.POST['json']).get('reviewtime', '')
     
     if not review_name or not agenda or not review_type or not _review_date or not _review_time:
-	return json_HttpResponse('Mandatory Field Not present')
+        return json_HttpResponse('Mandatory Field Not present')
     
     _review_date = _review_date.split(" ")[1:4]
     _review_time = _review_time.split(" ")[4]
@@ -7721,8 +7723,8 @@ def get_review_details(request):
             data['jq_date'] = review_date.strftime("%Y %m %d %H %M %S").split(" ")
             _df_time = review_date.date() - timezone.now().date()
             _df_time = _df_time.days
-	    if _df_time < 0:
-		data['remained'] = "PAST"
+            if _df_time < 0:
+                data['remained'] = "PAST"
             elif _df_time < 1:
                 data['remained'] = "Today"
             elif _df_time < 2:
@@ -7798,20 +7800,20 @@ def upload_review_doc(request):
 
         r_obj = Review.objects.get(id = review_id)
         for item in attach_files:
-	    res = check_string(item.name)
-	    if not res:
-		return HttpResponse("Improper File name")
+            res = check_string(item.name)
+            if not res:
+                return HttpResponse("Improper File name")
             original_file_name = item.name
             name = item.name.split(".")
             item.name = "%s_%s_%s.%s" %(name[0], r_obj.review_name.lower().replace(" ", "_"), str(r_obj.review_date.date()), name[-1])
             rev_fil_objs = ReviewFiles.objects.filter(original_file_name = original_file_name, review = r_obj)
             if rev_fil_objs:
                 rfo = rev_fil_objs[0]
-		rfo.file_name = item
-		rfo.save()
+                rfo.file_name = item
+                rfo.save()
             else:
-            	rfo, created = ReviewFiles.objects.get_or_create(file_name = item, review = r_obj,
-				defaults = {'original_file_name': original_file_name})
+                rfo, created = ReviewFiles.objects.get_or_create(file_name = item, review = r_obj,
+                defaults = {'original_file_name': original_file_name})
 
         return json_HttpResponse(review_id)
     except:
@@ -7824,7 +7826,7 @@ def check_string(word):
     for i in word:
         if i in symbol:
            result = False
-    	   return result
+           return result
     return result
     
 def get_related_user(request):
@@ -7894,9 +7896,9 @@ def saving_members(request):
     existing_members = existing_member_objs.values_list('member__id', flat = True)
     _remove_member = list(set(existing_members) - set(_users))
     if _remove_member:
-	for r in _remove_member:
-	    memb_obj = ReviewMembers.objects.get(member__id = r, review = item)
-	    send_review_mail(data, 'deleted', memb_obj)
+        for r in _remove_member:
+            memb_obj = ReviewMembers.objects.get(member__id = r, review = item)
+            send_review_mail(data, 'deleted', memb_obj)
             memb_obj.delete()
     for uid in users:
         try:
@@ -7904,7 +7906,7 @@ def saving_members(request):
             if not exs_mem_obj:
                 memb_obj = ReviewMembers.objects.create(review = item, member = uid)
                 send_review_mail(data, 'created', memb_obj)
-	    else:
+            else:
                 send_review_mail(data, 'edited', exs_mem_obj[0])
         except:
             pass
@@ -7920,23 +7922,23 @@ def send_review_mail(data, task, memb_obj = ""):
         'reminder' : "It is a reminder for our review with given details"
         }
     try:
-	if memb_obj:
-	    _text = "Hi %s %s, <p> %s </p>" %( memb_obj.member.first_name, memb_obj.member.last_name, process[task])
+        if memb_obj:
+            _text = "Hi %s %s, <p> %s </p>" %( memb_obj.member.first_name, memb_obj.member.last_name, process[task])
         else:
-	    _text = "Hi %s, %s, <p> %s </p>" %("Abhishek", "Yeswanth", process[task] )
+            _text = "Hi %s, %s, <p> %s </p>" %("Abhishek", "Yeswanth", process[task] )
         print "mail is coming"
 
         mail_body = create_mail_body(_text, data)
         to = ['yeswanth@headrun.com', 'abhishek@headrun.com']
         to.append(memb_obj.member.email)
         msg = EmailMultiAlternatives("%s - %s Review for NextWealth - %s" % (task.upper(), data['review_type'], data['project']), "",
-			    'nextpulse@nextwealth.in', to)
+                'nextpulse@nextwealth.in', to)
         msg.attach_alternative(mail_body, "text/html")
 
         msg.send()
     except:
-	pass
-	
+        pass
+    
 def create_dict_data(item):
     """ create review dictionary from object """
     data = {}
