@@ -15,3 +15,7 @@ class ColorCoding(models.Model):
     created_at  = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
 
+    class Meta(object):
+        index_together = (('project', 'widget', 'month'),)
+            
+
