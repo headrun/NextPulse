@@ -7,7 +7,6 @@ backend/venv/*
 node_modules/*
 ui/src/libs/*
 ui/src/app.css
-backend/api/migrations/*
 backend/backend/static/*
 .idea
 .idea/
