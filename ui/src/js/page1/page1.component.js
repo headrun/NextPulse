@@ -17,7 +17,7 @@
              var error_api = '/api/error_board'
              var def_disp = '/api/default'
              var project_dropdown_count = '/api/dropdown_data_types/?'
-             var yesterdays_data = '/api/yesterdays_data'
+             //var yesterdays_data = '/api/yesterdays_data'
              var someDate = new Date();
              var fi_dd = someDate.getDate();
              var fi_mm = someDate.getMonth() + 1;
