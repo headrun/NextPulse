@@ -67,7 +67,8 @@
 			$('.add-review').hide();
                     self.is_lead=false;
 		  }
-		  if (Object.keys(result.data.result.all_data).length != 0) {
+
+		 if (Object.keys(result.data.result.all_data).length != 0) {
                  //self.mail_options = [ "Shanmugasundaram v", "Monica M", "Abhijith A", "Sasikumar G", "Ranjithkumar M", "Shailesh dube"];
 
                  self.all_reviews = result.data.result.all_data;
