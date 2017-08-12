@@ -60,7 +60,10 @@ def get_dash_data(projects=PROJECTS, tab=SLA):
 
                 _target_objs = ColorCoding.objects.filter(project__id =_id, widget__config_name = WIDGET_SYNC[pro], month = month)
                 if not _target_objs:
-                    _target = 99.0
+                    if pro in ["absenteeism", "attrition"]:
+                        _target = 5.0
+                    else:
+                        _target = 99.0
                 else:
                     _target = _target_objs[0].soft_target
                 
