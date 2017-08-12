@@ -419,7 +419,7 @@ class Targets(models.Model):
         db_table = u'target_table'
         index_together = (('project', 'center','sub_project','work_packet','sub_packet','from_date','to_date'),
                         ('project', 'center', 'work_packet', 'from_date', 'to_date'),
-                        ('project', 'sub_project', 'work_packet', 'sub_project', 'from_date', 'to_date', 'target_type', 'center'),)
+                        ('project', 'work_packet', 'sub_project', 'from_date', 'to_date', 'target_type', 'center'),)
 
     def __unicode__(self):
         return self.work_packet
