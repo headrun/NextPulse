@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.contrib.auth.models import User, Group
 
-# Create your models here.
+
 class Center(models.Model):
     name = models.CharField(max_length=255, unique=True,db_index=True)
 

@@ -33,7 +33,7 @@ def get_dash_data(projects=PROJECTS, tab=SLA):
     if not projects:
         #projects= Project.objects.all().values_list('id', 'name', 'center__name')
         projects = PROJECTS
-    #import pdb;pdb.set_trace()
+    
     conn = redis.Redis(host="localhost", port=6379, db=0)
     result = []
     month_name = []

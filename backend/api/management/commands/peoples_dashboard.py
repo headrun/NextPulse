@@ -47,10 +47,8 @@ class Command(BaseCommand):
             projects.append(pr_team)
         project = set(projects)
         #project = ["Probe"]
-        #import pdb;pdb.set_trace()
         not_req = ["indix", "Mahendra", "Bench", "HR", "Jeeves", "MIS", "E4U", "3i", "Admin", "Master Mind", "IT", "CureCrew", "QualityTeam", "WIPRO", "Worxogo", "StoreKing" ,"Training", "Pixm", "Accounts", "BCT", "Snap Diligence", "Compliance", "Kredx", "ER", "Indix", "Bridgei2i", "Tech","WIPRO" ,"MindTree"]
         project = filter(lambda x: x not in not_req, list(project))
-        #import pdb;pdb.set_trace()
         for prj in project:
             final_data = {}
             for month_name,month_dates in months_dict.iteritems():
@@ -62,7 +60,6 @@ class Command(BaseCommand):
                 na_count = 0
                 fin_na_list = []
                 temp_rows = ""
-                #import pdb;pdb.set_trace()
                 for emp_id in rows:
                     emp_id = emp_id[0]
                     month =  date_values[0].split("-")[1] +"-" + date_values[0].split("-")[0]
@@ -92,7 +89,6 @@ class Command(BaseCommand):
                     if rows:
                         attri = float(sum(values[0]))/float(len(rows))*100
                         attri_value = float('%.2f' % round(attri, 2))
-                #import pdb;pdb.set_trace()
                 if prj == "Walmart":
                     prj = "Walmart Salem"
                 elif prj == "gooru":
