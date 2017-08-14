@@ -33,6 +33,8 @@
 
              self.part_disable = true;
 
+             self.is_lead = true;
+
              $http.get(self.email_data).then(function(result){
 		if (result.data.result == 'User is not TeamLead'){
 		self.stat = false;
@@ -60,7 +62,6 @@
 
              $http.get(self.review_url).then(function(result){
 
-                 //self.all_reviews = result.data.result.all_data;
 
 		 if (result.data.result.is_team_lead == false){
                     $('#fileuploader').hide();
@@ -276,7 +277,9 @@
                    }).then(function() {
 
                    $http.get(self.review_url).then(function(result){
-
+                      if (result.data.result.is_team_lead == false){
+                        self.is_lead = false;
+                      } 
                      self.all_reviews = result.data.result.all_data;
 		     if ((Object.keys(result.data.result.all_data).length) != 0){
                          self.get_review(self.all_reviews[Object.keys(self.all_reviews)[0]][0]);
@@ -372,6 +375,9 @@
 
                     $http.get(self.remove_review_url).then(function(result){}).then(function (result){
                       $http.get(self.review_url).then(function(result){
+                        if (result.data.result.is_team_lead == false){
+                            self.is_lead=false;
+                        } 
 			if (Object.keys(result.data.result.all_data).length != 0) {
 			 self.all_reviews = result.data.result.all_data;
                          self.rev_id = self.all_reviews[Object.keys(self.all_reviews)[0]][0].id;
