@@ -90,6 +90,7 @@
 		 $('.loading').removeClass('show').addClass('hide');
 		 self.no_data = false;
 		 self.part_disable = false;
+         swal('No Reviews Available! Click on plus button to create a new reveiw');
 		}
              });
 
@@ -164,11 +165,13 @@
                     self.all_review_url = 'api/get_top_reviews/?timeline=past';
                     $('#past-meet').hide();
                     $('#ong-meet').show();
+                    $('.fa-pencil-square-o').hide();
                 }
                 else {
                     self.all_review_url = 'api/get_top_reviews/?timeline=oncoming';
                     $('#ong-meet').hide();
                     $('#past-meet').show();
+                    $('.fa-pencil-square-o').show();
                 }
                 $http.get(self.all_review_url).then(function(result){
 
@@ -199,6 +202,7 @@
 			self.no_data = false;
 
 			self.part_disable = false;
+            swal('No Reviews Available! Click on plus button to create a new reveiw');
 		      }
                });
             };
@@ -231,12 +235,15 @@
 
 
              self.submit = function(review) {
+                var selected_date = moment(review.reviewdate);
+                var today = moment(new Date());
+                today = today.set({hour:0,minute:0,second:0,millisecond:0});
+                if (selected_date.diff(today) < 0){
+                    swal('Creating Reviews in past date is restricted');
+                }
+                else {
 
-		 if (review.reviewname || review.reviewdate || review.reviewtime || review.reviewagenda || review.review_type == 'select'){
-			swal('All required fields are not filled');
-			$('#myModal').modal('show');
-                 }
-		 else {
+		 if (review.reviewname && review.reviewdate && review.reviewtime && review.reviewagenda && review.review_type != 'select'){
                  self.uids_list = []
                  for (var i=0; i<review.participants.length; i++) {
                     self.uids_list.push(self.map_list_item[review.participants[i]]);
@@ -281,6 +288,26 @@
                  });
                 });
 		}
+        else {
+            swal({
+              title: "All required fields are not filled",
+              text: "", 
+              type: "error",
+              showCancelButton: false,
+              confirmButtonColor: "#DD6B55",
+              confirmButtonText: "Okay",
+              cancelButtonText: "", 
+              closeOnConfirm: true,
+              closeOnCancel: false
+            },  
+            function(isConfirm){
+              if (isConfirm) {
+                $('#myModal').modal('show');
+              }   
+            }); 
+
+       }
+    }
                 }
 
              self.remove_file = function(file_id) {
@@ -369,6 +396,7 @@
                         self.part_disable = false;
 
 			$('.loading').removeClass('show').addClass('hide');
+            swal('No Reviews Available! Click on plus button to create a new reveiw');
 			}
                       });
                     });
