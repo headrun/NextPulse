@@ -2,6 +2,8 @@
 from api.basic import *
 from api.commons import *
 from api.query_generations import *
+from api.graph_settings import *
+from api.weekly_graph import *
 
 def prod_avg_perday(request):
     final_dict = {}

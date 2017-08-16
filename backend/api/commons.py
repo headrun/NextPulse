@@ -1,8 +1,8 @@
 
 import datetime
 from api.basic import *
-from models import *
-
+from api.models import *
+from api.graphs_mod import *
 
 def data_dict(variable):
     """It generates common code required for all the widgets"""
@@ -268,6 +268,8 @@ def level_hierarchy_key(level_structure_key,vol_type):
     return  final_work_packet
 
 def day_week_month(request, dwm_dict, prj_id, center, work_packets, level_structure_key):
+    from api.graph_error import internal_extrnal_graphs
+    from api.graphs_mod import internal_extrnal_graphs
     if dwm_dict.has_key('day'):
         final_dict = {}
         final_details = {}

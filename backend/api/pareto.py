@@ -1,3 +1,11 @@
+import redis
+from api.project import *
+from api.query_generations import *
+from api.graphs_mod import *
+from api.graph_error import *
+from api.graph_settings import *
+
+
 def pareto_data_generation(vol_error_values,internal_time_line):
     result = {}
     volume_error_count = {}
@@ -209,6 +217,8 @@ def agent_external_pareto_data_generation(request,date_list,prj_id,center_obj,le
     return result_dict
 
 def sample_pareto_analysis(request,date_list,prj_id,center_obj,level_structure_key,err_type):
+    from api.graph_error import error_types_sum
+    from api.graphs_mod import worktrack_internal_external_workpackets_list
     prj_name = Project.objects.filter(id=prj_id).values_list('name', flat=True)
     center_name = Center.objects.filter(id=center_obj).values_list('name', flat=True)
     query_set = query_set_generation(prj_id, center_obj, level_structure_key,date_list)
@@ -322,6 +332,7 @@ def sample_pareto_analysis(request,date_list,prj_id,center_obj,level_structure_k
 
 
 def pareto_graph_data(pareto_dict):
+    from api.graph_settings import graph_data_alignment
     final_list = []
     for key,value in pareto_dict.iteritems():
         alignment_data = graph_data_alignment(value, 'data')

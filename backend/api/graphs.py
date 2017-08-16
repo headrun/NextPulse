@@ -4,6 +4,7 @@ from api.query_generations import *
 from api.graphs_mod import *
 from api.graph_settings import *
 from api.weekly_graph import *
+import redis
 
 def alloc_and_compl(request):
     final_dict = {}

@@ -1,3 +1,5 @@
+import redis
+
 def Monthly_Volume_graph(prj_id,center,date_list, level_structure_key):
     from datetime import datetime
     startTime = datetime.now()

@@ -1,5 +1,8 @@
+import redis
 from api.query_generations import *
-
+from django.db.models import Max
+from api.commons import *
+from api.graphs_mod import *
 
 def Packet_Alias_Names(prj_id,center_obj,widget_config_name):
     new_pkt_names = {} 
@@ -143,6 +146,7 @@ def graph_data_alignment_other(volumes_data, work_packets, name_key):
 
 def product_total_graph(date_list,prj_id,center_obj,level_structure_key):
     from collections import defaultdict
+    from api.commons import level_hierarchy_key
     ratings = defaultdict(list)
     conn = redis.Redis(host="localhost", port=6379, db=0)
     result, volumes_dict, date_values = {}, {}, {}

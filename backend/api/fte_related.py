@@ -1,3 +1,5 @@
+import redis
+
 def fte_calculation_sub_project_work_packet(result,level_structure_key):
     final_fte ={}
     count = 0

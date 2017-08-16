@@ -1,3 +1,9 @@
+
+from django.db.models import Sum
+from django.db.models import Max
+from api.models import *
+
+
 def pre_scan_exception_data(date_list, prj_id, center):
     result_data_value = []
     final_result_dict = {}

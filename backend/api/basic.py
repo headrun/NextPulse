@@ -229,6 +229,7 @@ def from_too(request):
     return json_HttpResponse('Cool')
 
 def from_to(request):
+    from api.commons import data_dict, day_week_month
     from_date = datetime.datetime.strptime(request.GET['from'],'%Y-%m-%d').date()
     to_date = datetime.datetime.strptime(request.GET['to'],'%Y-%m-%d').date()
     type = request.GET['type']

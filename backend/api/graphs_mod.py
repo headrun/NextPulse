@@ -3,6 +3,7 @@ from django.apps import apps
 from django.db.models import Max
 from django.db.models import Sum
 from api.models import *
+from api.internal_external_common import *
 
 def internal_extrnal_graphs(date_list,prj_id,center_obj,level_structure_key):
     prj_name = Project.objects.filter(id=prj_id).values_list('name', flat=True)
@@ -11,7 +12,6 @@ def internal_extrnal_graphs(date_list,prj_id,center_obj,level_structure_key):
     final_external_data = internal_extrnal_graphs_same_formula(date_list, prj_id, center_obj,level_structure_key,err_type='External')
     final_internal_data.update(final_external_data)
     return final_internal_data
-
 
 
 def tat_graph(date_list, prj_id, center,level_structure_key):

@@ -1,3 +1,10 @@
+import redis
+from api.exception_data import *
+from api.project import *
+from api.query_generations import *
+from api.graphs_mod import *
+from api.commons import *
+from api.graph_error import *
 def internal_external_graphs_common(request,date_list,prj_id,center_obj,level_structure_key,err_type):
     prj_name = Project.objects.filter(id=prj_id).values_list('name', flat=True)
     center_name = Center.objects.filter(id=center_obj).values_list('name', flat=True)
@@ -330,6 +337,7 @@ def internal_external_graphs_common(request,date_list,prj_id,center_obj,level_st
     return result
 
 def internal_extrnal_graphs_same_formula(date_list,prj_id,center_obj,level_structure_key,err_type):
+    from api.graphs_mod import worktrack_internal_external_workpackets_list
     prj_name = Project.objects.filter(id=prj_id).values_list('name', flat=True)
     center_name = Center.objects.filter(id=center_obj).values_list('name', flat=True)
     query_set = query_set_generation(prj_id, center_obj, level_structure_key,date_list)

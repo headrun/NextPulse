@@ -1,3 +1,5 @@
+import redis
+
 def redis_insertion_final(prj_obj,center_obj,dates_list,key_type,level_structure):
     data_dict = {}
     prj_name = prj_obj.name

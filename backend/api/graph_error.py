@@ -1,4 +1,14 @@
+import redis
+from api.commons import *
+from api.pareto import *
+from api.query_generations import *
+from api.graphs_mod import *
+from api.graph_settings import *
+from api.graphs_mod import *
+
 def cate_error(request):
+    from api.graph_settings import graph_data_alignment_color
+    from api.commons import data_dict
     final_dict = {}
     month_names = []
     main_data_dict = data_dict(request.GET)
@@ -37,6 +47,7 @@ def cate_error(request):
     return json_HttpResponse(final_dict)
 
 def pareto_cate_error(request):
+    from api.commons import data_dict
     final_dict = {} 
     main_data_dict = data_dict(request.GET)
     if main_data_dict['dwm_dict'].has_key('day'):
@@ -73,6 +84,7 @@ def pareto_cate_error(request):
     return json_HttpResponse(final_dict)
 
 def agent_cate_error(request):
+    from api.commons import data_dict
     final_dict = {}
     main_data_dict = data_dict(request.GET)
     if main_data_dict['dwm_dict'].has_key('day'):
@@ -109,6 +121,7 @@ def agent_cate_error(request):
     return json_HttpResponse(final_dict)
 
 def error_bar_graph(request):
+    from api.commons import data_dict
     final_dict = {}
     data_date = []
     main_data_dict = data_dict(request.GET)
@@ -391,6 +404,7 @@ def internal_extrnal_sub_error_types(request,date_list,prj_id,center_obj,level_s
     return sub_error_category_calculations
 
 def internal_extrnal_error_types(request,date_list,prj_id,center_obj,level_structure_key,err_type):
+    from api.graphs_mod import worktrack_internal_external_workpackets_list
     prj_name = Project.objects.filter(id=prj_id).values_list('name', flat=True)
     center_name = Center.objects.filter(id=center_obj).values_list('name', flat=True)
     query_set = query_set_generation(prj_id, center_obj, level_structure_key,date_list)
