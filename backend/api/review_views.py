@@ -5,7 +5,7 @@ from django.http import HttpResponse
 from django.core.mail import EmailMultiAlternatives
 
 from common.utils import getHttpResponse as json_HttpResponse
-from models import *
+from api.models import *
 
 
 def get_top_reviews(request):

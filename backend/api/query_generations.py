@@ -1,7 +1,6 @@
 
-
-
-from models import *
+from api.models import *
+from common.utils import getHttpResponse as json_HttpResponse
 
 def tat_table_query_generations(pro_id,cen_id,date,main_work_packet,level_structure_key):
     tat_table_query_set = {}

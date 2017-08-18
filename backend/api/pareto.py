@@ -1,26 +1,12 @@
+
 import redis
-from api.project import *
-from api.query_generations import *
-from api.graphs_mod import *
-from api.graph_error import *
-from api.graph_settings import *
-
-
-def pareto_data_generation(vol_error_values,internal_time_line):
-    result = {}
-    volume_error_count = {}
-    for key,values in vol_error_values.iteritems():
-        new_values = [0 if value=='NA' else value for value in values ]
-        volume_error_count[key] = new_values
-    volume_error_accuracy = {}
-    for key, values in internal_time_line.iteritems():
-        error_values = [0 if value=='NA' else value for value in values ]
-        volume_error_accuracy[key] = error_values
-
-    result = {}
-    result['error_count'] = volume_error_count
-    result['error_accuracy'] = volume_error_accuracy
-    return result
+from django.db.models import Sum
+from django.db.models import Max
+from api.models import *
+from api.query_generations import query_set_generation
+from api.basics import level_hierarchy_key
+from api.utils import graph_data_alignment
+from common.utils import getHttpResponse as json_HttpResponse
 
 def agent_pareto_data_generation(request,date_list,prj_id,center_obj,level_structure_key):
     prj_name = Project.objects.filter(id=prj_id).values_list('name', flat=True)
@@ -332,7 +318,6 @@ def sample_pareto_analysis(request,date_list,prj_id,center_obj,level_structure_k
 
 
 def pareto_graph_data(pareto_dict):
-    from api.graph_settings import graph_data_alignment
     final_list = []
     for key,value in pareto_dict.iteritems():
         alignment_data = graph_data_alignment(value, 'data')

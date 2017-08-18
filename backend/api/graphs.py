@@ -1,10 +1,16 @@
-from commons import *
-from api.production import *
-from api.query_generations import *
-from api.graphs_mod import *
-from api.graph_settings import *
-from api.weekly_graph import *
+
 import redis
+from api.models import *
+from api.commons import data_dict
+from django.db.models import Max
+from api.utils import *
+from api.basics import *
+from api.query_generations import query_set_generation
+from api.fte_related import fte_calculation
+from api.production import main_productivity_data
+from api.weekly_graph import *
+from api.graph_settings import *
+from common.utils import getHttpResponse as json_HttpResponse
 
 def alloc_and_compl(request):
     final_dict = {}

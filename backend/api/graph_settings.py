@@ -1,22 +1,12 @@
-import redis
-from api.query_generations import *
-from django.db.models import Max
-from api.commons import *
-from api.graphs_mod import *
 
-def Packet_Alias_Names(prj_id,center_obj,widget_config_name):
-    new_pkt_names = {} 
-    productivity_series_list = [] 
-    widget_id = Widgets.objects.filter(config_name=widget_config_name).values_list('id',flat=True)
-    alias_packet_names = []
-    if len(widget_id)>0:
-        alias_widget_id = Alias_Widget.objects.filter(widget_name_id=widget_id[0],project=prj_id).values_list('id',flat=True)
-        if len(alias_widget_id):
-            alias_packet_names = Alias_packets.objects.filter(widget_id=alias_widget_id[0]).values('existed_name','alias_name')
-    new_pkt_names = {}
-    for packet_name in alias_packet_names:
-        new_pkt_names[packet_name['existed_name']] = packet_name['alias_name']
-    return new_pkt_names
+import redis
+from api.models import *
+from django.db.models import Max
+from api.query_generations import query_set_generation
+from api.utils import Packet_Alias_Names
+from api.basics import level_hierarchy_key
+from common.utils import getHttpResponse as json_HttpResponse
+
 
 def graph_data_alignment_color(volumes_data,name_key,level_structure_key,prj_id,center_obj,widget_config_name=''): 
     packet_color_query = query_set_generation(prj_id,center_obj,level_structure_key,[]) 
@@ -98,55 +88,8 @@ def graph_data_alignment_color(volumes_data,name_key,level_structure_key,prj_id,
         productivity_series_list.append(prod_dict)
     return productivity_series_list
 
-def graph_data_alignment(volumes_data,name_key):
-    color_coding = {}
-    productivity_series_list = []
-    for vol_name, vol_values in volumes_data.iteritems():
-        if isinstance(vol_values, float):
-            vol_values = float('%.2f' % round(vol_values, 2))
-        prod_dict = {}
-        prod_dict['name'] = vol_name.replace('NA_','').replace('_NA','')
-        if name_key == 'y':
-            prod_dict[name_key] = vol_values
-        if name_key == 'data':
-            if isinstance(vol_values, list):
-                prod_dict[name_key] = vol_values
-            else:
-                prod_dict[name_key] = [vol_values]
-        if vol_name in color_coding.keys():
-            prod_dict['color'] = color_coding[vol_name]
-        productivity_series_list.append(prod_dict)
-
-    return productivity_series_list
-
-def graph_data_alignment_other(volumes_data, work_packets, name_key):
-    productivity_series_list = {}
-    for vol_name, vol_values in volumes_data.iteritems():
-        prod_main_dict={}
-        prod_main_dict['x_axis']=[vol_name]
-        prod_inner_dict = {}
-        prod_inner_dict['name'] = vol_name
-        prod_inner_dict[name_key] =vol_values
-        prod_main_dict['y_axis'] = prod_inner_dict
-        productivity_series_list[vol_name] = prod_main_dict
-    if len(work_packets)<=1:
-        return productivity_series_list
-    if len((work_packets))>=2:
-        if work_packets[0] in productivity_series_list.keys() and work_packets[1] in productivity_series_list.keys():
-            prod_main_dict = {}
-            prod_main_dict['x_axis'] = [work_packets[0],work_packets[1]]
-            prod_inner_dict = {}
-            prod_inner_dict[work_packets[0]] = productivity_series_list[work_packets[0]]['y_axis']
-            prod_inner_dict[work_packets[1]] = productivity_series_list[work_packets[1]]['y_axis']
-            prod_main_dict['y_axis'] = prod_inner_dict
-            productivity_series_list[work_packets[0]] = prod_main_dict
-        return productivity_series_list
-
-
 
 def product_total_graph(date_list,prj_id,center_obj,level_structure_key):
-    from collections import defaultdict
-    from api.commons import level_hierarchy_key
     ratings = defaultdict(list)
     conn = redis.Redis(host="localhost", port=6379, db=0)
     result, volumes_dict, date_values = {}, {}, {}

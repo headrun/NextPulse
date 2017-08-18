@@ -1,3 +1,174 @@
+
+
+from api.models import *
+from api.query_generations import accuracy_query_generations
+from common.utils import getHttpResponse as json_HttpResponse
+
+def internal_bar_data(pro_id, cen_id, from_, to_, main_work_packet, chart_type,project):
+    if (project == "Probe" and chart_type == 'External Accuracy') or (project == 'Ujjivan' and chart_type in ['External Accuracy','Internal Accuracy']) or (project == "IBM" and chart_type == 'External Accuracy'):
+        date_range = num_of_days(to_, from_)
+        final_internal_bar_drilldown = {} 
+        final_internal_bar_drilldown['type'] = chart_type
+        final_internal_bar_drilldown['project'] = project
+        list_data, table_headers = [], []
+        for date in date_range:
+            accuracy_query_set = accuracy_query_generations(pro_id,cen_id,date,main_work_packet)
+            if chart_type == 'External Accuracy':
+                list_of = Externalerrors.objects.filter(**accuracy_query_set).values_list('employee_id','date','work_packet','total_errors','sub_packet')
+            elif project == 'Ujjivan' and chart_type == 'Internal Accuracy':
+                list_of = Internalerrors.objects.filter(**accuracy_query_set).values_list('employee_id', 'date','work_packet','total_errors','sub_packet')
+            for i in list_of:
+                per_day_value = RawTable.objects.filter(employee_id=i[0],date=i[1],work_packet=i[2]).values_list('per_day')
+                try: 
+                    per_day_value = per_day_value[0][0]
+                except:
+                    per_day_value = 0
+                if per_day_value > 0:
+                    list_data.append({'date':str(i[1]), 'total_errors':i[3], 'productivity': per_day_value})
+                    Productivity_value = 0
+                    Error_count = 0
+                for ans in list_data:
+                    if ans['productivity']:
+                        Productivity_value = Productivity_value + ans['productivity']
+                    if ans['total_errors']:
+                        Error_count = Error_count + ans['total_errors']
+                    if ans['productivity'] > 0:
+                        accuracy = 100 - ((float(ans['total_errors']) / float(ans['productivity']))) * 100
+                        accuracy_agg = float('%.2f' % round(accuracy, 2))
+                        ans['accuracy'] = accuracy_agg
+            if len(list_data)>0:
+                table_headers = ['date','productivity','total_errors']
+        final_internal_bar_drilldown['data'] = list_data
+        final_internal_bar_drilldown['table_headers'] = table_headers
+        final_internal_bar_drilldown['Productivity_value'] = Productivity_value
+        final_internal_bar_drilldown['Error_count'] = Error_count
+        return final_internal_bar_drilldown
+
+    date_range = num_of_days(to_,from_)
+    final_internal_bar_drilldown = {} 
+    final_internal_bar_drilldown['type'] = chart_type
+    final_internal_bar_drilldown['project'] = project
+    internal_bar_list, table_headers, list_of = [], [], []
+    for date in date_range:
+        if chart_type == 'Internal Accuracy' or chart_type == 'Internal_Bar_Pie':
+            packets_list = main_work_packet.split('_')
+            packets_list_type = ''
+            if len(packets_list) == 2:
+                sub_project_statuts = Internalerrors.objects.filter(project=pro_id, center=cen_id, date=date).values_list('sub_project',flat=True)
+                sub_project_statuts = filter(None, sub_project_statuts)
+                if len(sub_project_statuts) > 0:
+                    sub_project, work_packet = main_work_packet.split('_')
+                    list_of = Internalerrors.objects.filter(project=pro_id, center=cen_id, date=date,sub_project=sub_project,work_packet=work_packet).values_list('employee_id', 'date', 'work_packet', 'audited_errors', 'total_errors')
+                work_packet_statuts = Internalerrors.objects.filter(center=cen_id, project=pro_id,date=date).values_list('work_packet', flat=True)
+                work_packet_statuts = filter(None, work_packet_statuts)
+                if len(sub_project_statuts) == 0 and len(work_packet_statuts)>0:
+                    work_packet, sub_packet = main_work_packet.split('_')
+                    is_work_pac_exist = Internalerrors.objects.filter(project=pro_id, center=cen_id, date=date).values_list('work_packet', 'sub_packet').distinct()
+                    if len(is_work_pac_exist) > 1:
+                        list_of = Internalerrors.objects.filter(project=pro_id, center=cen_id, date=date,work_packet=work_packet).values_list('employee_id', 'date', 'work_packet', 'audited_errors', 'total_errors')
+                    else:
+                        list_of = Internalerrors.objects.filter(project=pro_id, center=cen_id, date=date,work_packet=work_packet).values_list('employee_id', 'date', 'work_packet', 'audited_errors', 'total_errors')
+            elif len(packets_list) == 3:
+                if '_' in work_packet:
+                    sub_project, work_packet, sub_packet = main_work_packet.split('_')
+                    list_of = Internalerrors.objects.filter(project=pro_id, center=cen_id, date=date,work_packet=work_packet,sub_packet=sub_packet).values_list('employee_id', 'date', 'work_packet', 'audited_errors', 'total_errors')
+                else:
+                    is_work_pac_exist = Internalerrors.objects.filter(project=pro_id, center=cen_id, date=date).values_list('work_packet', 'sub_packet').distinct()
+                    if len(is_work_pac_exist) > 1:
+                        list_of = Internalerrors.objects.filter(project=pro_id, center=cen_id, date=date,work_packet=work_packet).values_list('employee_id', 'date', 'work_packet', 'audited_errors', 'total_errors')
+                    else:
+                        list_of = Internalerrors.objects.filter(project=pro_id, center=cen_id, date=date,work_packet=work_packet).values_list('employee_id', 'date', 'work_packet', 'audited_errors', 'total_errors')
+            else:
+                sub_project_statuts = Internalerrors.objects.filter(project=pro_id,center=cen_id, date=date).values_list('sub_project',flat=True)
+                sub_project_statuts = filter(None, sub_project_statuts)
+                if len(sub_project_statuts) > 0:
+                    packets_list_type = 'sub_project'
+                    is_work_pac_exist = Internalerrors.objects.filter(project=pro_id,center=cen_id,date=date).values_list('sub_project', 'work_packet', 'sub_packet').distinct()
+                    if len(is_work_pac_exist) > 1:
+                        list_of = Internalerrors.objects.filter(project=pro_id,center=cen_id, date=date,sub_project=packets_list[0]).values_list('employee_id', 'date', 'work_packet', 'audited_errors', 'total_errors')
+                    else:
+                        list_of = Internalerrors.objects.filter(project=pro_id,center=cen_id, date=date,sub_project=packets_list[0]).values_list('employee_id', 'date', 'work_packet', 'audited_errors', 'total_errors')
+                else:
+                    packets_list_type = 'work_packet'
+                    is_work_pac_exist = Internalerrors.objects.filter(project=pro_id,center=cen_id, date=date).values_list('work_packet', 'sub_packet').distinct()
+                    if len(is_work_pac_exist) > 1:
+                        list_of = Internalerrors.objects.filter(project=pro_id,center=cen_id, date=date,work_packet=packets_list[0]).values_list('employee_id', 'date', 'work_packet', 'audited_errors', 'total_errors')
+                    else:
+                        list_of = Internalerrors.objects.filter(project=pro_id,center=cen_id, date=date,work_packet=packets_list[0]).values_list('employee_id', 'date', 'work_packet', 'audited_errors', 'total_errors')
+                        
+        else:
+            packets_list = main_work_packet.split('_')
+            packets_list_type = ''
+            list_of =[]
+            if len(packets_list) == 2:
+                sub_project_statuts = Externalerrors.objects.filter(project=pro_id,center=cen_id,date=date).values_list('sub_project', flat=True)
+                sub_project_statuts = filter(None, sub_project_statuts)
+                sub_project, work_packet = main_work_packet.split('_')
+                if len(sub_project_statuts) > 0:
+                    list_of = Externalerrors.objects.filter(project=pro_id, center=cen_id, date=date,sub_project=sub_project,work_packet=work_packet).values_list('employee_id', 'date','work_packet','audited_errors','total_errors')
+                work_packet_statuts = Externalerrors.objects.filter(center=cen_id, project=pro_id,date=date).values_list('work_packet', flat=True)
+                work_packet_statuts = filter(None, work_packet_statuts)
+                if len(sub_project_statuts) == 0 and len(work_packet_statuts) > 0:
+                    work_packet, sub_packet = main_work_packet.split('_')
+                    is_work_pac_exist = Externalerrors.objects.filter(project=pro_id,center=cen_id,date=date).values_list('work_packet','sub_packet').distinct()
+                    if len(is_work_pac_exist) > 1:
+                        list_of = Externalerrors.objects.filter(project=pro_id,center=cen_id,work_packet=work_packet,date=date).values_list('employee_id','date','sub_packet','audited_errors','total_errors')
+
+            elif len(packets_list) == 3:
+                if '_' in work_packet:
+                    sub_project, work_packet, sub_packet = main_work_packet.split('_')
+                    list_of = Externalerrors.objects.filter(center=cen_id, project=pro_id, date=date,work_packet=work_packet, sub_packet=sub_packet).values_list('employee_id', 'date', 'work_packet', 'audited_errors', 'total_errors')
+                else:
+                    is_work_pac_exist = Externalerrors.objects.filter(project=pro_id, center=cen_id, date=date).values_list('work_packet','sub_packet').distinct()
+                    if len(is_work_pac_exist) > 1:
+                        list_of = Externalerrors.objects.filter(project=pro_id,center=cen_id,work_packet=work_packet, data=date).values_list('employee_id','date','work_packet','audited_errors','total_errors')
+                    else:
+                        list_of = Externalerrors.objects.filter(project=pro_id,center=cen_id,work_packet=work_packet, data=date).values_list('employee_id','date','work_packet','audited_errors','total_errors')
+            else:
+                sub_project_statuts = Externalerrors.objects.filter(project=pro_id, center=cen_id, date=date).values_list('sub_project', flat=True)
+                sub_project_statuts = filter(None, sub_project_statuts)
+
+                if len(sub_project_statuts) > 0:
+                    packets_list_type = 'sub_project'
+                    is_work_pac_exist = Externalerrors.objects.filter(project=pro_id,center=cen_id, date=date).values_list('sub_project','work_packet','sub_packet').distinct()
+                    if len(is_work_pac_exist) > 1:
+                        list_of = Externalerrors.objects.filter(project=pro_id, center=cen_id, sub_project=packets_list[0], date=date).values_list('employee_id','date','work_packet','audited_errors','total_errors')
+                    else:
+                        list_of = Externalerrors.objects.filter(project=pro_id, center=cen_id, sub_project=packets_list[0], date=date).values_list('employee_id','date','work_packet','audited_errors','total_errors')
+                else:
+                    packets_list_type = 'work_packet'
+                    is_work_pac_exist = Externalerrors.objects.filter(project=pro_id,center=cen_id, date=date).values_list('work_packet','sub_packet').distinct()
+                    if len(is_work_pac_exist) > 1:
+                        list_of = Externalerrors.objects.filter(project=pro_id, center=cen_id, work_packet=packets_list[0],date=date).values_list('employee_id','date','work_packet','audited_errors','total_errors')
+                    else:
+                        list_of = Externalerrors.objects.filter(project=pro_id, center=cen_id, work_packet=packets_list[0],date=date).values_list('employee_id','date','work_packet','audited_errors','total_errors')
+        for i in list_of:
+            internal_bar_list.append({'date':str(i[1]), 'audited_count':i[3], 'total_errors':i[4]})
+            audited_value = 0
+            Error_count = 0
+            for ans in internal_bar_list:
+                if ans['audited_count']:
+                    audited_value = audited_value + ans['audited_count']
+                if ans['total_errors']:
+                    Error_count = Error_count + ans['total_errors']
+                if ans['total_errors'] >0 and ans['audited_count']>0:
+                    accuracy = 100 - ((float(ans['total_errors']) / float(ans['audited_count']))) * 100
+                    accuracy_agg = float('%.2f' % round(accuracy, 2))
+                    ans['accuracy'] = accuracy_agg
+                elif ans['total_errors']==0 and ans['audited_count']==0:
+                    ans['accuracy'] = 0
+                else:
+                    ans['accuracy'] = 100
+    if len(internal_bar_list) > 0:
+        table_headers = ['date','audited_count', 'total_errors']
+    final_internal_bar_drilldown['data'] = internal_bar_list
+    final_internal_bar_drilldown['project'] = project
+    final_internal_bar_drilldown['table_headers'] = table_headers
+    final_internal_bar_drilldown['audited_value'] = audited_value
+    final_internal_bar_drilldown['Error_count'] = Error_count
+    return final_internal_bar_drilldown
+
+
 def internal_chart_data_multi(pro_id,cen_id,to_date,work_packet,chart_type,project):
     if (project == 'Probe' and chart_type == 'External Accuracy Trends') or (project == 'Ujjivan' and chart_type == 'External Accuracy Trends') or (project == 'IBM' and chart_type == 'External Accuracy Trends'):
         final_internal_drilldown = {}

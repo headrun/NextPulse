@@ -1,10 +1,12 @@
+
 import redis
-from api.exception_data import *
-from api.project import *
+from api.models import *
+from api.basics import *
+from api.utils import *
 from api.query_generations import *
-from api.graphs_mod import *
-from api.commons import *
-from api.graph_error import *
+from django.db.models import Max
+from common.utils import getHttpResponse as json_HttpResponse
+
 def internal_external_graphs_common(request,date_list,prj_id,center_obj,level_structure_key,err_type):
     prj_name = Project.objects.filter(id=prj_id).values_list('name', flat=True)
     center_name = Center.objects.filter(id=center_obj).values_list('name', flat=True)
@@ -525,3 +527,14 @@ def internal_extrnal_graphs_same_formula(date_list,prj_id,center_obj,level_struc
         result['external_time_line_date'] = date_list
         result['external_pareto_data'] = pareto_data_generation(vol_error_values, internal_time_line)
     return result
+
+
+def internal_extrnal_graphs(date_list,prj_id,center_obj,level_structure_key):
+    prj_name = Project.objects.filter(id=prj_id).values_list('name', flat=True)
+    center_name = Center.objects.filter(id=center_obj).values_list('name', flat=True)
+    final_internal_data = internal_extrnal_graphs_same_formula(date_list, prj_id, center_obj,level_structure_key,err_type='Internal')
+    final_external_data = internal_extrnal_graphs_same_formula(date_list, prj_id, center_obj,level_structure_key,err_type='External')
+    final_internal_data.update(final_external_data)
+    return final_internal_data
+
+

@@ -1,14 +1,16 @@
+
 import redis
-from api.commons import *
+from api.models import *
+from api.commons import data_dict
 from api.pareto import *
-from api.query_generations import *
-from api.graphs_mod import *
-from api.graph_settings import *
-from api.graphs_mod import *
+from api.basics import *
+from django.db.models import Max
+from api.utils import worktrack_internal_external_workpackets_list
+from api.query_generations import query_set_generation
+from api.internal_external_common import *
+from common.utils import getHttpResponse as json_HttpResponse
 
 def cate_error(request):
-    from api.graph_settings import graph_data_alignment_color
-    from api.commons import data_dict
     final_dict = {}
     month_names = []
     main_data_dict = data_dict(request.GET)
@@ -265,68 +267,9 @@ def err_field_graph(request):
     return json_HttpResponse(final_dict)
 
 
-def different_sub_error_type(total_type_errors):
-    all_errors = {}
-    new_all_errors = {}
-    if len(total_type_errors) > 0:
-        for error_dict in total_type_errors:
-            error_names= error_dict['type_error'].split('#<>#')
-            error_values = error_dict['sub_error_count'].split('#<>#')
-            for er_key,er_value in zip(error_names,error_values):
-                if all_errors.has_key(er_key):
-                    all_errors[er_key].append(int(er_value))
-                else:
-                    if er_key != '':
-                        all_errors[er_key] = [int(er_value)]
-        for type_error,sub_error_count in all_errors.iteritems():
-            try:
-                new_all_errors[str(type_error)] = sum(sub_error_count)
-            except:
-                type_error = smart_str(type_error)
-                new_all_errors[type_error] = sum(sub_error_count)
-    return new_all_errors
-
-def different_error_type(total_error_types):
-    all_errors = {}
-    new_all_errors = {}
-    if len(total_error_types) > 0:
-        for error_dict in total_error_types:
-            error_names= error_dict['error_types'].split('#<>#')
-            error_values = error_dict['error_values'].split('#<>#')
-            for er_key,er_value in zip(error_names,error_values):
-                if all_errors.has_key(er_key):
-                    all_errors[er_key].append(int(er_value))
-                else:
-                    if er_key != '':
-                        all_errors[er_key] = [int(er_value)]
-        for error_type,error_value in all_errors.iteritems():
-            try:
-                new_all_errors[str(error_type)] = sum(error_value)
-            except:
-                error_type = smart_str(error_type)
-                new_all_errors[error_type] = sum(error_value)
-    return new_all_errors
 
 
-def error_types_sum(error_list):
-    final_error_dict = {}
-    new_final_dict = {}
-    for error_dict in error_list:
-        error_dict = json.loads(error_dict)
-        for er_type,er_value in error_dict.iteritems():
-            if final_error_dict.has_key(er_type):
-                final_error_dict[er_type].append(er_value)
-            else:
-                final_error_dict[er_type] = [er_value]
-    for error_type, error_value in final_error_dict.iteritems():
-        final_error_dict[error_type] = sum(error_value)
-    if final_error_dict.has_key('no_data'):
-        del final_error_dict['no_data']
-    for er_key in final_error_dict.keys():
-        if final_error_dict[er_key] != 0:
-            new_final_dict[er_key] = final_error_dict[er_key]
 
-    return new_final_dict
 
 
 def internal_extrnal_sub_error_types(request,date_list,prj_id,center_obj,level_structure_key,err_type):
@@ -480,116 +423,6 @@ def internal_extrnal_error_types(request,date_list,prj_id,center_obj,level_struc
     indicidual_error_calc = error_types_sum(all_error_types)
     return indicidual_error_calc
 
-def Error_checking(employee_data,error_match=False):
-    employee_data['status'] = 'mis_match'
-    if employee_data.has_key('individual_errors') or employee_data.has_key('sub_errors'):
-        if employee_data['individual_errors'].has_key('no_data'):
-           employee_data['status'] = 'matched'
-        try:
-            total_errors = int(float(employee_data['total_errors']))
-        except:
-            total_errors = 0
 
-        if employee_data['sub_errors'].has_key('no_data'):
-            employee_data['status'] = 'matched'
-        try:
-            total_errors = int(float(employee_data['total_errors']))
-        except:
-            total_errors = 0
 
-        all_error_values = []
-        sub_error_values = []
 
-        for er_value in employee_data['individual_errors'].values():
-            try:
-                er_value = int(float(er_value))
-            except:
-                er_value = 0
-            all_error_values.append(er_value)
-
-        for er_value in employee_data['sub_errors'].values():
-            try:
-                er_value = int(float(er_value))
-            except:
-                er_value = 0
-            sub_error_values.append(er_value)
-        if error_match == True:
-            if total_errors == sum(sub_error_values):
-                sub_error_values = [str(value) for value in sub_error_values]
-                employee_data['status'] = 'matched'
-                type_error = '#<>#'.join(employee_data['sub_errors'].keys())
-                sub_error_count = '#<>#'.join(sub_error_values)
-            else:
-                employee_data['type_error'] = None
-                employee_data['sub_error_count'] = 0
-
-            if total_errors == sum(all_error_values):
-                all_error_values = [str(value) for value in all_error_values ]
-                employee_data['status'] = 'matched'
-                error_types='#<>#'.join(employee_data['individual_errors'].keys())
-                error_values = '#<>#'.join(all_error_values)
-                employee_data['error_types'] = error_types
-                employee_data['error_values'] = error_values
-            else:
-                employee_data['error_types'] = None
-                employee_data['error_values'] = 0
-        else:
-            all_error_values = [str(value) for value in all_error_values]
-            sub_error_values = [str(value) for value in sub_error_values]
-            error_types = '#<>#'.join(employee_data['individual_errors'].keys())
-            type_error = '#<>#'.join(employee_data['sub_errors'].keys())
-            error_values = '#<>#'.join(all_error_values)
-            sub_error_count = '#<>#'.join(sub_error_values)
-            employee_data['error_types'] = error_types
-            employee_data['type_error'] = type_error
-            employee_data['sub_error_count'] = sub_error_count
-            employee_data['error_values'] = error_values
-    return employee_data
-
-def error_timeline_min_max(min_max_dict):
-    int_timeline_min_max = []
-    for wp_key, wp_value in min_max_dict.iteritems():
-        int_timeline_min_max = int_timeline_min_max + wp_value
-    final_min_max={}
-    if len(int_timeline_min_max)>0:
-        min_value = int(round(min(int_timeline_min_max) - 2))
-        max_value = int(round(max(int_timeline_min_max) + 2))
-        final_min_max['min_value'] = 0
-        if min_value > 0:
-            final_min_max['min_value'] = min_value
-        final_min_max['max_value'] = max_value
-    else:
-        final_min_max['min_value'] = 0
-        final_min_max['max_value'] = 0
-    return final_min_max
-
-def errors_week_calcuations(week_names,internal_accuracy_timeline,final_internal_accuracy_timeline):
-    for prodct_key, prodct_value in internal_accuracy_timeline.iteritems():
-        for vol_key, vol_values in prodct_value.iteritems():
-            error_pers = [i for i in vol_values if i != 'NA']
-            if len(error_pers) > 0:
-                int_errors = float(sum(error_pers)) / len(error_pers)
-                int_errors = float('%.2f' % round(int_errors, 2))
-            else:
-                int_errors = 0
-            internal_accuracy_timeline[prodct_key][vol_key] = int_errors
-
-    for final_key, final_value in internal_accuracy_timeline.iteritems():
-        for week_key, week_value in final_value.iteritems():
-            if week_key not in final_internal_accuracy_timeline.keys():
-                final_internal_accuracy_timeline[week_key] = []
-    for prod_week_num in week_names:
-        if internal_accuracy_timeline.has_key(prod_week_num):
-            if len(internal_accuracy_timeline[prod_week_num]) > 0:
-                for vol_key, vol_values in internal_accuracy_timeline[prod_week_num].iteritems():
-                    if final_internal_accuracy_timeline.has_key(vol_key):
-                        final_internal_accuracy_timeline[vol_key].append(vol_values)
-                    else:
-                        final_internal_accuracy_timeline[vol_key] = [vol_values]
-                for prod_key, prod_values in final_internal_accuracy_timeline.iteritems():
-                    if prod_key not in internal_accuracy_timeline[prod_week_num].keys():
-                        final_internal_accuracy_timeline[prod_key].append(0)
-            else:
-                for vol_key, vol_values in final_internal_accuracy_timeline.iteritems():
-                    final_internal_accuracy_timeline[vol_key].append(0)
-    return final_internal_accuracy_timeline

@@ -1,9 +1,14 @@
 
-from api.basic import *
+import redis
+from api.models import *
+from api.basics import *
+from api.utils import *
 from api.commons import *
-from api.query_generations import *
-from api.graph_settings import *
-from api.weekly_graph import *
+from django.db.models import Max
+from api.query_generations import query_set_generation
+from api.graph_settings import graph_data_alignment_color
+from common.utils import getHttpResponse as json_HttpResponse
+
 
 def prod_avg_perday(request):
     final_dict = {}

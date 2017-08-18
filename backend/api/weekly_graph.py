@@ -1,244 +1,13 @@
+
+import redis
 from api.models import *
-
-def volume_status_week(week_names,productivity_list,final_productivity):
-    final_productivity =  OrderedDict()
-    for final_key, final_value in productivity_list.iteritems():
-        for week_key, week_value in final_value.iteritems():
-            if week_key not in final_productivity.keys():
-                final_productivity[week_key] = [] 
-    for prod_week_num in week_names:
-        if len(productivity_list.get(prod_week_num,'')) > 0: 
-            for vol_key, vol_values in productivity_list[prod_week_num].iteritems():
-                if final_productivity.has_key(vol_key):
-                    if vol_key == 'Opening':
-                        final_productivity[vol_key].append(vol_values[0])
-                    elif vol_key == 'Closing balance':
-                        final_productivity[vol_key].append(vol_values[-1])
-                    else:
-                        if isinstance(vol_values,list):
-                            vol_values = sum(vol_values)
-                        final_productivity[vol_key].append(vol_values)
-                else:
-                    if isinstance(vol_values,list):
-                        vol_values = sum(vol_values)
-                    final_productivity[vol_key] = [vol_values]
-            for prod_key, prod_values in final_productivity.iteritems():
-                if prod_key not in productivity_list[prod_week_num].keys():
-                    final_productivity[prod_key].append(0)
-        else:
-            for vol_key, vol_values in final_productivity.iteritems():
-                final_productivity[vol_key].append(0)
-    return final_productivity
-
-def received_volume_week(week_names,productivity_list,final_productivity):
-    productivity_data = {}
-    for final_key, final_value in productivity_list.iteritems():
-        for week_key, week_value in final_value.iteritems():
-            if week_key not in final_productivity.keys():
-                final_productivity[week_key] = []
-    for prod_week_num in week_names:
-        if len(productivity_list.get(prod_week_num,'')) > 0:
-            values = productivity_list[prod_week_num]
-            flag = isinstance(values.get('Received',""), list) & isinstance(values.get('Completed',""), list) & isinstance(values.get('Opening',""), list)
-            if flag:
-                if len(values['Received']) == len(values['Opening']):
-                    values['Received'][0] = values['Received'][0] + values['Opening'][0]
-                    values['Received'] = sum(values['Received'])
-                    values['Completed'] = sum(values['Completed'])
-                    productivity_data.update(values)
-                    del productivity_data['Opening']
-                    for vol_key,vol_values in productivity_data.iteritems():
-                        if final_productivity.has_key(vol_key):
-                            final_productivity[vol_key].append(vol_values)
-                        else:
-                            final_productivity[vol_key] = [vol_values]
-
-                for prod_key, prod_values in final_productivity.iteritems():
-                    if prod_key not in productivity_list[prod_week_num].keys():
-                        final_productivity[prod_key].append(0)
-        else:
-            for vol_key, vol_values in final_productivity.iteritems():
-                final_productivity[vol_key].append(0)
-    if final_productivity.has_key('Opening'):
-        del final_productivity['Opening']
-    else:
-        final_productivity = final_productivity
-    return final_productivity
-
-def prod_volume_prescan_week_util(week_names,productivity_list,final_productivity):
-    for final_key, final_value in productivity_list.iteritems():
-        for week_key, week_value in final_value[0].iteritems():
-            if week_key not in final_productivity.keys():
-                final_productivity[week_key] = []
-    for prod_week_num in week_names:
-        if len(productivity_list.get(prod_week_num,'')) > 0:
-            for vol_key, vol_values in productivity_list[prod_week_num][0].iteritems():
-                if final_productivity.has_key(vol_key):
-                    if isinstance(vol_values,list):
-                        new_values= [k for k in vol_values if k!=0]
-                        if len(new_values)>0:
-                            vol_values = float(float(sum(vol_values))/len(new_values))
-                        else:
-                            vol_values = sum(vol_values)
-                    vol_values = float('%.2f' % round(vol_values, 2))
-                    final_productivity[vol_key].append(vol_values)
-                else:
-                    if isinstance(vol_values,list):
-                        if len(vol_values)>0:
-                            vol_values = float(float(sum(vol_values))/len(vol_values))
-                        else:
-                            vol_values = sum(vol_values)
-                    final_productivity[vol_key] = [vol_values]
-            for prod_key, prod_values in final_productivity.iteritems():
-                if prod_key not in productivity_list[prod_week_num][0].keys():
-                    final_productivity[prod_key].append(0)
-        else:
-            for vol_key, vol_values in final_productivity.iteritems():
-                final_productivity[vol_key].append(0)
-
-    return final_productivity
-
-
-def prod_volume_upload_week_util(week_names,productivity_list,final_productivity):
-    for final_key, final_value in productivity_list.iteritems():
-        for week_key, week_value in final_value.iteritems():
-            if week_key not in final_productivity.keys():
-                final_productivity[week_key] = []
-    for prod_week_num in week_names:
-        if len(productivity_list.get(prod_week_num,'')) > 0:
-            for vol_key, vol_values in productivity_list[prod_week_num].iteritems():
-                if final_productivity.has_key(vol_key):
-                    if isinstance(vol_values,list):
-                        new_values= [k for k in vol_values if k!=0]
-                        if len(new_values)>0:
-                            vol_values = float(float(sum(vol_values))/len(new_values))
-                        else:
-                            vol_values = sum(vol_values)
-                    vol_values = float('%.2f' % round(vol_values, 2))
-                    final_productivity[vol_key].append(vol_values)
-                else:
-                    if isinstance(vol_values,list):
-                        if len(vol_values)>0:
-                            vol_values = float(float(sum(vol_values))/len(vol_values))
-                        else:
-                            vol_values = sum(vol_values)
-                    final_productivity[vol_key] = [vol_values]
-            for prod_key, prod_values in final_productivity.iteritems():
-                if prod_key not in productivity_list[prod_week_num].keys():
-                    final_productivity[prod_key].append(0)
-        else:
-            for vol_key, vol_values in final_productivity.iteritems():
-                final_productivity[vol_key].append(0)
-
-    return final_productivity
-
-
-def prod_volume_week(week_names,productivity_list,final_productivity):
-    for final_key, final_value in productivity_list.iteritems():
-        for week_key, week_value in final_value.iteritems():
-            if week_key not in final_productivity.keys():
-                final_productivity[week_key] = []
-    for prod_week_num in week_names:
-        if len(productivity_list.get(prod_week_num,'')) > 0:
-            for vol_key, vol_values in productivity_list[prod_week_num].iteritems():
-                if final_productivity.has_key(vol_key):
-                    if isinstance(vol_values,list):
-                        vol_values = sum(vol_values)
-                    final_productivity[vol_key].append(vol_values)
-                else:
-                    if isinstance(vol_values,list):
-                        vol_values = sum(vol_values)
-                    final_productivity[vol_key] = [vol_values]
-            for prod_key, prod_values in final_productivity.iteritems():
-                if prod_key not in productivity_list[prod_week_num].keys():
-                    final_productivity[prod_key].append(0)
-        else:
-            for vol_key, vol_values in final_productivity.iteritems():
-                final_productivity[vol_key].append(0)
-    return final_productivity
-
-def prod_volume_week_util_headcount(week_names,productivity_list,final_productivity):
-    for final_key, final_value in productivity_list.iteritems():
-        for week_key, week_value in final_value.iteritems():
-            if week_key not in final_productivity.keys():
-                final_productivity[week_key] = []
-    for prod_week_num in week_names:
-        if len(productivity_list.get(prod_week_num,'')) > 0:
-            for vol_key, vol_values in productivity_list[prod_week_num].iteritems():
-                if final_productivity.has_key(vol_key):
-                    if isinstance(vol_values,list):
-                        new_values= [k for k in vol_values if k!=0] 
-                        if len(new_values)>0:
-                            vol_values = float(float(sum(vol_values))/len(new_values))
-                        else: 
-                            vol_values = sum(vol_values)
-                    vol_values = float('%.2f' % round(vol_values, 2))
-                    final_productivity[vol_key].append(vol_values)
-                else: 
-                    if isinstance(vol_values,list):
-                        if len(vol_values)>0:
-                            vol_values = float(float(sum(vol_values))/len(vol_values))
-                        else: 
-                            vol_values = sum(vol_values)
-                    final_productivity[vol_key] = [vol_values]
-            for prod_key, prod_values in final_productivity.iteritems():
-                if prod_key not in productivity_list[prod_week_num].keys():
-                    final_productivity[prod_key].append(0)
-        else: 
-            for vol_key, vol_values in final_productivity.iteritems():
-                final_productivity[vol_key].append(0)
-    return final_productivity
-
-
-def prod_volume_week_util(prj_id,week_names,productivity_list,final_productivity,week_or_month):
-    var = Project.objects.filter(id=prj_id).values('days_week','days_month')[0]
-    for final_key, final_value in productivity_list.iteritems():
-        for week_key, week_value in final_value.iteritems():
-            if week_key not in final_productivity.keys():
-                final_productivity[week_key] = []
-    
-    for prod_week_num in week_names:
-        if len(productivity_list.get(prod_week_num,'')) > 0:
-            for vol_key, vol_values in productivity_list[prod_week_num].iteritems():
-                if final_productivity.has_key(vol_key):
-                    if isinstance(vol_values,list):
-                        new_values= [k for k in vol_values if k!=0]
-                        for key,value in var.iteritems():
-                            if key == 'days_week' and week_or_month == 'week':
-                                if len(new_values)> 5:
-                                    vol_values = float(float(sum(vol_values))/value)
-                                    vol_values = float('%.2f' % round(vol_values, 2))
-                                elif len(new_values) <= 5 and len(new_values) != 0:
-                                    vol_values = float(float(sum(vol_values))/len(new_values))
-                                    vol_values = float('%.2f' % round(vol_values, 2))
-                                else:
-                                    vol_values = sum(vol_values)
-                            elif key == 'days_month' and week_or_month == 'month':
-                                if len(new_values)> 21:
-                                    vol_values = float(float(sum(vol_values))/value)
-                                    vol_values = float('%.2f' % round(vol_values, 2))
-                                elif len(new_values) <= 21 and len(new_values) != 0:
-                                    vol_values = float(float(sum(vol_values))/len(new_values))
-                                    vol_values = float('%.2f' % round(vol_values, 2))
-                                else:
-                                    vol_values = sum(vol_values)
-                        final_productivity[vol_key].append(vol_values)
-                else:
-                    if isinstance(vol_values,list):
-                        if len(vol_values)>0:
-                            vol_values = float(float(sum(vol_values))/len(vol_values))
-                    else:
-                            vol_values = sum(vol_values)
-                    final_productivity[vol_key] = [vol_values]
-            for prod_key, prod_values in final_productivity.iteritems():
-                if prod_key not in productivity_list[prod_week_num].keys():
-                    final_productivity[prod_key].append(0)
-        else:
-            for vol_key, vol_values in final_productivity.iteritems():
-                final_productivity[vol_key].append(0)
-    
-    return final_productivity
-
+from api.basics import *
+from api.utils import *
+from django.db.models import Max
+from api.query_generations import query_set_generation
+from api.internal_external_common import internal_extrnal_graphs
+from api.graph_settings import graph_data_alignment_color
+from common.utils import getHttpResponse as json_HttpResponse
 
 def volume_graph_data_week_month(date_list,prj_id,center_obj,level_structure_key):
     conn = redis.Redis(host="localhost", port=6379, db=0)
@@ -322,3 +91,335 @@ def volume_graph_data_week_month(date_list,prj_id,center_obj,level_structure_key
         final_volume_graph['bar_data'] = {}
         final_volume_graph['line_data'] = {}
         return final_volume_graph        
+
+
+
+
+def day_week_month(request, dwm_dict, prj_id, center, work_packets, level_structure_key):
+    if dwm_dict.has_key('day'):
+        final_dict = {}
+        final_details = {}
+        error_graphs_data = internal_extrnal_graphs(dwm_dict['day'], prj_id, center,level_structure_key)
+        if len(error_graphs_data['internal_time_line']) > 0:
+            internal_time_line = {}
+            for er_key, er_value in error_graphs_data['internal_time_line']['internal_time_line'].iteritems():
+                packet_errors = []
+                for err_value in er_value:
+                    if err_value == "NA":
+                        packet_errors.append(0)
+                    else:
+                        packet_errors.append(err_value)
+                internal_time_line[er_key] = packet_errors
+            final_dict['internal_time_line'] = graph_data_alignment_color(internal_time_line, 'data',level_structure_key, prj_id, center,'internal_accuracy_timeline')
+            int_error_timeline_min_max = error_timeline_min_max(internal_time_line)
+            final_dict['min_internal_time_line'] = int_error_timeline_min_max['min_value']
+            final_dict['max_internal_time_line'] = int_error_timeline_min_max['max_value']
+        if len(error_graphs_data['external_time_line']) > 0:
+            for er_key, er_value in error_graphs_data['external_time_line']['external_time_line'].iteritems():
+                packet_errors = []
+                for err_value in er_value:
+                    if err_value == "NA":
+                        packet_errors.append(0)
+                    else:
+                        packet_errors.append(err_value)
+                error_graphs_data['external_time_line']['external_time_line'][er_key] = packet_errors
+            final_dict['external_time_line'] = graph_data_alignment_color(error_graphs_data['external_time_line']['external_time_line'], 'data', level_structure_key, prj_id,center,'external_accuracy_timeline')
+            ext_error_timeline_min_max = error_timeline_min_max(
+                error_graphs_data['external_time_line']['external_time_line'])
+            final_dict['min_external_time_line'] = ext_error_timeline_min_max['min_value']
+            final_dict['max_external_time_line'] = ext_error_timeline_min_max['max_value']
+        all_external_error_accuracy = {}
+        all_internal_error_accuracy = {}
+
+        dates = [dwm_dict['day'][0], dwm_dict['day'][-1:][0]]
+
+        ext_min_value, ext_max_value = 0, 0
+        if error_graphs_data.has_key('extr_err_accuracy'):
+            ext_value_range = error_graphs_data['extr_err_accuracy']['extr_err_perc']
+            if len(ext_value_range) > 0:
+                if ext_value_range != '' and min(ext_value_range) > 0:
+                    ext_min_value = int(round(min(ext_value_range) - 2))
+                    ext_max_value = int(round(max(ext_value_range) + 2))
+                else:
+                    ext_min_value = int(round(min(ext_value_range)))
+                    ext_max_value = int(round(max(ext_value_range) + 2))
+            final_dict['ext_min_value'] = ext_min_value
+            final_dict['ext_max_value'] = ext_max_value
+        new_date_list = []
+        for date_va in dwm_dict['day']:
+            total_done_value = RawTable.objects.filter(project=prj_id,center=center,date=date_va).aggregate(Max('per_day'))
+            if total_done_value['per_day__max'] > 0:
+                new_date_list.append(date_va)
+        final_dict['date'] = new_date_list
+        return final_dict
+
+    if dwm_dict.has_key('month'):
+        result_dict, final_result_dict, final_internal_accuracy_timeline = {}, {}, {}
+        internal_accuracy_timeline, final_external_accuracy_timeline, external_accuracy_timeline = {}, {}, {}
+        month_names, data_date = [], []
+        all_internal_error_accuracy, all_external_error_accuracy = {}, {}
+        for month_na,month_va in zip(dwm_dict['month']['month_names'],dwm_dict['month']['month_dates']):
+            month_name = month_na
+            month_dates = month_va
+            data_date.append(month_dates[0] + ' to ' + month_dates[-1])
+            month_names.append(month_name)
+            error_graphs_data = internal_extrnal_graphs(month_dates, prj_id, center,level_structure_key)
+            if len(error_graphs_data['internal_time_line']) > 0:
+                internal_accuracy_packets = {}
+                internal_accuracy_timeline[month_name] = error_graphs_data['internal_time_line']['internal_time_line']
+                intr_accuracy_perc = error_graphs_data['internal_accuracy_graph']
+                for in_acc_key,in_acc_value in intr_accuracy_perc.iteritems():
+                    if internal_accuracy_packets.has_key(in_acc_key):
+                        internal_accuracy_packets[in_acc_key].append(in_acc_value)
+                    else:
+                        internal_accuracy_packets[in_acc_key] = in_acc_value
+                internal_accuracy_timeline[month_name] = internal_accuracy_packets
+            if len(error_graphs_data['external_time_line']) > 0: 
+                external_accuracy_packets = {}
+                if error_graphs_data.has_key('external_accuracy_graph'):
+                    extr_accuracy_perc = error_graphs_data['external_accuracy_graph']
+                else:
+                    extr_accuracy_perc = error_graphs_data['extr_err_accuracy']['packets_percntage'] 
+                for ex_acc_key,ex_acc_value in extr_accuracy_perc.iteritems():
+                    if external_accuracy_packets.has_key(ex_acc_key):
+                        if isinstance(ex_acc_value,list):
+                            external_accuracy_packets[ex_acc_key].append(ex_acc_value[0])
+                        else:
+                            external_accuracy_packets[ex_acc_key].append(ex_acc_value)
+                    else:
+                        if isinstance(ex_acc_value,list):
+                            external_accuracy_packets[ex_acc_key] = ex_acc_value
+                        else:
+                            external_accuracy_packets[ex_acc_key] = [ex_acc_value]
+                external_accuracy_timeline[month_name] = external_accuracy_packets
+
+            if error_graphs_data.has_key('extr_err_accuracy'):
+                for vol_key, vol_values in error_graphs_data['extr_err_accuracy']['packets_percntage'].iteritems():
+                    if all_external_error_accuracy.has_key(vol_key):
+                        all_external_error_accuracy[vol_key].append(vol_values[0])
+                    else:
+                        all_external_error_accuracy[vol_key] = vol_values
+
+        dates = [dwm_dict['month']['month_dates'][0][0], dwm_dict['month']['month_dates'][-1:][0][-1:][0]]
+
+        final_internal_accuracy_timeline = errors_week_calcuations(month_names, internal_accuracy_timeline,final_internal_accuracy_timeline)
+        final_external_accuracy_timeline = errors_week_calcuations(month_names, external_accuracy_timeline,final_external_accuracy_timeline)
+        result_dict['internal_time_line'] = graph_data_alignment_color(final_internal_accuracy_timeline, 'data',level_structure_key, prj_id, center,'internal_accuracy_timeline')        
+        int_error_timeline_min_max = error_timeline_min_max(final_internal_accuracy_timeline)
+        result_dict['min_internal_time_line'] = int_error_timeline_min_max['min_value']
+        result_dict['max_internal_time_line'] = int_error_timeline_min_max['max_value']
+        result_dict['external_time_line'] = graph_data_alignment_color(final_external_accuracy_timeline, 'data',level_structure_key, prj_id, center,'external_accuracy_timeline')
+
+        ext_error_timeline_min_max = error_timeline_min_max(final_external_accuracy_timeline)
+        result_dict['min_external_time_line'] = ext_error_timeline_min_max['min_value']
+        result_dict['max_external_time_line'] = ext_error_timeline_min_max['max_value']
+        result_dict['date'] = data_date
+        return result_dict
+
+    if dwm_dict.has_key('week'):
+        final_result_dict, result_dict, final_internal_accuracy_timeline = {}, {}, {}
+        internal_accuracy_timeline, final_external_accuracy_timeline, external_accuracy_timeline = {}, {}, {}
+        all_internal_error_accuracy, all_external_error_accuracy = {}, {}
+        data_date, week_names = [], []
+        internal_week_num, external_week_num, week_num = 0, 0, 0
+        for week in dwm_dict['week']:
+            data_date.append(week[0] + ' to ' + week[-1])
+            week_name = str('week' + str(week_num))
+            week_names.append(week_name)
+            week_num = week_num + 1
+            error_graphs_data = internal_extrnal_graphs(week, prj_id, center,level_structure_key)
+            if len(error_graphs_data['internal_time_line']) > 0:
+                internal_week_name = str('week' + str(internal_week_num))
+                internal_accuracy_packets = {}
+                intr_accuracy_perc = error_graphs_data['internal_accuracy_graph']
+                for in_acc_key,in_acc_value in intr_accuracy_perc.iteritems():
+                    if internal_accuracy_packets.has_key(in_acc_key):
+                        internal_accuracy_packets[in_acc_key].append(in_acc_value)
+                    else:
+                        internal_accuracy_packets[in_acc_key] = in_acc_value
+                internal_accuracy_timeline[internal_week_name] = internal_accuracy_packets
+                internal_week_num = internal_week_num + 1
+
+            if len(error_graphs_data['external_time_line']) > 0:
+                external_week_name = str('week' + str(external_week_num))
+                external_accuracy_timeline[external_week_name] = error_graphs_data['external_time_line']['external_time_line']
+                external_accuracy_packets = {}
+                if error_graphs_data.has_key('external_accuracy_graph'):
+                    extr_accuracy_perc = error_graphs_data['external_accuracy_graph']
+                else:
+                    extr_accuracy_perc = error_graphs_data['extr_err_accuracy']['packets_percntage']
+                for ex_acc_key,ex_acc_value in extr_accuracy_perc.iteritems():
+                    if external_accuracy_packets.has_key(ex_acc_key):
+                        if isinstance(ex_acc_value,list):
+                            external_accuracy_packets[ex_acc_key].append(ex_acc_value[0])
+                        else:
+                            external_accuracy_packets[ex_acc_key].append(ex_acc_value)
+                    else:
+                        if isinstance(ex_acc_value,list):
+                            external_accuracy_packets[ex_acc_key] = ex_acc_value
+                        else:
+                            external_accuracy_packets[ex_acc_key] = [ex_acc_value]
+                external_accuracy_timeline[external_week_name] = external_accuracy_packets
+                external_week_num = external_week_num + 1
+
+            if error_graphs_data.has_key('extr_err_accuracy'):
+                for vol_key, vol_values in error_graphs_data['extr_err_accuracy']['packets_percntage'].iteritems():
+                    if all_external_error_accuracy.has_key(vol_key):
+                        all_external_error_accuracy[vol_key].append(vol_values[0])
+                    else:
+                        all_external_error_accuracy[vol_key] = vol_values
+
+        dates = [dwm_dict['week'][0][0], dwm_dict['week'][-1:][0][-1:][0]]    
+        final_internal_accuracy_timeline = errors_week_calcuations(week_names, internal_accuracy_timeline,final_internal_accuracy_timeline)
+        final_external_accuracy_timeline = errors_week_calcuations(week_names, external_accuracy_timeline,final_external_accuracy_timeline)
+        result_dict['internal_time_line'] = graph_data_alignment_color(final_internal_accuracy_timeline, 'data',level_structure_key, prj_id, center,'internal_accuracy_timeline')
+        int_error_timeline_min_max = error_timeline_min_max(final_internal_accuracy_timeline)
+        result_dict['min_internal_time_line'] = int_error_timeline_min_max['min_value']
+        result_dict['max_internal_time_line'] = int_error_timeline_min_max['max_value']
+        result_dict['external_time_line'] = graph_data_alignment_color(final_external_accuracy_timeline, 'data',
+                                                                       level_structure_key, prj_id, center,'external_accuracy_timeline')
+        ext_error_timeline_min_max = error_timeline_min_max(final_external_accuracy_timeline)
+        result_dict['min_external_time_line'] = ext_error_timeline_min_max['min_value']
+        result_dict['max_external_time_line'] = ext_error_timeline_min_max['max_value']
+        result_dict['date'] = data_date
+        return result_dict
+
+
+def adding_min_max(high_chart_key,values_dict):
+    result = {}
+    min_max_values = error_timeline_min_max(values_dict)
+    result['min_'+high_chart_key] = min_max_values['min_value']
+    result['max_' + high_chart_key] = min_max_values['max_value']
+    return result
+
+
+def from_to(request):
+    from api.commons import data_dict, day_week_month
+    from_date = datetime.datetime.strptime(request.GET['from'],'%Y-%m-%d').date()
+    to_date = datetime.datetime.strptime(request.GET['to'],'%Y-%m-%d').date()
+    type = request.GET['type']
+    #type='day'
+    try:
+        work_packet = request.GET.get('work_packet')
+        if ' and ' in work_packet:
+            work_packet = work_packet.replace(' and ', ' & ')
+    except:
+        work_packet = []
+    try:
+        sub_project = request.GET.get('sub_project')
+    except:
+        sub_project = ''
+    try:
+        sub_packet = request.GET.get('sub_packet')
+    except:
+        sub_packet = ''
+    
+    try:
+        is_clicked = request.GET.get('is_clicked','NA')
+    except:
+        is_clicked = 'NA'
+    project = request.GET['project'].split('-')[0].strip()
+    center_id = request.GET['center'].split('-')[0].strip()
+    center = Center.objects.filter(name=center_id).values_list('id', flat=True)
+    prj_id = Project.objects.filter(name=project).values_list('id', flat=True)
+    date_list, month_list, month_names_list = [], [], []
+    if type == 'day':
+        date_list=num_of_days(to_date,from_date)
+        if 'yes' not in is_clicked:
+            if len(date_list) > 15:
+                type = 'week'
+            if len(date_list) > 60:
+                type = 'month'
+    if type == 'month':
+        months_dict = {}
+        month_list = [[]]
+        month_names_list = []
+        month_count = 0
+        days = (to_date - from_date).days
+        days = days+1
+        for i in xrange(0, days):
+            date = from_date + datetime.timedelta(i)
+            month = date.strftime("%B")
+            if month not in month_names_list:
+                month_names_list.append(month)
+            if month in months_dict:
+                months_dict[month].append(str(date))
+                month_list[month_count].append(str(date))
+            else:
+                months_dict[month] = [str(date)]
+                month_count = month_count + 1
+                month_list.append([str(date)])
+        if month_list[0] == []:
+            del month_list[0]
+
+    if type == 'week':
+        months_dict = {}
+        weeks_data = []
+        days = (to_date - from_date).days
+        days = days+1
+        for i in xrange(0, days):
+            date = from_date + datetime.timedelta(i)
+            weeks_data.append(str(date))
+        weeks, weekdays, week_list = [], [], []
+        fro_mon = datetime.datetime.strptime(weeks_data[0],'%Y-%m-%d').date()
+        to_mon = datetime.datetime.strptime(weeks_data[-1],'%Y-%m-%d').date()
+        no_of_days = to_mon - fro_mon
+        num_days = int(re.findall('\d+', str(no_of_days))[0]) + 1
+        start = 1
+        end = 7 - fro_mon.weekday()
+        while start <= num_days:
+            weeks.append({'start': start, 'end': end})
+            sdate = fro_mon + datetime.timedelta(start - 1) 
+            edate = fro_mon + datetime.timedelta(end - 1) 
+            weekdays.append({'start': sdate, 'end': edate})
+            start = end + 1
+            end = end + 7
+            if end > num_days:
+                end = num_days
+        if weekdays[-1]['end'] > to_mon :
+            weekdays[-1]['end'] = to_mon
+        for w_days in weekdays:
+            date_list = num_of_days(w_days['end'],w_days['start'])
+            week_list.append(date_list)
+    dwm_dict= {}
+    employe_dates = {}
+    if type == 'day':
+        dwm_dict['day']= date_list
+        employe_dates['days'] = date_list
+    if type == 'month':
+        new_month_dict = {}
+        months = ['January', 'February', 'March', 'April', 'May', 'June', 'July','August', 'September', 'October', 'November', 'December']
+        k = OrderedDict(sorted(months_dict.items(), key=lambda x: months.index(x[0])))
+        for month_na in tuple(k):
+            new_month_dict[month_na] = {}
+            if employe_dates.has_key('days'):
+                employe_dates['days'] = employe_dates['days']+months_dict[month_na]
+            else:
+                employe_dates['days']=months_dict[month_na]
+        dwm_dict['month'] = {'month_names':month_names_list, 'month_dates':month_list}
+
+    if type == 'week':
+        dwm_dict['week'] = week_list
+        for week in week_list:
+            if week and  employe_dates.has_key('days'):
+                employe_dates['days'] = employe_dates['days']+week
+            else:
+                employe_dates['days'] = week
+
+
+    resul_data = {}
+    main_data_dict = data_dict(request.GET)
+    level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], main_data_dict['sub_packet'], main_data_dict['pro_cen_mapping'])
+    final_result_dict = day_week_month(request,dwm_dict,prj_id,center,work_packet,level_structure_key)
+    ###volumes_graphs_details = volumes_graphs_data(date_list,prj_id,center,level_structure_key)
+    #volumes_graphs_details = volumes_graphs_data_table(employe_dates['days'],prj_id,center,level_structure_key)
+
+    final_dict = {}      
+    #final_result_dict['volumes_graphs_details'] = volumes_graphs_details
+    #internal_sub_error_types = internal_extrnal_sub_error_types(request, employe_dates['days'], prj_id, center, level_structure_key,"Internal")
+    #external_sub_error_types = internal_extrnal_sub_error_types(request, employe_dates['days'], prj_id, center,level_structure_key, "External")
+    #final_result_dict['internal_sub_error_types'] = graph_data_alignment_color(internal_sub_error_types,'y',level_structure_key,prj_id,center,'')
+    #final_result_dict['external_sub_error_types'] = graph_data_alignment_color(external_sub_error_types,'y',level_structure_key,prj_id,center,'')
+    final_result_dict['days_type'] = type
+    return json_HttpResponse(final_result_dict)
+

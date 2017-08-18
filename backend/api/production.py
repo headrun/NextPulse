@@ -1,8 +1,11 @@
 
 from api.models import *
 from api.query_generations import *
-from api.graphs_mod import *
-from api.commons import *
+from api.basics import *
+from api.utils import *
+from api.graph_settings import *
+from django.db.models import Max
+from common.utils import getHttpResponse as json_HttpResponse
 
 def static_production_data(request):
     final_data_dict = {}

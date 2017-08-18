@@ -1,4 +1,11 @@
+
 import redis
+from api.models import *
+from api.basics import *
+from django.db.models import Max
+from api.query_generations import query_set_generation
+from api.graph_settings import graph_data_alignment_color
+from common.utils import getHttpResponse as json_HttpResponse
 
 def fte_calculation_sub_project_work_packet(result,level_structure_key):
     final_fte ={}
@@ -52,12 +59,6 @@ def fte_calculation_sub_project_work_packet(result,level_structure_key):
             count = count + 1
         return final_fte
 
-def fte_wp_total(final_fte):
-    work_packet_fte = {}
-    work_packet_fte['wp_fte'] = {}
-    work_packet_fte['wp_fte'] = [sum(i) for i in zip(*final_fte.values())]
-    work_packet_fte['wp_fte'] = [float('%.2f' % round(wp_values, 2)) for wp_values in work_packet_fte['wp_fte']]
-    return work_packet_fte
 
 def fte_calculation_sub_project_sub_packet(prj_id,center_obj,work_packet_query,level_structure_key,date_list):
     packets_target, wp_subpackets = {}, {}

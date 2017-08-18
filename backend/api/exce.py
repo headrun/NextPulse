@@ -1,7 +1,12 @@
 
-from api.commons import *
-from api.exception_data import *
-from api.graph_settings import *
+from api.models import *
+from api.basics import *
+from api.utils import *
+from api.commons import data_dict
+from django.db.models import Max
+from api.graph_settings import graph_data_alignment_color
+from common.utils import getHttpResponse as json_HttpResponse
+
 def nw_exce(request):
     final_dict = {}
     data_date = [] 
@@ -111,8 +116,7 @@ def overall_exce(request):
     return json_HttpResponse(final_dict)
 
 
-def error_insert(request):
-    pass
+
 
 def pre_scan_exce(request):
     final_dict = {}

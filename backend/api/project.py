@@ -1,7 +1,7 @@
 
 from django.db.models import Max
-from models import *
-from basic import latest_dates
+from api.models import *
+from api.basics import latest_dates
 from common.utils import getHttpResponse as json_HttpResponse
 
 
