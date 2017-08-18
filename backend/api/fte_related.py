@@ -297,7 +297,10 @@ def fte_calculation(request,prj_id,center_obj,date_list,level_structure_key):
                     else:
                         count_value = 0
                 count_num = len(value) - count_value
-                fte_sum = sum(value)/count_num
+                if count_num == 0:
+                    fte_sum = 0
+                else:
+                    fte_sum = sum(value)/count_num
                 packet_fte[key] = float('%.2f' % round(fte_sum, 2))
             fte_high_charts = {}
             fte_high_charts['total_fte'] = {}
