@@ -1,10 +1,14 @@
 
+import datetime
 from api.models import *
 from api.query_generations import *
 from api.basics import *
 from api.utils import *
 from api.graph_settings import *
 from django.db.models import Max
+from dateutil.relativedelta import relativedelta
+from datetime import timedelta
+from collections import OrderedDict
 from common.utils import getHttpResponse as json_HttpResponse
 
 def static_production_data(request):
