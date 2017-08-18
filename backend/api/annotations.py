@@ -2,6 +2,7 @@
 import datetime
 from django.db.models import Q
 from api.models import *
+from django.http import HttpResponse
 from common.utils import getHttpResponse as json_HttpResponse
 
 def get_annotations(request):
