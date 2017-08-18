@@ -6,6 +6,7 @@ from api.basics import *
 from api.utils import *
 from api.query_generations import *
 from xlrd import open_workbook
+from api.commons import data_dict
 from common.utils import getHttpResponse as json_HttpResponse
 
 def upload_new(request):
