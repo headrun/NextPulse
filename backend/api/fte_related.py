@@ -3,6 +3,7 @@ import datetime
 import redis
 from api.models import *
 from api.basics import *
+import collections
 from django.db.models import Max
 from api.query_generations import query_set_generation
 from api.graph_settings import graph_data_alignment_color
