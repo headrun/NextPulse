@@ -33,6 +33,8 @@
 
              self.part_disable = true;
 
+             self.is_lead = true;
+
              $http.get(self.email_data).then(function(result){
 		if (result.data.result == 'User is not TeamLead'){
 		self.stat = false;
@@ -60,14 +62,14 @@
 
              $http.get(self.review_url).then(function(result){
 
-                 //self.all_reviews = result.data.result.all_data;
 
 		 if (result.data.result.is_team_lead == false){
                     $('#fileuploader').hide();
 			$('.add-review').hide();
                     self.is_lead=false;
 		  }
-		  if (Object.keys(result.data.result.all_data).length != 0) {
+
+		 if (Object.keys(result.data.result.all_data).length != 0) {
                  //self.mail_options = [ "Shanmugasundaram v", "Monica M", "Abhijith A", "Sasikumar G", "Ranjithkumar M", "Shailesh dube"];
 
                  self.all_reviews = result.data.result.all_data;
@@ -89,6 +91,7 @@
 		 $('.loading').removeClass('show').addClass('hide');
 		 self.no_data = false;
 		 self.part_disable = false;
+         swal('No Reviews Available! Click on plus button to create a new reveiw');
 		}
              });
 
@@ -163,11 +166,13 @@
                     self.all_review_url = 'api/get_top_reviews/?timeline=past';
                     $('#past-meet').hide();
                     $('#ong-meet').show();
+                    $('.fa-pencil-square-o').hide();
                 }
                 else {
                     self.all_review_url = 'api/get_top_reviews/?timeline=oncoming';
                     $('#ong-meet').hide();
                     $('#past-meet').show();
+                    $('.fa-pencil-square-o').show();
                 }
                 $http.get(self.all_review_url).then(function(result){
 
@@ -198,6 +203,7 @@
 			self.no_data = false;
 
 			self.part_disable = false;
+            swal('No Reviews Available! Click on plus button to create a new reveiw');
 		      }
                });
             };
@@ -230,12 +236,15 @@
 
 
              self.submit = function(review) {
+                var selected_date = moment(review.reviewdate);
+                var today = moment(new Date());
+                today = today.set({hour:0,minute:0,second:0,millisecond:0});
+                if (selected_date.diff(today) < 0){
+                    swal('Creating Reviews in past date is restricted');
+                }
+                else {
 
-		 if (review.reviewname || review.reviewdate || review.reviewtime || review.reviewagenda || review.review_type == 'select'){
-			swal('All required fields are not filled');
-			$('#myModal').modal('show');
-                 }
-		 else {
+		 if (review.reviewname && review.reviewdate && review.reviewagenda && review.review_type != 'select'){
                  self.uids_list = []
                  for (var i=0; i<review.participants.length; i++) {
                     self.uids_list.push(self.map_list_item[review.participants[i]]);
@@ -268,7 +277,9 @@
                    }).then(function() {
 
                    $http.get(self.review_url).then(function(result){
-
+                      if (result.data.result.is_team_lead == false){
+                        self.is_lead = false;
+                      } 
                      self.all_reviews = result.data.result.all_data;
 		     if ((Object.keys(result.data.result.all_data).length) != 0){
                          self.get_review(self.all_reviews[Object.keys(self.all_reviews)[0]][0]);
@@ -280,6 +291,26 @@
                  });
                 });
 		}
+        else {
+            swal({
+              title: "All required fields are not filled",
+              text: "", 
+              type: "error",
+              showCancelButton: false,
+              confirmButtonColor: "#DD6B55",
+              confirmButtonText: "Okay",
+              cancelButtonText: "", 
+              closeOnConfirm: true,
+              closeOnCancel: false
+            },  
+            function(isConfirm){
+              if (isConfirm) {
+                $('#myModal').modal('show');
+              }   
+            }); 
+
+       }
+    }
                 }
 
              self.remove_file = function(file_id) {
@@ -344,6 +375,9 @@
 
                     $http.get(self.remove_review_url).then(function(result){}).then(function (result){
                       $http.get(self.review_url).then(function(result){
+                        if (result.data.result.is_team_lead == false){
+                            self.is_lead=false;
+                        } 
 			if (Object.keys(result.data.result.all_data).length != 0) {
 			 self.all_reviews = result.data.result.all_data;
                          self.rev_id = self.all_reviews[Object.keys(self.all_reviews)[0]][0].id;
@@ -368,6 +402,7 @@
                         self.part_disable = false;
 
 			$('.loading').removeClass('show').addClass('hide');
+            swal('No Reviews Available! Click on plus button to create a new reveiw');
 			}
                       });
                     });
