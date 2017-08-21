@@ -62,9 +62,9 @@ def Packet_Alias_Names(prj_id,center_obj,widget_config_name):
     productivity_series_list = [] 
     widget_id = Widgets.objects.filter(config_name=widget_config_name).values_list('id',flat=True)
     alias_packet_names = []
-    if len(widget_id)>0:
+    if widget_id:
         alias_widget_id = Alias_Widget.objects.filter(widget_name_id=widget_id[0],project=prj_id).values_list('id',flat=True)
-        if len(alias_widget_id):
+        if alias_widget_id:
             alias_packet_names = Alias_packets.objects.filter(widget_id=alias_widget_id[0]).values('existed_name','alias_name')
     new_pkt_names = {}
     for packet_name in alias_packet_names:

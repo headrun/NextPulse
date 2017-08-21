@@ -9,6 +9,7 @@ from xlrd import open_workbook
 from api.commons import data_dict
 from common.utils import getHttpResponse as json_HttpResponse
 
+
 def upload_new(request):
     teamleader_obj_name = TeamLead.objects.filter(name_id=request.user.id)[0]
     #teamleader_obj = TeamLead.objects.filter(name_id=request.user.id).values_list('project_id','center_id')[0]
@@ -31,7 +32,9 @@ def upload_new(request):
             return json_HttpResponse("Invalid File")
         excel_sheet_names = open_book.sheet_names()
         file_sheet_names = Authoringtable.objects.filter(project=prj_obj,center=center_obj).values_list('sheet_name',flat=True).distinct()
-        sheet_names, raw_table_mapping, internal_error_mapping, external_error_mapping, worktrack_mapping, headcount_mapping, target_mapping, tat_mapping, upload_mapping, incoming_error_mapping, authoring_dates = {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
+        sheet_names, raw_table_mapping, internal_error_mapping, external_error_mapping = {}, {}, {}, {}
+        worktrack_mapping, headcount_mapping, target_mapping, tat_mapping, upload_mapping = {}, {}, {}, {}, {}
+        incoming_error_mapping, authoring_dates = {}, {}
         ignorablable_fields, other_fileds = [], []
         #for sub_project_check functionality
         #sub_project_boolean_check = Project.objects.filter(id=prj_id).values_list('sub_project_check',flat=True)[0]
