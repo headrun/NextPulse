@@ -78,7 +78,7 @@ class Command(BaseCommand):
                 vol_audit_data, int_vol_audit_data = {}, {} 
                 all_error_types, int_all_error_types = [], []
                 sub_error_types, int_sub_error_types = [], []
-                fte_data = []
+                fte_data, prod_utili = [], []
                 operational_data = []
                 for date_va in dates_list:
                     total_done_value = RawTable.objects.filter(project=prj_id, center=center_id, date=date_va).aggregate(Max('per_day'))
@@ -96,7 +96,6 @@ class Command(BaseCommand):
                                 to_tar = Targets.objects.filter(project=prj_id,center=center_id,from_date__lte=date_va,to_date__gte=date_va,sub_project=final_work_packet,target_type = 'Target').values_list('target_value',flat=True).distinct()
                                 to_target = sum(to_tar)
                                 emp_count = Headcount.objects.filter(project=prj_id, center=center_id, date=date_va,sub_project = final_work_packet).aggregate(Sum('billable_agents'))
-                                #tat_values = TatTable.objects.filter(project=prj_id, center=center_id, date=date_va, sub_project = final_work_packet).values_list('tat_status',flat=True)
                                 tat_da = TatTable.objects.filter(project=prj_id, center=center_id, date=date_va, sub_project = final_work_packet)
                                 met_va = tat_da.aggregate(Sum('met_count'))
                                 not_met_va = tat_da.aggregate(Sum('non_met_count'))
@@ -111,7 +110,6 @@ class Command(BaseCommand):
                                 tar = Targets.objects.filter(project=prj_id,center=center_id,from_date=date_va,to_date=date_va,work_packet=final_work_packet,target_type = 'FTE Target').values_list('target_value',flat=True).distinct()
                                 targets = sum(tar)
                                 emp_count = Headcount.objects.filter(project=prj_id, center=center_id, date=date_va,work_packet = final_work_packet).aggregate(Sum('billable_agents'))
-                                #tat_values = TatTable.objects.filter(project=prj_id, center=center_id, date=date_va, work_packet = final_work_packet).values_list('tat_status',flat=True)
                                 tat_da = TatTable.objects.filter(project=prj_id, center=center_id, date=date_va, work_packet = final_work_packet)
                                 met_va = tat_da.aggregate(Sum('met_count'))
                                 not_met_va = tat_da.aggregate(Sum('non_met_count'))
@@ -119,14 +117,11 @@ class Command(BaseCommand):
                                 tat_not_met_va = not_met_va['non_met_count__sum']    
                             if emp_count['billable_agents__sum'] == None:
                                 emp_count['billable_agents__sum'] = 0
-                            if targets:
+                            #import pdb;pdb.set_trace()
+                            if targets > 0 and to_target == 0:
                                 targets = targets * emp_count['billable_agents__sum']
                             else:
-                                targets = 0
-                            if to_target:
-                                to_target = to_target
-                            else:
-                                to_target = 0
+                                targets = to_target
                             date_pattern = '{0}_{1}_{2}_{3}'.format(prj_name, center_name, final_work_packet,date_va)
                             key_list = conn.keys(pattern=date_pattern)
                             if not key_list:
@@ -153,7 +148,7 @@ class Command(BaseCommand):
                                             date_values[key] = [pac_val]
                                         else:
                                             date_values[key] = [0]
-                                    if main_values.has_key(key):
+                                    """if main_values.has_key(key):
                                         if to_target:
                                             pak_val = (float(value)/float(to_target))*100
                                             pak_val = float('%.2f' % round(pak_val, 2))
@@ -166,7 +161,7 @@ class Command(BaseCommand):
                                             pak_val = float('%.2f' % round(pak_val, 2))
                                             main_values[key] = [pak_val]
                                         else:
-                                            main_values[key] = [0]
+                                            main_values[key] = [0]"""
                                     #generating tat code
                                     
                                     if tat_data.has_key(key):
@@ -312,7 +307,9 @@ class Command(BaseCommand):
                                         int_acc_values[key] = [int(value)]
 
                         #generation of fte and operational headcount data
+                        prod_vals = RawTable.objects.filter(project=prj_id, center=center_id, date=date_va).aggregate(Sum('per_day'))
                         headcount_details = Headcount.objects.filter(project=prj_id, center=center_id, date=date_va).aggregate(Sum('billable_hc'),Sum('billable_agents'),Sum('buffer_agents'),Sum('qc_or_qa'),Sum('teamlead'),Sum('trainees_and_trainers'))
+                        pro_da = prod_vals['per_day__sum']
                         if headcount_details['billable_hc__sum'] != None:
                             utilization_numerator = headcount_details['billable_hc__sum']
                             fte_utilization = headcount_details['billable_agents__sum'] + headcount_details['buffer_agents__sum'] + headcount_details['qc_or_qa__sum'] + headcount_details['teamlead__sum']
@@ -321,11 +318,14 @@ class Command(BaseCommand):
                             operational_utilization = fte_utilization + headcount_details['trainees_and_trainers__sum']
                             operational_value = (float(utilization_numerator)/float(operational_utilization))*100
                             operational_utili_value = float('%.2f' % round(operational_value,2))
+                            prod_utilisa = float(pro_da)/float(utilization_numerator)
+                            prod_utili.append(prod_utilisa)
                             fte_data.append(fte_utili_value)
                             operational_data.append(operational_utili_value)
                         else:
                             fte_data.append(0)
                             operational_data.append(0)
+                            prod_utili.append(0)
                 #calculation for productivity value
                 len_list, prod_len_list = [], []
                 productivity_data, production_data = [], []
@@ -348,7 +348,7 @@ class Command(BaseCommand):
                 else:
                     productivity_value = "NA"
                 #calculation for production value
-                prod_values = main_values.values()
+                """prod_values = main_values.values()
                 prod_data = [sum(x) for x in zip(*prod_values)]
                 prod_len_values = [x for x in zip(*prod_values) if x != 0]
                 for value in prod_len_values:
@@ -362,13 +362,11 @@ class Command(BaseCommand):
                         final_prod = 0
                     production_data.append(final_prod)
 
-                print main_values,date_values
-
                 if len(new_date_list) and sum(production_data):
                     production_value = float(float(sum(production_data))/len(new_date_list))
                     production_value = float('%.2f' % round(production_value,2))
                 else:
-                    production_value = "NA"
+                    production_value = "NA" """
                 #calculation of tat data
                 tat_val_len, tat_fin_val  = [], []
                 tat_val = tat_data.values()
@@ -472,7 +470,6 @@ class Command(BaseCommand):
                     final_internal_accuracy = float('%.2f' % round(final_int_accuracy,2))
                 else:
                     final_internal_accuracy = "NA"
-
                 #fte,operational utilization calculations
                 no_of_days = Project.objects.filter(name = prj_name).values('days_month')
                 month_days = no_of_days[0]['days_month']
@@ -481,19 +478,23 @@ class Command(BaseCommand):
                     operational_utiliti_value = sum(operational_data)/len(new_date_list)
                     final_fte = float('%.2f' % round(fte_utiliti_value,2))
                     final_operational = float('%.2f' % round(operational_utiliti_value,2))
+                    produc_utilisation_val = sum(prod_utili)/len(new_date_list)
+                    final_prod_util = float('%.2f' % round(produc_utilisation_val,2))
                 else:
                     final_fte = 0
                     final_operational = 0
+                    final_prod_util = 0
                 final_productivity_dict['project'] = prj_name
                 final_productivity_dict['center'] = center_name
                 final_productivity_dict['month'] = month_name
                 final_productivity_dict['productivity'] = productivity_value
-                final_productivity_dict['production'] = production_value
+                #final_productivity_dict['production'] = production_value
                 final_productivity_dict['external_accuracy'] = final_external_accuracy
                 final_productivity_dict['internal_accuracy'] = final_internal_accuracy
                 final_productivity_dict['fte_utilisation'] = final_fte
                 final_productivity_dict['operational_utilization'] = final_operational
                 final_productivity_dict['tat'] = tat_final_value
+                final_productivity_dict['prod_utili'] = final_prod_util
                 final_productivity_list.append(final_productivity_dict)
                 data_dict = {}
                 for key,value in final_productivity_dict.iteritems():
@@ -502,10 +503,12 @@ class Command(BaseCommand):
                         redis_key = '{0}_{1}_{2}_productivity'.format(prj_name,center_name,month_name)
                         value_dict['productivity'] = str(productivity_value)
                         data_dict[redis_key] = value_dict
-                    if key == 'production':
+
+                    """if key == 'production':
                         redis_key = '{0}_{1}_{2}_production'.format(prj_name,center_name,month_name)
                         value_dict['production'] = str(production_value)
-                        data_dict[redis_key] = value_dict
+                        data_dict[redis_key] = value_dict"""
+
                     if key == 'external_accuracy':
                         redis_key = '{0}_{1}_{2}_external_accuracy'.format(prj_name,center_name,month_name)
                         value_dict['external_accuracy'] = str(final_external_accuracy)
@@ -522,6 +525,10 @@ class Command(BaseCommand):
                         redis_key = '{0}_{1}_{2}_operational_utilization'.format(prj_name,center_name,month_name)
                         value_dict['operational_utilization'] = str(final_operational)
                         data_dict[redis_key] = value_dict
+                    if key == 'prod_utili':
+                        redis_key = '{0}_{1}_{2}_prod_utili'.format(prj_name,center_name,month_name)
+                        value_dict['prod_utili'] = str(final_prod_util)
+                        data_dict[redis_key] = value_dict
                     if key == 'tat':
                         redis_key = '{0}_{1}_{2}_tat'.format(prj_name,center_name,month_name)
                         value_dict['tat'] = str(tat_final_value)
@@ -533,5 +540,4 @@ class Command(BaseCommand):
                     conn.hmset(key, value) 
                     print key, value 
                #print productivity_data,productivity_value,fte_data,operational_data
-        
             final_project_data.append(final_productivity_list)

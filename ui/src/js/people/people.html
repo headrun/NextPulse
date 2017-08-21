@@ -171,8 +171,8 @@ a {
                             <th>Project</th>
                             <!--<th>Center</th>-->
                             <th>Month</th>
-                            <th>Productivity(%)</th>
-                            <th>Production(%)</th>
+                            <th>Target Achieved(%)</th>
+                            <th>Productivity</th>
                             <th>Internal Accuracy(%)</th>
                             <th>External Accuracy(%)</th>
                             <th>TAT(%)</th>
@@ -188,14 +188,14 @@ a {
                             <td style="width:27%;" ><a href="/#!/page1/Salem - {{single.project}}">{{single.project}}</a></td>
                             <!--<td>{{single.center}}</td>-->
                             <td>{{single.Month1}}</td>
-                            <td class="{{single.color.productivity_Month1[0]}}" style="cursor:pointer;" 
-                                ng-click="$ctrl.get_popup(single, 'productivity', 'Month1', 'Productivity', 'productivity_Month1')">
+                            <td class="{{single.color.productivity_Month1}}" style="cursor:pointer;" 
+                                ng-click="$ctrl.get_popup(single, 'main_prod', 'Month1', 'Target Achieved')">
                                 {{single.productivity_Month1}}</td>
-                            <td class="{{single.color.production_Month1[0]}}" style="cursor:pointer";
-                                ng-click="$ctrl.get_popup(single, 'main_prod', 'Month1', 'Production', 'production_Month1')">
-                                {{single.production_Month1}}</td>
-                            <td class="{{single.color.internal_accuracy_Month1[0]}}" style="cursor:pointer;"
-                                ng-click="$ctrl.get_popup(single, 'from_to', 'Month1', 'Internal Accuracy', 'internal_accuracy_Month1')">
+                            <td class="{{single.color.prod_utili_Month1}}" style="cursor:pointer";
+                                ng-click="$ctrl.get_popup(single, 'productivity', 'Month1', 'Productivity')">
+                                {{single.prod_utili_Month1}}</td>
+                            <td class="{{single.color.internal_accuracy_Month1}}" style="cursor:pointer;"
+                                ng-click="$ctrl.get_popup(single, 'from_to', 'Month1', 'Internal Accuracy')">
                                 {{single.internal_accuracy_Month1}}</td>
                             <td class="{{single.color.external_accuracy_Month1[0]}}" style="cursor:pointer;" 
                                 ng-click="$ctrl.get_popup(single, 'from_to', 'Month1', 'External Accuracy', 'external_accuracy_Month1')">
@@ -209,14 +209,14 @@ a {
                             <td></td>
                             <!--<td></td>-->
                             <td style="width:15%;">{{single.Month2}}</td>
-                            <td class="{{single.color.productivity_Month2[0]}}" style="width:15%; cursor:pointer;" 
-                                ng-click="$ctrl.get_popup(single, 'productivity', 'Month2', 'Productivity', 'productivity_Month2')">
+                            <td class="{{single.color.productivity_Month2}}" style="width:15%; cursor:pointer;" 
+                                ng-click="$ctrl.get_popup(single, 'main_prod', 'Month2', 'Target Achieved')">
                                 {{single.productivity_Month2}}</td>
-                            <td class="{{single.color.production_Month2[0]}}" style="width:15%; cursor:pointer;" 
-                                ng-click="$ctrl.get_popup(single, 'main_prod', 'Month2', 'Production', 'production_Month2')">
-                                {{single.production_Month2}}</td>
-                            <td class="{{single.color.internal_accuracy_Month2[0]}}" style="width:15%; cursor:pointer;" 
-                                ng-click="$ctrl.get_popup(single, 'from_to', 'Month2', 'Internal Accuracy', 'internal_accuracy_Month2')">
+                            <td class="{{single.color.prod_utili_Month2}}" style="width:15%; cursor:pointer;" 
+                                ng-click="$ctrl.get_popup(single, 'productivity', 'Month2', 'Productivity')">
+                                {{single.prod_utili_Month2}}</td>
+                            <td class="{{single.color.internal_accuracy_Month2}}" style="width:15%; cursor:pointer;" 
+                                ng-click="$ctrl.get_popup(single, 'from_to', 'Month2', 'Internal Accuracy')">
                                 {{single.internal_accuracy_Month2}}</td>
                             <td class="{{single.color.external_accuracy_Month2[0]}}" style="width:15%; cursor:pointer;" 
                                 ng-click="$ctrl.get_popup(single, 'from_to', 'Month2', 'External Accuracy', 'external_accuracy_Month2')"
@@ -230,14 +230,14 @@ a {
                             <td></td>
                             <!--<td></td>-->
                             <td style="width:15%;">{{single.Month3}}</td>
-                            <td class="{{single.color.productivity_Month3[0]}}" style="width:15%; cursor:pointer;" 
-                                ng-click="$ctrl.get_popup(single, 'productivity', 'Month3', 'Productivity', 'productivity_Month3')">
+                            <td class="{{single.color.productivity_Month3}}" style="width:15%; cursor:pointer;" 
+                                ng-click="$ctrl.get_popup(single, 'main_prod', 'Month3', 'Target Achieved')">
                                 {{single.productivity_Month3}}</td>
-                            <td class="{{single.color.production_Month3[0]}}" style="width:15%; cursor:pointer;" 
-                                ng-click="$ctrl.get_popup(single, 'main_prod', 'Month3', 'Production', 'production_Month3')">
-                                {{single.production_Month3}}</td>
-                            <td class="{{single.color.internal_accuracy_Month3[0]}}" style="width:15%; cursor:pointer;" 
-                                ng-click="$ctrl.get_popup(single, 'from_to', 'Month3', 'Internal Accuracy', 'internal_accuracy_Month3')">
+                            <td class="{{single.color.prod_utili_Month3}}" style="width:15%; cursor:pointer;" 
+                                ng-click="$ctrl.get_popup(single, 'productivity', 'Month3', 'Productivity')">
+                                {{single.prod_utili_Month3}}</td>
+                            <td class="{{single.color.internal_accuracy_Month3}}" style="width:15%; cursor:pointer;" 
+                                ng-click="$ctrl.get_popup(single, 'from_to', 'Month3', 'Internal Accuracy')">
                                 {{single.internal_accuracy_Month3}}</td>
                             <td class="{{single.color.external_accuracy_Month3[0]}}" style="width:15%; cursor:pointer;" 
                                 ng-click="$ctrl.get_popup(single, 'from_to', 'Month3', 'External Accuracy', 'external_accuracy_Month3')">
