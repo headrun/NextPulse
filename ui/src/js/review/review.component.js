@@ -244,7 +244,7 @@
                 }
                 else {
 
-		 if (review.reviewname && review.reviewdate && review.reviewtime && review.reviewagenda && review.review_type != 'select'){
+		 if (review.reviewname && review.reviewdate && review.reviewagenda && review.review_type != 'select'){
                  self.uids_list = []
                  for (var i=0; i<review.participants.length; i++) {
                     self.uids_list.push(self.map_list_item[review.participants[i]]);

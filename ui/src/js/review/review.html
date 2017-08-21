@@ -423,15 +423,24 @@ input:checked + .slider:before {
               <label>Select Date*: </label>
             </div>
             <div class="col-md-9">
-              <input class="input-clear" type="date" id="exampleInput" name="reviewdate" ng-model="$ctrl.review.reviewdate" class="form-element"
+              <!--<input class="input-clear" type="date" id="exampleInput" name="reviewdate" ng-model="$ctrl.review.reviewdate" class="form-element"
                 placeholder="yyyy-MM-dd" min="2017-01-01" max="2020-12-31" required />
               <span ng-if="regForm.reviewdate.$error.required && regForm.reviewdate.$touched">
                 Date is Required
-              </span>
+              </span>-->
+<div class="dropdown">
+  <a class="dropdown-toggle" id="dropdown2" role="button" data-toggle="dropdown">
+    <div class="input-group"><input type="text" class="form-control" data-ng-model="data.dateDropDownInput"><span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
+    </div>
+  </a>
+  <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+    <datetimepicker data-ng-model="data.dateDropDownInput" data-datetimepicker-config="{ dropdownSelector: '#dropdown2' }"/>
+  </ul>
+</div>
             </div>
           </div>
 
-          <div class="row">
+          <!--<div class="row">
             <div class="col-md-3">
               <label>Select Time*: </label>
             </div>
@@ -442,7 +451,7 @@ input:checked + .slider:before {
                 Time is Required
               </span>
             </div>
-          </div>
+          </div>-->
 
           <div class="row">
             <div class="col-md-3">

@@ -159,9 +159,9 @@ a {
         <div class = "panel panel-default" style="width:99.8%;">
           <div class="panel-body" style="margin-bottom:30px;">
              <ul class="nav nav-tabs" style="width:100%;border-bottom:none;">
-                 <li class="active" style="width:100%;"><a data-toggle="tab" href=""style="background-color:#0EBFE9;text-align:center;margin-top:4%;margin-right:34px;margin-left:34px;color: white;"><b>SALEM</b></a></li>
+                 <li class="active" style="width:100%;"><a data-toggle="tab" href="" style="background-color:#0EBFE9;text-align:center;margin-top:4%;margin-right:34px;margin-left:34px;color: white;"><b>SALEM</b></a></li>
                      
-            </ul>
+             </ul>
             <div class="datatable_wrapper">
                 <table class="table" style="border:1px solid #DDDDDD;background-color:#f1f1f1;">
                      <thead>
@@ -171,8 +171,8 @@ a {
                             <th>Project</th>
                             <!--<th>Center</th>-->
                             <th>Month</th>
-                            <th>Productivity(%)</th>
-                            <th>Production(%)</th>
+                            <th>Productivity</th>
+                            <th>Target Achieved</th>
                             <th>Internal Accuracy(%)</th>
                             <th>External Accuracy(%)</th>
                             <th>TAT(%)</th>
@@ -204,6 +204,7 @@ a {
                                 ng-click="$ctrl.get_popup(single, 'tat_data', 'Month1', 'TAT', 'tat_Month1')">
                                 {{single.tat_Month1}}</td>
                         </tr>
+
                         <tr ng-show="expanded" style="background:#b5dda1;">
                             <td></td>
                             <td></td>
