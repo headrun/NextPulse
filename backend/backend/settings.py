@@ -91,7 +91,7 @@ DATABASES = {
         },
         'NAME': 'nextpulse',
         'USER': 'root',
-        'PASSWORD': 'Mbch@He@drn232017Mar',
+        'PASSWORD': 'hdrn59!',
         'HOST': 'localhost',
     }
 }

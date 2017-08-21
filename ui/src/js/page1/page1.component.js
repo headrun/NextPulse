@@ -213,7 +213,7 @@
                     $('#emp_widget').hide();
 
                     $('#volume_table').hide();
-
+                   
                     //self.lastDate+'&to='+self.firstDate+'&type=' + self.day_type;
                     
                     /*var dateEntered = document.getElementById('select').value
@@ -2952,9 +2952,9 @@
                self.pre_scan(undefined, undefined), self.nw_exce(undefined, undefined)]).then(function(){
 
            $q.all([self.overall_exce(undefined, undefined), self.upload_acc(undefined, undefined),
-                   self.error_field_graph(err_field_graph), self.fte_graphs(undefined, undefined, undefined)]).then(function(){
+                   self.mont_volume(undefined, undefined), self.fte_graphs(undefined, undefined, undefined)]).then(function(){
 
-               $q.all([self.mont_volume(undefined, undefined), self.tat_data(undefined, undefined),self.static_data_call(static_ajax)])
+               $q.all([self.error_field_graph(err_field_graph), self.tat_data(undefined, undefined),self.static_data_call(static_ajax)])
 
            });
 
@@ -2966,25 +2966,6 @@
 
 	
             }
-             /*self.allo_and_comp = function() {
-
-                $http({method:"GET", url: allo_and_comp}).success(function(result){
-
-                    angular.extend(self.chartOptions17, {
-                        xAxis: {
-                            categories: result.result.date,
-                        },
-                        series: result.result.bar_data
-                    });
-
-                    angular.extend(self.chartOptions18, {
-                        xAxis: {
-                            categories: result.result.date,
-                        },  
-                        series: result.result.line_data
-                    }); 
-                })  
-             }*/
 
              self.packet_data = $http.get(self.pro_landing_url).then(function(result){
 
@@ -3069,7 +3050,6 @@
                     //var packet_url = '/api/get_packet_details/?&project='+callback[3]+'&center='+callback[2]+'&from='+'2017-01-09'+'&to='+'2017-01-15';             
                     var final_work =  '&sub_project=' + self.drop_sub_proj + '&sub_packet=' + self.drop_sub_pack + '&work_packet=' +
                                                                 self.drop_work_pack;
-                                                                
                     var packet_url = '/api/get_packet_details/?&project='+callback[3]+'&center='+callback[2]+'&from='+callback[0]+'&to='+callback[1];
                     self.call_back = callback;
                     $http.get(packet_url).then(function(result){
@@ -3250,7 +3230,6 @@
                         $('.widget-34a').addClass('widget-loader-show');
                         $('.widget-34b').addClass('widget-data-hide');
 
-
                     self.drop_sub_proj = this.value;
                     self.drop_work_pack = self.wor_pac_sel.value;
                     self.drop_sub_pack = self.sub_pac_sel.value;
@@ -3358,7 +3337,6 @@
                         $('.widget-34a').addClass('widget-loader-show');
                         $('.widget-34b').addClass('widget-data-hide');
 
-
                     self.drop_sub_proj = self.sub_pro_sel.value;
                     self.drop_work_pack = this.value;
                     self.drop_sub_pack = self.sub_pac_sel.value;
@@ -3465,7 +3443,6 @@
                         $('.widget-39b').addClass('widget-data-hide');
                         $('.widget-34a').addClass('widget-loader-show');
                         $('.widget-34b').addClass('widget-data-hide');
-
 
                     self.drop_work_pack = self.wor_pac_sel.value;
                     self.drop_sub_proj = self.sub_pro_sel.value;
@@ -3795,7 +3772,6 @@
                         $('.widget-34a').addClass('widget-loader-show');
                         $('.widget-34b').addClass('widget-data-hide');
 
-
                         self.drop_work_pack = this.value;
                         self.drop_sub_proj = 'undefined';
                         //self.drop_sub_pack = self.sub_pac_sel.value;
@@ -3842,8 +3818,6 @@
 
                 self.dateType = function(key,all_data,name,button_clicked){
 
-                //self.showLoading();
-
                 self.call_back = callback;
                 
                 var obj = {
@@ -3882,11 +3856,6 @@
 
                 var final_work =  '&sub_project=' + self.drop_sub_proj + '&sub_packet=' + self.drop_sub_pack + '&work_packet=' + 
                                   self.drop_work_pack + '&is_clicked=' + self.button_clicked;
-                //self.main_widget_function(self.call_back, final_work);
-
-                /*var common_for_all = '?&project='+callback[3]+'&center='+callback[2]+'&from='+'2017-01-09'+'&to='+'2017-01-15'+'&type=' +
-                                     self.day_type + packet;
-                var allo_and_comp = '/api/alloc_and_compl/'+common_for_all;*/
 
                 if ((name == 'chartOptions17') || (name == 'chartOptions18')) {
 
@@ -3958,29 +3927,18 @@
                     }
                     self.main_prod(final_work, key, all_data);
                 }
-                /*if (name == 'chartOptions9') {
-                    $('.widget-8a').addClass('widget-loader-show');
-                    $('.widget-8b').addClass('widget-data-hide');
-                    self.erro_all(final_work, key, all_data);
-                }
 
-                if (name == 'chartOptions9_2') {
+                if ((name == 'chartOptions9_2') || (name == 'chartOptions9')) {
+                    if (name == 'chartOptions9') {
+                       $('.widget-8a').addClass('widget-loader-show');
+                       $('.widget-8b').addClass('widget-data-hide');		
+                    }
+                    if (name == 'chartOptions9_2') {
                     $('.widget-7a').addClass('widget-loader-show');
                     $('.widget-7b').addClass('widget-data-hide');
-                    self.erro_extrnl_timeline(final_work, key);
-                }*/
-
-		if ((name == 'chartOptions9_2') || (name == 'chartOptions9')) {
-		    if (name == 'chartOptions9') {
-		       $('.widget-8a').addClass('widget-loader-show');
-                       $('.widget-8b').addClass('widget-data-hide');		
-		    }
-		    if (name == 'chartOptions9_2') {
-			$('.widget-7a').addClass('widget-loader-show');
-			$('.widget-7b').addClass('widget-data-hide');
-		    }
-	            self.from_to(final_work, key, all_data);		
-		}
+                    }
+                        self.from_to(final_work, key, all_data);		
+                }
 
                 if (name == 'chartOptions40') {
                     $('.widget-35a').addClass('widget-loader-show');

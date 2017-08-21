@@ -22,7 +22,7 @@
                         var date_list = result.result.date;
                       }
 
-                      if (vm.chart_name == 'Production') {
+                      if (vm.chart_name == 'Target Achieved') {
 
                         var main_data = result.result.productivity_data;
                         var date_list = result.result.data.date;      

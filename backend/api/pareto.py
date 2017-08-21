@@ -5,8 +5,8 @@ from django.db.models import Sum
 from django.db.models import Max
 from api.models import *
 from api.query_generations import query_set_generation
-from api.basics import level_hierarchy_key
-from api.utils import graph_data_alignment
+from api.basics import *
+from api.utils import *
 from common.utils import getHttpResponse as json_HttpResponse
 
 def agent_pareto_data_generation(request,date_list,prj_id,center_obj,level_structure_key):
@@ -204,8 +204,8 @@ def agent_external_pareto_data_generation(request,date_list,prj_id,center_obj,le
     return result_dict
 
 def sample_pareto_analysis(request,date_list,prj_id,center_obj,level_structure_key,err_type):
-    from api.graph_error import error_types_sum
-    from api.graphs_mod import worktrack_internal_external_workpackets_list
+    #from api.graph_error import error_types_sum
+    #from api.graphs_mod import worktrack_internal_external_workpackets_list
     prj_name = Project.objects.filter(id=prj_id).values_list('name', flat=True)
     center_name = Center.objects.filter(id=center_obj).values_list('name', flat=True)
     query_set = query_set_generation(prj_id, center_obj, level_structure_key,date_list)

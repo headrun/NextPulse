@@ -18,10 +18,10 @@ MONTH_CHOICES = (
 
 
 WIDGET_SYNC = {
-		'productivity': 'productivity_trends', 
+		'prod_utili': 'productivity_trends', 
 		'external_accuracy': 'external_error_accuracy', 
 		'internal_accuracy': 'internal_error_accuracy', 
-		'production': 'productivity_chart', 
+		'productivity': 'productivity_chart', 
 		'tat': 'TAT Graph', 
 		'fte_utilisation': 'fte_utilization', 
 		'operational_utilization': 'operational_utilization', 

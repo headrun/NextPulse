@@ -18,7 +18,7 @@ PROJECTS = ["Probe-Salem", "NTT DATA Services TP-Salem", "NTT DATA Services Codi
 
 MONTHS = ["April", "May"]
 
-SLA = ['productivity', "external_accuracy", 'internal_accuracy', 'production', 'tat']
+SLA = ['productivity', "external_accuracy", 'internal_accuracy', 'prod_utili', 'tat']
 
 PEOPLES = ["fte_utilisation", "operational_utilization", "absenteeism", "attrition"]
 #PEOPLES = ["absentisim"]
@@ -28,8 +28,7 @@ PEOPLES = ["fte_utilisation", "operational_utilization", "absenteeism", "attriti
 # Logics -----------------------------
 
 def get_dash_data(projects=PROJECTS, tab=SLA):
-    """ get SLA related data """
-    
+    """ get SLA related data """    
     if not projects:
         #projects= Project.objects.all().values_list('id', 'name', 'center__name')
         projects = PROJECTS
