@@ -340,7 +340,7 @@ def internal_external_graphs_common(request,date_list,prj_id,center_obj,level_st
     return result
 
 def internal_extrnal_graphs_same_formula(date_list,prj_id,center_obj,level_structure_key,err_type):
-    from api.graphs_mod import worktrack_internal_external_workpackets_list
+    #from api.graphs_mod import worktrack_internal_external_workpackets_list
     prj_name = Project.objects.filter(id=prj_id).values_list('name', flat=True)
     center_name = Center.objects.filter(id=center_obj).values_list('name', flat=True)
     query_set = query_set_generation(prj_id, center_obj, level_structure_key,date_list)
