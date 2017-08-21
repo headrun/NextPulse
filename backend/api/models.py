@@ -3,18 +3,19 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.contrib.auth.models import User, Group
 
-# Create your models here.
+
 class Center(models.Model):
-    name = models.CharField(max_length=255, unique=True)
+    name = models.CharField(max_length=255, unique=True,db_index=True)
 
     class Meta:
         db_table = u'center'
     def __unicode__(self):
         return self.name
 
+
 class Project(models.Model):
     name    = models.CharField(max_length=255,db_index=True)
-    center  = models.ForeignKey(Center, null=True)
+    center  = models.ForeignKey(Center, null=True, db_index=True)
     days_week = models.IntegerField(default=5)
     days_month = models.IntegerField(default=21)
     project_db_handlings_choices = (('update','Update'),('aggregate','Aggregate'),('ignore','Ignore'),)
@@ -22,20 +23,23 @@ class Project(models.Model):
     sub_project_check = models.BooleanField(default=None)
     class Meta:
         db_table = u'project'
-        index_together = (('name', 'center',),)
+        index_together = (('name', 'center',), ('name', 'sub_project_check', 'center'),)
     def __unicode__(self):
         return self.name
 
+
 class TeamLead(models.Model):
-    name    = models.ForeignKey(User, null=True)
-    center  = models.ForeignKey(Center, null=True,db_index=True)
-    project = models.ForeignKey(Project, null=True,db_index=True)
+    name    = models.ForeignKey(User, null=True, db_index=True)
+    center  = models.ForeignKey(Center, null=True)
+    project = models.ForeignKey(Project, null=True)
 
     class Meta:
         db_table = u'agent'
+        index_together = (('project', 'center',),)
     def __unicode__(self):
         user_obj = User.objects.filter(id=self.name_id).values_list('username',flat=True)
         return user_obj[0]
+
 
 class ChartType(models.Model):
     chart_type = models.CharField(max_length=512)
@@ -46,10 +50,11 @@ class ChartType(models.Model):
     def __unicode__(self):
         return self.chart_type
 
+
 class Customer(models.Model):
-    name    = models.ForeignKey(User, null=True)
-    center  = models.ManyToManyField(Center, null=True)
-    project = models.ManyToManyField(Project, null=True)
+    name    = models.ForeignKey(User, null=True, db_index=True)
+    center  = models.ManyToManyField(Center, null=True, db_index=True)
+    project = models.ManyToManyField(Project, null=True, db_index=True)
     #layout = models.CharField(max_length=512, default='')
     is_drilldown = models.BooleanField(default=None)
 
@@ -58,6 +63,7 @@ class Customer(models.Model):
     def __unicode__(self):
         user_obj = User.objects.filter(id=self.name_id).values_list('username',flat=True)
         return user_obj[0]
+
 
 class Widgets(models.Model):
     config_name = models.CharField(max_length=255,db_index=True)
@@ -76,6 +82,7 @@ class Widgets(models.Model):
     def __unicode__(self):
         return self.name
 
+
 class Widgets_group(models.Model):
     User_Group = models.ForeignKey(Group)
     project = models.ForeignKey(Project, null=True,db_index=True)
@@ -89,24 +96,11 @@ class Widgets_group(models.Model):
 
     class Meta:
         db_table = u'Widgets_group'
-        index_together = (('project', 'center',),)
+        index_together = (('project', 'center',), ('User_Group', 'project', 'center'), )
     def __unicode__(self):
         return u''
 
 
-'''
-class Widget_Mapping(models.Model):
-    user_name = models.ForeignKey(User, null=True)
-    widget_name = models.ForeignKey(Widgets, null=True)
-    widget_priority = models.IntegerField()
-    is_display = models.BooleanField(default=None)
-    is_drilldown = models.BooleanField(default=None)
-
-    class Meta:
-        db_table = u'widget_mapping'
-    def __unicode__(self):
-        return u''
-'''
 class Headcount(models.Model):
     #from_date = models.DateField()
     date   = models.DateField()
@@ -134,10 +128,11 @@ class Headcount(models.Model):
 
     class Meta:
         db_table = u'headcount_table'
-        index_together = (('project', 'center','sub_project','work_packet','sub_packet','date',),)
+        index_together = (('project', 'center','sub_project','work_packet','sub_packet','date',), ('project', 'center', 'date'))
 
     def __unicode__(self):
         return self.work_packet
+
 
 class HeadcountAuthoring(models.Model):
     date = models.CharField(max_length=255)
@@ -171,10 +166,9 @@ class HeadcountAuthoring(models.Model):
         return self.work_packet
 
 
-
 class Centermanager(models.Model):
-    name    = models.ForeignKey(User, null=True)
-    center  = models.ForeignKey(Center, null=True)
+    name    = models.ForeignKey(User, null=True,db_index=True)
+    center  = models.ForeignKey(Center, null=True,db_index=True)
 
     class Meta:
         db_table = u'center_manager'
@@ -182,8 +176,9 @@ class Centermanager(models.Model):
         user_obj = User.objects.filter(id=self.name_id).values_list('username',flat=True)
         return user_obj[0]
 
+
 class Nextwealthmanager(models.Model):
-    name    = models.ForeignKey(User, null=True)
+    name    = models.ForeignKey(User, null=True, db_index=True)
     center  = models.ManyToManyField(Center)
 
     class Meta:
@@ -191,6 +186,7 @@ class Nextwealthmanager(models.Model):
     def __unicode__(self):
         user_obj = User.objects.filter(id=self.name_id).values_list('username',flat=True)
         return user_obj[0]
+
 
 class RawTable(models.Model):
     team_lead   = models.ForeignKey(TeamLead, null=True,db_index=True)
@@ -209,7 +205,14 @@ class RawTable(models.Model):
 
     class Meta:
         db_table = u'raw_table'
-        index_together = (('project', 'center','sub_project','work_packet','sub_packet','date'),)
+        index_together = (('project', 'sub_project','work_packet','sub_packet','date', 'center'), ('project', 'center'),
+                ('project', 'center', 'date'), ('project', 'sub_project', 'date'), ('project', 'sub_project', 'work_packet', 'date'),
+                ('project', 'work_packet', 'date'), ('project', 'center', 'date', 'work_packet'), 
+                ('project', 'center', 'date', 'work_packet', 'employee_id'), ('employee_id', 'date', 'work_packet', 'sub_project'),
+                ('project', 'sub_project', 'work_packet', 'sub_packet', 'employee_id', 'date', 'center'),
+                ('project', 'center', 'date', 'work_packet', 'sub_packet'), ('employee_id','date','work_packet'),
+                ('employee_id','date','work_packet'), ('employee_id','date','work_packet','sub_packet'),
+                ('project','center', 'date','sub_project'), ('project','center', 'date','work_packet'),)
 
 
 class RawtableAuthoring(models.Model):
@@ -252,7 +255,13 @@ class Internalerrors(models.Model):
 
     class Meta:
         db_table = u'internal_error'
-        index_together = (('project', 'center','sub_project','work_packet','sub_packet','date'),)
+        index_together = (('project', 'center','sub_project','work_packet','sub_packet','date'), ('project', 'center', 'date'),
+                            ('project', 'center','sub_project','work_packet','sub_packet', 'employee_id', 'date'),
+                            ('project', 'center', 'date', 'work_packet'), ('project', 'center', 'work_packet'),
+                            ('project', 'center', 'sub_project'), ('project', 'center', 'date', 'sub_project'),
+                            ('project', 'center'), ('project', 'center', 'employee_id', 'date'),
+                            ('project', 'center', 'date', 'sub_project', 'work_packet'),
+                            ('center', 'project', 'date','work_packet','sub_packet'), )
         #unique_together = ("audited_errors","error_value","date","employee_id","volume_type")
 
     def __unicode__(self):
@@ -293,6 +302,7 @@ class InternalerrorsAuthoring(models.Model):
     def __unicode__(self):
         return self.work_packet
 
+
 class Externalerrors(models.Model):
     sub_project = models.CharField(max_length=255, blank=True)
     work_packet = models.CharField(max_length=255)
@@ -311,7 +321,15 @@ class Externalerrors(models.Model):
 
     class Meta:
         db_table = u'external_error'
-        index_together = (('project', 'center','sub_project','work_packet','sub_packet','date'),)
+        index_together = (('project', 'center', 'date'), ('project', 'center', 'sub_project', 'date'),
+                ('project', 'center', 'work_packet', 'date'), ('project', 'center', 'sub_packet', 'date'),
+                ('project', 'center', 'sub_project', 'work_packet', 'sub_packet', 'date'), ('project', 'center'),
+                ('project', 'center', 'sub_project', 'work_packet', 'sub_packet', 'employee_id', 'date'),
+                ('project', 'center', 'employee_id', 'date', 'work_packet', 'sub_packet'), 
+                ('project', 'center', 'employee_id', 'date', 'sub_project'),
+                ('project', 'center', 'date','sub_project','work_packet'),
+                ('center', 'project', 'date', 'work_packet', 'sub_packet'),
+                )
         #unique_together = ("audited_errors","error_value","date","employee_id","volume_type")
 
     def __unicode__(self):
@@ -366,8 +384,10 @@ class Authoringtable(models.Model):
 
     class Meta:
         db_table = u'authoring_table'
+        index_together = (('project', 'center',),)
     def __unicode__(self):
         return self.table_schema
+
 
 class Document(models.Model):
     document = models.FileField(upload_to='media/preprocessing/')
@@ -381,6 +401,7 @@ class Document(models.Model):
     def __unicode__(self):
         return self.description
 
+
 class Targets(models.Model):
     from_date = models.DateField()
     to_date   = models.DateField()
@@ -389,17 +410,20 @@ class Targets(models.Model):
     sub_packet  = models.CharField(max_length=255, blank=True,db_index=True)
     target      = models.IntegerField()
     fte_target  = models.IntegerField(default=0)
-    target_type = models.CharField(max_length=255, blank=True)
+    target_type = models.CharField(max_length=255, blank=True, db_index=True)
     target_value = models.IntegerField(default=0)
     center = models.ForeignKey(Center, null=True)
     project = models.ForeignKey(Project, null=True,db_index=True)
 
     class Meta:
         db_table = u'target_table'
-        index_together = (('project', 'center','sub_project','work_packet','sub_packet','from_date','to_date'),)
+        index_together = (('project', 'center','sub_project','work_packet','sub_packet','from_date','to_date'),
+                        ('project', 'center', 'work_packet', 'from_date', 'to_date'),
+                        ('project', 'work_packet', 'sub_project', 'from_date', 'to_date', 'target_type', 'center'),)
 
     def __unicode__(self):
         return self.work_packet
+
 
 class TargetsAuthoring(models.Model):
     from_date = models.CharField(max_length=255)
@@ -421,6 +445,7 @@ class TargetsAuthoring(models.Model):
     def __unicode__(self):
         return self.work_packet
 
+
 class Worktrack(models.Model):
     date = models.DateField()
     sub_project = models.CharField(max_length=255, blank=True,db_index=True)
@@ -436,10 +461,13 @@ class Worktrack(models.Model):
 
     class Meta:
         db_table = u'worktrack_table'
-        index_together = (('project', 'center','sub_project','work_packet','sub_packet','date'),)
+        index_together = (('project', 'center', 'date'), ('project', 'center', 'sub_project', 'date'),
+                ('project', 'center', 'work_packet', 'date'), ('project', 'center', 'sub_packet', 'date'),
+                ('project', 'center', 'sub_project', 'work_packet', 'sub_packet', 'date'), ('project', 'center'),)
 
     def __unicode__(self):
         return self.work_packet
+
 
 class WorktrackAuthoring(models.Model):
     date = models.CharField(max_length=255, blank=True)
@@ -462,6 +490,7 @@ class WorktrackAuthoring(models.Model):
     def __unicode__(self):
         return self.work_packet
 
+
 class Color_Mapping(models.Model):
     sub_project = models.CharField(max_length=255, blank=True)
     work_packet = models.CharField(max_length=255, blank=True)
@@ -476,6 +505,7 @@ class Color_Mapping(models.Model):
     def __unicode__(self):
         return self.work_packet
 
+
 class Annotation(models.Model):
     epoch = models.CharField(max_length=40,verbose_name='selected_date')
     text = models.TextField()
@@ -489,7 +519,7 @@ class Annotation(models.Model):
 
     class Meta:
         db_table = u'annotations'
-        index_together = (('project', 'center',),)
+        index_together = (('project', 'center',), ('epoch', 'created_by', 'key'),)
 
     def __unicode__(self):
         return self.epoch
@@ -508,6 +538,7 @@ class Alias_Widget(models.Model):
         return '%s - %s' % (str(self.project),str(self.widget_name))
         #return str(self.widget_name)
 
+
 class Profile(models.Model):
     user = models.ForeignKey(User, db_index=True)
     activation_key = models.CharField(max_length=40)
@@ -515,6 +546,7 @@ class Profile(models.Model):
 
     class Meta:
         db_table = u'profile'
+
 
 class Alias_packets(models.Model):
     widget = models.ForeignKey(Alias_Widget, null=True,db_index=True)
@@ -526,6 +558,7 @@ class Alias_packets(models.Model):
 
     def __unicode__(self):
         return self.alias_name
+
 
 class UploadAuthoring(models.Model):
     date = models.CharField(max_length=255, blank=True)
@@ -544,6 +577,7 @@ class UploadAuthoring(models.Model):
     def __unicode__(self):
         return u''
 
+
 class UploadDataTable(models.Model):
     date = models.DateField()
     sub_project = models.CharField(max_length=255, blank=True)
@@ -554,9 +588,10 @@ class UploadDataTable(models.Model):
 
     class Meta:
         db_table = u'upload_data_table'
-
+        index_together = (('project', 'center', 'date'), ('project', 'sub_project', 'center', 'date'), )
     def __unicode__(self):
         return u''
+
 
 class IncomingerrorAuthoring(models.Model):
     date = models.CharField(max_length=255, blank=True)
@@ -574,6 +609,7 @@ class IncomingerrorAuthoring(models.Model):
     def __unicode__(self):
         return self.work_packet
 
+
 class Incomingerror(models.Model):
     date = models.DateField()
     sub_project = models.CharField(max_length=255, blank=True,db_index=True)
@@ -585,9 +621,13 @@ class Incomingerror(models.Model):
 
     class Meta:
         db_table = u'incoming_error'
+        index_together = (('project', 'center', 'sub_project', 'work_packet', 'sub_packet', 'date'),
+                            ('project', 'center', 'work_packet', 'date'), ('project', 'center', 'sub_packet', 'date'),
+                            ('project', 'center', 'work_packet','sub_packet', 'date'), )
 
     def __unicode__(self):
         return self.work_packet
+
 
 class TatAuthoring(models.Model):
     sub_project = models.CharField(max_length=255, blank=True)
@@ -610,6 +650,7 @@ class TatAuthoring(models.Model):
     def __unicode__(self):
         return self.tat_status
 
+
 class TatTable(models.Model):
     sub_project = models.CharField(max_length=255, blank=True)
     work_packet = models.CharField(max_length=255)
@@ -626,6 +667,7 @@ class TatTable(models.Model):
 
     class Meta:
         db_table = u'tats_table'
+        index_together = (('project', 'center', 'date'), ('project', 'center', 'sub_project', 'work_packet', 'sub_packet', 'date'), )
 
     def __unicode__(self):
         return self.tat_status
@@ -647,6 +689,7 @@ class Review(models.Model):
     class Meta:
         db_table = u'review_system'
         unique_together = (('review_name', 'project', 'review_date'), )
+        index_together = (('project', 'review_name', 'review_date'), )
 
     def __unicode__(self):
         return self.review_name
@@ -654,7 +697,7 @@ class Review(models.Model):
 
 class ReviewFiles(models.Model):
     """ model to store files for reviews """
-    file_name = models.FileField(upload_to='reviews/%Y%m')
+    file_name = models.FileField(upload_to='reviews/%Y%m', db_index=True)
     review = models.ForeignKey(Review, db_index=True)
     creation_date = models.DateTimeField(auto_now_add=True)
     updation_date = models.DateTimeField(auto_now=True)
@@ -662,20 +705,19 @@ class ReviewFiles(models.Model):
 
     class Meta:
         db_table = u'review_files'
-        index_together = (('review', 'file_name'), )
+        index_together = (('review', 'file_name'), ('original_file_name', 'review') )
         unique_together = (('review', 'file_name'), )
 
 
 class ReviewMembers(models.Model):
     """ Model to store name of all persons associated in a review """
     review = models.ForeignKey(Review, db_index=True)
-    member = models.ForeignKey(User, null=True)
+    member = models.ForeignKey(User, null=True, db_index=True)
     reminder_mail = models.BooleanField(default = False, db_index=True)
     creation_date = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         db_table = u'review_members'
-
 
 
 class HRMMovementTracker(models.Model):
@@ -701,6 +743,7 @@ class HRMMovementTracker(models.Model):
 
     class Meta:
         db_table = u'hrm_movement_tracker'
+
 
 class HRMAttendance(models.Model):
     sno =  models.AutoField(primary_key=True)
@@ -742,6 +785,7 @@ class HRMAttendance(models.Model):
     class Meta:
         db_table = u'hrm_attendance'
 
+
 class HRMEmployeeProcess(models.Model):
     empid = models.CharField(max_length = 10, null = False)
     team = models.CharField(max_length = 50, null = False)
@@ -751,6 +795,7 @@ class HRMEmployeeProcess(models.Model):
     class Meta:
         db_table = u'hrm_employee_process'
 
+
 class HRMEmployeeReportingPerson(models.Model):
     empid = models.CharField(max_length = 12, primary_key=True)
     name = models.CharField(max_length = 150, null = False)
@@ -758,6 +803,7 @@ class HRMEmployeeReportingPerson(models.Model):
 
     class Meta:
         db_table = u'hrm_employee_reportingperson'
+
 
 class HRMEmployeeResignation(models.Model):
     empid =  models.CharField(max_length = 15, null = False)
@@ -775,11 +821,4 @@ class HRMEmployeeResignation(models.Model):
 
     class Meta:
         db_table = u'hrm_employee_resignation'
-
-
-
-
-
-
-
 

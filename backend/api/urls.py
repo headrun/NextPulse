@@ -1,6 +1,7 @@
 from django.conf.urls import include, url
 from django.contrib import admin
 from api import views as apiviews
+from api import review_views
 
 urlpatterns = [
     # Examples:
@@ -10,7 +11,7 @@ urlpatterns = [
     url(r'^from_to/', apiviews.from_to),
     url(r'^project/', apiviews.project),
     url(r'^chart_data/', apiviews.chart_data),
-    url(r'^yesterdays_data/', apiviews.yesterdays_data),
+    #url(r'^yesterdays_data/', apiviews.yesterdays_data),
     url(r'^dropdown_data/', apiviews.dropdown_data),
     url(r'^dropdown_data_types/', apiviews.dropdown_data_types, name="dropdown_data_types"),
     url(r'^annotations/$', apiviews.get_annotations),
@@ -19,14 +20,14 @@ urlpatterns = [
     url(r'^static_production_data/',apiviews.static_production_data),
     url(r'^change_password/', apiviews.change_password),
     url(r'^forgot_password/', apiviews.forgot_password),
-    url(r'^get_top_reviews',apiviews.get_top_reviews),
-    url(r'^create_reviews',apiviews.create_reviews),
-    url(r'^get_review_details',apiviews.get_review_details),
-    url(r'^remove_attachment',apiviews.remove_attachment),
-    url(r'^upload_review_doc',apiviews.upload_review_doc),
-    url(r'^get_related_user',apiviews.get_related_user),
-    url(r'^saving_members',apiviews.saving_members),
-    url(r'^download_attachments',apiviews.download_attachments),
+    url(r'^get_top_reviews',review_views.get_top_reviews),
+    url(r'^create_reviews',review_views.create_reviews),
+    url(r'^get_review_details',review_views.get_review_details),
+    url(r'^remove_attachment',review_views.remove_attachment),
+    url(r'^upload_review_doc',review_views.upload_review_doc),
+    url(r'^get_related_user',review_views.get_related_user),
+    url(r'^saving_members',review_views.saving_members),
+    url(r'^download_attachments',review_views.download_attachments),
     url(r'^utilisation_all', apiviews.utilisation_all),
     url(r'^productivity', apiviews.productivity),
     url(r'^cate_error', apiviews.cate_error),

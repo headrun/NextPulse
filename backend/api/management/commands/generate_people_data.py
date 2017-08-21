@@ -86,7 +86,7 @@ class Command(BaseCommand):
                         new_date_list.append(date_va)
                         for vol_type in volume_list:    
                             final_work_packet = vol_type
-                            #import pdb;pdb.set_trace()
+                            
                             if volumes_data[0]['work_packet'] != '' and volumes_data[0]['sub_project'] != '':
                                 final_work_packet = final_work_packet['sub_project']
                                 #targets = Targets.objects.filter(project=prj_id,center=center_id,from_date__lte=date_va,to_date__gte=date_va,sub_project=final_work_packet,target_type = 'FTE Target').aggregate(Sum('target_value'))
@@ -111,7 +111,6 @@ class Command(BaseCommand):
                                 tar = Targets.objects.filter(project=prj_id,center=center_id,from_date=date_va,to_date=date_va,work_packet=final_work_packet,target_type = 'FTE Target').values_list('target_value',flat=True).distinct()
                                 targets = sum(tar)
                                 emp_count = Headcount.objects.filter(project=prj_id, center=center_id, date=date_va,work_packet = final_work_packet).aggregate(Sum('billable_agents'))
-                                #import pdb;pdb.set_trace()
                                 #tat_values = TatTable.objects.filter(project=prj_id, center=center_id, date=date_va, work_packet = final_work_packet).values_list('tat_status',flat=True)
                                 tat_da = TatTable.objects.filter(project=prj_id, center=center_id, date=date_va, work_packet = final_work_packet)
                                 met_va = tat_da.aggregate(Sum('met_count'))
@@ -169,7 +168,7 @@ class Command(BaseCommand):
                                         else:
                                             main_values[key] = [0]
                                     #generating tat code
-                                    #import pdb;pdb.set_trace()
+                                    
                                     if tat_data.has_key(key):
                                         if tat_met_va:
                                             met_val = (tat_met_va/(tat_met_va + tat_not_met_va)) * 100
@@ -390,7 +389,6 @@ class Command(BaseCommand):
                     tat_final_value = float('%.2f' % round(tat_final_value,2))
                 else:
                     tat_final_value = "NA"
-                #import pdb;pdb.set_trace()
                 #calculation for external accuracy code
                 acc_values_sum = {}
                 for key, value in acc_values.iteritems():
@@ -528,7 +526,6 @@ class Command(BaseCommand):
                         redis_key = '{0}_{1}_{2}_tat'.format(prj_name,center_name,month_name)
                         value_dict['tat'] = str(tat_final_value)
                         data_dict[redis_key] = value_dict
-                #import pdb;pdb.set_trace()
                 conn = redis.Redis(host="localhost", port=6379, db=0) 
                 current_keys = []
                 for key, value in data_dict.iteritems():
