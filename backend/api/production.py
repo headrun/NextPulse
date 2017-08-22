@@ -296,7 +296,7 @@ def main_productivity_data(center,prj_id,date_list,level_structure_key):
                 billable_emp_count = billable_emp_count['billable_agents__sum']
                 if billable_emp_count and total_work_done:
                     try:
-                        productivity_value = float(total_work_done / float(sum(billable_emp_count)))
+                        productivity_value = total_work_done / billable_emp_count
                     except:
                         productivity_value = 0
                 else:
