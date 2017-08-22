@@ -170,7 +170,7 @@ def day_week_month(request, dwm_dict, prj_id, center, work_packets, level_struct
             error_graphs_data = internal_extrnal_graphs(month_dates, prj_id, center,level_structure_key)
             if len(error_graphs_data['internal_time_line']) > 0:
                 internal_accuracy_packets = {}
-                internal_accuracy_timeline[month_name] = error_graphs_data['internal_time_line']['internal_time_line']
+                #internal_accuracy_timeline[month_name] = error_graphs_data['internal_time_line']['internal_time_line']
                 intr_accuracy_perc = error_graphs_data['internal_accuracy_graph']
                 for in_acc_key,in_acc_value in intr_accuracy_perc.iteritems():
                     if internal_accuracy_packets.has_key(in_acc_key):
@@ -180,10 +180,13 @@ def day_week_month(request, dwm_dict, prj_id, center, work_packets, level_struct
                 internal_accuracy_timeline[month_name] = internal_accuracy_packets
             if len(error_graphs_data['external_time_line']) > 0: 
                 external_accuracy_packets = {}
-                if error_graphs_data.has_key('external_accuracy_graph'):
+
+                """if error_graphs_data.has_key('external_accuracy_graph'):
                     extr_accuracy_perc = error_graphs_data['external_accuracy_graph']
                 else:
-                    extr_accuracy_perc = error_graphs_data['extr_err_accuracy']['packets_percntage'] 
+                    extr_accuracy_perc = error_graphs_data['extr_err_accuracy']['packets_percntage'] """
+
+                extr_accuracy_perc = error_graphs_data['external_accuracy_graph']
                 for ex_acc_key,ex_acc_value in extr_accuracy_perc.iteritems():
                     if external_accuracy_packets.has_key(ex_acc_key):
                         if isinstance(ex_acc_value,list):
@@ -197,12 +200,12 @@ def day_week_month(request, dwm_dict, prj_id, center, work_packets, level_struct
                             external_accuracy_packets[ex_acc_key] = [ex_acc_value]
                 external_accuracy_timeline[month_name] = external_accuracy_packets
 
-            if error_graphs_data.has_key('extr_err_accuracy'):
+            """if error_graphs_data.has_key('extr_err_accuracy'):
                 for vol_key, vol_values in error_graphs_data['extr_err_accuracy']['packets_percntage'].iteritems():
                     if all_external_error_accuracy.has_key(vol_key):
                         all_external_error_accuracy[vol_key].append(vol_values[0])
                     else:
-                        all_external_error_accuracy[vol_key] = vol_values
+                        all_external_error_accuracy[vol_key] = vol_values"""
 
         dates = [dwm_dict['month']['month_dates'][0][0], dwm_dict['month']['month_dates'][-1:][0][-1:][0]]
 
@@ -246,12 +249,15 @@ def day_week_month(request, dwm_dict, prj_id, center, work_packets, level_struct
 
             if len(error_graphs_data['external_time_line']) > 0:
                 external_week_name = str('week' + str(external_week_num))
-                external_accuracy_timeline[external_week_name] = error_graphs_data['external_time_line']['external_time_line']
+                #external_accuracy_timeline[external_week_name] = error_graphs_data['external_time_line']['external_time_line']
                 external_accuracy_packets = {}
-                if error_graphs_data.has_key('external_accuracy_graph'):
+
+                """if error_graphs_data.has_key('external_accuracy_graph'):
                     extr_accuracy_perc = error_graphs_data['external_accuracy_graph']
                 else:
-                    extr_accuracy_perc = error_graphs_data['extr_err_accuracy']['packets_percntage']
+                    extr_accuracy_perc = error_graphs_data['extr_err_accuracy']['packets_percntage']"""
+                
+                extr_accuracy_perc = error_graphs_data['external_accuracy_graph']
                 for ex_acc_key,ex_acc_value in extr_accuracy_perc.iteritems():
                     if external_accuracy_packets.has_key(ex_acc_key):
                         if isinstance(ex_acc_value,list):
@@ -266,12 +272,12 @@ def day_week_month(request, dwm_dict, prj_id, center, work_packets, level_struct
                 external_accuracy_timeline[external_week_name] = external_accuracy_packets
                 external_week_num = external_week_num + 1
 
-            if error_graphs_data.has_key('extr_err_accuracy'):
+            """if error_graphs_data.has_key('extr_err_accuracy'):
                 for vol_key, vol_values in error_graphs_data['extr_err_accuracy']['packets_percntage'].iteritems():
                     if all_external_error_accuracy.has_key(vol_key):
                         all_external_error_accuracy[vol_key].append(vol_values[0])
                     else:
-                        all_external_error_accuracy[vol_key] = vol_values
+                        all_external_error_accuracy[vol_key] = vol_values"""
 
         dates = [dwm_dict['week'][0][0], dwm_dict['week'][-1:][0][-1:][0]]    
         final_internal_accuracy_timeline = errors_week_calcuations(week_names, internal_accuracy_timeline,final_internal_accuracy_timeline)
