@@ -59,28 +59,34 @@ def get_dash_data(projects=PROJECTS, tab=SLA):
 
                 _target_objs = ColorCoding.objects.filter(project__id =_id, widget__config_name = WIDGET_SYNC[pro], month = month)
                 if not _target_objs:
-                    if pro in ["absenteeism", "attrition"]:
-                        _target = 5.0
-                    else:
-                        _target = 99.0
+                    _target = DEFAULT_TARGET.get(pro, 0)
                 else:
                     _target = _target_objs[0].soft_target
                 
                 row_data['color'].update({_key : ['Green', _target]})
                 if not row_data[_key] == "NA":
-                    row_data['color'].update({_key : [get_color(float(row_data[_key]), _target), _target]}) 
+                    row_data['color'].update({_key : [get_color(float(row_data[_key]), _target, pro), _target]}) 
 
             i +=1
         result.append(row_data)
     return result
 
-def get_color(val, target):
+
+def get_color(val, target, pro):
     """ getting the color """
-    if val < target:
-        color = "Red"
-    elif val == target:
-        color = "Orange"
-    else:
-        color = "Green"
-    return color
+    if pro in REVERSE_TARGET:
+        if val > target:
+            color = "Red"
+        elif val == target:
+            color = "Orange"
+        else:
+            color = "Green"
+    else:     
+        if val < target:
+            color = "Red"
+        elif val == target:
+            color = "Orange"
+        else:
+            color = "Green"
+        return color
 
