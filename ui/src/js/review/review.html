@@ -337,24 +337,28 @@ input:checked + .slider:before {
               <span class="tag-format">{{$ctrl.is_when}}</span>
             </div>
         </div>
-        <h1 style="font-size: 23px;padding-left: 25px;" ng-if="$ctrl.no_data" id="meeting-name">{{$ctrl.edit_review.reviewname}}</h1>
-        <!--<input type="password" class="form-control" id="eidt-name" style="display:none;">-->
-        <!--<input class="form-control input-sm txt-edit" id="edit-name" type="text" style="display:none;">-->
-      <div class="details-block">
-        <div ng-if="$ctrl.no_data" class="meeet-agenda" style="color: black;"><span><i>Meeting agenda:</i></span></div><br>
-        <div class="data-agenda"><span ng-if="$ctrl.no_data" class="agenda-style" id="agenda-name">{{$ctrl.edit_review.reviewagenda}}</span>
-          <!--<input class="form-control input-sm" id="edit-agenda" type="text" name= "editagenda" style="display:none;width:50%;">-->
-            <div class="add-review" style="float:right;margin-right:4%;margin-top:0px;">
+        <div class="row">
+          <div class="col-md-9">
+            <h1 style="font-size: 23px;padding-left: 25px;" ng-if="$ctrl.no_data" id="meeting-name">{{$ctrl.edit_review.reviewname}}</h1>
+              <div class="details-block">
+                <div ng-if="$ctrl.no_data" class="meeet-agenda" style="color: black;"><span><i>Meeting agenda:</i></span></div><br>
+                <div class="data-agenda"><span ng-if="$ctrl.no_data" class="agenda-style" id="agenda-name">
+                     {{$ctrl.edit_review.reviewagenda}}</span></div>
+              </div>
+          </div>
+          <div class="col-md-3">
+            <div class="add-review" style="float:right;margin-right:4%;margin-top:20%;">
                 <i class="fa fa-plus-circle fa-2x create" id="add-revi" data-toggle="modal" data-target="#myModal" 
                    ng-click="$ctrl.get_maildata('create')" style="margin-right:50px;" aria-hidden="true"></i>
                 <i class="fa fa-pencil-square-o edit" style = "margin-right:50px;font-size:25px;" ng-click="$ctrl.get_maildata('edit')" 
                    data-toggle="modal" data-target="#myModal" aria-hidden="true" ng-if="$ctrl.part_disable"></i>
                 <i class="fa fa-trash fa-2x" aria-hidden="true" ng-click="$ctrl.del_review()" ng-if="$ctrl.part_disable"></i>
             </div>
+          </div>
         </div>
         <br>
         <hr>
-          <div ng-if="$ctrl.no_data">
+          <div class="details-block" ng-if="$ctrl.no_data">
           <div><span style="color: black;"><i>Bridge:</i></span>
           <span class="agenda-style" id="agenda-name">{{$ctrl.edit_review.bridge}}</span></div>
           <div><span style="color: black;"><i>Venue:</i></span>
@@ -376,8 +380,7 @@ input:checked + .slider:before {
         <div class="row" style="width:100%;">
             <span ng-repeat="file in $ctrl.all_review_data" class="tag label label-info">
                 <a href="http://nextpulse.nextwealth.in/api/download_attachments/?doc_id={{file.file_id}}" download class="file-data" style="color:#666666;font-size:small;">{{file.name | getfile}}</a>
-                <!---<a ng-click="$ctrl.download_file(file)" download class="file-data" style="color:#666666;font-size:small;">{{file.name | getfile}}</a>-->
-                <span style="color:#2a2a2a;margin-left:11px;margin-right:8px;font-size:18px;" ng-click="$ctrl.remove_file(file.name | getfile:true)">x</span>
+                <span ng-if="$ctrl.stat" style="color:#2a2a2a;margin-left:11px;margin-right:8px;font-size:18px;" ng-click="$ctrl.remove_file(file.name | getfile:true)">x</span>
                 <br><br>
             </span>
         </div>
@@ -420,15 +423,24 @@ input:checked + .slider:before {
               <label>Select Date*: </label>
             </div>
             <div class="col-md-9">
-              <input class="input-clear" type="date" id="exampleInput" name="reviewdate" ng-model="$ctrl.review.reviewdate" class="form-element"
+              <!--<input class="input-clear" type="date" id="exampleInput" name="reviewdate" ng-model="$ctrl.review.reviewdate" class="form-element"
                 placeholder="yyyy-MM-dd" min="2017-01-01" max="2020-12-31" required />
               <span ng-if="regForm.reviewdate.$error.required && regForm.reviewdate.$touched">
                 Date is Required
-              </span>
+              </span>-->
+<div class="dropdown">
+  <a class="dropdown-toggle" id="dropdown2" role="button" data-toggle="dropdown">
+    <div class="input-group"><input type="text" class="form-control" data-ng-model="data.dateDropDownInput"><span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
+    </div>
+  </a>
+  <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+    <datetimepicker data-ng-model="data.dateDropDownInput" data-datetimepicker-config="{ dropdownSelector: '#dropdown2' }"/>
+  </ul>
+</div>
             </div>
           </div>
 
-          <div class="row">
+          <!--<div class="row">
             <div class="col-md-3">
               <label>Select Time*: </label>
             </div>
@@ -439,7 +451,7 @@ input:checked + .slider:before {
                 Time is Required
               </span>
             </div>
-          </div>
+          </div>-->
 
           <div class="row">
             <div class="col-md-3">
