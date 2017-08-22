@@ -29,3 +29,19 @@ WIDGET_SYNC = {
 		'attrition': 'attrition'
 
 }
+
+
+
+DEFAULT_TARGET = {
+        'prod_utili': 99, 
+        'external_accuracy': 99, 
+        'internal_accuracy': 99, 
+        'productivity': 99, 
+        'tat': 99, 
+        'fte_utilisation': 80, 
+        'operational_utilization': 99, 
+        'absenteeism': 5,
+        'attrition': 3
+}
+
+REVERSE_TARGET = ["absenteeism", "attrition"]
