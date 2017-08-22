@@ -16,7 +16,7 @@ from peoples_dashboard.constants import *
 PROJECTS = ["Probe-Salem", "NTT DATA Services TP-Salem", "NTT DATA Services Coding-Salem", "Federal Bank-Salem","Gooru-Salem",\
             "Walmart Salem-Salem", "Ujjivan-Salem", "IBM-Salem", "IBM Africa-Salem", "IBM Arabia-Salem", "IBM DCIW-Salem",\
             "IBM DCIW Arabia-Salem", "IBM India and Sri Lanka-Salem", "IBM Latin America-Salem", "IBM NA and EU-Salem",\
-            "IBM Pakistan-Salem", "IBM Quality Control-Salem", "IBM South East Asia-Salem"]
+            "IBM Pakistan-Salem", "IBM Quality Control-Salem", "IBM South East Asia-Salem", "Mobius-Chittoor"]
 
 MONTHS = ["April", "May"]
 

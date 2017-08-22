@@ -13,7 +13,7 @@
                 var people_data = '/pd/get_sla_data';
                 var people_data_2 = '/pd/get_peoples_data';
                 vm.render_chart_from_url = function(url, name) {
-
+                
                     vm.chart_name = name;
                     $http({method:"GET", url: url}).success(function(result){
 
