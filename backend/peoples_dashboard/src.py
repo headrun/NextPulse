@@ -88,5 +88,5 @@ def get_color(val, target, pro):
             color = "Orange"
         else:
             color = "Green"
-        return color
+    return color
 
