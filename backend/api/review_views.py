@@ -78,7 +78,7 @@ def create_reviews(request):
     if not review_name or not agenda or not review_type or not _review_date:
         return json_HttpResponse('Mandatory Field Not present')
     
-    _date = ' '.join(_review_date.split()[1:5]
+    _date = ' '.join(_review_date.split()[1:5])
     _id = eval(request.POST['json'])['track_id']
 
     user_id = request.user.id
