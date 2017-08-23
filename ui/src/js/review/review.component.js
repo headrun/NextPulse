@@ -132,8 +132,8 @@
                  $http.get(self.get_data_url).then(function(result){
 
                     self.edit_review['participants'] = [];
-		    self.no_data = true;
-		    self.part_disable = true;
+		            self.no_data = true;
+        		    self.part_disable = true;
                     var all_selec = result.data.result.members;
                     for (var i=0; i<all_selec.length; i++){
                         self.edit_review['participants'].push(all_selec[i]['name']);
@@ -243,7 +243,6 @@
                     swal('Creating Reviews in past date is restricted');
                 }
                 else {
-
 		 if (review.reviewname && review.reviewdate && review.reviewagenda && review.review_type != 'select'){
                  self.uids_list = []
                  for (var i=0; i<review.participants.length; i++) {

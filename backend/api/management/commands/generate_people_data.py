@@ -43,7 +43,7 @@ class Command(BaseCommand):
                 month_list.append([str(date)])
         final_project_data = []
         proje_cent = Project.objects.values_list('name',flat=True)
-        not_req = ["3i VAPP", "3iKYC", "Bridgei2i", "E4U", "IBM Africa", "IBM Arabia", "IBM DCIW", "IBM DCIW Arabia","IBM India and Sri Lanka", "IBM Latin America","IBM NA and EU", "IBM Pakistan", "IBM Quality Control", "IBM South East Asia","IBM Sri Lanka P2P", "indix",  "Nextgen", "Quarto","Tally", "Sulekha", "Webtrade", "Walmart Chittor","Bigbasket","Future Energie Tech"]
+        not_req = ["3i VAPP", "3iKYC", "Bridgei2i", "E4U", "indix", "Nextgen", "IBM Sri Lanka P2P", "Quarto","Tally", "Sulekha", "Webtrade", "Walmart Chittor","Bigbasket","Future Energie Tech"]
         proje_cent = filter(lambda x: x not in not_req, list(proje_cent))
         #proje_cent = ["Probe"]
         for pro_cen in proje_cent:
