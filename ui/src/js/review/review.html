@@ -163,14 +163,14 @@
     margin-top: 15px;
     margin-left: 25px;
 }
-.switch {
+.swi {
   position: relative;
   display: inline-block;
   width: 60px;
   height: 34px;
 }
 
-.switch input {display:none;}
+.swi input {display:none;}
 
 .slider {
   position: absolute;
@@ -221,14 +221,14 @@ input:checked + .slider:before {
 
 </style>
 <style>
-.switch {
+.swi {
   position: relative;
   display: inline-block;
   width: 60px;
   height: 34px;
 }
 
-.switch input {display:none;}
+.swi input {display:none;}
 
 .slider {
   position: absolute;
@@ -275,7 +275,7 @@ input:checked + .slider:before {
 .slider.round:before {
   border-radius: 50%;
 }
-.past{
+.old{
     font-style: italic;
     color: #9d9d9d;
     float: right;
@@ -283,6 +283,12 @@ input:checked + .slider:before {
     margin-top: 8px;
 }
 
+.old-ong {
+    font-style: italic;
+    color: #9d9d9d;
+    float: right;
+    margin-top: 8px;
+}
 </style>
 <div class="fluid-container" style="margin-left:0px; margin-right: 0px;">
   <div class="row margin-class">
@@ -301,9 +307,9 @@ input:checked + .slider:before {
            style="color:yellowgreen;margin-right:15px;font-size:26px;cursor: pointer;"></i></a></abbr>
         Meeting Calendar</p>
         <div class="block-data">
-            <p class="past" id="past-meet">Click to view Past Meetings</p>
-            <p class="past" id="ong-meet">Click to view Ongoing Meetings</p>
-            <label class="switch">
+            <p class="old" id="past-meet">Click to view Past Meetings</p>
+            <p class="old-ong" id="ong-meet">Click to view Ongoing Meetings</p>
+            <label class="swi">
                 <input ng-click="$ctrl.get_all_reviews()" type="checkbox" id="check-past">
                 <div class="slider round"></div>
             </label>
@@ -430,11 +436,12 @@ input:checked + .slider:before {
               </span>-->
 <div class="dropdown">
   <a class="dropdown-toggle" id="dropdown2" role="button" data-toggle="dropdown">
-    <div class="input-group"><input type="text" class="form-control" data-ng-model="data.dateDropDownInput"><span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
+    <div class="input-group"><input type="text" class="form-control" data-ng-model="$ctrl.review.reviewdate">
+        <span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
     </div>
   </a>
   <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
-    <datetimepicker data-ng-model="data.dateDropDownInput" data-datetimepicker-config="{ dropdownSelector: '#dropdown2' }"/>
+    <datetimepicker data-ng-model="$ctrl.review.reviewdate" data-datetimepicker-config="{ dropdownSelector: '#dropdown2' }"/>
   </ul>
 </div>
             </div>
