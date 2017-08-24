@@ -22,7 +22,7 @@ MONTHS = ["April", "May"]
 
 SLA = ['productivity', "external_accuracy", 'internal_accuracy', 'prod_utili', 'tat']
 
-PEOPLES = ["fte_utilisation", "operational_utilization", "absenteeism", "attrition"]
+PEOPLES = ["buffer","billable", "other_support","total","fte_utilisation", "operational_utilization", "absenteeism", "attrition"]
 #PEOPLES = ["absentisim"]
 
 
@@ -59,7 +59,7 @@ def get_dash_data(projects=PROJECTS, tab=SLA):
                 row_data.update({_key : conn.hgetall(key).get(pro, 0)})
                 #row_data.update({_key : 0})
 
-                _target_objs = ColorCoding.objects.filter(project__id =_id, widget__config_name = WIDGET_SYNC[pro], month = month)
+                _target_objs = ColorCoding.objects.filter(project__id =_id, widget__config_name = WIDGET_SYNC.get(pro, ""), month = month)
                 if not _target_objs:
                     _target = DEFAULT_TARGET.get(pro, 0)
                 else:
