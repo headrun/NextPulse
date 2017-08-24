@@ -530,7 +530,7 @@ on_Month1')">
 </div>
 
   <div class="modal fade" id="people_pop" role="dialog">
-    <div class="modal-dialog">
+    <div class="modal-dialog" style="width: 90%;">
       <!-- Modal content-->
       <div class="modal-content">
         <div class="modal-header">
@@ -538,12 +538,10 @@ on_Month1')">
           <h4 class="modal-title">{{$ctrl.widget_name}}</h4>
         </div>
         <div class="modal-body" style="min-height: 450px;">
+         <div class="row">
+         <div class="col-md-6">
           <p>Target: {{$ctrl.target_to_display}}</p>
-          <!--<p>{{$ctrl.month_to_display}}</p>
-          <p>{{$ctrl.widget_type}}</p>
-          <p>{{$ctrl.project_to_display}}</p>
-          <p>{{$ctrl.center_to_display}}</p>-->
-          <div class="col-sm-12 widget">
+          <div class="widget">
             <div class="widget-content">
                 <div class="widget-body" style="color:white;">
                         <div class="btn-group" style="float: right;">
@@ -555,9 +553,52 @@ on_Month1')">
                 </div>
             </div>
           </div>
-
-          <!--<highcharts options="$ctrl.widget_data"></highcharts>-->
-
+         </div>
+         <div class="col-md-6">
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th>Packet Type</th>
+                <th>Target</th>
+                <th>No of FTE</th>
+                <th>No of Days</th>
+                <th>Actual Volume</th>
+                <th>Target Volume</th>
+                <th>%column</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>DD</td>
+                <td>180</td>
+                <td>4</td>
+                <td>12</td>
+                <td>100</td>
+                <td>1000</td>
+                <td>99%</td>
+              </tr>
+              <tr>
+                <td>DF</td>
+                <td>180</td>
+                <td>4</td>
+                <td>12</td>
+                <td>100</td>
+                <td>1000</td>
+                <td>99%</td>
+              </tr>
+              <tr>
+                <td>DE</td>
+                <td>180</td>
+                <td>4</td>
+                <td>12</td>
+                <td>100</td>
+                <td>1000</td>
+                <td>99%</td>
+              </tr>
+            </tbody>
+          </table>
+         </div>
+        </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
