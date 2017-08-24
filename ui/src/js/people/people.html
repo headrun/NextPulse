@@ -357,6 +357,10 @@ a {
                             <th>Project</th>
                             <!--<th>Center</th>-->
                             <th>Month</th>
+                            <th>Billable</th>
+                            <th>Buffer</th>
+                            <th>Other Support</th>
+                            <th>Total</th>
                             <th>FTE Utilisation(%)</th>
                             <th>Operational Utilisation(%)</th>
                             <th>Absenteeism(%)</th>
@@ -373,6 +377,10 @@ a {
                             <td style="width:27%;"><a href="/#!/page1/Salem - {{value.project}}">{{value.project}}</a></td>
                             <!--<td>{{single.center}}</td>-->
                             <td>{{value.Month1}}</td>
+                            <td class="{{value.color.billable_Month1[0]}}">{{value.billable_Month1}}</td>
+                            <td class="{{value.color.buffer_Month1[0]}}">{{value.buffer_Month1}}</td>
+                            <td class="{{value.color.other_support_Month1[0]}}">{{value.other_support_Month1}}</td>
+                            <td class="{{value.color.total_Month1[0]}}">{{value.total_Month1}}</td>
                             <td class="{{value.color.fte_utilisation_Month1[0]}}" style="cursor:pointer;"
                                 ng-click="$ctrl.get_popup(value, 'utilisation_all', 'Month1', 'FTE Utilisation', 'fte_utilisation_Month1')">
                                 {{value.fte_utilisation_Month1}}</td>
@@ -387,6 +395,10 @@ a {
                             <td></td>
                             <!--<td></td>-->
                             <td style="width:15%;">{{value.Month2}}</td>
+                            <td class="{{value.color.billable_Month2[0]}}">{{value.billable_Month2}}</td>
+                            <td class="{{value.color.buffer_Month2[0]}}">{{value.buffer_Month2}}</td>
+                            <td class="{{value.color.other_support_Month2[0]}}">{{value.other_support_Month2}}</td>
+                            <td class="{{value.color.total_Month2[0]}}">{{value.total_Month2}}</td>
                             <td class="{{value.color.fte_utilisation_Month2[0]}}" style="width:15%;cursor:pointer;" 
                                 ng-click="$ctrl.get_popup(value, 'utilisation_all', 'Month2', 'FTE Utilisation', 'fte_utilisation_Month2')">
                                 {{value.fte_utilisation_Month2}}</td>
@@ -403,6 +415,10 @@ a {
                             <td></td>
                             <!--<td></td>-->
                             <td style="width:15%;">{{value.Month3}}</td>
+                            <td class="{{value.color.billable_Month3[0]}}">{{value.billable_Month3}}</td>
+                            <td class="{{value.color.buffer_Month3[0]}}">{{value.buffer_Month3}}</td>
+                            <td class="{{value.color.other_support_Month3[0]}}">{{value.other_support_Month3}}</td>
+                            <td class="{{value.color.total_Month3[0]}}">{{value.total_Month3}}</td>
                             <td class="{{value.color.fte_utilisation_Month3[0]}}" style="width:15%;cursor:pointer;"
                                 ng-click="$ctrl.get_popup(value, 'utilisation_all', 'Month3', 'FTE Utilisation', 'fte_utilisation_Month3')">
                                 {{value.fte_utilisation_Month3}}</td>
@@ -429,6 +445,10 @@ a {
                             <th>Project</th>
                             <!--<th>Center</th>-->
                             <th>Month</th>
+                            <th>Billable</th>
+                            <th>Buffer</th>
+                            <th>Other Support</th>
+                            <th>Total</th>
                             <th>FTE Utilisation(%)</th>
                             <th>Operational Utilisation(%)</th>
                             <th>Absenteeism(%)</th>
@@ -445,6 +465,10 @@ a {
                             <td style="width:27%;"><a href="/#!/page1/Chittoor - {{value.project}}">{{value.project}}</a></td>
                             <!--<td>{{single.center}}</td>-->
                             <td>{{value.Month1}}</td>
+                            <td class="{{value.color.billable_Month1[0]}}">{{value.billable_Month1}}</td>
+                            <td class="{{value.color.buffer_Month1[0]}}">{{value.buffer_Month1}}</td>
+                            <td class="{{value.color.other_support_Month1[0]}}">{{value.other_support_Month1}}</td>
+                            <td class="{{value.color.total_Month1[0]}}">{{value.total_Month1}}</td>
                             <td class="{{value.color.fte_utilisation_Month1[0]}}" style="cursor:pointer;"
                                 ng-click="$ctrl.get_popup(value, 'utilisation_all', 'Month1', 'FTE Utilisation', 'fte_utilisation_Month1')">
                                 {{value.fte_utilisation_Month1}}</td>
@@ -460,6 +484,10 @@ on_Month1')">
                             <td></td>
                             <!--<td></td>-->
                             <td style="width:15%;">{{value.Month2}}</td>
+                            <td class="{{value.color.billable_Month2[0]}}">{{value.billable_Month2}}</td>
+                            <td class="{{value.color.buffer_Month2[0]}}">{{value.buffer_Month2}}</td>
+                            <td class="{{value.color.other_support_Month2[0]}}">{{value.other_support_Month2}}</td>
+                            <td class="{{value.color.total_Month2[0]}}">{{value.total_Month2}}</td>
                             <td class="{{value.color.fte_utilisation_Month2[0]}}" style="width:15%;cursor:pointer;" 
                                 ng-click="$ctrl.get_popup(value, 'utilisation_all', 'Month2', 'FTE Utilisation', 'fte_utilisation_Month2')">
                                 {{value.fte_utilisation_Month2}}</td>
@@ -475,7 +503,11 @@ on_Month1')">
                             <td></td>
                             <td></td>
                             <!--<td></td>-->
-                            <td style="width:15%;">{{value.Month3}}</td>   
+                            <td style="width:15%;">{{value.Month3}}</td>
+                            <td class="{{value.color.billable_Month3[0]}}">{{value.billable_Month3}}</td>
+                            <td class="{{value.color.buffer_Month3[0]}}">{{value.buffer_Month3}}</td>
+                            <td class="{{value.color.other_support_Month3[0]}}">{{value.other_support_Month3}}</td>
+                            <td class="{{value.color.total_Month3[0]}}">{{value.total_Month3}}</td>   
                             <td class="{{value.color.fte_utilisation_Month3[0]}}" style="width:15%;cursor:pointer;"
                                 ng-click="$ctrl.get_popup(value, 'utilisation_all', 'Month3', 'FTE Utilisation', 'fte_utilisation_Month3')">
                                 {{value.fte_utilisation_Month3}}</td>
