@@ -45,3 +45,27 @@ DEFAULT_TARGET = {
 }
 
 REVERSE_TARGET = ["absenteeism", "attrition"]
+
+
+TARGETS = ['Charge Curator_single_target', 'Charge Curator_no_of_agents', 'Das_no_of_days', 'Das_single_target', 'Das_target',
+            'Das_no_of_agents', 'Das_actual', 'Das_name', 'Charge Inspector_actual', 'Charge Inspector_no_of_days',
+            'Charge Inspector_single_target', 'Charge Inspector_target', 'Charge Inspector_no_of_agents', 'Charge Inspector_name',
+            'Partial QA_name', 'Partial QA_no_of_days', 'Partial QA_no_of_agents', 'Partial QA_single_target',
+            'Partial QA_target', 'Partial QA_actual']
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
