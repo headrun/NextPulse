@@ -100,10 +100,10 @@
                   vm.end_date += lastDay.getFullYear() +'-';
                   vm.end_date += lastDay.getMonth()+1+'-';
                   vm.end_date += lastDay.getDate();
-
                   vm.chart_name = name;
+                  debugger;
                   vm.day_type = function(type) {
-
+                    
                   $('.widget-content').addClass('widget-loader-show');
                   $('.widget-body').addClass('widget-data-hide');
                     var url_to = '/api/'+vm.widget_type+'/?&project='+vm.project_to_display+
@@ -126,6 +126,14 @@
                             $('.month').siblings().removeClass('active btn-success');
                         }
                     }
+
+                    if (vm.widget_name === 'Productivity') {
+                        $('#perce').hide();
+                    }
+                    else {
+                       $('#perce').show(); 
+                    }
+
                     vm.url = '/api/'+vm.widget_type+'/?&project='+vm.project_to_display+
                         '&center='+vm.center_to_display+'&from='+vm.start_date+'&to='+vm.end_date+'&type=week';
                     vm.render_chart_from_url(vm.url, vm.widget_name);
