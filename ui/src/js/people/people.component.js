@@ -101,7 +101,6 @@
                   vm.end_date += lastDay.getMonth()+1+'-';
                   vm.end_date += lastDay.getDate();
                   vm.chart_name = name;
-                  debugger;
                   vm.day_type = function(type) {
                     
                   $('.widget-content').addClass('widget-loader-show');
