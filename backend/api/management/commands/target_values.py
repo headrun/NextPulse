@@ -165,6 +165,7 @@ class Command(BaseCommand):
                     final_target_values['_target_final_product_val'] = final_month_val
                     final_target_values['_target_prod_utility'] = prod_utility
                     final_target_values['_target_bill_ppl'] = bill_ppl
+                    final_target_values['_target_final_actual'] = sum(final_actual_val)
                     conn = redis.Redis(host="localhost", port=6379, db=0)
                     redi_dict = {}
                     for key,value in final_target_values.iteritems():
@@ -184,6 +185,10 @@ class Command(BaseCommand):
                         if key == '_target_'+packet+'_actual':
                             redis_key = prj_name+'_'+center_name+'_'+month_name+'_target_'+packet+'_actual'
                             vals_dict['_target_'+packet+'_actual'] = str(pac_act_vals)
+                            redi_dict[redis_key] = vals_dict
+                        if key == '_target_final_actual':
+                            redis_key = prj_name+'_'+center_name+'_'+month_name+'_target_final_actual'
+                            vals_dict['_target_final_actual'] = str(sum(final_actual_val))
                             redi_dict[redis_key] = vals_dict
                         if key == '_target_prod_utility':
                             redis_key = prj_name+'_'+center_name+'_'+month_name+'_target_prod_utility'
