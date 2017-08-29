@@ -9,7 +9,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        from api.models import Project,Center,Headcount
+        from api.models import Project,Center,RawTable,Headcount
         import datetime
         import calendar
         from django.db.models import Sum, Max 
@@ -52,7 +52,12 @@ class Command(BaseCommand):
             for month_name,month_dates in months_dict.iteritems():
                 final_dict = {}
                 dates_list = month_dates
-                head_count = Headcount.objects.filter(project = prj_id, center = center_id, date = dates_list[-1]).aggregate(Sum('billable_hc'),Sum('billable_agents'),Sum('buffer_agents'),Sum('qc_or_qa'),Sum('teamlead'),Sum('trainees_and_trainers'),Sum('managers'),Sum('mis'))
+                date_li = []
+                for date in dates_list:
+                    per_day_val = RawTable.objects.filter(project=prj_id, center=center_id, date=date).aggregate(Max('per_day'))
+                    if per_day_val['per_day__max'] > 0:
+                        date_li.append(date)
+                head_count = Headcount.objects.filter(project = prj_id, center = center_id, date = date_li[-1]).aggregate(Sum('billable_hc'),Sum('billable_agents'),Sum('buffer_agents'),Sum('qc_or_qa'),Sum('teamlead'),Sum('trainees_and_trainers'),Sum('managers'),Sum('mis'))
                 if head_count['billable_hc__sum'] != None:
                     billable_head = head_count['billable_hc__sum']
                     billable_head = float('%.2f' % round(billable_head, 2))
@@ -62,7 +67,7 @@ class Command(BaseCommand):
                     buffer_agents = float('%.2f' % round(buffer_agents, 2))
                     other_support = head_count['qc_or_qa__sum'] + head_count['managers__sum'] + head_count['teamlead__sum'] + head_count['mis__sum'] + head_count['trainees_and_trainers__sum']
                     other_support = float('%.2f' % round(other_support, 2)) 
-                    total = billable_head + billable_agents + buffer_agents + other_support
+                    total = billable_head + buffer_agents + other_support
                 else:
                     billable_head = 0
                     billable_agents = 0

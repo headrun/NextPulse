@@ -84,8 +84,7 @@ class Command(BaseCommand):
                     if total_done_value['per_day__max']>0:
                         new_date_list.append(date_va)
                         for vol_type in volume_list:    
-                            final_work_packet = vol_type
-                            
+                            final_work_packet = vol_type                            
                             if volumes_data[0]['work_packet'] != '' and volumes_data[0]['sub_project'] != '':
                                 final_work_packet = final_work_packet['sub_project']
                                 tar = Targets.objects.filter(project=prj_id,center=center_id,from_date__lte=date_va,to_date__gte=date_va,sub_project=final_work_packet,target_type = 'FTE Target').values_list('target_value',flat=True).distinct()

@@ -23,7 +23,7 @@ MONTHS = ["April", "May"]
 SLA = ['productivity', "external_accuracy", 'internal_accuracy', 'prod_utili', 'tat']
 
 PEOPLES = ["buffer","billable", "other_support","total","fte_utilisation", "operational_utilization", "absenteeism", "attrition"]
-#PEOPLES = ["absentisim"]
+#PEOPLES = ["absentisim"]             TARGETS
 
 
 
@@ -54,9 +54,10 @@ def get_dash_data(projects=PROJECTS, tab=SLA):
             #_project, center = project.split("-")
             #row_data = {'project': _project, 'center': center, 'month': month}
             for pro in tab:
-                key = _project +"_"+ center + "_" + month+ "_" + pro
+                core_key = _project +"_"+ center + "_" + month
+                _key = core_key + "_" + pro
                 _key = pro + "_" + m_key
-                row_data.update({_key : conn.hgetall(key).get(pro, 0)})
+                row_data.update({_key : conn.hgetall(_key).get(pro, 0)})
                 #row_data.update({_key : 0})
 
                 _target_objs = ColorCoding.objects.filter(project__id =_id, widget__config_name = WIDGET_SYNC.get(pro, ""), month = month)
@@ -67,12 +68,22 @@ def get_dash_data(projects=PROJECTS, tab=SLA):
                 
                 row_data['color'].update({_key : ['Green', _target]})
                 if not row_data[_key] == "NA":
-                    row_data['color'].update({_key : [get_color(float(row_data[_key]), _target, pro), _target]}) 
+                    row_data['color'].update({_key : [get_color(float(row_data[_key]), _target, pro), _target, core_key]})
 
             i +=1
         result.append(row_data)
     return result
 
+
+def get_target(core_key):
+    
+    conn = redis.Redis(host="localhost", port=6379, db=0)
+    _key = core_key + '_' + "target" + '_' + '*'
+    target_list = conn.keys(_key)
+    target_dict = {}
+    for item in target_list:
+        target_dict.update({ item: conn.hgetall(item).values()[0]})
+    return target_dict
 
 def get_color(val, target, pro):
     """ getting the color """
