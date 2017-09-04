@@ -17,7 +17,6 @@
              var error_api = '/api/error_board'
              var def_disp = '/api/default'
              var project_dropdown_count = '/api/dropdown_data_types/?'
-             //var yesterdays_data = '/api/yesterdays_data'
              var someDate = new Date();
              var fi_dd = someDate.getDate();
              var fi_mm = someDate.getMonth() + 1;
@@ -38,7 +37,6 @@
              self.project_live = ''
              self.center_live = ''
 
-             //self.sell_proo = $state.params.selpro;
              $scope.singleModel = 1; 
 
              $scope.radioModel = 'Day';
@@ -167,42 +165,6 @@
 
                });
 
-             /*self.dateType = function(key,all_data,name,button_clicked){
-
-                var obj = {
-                    "self.chartOptions17":self.chartOptions17,
-                    "self.chartOptions18":self.chartOptions18,
-                    "self.chartOptions25":self.chartOptions25,
-                    "self.chartOptions24":self.chartOptions24,
-                    "self.chartOptions15":self.chartOptions15,
-                    "self.chartOptions9":self.chartOptions9,
-                    "self.chartOptions9_2":self.chartOptions9_2,
-                }
-
-                self.render_data = obj[all_data];
-                self.button_clicked = button_clicked;
-             }*/
-
-             /*self.allo_and_comp = function() {
-
-                $http({method:"GET", url: allo_and_comp}).success(function(result){
-
-                    angular.extend(self.chartOptions17, {
-                        xAxis: {
-                            categories: result.result.date,
-                        },
-                        series: result.result.bar_data
-                    });
-
-                    angular.extend(self.chartOptions18, {
-                        xAxis: {
-                            categories: result.result.date,
-                        },
-                        series: result.result.line_data
-                    });
-                })
-             }*/
-
 
              self.main_widget_function = function(callback, packet) {
                     
@@ -214,36 +176,43 @@
 
                     $('#volume_table').hide();
                    
-                    //self.lastDate+'&to='+self.firstDate+'&type=' + self.day_type;
-                    
-                    /*var dateEntered = document.getElementById('select').value
-                    dateEntered = dateEntered.replace(' to ','to');
-                    callback[0] = dateEntered.split('to')[0].replace(' ','');
-                    callback[1] = dateEntered.split('to')[1].replace(' ',''); */
                     self.data_to_show = '?&project='+callback[3]+'&center='+callback[2]+'&from='+ callback[0]+'&to='+ callback[1]+packet+'&type=';
                 
                     self.static_widget_data = '&project='+callback[3]+'&center='+callback[2]
                     self.common_for_all = self.data_to_show + self.day_type;
 
-                    //var date_values = callback[0] + 'to' + callback[1];
-                    //var allo_and_comp = '/api/alloc_and_compl/'+self.common_for_all;
-                    //var utill_all = '/api/utilisation_all/'+self.common_for_all;
-                    //var erro_all = '/api/erro_data_all/'+self.common_for_all;
                     var error_bar_graph = '/api/error_bar_graph/'+self.common_for_all;
                     var err_field_graph = '/api/err_field_graph/'+self.common_for_all;
-                    //var productivity = '/api/productivity/'+self.common_for_all;
-                    //var mont_volume = '/api/monthly_volume/'+self.common_for_all;
-                    //var fte_graphs = '/api/fte_graphs/'+self.common_for_all;
-                    //var prod_avg = '/api/prod_avg_perday/'+self.common_for_all;
                     var cate_error = '/api/cate_error/'+self.common_for_all;
                     var pareto_cate_error = '/api/pareto_cate_error/'+self.common_for_all;
                     var agent_cate_error = '/api/agent_cate_error/'+self.common_for_all;
-                    //var err_external_bar_graph = '/api/err_external_bar_graph/'+self.common_for_all;
-                    //var main_prod = '/api/main_prod/'+self.common_for_all;
-                    //var pre_scan = '/api/pre_scan_exce/'+self.common_for_all;
                     var nw_exce = '/api/nw_exce/'+self.common_for_all;
                     var overall_exce = '/api/overall_exce'+self.common_for_all;
-                    //var static_ajax = static_data + self.static_widget_data;
+
+                    self.ajax_for_role = function() {
+
+                      $http({method: "GET", url: '/api/project/'}).success(function(result){
+
+                        self.role_for_perm = result.result.role;
+                      });
+                    }
+
+                    self.ajax_for_role();
+
+                    self.annot_perm = function() {
+
+                        if (self.role_for_perm == 'customer') {
+
+                          $('.annotation-popover').find('p').attr('contenteditable', 'false');
+                          $('.popover-title').hide();
+                        }
+                        else {
+
+                          $('.annotation-popover').find('p').attr('contenteditable', 'true');
+                          $('.popover-title').show();
+                        }
+                    }
+
                     self.allo_and_comp = function(final_work, type, name) {
 
                         if (type == undefined) {
@@ -298,7 +267,6 @@
                             var data_list_bar = result.result.volume_graphs.bar_data;
                             var data_list_line = result.result.volume_graphs.line_data;
 
-                            //self.hideLoading();
                             if ((name == "self.chartOptions17") || (name == "")) {
                                 angular.extend(self.chartOptions17, {
                                     xAxis: {
@@ -311,6 +279,12 @@
                                             point: {
                                               events:{
                                                 contextmenu: function() {
+                                                 if (self.role_for_perm == 'customer') {
+
+                                                    console.log('he is customer');
+                                                 }
+                                                 else {
+
                                                   if (self.data_to_show.split('&').length == 6) { 
                                                     var sub_proj = '';
                                                     var work_pack = '';
@@ -324,8 +298,9 @@
                                             	    var str = '17<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                                             	    this['project_live'] = self.project_live;
                                                     this['center_live'] = self.center_live;
-                                                    return new Annotation(str, $(event.currentTarget),this.series.chart, this);
+                                                    return new Annotation(str, $(self.chartOptions17.chart.renderTo),this.series.chart, this);
                                                     }
+                                                  }
                                                 }
                                             }
                                         }
@@ -359,6 +334,7 @@
                                         });
                                         }(series));
                                     }
+                                    self.annot_perm();
                                     }
                                 })
                             }
@@ -375,6 +351,12 @@
                                             point: {
                                               events:{
                                                 contextmenu: function() {
+                                                 if (self.role_for_perm == 'customer') {
+
+                                                    console.log('he is customer');
+                                                 }
+                                                 else {
+
                                                   if (self.data_to_show.split('&').length == 6) {
                                                     var sub_proj = '';
                                                     var work_pack = '';
@@ -388,8 +370,9 @@
                                             	    var str = '13<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                                                     this['project_live'] = self.project_live;
                                                     this['center_live'] = self.center_live;
-                                                    return new Annotation(str, $(event.currentTarget),this.series.chart, this);
+                                                    return new Annotation(str, $(self.chartOptions18.chart.renderTo),this.series.chart, this);
                                                     }
+                                                  }
                                                 }
                                             }
                                         }
@@ -423,14 +406,13 @@
                                         });
                                         }(series));
                                     }
+                                    self.annot_perm();
                                     }
 
                                 });
                            }
                         })
                     }
-
-                    //self.allo_and_comp(undefined, undefined, undefined);
 
                     self.utill_all = function(final_work, type,name) {
                         if (type == undefined) {
@@ -444,48 +426,12 @@
                         if (name == undefined) {
                             name = ''
                         }
-                        /*if (date_values == undefined) {
-                            date_values = ''
-                        }*/
+            
                         self.type = type;
 
                         var utill_all = '/api/utilisation_all/'+self.data_to_show + type + final_work;
 
                         return $http({method:"GET", url: utill_all}).success(function(result){
-
-                            /*if ((name == "self.chartOptions25") || (name == "")) {
-                                $('.widget-20a').removeClass('widget-loader-show');
-                                $('.widget-20b').removeClass('widget-data-hide');
-                            }
-                            if ((name == "self.chartOptions24") || (name == "")) {
-                                $('.widget-19a').removeClass('widget-loader-show');
-                                $('.widget-19b').removeClass('widget-data-hide');
-                            }
-                            if ((name == "self.chartOptions15") || (name == "")) {
-                               $('.widget-9a').removeClass('widget-loader-show');
-                               $('.widget-9b').removeClass('widget-data-hide');
-                            }*/
-
-                            /*if (result.result.type == 'day') {
-                                $('.day2').addClass('active btn-success');
-                                $('.day2').siblings().removeClass('active btn-success');
-                                $('.day').addClass('active btn-success');
-                                $('.day').siblings().removeClass('active btn-success');
-                            }
-                           
-                            if (result.result.type == 'week') {
-                                $('.week2').addClass('active btn-success');
-                                $('.week2').siblings().removeClass('active btn-success');
-                                $('.week').addClass('active btn-success');
-                                $('.week').siblings().removeClass('active btn-success');
-                            }
-
-                            if (result.result.type == 'month') {
-                                $('.month2').addClass('active btn-success');
-                                $('.month2').siblings().removeClass('active btn-success');
-                                $('.month').addClass('active btn-success');
-                                $('.month').siblings().removeClass('active btn-success');
-                            }*/
 
                             var date_list  = result.result.date;
                             var utili_opera_data = result.result.utilization_operational_details;
@@ -505,6 +451,12 @@
                                             point: {
                                               events:{
                                                 contextmenu: function() {
+                                                 if (self.role_for_perm == 'customer') {
+
+                                                    console.log('he is customer');
+                                                 }
+                                                 else {
+
                                                   if (self.data_to_show.split('&').length == 6) {
                                                     var sub_proj = '';
                                                     var work_pack = '';
@@ -518,8 +470,9 @@
                                                     var str = '20<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                                                     this['project_live'] = self.project_live;
                                                     this['center_live'] = self.center_live;
-                                                    return new Annotation(str, $(event.currentTarget),this.series.chart, this);
+                                                    return new Annotation(str, $(self.chartOptions25.chart.renderTo),this.series.chart, this);
                                                     }
+                                                  }
                                                 }
                                             }
                                         }
@@ -554,6 +507,7 @@
                                         });
                                         }(series));
                                     }
+                                    self.annot_perm();
                                     }
 
                                 });
@@ -575,6 +529,12 @@
                                             point: { 
                                               events:{
                                                 contextmenu: function() {
+                                                 if (self.role_for_perm == 'customer') {
+
+                                                    console.log('he is customer');
+                                                 }
+                                                 else {
+
                                                   if (self.data_to_show.split('&').length == 6) {
                                                     var sub_proj = '';
                                                     var work_pack = '';
@@ -588,8 +548,9 @@
                                            	    var str = '19<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                                                     this['project_live'] = self.project_live;
                                                     this['center_live'] = self.center_live;
-                                                    return new Annotation(str, $(event.currentTarget),this.series.chart, this);
+                                                    return new Annotation(str, $(self.chartOptions24.chart.renderTo),this.series.chart, this);
                                                     }
+                                                   }
                                                 }
                                             }
                                         }
@@ -624,6 +585,7 @@
                                         });
                                         }(series));
                                     }
+                                    self.annot_perm();
                                     }
                                 });
                                 $('.widget-19a').removeClass('widget-loader-show');
@@ -636,32 +598,39 @@
                                     xAxis: {
                                         categories: date_list,
                                     },
-				     plotOptions: {
-					 series: {  
-					   allowPointSelect: true,
-					   cursor: 'pointer',
-					     point: { 
-					       events:{
-						 contextmenu: function() {
-						   if (self.data_to_show.split('&').length == 6) {
-						     var sub_proj = '';
-						     var work_pack = '';
-						     var sub_pack = '';
-						   }
-						   else {
-						     var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
-						     var work_pack = self.data_to_show.split('&')[6].split('=')[1];
-						     var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
-						   }
-					     	     var str = '9<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
-                                                     this['project_live'] = self.project_live;
-                                                     this['center_live'] = self.center_live;
-						     return new Annotation(str, $(event.currentTarget),this.series.chart, this);
-						     }
-						 }
-					     }
-					 }
-				     },
+                                     plotOptions: {
+                                     series: {  
+                                       allowPointSelect: true,
+                                       cursor: 'pointer',
+                                         point: { 
+                                           events:{
+                                         contextmenu: function() {
+                                         if (self.role_for_perm == 'customer') {
+
+                                            console.log('he is customer');
+                                         }
+                                         else {
+
+                                           if (self.data_to_show.split('&').length == 6) {
+                                             var sub_proj = '';
+                                             var work_pack = '';
+                                             var sub_pack = '';
+                                           }
+                                           else {
+                                             var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
+                                             var work_pack = self.data_to_show.split('&')[6].split('=')[1];
+                                             var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
+                                           }
+                                                 var str = '9<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
+                                                                     this['project_live'] = self.project_live;
+                                                                     this['center_live'] = self.center_live;
+                                             return new Annotation(str, $(self.chartOptions15.chart.renderTo),this.series.chart, this);
+                                             }
+                                            }
+                                         }
+                                         }
+                                     }
+                                     },
 
                                     series: overall_utili_data,
                                     onComplete: function(chart){
@@ -692,6 +661,7 @@
                                         });
                                         }(series));
                                     }
+                                    self.annot_perm();
                                     }
 
                                 });
@@ -701,7 +671,6 @@
                         })
                     }
                     
-                    //self.utill_all(undefined, undefined, undefined);
 
                     self.productivity = function(final_work, type) {
 
@@ -719,27 +688,6 @@
 
                         return $http({method:"GET", url: productivity}).success(function(result){
 
-                            /*if (result.result.type == 'day') {
-                                $('.day2').addClass('active btn-success');
-                                $('.day2').siblings().removeClass('active btn-success');
-                                $('.day').addClass('active btn-success');
-                                $('.day').siblings().removeClass('active btn-success');
-                            }
-                           
-                            if (result.result.type == 'week') {
-                                $('.week2').addClass('active btn-success');
-                                $('.week2').siblings().removeClass('active btn-success');
-                                $('.week').addClass('active btn-success');
-                                $('.week').siblings().removeClass('active btn-success');
-                            }
-
-                            if (result.result.type == 'month') {
-                                $('.month2').addClass('active btn-success');
-                                $('.month2').siblings().removeClass('active btn-success');
-                                $('.month').addClass('active btn-success');
-                                $('.month').siblings().removeClass('active btn-success');
-                            }*/
-
                             var date_list = result.result.date;
                             var productivity = result.result.original_productivity_graph;
 
@@ -754,6 +702,12 @@
                                             point: {
                                               events:{
                                                 contextmenu: function() {
+                                                 if (self.role_for_perm == 'customer') {
+
+                                                    console.log('he is customer');
+                                                 }
+                                                 else {
+
                                                   if (self.data_to_show.split('&').length == 6) {
                                                     var sub_proj = '';
                                                     var work_pack = '';
@@ -767,8 +721,9 @@
                                                     var str = '14<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                                                     this['project_live'] = self.project_live;
                                                     this['center_live'] = self.center_live;
-                                                    return new Annotation(str, $(event.currentTarget),this.series.chart, this);
+                                                    return new Annotation(str, $(self.chartOptions19.chart.renderTo),this.series.chart, this);
                                                     }
+                                                  }
                                                 }
                                             }
                                         }
@@ -803,13 +758,13 @@
                                         });
                                         }(series));
                                     }
+                                    self.annot_perm();
                                     }
                             });
                             $('.widget-14a').removeClass('widget-loader-show');
                             $('.widget-14b').removeClass('widget-data-hide');
                         })
                     }
-                    //self.productivity(undefined, undefined);
 
                     self.prod_avg = function(final_work, type) {
 
@@ -827,27 +782,6 @@
 
                         return $http({method:"GET", url: prod_avg}).success(function(result){
 
-                            /*if (result.result.type == 'day') {
-                                $('.day2').addClass('active btn-success');
-                                $('.day2').siblings().removeClass('active btn-success');
-                                $('.day').addClass('active btn-success');
-                                $('.day').siblings().removeClass('active btn-success');
-                            }
-                           
-                            if (result.result.type == 'week') {
-                                $('.week2').addClass('active btn-success');
-                                $('.week2').siblings().removeClass('active btn-success');
-                                $('.week').addClass('active btn-success');
-                                $('.week').siblings().removeClass('active btn-success');
-                            }
-
-                            if (result.result.type == 'month') {
-                                $('.month2').addClass('active btn-success');
-                                $('.month2').siblings().removeClass('active btn-success');
-                                $('.month').addClass('active btn-success');
-                                $('.month').siblings().removeClass('active btn-success');
-                            }*/
-
                            var date_list = result.result.date;
                            var prod_avg_data = result.result.production_avg_details
                             
@@ -862,6 +796,12 @@
 					point: {
 					  events:{
 					    contextmenu: function() {
+                         if (self.role_for_perm == 'customer') {
+
+                            console.log('he is customer');
+                         }
+                         else {
+
 					      if (self.data_to_show.split('&').length == 6) {
 						var sub_proj = '';
 						var work_pack = '';
@@ -875,8 +815,9 @@
 				                var str = '33<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                                                 this['project_live'] = self.project_live;
                                                 this['center_live'] = self.center_live;
-					      return new Annotation(str, $(event.currentTarget),this.series.chart, this);
+					      return new Annotation(str, $(self.chartOptions38.chart.renderTo),this.series.chart, this);
 						    }
+                          }
 						}
 					    }
 					}
@@ -911,6 +852,7 @@
                                     });
                                     }(series));
                                 }
+                                self.annot_perm();
                                 }
 
                             });
@@ -918,7 +860,6 @@
                             $('.widget-33b').removeClass('widget-data-hide');
                        }) 
                     }
-                    //self.prod_avg(undefined, undefined)
 
                     self.tat_data = function(final_work, type) {
 
@@ -949,6 +890,12 @@
                     point: {
                       events:{
                         contextmenu: function() {
+                         if (self.role_for_perm == 'customer') {
+
+                            console.log('he is customer');
+                         }
+                         else {
+
                           if (self.data_to_show.split('&').length == 6) {
                         var sub_proj = '';
                         var work_pack = '';
@@ -962,8 +909,9 @@
                       var str = '26<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                                                 this['project_live'] = self.project_live;
                                                 this['center_live'] = self.center_live;
-                          return new Annotation(str, $(event.currentTarget),this.series.chart, this);
+                          return new Annotation(str, $(self.chartOptions31.chart.renderTo),this.series.chart, this);
                             }
+                          }  
                         }
                         }
                     }
@@ -995,6 +943,7 @@
                 });
                 }(series));
                 }
+                self.annot_perm();
                 }
 
                             });
@@ -1020,27 +969,6 @@
 
                         return $http({method:"GET", url: mont_volume}).success(function(result){
 
-                            /*if (result.result.type == 'day') {
-                                $('.day2').addClass('active btn-success');
-                                $('.day2').siblings().removeClass('active btn-success');
-                                $('.day').addClass('active btn-success');
-                                $('.day').siblings().removeClass('active btn-success');
-                            }
-                           
-                            if (result.result.type == 'week') {
-                                $('.week2').addClass('active btn-success');
-                                $('.week2').siblings().removeClass('active btn-success');
-                                $('.week').addClass('active btn-success');
-                                $('.week').siblings().removeClass('active btn-success');
-                            }
-
-                            if (result.result.type == 'month') {
-                                $('.month2').addClass('active btn-success');
-                                $('.month2').siblings().removeClass('active btn-success');
-                                $('.month').addClass('active btn-success');
-                                $('.month').siblings().removeClass('active btn-success');
-                            }*/
-
                             var date_list  = result.result.date;
                             var monthly_volume = result.result.monthly_volume_graph_details
                             
@@ -1055,6 +983,12 @@
                                             point: {
                                               events:{ 
                                                 contextmenu: function() {
+                                                 if (self.role_for_perm == 'customer') {
+
+                                                    console.log('he is customer');
+                                                 }
+                                                 else {
+
                                                   if (self.data_to_show.split('&').length == 6) {
                                                     var sub_proj = '';
                                                     var work_pack = '';
@@ -1068,8 +1002,9 @@
                                                     var str = '21<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                                                     this['project_live'] = self.project_live;
                                                     this['center_live'] = self.center_live;
-                                                    return new Annotation(str, $(event.currentTarget),this.series.chart, this);
+                                                    return new Annotation(str, $(self.chartOptions26.chart.renderTo),this.series.chart, this);
                                                     }
+                                                  }
                                                 }
                                             }
                                         }
@@ -1103,6 +1038,7 @@
                                     });
                                     }(series));
                                 }
+                                self.annot_perm();
                                 }
 
                             });
@@ -1110,7 +1046,6 @@
                             $('.widget-21b').removeClass('widget-data-hide');
                         })
                     }
-                    //self.mont_volume(undefined, undefined)
 
                     self.fte_graphs = function(final_work, type, name) {
 
@@ -1171,6 +1106,12 @@
                                             point: {
                                               events:{
                                                 contextmenu: function() {
+                                                 if (self.role_for_perm == 'customer') {
+
+                                                    console.log('he is customer');
+                                                 }
+                                                 else {
+
                                                   if (self.data_to_show.split('&').length == 6) {
                                                     var sub_proj = '';
                                                     var work_pack = '';
@@ -1184,8 +1125,9 @@
                                                     var str = '11<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                                                     this['project_live'] = self.project_live;
                                                     this['center_live'] = self.center_live;
-                                                    return new Annotation(str, $(event.currentTarget),this.series.chart, this);
+                                                    return new Annotation(str, $(self.chartOptions16.chart.renderTo),this.series.chart, this);
                                                     }
+                                                  }
                                                 }
                                             }
                                         }
@@ -1219,6 +1161,7 @@
                                         });
                                         }(series));
                                     }
+                                    self.annot_perm();
                                     }
 
                                 });
@@ -1239,6 +1182,12 @@
                                             point: {
                                               events:{ 
                                                 contextmenu: function() {
+                                                 if (self.role_for_perm == 'customer') {
+
+                                                    console.log('he is customer');
+                                                 }
+                                                 else {
+
                                                   if (self.data_to_show.split('&').length == 6) {
                                                     var sub_proj = '';
                                                     var work_pack = '';
@@ -1252,8 +1201,9 @@
                                                     var str = '12<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                                                     this['project_live'] = self.project_live;
                                                     this['center_live'] = self.center_live;
-                                                    return new Annotation(str, $(event.currentTarget),this.series.chart, this);
+                                                    return new Annotation(str, $(self.chartOptions16_2.chart.renderTo),this.series.chart, this);
                                                     }
+                                                  }  
                                                 }
                                             }
                                         }
@@ -1287,6 +1237,7 @@
                                         });
                                         }(series));
                                     }
+                                    self.annot_perm();
                                     }
                                 });
                                 $('.widget-12a').removeClass('widget-loader-show');
@@ -1294,8 +1245,7 @@
                           }
                        })
                     }
-                    //self.fte_graphs(undefined, undefined, undefined)
-
+                
                     self.main_prod = function(final_work, type, name) {
 
                         if (type == undefined) {
@@ -1354,6 +1304,12 @@
                                             point: { 
                                               events:{
                                                 contextmenu: function() {
+                                                 if (self.role_for_perm == 'customer') {
+
+                                                    console.log('he is customer');
+                                                 }
+                                                 else {
+
                                                   if (self.data_to_show.split('&').length == 6) {
                                                     var sub_proj = '';
                                                     var work_pack = '';
@@ -1367,8 +1323,9 @@
                                                     var str = '6<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                                                     this['project_live'] = self.project_live;
                                                     this['center_live'] = self.center_live;
-                                                    return new Annotation(str, $(event.currentTarget),this.series.chart, this);
+                                                    return new Annotation(str, $(self.chartOptions10.chart.renderTo),this.series.chart, this);
                                                     }
+                                                  }
                                                 }
                                             }
                                         }
@@ -1402,6 +1359,7 @@
                                         });
                                         }(series));
                                     }
+                                    self.annot_perm();
                                     }
                                 });
                                 $('.widget-6a').removeClass('widget-loader-show');
@@ -1420,6 +1378,12 @@
 					     point: {
 					       events:{ 
 						 contextmenu: function() {
+                         if (self.role_for_perm == 'customer') {
+
+                            console.log('he is customer');
+                         }
+                         else {
+
 						   if (self.data_to_show.split('&').length == 6) {
 						     var sub_proj = '';
 						     var work_pack = '';
@@ -1434,8 +1398,9 @@
                                                      this['project_live'] = self.project_live;
                                                      this['center_live'] = self.center_live;
 
-						     return new Annotation(str, $(event.currentTarget),this.series.chart, this);
+						     return new Annotation(str, $(self.chartOptions.chart.renderTo),this.series.chart, this);
 						     }
+                           } 
 						 }
 					     }
 					 }
@@ -1470,6 +1435,7 @@
                                         });
                                         }(series));
                                     }
+                                    self.annot_perm();
                                     }
 
                                 });     
@@ -1478,8 +1444,7 @@
                            }  
                         })
                     }
-                    //self.main_prod(undefined, undefined, undefined)
-		
+    	
 	       	self.category_error = function(cate_error){
                        return $http({method:"GET", url: cate_error}).success(function(result){
 
@@ -1507,7 +1472,6 @@
                             $('.widget-5b').removeClass('widget-data-hide');
                        })
 		}
-		//self.category_error(cate_error);
 
 		self.pareto_category_error = function(pareto_cate_error){
 
@@ -1527,6 +1491,12 @@
                                         point: {
                                           events:{
                                             contextmenu: function() {
+                                                 if (self.role_for_perm == 'customer') {
+
+                                                    console.log('he is customer');
+                                                 }
+                                                 else {
+
                                               if (self.data_to_show.split('&').length == 6) {
                                                 var sub_proj = '';
                                                 var work_pack = '';
@@ -1540,9 +1510,10 @@
                                                 var str = '24<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                                                 this['project_live'] = self.project_live;
                                                 this['center_live'] = self.center_live;
-                                                return new Annotation(str, $(event.currentTarget),this.series.chart, this);
+                                                return new Annotation(str, $(self.chartOptions29.chart.renderTo),this.series.chart, this);
                                                 }
                                             }
+                                           } 
                                         }
                                     }
                                 },
@@ -1576,6 +1547,7 @@
                                         });
                                         }(series));
                                     }
+                                    self.annot_perm();
                                     }
  
                             });
@@ -1596,6 +1568,12 @@
                                         point: {
                                           events:{
                                             contextmenu: function() {
+                                                 if (self.role_for_perm == 'customer') {
+
+                                                    console.log('he is customer');
+                                                 }
+                                                 else {
+
                                               if (self.data_to_show.split('&').length == 6) { 
                                                 var sub_proj = '';
                                                 var work_pack = '';
@@ -1610,8 +1588,9 @@
                                                 this['project_live'] = self.project_live;
                                                 this['center_live'] = self.center_live;
 
-                                                return new Annotation(str, $(event.currentTarget),this.series.chart, this);
+                                                return new Annotation(str, $(self.chartOptions30.chart.renderTo),this.series.chart, this);
                                                 }
+                                               } 
                                             }
                                         }
                                     }
@@ -1646,6 +1625,7 @@
                                         });
                                         }(series));
                                     }
+                                    self.annot_perm();
                                     }
 
                             });
@@ -1653,7 +1633,6 @@
                             $('.widget-25b').removeClass('widget-data-hide');
                        })
 		   }
-			//self.pareto_category_error(pareto_cate_error);
 		  
 		self.agent_category_error = function(agent_cate_error){
                        return $http({method:"GET", url: agent_cate_error}).success(function(result){
@@ -1673,6 +1652,12 @@
                                         point: {
                                           events:{
                                             contextmenu: function() {
+                                                 if (self.role_for_perm == 'customer') {
+
+                                                    console.log('he is customer');
+                                                 }
+                                                 else {
+
                                               if (self.data_to_show.split('&').length == 6) {
                                                 var sub_proj = '';
                                                 var work_pack = '';
@@ -1686,8 +1671,9 @@
                                                 var str = '22<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                                                 this['project_live'] = self.project_live;
                                                 this['center_live'] = self.center_live;
-                                                return new Annotation(str, $(event.currentTarget),this.series.chart, this);
+                                                return new Annotation(str, $(self.chartOptions27.chart.renderTo),this.series.chart, this);
                                                 }
+                                              }
                                             }
                                         }
                                     }
@@ -1722,6 +1708,7 @@
                                         });
                                         }(series));
                                     }
+                                    self.annot_perm();
                                     }
 
                             });
@@ -1743,6 +1730,12 @@
                                         point: {
                                           events:{
                                             contextmenu: function() {
+                                             if (self.role_for_perm == 'customer') {
+
+                                                console.log('he is customer');
+                                             }
+                                             else {
+
                                               if (self.data_to_show.split('&').length == 6) {
                                                 var sub_proj = '';
                                                 var work_pack = '';
@@ -1756,8 +1749,9 @@
                                                 var str = '23<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                                                 this['project_live'] = self.project_live;
                                                 this['center_live'] = self.center_live;
-                                                return new Annotation(str, $(event.currentTarget),this.series.chart, this);
+                                                return new Annotation(str, $(self.chartOptions28.chart.renderTo),this.series.chart, this);
                                                 }
+                                              }
                                             }
                                         }
                                     }
@@ -1792,6 +1786,7 @@
                                         });
                                         }(series));
                                     }
+                                    self.annot_perm();
                                     }
 
 
@@ -1800,7 +1795,7 @@
                             $('.widget-23b').removeClass('widget-data-hide');
                        }) 
 		 }
-		//self.agent_category_error(agent_cate_error);
+
                 
                     self.pre_scan = function(final_work, type) {
 
@@ -1817,28 +1812,6 @@
                         var pre_scan = '/api/pre_scan_exce/'+self.data_to_show + type + final_work;
 
                         return $http({method:"GET", url: pre_scan}).success(function(result){
-
-                            /*if (result.result.type == 'day') {
-                                $('.day2').addClass('active btn-success');
-                                $('.day2').siblings().removeClass('active btn-success');
-                                $('.day').addClass('active btn-success');
-                                $('.day').siblings().removeClass('active btn-success');
-                            }
-                           
-                            if (result.result.type == 'week') {
-                                $('.week2').addClass('active btn-success');
-                                $('.week2').siblings().removeClass('active btn-success');
-                                $('.week').addClass('active btn-success');
-                                $('.week').siblings().removeClass('active btn-success');
-                            }
-
-                            if (result.result.type == 'month') {
-                                $('.month2').addClass('active btn-success');
-                                $('.month2').siblings().removeClass('active btn-success');
-                                $('.month').addClass('active btn-success');
-                                $('.month').siblings().removeClass('active btn-success');
-                            }*/
-
 
                             var date_list  = result.result.date;
                             var pre_scan_details = result.result.pre_scan_exception_data;
@@ -1858,6 +1831,12 @@
                                         point: {
                                           events:{
                                             contextmenu: function() {
+                                             if (self.role_for_perm == 'customer') {
+
+                                                console.log('he is customer');
+                                             }
+                                             else {
+
                                               if (self.data_to_show.split('&').length == 6) { 
                                                 var sub_proj = '';
                                                 var work_pack = '';
@@ -1871,8 +1850,9 @@
                                                 var str = '35<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                                                 this['project_live'] = self.project_live;
                                                 this['center_live'] = self.center_live;
-                                                return new Annotation(str, $(event.currentTarget),this.series.chart, this);
+                                                return new Annotation(str, $(self.chartOptions40.chart.renderTo),this.series.chart, this);
                                                 }
+                                              }
                                             }
                                         }
                                     }
@@ -1907,6 +1887,7 @@
                                     });
                                     }(series));
                                 }
+                                self.annot_perm();
                                 }
 
                             });
@@ -1914,8 +1895,7 @@
                             $('.widget-35b').removeClass('widget-data-hide');
                         }) 
                     }
-                    //self.pre_scan(undefined, undefined)    
-
+        
                    self.nw_exce = function(final_work, type) {
 
                         if (type == undefined) {
@@ -1932,27 +1912,6 @@
 
                         return $http({method:"GET", url: nw_exce}).success(function(result){
                                                                     
-                            /*if (result.result.type == 'day') {
-                                $('.day2').addClass('active btn-success');
-                                $('.day2').siblings().removeClass('active btn-success');
-                                $('.day').addClass('active btn-success');
-                                $('.day').siblings().removeClass('active btn-success');
-                            }
-
-                            if (result.result.type == 'week') {
-                                $('.week2').addClass('active btn-success');
-                                $('.week2').siblings().removeClass('active btn-success');
-                                $('.week').addClass('active btn-success');
-                                $('.week').siblings().removeClass('active btn-success');
-                            }
-
-                            if (result.result.type == 'month') {
-                                $('.month2').addClass('active btn-success');
-                                $('.month2').siblings().removeClass('active btn-success');
-                                $('.month').addClass('active btn-success');
-                                $('.month').siblings().removeClass('active btn-success');
-                            }*/
-
                             var date_list  = result.result.date;
                             var nw_details = result.result.nw_exception_details;
 
@@ -1971,6 +1930,12 @@
                                         point: {
                                           events:{
                                             contextmenu: function() {
+                                             if (self.role_for_perm == 'customer') {
+
+                                                console.log('he is customer');
+                                             }
+                                             else {
+
                                               if (self.data_to_show.split('&').length == 6) {
                                                 var sub_proj = '';
                                                 var work_pack = '';
@@ -1984,8 +1949,9 @@
                                         	var str = '37<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                                                 this['project_live'] = self.project_live;
                                                 this['center_live'] = self.center_live;
-                                                return new Annotation(str, $(event.currentTarget),this.series.chart, this);
+                                                return new Annotation(str, $(self.chartOptions42.chart.renderTo),this.series.chart, this);
                                                 }
+                                              }  
                                             }
                                         }
                                     }
@@ -2020,6 +1986,7 @@
                                     });
                                     }(series));
                                 }
+                                self.annot_perm();
                                 }
 
                             });
@@ -2027,7 +1994,6 @@
                             $('.widget-37b').removeClass('widget-data-hide');
                         })
                     }
-                    //self.nw_exce(undefined, undefined)
 
                    self.overall_exce = function(final_work, type) {
 
@@ -2044,27 +2010,6 @@
                         var overall_exce = '/api/overall_exce/'+self.data_to_show + type + final_work;
 
                         return $http({method:"GET", url: overall_exce}).success(function(result){
-
-                            /*if (result.result.type == 'day') {
-                                $('.day2').addClass('active btn-success');
-                                $('.day2').siblings().removeClass('active btn-success');
-                                $('.day').addClass('active btn-success');
-                                $('.day').siblings().removeClass('active btn-success');
-                            }
-
-                            if (result.result.type == 'week') {
-                                $('.week2').addClass('active btn-success');
-                                $('.week2').siblings().removeClass('active btn-success');
-                                $('.week').addClass('active btn-success');
-                                $('.week').siblings().removeClass('active btn-success');
-                            }
-
-                            if (result.result.type == 'month') {
-                                $('.month2').addClass('active btn-success');
-                                $('.month2').siblings().removeClass('active btn-success');
-                                $('.month').addClass('active btn-success');
-                                $('.month').siblings().removeClass('active btn-success');
-                            }*/
                                                                     
                             var date_list  = result.result.date;
                             var overall_details = result.result.overall_exception_details;
@@ -2084,6 +2029,12 @@
                                         point: {
                                           events:{
                                             contextmenu: function() {
+                                             if (self.role_for_perm == 'customer') {
+
+                                                console.log('he is customer');
+                                             }
+                                             else {
+
                                               if (self.data_to_show.split('&').length == 6) {
                                                 var sub_proj = '';
                                                 var work_pack = '';
@@ -2097,8 +2048,9 @@
                                         	var str = '36<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                                                 this['project_live'] = self.project_live;
                                                 this['center_live'] = self.center_live;
-                                                return new Annotation(str, $(event.currentTarget),this.series.chart, this);
+                                                return new Annotation(str, $(self.chartOptions41.chart.renderTo),this.series.chart, this);
                                                 }
+                                              }
                                             }
                                         }
                                     }
@@ -2133,6 +2085,7 @@
                                     });
                                     }(series));
                                 }
+                                self.annot_perm();
                                 }
 
                             });
@@ -2140,7 +2093,7 @@
                             $('.widget-36b').removeClass('widget-data-hide');
                         })
                     }
-                    //self.overall_exce(undefined, undefined)
+                
                 
                     self.upload_acc = function(final_work, type) {
 
@@ -2157,27 +2110,6 @@
                         var upload_acc = '/api/upload_acc/'+self.data_to_show + type + final_work;
 
                         return $http({method:"GET", url: upload_acc}).success(function(result){
-
-                            /*if (result.result.type == 'day') {
-                                $('.day2').addClass('active btn-success');
-                                $('.day2').siblings().removeClass('active btn-success');
-                                $('.day').addClass('active btn-success');
-                                $('.day').siblings().removeClass('active btn-success');
-                            }
-
-                            if (result.result.type == 'week') {
-                                $('.week2').addClass('active btn-success');
-                                $('.week2').siblings().removeClass('active btn-success');
-                                $('.week').addClass('active btn-success');
-                                $('.week').siblings().removeClass('active btn-success');
-                            }
-
-                            if (result.result.type == 'month') {
-                                $('.month2').addClass('active btn-success');
-                                $('.month2').siblings().removeClass('active btn-success');
-                                $('.month').addClass('active btn-success');
-                                $('.month').siblings().removeClass('active btn-success');
-                            }*/
 
                             var date_list  = result.result.upload_target_data.date;
                             var upload_target_data = result.result.upload_target_data.data;
@@ -2197,6 +2129,12 @@
                                         point: {
                                           events:{
                                             contextmenu: function() {
+                                             if (self.role_for_perm == 'customer') {
+
+                                                console.log('he is customer');
+                                             }
+                                             else {
+
                                               if (self.data_to_show.split('&').length == 6) {
                                                 var sub_proj = '';
                                                 var work_pack = '';
@@ -2210,8 +2148,9 @@
                                                 var str = '34<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                                                 this['project_live'] = self.project_live;
                                                 this['center_live'] = self.center_live;
-                                                return new Annotation(str, $(event.currentTarget),this.series.chart, this);
+                                                return new Annotation(str, $(self.chartOptions39.chart.renderTo),this.series.chart, this);
                                                 }
+                                              }  
                                             }
                                         }
                                     }
@@ -2246,6 +2185,7 @@
                                     });
                                     }(series));
                                 }
+                                self.annot_perm();
                                 }
 
                             });
@@ -2253,86 +2193,7 @@
                             $('.widget-34b').removeClass('widget-data-hide');
                         })
                     }
-                    //self.upload_acc(undefined, undefined)
-
-
-                    /*self.erro_all = function(final_work, type, name) {
-
-                        if (type == undefined) {
-                            type = 'day'
-                        }
-
-                        if (final_work == undefined) {
-                            final_work = ''
-                        }
-
-                        if (name == undefined) {
-                            name = ''
-                        }
-
-                        self.type = type;
-
-                        var erro_all = '/api/erro_data_all/'+self.data_to_show + type + final_work;
-
-                        $http({method:"GET", url: erro_all}).success(function(result){
-
-                            var date_list = result.result.date;
-                            //var external_error_timeline = result.result.external_time_line;
-                            var internal_error_timeline = result.result.internal_time_line;
-                                                
-                            if ((name == "self.chartOptions9") || (name == "")) {
-
-                                angular.extend(self.chartOptions9, {
-                                    xAxis: {
-                                        categories: date_list,
-                                    },
-                                    series: internal_error_timeline
-                                });
-                                $('.widget-8a').removeClass('widget-loader-show');
-                                $('.widget-8b').removeClass('widget-data-hide');
-                            }
-                       })
-                    }
-                    self.erro_all(undefined, undefined, undefined)*/
-
-                    /*self.erro_extrnl_timeline = function(final_work, type, name) {
-
-                        if (type == undefined) {
-                            type = 'day'
-                        }
-
-                        if (final_work == undefined) {
-                            final_work = ''
-                        }
-
-                        if (name == undefined) {
-                            name = ''
-                        }
-
-                        self.type = type;
-
-                        var erro_extrnl_timeline = '/api/erro_extrnl_timeline/'+self.data_to_show + type + final_work;
-
-                        $http({method:"GET", url: erro_extrnl_timeline}).success(function(result){
-                            var date_list = result.result.date;
-                            var external_error_timeline = result.result.external_time_line;
-                            //var internal_error_timeline = result.result.internal_time_line;
-
-                            if ((name == "self.chartOptions9_2") || (name == "")) {
-
-                                angular.extend(self.chartOptions9_2, {
-                                    xAxis: {
-                                        categories: date_list,
-                                    },
-                                    series: external_error_timeline
-                                });
-                                $('.widget-7a').removeClass('widget-loader-show');
-                                $('.widget-7b').removeClass('widget-data-hide');
-                            }
-                         })
-                       }
-                       self.erro_extrnl_timeline(undefined, undefined, undefined)*/                         
-
+                
 			self.error_field_graph = function(err_field_graph){
 
                        return $http({method:"GET", url: err_field_graph}).success(function(result){
@@ -2348,6 +2209,12 @@
                                         point: {
                                           events:{
                                             contextmenu: function() {
+                                             if (self.role_for_perm == 'customer') {
+
+                                                console.log('he is customer');
+                                             }
+                                             else {
+
                                               if (self.data_to_show.split('&').length == 6) {
                                                 var sub_proj = '';
                                                 var work_pack = '';
@@ -2361,9 +2228,10 @@
                                                 var str = '38<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                                                 this['project_live'] = self.project_live;
                                                 this['center_live'] = self.center_live;
-                                                return new Annotation(str, $(event.currentTarget),this.series.chart, this);
+                                                return new Annotation(str, $(self.chartOptions43.chart.renderTo),this.series.chart, this);
                                                 }
                                             }
+                                          }
                                         }
                                     }
                                 },
@@ -2402,6 +2270,7 @@
                                     });
                                     }(series));
                                 }
+                                self.annot_perm();
                                 }
 
                            });
@@ -2415,9 +2284,6 @@
                                 max:result.result.exter_max_value
                             });
 
-                            /*$('.widget-38a').removeClass('widget-loader-show');
-                            $('.widget-38b').removeClass('widget-data-hide');*/
-
                            angular.extend(self.chartOptions44,{
                                 plotOptions: { 
                                     series: {
@@ -2426,6 +2292,12 @@
                                         point: {
                                           events:{
                                             contextmenu: function() {
+                                             if (self.role_for_perm == 'customer') {
+
+                                                console.log('he is customer');
+                                             }
+                                             else {
+
                                               if (self.data_to_show.split('&').length == 6) {
                                                 var sub_proj = '';
                                                 var work_pack = '';
@@ -2439,9 +2311,10 @@
                                                 var str = '39<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                                                 this['project_live'] = self.project_live;
                                                 this['center_live'] = self.center_live;
-                                                return new Annotation(str, $(event.currentTarget),this.series.chart, this);
+                                                return new Annotation(str, $(self.chartOptions44.chart.renderTo),this.series.chart, this);
                                                 }
                                             }
+                                           } 
                                         }
                                     }
                                 },
@@ -2480,6 +2353,7 @@
                                     });
                                     }(series));
                                 }
+                                self.annot_perm();
                                 }
 
                            });
@@ -2487,7 +2361,6 @@
                            $('.widget-39b').removeClass('widget-data-hide');
                        })
 			}
-			//self.error_field_graph(err_field_graph);
 
 			self.error_bar_graph = function(error_bar_graph){
 	                       return $http({method:"GET", url: error_bar_graph}).success(function(result){
@@ -2503,6 +2376,12 @@
                                         point: {
                                           events:{
                                             contextmenu: function() {
+                                             if (self.role_for_perm == 'customer') {
+
+                                                console.log('he is customer');
+                                             }
+                                             else {
+
                                               if (self.data_to_show.split('&').length == 6) {
                                                 var sub_proj = '';
                                                 var work_pack = '';
@@ -2516,8 +2395,9 @@
                                                 var str = '2<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                                                 this['project_live'] = self.project_live;
                                                 this['center_live'] = self.center_live;
-                                                return new Annotation(str, $(event.currentTarget),this.series.chart, this);
+                                                return new Annotation(str, $(self.chartOptions4.chart.renderTo),this.series.chart, this);
                                                 }
+                                              }
                                             }
                                         }
                                     }
@@ -2557,6 +2437,7 @@
                                     });
                                     }(series));
                                 }
+                                self.annot_perm();
                                 }
 
                            });
@@ -2576,6 +2457,12 @@
                                         point: {
                                           events:{
                                             contextmenu: function() {
+                                             if (self.role_for_perm == 'customer') {
+
+                                                console.log('he is customer');
+                                             }
+                                             else {
+
                                               if (self.data_to_show.split('&').length == 6) {
                                                 var sub_proj = '';
                                                 var work_pack = '';
@@ -2589,8 +2476,9 @@
                                                 var str = '3<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                                                 this['project_live'] = self.project_live;
                                                 this['center_live'] = self.center_live;
-                                                return new Annotation(str, $(event.currentTarget),this.series.chart, this);
+                                                return new Annotation(str, $(self.chartOptions6.chart.renderTo),this.series.chart, this);
                                                 }
+                                              }
                                             }
                                         }
                                     }
@@ -2630,6 +2518,7 @@
                                     });
                                     }(series));
                                 }
+                                self.annot_perm();
                                 }
 
                            });
@@ -2637,25 +2526,6 @@
                            $('.widget-3b').removeClass('widget-data-hide');
                        })
 			}
-			//self.error_bar_graph(error_bar_graph);
-
-                       /*$http({method:"GET", url: err_external_bar_graph}).success(function(result){
-                           angular.extend(self.chartOptions6.yAxis,{
-                                min:result.result.ext_min_value,
-                                max:result.result.ext_max_value
-                            });
-
-                           angular.extend(self.chartOptions6,{
-                               series: [{
-                                   name: 'accuracy',
-                                   colorByPoint: true,
-                                   cursor: 'pointer',
-                                   data: result.result.external_accuracy_graph
-                               }]
-                           });
-                           $('.widget-3a').removeClass('widget-loader-show');
-                           $('.widget-3b').removeClass('widget-data-hide');
-                        })*/
 
                     self.from_to = function(final_work, type, name) {
 
@@ -2699,6 +2569,12 @@
                                             point: {
                                               events:{
                                                 contextmenu: function() {
+                                                 if (self.role_for_perm == 'customer') {
+
+                                                    console.log('he is customer');
+                                                 }
+                                                 else {
+
                                                   if (self.data_to_show.split('&').length == 6) {
                                                     var sub_proj = '';
                                                     var work_pack = '';
@@ -2712,8 +2588,9 @@
                                                     var str = '7<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                                                     this['project_live'] = self.project_live;
                                                     this['center_live'] = self.center_live;
-                                                    return new Annotation(str, $(event.currentTarget),this.series.chart, this);
+                                                    return new Annotation(str, $(self.chartOptions9_2.chart.renderTo),this.series.chart, this);
                                                     }
+                                                  }  
                                                 }
                                             }
                                         }
@@ -2748,6 +2625,7 @@
                                         });
                                         }(series));
                                     }
+                                    self.annot_perm();
                                     }
                                 });
 				}
@@ -2772,6 +2650,12 @@
                                             point: {
                                               events:{ 
                                                 contextmenu: function() {
+                                                 if (self.role_for_perm == 'customer') {
+
+                                                    console.log('he is customer');
+                                                 }
+                                                 else {
+
                                                   if (self.data_to_show.split('&').length == 6) {
                                                     var sub_proj = '';
                                                     var work_pack = '';
@@ -2785,8 +2669,9 @@
                                                     var str = '8<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                                                     this['project_live'] = self.project_live;
                                                     this['center_live'] = self.center_live;
-                                                    return new Annotation(str, $(event.currentTarget),this.series.chart, this);
+                                                    return new Annotation(str, $(self.chartOptions9.chart.renderTo),this.series.chart, this);
                                                     }
+                                                  }
                                                 }
                                             }
                                         }
@@ -2821,6 +2706,7 @@
                                         });
                                         }(series));
                                     }
+                                    self.annot_perm();
                                     }
 
                                 });
@@ -2830,13 +2716,11 @@
 
                          })
                        }
-                       //self.from_to(undefined, undefined, undefined)
 
 
                 self.hideLoading();
                 var static_ajax = static_data + self.static_widget_data;
 		self.static_data_call = function(static_ajax){
-                //self.main_widget_function(self.call_back, '')
                 $http({method:"GET", url:static_ajax}).success(function(result){
 
                     angular.extend(self.chartOptions32, {
@@ -2919,28 +2803,6 @@
 
                 });
 		}
-		//self.static_data_call(static_ajax);
-	/*$q.all([self.allo_and_comp(undefined, undefined, undefined), self.utill_all(undefined, undefined, undefined), 
-        self.productivity(undefined, undefined), self.prod_avg(undefined, undefined)]).then(function(){
-
-    $q.all([self.mont_volume(undefined, undefined), self.fte_graphs(undefined, undefined, undefined), 
-            self.main_prod(undefined, undefined, undefined), self.category_error(cate_error)]).then(function(){
-
-        $q.all([self.pareto_category_error(pareto_cate_error), self.agent_category_error(agent_cate_error), 
-                self.pre_scan(undefined, undefined), self.nw_exce(undefined, undefined)]).then(function(){
-		
-            $q.all([self.overall_exce(undefined, undefined), self.upload_acc(undefined, undefined), 
-                    self.error_field_graph(err_field_graph), self.error_bar_graph(error_bar_graph)]).then(function(){
-
-		$q.all([self.from_to(undefined, undefined, undefined), self.static_data_call(static_ajax)])
-		
-	    });
-
-	});
-
-    });
-
-});*/
 
         $q.all([self.allo_and_comp(undefined, undefined, undefined), self.utill_all(undefined, undefined, undefined),
        self.productivity(undefined, undefined), self.prod_avg(undefined, undefined)]).then(function(){
@@ -2954,7 +2816,10 @@
            $q.all([self.overall_exce(undefined, undefined), self.upload_acc(undefined, undefined),
                    self.mont_volume(undefined, undefined), self.fte_graphs(undefined, undefined, undefined)]).then(function(){
 
-               $q.all([self.error_field_graph(err_field_graph), self.tat_data(undefined, undefined),self.static_data_call(static_ajax)])
+              $q.all([self.error_field_graph(err_field_graph), self.tat_data(undefined, undefined),
+              self.static_data_call(static_ajax)]).then(function(){                                                               
+                    self.annot_perm();                                                                                                    
+               });                                        
 
            });
 

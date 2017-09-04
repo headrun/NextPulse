@@ -62,7 +62,7 @@ class Command(BaseCommand):
                     tar_packs = tars.values('sub_project','work_packet').distinct()
                     tar_packs = tar_packs[1:]
                 for pac in tar_packs:
-                    targets_vals, actual_vals = {}, {}
+                    targets_vals, actual_vals, billable_vals = {}, {}, {}
                     if pac['work_packet'] != '' and pac['sub_project'] == '':
                         work_pack = pac['work_packet']
                         billable_count = Headcount.objects.filter(project=prj_id, center=center_id, date__range=[dates_list[0],dates_list[-1]],work_packet = work_pack).aggregate(Sum('billable_agents'))
@@ -96,7 +96,7 @@ class Command(BaseCommand):
                                 to_tar_va = pack_tar.filter(target_type='Target').values_list('target_value',flat=True).distinct()
                                 to_tar_vals = sum(to_tar_va)
                                 billable = Headcount.objects.filter(project=prj_id, center=center_id, date=date_va, sub_project = sub_proj,work_packet=work_pack).aggregate(Sum('billable_agents'))
-                                packet = sub_proj+'_'+work_pack
+                                packet = sub_proj+'-'+work_pack
                             elif pac['work_packet'] == '' and pac['sub_project'] != '':
                                 pack_tar = Targets.objects.filter(project=prj_id, center=center_id,from_date__lte=date_va,to_date__gte=date_va,sub_project = sub_proj)
                                 tar_va =  pack_tar.filter(target_type='FTE Target').values_list('target_value',flat=True).distinct()
@@ -117,19 +117,32 @@ class Command(BaseCommand):
                                 sing_targ = to_tar_vals
                             else:
                                 targets_vals = {}
+                            if billable['billable_agents__sum'] != None:
+                                billable_val = billable['billable_agents__sum']
+                            else:
+                                billable_val = 0
                             if targets_vals.has_key(packet):
                                 targets_vals[packet].append(targ_value)
                                 actual_vals[packet].append(total_done_value['per_day__sum'])
+                                billable_vals[packet].append(billable_val)
                             else:
                                 targets_vals[packet] = [targ_value]
                                 actual_vals[packet] = [total_done_value['per_day__sum']]
+                                billable_vals[packet] = [billable_val]
                     tar_values = targets_vals.values()
                     act_values = actual_vals.values()
                     if tar_values != [] and act_values != []:
                         pac_tar_vals = sum(tar_values[0])
                         pac_act_vals = sum(act_values[0])
+                        pac_prod_util = sum(billable_vals.values()[0])
                         pac_sin_tar = sing_targ
                         pac_days = len(act_values[0])
+                        if pac_prod_util != 0:
+                            pac_prod_util = (float(pac_act_vals) / float(pac_prod_util))
+                            pac_prod_util = float('%.2f' % round(pac_prod_util, 2))
+                        else:
+                            pac_prod_util = 0
+
                         if pac_tar_vals != 0:
                             prod_cal = (float(pac_act_vals) / float(pac_tar_vals))*100
                             prod_fin_cal = float('%.2f' % round(prod_cal,2))
@@ -137,6 +150,7 @@ class Command(BaseCommand):
                             prod_fin_cal = 0
                     else:
                         pac_tar_vals, pac_act_vals, pac_days, pac_sin_tar, prod_fin_cal = 0 , 0 , 0 , 0 , 0
+
                     if pac_tar_vals:
                         final_actual_val.append(pac_act_vals)
                         final_target_val.append(pac_tar_vals)
@@ -158,6 +172,7 @@ class Command(BaseCommand):
                     final_target_values['_target_'+packet+'_name'] = packet
                     final_target_values['_target_'+packet+'_single_target'] = pac_sin_tar
                     final_target_values['_target_'+packet+'_target'] = pac_tar_vals
+                    final_target_values['_target_'+packet+'_prod_uti'] = pac_prod_util
                     final_target_values['_target_'+packet+'_actual'] = pac_act_vals
                     final_target_values['_target_'+packet+'_no_of_days'] = pac_days
                     final_target_values['_target_'+packet+'_no_of_agents'] = billable_count['billable_agents__sum']
@@ -166,6 +181,7 @@ class Command(BaseCommand):
                     final_target_values['_target_prod_utility'] = prod_utility
                     final_target_values['_target_bill_ppl'] = bill_ppl
                     final_target_values['_target_final_actual'] = sum(final_actual_val)
+                    final_target_values['_target_final_target'] = sum(final_target_val)
                     conn = redis.Redis(host="localhost", port=6379, db=0)
                     redi_dict = {}
                     for key,value in final_target_values.iteritems():
@@ -182,9 +198,17 @@ class Command(BaseCommand):
                             redis_key = prj_name+'_'+center_name+'_'+month_name+'_target_'+packet+'_target'
                             vals_dict['_target_'+packet+'_target'] = str(pac_tar_vals)
                             redi_dict[redis_key] = vals_dict
+                        if key == '_target_'+packet+'_prod_uti':
+                            redis_key = prj_name+'_'+center_name+'_'+month_name+'_target_'+packet+'_prod_uti'
+                            vals_dict['_target_'+packet+'_prod_uti'] = str(pac_prod_util)
+                            redi_dict[redis_key] = vals_dict
                         if key == '_target_'+packet+'_actual':
                             redis_key = prj_name+'_'+center_name+'_'+month_name+'_target_'+packet+'_actual'
                             vals_dict['_target_'+packet+'_actual'] = str(pac_act_vals)
+                            redi_dict[redis_key] = vals_dict
+                        if key == '_target_final_target':
+                            redis_key = prj_name+'_'+center_name+'_'+month_name+'_target_final_target'
+                            vals_dict['_target_final_target'] = str(sum(final_target_val))
                             redi_dict[redis_key] = vals_dict
                         if key == '_target_final_actual':
                             redis_key = prj_name+'_'+center_name+'_'+month_name+'_target_final_actual'

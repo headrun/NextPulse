@@ -60,14 +60,17 @@ class Command(BaseCommand):
                 internal_packets = Internalerrors.objects.filter(project=prj_id,center=center_id,date__range=[dates_list[0],dates_list[-1]])
                 volume_list = volumes.values('sub_project').distinct()
                 volumes_data = volumes.values('sub_project','work_packet').distinct()
-                if volume_list[0]['sub_project']:
-                    volume_list = volume_list
-                    internal_pack_list = internal_packets.values_list('sub_project',flat=True).distinct()
-                    external_pack_list = external_packets.values_list('sub_project',flat=True).distinct()
+                if volume_list:
+                    if volume_list[0]['sub_project']:
+                        volume_list = volume_list
+                        internal_pack_list = internal_packets.values_list('sub_project',flat=True).distinct()
+                        external_pack_list = external_packets.values_list('sub_project',flat=True).distinct()
+                    else:
+                        volume_list = volumes.values_list('work_packet',flat=True).distinct()
+                        internal_pack_list = internal_packets.values_list('work_packet',flat=True).distinct()
+                        external_pack_list = external_packets.values_list('work_packet',flat=True).distinct()
                 else:
-                    volume_list = volumes.values_list('work_packet',flat=True).distinct()
-                    internal_pack_list = internal_packets.values_list('work_packet',flat=True).distinct()
-                    external_pack_list = external_packets.values_list('work_packet',flat=True).distinct()
+                    break
                 final_productivity_dict = {}
                 new_date_list, tat_values = [] , []
                 productivity, tat_data = {}, {}
