@@ -73,7 +73,7 @@
                  //self.mail_options = [ "Shanmugasundaram v", "Monica M", "Abhijith A", "Sasikumar G", "Ranjithkumar M", "Shailesh dube"];
 
                  self.all_reviews = result.data.result.all_data;
-		 self.no_data = true;
+		         self.no_data = true;
                  self.part_disable = true;
                  $('.loading').removeClass('show').addClass('hide');
                  self.rev_id = self.all_reviews[Object.keys(self.all_reviews)[0]][0].id;
@@ -91,7 +91,16 @@
 		 $('.loading').removeClass('show').addClass('hide');
 		 self.no_data = false;
 		 self.part_disable = false;
-         swal('No Reviews Available! Click on plus button to create a new reveiw');
+         if (self.is_lead){
+            $('.fa-pencil-square-o').hide();
+            $('.fa-trash').hide();
+            swal('No Reviews Available! Click on plus button to create a new reveiw');
+        }
+        else {
+            $('.fa-plus-circle').hide();
+
+            swal('No Reviews Available!');
+            }
 		}
              });
 
@@ -166,13 +175,13 @@
                     self.all_review_url = 'api/get_top_reviews/?timeline=past';
                     $('#past-meet').hide();
                     $('#ong-meet').show();
-                    $('.fa-pencil-square-o').hide();
+                    //$('.fa-pencil-square-o').hide();
                 }
                 else {
                     self.all_review_url = 'api/get_top_reviews/?timeline=oncoming';
                     $('#ong-meet').hide();
                     $('#past-meet').show();
-                    $('.fa-pencil-square-o').show();
+                    //$('.fa-pencil-square-o').show();
                 }
                 $http.get(self.all_review_url).then(function(result){
 
@@ -187,7 +196,7 @@
                  }*/
                  //$('.loading').removeClass('show').addClass('hide');
                  return self.rev_id;
-		 }
+		     }
 		 else { console.log('No reviews to show');
              self.edit_review = { 
                     'reviewname': '', 'reviewdate': '', 'reviewtime': '', 'bridge': '', 'venue': '', 'review_type': '', 
