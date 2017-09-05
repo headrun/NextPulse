@@ -94,7 +94,9 @@ def get_dash_data(projects=PROJECTS, tab=SLA):
                     row_data['color'].update({_key1 : [get_color(float(row_data[_key1]), _target, pro), _target, core_key]})
 
             i +=1
+        
         result.append(row_data)
+
     return result
 
 
@@ -108,6 +110,25 @@ def get_target(core_key):
     for item in target_list:
         target_dict.update({ item: conn.hgetall(item).values()[0]})
     return target_dict
+
+
+def get_center_totaldata():
+    """ Summing of all coloumns of all centers """
+    conn = redis.Redis(host="localhost", port=6379, db=0)
+    total = []
+    total_data = ['others', 'total', 'buffer', 'billable']
+    centers = list(set([project.split("-")[-1] for project in PROJECTS]))
+    for center in centers:
+        for t in xrange(1, 4): 
+            one_month_ago = datetime.datetime.now() - relativedelta(months=t)
+            month_name = one_month_ago.strftime("%B")
+            for _data in total_data:
+                _key1 = 'center_' + _data
+                _key = center +'_' + month_name + '_' + _key1
+                total.append({_key : conn.hgetall(_key).get(_key1, 0) })              
+                
+    return total
+
 
 def get_color(val, target, pro):
     """ getting the color """
