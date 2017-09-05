@@ -114,7 +114,6 @@ class Command(BaseCommand):
                                 tat_not_met_va = not_met_va['non_met_count__sum']    
                             if emp_count['billable_agents__sum'] == None:
                                 emp_count['billable_agents__sum'] = 0
-                            #import pdb;pdb.set_trace()
                             if targets > 0 and to_target == 0:
                                 targets = targets * emp_count['billable_agents__sum']
                             else:
