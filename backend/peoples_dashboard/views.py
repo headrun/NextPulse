@@ -20,8 +20,9 @@ def get_sla_data(request):
     try:
         data['result'] = get_dash_data(proj, SLA)
     except:
+        
         data['status'] = 0
-
+    
     data = json.dumps(data)
     return HttpResponse(data)
 
