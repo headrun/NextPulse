@@ -145,11 +145,14 @@ a {
 .modal-footer {
     border-top: 1px solid #FFF;
 }
-.scroll{ 
-
+.scroll { 
     overflow-y: scroll;
     height: 400px;
     min-height: 80vh;
+}
+#abb_data {
+    cursor: pointer;
+    border-color: white;    
 }
 /*.datatable_wrapper {
     overflow-y:scroll;
@@ -202,29 +205,22 @@ a {
                  <li class="active" style="width:100%;"><a data-toggle="tab" href="" style="background-color:#0EBFE9;text-align:center;margin-top:4%;margin-right:34px;margin-left:34px;color: white;"><b>SALEM</b></a></li>                     
              </ul>
             <div class="dataTables_scroll">
-                <div class="dataTables_scrollHead" style="overflow: overlay;position: relative;border: 0px;width: 100%;">
-                    <div class="dataTables_scrollHeadInner">
-                        <table class="display dataTable" cellspacing="0"  width="100%"  role="grid"  style="border:1px solid #DDDDDD;background-color:#f1f1f1;margin-left: 0px; width: 868px;">
-                            <thead>
-                                <tr role="row">
-                                    <th style="width:55px;">
-                                    </th>
-                                    <th style="width:26%;">Project</th>
-                                    <!--<th>Center</th>-->
-                                    <th>Month</th>
-                                    <th>Target Achieved (Production) (%)</th>
-                                    <th>Productivity</th>
-                                    <th>Internal Accuracy(%)</th>
-                                    <th>External Accuracy(%)</th>
-                                    <th>TAT(%)</th>
-                                </tr>
-                            </thead>
-                        </table>
-                    </div>
-                </div>
-                <div class="dataTables_scrollBody" style="position: relative; overflow: auto; max-height: 400px; width: 100%;">
-                    <table class="table" id = "example" style="border:1px solid #DDDDDD;background-color:#f1f1f1;">
-                     <tbody ng-repeat="single in $ctrl.data | filter: { center : 'Salem'}">
+                <table class="table" style="border:1px solid #DDDDDD;background-color:#f1f1f1;">
+                    <thead>
+                        <tr role="row">
+                            <th style="width:55px;">
+                            </th>
+                            <th style="width:26%;">Project</th>
+                            <!--<th>Center</th>-->
+                            <th>Month</th>
+                            <th>Target Achieved (Production) (%)</th>
+                            <th>Productivity</th>
+                            <th>Internal Accuracy(%)</th>
+                            <th>External Accuracy(%)</th>
+                            <th>TAT(%)</th>
+                        </tr>
+                    </thead>
+                    <tbody ng-repeat="single in $ctrl.data | filter: { center : 'Salem'}">
                         <tr style="background-color: white;">
                             <td>
                                 <button ng-click="expanded = !expanded" expand>
@@ -294,8 +290,7 @@ a {
                                 {{single.tat_Month3}}</td>
                         </tr>
                     </tbody>
-                   </table>
-                </div>
+                </table>
             </div>
             <ul class="nav nav-tabs" style="width:100%;border-bottom:none;">
                  <li class="active" style="width:100%;"><a data-toggle="tab" href=""style="background-color:#0EBFE9;text-align:center;margin-right:34px;margin-left:34px;color:white;"><b>CHITTOOR</b></a></li>
@@ -435,8 +430,8 @@ a {
                             <td class="{{value.color.operational_utilization_Month1[0]}}" style="cursor:pointer;"
                                 ng-click="$ctrl.get_popup(value, 'utilisation_all', 'Month1', 'Operational Utilisation', 'operational_utilization_Month1')">
                                 {{value.operational_utilization_Month1}}</td>
-                            <td class="{{value.color.absenteeism_Month1[0]}}"><abbr title="5">{{value.absenteeism_Month1}}</abbr></td>
-                            <td class="{{value.color.attrition_Month1[0]}}"><abbr title="3">{{value.attrition_Month1}}</abbr></td>
+                            <td class="{{value.color.absenteeism_Month1[0]}}"><abbr id ="abb_data" title="Target is 5">{{value.absenteeism_Month1}}</abbr></td>
+                            <td class="{{value.color.attrition_Month1[0]}}"><abbr id ="abb_data" title="Target is 3">{{value.attrition_Month1}}</abbr></td>
                         </tr>
                         <tr ng-show="expanded" style="background:#b5dda1;">
                             <td></td>
@@ -454,9 +449,9 @@ a {
                                 ng-click="$ctrl.get_popup(value, 'utilisation_all', 'Month2', 'Operational Utilisation', 'operational_utilization_Month2')">
                                 {{value.operational_utilization_Month2}}</td>
                             <td class="{{value.color.absenteeism_Month2[0]}}" style="width:15%;">
-                                <abbr title="5">{{value.absenteeism_Month2}}</abbr></td>
+                                <abbr id ="abb_data" title="Target is 5">{{value.absenteeism_Month2}}</abbr></td>
                             <td class="{{value.color.attrition_Month2[0]}}" style="width:15%;">
-                                <abbr title="3">{{value.attrition_Month2}}</abbr></td>
+                                <abbr id ="abb_data" title="Target is 3">{{value.attrition_Month2}}</abbr></td>
                         </tr>
                         <tr ng-show="expanded" style="background:#b5dda1;">
                             <td></td>
@@ -474,12 +469,53 @@ a {
                                 ng-click="$ctrl.get_popup(value, 'utilisation_all', 'Month3', 'Operational Utilisation', 'operational_utilization_Month3')">
                                 {{value.operational_utilization_Month3}}</td>
                             <td class="{{value.color.absenteeism_Month3[0]}}" style="width:15%;">
-                                <abbr title="5">{{value.absenteeism_Month3}}</abbr></td>
+                                <abbr id ="abb_data" title="Target is 5">{{value.absenteeism_Month3}}</abbr></td>
                             <td class="{{value.color.attrition_Month3[0]}}" style="width:15%;">
-                                <abbr title="3">{{value.attrition_Month3}}</abbr></td>
+                                <abbr id = "abb_data" title="Target is 3">{{value.attrition_Month3}}</abbr></td>
                         </tr>
                     </tbody>
                 </table>
+                <div>
+                <table class="table" style="border:1px solid #DDDDDD;background-color:#f1f1f1;">
+                 <thead>
+                    <tr>
+                      <th>Month</th>
+                      <th>Billable</th>
+                      <th>Buffer</th>
+                      <th>Other Support</th>
+                      <th>Total</th>
+                      <th>FTE Utilisation</th>
+                      <th>Operational Utilisation</th>
+                      <th>Absenteeism</th>
+                      <th>Attrition</th>              
+                    </tr>
+                 </thead>   
+                 <tbody>
+                    <tr style="background-color:white;">
+                        <td>August</td>
+                        <td>90</td>
+                        <td>85</td>
+                        <td>98</td>
+                        <td>87</td>
+                        <td>76</td>
+                        <td>93</td>
+                        <td>5</td>
+                        <td>6</td>
+                    </tr>
+                    <tr style="background:#b5dda1;">
+                        <td style="width:15%;">July</td>
+                        <td style="width:15%;">87</td>
+                        <td style="width:15%;">67</td>
+                        <td style="width:15%;">79</td>
+                        <td style="width:15%;">97</td>
+                        <td style="width:15%;">45</td>
+                        <td style="width:15%;">78</td>
+                        <td style="width:15%;">80</td>
+                        <td style="width:15%;">85</td>
+                    </tr>
+                 </tbody>       
+                </table>
+                </div>
             </div>
             <ul class="nav nav-tabs" style="width:100%;border-bottom:none;">
                  <li class="active" style="width:100%;"><a data-toggle="tab" href=""style="background-color:#0EBFE9;text-align:center;margin-right:34px;margin-left:34px;color:white;"><b>CHITTOOR</b></a></li>
@@ -524,8 +560,8 @@ a {
                                 ng-click="$ctrl.get_popup(value, 'utilisation_all', 'Month1', 'Operational Utilisation', 'operational_utilizati
 on_Month1')">
                                 {{value.operational_utilization_Month1}}</td>
-                            <td class="{{value.color.absenteeism_Month1[0]}}"><abbr title="5">{{value.absenteeism_Month1}}</abbr></td>
-                            <td class="{{value.color.attrition_Month1[0]}}"><abbr title="3">{{value.attrition_Month1}}</abbr></td>
+                            <td class="{{value.color.absenteeism_Month1[0]}}">{{value.absenteeism_Month1}}</td>
+                            <td class="{{value.color.attrition_Month1[0]}}">{{value.attrition_Month1}}</td>
                         </tr>
                         <tr ng-show="expanded" style="background:#b5dda1;">
                             <td></td>
@@ -543,9 +579,9 @@ on_Month1')">
                                 ng-click="$ctrl.get_popup(value, 'utilisation_all', 'Month2', 'Operational Utilisation', 'operational_utilization_Month2')">
                                 {{value.operational_utilization_Month2}}</td>
                             <td class="{{value.color.absenteeism_Month2[0]}}" style="width:15%;">
-                                <abbr title="5">{{value.absenteeism_Month2}}</abbr></td>
+                                {{value.absenteeism_Month2}}</td>
                             <td class="{{value.color.attrition_Month2[0]}}" style="width:15%;">
-                                <abbr title="3">{{value.attrition_Month2}}</abbr></td>
+                                {{value.attrition_Month2}}</td>
                         </tr>
                         <tr ng-show="expanded" style="background:#b5dda1;">
                             <td></td>
@@ -563,9 +599,9 @@ on_Month1')">
                                 ng-click="$ctrl.get_popup(value, 'utilisation_all', 'Month3', 'Operational Utilisation', 'operational_utilization_Month3')">
                                 {{value.operational_utilization_Month3}}</td>
                             <td class="{{value.color.absenteeism_Month3[0]}}" style="width:15%;">
-                                <abbr title="5">{{value.absenteeism_Month3}}</abbr></td>
+                                {{value.absenteeism_Month3}}</td>
                             <td class="{{value.color.attrition_Month3[0]}}" style="width:15%;">
-                                <abbr title="5">{{value.attrition_Month3}}</abbr></td>
+                                {{value.attrition_Month3}}</td>
                         </tr>
                     </tbody>
                 </table>
