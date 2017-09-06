@@ -61,7 +61,6 @@ def get_dash_data(projects=PROJECTS, tab=SLA):
                 row_data.update({_key1 : conn.hgetall(_key).get(pro, 0)})
                 #row_data.update({_key : 0})
 
-                #=========================================================================
                 
                 if pro == 'productivity':
                     _key3 = core_key + '_target_*_target'
@@ -78,11 +77,8 @@ def get_dash_data(projects=PROJECTS, tab=SLA):
                         except:
                             pass
                     if t > 0:
-                        DEFAULT_TARGET['prod_utili'] = (sum(_target_list)/ t)
-                    print DEFAULT_TARGET['prod_utili']
+                        DEFAULT_TARGET['prod_utili'] = "%.2f" % (sum(_target_list)/ t)
 
-
-                #=========================================================================
                 _target_objs = ColorCoding.objects.filter(project__id =_id, widget__config_name = WIDGET_SYNC.get(pro, ""), month = month)
                 if not _target_objs:
                     _target = DEFAULT_TARGET.get(pro, 0)
@@ -112,11 +108,11 @@ def get_target(core_key):
     return target_dict
 
 
-def get_center_totaldata():
+def get_center_totaldata(total_data = SLA):
     """ Summing of all coloumns of all centers """
     conn = redis.Redis(host="localhost", port=6379, db=0)
     total = []
-    total_data = ['others', 'total', 'buffer', 'billable']
+    #total_data = ['others', 'total', 'buffer', 'billable']
     centers = list(set([project.split("-")[-1] for project in PROJECTS]))
     for center in centers:
         for t in xrange(1, 4): 

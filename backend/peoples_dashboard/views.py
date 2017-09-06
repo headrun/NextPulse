@@ -19,6 +19,7 @@ def get_sla_data(request):
     #time = request.GET.get('time', None)
     try:
         data['result'] = get_dash_data(proj, SLA)
+        data['center_total'] = get_center_totaldata(SLA)
     except:
         
         data['status'] = 0
@@ -34,7 +35,7 @@ def get_peoples_data(request):
     #time = request.GET.get('time', None)
     try:
         data['result'] = get_dash_data(proj, PEOPLES)
-        data['center_total'] = get_center_totaldata()
+        data['center_total'] = get_center_totaldata(PEOPLES)
 
     except:
         data['status'] = 0

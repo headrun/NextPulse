@@ -45,16 +45,23 @@ class Command(BaseCommand):
         proje_cent = Project.objects.values_list('name',flat=True)
         not_req = ["3i VAPP", "Bridgei2i", "E4U", "indix", "Nextgen", "IBM Sri Lanka P2P", "Quarto","Tally", "Sulekha", "Webtrade", "Walmart Chittor", "Future Energie Tech"]
         proje_cent = filter(lambda x: x not in not_req, list(proje_cent))
-        for pro_cen in proje_cent:
-            values = Project.objects.filter(name=pro_cen).values_list('id','center_id')
-            prj_id = values[0][0]
-            center_id = values[0][1]
-            prj_name = pro_cen
-            final_productivity_list = []
-            conn = redis.Redis(host="localhost", port=6379, db=0)
-            center_name = Center.objects.filter(project=prj_id).values_list('name',flat=True)[0]
-            for month_name,month_dates in months_dict.iteritems():
-                dates_list = month_dates
+        #proje_cent = ['Probe']
+        for month_name,month_dates in months_dict.iteritems():
+            prj_sal_cunt, prj_chi_cunt = [], []
+            prod_sal_prj,produc_sal_prj,int_acc_sal_prj,ext_acc_sal_prj,fte_ut_sal_prj,ope_ut_sal_prj,tat_sal_prj = [],[],[],[],[],[],[]
+            prod_chi_prj,produc_chi_prj,int_acc_chi_prj,ext_acc_chi_prj,fte_ut_chi_prj,ope_ut_chi_prj,tat_chi_prj = [],[],[],[],[],[],[]
+            prod_sal, produc_sal, int_acc_sal, ext_acc_sal, fte_ut_sal, ope_ut_sal, tat_sal = [], [], [], [], [], [], []
+            prod_chi, produc_chi, int_acc_chi, ext_acc_chi, fte_ut_chi, ope_ut_chi, tat_chi = [], [], [], [], [], [], []
+            dates_list = month_dates
+            for pro_cen in proje_cent:
+                values = Project.objects.filter(name=pro_cen).values_list('id','center_id')
+                prj_id = values[0][0]
+                center_id = values[0][1]
+                prj_name = pro_cen   
+                final_productivity_list = []
+                conn = redis.Redis(host="localhost", port=6379, db=0)
+                center_name = Center.objects.filter(project=prj_id).values_list('name',flat=True)[0]
+
                 volumes = RawTable.objects.filter(project=prj_id,center=center_id,date__range=[dates_list[0],dates_list[-1]])
                 external_packets = Externalerrors.objects.filter(project=prj_id,center=center_id,date__range=[dates_list[0],dates_list[-1]])
                 internal_packets = Internalerrors.objects.filter(project=prj_id,center=center_id,date__range=[dates_list[0],dates_list[-1]])
@@ -457,6 +464,98 @@ class Command(BaseCommand):
                 final_productivity_dict['tat'] = tat_final_value
                 final_productivity_dict['prod_utili'] = final_prod_util
                 final_productivity_list.append(final_productivity_dict)
+                #import pdb;pdb.set_trace()
+                if center_name == 'Salem':
+                    if productivity_value != 'NA':
+                        prod_sal.append(productivity_value)
+                        prod_sal_prj.append(prj_name)
+                        prod_sum = sum(prod_sal)/len(prod_sal_prj)
+                    else:
+                        prod_sum = "None"
+                    if final_prod_util != 'NA':
+                        produc_sal.append(final_prod_util)
+                        produc_sal_prj.append(prj_name)
+                        produc_sum = sum(produc_sal)/len(produc_sal_prj)
+                    else:
+                        produc_sum = "None"
+                    if final_internal_accuracy != 'NA':
+                        int_acc_sal.append(final_internal_accuracy)
+                        int_acc_sal_prj.append(prj_name)
+                        int_acc_sum = sum(int_acc_sal)/len(int_acc_sal_prj)
+                    else:
+                        int_acc_sum = "None"
+                    if final_external_accuracy != 'NA':
+                        ext_acc_sal.append(final_external_accuracy)
+                        ext_acc_sal_prj.append(prj_name)
+                        ext_acc_sum = sum(ext_acc_sal)/len(ext_acc_sal_prj)
+                    else:
+                        ext_acc_sum = "None"
+                    if final_fte != 'NA':
+                        fte_ut_sal.append(final_fte)
+                        fte_ut_sal_prj.append(prj_name)
+                        fte_ut_sum = sum(fte_ut_sal)/len(fte_ut_sal_prj)
+                    if final_operational != 'NA':
+                        ope_ut_sal.append(final_operational)
+                        ope_ut_sal_prj.append(prj_name)
+                        ope_ut_sum = sum(ope_ut_sal)/len(ope_ut_sal_prj)
+                    else:
+                        ope_ut_sum = "None"
+                    if tat_final_value != 'NA':
+                        tat_sal.append(tat_final_value)
+                        tat_sal_prj.append(prj_name)
+                        tat_sum = sum(tat_sal)/len(tat_sal_prj)
+                    else:
+                        tat_sum = "None"
+                else:
+                    if productivity_value != 'NA':
+                        prod_chi.append(productivity_value)
+                        prod_chi_prj.append(prj_name) 
+                        prod_sum = sum(prod_chi)/len(prod_chi_prj)
+                    else:
+                        prod_sum = "None"
+                    if final_prod_util != 'NA':
+                        produc_chi.append(final_prod_util)
+                        produc_chi_prj.append(prj_name)
+                        produc_sum = sum(produc_chi)/len(produc_chi_prj)
+                    else:
+                        produc_sum = "None"
+                    if final_internal_accuracy != 'NA':
+                        int_acc_chi.append(final_internal_accuracy)
+                        int_acc_chi_prj.append(prj_name)
+                        int_acc_sum = sum(int_acc_chi)/len(int_acc_chi_prj)
+                    else:
+                        int_acc_sum = "None"
+                    if final_external_accuracy != 'NA':
+                        ext_acc_chi.append(final_external_accuracy)
+                        ext_acc_chi_prj.append(prj_name)
+                        ext_acc_sum = sum(ext_acc_chi)/len(ext_acc_chi_prj)
+                    else:
+                        ext_acc_sum = "None"
+                    if final_fte != 'NA':
+                        fte_ut_chi.append(final_fte)
+                        fte_ut_chi_prj.append(prj_name)
+                        fte_ut_sum = sum(fte_ut_chi)/len(fte_ut_chi_prj)
+                    else:
+                        fte_ut_sum = "None"
+                    if final_operational != 'NA':
+                        ope_ut_chi.append(final_operational)
+                        ope_ut_chi_prj.append(prj_name)
+                        ope_ut_sum = sum(ope_ut_chi)/len(ope_ut_chi_prj)
+                    else:
+                        ope_ut_sum = "None"
+                    if tat_final_value != 'NA':
+                        tat_chi.append(tat_final_value)
+                        tat_chi_prj.append(prj_name)
+                        tat_sum = sum(tat_chi)/len(tat_chi_prj)
+                    else:
+                        tat_sum = "None"
+                final_productivity_dict['center_productivity'] = prod_sum
+                final_productivity_dict['center_prod_utili'] = produc_sum
+                final_productivity_dict['center_internal_accuracy'] = int_acc_sum
+                final_productivity_dict['center_external_accuracy'] = ext_acc_sum
+                final_productivity_dict['center_fte_utilisation'] = fte_ut_sum
+                final_productivity_dict['center_operational_utilization'] = ope_ut_sum
+                final_productivity_dict['center_tat'] = tat_sum
                 data_dict = {}
                 for key,value in final_productivity_dict.iteritems():
                     value_dict = {}
@@ -487,6 +586,34 @@ class Command(BaseCommand):
                     if key == 'tat':
                         redis_key = '{0}_{1}_{2}_tat'.format(prj_name,center_name,month_name)
                         value_dict['tat'] = str(tat_final_value)
+                        data_dict[redis_key] = value_dict
+                    if key == 'center_productivity':
+                        redis_key = '{0}_{1}_center_productivity'.format(center_name,month_name)
+                        value_dict['center_productivity'] = str(prod_sum)
+                        data_dict[redis_key] = value_dict
+                    if key == 'center_prod_utili':
+                        redis_key = '{0}_{1}_center_prod_utili'.format(center_name,month_name)
+                        value_dict['center_prod_utili'] = str(produc_sum)
+                        data_dict[redis_key] = value_dict
+                    if key == 'center_internal_accuracy':
+                        redis_key = '{0}_{1}_center_internal_accuracy'.format(center_name,month_name)
+                        value_dict['center_internal_accuracy'] = str(int_acc_sum)
+                        data_dict[redis_key] = value_dict
+                    if key == 'center_external_accuracy':
+                        redis_key = '{0}_{1}_center_external_accuracy'.format(center_name,month_name)
+                        value_dict['center_external_accuracy'] = str(ext_acc_sum)
+                        data_dict[redis_key] = value_dict
+                    if key == 'center_fte_utilisation':
+                        redis_key = '{0}_{1}_center_fte_utilisation'.format(center_name,month_name)
+                        value_dict['center_fte_utilisation'] = str(fte_ut_sum)
+                        data_dict[redis_key] = value_dict
+                    if key == 'center_operational_utilization':
+                        redis_key = '{0}_{1}_center_operational_utilization'.format(center_name,month_name)
+                        value_dict['center_operational_utilization'] = str(ope_ut_sum)
+                        data_dict[redis_key] = value_dict
+                    if key == 'center_tat':
+                        redis_key = '{0}_{1}_center_tat'.format(center_name,month_name)
+                        value_dict['center_tat'] = str(tat_sum)
                         data_dict[redis_key] = value_dict
                 conn = redis.Redis(host="localhost", port=6379, db=0) 
                 current_keys = []
