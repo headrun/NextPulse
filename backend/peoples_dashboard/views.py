@@ -50,6 +50,7 @@ def get_individual_target(request):
     core_key = request.GET.get('core_key', 'Gooru_Salem_June')
     try:
         data['result'] = get_target(core_key)
+        data['headers'] = get_headers(core_key)
     except:
         data['status'] = 0
 

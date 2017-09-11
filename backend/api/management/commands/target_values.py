@@ -43,7 +43,7 @@ class Command(BaseCommand):
         #not_req = ["3i VAPP", "Bridgei2i", "E4U", "indix", "Nextgen", "IBM Sri Lanka P2P", "Quarto","Tally", "Sulekha", "Webtrade", "Walmart Chittor", "Future Energie Tech"]
         #proje_cent = filter(lambda x: x not in not_req, list(proje_cent))
         proje_cent = ['Probe','NTT DATA Services TP','NTT DATA Services Coding','Federal Bank','Ujjivan','Gooru','Walmart Salem','IBM','IBM South East Asia','IBM Pakistan','IBM Africa','IBM DCIW Arabia','IBM Quality Control','IBM India and Sri Lanka','IBM NA and EU','IBM Arabia','IBM DCIW','IBM Latin America','IBM Sri Lanka P2P']
-        #proje_cent = ["IBM Arabia"]
+        #proje_cent = ["Probe"]
         for pro_cen in proje_cent:
             values = Project.objects.filter(name=pro_cen).values_list('id','center_id')
             prj_id = values[0][0]
@@ -203,14 +203,17 @@ class Command(BaseCommand):
                     final_target_values['prod_utili'] = prod_utility
                     conn = redis.Redis(host="localhost", port=6379, db=0)
                     redi_dict = {}
+                    #import pdb;pdb.set_trace()
                     for key,value in final_target_values.iteritems():
                         vals_dict = {}
                         if key == 'productivity':
                             redis_key = '{0}_{1}_{2}_productivity'.format(prj_name,center_name,month_name)
                             vals_dict['productivity'] = str(productivity_value)
+                            redi_dict[redis_key] = vals_dict
                         if key == 'prod_utili':
                             redis_key = '{0}_{1}_{2}_prod_utili'.format(prj_name,center_name,month_name)
                             vals_dict['prod_utili'] = str(prod_utility)
+                            redi_dict[redis_key] = vals_dict
                         if key == '_target_'+packet+'_name':
                             redis_key = prj_name+'_'+center_name+'_'+month_name+'_target_'+packet+'_name'
                             vals_dict['_target_'+packet+'_name'] = str(packet)      

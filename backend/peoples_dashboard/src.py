@@ -132,9 +132,25 @@ def get_center_totaldata(total_data = SLA):
     return total
 
 
+def get_headers(core_key):
+    headers1 = ['Packet Type', 'Team Target', 'Actual Volume', 'Actual Target', '% Target Acheved']
+    headers2 = ['Packet Type', 'FTE Target', 'No of Man Days', 'Actual Volume', 'Actual Target', '% Target Achieved']
+    conn = redis.Redis(host="localhost", port=6379, db=0)
+    _key = core_key + '_' + "target" + '_' + '*_no_of_agents'
+    target_list = conn.keys(_key)
+    values_list = []
+    #import pdb;pdb.set_trace()
+    for item in target_list:
+        values_list.append(conn.hgetall(item).values()[0])
 
+    values_list = list(filter(lambda x: x!= 'None', values_list))
 
+    if values_list:
+        headers = headers2
+    else:
+        headers = headers1
 
+    return headers
 
 
 def get_color(val, target, pro):
