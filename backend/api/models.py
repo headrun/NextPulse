@@ -520,6 +520,7 @@ class Annotation(models.Model):
     class Meta:
         db_table = u'annotations'
         index_together = (('project', 'center',), ('epoch', 'created_by', 'key'),)
+        unique_together = (('project', 'center', 'epoch', 'key'))
 
     def __unicode__(self):
         return self.epoch

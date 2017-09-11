@@ -4,7 +4,7 @@ import json
 import random
 import re
 import datetime
-
+from django.apps import apps
 from django.db.models import Sum
 from django.db.models import Max
 from django.core.mail import send_mail

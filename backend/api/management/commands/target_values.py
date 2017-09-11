@@ -43,6 +43,7 @@ class Command(BaseCommand):
         #not_req = ["3i VAPP", "Bridgei2i", "E4U", "indix", "Nextgen", "IBM Sri Lanka P2P", "Quarto","Tally", "Sulekha", "Webtrade", "Walmart Chittor", "Future Energie Tech"]
         #proje_cent = filter(lambda x: x not in not_req, list(proje_cent))
         proje_cent = ['Probe','NTT DATA Services TP','NTT DATA Services Coding','Federal Bank','Ujjivan','Gooru','Walmart Salem','IBM','IBM South East Asia','IBM Pakistan','IBM Africa','IBM DCIW Arabia','IBM Quality Control','IBM India and Sri Lanka','IBM NA and EU','IBM Arabia','IBM DCIW','IBM Latin America','IBM Sri Lanka P2P']
+        #proje_cent = ["Probe"]
         for pro_cen in proje_cent:
             values = Project.objects.filter(name=pro_cen).values_list('id','center_id')
             prj_id = values[0][0]
@@ -53,7 +54,7 @@ class Command(BaseCommand):
             for month_name,month_dates in months_dict.iteritems():
                 dates_list = month_dates
                 final_productivity_list,final_actual_val,final_target_val = [], [], []
-                billable_hc = Headcount.objects.filter(project=prj_id, center=center_id, date__range=[dates_list[0],dates_list[-1]]).aggregate(Sum('billable_hc'))
+                billable_hc = Headcount.objects.filter(project=prj_id, center=center_id, date__range=[dates_list[0],dates_list[-1]]).aggregate(Sum('billable_agents'))
                 tars = Targets.objects.filter(project=prj_id, center=center_id,from_date__gte=dates_list[0],to_date__lte=dates_list[-1]) 
                 if tars:
                     tar_packs = tars.values('sub_project','work_packet','sub_packet').distinct()
@@ -134,11 +135,11 @@ class Command(BaseCommand):
                     if tar_values != [] and act_values != []:
                         pac_tar_vals = sum(tar_values[0])
                         pac_act_vals = sum(act_values[0])
-                        pac_prod_util = sum(billable_vals.values()[0])
+                        pac_bill_util = sum(billable_vals.values()[0])
                         pac_sin_tar = sing_targ
                         pac_days = len(act_values[0])
-                        if pac_prod_util != 0:
-                            pac_prod_util = (float(pac_act_vals) / float(pac_prod_util))
+                        if pac_bill_util != 0:
+                            pac_prod_util = (float(pac_act_vals) / float(pac_bill_util))
                             pac_prod_util = float('%.2f' % round(pac_prod_util, 2))
                         else:
                             pac_prod_util = 0
@@ -158,13 +159,29 @@ class Command(BaseCommand):
                         final_month_val = float('%.2f' % round(final_month_val,2))
                     else:
                         final_month_val = 0
-                    if billable_hc['billable_hc__sum'] != None:
-                        bill_ppl = billable_hc['billable_hc__sum']
+                    fin_act_val = sum(final_actual_val)
+                    fin_tar_val = sum(final_target_val)
+                    if fin_tar_val:
+                        productivity_value = (float(fin_act_val)/float(fin_tar_val))*100
+                        productivity_value = float('%.2f' % round(productivity_value,2))
+                    else:
+                        productivity_value = 'NA'
+                    if billable_hc['billable_agents__sum'] != None:
+                        bill_ppl = billable_hc['billable_agents__sum']
                         productivity_val = float(sum(final_actual_val))/float(bill_ppl)
                         prod_utility  = float('%.2f' % round(productivity_val,2))
                     else:
                         bill_ppl = 0
                         prod_utility = 0
+                    #import pdb;pdb.set_trace()
+                    """if pac_prod_util == 0:
+                        billable_cnt = billable_hc['billable_agents__sum']
+                        pac_prod_util = (float(pac_act_vals)/float(billable_cnt))
+                        pac_prod_util = float('%.2f' % round(pac_prod_util,2))
+                    else:
+                        billable_cnt = billable_count['billable_agents__sum']
+                        pac_prod_util = pac_prod_util """
+                    billable_cnt = billable_count['billable_agents__sum']
                     final_target_values = {}
                     final_target_values['project'] = prj_name
                     final_target_values['center'] = center_name
@@ -175,17 +192,28 @@ class Command(BaseCommand):
                     final_target_values['_target_'+packet+'_prod_uti'] = pac_prod_util
                     final_target_values['_target_'+packet+'_actual'] = pac_act_vals
                     final_target_values['_target_'+packet+'_no_of_days'] = pac_days
-                    final_target_values['_target_'+packet+'_no_of_agents'] = billable_count['billable_agents__sum']
+                    final_target_values['_target_'+packet+'_no_of_agents'] = billable_cnt
                     final_target_values['_target_'+packet+'_prod_percen'] = prod_fin_cal
                     final_target_values['_target_final_product_val'] = final_month_val
                     final_target_values['_target_prod_utility'] = prod_utility
                     final_target_values['_target_bill_ppl'] = bill_ppl
                     final_target_values['_target_final_actual'] = sum(final_actual_val)
                     final_target_values['_target_final_target'] = sum(final_target_val)
+                    final_target_values['productivity'] = productivity_value
+                    final_target_values['prod_utili'] = prod_utility
                     conn = redis.Redis(host="localhost", port=6379, db=0)
                     redi_dict = {}
+                    #import pdb;pdb.set_trace()
                     for key,value in final_target_values.iteritems():
                         vals_dict = {}
+                        if key == 'productivity':
+                            redis_key = '{0}_{1}_{2}_productivity'.format(prj_name,center_name,month_name)
+                            vals_dict['productivity'] = str(productivity_value)
+                            redi_dict[redis_key] = vals_dict
+                        if key == 'prod_utili':
+                            redis_key = '{0}_{1}_{2}_prod_utili'.format(prj_name,center_name,month_name)
+                            vals_dict['prod_utili'] = str(prod_utility)
+                            redi_dict[redis_key] = vals_dict
                         if key == '_target_'+packet+'_name':
                             redis_key = prj_name+'_'+center_name+'_'+month_name+'_target_'+packet+'_name'
                             vals_dict['_target_'+packet+'_name'] = str(packet)      

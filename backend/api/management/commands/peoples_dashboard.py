@@ -47,7 +47,7 @@ class Command(BaseCommand):
         project = filter(lambda x: x not in not_req, list(project))
         for month_name,month_dates in months_dict.iteritems():
             #final_data = {}
-            absen_da, attri_da, attri_prj, absen_prj = [], [], [], []
+            absen_da, attri_da, attri_cnt, absen_cnt, emp_cnt = [], [], [], [], []
             for prj in project:
                 final_data = {}
                 date_values = month_dates
@@ -101,18 +101,16 @@ class Command(BaseCommand):
                 final_data['month'] = month_name;
                 final_data['absenteeism'] = absent_value;
                 final_data['attrition'] = attri_value;
-                if absent_value:
-                    absen_da.append(absent_value)
-                    absen_prj.append(prj)
-                    absen_sum = sum(absen_da)/len(absen_prj)
+                absen_cnt.append(fin_na_list[0])
+                attri_cnt.append(values[0][0])
+                emp_cnt.append(len(rows))
+                if emp_cnt:
+                    absen_sum = (float(sum(absen_cnt))/float(sum(emp_cnt)))*100
+                    absen_sum = float('%.2f' % round(absen_sum, 2))
+                    attri_sum = (float(sum(attri_cnt))/float(sum(emp_cnt)))*100
+                    attri_sum = float('%.2f' % round(attri_sum, 2))
                 else:
-                    absen_sum = 0
-                if attri_value:
-                    attri_da.append(attri_value)
-                    attri_prj.append(prj)
-                    attri_sum = sum(attri_da)/len(attri_prj)
-                else:
-                    attri_sum = 0
+                    absen_sum, attri_sum  = 0, 0
                 final_data['center_absenteeism'] = absen_sum
                 final_data['center_attrition'] = attri_sum
                 data_dict = {}
@@ -140,7 +138,5 @@ class Command(BaseCommand):
                     current_keys.append(key)
                     conn1.hmset(key, value)
                     print key, value
-                print prj
-                print center_name
         cur.close()
         conn.close()

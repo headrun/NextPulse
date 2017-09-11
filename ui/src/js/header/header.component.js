@@ -130,8 +130,10 @@
                         self.select_option = map_list[0].split(' - ')[1];
                         }
                     }
-
-
+           $('#videoPop').on('hidden.bs.modal', function () {
+                $('video').get(0).pause();  
+            }) 
+                //debugger;
               });
               self.project_name = '';
               self.proj_list = '';

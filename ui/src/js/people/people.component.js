@@ -14,7 +14,6 @@
                 var people_data = '/pd/get_sla_data';
                 var people_data_2 = '/pd/get_peoples_data';
                 vm.render_chart_from_url = function(url, name) {
-                
                     vm.chart_name = name;
 
                     $http({method:"GET", url: url}).success(function(result){
@@ -86,9 +85,9 @@
                   vm.key_of_table = data.color[target][2];
                   $('#extra-table').hide();
                   $('#extra-table2').hide();
-
                   if (name == "Productivity"){
                       $('#extra-table2').show();
+                      $('#names_2').hide();  
                       var pop_url_target = '/pd/get_individual_target?core_key='+vm.key_of_table;
 
                       $http({method:"GET", url: pop_url_target}).success(function(result){
@@ -137,6 +136,7 @@
                     
                   }
                   if (name == "Target Achieved"){
+
                       $('#extra-table').show();
 
                       //var key_to_ajax = data.color[target][2];
@@ -144,6 +144,7 @@
 
                       $http({method:"GET", url: pop_url_target}).success(function(result){
                          var big_object = result.result;
+                         vm.header_names = result.headers;
                          var all_keys = Object.keys(result.result);
                          var all_packets = [];
 
@@ -166,16 +167,32 @@
                          var main_table_data = [];
                          var main_table_data2 = [];
                          for (var j=0; j<packets.length; j++){
-                             var main_obj = {'packet': '', 'target': '', 'noFTE': '', 'noDays': '', 'actual': '', 'pacTarget':'', 'percentage': ''};
+                             if (vm.header_names.length === 6) {
+                             var main_obj = {'packet': '', 'target': '', 'noFTE': '', 'actual': '', 'pacTarget':'', 'percentage': ''};
                              main_obj.packet = packets[j];
                              var key = vm.key_of_table+'_target_'+packets[j]+'_';
                              main_obj.target = big_object[key+'single_target'];
                              main_obj.noFTE = big_object[key+'no_of_agents'];
-                             main_obj.noDays = big_object[key+'no_of_days'];
+                             //main_obj.noDays = big_object[key+'no_of_days'];
                              main_obj.actual = big_object[key+'actual'];
                              main_obj.pacTarget = big_object[key+'target'];
                              main_obj.percentage = big_object[key+'prod_percen'];
                              main_table_data.push(main_obj);
+                             $('#extra-table').show();
+                             $('#names_2').hide();
+                             }
+                             else {
+                                var main_obj = {'packet': '', 'target': '', 'actual': '', 'pacTarget':'', 'percentage': ''};
+                                main_obj.packet = packets[j];
+                                var key = vm.key_of_table+'_target_'+packets[j]+'_';
+                                main_obj.target = big_object[key+'single_target'];
+                                main_obj.actual = big_object[key+'actual'];
+                                main_obj.pacTarget = big_object[key+'target'];
+                                main_obj.percentage = big_object[key+'prod_percen'];
+                                main_table_data.push(main_obj);
+                                $('#extra-table').hide();
+                                $('#names_2').show();
+                            }
                          }
                          vm.main_data = main_table_data;
                          var main_obj2 = {'finalactual':'', 'finaltarget':'', 'finalproductivity': ''};
@@ -276,13 +293,14 @@
                 $http({method:"GET", url:people_data}).success(function(result){
 
                   vm.data = result.result;
+                  vm.center_data_1 = result.center_total;
 
                });
 
                 $http({method:"GET", url:people_data_2}).success(function(result){
-
                   vm.data_2 = result.result;
-
+                  vm.center_data2 = result.center_total;
+                  //debugger;
                });
 
            }],
