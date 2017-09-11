@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 from django.contrib.auth.models import User
 from django.db import models
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import Group
 
 
 class Center(models.Model):
