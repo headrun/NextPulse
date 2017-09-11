@@ -20,7 +20,7 @@ PROJECTS = ["Probe-Salem", "NTT DATA Services TP-Salem", "NTT DATA Services Codi
 
 MONTHS = ["April", "May"]
 
-SLA = ['productivity', "external_accuracy", 'internal_accuracy', 'prod_utili', 'tat']
+SLA = ['productivity', 'prod_utili', "external_accuracy", 'internal_accuracy', 'tat']
 
 PEOPLES = ["buffer","billable", "other_support","total","fte_utilisation", "operational_utilization", "absenteeism", "attrition"]
 #PEOPLES = ["absentisim"]             TARGETS
@@ -54,11 +54,30 @@ def get_dash_data(projects=PROJECTS, tab=SLA):
             #_project, center = project.split("-")
             #row_data = {'project': _project, 'center': center, 'month': month}
             for pro in tab:
+                #import pdb;pdb.set_trace()
                 core_key = _project +"_"+ center + "_" + month
                 _key = core_key + "_" + pro
-                _key = pro + "_" + m_key
-                row_data.update({_key : conn.hgetall(_key).get(pro, 0)})
+                _key1 = pro + "_" + m_key
+                row_data.update({_key1 : conn.hgetall(_key).get(pro, 0)})
                 #row_data.update({_key : 0})
+
+                
+                if pro == 'productivity':
+                    _key3 = core_key + '_target_*_target'
+                    target_lists = conn.keys(_key3)
+                    _target_list = []
+                    t = 0
+                    #import pdb;pdb.set_trace()
+                    for item in target_lists:
+                        if 'single' not in item:
+                            continue
+                        try:
+                            _target_list.append(float(conn.hgetall(item).values()[0]))
+                            t += 1
+                        except:
+                            pass
+                    if t > 0:
+                        DEFAULT_TARGET['prod_utili'] = "%.2f" % (sum(_target_list)/ t)
 
                 _target_objs = ColorCoding.objects.filter(project__id =_id, widget__config_name = WIDGET_SYNC.get(pro, ""), month = month)
                 if not _target_objs:
@@ -66,12 +85,14 @@ def get_dash_data(projects=PROJECTS, tab=SLA):
                 else:
                     _target = _target_objs[0].soft_target
                 
-                row_data['color'].update({_key : ['Green', _target]})
-                if not row_data[_key] == "NA":
-                    row_data['color'].update({_key : [get_color(float(row_data[_key]), _target, pro), _target, core_key]})
+                row_data['color'].update({_key1 : ['Green', _target, core_key]})
+                if not row_data[_key1] == "NA":
+                    row_data['color'].update({_key1 : [get_color(float(row_data[_key1]), _target, pro), _target, core_key]})
 
             i +=1
+        
         result.append(row_data)
+
     return result
 
 
@@ -81,9 +102,29 @@ def get_target(core_key):
     _key = core_key + '_' + "target" + '_' + '*'
     target_list = conn.keys(_key)
     target_dict = {}
+    #import pdb;pdb.set_trace()
     for item in target_list:
         target_dict.update({ item: conn.hgetall(item).values()[0]})
     return target_dict
+
+
+def get_center_totaldata(total_data = SLA):
+    """ Summing of all coloumns of all centers """
+    conn = redis.Redis(host="localhost", port=6379, db=0)
+    total = []
+    #total_data = ['others', 'total', 'buffer', 'billable']
+    centers = list(set([project.split("-")[-1] for project in PROJECTS]))
+    for center in centers:
+        for t in xrange(1, 4): 
+            one_month_ago = datetime.datetime.now() - relativedelta(months=t)
+            month_name = one_month_ago.strftime("%B")
+            for _data in total_data:
+                _key1 = 'center_' + _data
+                _key = center +'_' + month_name + '_' + _key1
+                total.append({_key : conn.hgetall(_key).get(_key1, 0) })              
+                
+    return total
+
 
 def get_color(val, target, pro):
     """ getting the color """

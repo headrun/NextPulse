@@ -89,6 +89,8 @@
                 }
 
 
+                $('video').get(0).pause()
+
               $http({method:"GET", url:project}).success(function(result){
 
                 if (result.result.role == "customer") {
