@@ -507,13 +507,13 @@
 
             $.post("/api/annotations/create/", data, function(resp){
 
-                if (resp.result == 'Annotation already exist'){
+                /*if (resp.result == 'Annotation already exist'){
                         swal(resp.result);
                         that.$popover.find("p").blur();
                         that.$popover.removeClass("in").removeClass("show");
                         that.destroy();
                         return;
-                }
+                }*/
 
                 resp = resp.result;
 

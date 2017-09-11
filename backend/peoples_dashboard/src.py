@@ -96,19 +96,26 @@ def get_dash_data(projects=PROJECTS, tab=SLA):
     return result
 
 
-def get_target(core_key):
-    
+def get_target(core_key, _remove_headers=[]):
     conn = redis.Redis(host="localhost", port=6379, db=0)
     _key = core_key + '_' + "target" + '_' + '*'
     target_list = conn.keys(_key)
     target_dict = {}
+    _target_list = []
+    if _remove_headers:
+        _r_header = _remove_headers[0]
+        for item in target_list:
+            if not item.endswith(_r_header):
+                _target_list.append(item)
+    else:
+        _target_list = target_list
     #import pdb;pdb.set_trace()
-    for item in target_list:
+    for item in _target_list:
         target_dict.update({ item: conn.hgetall(item).values()[0]})
     return target_dict
 
 
-def get_center_totaldata(total_data = SLA):
+def get_center_totaldata(total_data=SLA):
     """ Summing of all coloumns of all centers """
     conn = redis.Redis(host="localhost", port=6379, db=0)
     total = []
@@ -127,7 +134,7 @@ def get_center_totaldata(total_data = SLA):
                 _key = center +'_' + month_name + '_' + _key1
                 _key2 = center + '_'+_data +'_'+ _m_name
                 dict1.update({_key2 : conn.hgetall(_key).get(_key1, 0) })              
-    
+
         total.append(dict1)
     return total
 
@@ -139,6 +146,7 @@ def get_headers(core_key):
     _key = core_key + '_' + "target" + '_' + '*_no_of_agents'
     target_list = conn.keys(_key)
     values_list = []
+    remove_headers = []
     #import pdb;pdb.set_trace()
     for item in target_list:
         values_list.append(conn.hgetall(item).values()[0])
@@ -149,8 +157,9 @@ def get_headers(core_key):
         headers = headers2
     else:
         headers = headers1
+        remove_headers.append('_no_of_agents')
 
-    return headers
+    return headers, remove_headers
 
 
 def get_color(val, target, pro):
