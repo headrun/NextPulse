@@ -14,7 +14,6 @@
                 var people_data = '/pd/get_sla_data';
                 var people_data_2 = '/pd/get_peoples_data';
                 vm.render_chart_from_url = function(url, name) {
-                
                     vm.chart_name = name;
 
                     $http({method:"GET", url: url}).success(function(result){
@@ -86,7 +85,6 @@
                   vm.key_of_table = data.color[target][2];
                   $('#extra-table').hide();
                   $('#extra-table2').hide();
-
                   if (name == "Productivity"){
                       $('#extra-table2').show();
                       var pop_url_target = '/pd/get_individual_target?core_key='+vm.key_of_table;
@@ -276,13 +274,14 @@
                 $http({method:"GET", url:people_data}).success(function(result){
 
                   vm.data = result.result;
+                  vm.center_data_1 = result.center_total;
 
                });
 
                 $http({method:"GET", url:people_data_2}).success(function(result){
-
                   vm.data_2 = result.result;
-
+                  vm.center_data2 = result.center_total;
+                  //debugger;
                });
 
            }],

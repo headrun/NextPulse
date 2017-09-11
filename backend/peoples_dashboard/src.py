@@ -22,7 +22,7 @@ MONTHS = ["April", "May"]
 
 SLA = ['productivity', 'prod_utili', "external_accuracy", 'internal_accuracy', 'tat']
 
-PEOPLES = ["buffer","billable", "other_support","total","fte_utilisation", "operational_utilization", "absenteeism", "attrition"]
+PEOPLES = ["buffer","billable", "qc_or_qa", "team_lead", "other_support","total","fte_utilisation", "operational_utilization", "absenteeism", "attrition"]
 #PEOPLES = ["absentisim"]             TARGETS
 
 
@@ -115,15 +115,26 @@ def get_center_totaldata(total_data = SLA):
     #total_data = ['others', 'total', 'buffer', 'billable']
     centers = list(set([project.split("-")[-1] for project in PROJECTS]))
     for center in centers:
+        dict1 = {}
         for t in xrange(1, 4): 
+            _m_name = 'month_' + str(t)
             one_month_ago = datetime.datetime.now() - relativedelta(months=t)
             month_name = one_month_ago.strftime("%B")
+
+            dict1.update({'center': center, _m_name: month_name})
             for _data in total_data:
                 _key1 = 'center_' + _data
                 _key = center +'_' + month_name + '_' + _key1
-                total.append({_key : conn.hgetall(_key).get(_key1, 0) })              
-                
+                _key2 = center + '_'+_data +'_'+ _m_name
+                dict1.update({_key2 : conn.hgetall(_key).get(_key1, 0) })              
+    
+        total.append(dict1)
     return total
+
+
+
+
+
 
 
 def get_color(val, target, pro):

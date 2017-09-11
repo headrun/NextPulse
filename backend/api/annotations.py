@@ -5,6 +5,7 @@ from django.db.models import Q
 from api.models import *
 from django.http import HttpResponse
 from common.utils import getHttpResponse as json_HttpResponse
+from django.db import IntegrityError
 
 def get_annotations(request):
     series_name = request.GET['series_name']
@@ -55,9 +56,13 @@ def add_annotation(request):
     prj_obj = Project.objects.filter(name = prj_name)
     center = Center.objects.filter(name = cen_name)
     widget_obj = Widgets.objects.filter(id_num = widget_id)[0]
-    annotation = Annotation.objects.create(epoch=epoch, text=text, key=key, project=prj_obj[0],\
+    try:
+        annotation = Annotation.objects.create(epoch=epoch, text=text, key=key, project=prj_obj[0],\
                                             dt_created=dt_created, created_by=created_by,\
                                             center=center[0], chart_type_name=widget_obj.chart_type_name)
+    except IntegrityError:
+        return json_HttpResponse('Annotation already exist')
+    
     if not graph_name:
         graph_name = 'sss'
     if not series_name:
@@ -85,6 +90,12 @@ def update_annotation(request):
             anno = anno[0]
             anno.delete()
             return json_HttpResponse(json.dumps({"status": "success", "message": "deleted successfully"}))
+        else:
+            series = series.split('<##>')[0]
+            anno = Annotation.objects.filter(epoch=epoch,created_by=request.user,key__contains=series)[0]
+            anno.delete()
+            return json_HttpResponse(json.dumps({"status": "success", "message": "deleted successfully"}))
+
     if series is not None:
         series = series.split('<##>')[0]
         annotation = Annotation.objects.filter(epoch=epoch,created_by=request.user,key__contains=series)

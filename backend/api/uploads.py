@@ -1,5 +1,7 @@
 
+import xlrd
 import datetime
+from django.apps import apps
 from api.models import *
 from api.redis_operations import redis_insert
 from api.basics import *
