@@ -22,7 +22,7 @@ MONTHS = ["April", "May"]
 
 SLA = ['productivity', 'prod_utili', "external_accuracy", 'internal_accuracy', 'tat']
 
-PEOPLES = ["buffer","billable", "other_support","total","fte_utilisation", "operational_utilization", "absenteeism", "attrition"]
+PEOPLES = ["buffer","billable", "qc_or_qa", "team_lead", "other_support","total","fte_utilisation", "operational_utilization", "absenteeism", "attrition"]
 #PEOPLES = ["absentisim"]             TARGETS
 
 
@@ -96,34 +96,70 @@ def get_dash_data(projects=PROJECTS, tab=SLA):
     return result
 
 
-def get_target(core_key):
-    
+def get_target(core_key, _remove_headers=[]):
     conn = redis.Redis(host="localhost", port=6379, db=0)
     _key = core_key + '_' + "target" + '_' + '*'
     target_list = conn.keys(_key)
     target_dict = {}
+    _target_list = []
+    if _remove_headers:
+        _r_header = _remove_headers[0]
+        for item in target_list:
+            if not item.endswith(_r_header):
+                _target_list.append(item)
+    else:
+        _target_list = target_list
     #import pdb;pdb.set_trace()
-    for item in target_list:
+    for item in _target_list:
         target_dict.update({ item: conn.hgetall(item).values()[0]})
     return target_dict
 
 
-def get_center_totaldata(total_data = SLA):
+def get_center_totaldata(total_data=SLA):
     """ Summing of all coloumns of all centers """
     conn = redis.Redis(host="localhost", port=6379, db=0)
     total = []
     #total_data = ['others', 'total', 'buffer', 'billable']
     centers = list(set([project.split("-")[-1] for project in PROJECTS]))
     for center in centers:
+        dict1 = {}
         for t in xrange(1, 4): 
+            _m_name = 'month_' + str(t)
             one_month_ago = datetime.datetime.now() - relativedelta(months=t)
             month_name = one_month_ago.strftime("%B")
+
+            dict1.update({'center': center, _m_name: month_name})
             for _data in total_data:
                 _key1 = 'center_' + _data
                 _key = center +'_' + month_name + '_' + _key1
-                total.append({_key : conn.hgetall(_key).get(_key1, 0) })              
-                
+                _key2 = center + '_'+_data +'_'+ _m_name
+                dict1.update({_key2 : conn.hgetall(_key).get(_key1, 0) })              
+
+        total.append(dict1)
     return total
+
+
+def get_headers(core_key):
+    headers1 = ['Packet Type', 'Team Target', 'Actual Volume', 'Actual Target', '% Target Acheved']
+    headers2 = ['Packet Type', 'FTE Target', 'No of Man Days', 'Actual Volume', 'Actual Target', '% Target Achieved']
+    conn = redis.Redis(host="localhost", port=6379, db=0)
+    _key = core_key + '_' + "target" + '_' + '*_no_of_agents'
+    target_list = conn.keys(_key)
+    values_list = []
+    remove_headers = []
+    #import pdb;pdb.set_trace()
+    for item in target_list:
+        values_list.append(conn.hgetall(item).values()[0])
+
+    values_list = list(filter(lambda x: x!= 'None', values_list))
+
+    if values_list:
+        headers = headers2
+    else:
+        headers = headers1
+        remove_headers.append('_no_of_agents')
+
+    return headers, remove_headers
 
 
 def get_color(val, target, pro):
