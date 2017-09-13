@@ -106,6 +106,26 @@
   background: rgba(0, 0, 0, 0.3);
 }
 
+.ajax-file-upload {
+  font-family: Arial, Helvetica, sans-serif;
+    font-size: 16px !important;
+    font-weight: bold !important;
+    padding: 15px 20px !important;
+    cursor: pointer !important;
+    line-height: 20px !important;
+    margin: 0 10px 10px 0;
+    display: inline-block;
+    border: 1px solid #e8e8e8 !important;
+    text-decoration: none !important;
+    border-radius: 3px !important;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    padding: 6px 10px 4px 10px !important;
+    color: #fff !important;
+    background-color: black !important;
+    vertical-align: middle !important;      
+ }
+
 .date-format {
   position: absolute;
   top: 210px;
@@ -343,7 +363,7 @@ input:checked + .slider:before {
               <span class="tag-format">{{$ctrl.is_when}}</span>
             </div>
         </div>
-        <div class="row">
+        <div class="row" style="margin-right: 0px;">
           <div class="col-md-9">
             <h1 style="font-size: 23px;padding-left: 25px;" ng-if="$ctrl.no_data" id="meeting-name">{{$ctrl.edit_review.reviewname}}</h1>
               <div class="details-block">

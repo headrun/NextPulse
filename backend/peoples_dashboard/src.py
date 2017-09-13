@@ -61,7 +61,6 @@ def get_dash_data(projects=PROJECTS, tab=SLA):
                 row_data.update({_key1 : conn.hgetall(_key).get(pro, 0)})
                 #row_data.update({_key : 0})
 
-                
                 if pro == 'productivity':
                     _key3 = core_key + '_target_*_target'
                     target_lists = conn.keys(_key3)
@@ -102,16 +101,21 @@ def get_target(core_key, _remove_headers=[]):
     target_list = conn.keys(_key)
     target_dict = {}
     _target_list = []
+    not_target_list = []
     if _remove_headers:
-        _r_header = _remove_headers[0]
         for item in target_list:
-            if not item.endswith(_r_header):
-                _target_list.append(item)
+            for _r_header in _remove_headers:
+                if item.endswith(_r_header):
+                    not_target_list.append(item)
+        _target_list = list(set(target_list) - set(not_target_list))
     else:
         _target_list = target_list
-    #import pdb;pdb.set_trace()
     for item in _target_list:
         target_dict.update({ item: conn.hgetall(item).values()[0]})
+
+    project_name = core_key.split("_")[0]
+    _name = core_key + '_target_name'
+    target_dict.update({_name: project_name})
     return target_dict
 
 
@@ -140,7 +144,7 @@ def get_center_totaldata(total_data=SLA):
 
 
 def get_headers(core_key):
-    headers1 = ['Packet Type', 'Team Target', 'Actual Volume', 'Actual Target', '% Target Acheved']
+    headers1 = ['Packet Type', 'Team Target', 'Actual Volume', 'Actual Target', '% Target Achieved']
     headers2 = ['Packet Type', 'FTE Target', 'No of Man Days', 'Actual Volume', 'Actual Target', '% Target Achieved']
     conn = redis.Redis(host="localhost", port=6379, db=0)
     _key = core_key + '_' + "target" + '_' + '*_no_of_agents'
@@ -158,6 +162,33 @@ def get_headers(core_key):
     else:
         headers = headers1
         remove_headers.append('_no_of_agents')
+
+    return headers, remove_headers
+
+
+def get_headers_productivity(core_key):
+
+    headers1 = ['Project', 'No of Mandays', 'Actual Volume', 'Productivity']
+    headers2 = ['Packet Type', 'No of Mandays', 'Actual Volume', 'Productivity', 'data']
+    conn = redis.Redis(host="localhost", port=6379, db=0)
+    _key = core_key + '_' + "target" + '_' + '*_prod_uti'
+    target_list = conn.keys(_key)
+    values_list = []
+    remove_headers = []
+
+    for item in target_list:
+        values_list.append(conn.hgetall(item).values()[0])
+
+    values_list = list(filter(lambda x: x not in ['0.0', '0'], values_list))
+    if values_list:
+        headers = headers2
+    else:
+        headers = headers1
+        _key = core_key + '_' + "target" + '_' + '*' 
+        _target_list = conn.keys(_key)
+        for item in _target_list:
+            if not (item.endswith('prod_utility') or item.endswith('final_actual') or item.endswith('bill_ppl')):
+                remove_headers.append(item)
 
     return headers, remove_headers
 

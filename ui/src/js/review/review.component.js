@@ -94,7 +94,7 @@
          if (self.is_lead){
             $('.fa-pencil-square-o').hide();
             $('.fa-trash').hide();
-            swal('No Reviews Available! Click on plus button to create a new reveiw');
+            swal('No reviews available! Click on plus button to create a new reveiw');
 
         }
         else {
@@ -214,7 +214,11 @@
 		 else { 
                  if (self.past_reviews) {
                      $('.fa-trash').hide();
-                     $('.fa-plus-circle').hide();
+                     if (self.is_lead){
+                         $('.fa-plus-circle').show();
+                     }else{
+                        $('.fa-plus-circle').hide();
+                     }
                      $('.fa-pencil-square-o').hide();
                  }   
                  else {
@@ -277,9 +281,15 @@
              self.submit = function(review) {
                 var selected_date = moment(review.reviewdate);
                 var today = moment(new Date());
-                today = today.set({hour:0,minute:0,second:0,millisecond:0});
-                if (selected_date.diff(today) < 0){
-                    swal('Creating Reviews in past date is restricted');
+                var past_days = today.set({hour:0,minute:0,second:0,millisecond:0});
+                if(today.format('YYYY-MM-DD') == selected_date.format('YYYY-MM-DD')){
+                    if (today.diff(selected_date) < 0){
+                        swal('Creating reviews in past time is restricted');
+                    }
+                }else if(today.format('YYYY-MM-DD') > selected_date.format('YYYY-MM-DD')){
+                    if (selected_date.diff(past_days) < 0){
+                        swal('Creating reviews in past date is restricted');
+                    }
                 }
                 else {
 		 if (review.reviewname && review.reviewdate && review.reviewagenda && review.review_type != 'select'){
