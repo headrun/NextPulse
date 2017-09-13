@@ -158,6 +158,7 @@
         $("body").append(_get_popover_tmpl(data));
 
         this.$popover = $("#annotation-popover-" + data.id);
+        //this.on("mouseleave", on_mouseleave);
         var get_xpos = function(){
 
             //xpos is graph xpos  - half popover width - popover borderwidth + x offset
@@ -273,6 +274,7 @@
 
         var save_annotation = function(e){
             that.save_annotation();
+            //on_mouseleave();
         }
 
         /*var cancel_annotation = function(e){
@@ -401,9 +403,9 @@
         this.bind_events = function(){
 
             this.$el.on("mouseenter", on_mouseenter);
-
             this.$popover.on("mouseleave", on_mouseleave)
                          .on("keydown", "div.popover-content > p", on_keydown)
+                         .on("blur", "div.popover-content > p", on_mouseleave)
                          .on("keyup", "div.popover-content > p", on_keyup)
                          .on("click", "span.glyphicon-floppy-disk", save_annotation)
                          .on("click", "span.glyphicon-trash", delete_annotation);

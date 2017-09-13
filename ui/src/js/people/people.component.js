@@ -13,11 +13,16 @@
                 var vm = this;
                 var people_data = '/pd/get_sla_data';
                 var people_data_2 = '/pd/get_peoples_data';
+                $('#extra-table').hide();
+                $('#extra-table2').hide();
+                $('#prod_tab').hide();
+                $('#names_2').hide();
+
                 vm.render_chart_from_url = function(url, name) {
                     vm.chart_name = name;
 
                     $http({method:"GET", url: url}).success(function(result){
-
+                    
                       if (vm.chart_name == 'Productivity') {
                         var main_data = result.result.original_productivity_graph;    
                         var date_list = result.result.date;
@@ -85,35 +90,39 @@
                   vm.key_of_table = data.color[target][2];
                   $('#extra-table').hide();
                   $('#extra-table2').hide();
+                  $('#prod_tab').hide();
                   if (name == "Productivity"){
                       $('#extra-table2').show();
-                      $('#names_2').hide();  
-                      var pop_url_target = '/pd/get_individual_target?core_key='+vm.key_of_table;
-
+                      $('#names_2').hide();
+                      var pop_url_target = '/pd/get_individual_target?core_key='+vm.key_of_table+'&column_name='+vm.widget_name;
                       $http({method:"GET", url: pop_url_target}).success(function(result){
                          var big_object = result.result;
+                         vm.produc_names = result.headers;
                          var all_keys = Object.keys(result.result);
                          var all_packets = []; 
-
-                         for (var i=0; i<all_keys.length; i++){
-
-                             all_packets.push(all_keys[i].split('_')[4]);
-                         }   
-
-                         function onlyUnique(value, index, self) { 
-                             return self.indexOf(value) === index;
-                         }   
-
-                         var packets = all_packets.filter( onlyUnique );
-                         var fin_ind = packets.indexOf('final');
-                         packets.splice(fin_ind, 1); 
-                         var prod_ind = packets.indexOf('prod');
-                         packets.splice(prod_ind, 1); 
-                         var bill_ind = packets.indexOf('bill');
-                         packets.splice(bill_ind, 1); 
                          var main_table_data = [];
                          var main_table_data2 = [];
-                         for (var j=0; j<packets.length; j++){
+                         if (vm.produc_names.length === 5) {
+
+                            for (var i=0; i<all_keys.length; i++){
+
+                                all_packets.push(all_keys[i].split('_')[4]);
+                            }   
+
+                            function onlyUnique(value, index, self) { 
+                                return self.indexOf(value) === index;
+                            }
+                            var packets = all_packets.filter( onlyUnique );
+                            var bill_ind = packets.indexOf('final');
+                            packets.splice(bill_ind, 1);
+                            var bill_ind = packets.indexOf('name');
+                            packets.splice(bill_ind, 1);
+                            var bill_ind = packets.indexOf('prod');
+                            packets.splice(bill_ind, 1);
+                            var bill_ind = packets.indexOf('bill');
+                            packets.splice(bill_ind, 1);
+
+                            for (var j=0; j<packets.length; j++){
                              var main_obj = {'packet':'', 'days':'', 'fte_age':'', 'volume':'', 'productivity':''};
                              main_obj.packet = packets[j];
                              var key = vm.key_of_table+'_target_'+packets[j]+'_';
@@ -123,7 +132,31 @@
                              main_obj.volume = big_object[key+'actual'];
                              main_obj.productivity = big_object[key+'prod_uti'];
                              main_table_data.push(main_obj);
+                             $('#extra-table2').show();
+                             $('#prod_tab').hide();
                             }
+                         }
+                        else {
+                            for (var i=0; i<all_keys.length; i++){
+                                all_packets.push(all_keys[i].split('_target')[1]);
+                            }
+
+                            function onlyUnique(value, index, self) {
+                                return self.indexOf(value) === index;
+                            }
+
+                            var packets = all_packets.filter( onlyUnique );
+                            var main_obj_name = {'project':'', 'agents':'', 'volume':'', 'product':''};
+                            var key_main = vm.key_of_table+'_target_'
+                            main_obj_name.project = big_object[key_main+'name'];
+                            main_obj_name.agents = big_object[key_main+'bill_ppl'];
+                            main_obj_name.volume = big_object[key_main+'final_actual'];
+                            main_obj_name.product = big_object[key_main+'prod_utility'];
+                            main_table_data.push(main_obj_name);
+                            $('#extra-table2').hide();
+                            $('#prod_tab').show();
+                        }
+
                          vm.main_data2 = main_table_data;
                          var main_obj2 = {'finalPeople':'', 'finalVolume':'', 'finalProduct':''};
                          var key1 = vm.key_of_table+'_target_';
@@ -136,11 +169,8 @@
                     
                   }
                   if (name == "Target Achieved"){
-
-                      $('#extra-table').show();
-
-                      //var key_to_ajax = data.color[target][2];
-                      var pop_url_target = '/pd/get_individual_target?core_key='+vm.key_of_table;
+                       $('#prod_tab').hide(); 
+                      var pop_url_target = '/pd/get_individual_target?core_key='+vm.key_of_table+'&column_name='+vm.widget_name;
 
                       $http({method:"GET", url: pop_url_target}).success(function(result){
                          var big_object = result.result;
@@ -163,6 +193,8 @@
                          var prod_ind = packets.indexOf('prod');
                          packets.splice(prod_ind, 1);
                          var bill_ind = packets.indexOf('bill');
+                         packets.splice(bill_ind, 1);
+                         var bill_ind = packets.indexOf('name');
                          packets.splice(bill_ind, 1); 
                          var main_table_data = [];
                          var main_table_data2 = [];

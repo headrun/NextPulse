@@ -265,7 +265,7 @@ a {
                                 ng-click="$ctrl.get_popup(single, 'from_to', 'Month2', 'External Accuracy', 'external_accuracy_Month2')">
                                 {{single.external_accuracy_Month2}}</td>
                             <td class="{{single.color.tat_Month2[0]}}" style="width:15%; cursor:pointer;" 
-                                ng-click="$ctrl.get_popup(single, 'tat_data', 'Month2', 'TAT', 'tat_Month2}')">
+                                ng-click="$ctrl.get_popup(single, 'tat_data', 'Month2', 'TAT', 'tat_Month2')">
                                 {{single.tat_Month2}}</td>
                         </tr>
                         <tr ng-show="expanded" style="background:#b5dda1;">
@@ -880,7 +880,7 @@ a {
               <tr>
                 <th>Packet</th>
                 <!--<th>No of Days</th>-->
-                <th>No of Agents</th>
+                <th>No of Man Days</th>
                 <th>Volume</th>
                 <th>Productivity</th>
                 <!--<th>No of Agents</th>
@@ -907,10 +907,44 @@ a {
             </tbody>
           </table>
          </div>
+         <div class="col-md-12" id="prod_tab">
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th>Project</th>
+                <!--<th>No of Days</th>-->
+                <th>No of Man Days</th>
+                <th>Volume</th>
+                <th>Productivity</th>
+                <!--<th>No of Agents</th>
+                <th>Productivity</th>-->
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="node in $ctrl.main_data2">
+                <td>{{node.project}}</td>
+                <!--<td>{{node.days}}</td>-->
+                <td>{{node.agents}}</td>
+                <td>{{node.volume}}</td>
+                <!--<td>{{node.agents}}</td>-->
+                <td>{{node.product}}</td>
+              </tr>
+              <tr ng-repeat="data in $ctrl.main_data3">
+                <td style="color:#FF4500;"><b>TOTAL</b></td>
+                <!--<td></td>-->
+                <!--<td>{{data.finalPeople}}</td>-->
+                <td></td>
+                <td style="color:#FF4500;"><b>{{data.finalVolume}}</b></td>
+                <td style="color:#FF4500;"><b>{{data.finalProduct}}</b></td>
+              </tr>
+            </tbody>
+          </table>
+         </div>
+
         </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          <!--<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>-->
         </div>
       </div>
     </div>

@@ -48,9 +48,13 @@ def get_individual_target(request):
     """ View to display individual target in popup of peoples dashboard """
     data = {'status': 1, 'result' : "some bug is there"}
     core_key = request.GET.get('core_key', 'Gooru_Salem_June')
+    column_name = request.GET.get('column_name', 'Productivity')
     try:
         #data['result'] = get_target(core_key)
-        data['headers'], _remove_headers = get_headers(core_key)
+        if column_name == 'Productivity':
+            data['headers'], _remove_headers = get_headers_productivity(core_key)
+        else:
+            data['headers'], _remove_headers = get_headers(core_key)
         data['result'] = get_target(core_key, _remove_headers)
     except:
         data['status'] = 0
