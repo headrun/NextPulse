@@ -274,6 +274,7 @@
 
         var save_annotation = function(e){
             that.save_annotation();
+            //on_mouseleave();
         }
 
         /*var cancel_annotation = function(e){
