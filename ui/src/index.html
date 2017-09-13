@@ -15,8 +15,11 @@
     <link rel="stylesheet" type="text/css" href="/libs/sweetalert/dist/sweetalert.css" />
     <link rel="stylesheet" type="text/css" href="/libs/datatables/media/css/jquery.dataTables.min.css"/>
     <link rel="stylesheet" href="libs/angular-datatables/dist/css/angular-datatables.css"/><!--angulardatatables-->
+
+    <link rel="stylesheet" type="text/css" href="/libs/jquery/dist/angular-moment-picker.min.css" />
     <!--newely added for responsive-->
     <link rel="stylesheet" href="libs/angular-datatables/dist/plugins/Responsive-2.1.1/css/responsive.dataTables.min.css">
+    <link rel="stylesheet" href="libs/jquery/dist/datetimepicker.css" />
     <!--end-->
     <link rel="manifest" href="/manifest.json">
   </head>
@@ -56,6 +59,9 @@
     <script src="libs/angular-resource/angular-resource.js"></script>
     <!--ended-->
 
+    <script src="/libs/jquery/dist/datetimepicker.js"></script>
+    <script src="/libs/jquery/dist/datetimepicker.templates.js"></script>
+
     <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular-animate.js"></script>
     <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular-sanitize.js"></script>
     <script src="//angular-ui.github.io/bootstrap/ui-bootstrap-tpls-2.5.0.js"></script> 
@@ -65,6 +71,9 @@
     <script src="/js/core/auth/auth.js"></script>
     <script src="/js/core/auth/session.js"></script>
     <script src="/js/core/auth/authEvents.js"></script>
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.6/moment-with-locales.js"></script>
+    <script src="/libs/jquery/dist/angular-moment-picker.min.js"></script>
 
     <!-- Utils Service -->
     <script src="/js/core/utils/utils.js"></script>
@@ -117,10 +126,10 @@
         <div id="annotation-popover-<%= id %>" class="annotation-popover popover top">
             <div class="arrow"></div>
             <h3 class="popover-title border-box">
-            Annotation
             <i class="annotation-loading"></i>
             <div class="icon-action-group">
-                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                <span class="glyphicon glyphicon-floppy-disk btn btn-sm btn-success" aria-hidden="true"></span>
+                <span class="glyphicon glyphicon-trash btn btn-sm btn-danger" aria-hidden="true"></span>
             </div>
             </h3>
             <div class="popover-content">

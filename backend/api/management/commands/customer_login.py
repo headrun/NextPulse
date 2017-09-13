@@ -28,7 +28,6 @@ class Command(BaseCommand):
 
 
         for customer in customers:
-            #import pdb;pdb.set_trace()
             cust_data = User.objects.filter(id=customer.name_id)[0]
             cust_data_last_login = cust_data.last_login
             #current_date = datetime.datetime.now() - datetime.timedelta(days=45)

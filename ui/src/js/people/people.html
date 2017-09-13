@@ -115,7 +115,7 @@ a {
     color: #000000;
     background : #fff;
 }
-.datatable_wrapper {
+.dataTables_scroll {
     margin-right: 34px;
     margin-left: 34px;
 }
@@ -145,10 +145,53 @@ a {
 .modal-footer {
     border-top: 1px solid #FFF;
 }
-
+.scroll { 
+    overflow-y: scroll;
+    height: 400px;
+    min-height: 80vh;
+}
+#abb_data {
+    cursor: pointer;
+    border: none;    
+}
+/*.datatable_wrapper {
+    overflow-y:scroll;
+    height: 500px;
+}*/
 /*.nav-tabs>li>a {
     margin-right: 6px;    
  }*/
+
+/*adding for scrollbar*/
+/*table.main {
+        display: table;
+        width: 100%;
+    }
+    table.main > thead, table.main > tbody {
+        float: left;
+        width: 100%;
+    }
+    table.main > tbody {
+        overflow: auto;
+        height: 150px;
+    }
+    table tr {
+        width: 100%;
+        display: table;
+        text-align: left;
+    }
+    table th, table td {
+        width: 33%;
+    }
+   
+    
+    table.main table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    table.main table td, table.main table th {
+        padding: 20px;
+    }*/
 </style>
 <header></header>
 <h3 class="people"><font color="#0EBFE9">People</font><font color="#308014" style="margin-left:7px;">Dashboard</font></h3>
@@ -159,26 +202,25 @@ a {
         <div class = "panel panel-default" style="width:99.8%;">
           <div class="panel-body" style="margin-bottom:30px;">
              <ul class="nav nav-tabs" style="width:100%;border-bottom:none;">
-                 <li class="active" style="width:100%;"><a data-toggle="tab" href=""style="background-color:#0EBFE9;text-align:center;margin-top:4%;margin-right:34px;margin-left:34px;color: white;"><b>SALEM</b></a></li>
-                     
-            </ul>
-            <div class="datatable_wrapper">
+                 <li class="active" style="width:100%;"><a data-toggle="tab" href="" style="background-color:#0EBFE9;text-align:center;margin-top:4%;margin-right:34px;margin-left:34px;color: white;"><b>SALEM</b></a></li>                     
+             </ul>
+            <div class="dataTables_scroll">
                 <table class="table" style="border:1px solid #DDDDDD;background-color:#f1f1f1;">
-                     <thead>
-                        <tr>
-                            <th>
+                    <thead>
+                        <tr role="row">
+                            <th style="width:55px;">
                             </th>
-                            <th>Project</th>
+                            <th style="width:26%;">Project</th>
                             <!--<th>Center</th>-->
                             <th>Month</th>
-                            <th>Productivity(%)</th>
-                            <th>Production(%)</th>
+                            <th>Target Achieved (Production) (%)</th>
+                            <th>Productivity</th>
                             <th>Internal Accuracy(%)</th>
                             <th>External Accuracy(%)</th>
                             <th>TAT(%)</th>
                         </tr>
-                     </thead>
-                     <tbody ng-repeat="single in $ctrl.data">
+                    </thead>
+                    <tbody ng-repeat="single in $ctrl.data | filter: { center : 'Salem'}">
                         <tr style="background-color: white;">
                             <td>
                                 <button ng-click="expanded = !expanded" expand>
@@ -189,11 +231,142 @@ a {
                             <!--<td>{{single.center}}</td>-->
                             <td>{{single.Month1}}</td>
                             <td class="{{single.color.productivity_Month1[0]}}" style="cursor:pointer;" 
-                                ng-click="$ctrl.get_popup(single, 'productivity', 'Month1', 'Productivity', 'productivity_Month1')">
+                                ng-click="$ctrl.get_popup(single, 'main_prod', 'Month1', 'Target Achieved', 'productivity_Month1')">
                                 {{single.productivity_Month1}}</td>
-                            <td class="{{single.color.production_Month1[0]}}" style="cursor:pointer";
-                                ng-click="$ctrl.get_popup(single, 'main_prod', 'Month1', 'Production', 'production_Month1')">
-                                {{single.production_Month1}}</td>
+                            <td class="{{single.color.prod_utili_Month1[0]}}" style="cursor:pointer;";
+                                ng-click="$ctrl.get_popup(single, 'productivity', 'Month1', 'Productivity', 'prod_utili_Month1')">
+                                {{single.prod_utili_Month1}}</td>
+                            <td class="{{single.color.internal_accuracy_Month1[0]}}" style="cursor:pointer;"
+                                ng-click="$ctrl.get_popup(single, 'from_to', 'Month1', 'Internal Accuracy', 'internal_accuracy_Month1')">
+                                {{single.internal_accuracy_Month1}}</td>
+                            <td class="{{single.color.external_accuracy_Month1[0]}}" style="cursor:pointer;" 
+                                ng-click="$ctrl.get_popup(single, 'from_to', 'Month1', 'External Accuracy', 'external_accuracy_Month1')">
+                                {{single.external_accuracy_Month1}}</td>
+                            <td class="{{single.color.tat_Month1[0]}}" style="cursor:pointer;"
+                                ng-click="$ctrl.get_popup(single, 'tat_data', 'Month1', 'TAT', 'tat_Month1')">
+                                {{single.tat_Month1}}</td>
+                        </tr>
+
+                        <tr ng-show="expanded" style="background:#b5dda1;">
+                            <td></td>
+                            <td></td>
+                            <!--<td></td>-->
+                            <td style="width:15%;">{{single.Month2}}</td>
+                            <td class="{{single.color.productivity_Month2[0]}}" style="width:15%; cursor:pointer;" 
+                                ng-click="$ctrl.get_popup(single, 'main_prod', 'Month2', 'Target Achieved', 'productivity_Month2')">
+                                {{single.productivity_Month2}}</td>
+                            <td class="{{single.color.prod_utili_Month2[0]}}" style="width:15%; cursor:pointer;" 
+                                ng-click="$ctrl.get_popup(single, 'productivity', 'Month2', 'Productivity', 'prod_utili_Month2')">
+                                {{single.prod_utili_Month2}}</td>
+                            <td class="{{single.color.internal_accuracy_Month2[0]}}" style="width:15%; cursor:pointer;" 
+                                ng-click="$ctrl.get_popup(single, 'from_to', 'Month2', 'Internal Accuracy', 'internal_accuracy_Month2')">
+                                {{single.internal_accuracy_Month2}}</td>
+                            <td class="{{single.color.external_accuracy_Month2[0]}}" style="width:15%; cursor:pointer;" 
+                                ng-click="$ctrl.get_popup(single, 'from_to', 'Month2', 'External Accuracy', 'external_accuracy_Month2')">
+                                {{single.external_accuracy_Month2}}</td>
+                            <td class="{{single.color.tat_Month2[0]}}" style="width:15%; cursor:pointer;" 
+                                ng-click="$ctrl.get_popup(single, 'tat_data', 'Month2', 'TAT', 'tat_Month2')">
+                                {{single.tat_Month2}}</td>
+                        </tr>
+                        <tr ng-show="expanded" style="background:#b5dda1;">
+                            <td></td>
+                            <td></td>
+                            <!--<td></td>-->
+                            <td style="width:15%;">{{single.Month3}}</td>
+                            <td class="{{single.color.productivity_Month3[0]}}" style="width:15%; cursor:pointer;" 
+                                ng-click="$ctrl.get_popup(single, 'main_prod', 'Month3', 'Target Achieved', 'productivity_Month3')">
+                                {{single.productivity_Month3}}</td>
+                            <td class="{{single.color.prod_utili_Month3[0]}}" style="width:15%; cursor:pointer;" 
+                                ng-click="$ctrl.get_popup(single, 'productivity', 'Month3', 'Productivity', 'prod_utili_Month3')">
+                                {{single.prod_utili_Month3}}</td>
+                            <td class="{{single.color.internal_accuracy_Month3[0]}}" style="width:15%; cursor:pointer;" 
+                                ng-click="$ctrl.get_popup(single, 'from_to', 'Month3', 'Internal Accuracy', 'internal_accuracy_Month3')">
+                                {{single.internal_accuracy_Month3}}</td>
+                            <td class="{{single.color.external_accuracy_Month3[0]}}" style="width:15%; cursor:pointer;" 
+                                ng-click="$ctrl.get_popup(single, 'from_to', 'Month3', 'External Accuracy', 'external_accuracy_Month3')">
+                                {{single.external_accuracy_Month3}}</td>
+                            <td class="{{single.color.tat_Month3[0]}}" style="width:15%; cursor:pointer;" 
+                                ng-click="$ctrl.get_popup(single, 'tat_data', 'Month3', 'TAT', 'tat_Month3')">
+                                {{single.tat_Month3}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div>
+                <table class="table" style="border:1px solid #DDDDDD;background-color:#f1f1f1;">
+                 <thead>
+                    <tr>
+                      <th>Month</th>
+                      <th>Target Achieved(%)</th>
+                      <th>Productivity</th>
+                      <th>Internal Accuracy(%)</th>
+                      <th>External Accuracy(%)</th>
+                      <th>TAT(%)</th>
+                    </tr>
+                 </thead>
+                 <tbody> 
+                    <tr style="background-color:white;">
+                        <td>{{$ctrl.center_data_1[0].month_1}}</td>
+                        <td>{{$ctrl.center_data_1[0].Salem_productivity_month_1}}</td>
+                        <td>{{$ctrl.center_data_1[0].Salem_prod_utili_month_1}}</td>
+                        <td>{{$ctrl.center_data_1[0].Salem_internal_accuracy_month_1}}</td>
+                        <td>{{$ctrl.center_data_1[0].Salem_external_accuracy_month_1}}</td>
+                        <td>{{$ctrl.center_data_1[0].Salem_tat_month_1}}</td>
+                    </tr>
+                    <tr style="background-color:white;">
+                        <td>{{$ctrl.center_data_1[0].month_2}}</td>
+                        <td>{{$ctrl.center_data_1[0].Salem_productivity_month_2}}</td>
+                        <td>{{$ctrl.center_data_1[0].Salem_prod_utili_month_2}}</td>
+                        <td>{{$ctrl.center_data_1[0].Salem_internal_accuracy_month_2}}</td>
+                        <td>{{$ctrl.center_data_1[0].Salem_external_accuracy_month_2}}</td>
+                        <td>{{$ctrl.center_data_1[0].Salem_tat_month_2}}</td>
+                    </tr>
+                    <tr style="background-color:white;">
+                        <td>{{$ctrl.center_data_1[0].month_3}}</td>
+                        <td>{{$ctrl.center_data_1[0].Salem_productivity_month_3}}</td>
+                        <td>{{$ctrl.center_data_1[0].Salem_prod_utili_month_3}}</td>
+                        <td>{{$ctrl.center_data_1[0].Salem_internal_accuracy_month_3}}</td>
+                        <td>{{$ctrl.center_data_1[0].Salem_external_accuracy_month_3}}</td>
+                        <td>{{$ctrl.center_data_1[0].Salem_tat_month_3}}</td>
+                    </tr>
+                 </tbody>
+                </table>
+                </div>
+            </div>
+            <ul class="nav nav-tabs" style="width:100%;border-bottom:none;">
+                 <li class="active" style="width:100%;"><a data-toggle="tab" href=""style="background-color:#0EBFE9;text-align:center;margin-right:34px;margin-left:34px;color:white;"><b>CHITTOOR</b></a></li>
+            </ul>
+            <div class="dataTables_scroll">
+                <table class="table" style="border:1px solid #DDDDDD;background-color:#f1f1f1;">
+                     <thead>
+                        <tr>
+                            <th>
+                            </th>
+                            <th>Project</th>
+                            <!--<th>Center</th>-->
+                            <th>Month</th>
+                            <th>Target Achieved (Production) (%)</th>
+                            <th>Productivity</th>
+                            <th>Internal Accuracy(%)</th>
+                            <th>External Accuracy(%)</th>
+                            <th>TAT(%)</th>
+                        </tr>
+                     </thead>
+                     <tbody ng-repeat="single in $ctrl.data | filter: { center : 'Chittoor'}">
+                        <tr style="background-color: white;">
+                            <td>
+                                <button ng-click="expanded = !expanded" expand>
+                                    <span ng-bind="expanded ? '-' : '+'"></span>
+                                </button>
+                            </td>
+                            <td style="width:27%;" ><a href="/#!/page1/Chittoor - {{single.project}}">{{single.project}}</a></td>
+                            <!--<td>{{single.center}}</td>-->
+                            <td>{{single.Month1}}</td>
+                            <td class="{{single.color.productivity_Month1[0]}}" style="cursor:pointer;" 
+                                ng-click="$ctrl.get_popup(single, 'main_prod', 'Month1', 'Target Achieved', 'productivity_Month1')">
+                                {{single.productivity_Month1}}</td>
+                            <td class="{{single.color.prod_utili_Month1[0]}}" style="cursor:pointer";
+                                ng-click="$ctrl.get_popup(single, 'productivity', 'Month1', 'Productivity', 'prod_utili_Month1')">
+                                {{single.prod_utili_Month1}}</td>
                             <td class="{{single.color.internal_accuracy_Month1[0]}}" style="cursor:pointer;"
                                 ng-click="$ctrl.get_popup(single, 'from_to', 'Month1', 'Internal Accuracy', 'internal_accuracy_Month1')">
                                 {{single.internal_accuracy_Month1}}</td>
@@ -210,16 +383,16 @@ a {
                             <!--<td></td>-->
                             <td style="width:15%;">{{single.Month2}}</td>
                             <td class="{{single.color.productivity_Month2[0]}}" style="width:15%; cursor:pointer;" 
-                                ng-click="$ctrl.get_popup(single, 'productivity', 'Month2', 'Productivity', 'productivity_Month2')">
+                                ng-click="$ctrl.get_popup(single, 'main_prod', 'Month2', 'Target Achieved', 'productivity_Month2')">
                                 {{single.productivity_Month2}}</td>
-                            <td class="{{single.color.production_Month2[0]}}" style="width:15%; cursor:pointer;" 
-                                ng-click="$ctrl.get_popup(single, 'main_prod', 'Month2', 'Production', 'production_Month2')">
-                                {{single.production_Month2}}</td>
+                            <td class="{{single.color.prod_utili_Month2[0]}}" style="width:15%; cursor:pointer;" 
+                                ng-click="$ctrl.get_popup(single, 'productivity', 'Month2', 'Productivity', 'prod_utili_Month2')">
+                                {{single.prod_utili_Month2}}</td>
                             <td class="{{single.color.internal_accuracy_Month2[0]}}" style="width:15%; cursor:pointer;" 
                                 ng-click="$ctrl.get_popup(single, 'from_to', 'Month2', 'Internal Accuracy', 'internal_accuracy_Month2')">
                                 {{single.internal_accuracy_Month2}}</td>
                             <td class="{{single.color.external_accuracy_Month2[0]}}" style="width:15%; cursor:pointer;" 
-                                ng-click="$ctrl.get_popup(single, 'from_to', 'Month2', 'External Accuracy', 'external_accuracy_Month2')"
+                                ng-click="$ctrl.get_popup(single, 'from_to', 'Month2', 'External Accuracy', 'external_accuracy_Month2')">
                                 {{single.external_accuracy_Month2}}</td>
                             <td class="{{single.color.tat_Month2[0]}}" style="width:15%; cursor:pointer;" 
                                 ng-click="$ctrl.get_popup(single, 'tat_data', 'Month2', 'TAT', 'tat_Month2}')">
@@ -231,11 +404,11 @@ a {
                             <!--<td></td>-->
                             <td style="width:15%;">{{single.Month3}}</td>
                             <td class="{{single.color.productivity_Month3[0]}}" style="width:15%; cursor:pointer;" 
-                                ng-click="$ctrl.get_popup(single, 'productivity', 'Month3', 'Productivity', 'productivity_Month3')">
+                                ng-click="$ctrl.get_popup(single, 'main_prod', 'Month3', 'Target Achieved', 'productivity_Month3')">
                                 {{single.productivity_Month3}}</td>
-                            <td class="{{single.color.production_Month3[0]}}" style="width:15%; cursor:pointer;" 
-                                ng-click="$ctrl.get_popup(single, 'main_prod', 'Month3', 'Production', 'production_Month3')">
-                                {{single.production_Month3}}</td>
+                            <td class="{{single.color.prod_utili_Month3[0]}}" style="width:15%; cursor:pointer;" 
+                                ng-click="$ctrl.get_popup(single, 'productivity', 'Month3', 'Productivity', 'prod_utili_Month3')">
+                                {{single.prod_utili_Month3}}</td>
                             <td class="{{single.color.internal_accuracy_Month3[0]}}" style="width:15%; cursor:pointer;" 
                                 ng-click="$ctrl.get_popup(single, 'from_to', 'Month3', 'Internal Accuracy', 'internal_accuracy_Month3')">
                                 {{single.internal_accuracy_Month3}}</td>
@@ -248,7 +421,47 @@ a {
                         </tr>
                     </tbody>
                 </table>
-            </div>
+                <div>
+                <table class="table" style="border:1px solid #DDDDDD;background-color:#f1f1f1;">
+                 <thead>
+                    <tr>
+                      <th>Month</th>
+                      <th>Target Achieved(%)</th>
+                      <th>Productivity</th>
+                      <th>Internal Accuracy(%)</th>
+                      <th>External Accuracy(%)</th>
+                      <th>TAT(%)</th>
+                    </tr>
+                 </thead>
+                 <tbody>
+                    <tr style="background-color:white;">
+                        <td>{{$ctrl.center_data_1[1].month_1}}</td>
+                        <td>{{$ctrl.center_data_1[1].Chittoor_productivity_month_1}}</td>
+                        <td>{{$ctrl.center_data_1[1].Chittoor_prod_utili_month_1}}</td>
+                        <td>{{$ctrl.center_data_1[1].Chittoor_internal_accuracy_month_1}}</td>
+                        <td>{{$ctrl.center_data_1[1].Chittoor_external_accuracy_month_1}}</td>
+                        <td>{{$ctrl.center_data_1[1].Chittoor_tat_month_1}}</td>
+                    </tr>
+                    <tr style="background-color:white;">
+                        <td>{{$ctrl.center_data_1[1].month_2}}</td>
+                        <td>{{$ctrl.center_data_1[1].Chittoor_productivity_month_2}}</td>
+                        <td>{{$ctrl.center_data_1[1].Chittoor_prod_utili_month_2}}</td>
+                        <td>{{$ctrl.center_data_1[1].Chittoor_internal_accuracy_month_2}}</td>
+                        <td>{{$ctrl.center_data_1[1].Chittoor_external_accuracy_month_2}}</td>
+                        <td>{{$ctrl.center_data_1[1].Chittoor_tat_month_2}}</td>
+                    </tr>
+                    <tr style="background-color:white;">
+                        <td>{{$ctrl.center_data_1[1].month_3}}</td>
+                        <td>{{$ctrl.center_data_1[1].Chittoor_productivity_month_3}}</td>
+                        <td>{{$ctrl.center_data_1[1].Chittoor_prod_utili_month_3}}</td>
+                        <td>{{$ctrl.center_data_1[1].Chittoor_internal_accuracy_month_3}}</td>
+                        <td>{{$ctrl.center_data_1[1].Chittoor_external_accuracy_month_3}}</td>
+                        <td>{{$ctrl.center_data_1[1].Chittoor_tat_month_3}}</td>
+                    </tr>
+                 </tbody>
+                </table>
+                </div>
+            </div>            
           </div>
         </div>
     </uib-tab>
@@ -256,9 +469,9 @@ a {
         <div class="panel panel-default">
           <div class="panel-body" style="margin-bottom:30px;">
             <ul class="nav nav-tabs" style="width:100%;border-bottom:none;">
-                 <li class="active" style="width:100%;"><a data-toggle="tab" href=""style="background-color:#0EBFE9;text-align:center;margin-top:4%;margin-right:34px;margin-left:34px;"><b>SALEM</b></a></li>
+                 <li class="active" style="width:100%;"><a data-toggle="tab" href=""style="background-color:#0EBFE9;text-align:center;margin-top:4%;margin-right:34px;margin-left:34px;color:white;"><b>SALEM</b></a></li>
             </ul>
-            <div class="datatable_wrapper">
+            <div class="dataTables_scroll">
                 <table class="table" style="border:1px solid #DDDDDD;background-color:#f1f1f1;">
                     <thead>
                         <tr>
@@ -267,13 +480,19 @@ a {
                             <th>Project</th>
                             <!--<th>Center</th>-->
                             <th>Month</th>
-                            <th>FTE Utilisation(%)</th>
-                            <th>Operational Utilisation(%)</th>
-                            <th>Absenteeism(%)</th>
-                            <th>Attrition(%)</th>
+                            <th>Billable</th>
+                            <th>Buffer</th>
+                            <th>QC/QA</th>
+                            <th>TL</th>
+                            <th>Support</th>
+                            <th>Total</th>
+                            <th>FTE Utilisation (%)</th>
+                            <th>Operational Utilisation (%)</th>
+                            <th>Absenteeism (%)</th>
+                            <th>Attrition (%)</th>
                         </tr>
                      </thead>
-                     <tbody ng-repeat="value in $ctrl.data_2">
+                     <tbody ng-repeat="value in $ctrl.data_2 | filter: { center: 'Salem' }">
                         <tr style="background-color:white;">
                             <td>
                                 <button ng-click="expanded = !expanded" expand>
@@ -283,6 +502,168 @@ a {
                             <td style="width:27%;"><a href="/#!/page1/Salem - {{value.project}}">{{value.project}}</a></td>
                             <!--<td>{{single.center}}</td>-->
                             <td>{{value.Month1}}</td>
+                            <td class="{{value.color.billable_Month1[0]}}">{{value.billable_Month1}}</td>
+                            <td class="{{value.color.buffer_Month1[0]}}">{{value.buffer_Month1}}</td>
+                            <td class="{{value.color.qc_or_qa_Month1[0]}}">{{value.qc_or_qa_Month1}}</td>
+                            <td class="{{value.color.team_lead_Month1[0]}}">{{value.team_lead_Month1}}</td>
+                            <td class="{{value.color.other_support_Month1[0]}}">{{value.other_support_Month1}}</td>
+                            <td class="{{value.color.total_Month1[0]}}">{{value.total_Month1}}</td>
+                            <td class="{{value.color.fte_utilisation_Month1[0]}}" style="cursor:pointer;"
+                                ng-click="$ctrl.get_popup(value, 'utilisation_all', 'Month1', 'FTE Utilisation', 'fte_utilisation_Month1')">
+                                {{value.fte_utilisation_Month1}}</td>
+                            <td class="{{value.color.operational_utilization_Month1[0]}}" style="cursor:pointer;"
+                                ng-click="$ctrl.get_popup(value, 'utilisation_all', 'Month1', 'Operational Utilisation', 'operational_utilization_Month1')">
+                                {{value.operational_utilization_Month1}}</td>
+                            <td class="{{value.color.absenteeism_Month1[0]}}"><abbr id ="abb_data" title="Max: 5%">{{value.absenteeism_Month1}}</abbr></td>
+                            <td class="{{value.color.attrition_Month1[0]}}"><abbr id ="abb_data" title="Max: 3%">{{value.attrition_Month1}}</abbr></td>
+                        </tr>
+                        <tr ng-show="expanded" style="background:#b5dda1;">
+                            <td></td>
+                            <td></td>
+                            <!--<td></td>-->
+                            <td style="width:15%;">{{value.Month2}}</td>
+                            <td class="{{value.color.billable_Month2[0]}}">{{value.billable_Month2}}</td>
+                            <td class="{{value.color.buffer_Month2[0]}}">{{value.buffer_Month2}}</td>
+                            <td class="{{value.color.qc_or_qa_Month2[0]}}">{{value.qc_or_qa_Month2}}</td>
+                            <td class="{{value.color.team_lead_Month2[0]}}">{{value.team_lead_Month2}}</td>
+                            <td class="{{value.color.other_support_Month2[0]}}">{{value.other_support_Month2}}</td>
+                            <td class="{{value.color.total_Month2[0]}}">{{value.total_Month2}}</td>
+                            <td class="{{value.color.fte_utilisation_Month2[0]}}" style="width:15%;cursor:pointer;" 
+                                ng-click="$ctrl.get_popup(value, 'utilisation_all', 'Month2', 'FTE Utilisation', 'fte_utilisation_Month2')">
+                                {{value.fte_utilisation_Month2}}</td>
+                            <td class="{{value.color.operational_utilization_Month2[0]}}" style="width:15%;cursor:pointer;" 
+                                ng-click="$ctrl.get_popup(value, 'utilisation_all', 'Month2', 'Operational Utilisation', 'operational_utilization_Month2')">
+                                {{value.operational_utilization_Month2}}</td>
+                            <td class="{{value.color.absenteeism_Month2[0]}}" style="width:15%;">
+                                <abbr id ="abb_data" title="Max: 5%">{{value.absenteeism_Month2}}</abbr></td>
+                            <td class="{{value.color.attrition_Month2[0]}}" style="width:15%;">
+                                <abbr id ="abb_data" title="Max: 3%">{{value.attrition_Month2}}</abbr></td>
+                        </tr>
+                        <tr ng-show="expanded" style="background:#b5dda1;">
+                            <td></td>
+                            <td></td>
+                            <!--<td></td>-->
+                            <td style="width:15%;">{{value.Month3}}</td>
+                            <td class="{{value.color.billable_Month3[0]}}">{{value.billable_Month3}}</td>
+                            <td class="{{value.color.buffer_Month3[0]}}">{{value.buffer_Month3}}</td>
+                            <td class="{{value.color.qc_or_qa_Month3[0]}}">{{value.qc_or_qa_Month3}}</td>
+                            <td class="{{value.color.team_lead_Month3[0]}}">{{value.team_lead_Month3}}</td>
+                            <td class="{{value.color.other_support_Month3[0]}}">{{value.other_support_Month3}}</td>
+                            <td class="{{value.color.total_Month3[0]}}">{{value.total_Month3}}</td>
+                            <td class="{{value.color.fte_utilisation_Month3[0]}}" style="width:15%;cursor:pointer;"
+                                ng-click="$ctrl.get_popup(value, 'utilisation_all', 'Month3', 'FTE Utilisation', 'fte_utilisation_Month3')">
+                                {{value.fte_utilisation_Month3}}</td>
+                            <td class="{{value.color.operational_utilization_Month3[0]}}" style="width:15%;cursor:pointer;" 
+                                ng-click="$ctrl.get_popup(value, 'utilisation_all', 'Month3', 'Operational Utilisation', 'operational_utilization_Month3')">
+                                {{value.operational_utilization_Month3}}</td>
+                            <td class="{{value.color.absenteeism_Month3[0]}}" style="width:15%;">
+                                <abbr id ="abb_data" title="Max: 5%">{{value.absenteeism_Month3}}</abbr></td>
+                            <td class="{{value.color.attrition_Month3[0]}}" style="width:15%;">
+                                <abbr id = "abb_data" title="Max: 3%">{{value.attrition_Month3}}</abbr></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div>
+                <table class="table" style="border:1px solid #DDDDDD;background-color:#f1f1f1;">
+                 <thead>
+                    <tr>
+                      <th>Month</th>
+                      <th>Billable</th>
+                      <th>Buffer</th>
+                      <th>QC/QA</th>
+                      <th>TL</th>
+                      <th>Other Support</th>
+                      <th>Total</th>
+                      <th>FTE Utilisation</th>
+                      <th>Operational Utilisation</th>
+                      <th>Absenteeism</th>
+                      <th>Attrition</th>              
+                    </tr>
+                 </thead>   
+                 <tbody>
+                    <tr style="background-color:white;">
+                        <td>{{$ctrl.center_data2[0].month_1}}</td>
+                        <td>{{$ctrl.center_data2[0].Salem_billable_month_1}}</td>
+                        <td>{{$ctrl.center_data2[0].Salem_buffer_month_1}}</td>
+                        <td>{{$ctrl.center_data2[0].Salem_qc_or_qa_month_1}}</td>
+                        <td>{{$ctrl.center_data2[0].Salem_team_lead_month_1}}</td>
+                        <td>{{$ctrl.center_data2[0].Salem_other_support_month_1}}</td>
+                        <td>{{$ctrl.center_data2[0].Salem_total_month_1}}</td>
+                        <td>{{$ctrl.center_data2[0].Salem_fte_utilisation_month_1}}</td>
+                        <td>{{$ctrl.center_data2[0].Salem_operational_utilization_month_1}}</td>
+                        <td>{{$ctrl.center_data2[0].Salem_absenteeism_month_1}}</td>
+                        <td>{{$ctrl.center_data2[0].Salem_attrition_month_1}}</td>
+                    </tr>
+                    <tr style="background-color:white;">
+                        <td>{{$ctrl.center_data2[0].month_2}}</td>
+                        <td>{{$ctrl.center_data2[0].Salem_billable_month_2}}</td>
+                        <td>{{$ctrl.center_data2[0].Salem_buffer_month_2}}</td>
+                        <td>{{$ctrl.center_data2[0].Salem_qc_or_qa_month_2}}</td>
+                        <td>{{$ctrl.center_data2[0].Salem_team_lead_month_2}}</td>
+                        <td>{{$ctrl.center_data2[0].Salem_other_support_month_2}}</td>
+                        <td>{{$ctrl.center_data2[0].Salem_total_month_2}}</td>
+                        <td>{{$ctrl.center_data2[0].Salem_fte_utilisation_month_2}}</td>
+                        <td>{{$ctrl.center_data2[0].Salem_operational_utilization_month_2}}</td>
+                        <td>{{$ctrl.center_data2[0].Salem_absenteeism_month_2}}</td>
+                        <td>{{$ctrl.center_data2[0].Salem_attrition_month_2}}</td>
+                    </tr>
+                    <tr style="background-color:white;">
+                        <td>{{$ctrl.center_data2[0].month_3}}</td>
+                        <td>{{$ctrl.center_data2[0].Salem_billable_month_3}}</td>
+                        <td>{{$ctrl.center_data2[0].Salem_buffer_month_3}}</td>
+                        <td>{{$ctrl.center_data2[0].Salem_qc_or_qa_month_3}}</td>
+                        <td>{{$ctrl.center_data2[0].Salem_team_lead_month_3}}</td>
+                        <td>{{$ctrl.center_data2[0].Salem_other_support_month_3}}</td>
+                        <td>{{$ctrl.center_data2[0].Salem_total_month_3}}</td>
+                        <td>{{$ctrl.center_data2[0].Salem_fte_utilisation_month_3}}</td>
+                        <td>{{$ctrl.center_data2[0].Salem_operational_utilization_month_3}}</td>
+                        <td>{{$ctrl.center_data2[0].Salem_absenteeism_month_3}}</td>
+                        <td>{{$ctrl.center_data2[0].Salem_attrition_month_3}}</td>
+                    </tr>
+                 </tbody>       
+                </table>
+                </div>
+            </div>
+            <ul class="nav nav-tabs" style="width:100%;border-bottom:none;">
+                 <li class="active" style="width:100%;"><a data-toggle="tab" href=""style="background-color:#0EBFE9;text-align:center;margin-right:34px;margin-left:34px;color:white;"><b>CHITTOOR</b></a></li>
+            </ul>
+            <div class="dataTables_scroll">
+                <table class="table" style="border:1px solid #DDDDDD;background-color:#f1f1f1;">
+                    <thead>
+                        <tr>
+                            <th>
+                            </th>
+                            <th>Project</th>
+                            <!--<th>Center</th>-->
+                            <th>Month</th>
+                            <th>Billable</th>
+                            <th>Buffer</th>
+                            <th>QC/QA</th>
+                            <th>TL</th>
+                            <th>Other Support</th>
+                            <th>Total</th>
+                            <th>FTE Utilisation (%)</th>
+                            <th>Operational Utilisation (%)</th>
+                            <th>Absenteeism (%)</th>
+                            <th>Attrition (%)</th>
+                        </tr>
+                     </thead>
+                     <tbody ng-repeat="value in $ctrl.data_2 | filter: { center: 'Chittoor' }">
+                        <tr style="background-color:white;">
+                            <td>
+                                <button ng-click="expanded = !expanded" expand>
+                                    <span ng-bind="expanded ? '-' : '+'"></span>
+                                </button>
+                            </td>
+                            <td style="width:27%;"><a href="/#!/page1/Chittoor - {{value.project}}">{{value.project}}</a></td>
+                            <!--<td>{{single.center}}</td>-->
+                            <td>{{value.Month1}}</td>
+                            <td class="{{value.color.billable_Month1[0]}}">{{value.billable_Month1}}</td>
+                            <td class="{{value.color.buffer_Month1[0]}}">{{value.buffer_Month1}}</td>
+                            <td class="{{value.color.qc_or_qa_Month1[0]}}">{{value.qc_or_qa_Month1}}</td>
+                            <td class="{{value.color.team_lead_Month1[0]}}">{{value.team_lead_Month1}}</td>
+                            <td class="{{value.color.other_support_Month1[0]}}">{{value.other_support_Month1}}</td>
+                            <td class="{{value.color.total_Month1[0]}}">{{value.total_Month1}}</td>
                             <td class="{{value.color.fte_utilisation_Month1[0]}}" style="cursor:pointer;"
                                 ng-click="$ctrl.get_popup(value, 'utilisation_all', 'Month1', 'FTE Utilisation', 'fte_utilisation_Month1')">
                                 {{value.fte_utilisation_Month1}}</td>
@@ -297,6 +678,12 @@ a {
                             <td></td>
                             <!--<td></td>-->
                             <td style="width:15%;">{{value.Month2}}</td>
+                            <td class="{{value.color.billable_Month2[0]}}">{{value.billable_Month2}}</td>
+                            <td class="{{value.color.buffer_Month2[0]}}">{{value.buffer_Month2}}</td>
+                            <td class="{{value.color.qc_or_qa_Month2[0]}}">{{value.qc_or_qa_Month2}}</td>
+                            <td class="{{value.color.team_lead_Month2[0]}}">{{value.team_lead_Month2}}</td>
+                            <td class="{{value.color.other_support_Month2[0]}}">{{value.other_support_Month2}}</td>
+                            <td class="{{value.color.total_Month2[0]}}">{{value.total_Month2}}</td>
                             <td class="{{value.color.fte_utilisation_Month2[0]}}" style="width:15%;cursor:pointer;" 
                                 ng-click="$ctrl.get_popup(value, 'utilisation_all', 'Month2', 'FTE Utilisation', 'fte_utilisation_Month2')">
                                 {{value.fte_utilisation_Month2}}</td>
@@ -313,6 +700,12 @@ a {
                             <td></td>
                             <!--<td></td>-->
                             <td style="width:15%;">{{value.Month3}}</td>
+                            <td class="{{value.color.billable_Month3[0]}}">{{value.billable_Month3}}</td>
+                            <td class="{{value.color.buffer_Month3[0]}}">{{value.buffer_Month3}}</td>
+                            <td class="{{value.color.qc_or_qa_Month3[0]}}">{{value.qc_or_qa_Month3}}</td>
+                            <td class="{{value.color.team_lead_Month3[0]}}">{{value.team_lead_Month3}}</td>
+                            <td class="{{value.color.other_support_Month3[0]}}">{{value.other_support_Month3}}</td>
+                            <td class="{{value.color.total_Month3[0]}}">{{value.total_Month3}}</td>   
                             <td class="{{value.color.fte_utilisation_Month3[0]}}" style="width:15%;cursor:pointer;"
                                 ng-click="$ctrl.get_popup(value, 'utilisation_all', 'Month3', 'FTE Utilisation', 'fte_utilisation_Month3')">
                                 {{value.fte_utilisation_Month3}}</td>
@@ -326,6 +719,67 @@ a {
                         </tr>
                     </tbody>
                 </table>
+                <div>
+                <table class="table" style="border:1px solid #DDDDDD;background-color:#f1f1f1;">
+                 <thead>
+                    <tr>
+                      <th>Month</th>
+                      <th>Billable</th>
+                      <th>Buffer</th>
+                      <th>QC/QA</th>
+                      <th>TL</th>
+                      <th>Other Support</th>
+                      <th>Total</th>
+                      <th>FTE Utilisation</th>
+                      <th>Operational Utilisation</th>
+                      <th>Absenteeism</th>
+                      <th>Attrition</th>
+                    </tr>
+                 </thead>
+                 <tbody>
+                    <tr style="background-color:white;">
+                        <td>{{$ctrl.center_data2[1].month_1}}</td>
+                        <td>{{$ctrl.center_data2[1].Chittoor_billable_month_1}}</td>
+                        <td>{{$ctrl.center_data2[1].Chittoor_buffer_month_1}}</td>
+                        <td>{{$ctrl.center_data2[1].Chittoor_qc_or_qa_month_1}}</td>
+                        <td>{{$ctrl.center_data2[1].Chittoor_team_lead_month_1}}</td>
+                        <td>{{$ctrl.center_data2[1].Chittoor_other_support_month_1}}</td>
+                        <td>{{$ctrl.center_data2[1].Chittoor_total_month_1}}</td>
+                        <td>{{$ctrl.center_data2[1].Chittoor_fte_utilisation_month_1}}</td>
+                        <td>{{$ctrl.center_data2[1].Chittoor_operational_utilization_month_1}}</td>
+                        <td>{{$ctrl.center_data2[1].Chittoor_absenteeism_month_1}}</td>
+                        <td>{{$ctrl.center_data2[1].Chittoor_attrition_month_1}}</td>
+                    </tr>
+                    <tr style="background-color:white;">
+                        <td>{{$ctrl.center_data2[1].month_2}}</td>
+                        <td>{{$ctrl.center_data2[1].Chittoor_billable_month_2}}</td>
+                        <td>{{$ctrl.center_data2[1].Chittoor_buffer_month_2}}</td>
+                        <td>{{$ctrl.center_data2[1].Chittoor_qc_or_qa_month_2}}</td>
+                        <td>{{$ctrl.center_data2[1].Chittoor_team_lead_month_2}}</td>
+                        <td>{{$ctrl.center_data2[1].Chittoor_other_support_month_2}}</td>
+                        <td>{{$ctrl.center_data2[1].Chittoor_total_month_2}}</td>
+                        <td>{{$ctrl.center_data2[1].Chittoor_fte_utilisation_month_2}}</td>
+                        <td>{{$ctrl.center_data2[1].Chittoor_operational_utilization_month_2}}</td>
+                        <td>{{$ctrl.center_data2[1].Chittoor_absenteeism_month_2}}</td>
+                        <td>{{$ctrl.center_data2[1].Chittoor_attrition_month_2}}</td>
+                    </tr>
+                    <tr style="background-color:white;">
+                        <td>{{$ctrl.center_data2[1].month_3}}</td>
+                        <td>{{$ctrl.center_data2[1].Chittoor_billable_month_3}}</td>
+                        <td>{{$ctrl.center_data2[1].Chittoor_buffer_month_3}}</td>
+                        <td>{{$ctrl.center_data2[1].Chittoor_qc_or_qa_month_3}}</td>
+                        <td>{{$ctrl.center_data2[1].Chittoor_team_lead_month_3}}</td>
+                        <td>{{$ctrl.center_data2[1].Chittoor_other_support_month_3}}</td>
+                        <td>{{$ctrl.center_data2[1].Chittoor_total_month_3}}</td>
+                        <td>{{$ctrl.center_data2[1].Chittoor_fte_utilisation_month_3}}</td>
+                        <td>{{$ctrl.center_data2[1].Chittoor_operational_utilization_month_3}}</td>
+                        <td>{{$ctrl.center_data2[1].Chittoor_absenteeism_month_3}}</td>
+                        <td>{{$ctrl.center_data2[1].Chittoor_attrition_month_3}}</td>
+                    </tr>
+                 </tbody>
+                </table>
+                </div>
+
             </div>
            </div>
         </div>
@@ -335,7 +789,7 @@ a {
 </div>
 
   <div class="modal fade" id="people_pop" role="dialog">
-    <div class="modal-dialog">
+    <div class="modal-dialog" style="width:90%;">
       <!-- Modal content-->
       <div class="modal-content">
         <div class="modal-header">
@@ -343,12 +797,10 @@ a {
           <h4 class="modal-title">{{$ctrl.widget_name}}</h4>
         </div>
         <div class="modal-body" style="min-height: 450px;">
-          <p>Target: {{$ctrl.target_to_display}}</p>
-          <!--<p>{{$ctrl.month_to_display}}</p>
-          <p>{{$ctrl.widget_type}}</p>
-          <p>{{$ctrl.project_to_display}}</p>
-          <p>{{$ctrl.center_to_display}}</p>-->
-          <div class="col-sm-12 widget">
+         <div class="row">
+         <div class="col-md-12">
+          <p><b>Target :</b> {{$ctrl.target_to_display}}<b id="perce">%</b></p>
+          <div class="widget">
             <div class="widget-content">
                 <div class="widget-body" style="color:white;">
                         <div class="btn-group" style="float: right;">
@@ -360,12 +812,139 @@ a {
                 </div>
             </div>
           </div>
-
-          <!--<highcharts options="$ctrl.widget_data"></highcharts>-->
+         </div>
+         <div class="col-md-12" id="extra-table">
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th>Packet Type</th>
+                <th>FTE Target</th>
+                <th>No of Man Days</th>
+                <th>Actual Volume</th>
+                <th>Actual Target</th>
+                <th>%Target Achieved</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="node in $ctrl.main_data">
+                <td>{{node.packet}}</td>
+                <td>{{node.target}}</td>
+                <td>{{node.noFTE}}</td>
+                <td>{{node.actual}}</td>
+                <td>{{node.pacTarget}}</td>
+                <td>{{node.percentage}}</td>
+              </tr>
+              <tr ng-repeat="data in $ctrl.main_data4">
+                <td style="color:#FF4500;"><b>TOTAL</b></td>
+                <td></td>
+                <td></td>
+                <td style="color:#FF4500;"><b>{{data.finalactual}}</b></td>
+                <td style="color:#FF4500;"><b>{{data.finaltarget}}</b></td>
+                <td style="color:#FF4500;"><b>{{data.finalproductivity}}</b></td>
+              </tr>
+            </tbody>
+          </table>
+         </div>
+         <div class="col-md-12" id="names_2">
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th>Packet Type</th>
+                <th>Team Target</th>
+                <th>Actual Volume</th>
+                <th>Actual Target</th>
+                <th>%Target Achieved</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="node in $ctrl.main_data">
+                <td>{{node.packet}}</td>
+                <td>{{node.target}}</td>
+                <td>{{node.actual}}</td>
+                <td>{{node.pacTarget}}</td>
+                <td>{{node.percentage}}</td>
+              </tr>
+              <tr ng-repeat="data in $ctrl.main_data4">
+                <td style="color:#FF4500;"><b>TOTAL</b></td>
+                <td></td>
+                <td style="color:#FF4500;"><b>{{data.finalactual}}</b></td>
+                <td style="color:#FF4500;"><b>{{data.finaltarget}}</b></td>
+                <td style="color:#FF4500;"><b>{{data.finalproductivity}}</b></td>
+              </tr>
+            </tbody>
+          </table> 
+         </div>
+         <div class="col-md-12" id="extra-table2">
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th>Packet</th>
+                <!--<th>No of Days</th>-->
+                <th>No of Man Days</th>
+                <th>Volume</th>
+                <th>Productivity</th>
+                <!--<th>No of Agents</th>
+                <th>Productivity</th>-->
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="node in $ctrl.main_data2">
+                <td>{{node.packet}}</td>
+                <!--<td>{{node.days}}</td>-->
+                <td>{{node.fte_age}}</td>
+                <td>{{node.volume}}</td>
+                <!--<td>{{node.agents}}</td>-->
+                <td>{{node.productivity}}</td>
+              </tr>
+              <tr ng-repeat="data in $ctrl.main_data3">
+                <td style="color:#FF4500;"><b>TOTAL</b></td>
+                <!--<td></td>-->
+                <!--<td>{{data.finalPeople}}</td>-->
+                <td></td>
+                <td style="color:#FF4500;"><b>{{data.finalVolume}}</b></td>
+                <td style="color:#FF4500;"><b>{{data.finalProduct}}</b></td>
+              </tr>
+            </tbody>
+          </table>
+         </div>
+         <div class="col-md-12" id="prod_tab">
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th>Project</th>
+                <!--<th>No of Days</th>-->
+                <th>No of Man Days</th>
+                <th>Volume</th>
+                <th>Productivity</th>
+                <!--<th>No of Agents</th>
+                <th>Productivity</th>-->
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="node in $ctrl.main_data2">
+                <td>{{node.project}}</td>
+                <!--<td>{{node.days}}</td>-->
+                <td>{{node.agents}}</td>
+                <td>{{node.volume}}</td>
+                <!--<td>{{node.agents}}</td>-->
+                <td>{{node.product}}</td>
+              </tr>
+              <tr ng-repeat="data in $ctrl.main_data3">
+                <td style="color:#FF4500;"><b>TOTAL</b></td>
+                <!--<td></td>-->
+                <!--<td>{{data.finalPeople}}</td>-->
+                <td></td>
+                <td style="color:#FF4500;"><b>{{data.finalVolume}}</b></td>
+                <td style="color:#FF4500;"><b>{{data.finalProduct}}</b></td>
+              </tr>
+            </tbody>
+          </table>
+         </div>
 
         </div>
+        </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          <!--<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>-->
         </div>
       </div>
     </div>

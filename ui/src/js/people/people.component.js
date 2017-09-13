@@ -7,22 +7,28 @@
            "templateUrl": "/js/people/people.html",
            "controller": ['$http','$scope','$rootScope',
 
+
            function ($http, $scope, $rootScope) {
 
                 var vm = this;
                 var people_data = '/pd/get_sla_data';
                 var people_data_2 = '/pd/get_peoples_data';
+                $('#extra-table').hide();
+                $('#extra-table2').hide();
+                $('#prod_tab').hide();
+                $('#names_2').hide();
+
                 vm.render_chart_from_url = function(url, name) {
-
                     vm.chart_name = name;
-                    $http({method:"GET", url: url}).success(function(result){
 
+                    $http({method:"GET", url: url}).success(function(result){
+                    
                       if (vm.chart_name == 'Productivity') {
                         var main_data = result.result.original_productivity_graph;    
                         var date_list = result.result.date;
                       }
 
-                      if (vm.chart_name == 'Production') {
+                      if (vm.chart_name == 'Target Achieved') {
 
                         var main_data = result.result.productivity_data;
                         var date_list = result.result.data.date;      
@@ -81,7 +87,157 @@
                   vm.project_to_display = data.project;
                   vm.center_to_display = data.center;
                   vm.target_to_display = data.color[target][1];
-                
+                  vm.key_of_table = data.color[target][2];
+                  $('#extra-table').hide();
+                  $('#extra-table2').hide();
+                  $('#prod_tab').hide();
+                  if (name == "Productivity"){
+                      $('#extra-table2').show();
+                      $('#names_2').hide();
+                      var pop_url_target = '/pd/get_individual_target?core_key='+vm.key_of_table+'&column_name='+vm.widget_name;
+                      $http({method:"GET", url: pop_url_target}).success(function(result){
+                         var big_object = result.result;
+                         vm.produc_names = result.headers;
+                         var all_keys = Object.keys(result.result);
+                         var all_packets = []; 
+                         var main_table_data = [];
+                         var main_table_data2 = [];
+                         if (vm.produc_names.length === 5) {
+
+                            for (var i=0; i<all_keys.length; i++){
+
+                                all_packets.push(all_keys[i].split('_')[4]);
+                            }   
+
+                            function onlyUnique(value, index, self) { 
+                                return self.indexOf(value) === index;
+                            }
+                            var packets = all_packets.filter( onlyUnique );
+                            var bill_ind = packets.indexOf('final');
+                            packets.splice(bill_ind, 1);
+                            var bill_ind = packets.indexOf('name');
+                            packets.splice(bill_ind, 1);
+                            var bill_ind = packets.indexOf('prod');
+                            packets.splice(bill_ind, 1);
+                            var bill_ind = packets.indexOf('bill');
+                            packets.splice(bill_ind, 1);
+
+                            for (var j=0; j<packets.length; j++){
+                             var main_obj = {'packet':'', 'days':'', 'fte_age':'', 'volume':'', 'productivity':''};
+                             main_obj.packet = packets[j];
+                             var key = vm.key_of_table+'_target_'+packets[j]+'_';
+                             //main_obj.fte_age = big_object[key+'no_of_agents'];
+                             main_obj.days = big_object[key+'no_of_days'];
+                             main_obj.fte_age = big_object[key+'no_of_agents'];
+                             main_obj.volume = big_object[key+'actual'];
+                             main_obj.productivity = big_object[key+'prod_uti'];
+                             main_table_data.push(main_obj);
+                             $('#extra-table2').show();
+                             $('#prod_tab').hide();
+                            }
+                         }
+                        else {
+                            for (var i=0; i<all_keys.length; i++){
+                                all_packets.push(all_keys[i].split('_target')[1]);
+                            }
+
+                            function onlyUnique(value, index, self) {
+                                return self.indexOf(value) === index;
+                            }
+
+                            var packets = all_packets.filter( onlyUnique );
+                            var main_obj_name = {'project':'', 'agents':'', 'volume':'', 'product':''};
+                            var key_main = vm.key_of_table+'_target_'
+                            main_obj_name.project = big_object[key_main+'name'];
+                            main_obj_name.agents = big_object[key_main+'bill_ppl'];
+                            main_obj_name.volume = big_object[key_main+'final_actual'];
+                            main_obj_name.product = big_object[key_main+'prod_utility'];
+                            main_table_data.push(main_obj_name);
+                            $('#extra-table2').hide();
+                            $('#prod_tab').show();
+                        }
+
+                         vm.main_data2 = main_table_data;
+                         var main_obj2 = {'finalPeople':'', 'finalVolume':'', 'finalProduct':''};
+                         var key1 = vm.key_of_table+'_target_';
+                         main_obj2.finalPeople = big_object[key1+'bill_ppl'];
+                         main_obj2.finalVolume = big_object[key1+'final_actual'];
+                         main_obj2.finalProduct = big_object[key1+'prod_utility'];
+                         main_table_data2.push(main_obj2);
+                         vm.main_data3 = main_table_data2;
+                      });
+                    
+                  }
+                  if (name == "Target Achieved"){
+                       $('#prod_tab').hide(); 
+                      var pop_url_target = '/pd/get_individual_target?core_key='+vm.key_of_table+'&column_name='+vm.widget_name;
+
+                      $http({method:"GET", url: pop_url_target}).success(function(result){
+                         var big_object = result.result;
+                         vm.header_names = result.headers;
+                         var all_keys = Object.keys(result.result);
+                         var all_packets = [];
+
+                         for (var i=0; i<all_keys.length; i++){
+
+                             all_packets.push(all_keys[i].split('_')[4]);
+                         }
+
+                         function onlyUnique(value, index, self) { 
+                             return self.indexOf(value) === index;
+                         }
+
+                         var packets = all_packets.filter( onlyUnique );
+                         var fin_ind = packets.indexOf('final');
+                         packets.splice(fin_ind, 1);
+                         var prod_ind = packets.indexOf('prod');
+                         packets.splice(prod_ind, 1);
+                         var bill_ind = packets.indexOf('bill');
+                         packets.splice(bill_ind, 1);
+                         var bill_ind = packets.indexOf('name');
+                         packets.splice(bill_ind, 1); 
+                         var main_table_data = [];
+                         var main_table_data2 = [];
+                         for (var j=0; j<packets.length; j++){
+                             if (vm.header_names.length === 6) {
+                             var main_obj = {'packet': '', 'target': '', 'noFTE': '', 'actual': '', 'pacTarget':'', 'percentage': ''};
+                             main_obj.packet = packets[j];
+                             var key = vm.key_of_table+'_target_'+packets[j]+'_';
+                             main_obj.target = big_object[key+'single_target'];
+                             main_obj.noFTE = big_object[key+'no_of_agents'];
+                             //main_obj.noDays = big_object[key+'no_of_days'];
+                             main_obj.actual = big_object[key+'actual'];
+                             main_obj.pacTarget = big_object[key+'target'];
+                             main_obj.percentage = big_object[key+'prod_percen'];
+                             main_table_data.push(main_obj);
+                             $('#extra-table').show();
+                             $('#names_2').hide();
+                             }
+                             else {
+                                var main_obj = {'packet': '', 'target': '', 'actual': '', 'pacTarget':'', 'percentage': ''};
+                                main_obj.packet = packets[j];
+                                var key = vm.key_of_table+'_target_'+packets[j]+'_';
+                                main_obj.target = big_object[key+'single_target'];
+                                main_obj.actual = big_object[key+'actual'];
+                                main_obj.pacTarget = big_object[key+'target'];
+                                main_obj.percentage = big_object[key+'prod_percen'];
+                                main_table_data.push(main_obj);
+                                $('#extra-table').hide();
+                                $('#names_2').show();
+                            }
+                         }
+                         vm.main_data = main_table_data;
+                         var main_obj2 = {'finalactual':'', 'finaltarget':'', 'finalproductivity': ''};
+                         var key1 = vm.key_of_table+'_target_';
+                         main_obj2.finalactual = big_object[key1+'final_actual'];
+                         main_obj2.finaltarget = big_object[key1+'final_target'];
+                         main_obj2.finalproductivity = big_object[key1+'final_product_val'];
+                         main_table_data2.push(main_obj2);
+                         vm.main_data4 = main_table_data2;
+                      });
+
+                  }
+
                   $('.widget-content').addClass('widget-loader-show');
                   $('.widget-body').addClass('widget-data-hide');
                   vm.date_mapping = {'August': '2017-08-01',
@@ -100,10 +256,9 @@
                   vm.end_date += lastDay.getFullYear() +'-';
                   vm.end_date += lastDay.getMonth()+1+'-';
                   vm.end_date += lastDay.getDate();
-
                   vm.chart_name = name;
                   vm.day_type = function(type) {
-
+                    
                   $('.widget-content').addClass('widget-loader-show');
                   $('.widget-body').addClass('widget-data-hide');
                     var url_to = '/api/'+vm.widget_type+'/?&project='+vm.project_to_display+
@@ -126,6 +281,14 @@
                             $('.month').siblings().removeClass('active btn-success');
                         }
                     }
+                    
+                    if (vm.widget_name === 'Productivity') {
+                        $('#perce').hide();
+                    }
+                    else {
+                       $('#perce').show(); 
+                    }
+
                     vm.url = '/api/'+vm.widget_type+'/?&project='+vm.project_to_display+
                         '&center='+vm.center_to_display+'&from='+vm.start_date+'&to='+vm.end_date+'&type=week';
                     vm.render_chart_from_url(vm.url, vm.widget_name);
@@ -162,13 +325,14 @@
                 $http({method:"GET", url:people_data}).success(function(result){
 
                   vm.data = result.result;
+                  vm.center_data_1 = result.center_total;
 
                });
 
                 $http({method:"GET", url:people_data_2}).success(function(result){
-
                   vm.data_2 = result.result;
-
+                  vm.center_data2 = result.center_total;
+                  //debugger;
                });
 
            }],

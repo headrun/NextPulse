@@ -4,10 +4,9 @@ import xlrd
 from xlrd import open_workbook
 from glob import glob
 #from django.conf import settings
-import pdb;pdb.set_trace()
 from api.models import *
 
-#import pdb;pdb.set_trace()
+
 
 #PAR_DIR = os.path.abspath(os.pardir)
 PAR_DIR = os.getcwd()
@@ -28,7 +27,6 @@ def run():
                 #open_sheet = open_book.sheet_by_index(0)
             except:
                 return HttpResponse("Invalid File")
-            import pdb;pdb.set_trace()
             excel_sheet_names = open_book.sheet_names()
             file_sheet_name = Authoringtable.objects.values_list('sheet_name',flat=True).distinct()
             file_sheet_names = [x.encode('UTF8') for x in file_sheet_name]

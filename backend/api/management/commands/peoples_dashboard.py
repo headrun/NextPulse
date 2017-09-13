@@ -33,9 +33,6 @@ class Command(BaseCommand):
                 months_dict[month].append(str(date))
             else:
                 months_dict[month] = [str(date)]
-        #months_dict = {}
-        #months_dict["April"] = ['2017-04-01', '2017-04-02', '2017-04-03', '2017-04-04', '2017-04-05', '2017-04-06', '2017-04-07', '2017-04-08', '2017-04-09', '2017-04-10', '2017-04-11', '2017-04-12', '2017-04-13', '2017-04-14', '2017-04-15', '2017-04-16', '2017-04-17', '2017-04-18', '2017-04-19', '2017-04-20', '2017-04-21', '2017-04-22', '2017-04-23', '2017-04-24', '2017-04-25', '2017-04-26', '2017-04-27', '2017-04-28', '2017-04-29', '2017-04-30']
-        #absentisim code here    
         projects = []
         teams = 'select distinct(team) from hrm_employee_process;'
         cur.execute(teams)
@@ -46,23 +43,20 @@ class Command(BaseCommand):
             pr_team = team.split(" - ")[0]
             projects.append(pr_team)
         project = set(projects)
-        #project = ["Probe"]
-        #import pdb;pdb.set_trace()
         not_req = ["indix", "Mahendra", "Bench", "HR", "Jeeves", "MIS", "E4U", "3i", "Admin", "Master Mind", "IT", "CureCrew", "QualityTeam", "WIPRO", "Worxogo", "StoreKing" ,"Training", "Pixm", "Accounts", "BCT", "Snap Diligence", "Compliance", "Kredx", "ER", "Indix", "Bridgei2i", "Tech","WIPRO" ,"MindTree"]
         project = filter(lambda x: x not in not_req, list(project))
-        #import pdb;pdb.set_trace()
-        for prj in project:
-            final_data = {}
-            for month_name,month_dates in months_dict.iteritems():
+        for month_name,month_dates in months_dict.iteritems():
+            #final_data = {}
+            absen_da, attri_da, attri_cnt, absen_cnt, emp_cnt = [], [], [], [], []
+            for prj in project:
+                final_data = {}
                 date_values = month_dates
-                #query = 'select distinct(empid) from hrm_employee_process where team like "%%%s%%" and start_date < "%s" and (end_date like "0000-00-00" or end_date > "%s");' %(prj, date_values[0], date_values[-1])
                 query = 'select distinct(empid) from hrm_employee_process where team like "%%%s%%" and start_date < "%s" and (end_date like "0000-00-00" or (end_date between "%s" and "%s"));' %(prj, date_values[-1], date_values[0], date_values[-1])
                 cur.execute(query)
                 rows = cur.fetchall()
                 na_count = 0
                 fin_na_list = []
                 temp_rows = ""
-                #import pdb;pdb.set_trace()
                 for emp_id in rows:
                     emp_id = emp_id[0]
                     month =  date_values[0].split("-")[1] +"-" + date_values[0].split("-")[0]
@@ -86,13 +80,11 @@ class Command(BaseCommand):
                 attri_value = 0
                 if len(temp_rows) > 2:
                     query2 = 'select count(empid) from hrm_employee_resignation where empid in (%s) and (lastday between "%s" and "%s");' %(temp_rows[2:], date_values[0], date_values[-1])
-                    #query2 = 'select count(empid) from hrm_employee_resignation where empid in (%s) and (lastday between "2017-04-01" and "2017-04-30");' %(temp_rows[2:])
                     cur.execute(query2)
                     values = cur.fetchall()
                     if rows:
                         attri = float(sum(values[0]))/float(len(rows))*100
                         attri_value = float('%.2f' % round(attri, 2))
-                #import pdb;pdb.set_trace()
                 if prj == "Walmart":
                     prj = "Walmart Salem"
                 elif prj == "gooru":
@@ -109,6 +101,18 @@ class Command(BaseCommand):
                 final_data['month'] = month_name;
                 final_data['absenteeism'] = absent_value;
                 final_data['attrition'] = attri_value;
+                absen_cnt.append(fin_na_list[0])
+                attri_cnt.append(values[0][0])
+                emp_cnt.append(len(rows))
+                if emp_cnt:
+                    absen_sum = (float(sum(absen_cnt))/float(sum(emp_cnt)))*100
+                    absen_sum = float('%.2f' % round(absen_sum, 2))
+                    attri_sum = (float(sum(attri_cnt))/float(sum(emp_cnt)))*100
+                    attri_sum = float('%.2f' % round(attri_sum, 2))
+                else:
+                    absen_sum, attri_sum  = 0, 0
+                final_data['center_absenteeism'] = absen_sum
+                final_data['center_attrition'] = attri_sum
                 data_dict = {}
                 for key,value in final_data.iteritems():
                     value_dict = {}
@@ -120,13 +124,19 @@ class Command(BaseCommand):
                         redis_key = '{0}_{1}_{2}_attrition'.format(prj,center_name,month_name)
                         value_dict['attrition'] = str(attri_value)
                         data_dict[redis_key] = value_dict
+                    if key == 'center_absenteeism':
+                        redis_key = '{0}_{1}_center_absenteeism'.format(center_name,month_name)
+                        value_dict['center_absenteeism'] = str(absen_sum)
+                        data_dict[redis_key] = value_dict
+                    if key == 'center_attrition':
+                        redis_key = '{0}_{1}_center_attrition'.format(center_name,month_name)
+                        value_dict['center_attrition'] = str(attri_sum)
+                        data_dict[redis_key] = value_dict
                 conn1 = redis.Redis(host="localhost", port=6379, db=0)
                 current_keys = []
                 for key, value in data_dict.iteritems():
                     current_keys.append(key)
                     conn1.hmset(key, value)
                     print key, value
-                print prj
-                print center_name
         cur.close()
         conn.close()

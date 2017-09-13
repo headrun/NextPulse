@@ -1,9 +1,9 @@
 from __future__ import unicode_literals
 from django.contrib.auth.models import User
 from django.db import models
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import Group
 
-# Create your models here.
+
 class Center(models.Model):
     name = models.CharField(max_length=255, unique=True,db_index=True)
 
@@ -520,6 +520,7 @@ class Annotation(models.Model):
     class Meta:
         db_table = u'annotations'
         index_together = (('project', 'center',), ('epoch', 'created_by', 'key'),)
+        unique_together = (('project', 'center', 'epoch', 'key'))
 
     def __unicode__(self):
         return self.epoch
