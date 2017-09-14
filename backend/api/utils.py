@@ -138,6 +138,10 @@ def tat_graph(date_list, prj_id, center,level_structure_key):
             else:
                 tat_acc = 0
             tat_val_list.append(tat_acc)
+            if sum(tat_val_list):
+                tat_val_list = tat_val_list
+            else:
+                tat_val_list = []
     new_dict['tat_graph_details'] = tat_val_list
     return new_dict
 

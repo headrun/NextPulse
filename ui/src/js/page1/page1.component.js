@@ -1092,6 +1092,7 @@
                             var date_list = result.result.date;
                             var work_packet_fte = result.result.fte_calc_data.work_packet_fte;
                             var total_fte = result.result.fte_calc_data.total_fte;
+                            var date_range = $('#select').val().split('to');
                             
                             if ((name == "self.chartOptions16") || (name == "")) {
 
@@ -1142,7 +1143,7 @@
                                         (function(series){
                                           $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
 					  self.type+'&chart_name=11&proj_name='+self.project_live+'&cen_name='+
-					  self.center_live}).success(function(annotations){
+					  self.center_live+'&start_date='+date_range[0]+'&end_date='+date_range[1]}).success(function(annotations){
                                annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                                $.each(annotations, function(j, annotation){
 
@@ -9485,6 +9486,11 @@ angular.extend(self.chartOptions18, {
                 }
             }
          };
+
+    Highcharts.Pointer.prototype.onContainerMouseDown = function (e) {
+            e = this.normalize(e);
+                this.dragStart(e);
+    };
 
     self.chartOptions22 = '<p> workpacket </p>'
 
