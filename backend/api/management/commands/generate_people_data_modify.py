@@ -16,6 +16,8 @@ class Command(BaseCommand):
         from dateutil.relativedelta import relativedelta
         import itertools
         import redis
+        #proje_cent = Project.objects.values_list('id','center_id','name')
+        #generating last 3 months dates
         current_date = datetime.date.today()
         last_mon_date = current_date - relativedelta(months=3)
         from_date = datetime.datetime(last_mon_date.year, last_mon_date.month, 1).date()
@@ -24,33 +26,35 @@ class Command(BaseCommand):
         days = (to_date - from_date).days
         days = days + 1
         months_dict = {}
+        month_list = [[]]
+        month_names_list = []
+        month_count = 0
         for i in xrange(days):
             date = from_date + datetime.timedelta(i)
             month = date.strftime("%B")
+            if month not in month_names_list:
+                month_names_list.append(month)
             if month in months_dict:
                 months_dict[month].append(str(date))
+                month_list[month_count].append(str(date))
             else:
                 months_dict[month] = [str(date)]
+                month_count = month_count + 1
+                month_list.append([str(date)])
         final_project_data = []
         proje_cent = Project.objects.values_list('name',flat=True)
-        not_req = ["3i VAPP", "Bridgei2i", "E4U", "indix", "Nextgen", "IBM Sri Lanka P2P", "Quarto","Tally", "Sulekha", "Webtrade", "Walmart Chittor", "Future Energie Tech", "3iKYC", "Bigbasket"]
+        not_req = ["3i VAPP", "Bridgei2i", "E4U", "indix", "Nextgen", "IBM Sri Lanka P2P", "Quarto","Tally", "Sulekha", "Webtrade", "Walmart Chittor", "Future Energie Tech"]
         proje_cent = filter(lambda x: x not in not_req, list(proje_cent))
-        for month_name,month_dates in months_dict.iteritems():
-            volume_sal, volume_chi, targets_sal, targets_chi, bill_age_sal, bill_age_chi = [], [], [], [], [], []
-            int_err_sal, int_aud_sal, ext_err_sal, ext_aud_sal = [], [], [], []
-            int_err_chi, int_aud_chi, ext_err_chi, ext_aud_chi = [], [], [], []
-            prod_sal, produc_sal, int_acc_sal, ext_acc_sal, tat_met_sal, tat_not_met_sal = [], [], [], [], [], []
-            prod_chi, produc_chi, int_acc_chi, ext_acc_chi, tat_met_chi, tat_not_met_chi = [], [], [], [], [], []
-            dates_list = month_dates
-            for pro_cen in proje_cent:
-                values = Project.objects.filter(name=pro_cen).values_list('id','center_id')
-                prj_id = values[0][0]
-                center_id = values[0][1]
-                prj_name = pro_cen   
-                final_productivity_list = []
-                conn = redis.Redis(host="localhost", port=6379, db=0)
-                center_name = Center.objects.filter(project=prj_id).values_list('name',flat=True)[0]
-
+        for pro_cen in proje_cent:
+            values = Project.objects.filter(name=pro_cen).values_list('id','center_id')
+            prj_id = values[0][0]
+            center_id = values[0][1]
+            prj_name = pro_cen
+            final_productivity_list = []
+            conn = redis.Redis(host="localhost", port=6379, db=0)
+            center_name = Center.objects.filter(project=prj_id).values_list('name',flat=True)[0]
+            for month_name,month_dates in months_dict.iteritems():
+                dates_list = month_dates
                 volumes = RawTable.objects.filter(project=prj_id,center=center_id,date__range=[dates_list[0],dates_list[-1]])
                 external_packets = Externalerrors.objects.filter(project=prj_id,center=center_id,date__range=[dates_list[0],dates_list[-1]])
                 internal_packets = Internalerrors.objects.filter(project=prj_id,center=center_id,date__range=[dates_list[0],dates_list[-1]])
@@ -77,7 +81,7 @@ class Command(BaseCommand):
                 all_error_types, int_all_error_types = [], []
                 sub_error_types, int_sub_error_types = [], []
                 fte_data, prod_utili = [], []
-                operational_data, targ_list = [], []
+                operational_data = []
                 for date_va in dates_list:
                     total_done_value = RawTable.objects.filter(project=prj_id, center=center_id, date=date_va).aggregate(Max('per_day'))
                     if total_done_value['per_day__max']>0:
@@ -114,8 +118,45 @@ class Command(BaseCommand):
                                 targets = targets * emp_count['billable_agents__sum']
                             else:
                                 targets = to_target
-                            targ_list.append(targets)
-    
+                            date_pattern = '{0}_{1}_{2}_{3}'.format(prj_name, center_name, final_work_packet,date_va)
+                            key_list = conn.keys(pattern=date_pattern)
+                            if not key_list:
+                                if date_values.has_key(final_work_packet):
+                                    date_values[final_work_packet].append(0)
+                                else:
+                                    date_values[final_work_packet] = [0]
+                            for cur_key in key_list:
+                                var = conn.hgetall(cur_key)
+                                for key, value in var.iteritems():
+                                    if value == 'None':
+                                        value = 0
+                                    if date_values.has_key(key):
+                                        if targets:
+                                            pac_val = (float(value)/float(targets))*100
+                                            pac_val = float('%.2f' % round(pac_val, 2))
+                                            date_values[key].append(pac_val)
+                                        else:
+                                            date_values[key].append(0)
+                                    else:
+                                        if targets:
+                                            pac_val = (float(value)/float(targets))*100
+                                            pac_val = float('%.2f' % round(pac_val, 2))
+                                            date_values[key] = [pac_val]
+                                        else:
+                                            date_values[key] = [0]
+                                    #generating tat code
+                                    if tat_data.has_key(key):
+                                        if tat_met_va:
+                                            met_val = (tat_met_va/(tat_met_va + tat_not_met_va)) * 100
+                                            tat_data[key].append(met_val)
+                                        else:
+                                            tat_data[key].append(0)
+                                    else:
+                                        if tat_met_va:
+                                            met_val = (tat_met_va/(tat_met_va + tat_not_met_va)) * 100
+                                            tat_data[key] = [met_val]
+                                        else:
+                                            tat_data[key] = [0]
                         #generation of external accuracy code
                         for packet in external_pack_list:
                             work_packet = packet
@@ -248,45 +289,66 @@ class Command(BaseCommand):
 
                         #generation of fte and operational headcount data
                         prod_vals = RawTable.objects.filter(project=prj_id, center=center_id, date=date_va).aggregate(Sum('per_day'))
-                        headcount_details = Headcount.objects.filter(project=prj_id, center=center_id, date=date_va).aggregate(Sum('billable_hc'),Sum('buffer_agents'),Sum('qc_or_qa'),Sum('teamlead'),Sum('trainees_and_trainers'))
+                        headcount_details = Headcount.objects.filter(project=prj_id, center=center_id, date=date_va).aggregate(Sum('billable_hc'),Sum('billable_agents'),Sum('buffer_agents'),Sum('qc_or_qa'),Sum('teamlead'),Sum('trainees_and_trainers'))
                         pro_da = prod_vals['per_day__sum']
                         if headcount_details['billable_hc__sum'] != None:
                             utilization_numerator = headcount_details['billable_hc__sum']
-                            fte_utilization = headcount_details['billable_hc__sum'] + headcount_details['buffer_agents__sum'] + headcount_details['qc_or_qa__sum'] + headcount_details['teamlead__sum']
+                            fte_utilization = headcount_details['billable_agents__sum'] + headcount_details['buffer_agents__sum'] + headcount_details['qc_or_qa__sum'] + headcount_details['teamlead__sum']
                             fte_value = (float(utilization_numerator)/float(fte_utilization))*100
                             fte_utili_value = float('%.2f' % round(fte_value,2))
                             operational_utilization = fte_utilization + headcount_details['trainees_and_trainers__sum']
                             operational_value = (float(utilization_numerator)/float(operational_utilization))*100
                             operational_utili_value = float('%.2f' % round(operational_value,2))
+                            prod_utilisa = float(pro_da)/float(utilization_numerator)
+                            prod_utili.append(prod_utilisa)
                             fte_data.append(fte_utili_value)
                             operational_data.append(operational_utili_value)
                         else:
                             fte_data.append(0)
                             operational_data.append(0)
-
+                            prod_utili.append(0)
                 #calculation for productivity value
-                volumes = RawTable.objects.filter(project=prj_id, center=center_id, date__range = [dates_list[0],dates_list[-1]]).aggregate(Sum('per_day'))
-                volumes = volumes['per_day__sum']
-                bill_age = Headcount.objects.filter(project=prj_id, center=center_id, date__range = [dates_list[0],dates_list[-1]]).aggregate(Sum('billable_agents'))
-                tat = TatTable.objects.filter(project=prj_id, center=center_id, date__range = [dates_list[0],dates_list[-1]])
-                met_cnt = tat.aggregate(Sum('met_count'))
-                not_met_cnt = tat.aggregate(Sum('non_met_count'))
-                if met_cnt['met_count__sum'] == None:
-                    met_cnt = 0
+                len_list, prod_len_list = [], []
+                productivity_data, production_data = [], []
+                packet_values = date_values.values()
+                packet_data = [sum(x) for x in zip(*packet_values)]
+                packet_len_values = [x for x in zip(*packet_values) if x != 0]
+                for value in packet_len_values:
+                    packet_len = [count for count in value if count != 0]
+                    len_list.append(len(packet_len))
+                for val,pac in zip(packet_data,len_list):
+                    if pac:
+                        productivity = float(float(val)/float(pac))
+                        final_productivity = float('%.2f' % round(productivity,2))
+                    else:
+                        final_productivity = 0
+                    productivity_data.append(final_productivity)
+                if len(new_date_list) and sum(productivity_data):
+                    productivity_value = float(float(sum(productivity_data))/len(new_date_list))
+                    productivity_value = float('%.2f' % round(productivity_value,2))
                 else:
-                    met_cnt = met_cnt['met_count__sum']
-                if not_met_cnt['non_met_count__sum'] == None:
-                    not_met_cnt = 0
+                    productivity_value = "NA"
+    
+                #calculation of tat data
+                tat_val_len, tat_fin_val  = [], []
+                tat_val = tat_data.values()
+                tat_pack_val = [sum(y) for y in zip(*tat_val)]
+                tat_var = [x for x in zip(*tat_val) if x != 0]
+                for data in tat_var:
+                    tat_len = [va for va in data if va != 0]
+                    tat_val_len.append(len(tat_len))
+                for ta_val, ta_len_val in zip(tat_pack_val, tat_val_len):
+                    if ta_len_val:
+                        tat = float(ta_val)/ta_len_val
+                        fin_tat = float('%.2f' % round(tat,2))
+                    else:
+                        fin_tat = 0
+                    tat_fin_val.append(fin_tat)
+                if len(new_date_list) and sum(tat_fin_val):
+                    tat_final_value = float(sum(tat_fin_val))/len(new_date_list)
+                    tat_final_value = float('%.2f' % round(tat_final_value,2))
                 else:
-                    not_met_cnt = not_met_cnt['non_met_count__sum']
-                bill_age = bill_age['billable_agents__sum']
-                target_values = sum(targ_list)
-
-                if bill_age:
-                    produc_utilisation_val = float(volumes)/float(bill_age)
-                    final_prod_util = float('%.2f' % round(produc_utilisation_val,2))
-                else:
-                    final_prod_util = 'NA'
+                    tat_final_value = "NA"
                 #calculation for external accuracy code
                 acc_values_sum = {}
                 for key, value in acc_values.iteritems():
@@ -341,6 +403,7 @@ class Command(BaseCommand):
                 for key, value in int_vol_audit_data.iteritems():
                     error_filter = [i for i in value if i!='NA']
                     int_error_audit_data[key] = sum(error_filter)
+
                 int_error_accuracy = {}
                 for key,value in int_error_volume_data.iteritems():
                     if int_error_audit_data[key]:
@@ -369,16 +432,16 @@ class Command(BaseCommand):
                     final_internal_accuracy = float('%.2f' % round(final_int_accuracy,2))
                 else:
                     final_internal_accuracy = "NA"
-                if met_cnt:
-                    tat_value = (float(met_cnt)/float(met_cnt+not_met_cnt))*100
-                    tat_final_value = float('%.2f' % round(tat_value,2))
-                else:
-                    tat_final_value = 'NA'
+                #fte,operational utilization calculations
+                no_of_days = Project.objects.filter(name = prj_name).values('days_month')
+                month_days = no_of_days[0]['days_month']
                 if len(new_date_list):
                     fte_utiliti_value = sum(fte_data)/len(new_date_list)
                     operational_utiliti_value = sum(operational_data)/len(new_date_list)
                     final_fte = float('%.2f' % round(fte_utiliti_value,2))
                     final_operational = float('%.2f' % round(operational_utiliti_value,2))
+                    produc_utilisation_val = sum(prod_utili)/len(new_date_list)
+                    final_prod_util = float('%.2f' % round(produc_utilisation_val,2))
                 else:
                     final_fte = 0
                     final_operational = 0
@@ -386,155 +449,21 @@ class Command(BaseCommand):
                 final_productivity_dict['project'] = prj_name
                 final_productivity_dict['center'] = center_name
                 final_productivity_dict['month'] = month_name
+                final_productivity_dict['productivity'] = productivity_value
                 final_productivity_dict['external_accuracy'] = final_external_accuracy
                 final_productivity_dict['internal_accuracy'] = final_internal_accuracy
                 final_productivity_dict['fte_utilisation'] = final_fte
                 final_productivity_dict['operational_utilization'] = final_operational
                 final_productivity_dict['tat'] = tat_final_value
+                final_productivity_dict['prod_utili'] = final_prod_util
                 final_productivity_list.append(final_productivity_dict)
-                ext_audit_data, ext_err_data, int_audit_data, int_err_data = [], [], [], []
-                ext_audit = vol_audit_data.values()
-                if center_name == 'Salem' and prj_name != 'IBM':
-                    volume_sal.append(volumes)
-                    targets_list = sum(targ_list)
-                    targets_sal.append(targets_list)
-                    #productivity cneter data
-                    if sum(targets_sal):
-                        cen_prod = (float(sum(volume_sal))/float(sum(targets_sal)))*100
-                        prod_sum = float('%.2f' % round(cen_prod,2))
-                    else:
-                        prod_sum = 'NA'
-                    #prod_utility center data
-                    bill_age_sal.append(bill_age)
-                    if sum(bill_age_sal):
-                        cen_prod_uti = float(sum(volume_sal))/float(sum(bill_age_sal))
-                        produc_sum = float('%.2f' % round(cen_prod_uti,2))
-                    else:
-                        produc_sum = 'NA'
-                    #external accuarcy center data
-                    ext_audit = vol_audit_data.values()
-                    for audit in ext_audit:
-                       audit_data =  [i for i in audit if i != 'NA']
-                       ext_audit_data.append(audit_data)
-                    fin_ext_audit = sum([sum(i) for i in ext_audit_data])
-                    ext_aud_sal.append(fin_ext_audit)
-                    ext_err = vol_error_values.values()
-                    for err in ext_err:
-                        err_data = [k for k in err if k != 'NA']
-                        ext_err_data.append(err_data)
-                    fin_ext_err = sum([sum(i) for i in ext_err_data])
-                    ext_err_sal.append(fin_ext_err)
-                    if fin_ext_audit:
-                        ext_acc = (float(sum(ext_err_sal))/float(sum(ext_aud_sal)))*100
-                        ext_acc_sum = 100 - float('%.2f' % round(ext_acc, 2))
-                    elif volumes != 0 and fin_ext_err != 0:
-                        ext_acc = (float(sum(ext_err_sal))/float(sum(volume_sal)))*100
-                        ext_acc_sum = 100 - float('%.2f' % round(ext_acc, 2))
-                    else:
-                        ext_acc_sum = 'NA'
-                    #internal accuracy center data
-                    int_audit = int_vol_audit_data.values()
-                    for in_aud in int_audit:
-                        in_audi_data = [aud for aud in in_aud if aud != 'NA']
-                        int_audit_data.append(in_audi_data)
-                    fin_int_audit = sum([sum(i) for i in int_audit_data])
-                    int_aud_sal.append(fin_int_audit)
-                    int_err = int_vol_error_values.values()
-                    for error in int_err:
-                        error_data = [val for val in error if val != 'NA']
-                        int_err_data.append(error_data)
-                    fin_int_err = sum([sum(i) for i in int_err_data])
-                    int_err_sal.append(fin_int_err)
-                    if fin_int_audit:
-                        int_acc = (float(sum(int_err_sal))/float(sum(int_aud_sal)))*100
-                        int_acc_sum = 100 - float('%.2f' % round(int_acc, 2))
-                    elif volumes != 0 and fin_int_err != 0:
-                        int_acc = (float(sum(int_err_sal))/float(sum(volume_sal)))*100
-                        int_acc_sum = 100 - float('%.2f' % round(int_acc, 2))
-                    else:
-                        int_acc_sum = 'NA'
-                    #tat center data
-                    tat_met_sal.append(met_cnt)
-                    tat_not_met_sal.append(not_met_cnt)
-                    if sum(tat_met_sal):
-                        tat_sum = (float(sum(tat_met_sal))/float(sum(tat_met_sal)+sum(tat_not_met_sal)))*100
-                    else:
-                        tat_sum = 'NA'
-                elif center_name == 'Chittoor' and prj_name != 'IBM':
-                    volume_chi.append(volumes)
-                    targets_list = sum(targ_list)
-                    targets_chi.append(targets_list)
-                    #productivity center data
-                    if sum(targets_chi):
-                        cen_prod = (float(sum(volume_chi))/float(sum(targets_chi)))*100
-                        prod_sum = float('%.2f' % round(cen_prod,2))
-                    else:
-                        prod_sum = 'NA'
-                    bill_age_chi.append(bill_age)
-                    #prod utili center data
-                    if sum(bill_age_chi):
-                        cen_prod_uti = (float(sum(volume_chi))/float(sum(bill_age_chi)))*100
-                        produc_sum = float('%.2f' % round(cen_prod_uti,2))
-                    else:
-                        produc_sum = 'NA'
-                    #external accuarcy center data
-                    ext_audit = vol_audit_data.values()
-                    for audit in ext_audit:
-                       audit_data =  [i for i in audit if i != 'NA']
-                       ext_audit_data.append(audit_data)
-                    fin_ext_audit = sum([sum(i) for i in ext_audit_data])
-                    ext_aud_chi.append(fin_ext_audit)
-                    ext_err = vol_error_values.values()
-                    for err in ext_err:
-                        err_data = [k for k in err if k != 'NA']
-                        ext_err_data.append(err_data)
-                    fin_ext_err = sum([sum(i) for i in ext_err_data])
-                    ext_err_chi.append(fin_ext_err)
-                    if fin_ext_audit:
-                        ext_acc = (float(sum(ext_err_chi))/float(sum(ext_aud_chi)))*100
-                        ext_acc_sum = 100 - float('%.2f' % round(ext_acc, 2))
-                    elif volumes != 0 and fin_ext_err != 0:
-                        ext_acc = (float(sum(ext_err_chi))/float(sum(volume_chi)))*100
-                        ext_acc_sum = 100 - float('%.2f' % round(ext_acc, 2))
-                    else:
-                        ext_acc_sum = 'NA'
-                    #internal accuracy center data
-                    int_audit = int_vol_audit_data.values()
-                    for in_aud in int_audit:
-                        in_audi_data = [aud for aud in in_aud if aud != 'NA']
-                        int_audit_data.append(in_audi_data)
-                    fin_int_audit = sum([sum(i) for i in int_audit_data])
-                    int_aud_chi.append(fin_int_audit)
-                    int_err = int_vol_error_values.values()
-                    for error in int_err:
-                        error_data = [val for val in error if val != 'NA']
-                        int_err_data.append(error_data)
-                    fin_int_err = sum([sum(i) for i in int_err_data])
-                    int_err_chi.append(fin_int_err)
-                    if fin_int_audit:
-                        int_acc = (float(sum(int_err_chi))/float(sum(int_aud_chi)))*100
-                        int_acc_sum = 100 - float('%.2f' % round(int_acc, 2))
-                    elif volumes != 0 and fin_int_err != 0:
-                        int_acc = (float(sum(int_err_chi))/float(sum(volume_chi)))*100
-                        int_acc_sum = 100 - float('%.2f' % round(int_acc, 2))
-                    else:
-                        int_acc_sum = 'NA'
-                    #tat center data
-                    tat_met_chi.append(met_cnt)
-                    tat_not_met_chi.append(not_met_cnt)
-                    if sum(tat_met_chi):
-                        tat_sum = (float(sum(tat_met_chi))/float(sum(tat_met_chi)+sum(tat_not_met_chi)))*100
-                    else:
-                        tat_sum = 'NA'
-
-                final_productivity_dict['center_productivity'] = prod_sum
-                final_productivity_dict['center_prod_utili'] = produc_sum
-                final_productivity_dict['center_internal_accuracy'] = int_acc_sum
-                final_productivity_dict['center_external_accuracy'] = ext_acc_sum
-                final_productivity_dict['center_tat'] = tat_sum
                 data_dict = {}
                 for key,value in final_productivity_dict.iteritems():
                     value_dict = {}
+                    if key == 'productivity':
+                        redis_key = '{0}_{1}_{2}_productivity'.format(prj_name,center_name,month_name)
+                        value_dict['productivity'] = str(productivity_value)
+                        data_dict[redis_key] = value_dict
                     if key == 'external_accuracy':
                         redis_key = '{0}_{1}_{2}_external_accuracy'.format(prj_name,center_name,month_name)
                         value_dict['external_accuracy'] = str(final_external_accuracy)
@@ -542,26 +471,6 @@ class Command(BaseCommand):
                     if key == 'internal_accuracy':
                         redis_key = '{0}_{1}_{2}_internal_accuracy'.format(prj_name,center_name,month_name)
                         value_dict['internal_accuracy'] = str(final_internal_accuracy)
-                        data_dict[redis_key] = value_dict
-                    if key == 'tat':
-                        redis_key = '{0}_{1}_{2}_tat'.format(prj_name,center_name,month_name)
-                        value_dict['tat'] = str(tat_final_value)
-                        data_dict[redis_key] = value_dict
-                    if key == 'center_productivity':
-                        redis_key = '{0}_{1}_center_productivity'.format(center_name,month_name)
-                        value_dict['center_productivity'] = str(prod_sum)
-                        data_dict[redis_key] = value_dict
-                    if key == 'center_prod_utili':
-                        redis_key = '{0}_{1}_center_prod_utili'.format(center_name,month_name)
-                        value_dict['center_prod_utili'] = str(produc_sum)
-                        data_dict[redis_key] = value_dict
-                    if key == 'center_internal_accuracy':
-                        redis_key = '{0}_{1}_center_internal_accuracy'.format(center_name,month_name)
-                        value_dict['center_internal_accuracy'] = str(int_acc_sum)
-                        data_dict[redis_key] = value_dict
-                    if key == 'center_external_accuracy':
-                        redis_key = '{0}_{1}_center_external_accuracy'.format(center_name,month_name)
-                        value_dict['center_external_accuracy'] = str(ext_acc_sum)
                         data_dict[redis_key] = value_dict
                     if key == 'fte_utilisation':
                         redis_key = '{0}_{1}_{2}_fte_utilisation'.format(prj_name,center_name,month_name)
@@ -571,9 +480,13 @@ class Command(BaseCommand):
                         redis_key = '{0}_{1}_{2}_operational_utilization'.format(prj_name,center_name,month_name)
                         value_dict['operational_utilization'] = str(final_operational)
                         data_dict[redis_key] = value_dict
-                    if key == 'center_tat':
-                        redis_key = '{0}_{1}_center_tat'.format(center_name,month_name)
-                        value_dict['center_tat'] = str(tat_sum)
+                    if key == 'prod_utili':
+                        redis_key = '{0}_{1}_{2}_prod_utili'.format(prj_name,center_name,month_name)
+                        value_dict['prod_utili'] = str(final_prod_util)
+                        data_dict[redis_key] = value_dict
+                    if key == 'tat':
+                        redis_key = '{0}_{1}_{2}_tat'.format(prj_name,center_name,month_name)
+                        value_dict['tat'] = str(tat_final_value)
                         data_dict[redis_key] = value_dict
                 conn = redis.Redis(host="localhost", port=6379, db=0) 
                 current_keys = []
