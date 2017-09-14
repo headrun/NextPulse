@@ -71,7 +71,7 @@ def create_reviews(request):
     curdate = datetime.datetime.now()
     review_name = eval(request.POST['json']).get('reviewname', "")
     agenda =  eval(request.POST['json']).get('reviewagenda', "")
-    _review_date = eval(request.POST['json']).get('reviewdate', '')
+    _review_date = eval(request.POST['json']).get('reviewtime', '')
     review_type = eval(request.POST['json']).get('review_type', '')
     _venue = eval(request.POST['json']).get('venue', "")
     _bridge = eval(request.POST['json']).get('bridge', "")

@@ -40,10 +40,7 @@ class Command(BaseCommand):
                 months_dict[month] = [str(date)]
                 month_count = month_count + 1
                 month_list.append([str(date)])
-        proje_cent = Project.objects.values_list('name',flat=True)
-        not_req = ["3i VAPP", "Bridgei2i", "E4U", "indix", "Nextgen", "IBM Sri Lanka P2P", "Quarto","Tally", "Sulekha", "Webtrade", "Walmart Chittor", "Future Energie Tech", "3iKYC", "Bigbasket"]
-        proje_cent = filter(lambda x: x not in not_req, list(proje_cent))
-        #proje_cent = ['Probe','Gooru','Ujjivan','Federal Bank']
+        proje_cent = ['Probe','NTT DATA Services TP','NTT DATA Services Coding','Federal Bank','Ujjivan','Gooru','Walmart Salem','IBM','IBM South East Asia','IBM Pakistan','IBM Africa','IBM DCIW Arabia','IBM Quality Control','IBM India and Sri Lanka','IBM NA and EU','IBM Arabia','IBM DCIW','IBM Latin America','IBM Sri Lanka P2P', 'Mobius']
         for month_name,month_dates in months_dict.iteritems():
             project_salem_count, project_chittoor_count = [] , []
             billa_sal, buf_sal, qc_qa_sal, tl_sal, others_sal, total_sal = [], [], [], [], [], []
@@ -68,24 +65,8 @@ class Command(BaseCommand):
                     break
                 volumes = RawTable.objects.filter(project=prj_id, center=center_id, date__range=[dates_list[0],dates_list[-1]]).aggregate(Sum('per_day'))
                 volumes = volumes['per_day__sum']
-                """targets = Targets.objects.filter(project=prj_id, center=center_id,from_date__gte=dates_list[0],to_date__lte=dates_list[-1])
-                if targets:
-                    fte_target_val = targets.filter(target_type='FTE Target').values_list('target_value',flat=True).distinct()
-                    fte_targ_val = sum(fte_target_val)
-                    team_target_val = targets.filter(target_type='Target').values_list('target_value',flat=True).distinct()
-                    team_targ_val = sum(team_target_val)
-                else:
-                    targ = Targets.objects.filter(project=prj_id, center=center_id,from_date__lte=dates_list[0],to_date__gte=dates_list[-1])
-                    fte_target_val = targ.filter(target_type='FTE Target').values_list('target_value',flat=True).distinct()
-                    fte_targ_val = sum(fte_target_val)
-                    team_target_val = targ.filter(target_type='Target').values_list('target_value',flat=True).distinct()
-                    team_targ_val = sum(team_target_val)
-                if fte_targ_val > team_targ_val:
-                    final_targs = fte_targ_val
-                else:
-                    final_targs = team_targ_val"""
 
-                if head_count['billable_hc__sum'] != None and prj_name != 'IBM':
+                if head_count['billable_hc__sum'] != None:
                     billable_head = head_count['billable_hc__sum']
                     billable_head = float('%.2f' % round(billable_head, 2))
                     billable_agents = head_count['billable_agents__sum']
