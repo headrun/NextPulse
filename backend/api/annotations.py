@@ -56,6 +56,12 @@ def add_annotation(request):
     prj_obj = Project.objects.filter(name = prj_name)
     center = Center.objects.filter(name = cen_name)
     widget_obj = Widgets.objects.filter(id_num = widget_id)[0]
+
+    existed_annotations = Annotation.objects.filter(text=text, project=prj_obj[0],center=center[0],\
+                                                        chart_type_name=widget_obj.chart_type_name)
+
+    if existed_annotations:
+        return json_HttpResponse('Annotation already exist with same text')
     try:
         annotation = Annotation.objects.create(epoch=epoch, text=text, key=key, project=prj_obj[0],\
                                             dt_created=dt_created, created_by=created_by,\

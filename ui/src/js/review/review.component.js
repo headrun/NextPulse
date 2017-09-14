@@ -94,7 +94,7 @@
          if (self.is_lead){
             $('.fa-pencil-square-o').hide();
             $('.fa-trash').hide();
-            swal('No Reviews Available! Click on plus button to create a new reveiw');
+            swal('No reviews available! Click on plus button to create a new reveiw');
 
         }
         else {
@@ -237,7 +237,8 @@
 
 			self.part_disable = false;
          if (self.is_lead){
-            swal('No Reviews Available! Click on plus button to create a new reveiw');
+//            swal('No Reviews Available! Click on plus button to create a new reveiw');
+            swal('No Reviews Available!');
         }   
         else {
             swal('No Reviews Available!');
@@ -268,18 +269,34 @@
               }
               else {
                 self.review = self.edit_review;
+                self.appendValues(self.edit_review);
                 self.submit_type = 1;
                 self.track_id = self.rev_id;
               }
             };
 
+            self.appendValues = function(data_array){
+                
+                $('.modal').find('input[name="reviewname"]').val(data_array.reviewname);
+                $('.modal').find('input[name="bridge"]').val(data_array.bridge);
+                $('.modal').find('input[name="venue"]').val(data_array.venue);
+                $('.modal').find('input[name="revDate"]').val(data_array.reviewtime);
+                $('.modal').find('textarea[name="reviewagenda"]').val(data_array.reviewagenda);
+            }
+
 
              self.submit = function(review) {
                 var selected_date = moment(review.reviewdate);
                 var today = moment(new Date());
-                today = today.set({hour:0,minute:0,second:0,millisecond:0});
-                if (selected_date.diff(today) < 0){
-                    swal('Creating Reviews in past date is restricted');
+                var past_days = today.set({hour:0,minute:0,second:0,millisecond:0});
+                if(today.format('YYYY-MM-DD') == selected_date.format('YYYY-MM-DD') && selected_date.diff(moment(), 'minutes') < 0){
+//                    if (selected_date.diff(moment(), 'minutes') < 0){
+                        swal('Creating reviews in past time is restricted');
+  //                  }
+                }else if(today.format('YYYY-MM-DD') > selected_date.format('YYYY-MM-DD')){
+                    if (selected_date.diff(past_days) < 0){
+                        swal('Creating reviews in past date is restricted');
+                    }
                 }
                 else {
 		 if (review.reviewname && review.reviewdate && review.reviewagenda && review.review_type != 'select'){
@@ -323,7 +340,13 @@
                      $('.fa-pencil-square-o').show();
                      $('.fa-trash').show();
 		     if ((Object.keys(result.data.result.all_data).length) != 0){
-                         self.get_review(self.all_reviews[Object.keys(self.all_reviews)[0]][0]);
+                    if(self.is_lead){
+                        self.no_data = true;
+                    }
+                    setTimeout(function(){
+                        self.get_review(self.all_reviews[Object.keys(self.all_reviews)[0]][0]);
+                        }, 600)
+//                         self.get_review(self.all_reviews[Object.keys(self.all_reviews)[0]][0]);
 		     }
                      $('.loading').removeClass('show').addClass('hide');
 

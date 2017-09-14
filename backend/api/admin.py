@@ -7,11 +7,9 @@ class ProjectAdmin(admin.ModelAdmin):
 admin.site.register(Project,ProjectAdmin)
 
 #admin.site.register(Annotation)
-
 class AnnotationAdmin(admin.ModelAdmin):
     list_display = ['project','created_by','dt_created']
 admin.site.register(Annotation,AnnotationAdmin)
-
 class CenterAdmin(admin.ModelAdmin):
     list_display = ['name']
 admin.site.register(Center,CenterAdmin)
