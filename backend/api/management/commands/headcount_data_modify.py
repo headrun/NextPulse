@@ -40,10 +40,12 @@ class Command(BaseCommand):
                 months_dict[month] = [str(date)]
                 month_count = month_count + 1
                 month_list.append([str(date)])
-        proje_cent = Project.objects.values_list('name',flat=True)
-        not_req = ["3i VAPP", "Bridgei2i", "E4U", "indix", "Nextgen", "IBM Sri Lanka P2P", "Quarto","Tally", "Sulekha", "Webtrade", "Walmart Chittor", "Future Energie Tech", "3iKYC", "Bigbasket"]
-        proje_cent = filter(lambda x: x not in not_req, list(proje_cent))
+        #proje_cent = Project.objects.values_list('name',flat=True)
+        #not_req = ["3i VAPP", "Bridgei2i", "E4U", "indix", "Nextgen", "IBM Sri Lanka P2P", "Quarto","Tally", "Sulekha", "Webtrade", "Walmart Chittor", "Future Energie Tech", "3iKYC", "Bigbasket"]
+        #proje_cent = filter(lambda x: x not in not_req, list(proje_cent))
         #proje_cent = ['Probe','Gooru','Ujjivan','Federal Bank']
+        proje_cent = ['Probe','NTT DATA Services TP','NTT DATA Services Coding','Federal Bank','Ujjivan','Gooru','Walmart Salem','IBM','IBM South East Asia','IBM Pakistan','IBM Africa','IBM DCIW Arabia','IBM Quality Control','IBM India and Sri Lanka','IBM NA and EU','IBM Arabia','IBM DCIW','IBM Latin America','IBM Sri Lanka P2P']
+
         for month_name,month_dates in months_dict.iteritems():
             project_salem_count, project_chittoor_count = [] , []
             billa_sal, buf_sal, qc_qa_sal, tl_sal, others_sal, total_sal = [], [], [], [], [], []

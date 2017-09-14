@@ -42,10 +42,12 @@ class Command(BaseCommand):
                 month_count = month_count + 1
                 month_list.append([str(date)])
         final_project_data = []
-        proje_cent = Project.objects.values_list('name',flat=True)
-        not_req = ["3i VAPP", "Bridgei2i", "E4U", "indix", "Nextgen", "IBM Sri Lanka P2P", "Quarto","Tally", "Sulekha", "Webtrade", "Walmart Chittor", "Future Energie Tech", "3iKYC", "Bigbasket"]
-        proje_cent = filter(lambda x: x not in not_req, list(proje_cent))
+        #proje_cent = Project.objects.values_list('name',flat=True)
+        #not_req = ["3i VAPP", "Bridgei2i", "E4U", "indix", "Nextgen", "IBM Sri Lanka P2P", "Quarto","Tally", "Sulekha", "Webtrade", "Walmart Chittor", "Future Energie Tech", "3iKYC", "Bigbasket"]
+        #proje_cent = filter(lambda x: x not in not_req, list(proje_cent))
         #proje_cent = ['Probe']
+        proje_cent = ['Probe','NTT DATA Services TP','NTT DATA Services Coding','Federal Bank','Ujjivan','Gooru','Walmart Salem','IBM','IBM South East Asia','IBM Pakistan','IBM Africa','IBM DCIW Arabia','IBM Quality Control','IBM India and Sri Lanka','IBM NA and EU','IBM Arabia','IBM DCIW','IBM Latin America','IBM Sri Lanka P2P']
+
         for month_name,month_dates in months_dict.iteritems():
             volume_sal, volume_chi, targets_sal, targets_chi, bill_age_sal, bill_age_chi = [], [], [], [], [], []
             int_err_sal, int_aud_sal, ext_err_sal, ext_aud_sal = [], [], [], []

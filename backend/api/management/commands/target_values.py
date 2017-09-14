@@ -43,7 +43,7 @@ class Command(BaseCommand):
         #not_req = ["3i VAPP", "Bridgei2i", "E4U", "indix", "Nextgen", "IBM Sri Lanka P2P", "Quarto","Tally", "Sulekha", "Webtrade", "Walmart Chittor", "Future Energie Tech"]
         #proje_cent = filter(lambda x: x not in not_req, list(proje_cent))
         proje_cent = ['Probe','NTT DATA Services TP','NTT DATA Services Coding','Federal Bank','Ujjivan','Gooru','Walmart Salem','IBM','IBM South East Asia','IBM Pakistan','IBM Africa','IBM DCIW Arabia','IBM Quality Control','IBM India and Sri Lanka','IBM NA and EU','IBM Arabia','IBM DCIW','IBM Latin America','IBM Sri Lanka P2P']
-        #proje_cent = ["NTT DATA Services TP"]
+        #proje_cent = ["NTT DATA Services Coding"]
         for pro_cen in proje_cent:
             values = Project.objects.filter(name=pro_cen).values_list('id','center_id')
             prj_id = values[0][0]
@@ -53,6 +53,7 @@ class Command(BaseCommand):
             center_name = Center.objects.filter(project=prj_id).values_list('name',flat=True)[0]
             for month_name,month_dates in months_dict.iteritems():
                 dates_list = month_dates
+		#import pdb;pdb.set_trace()
                 final_productivity_list,final_actual_val,final_target_val = [], [], []
                 billable_hc = Headcount.objects.filter(project=prj_id, center=center_id, date__range=[dates_list[0],dates_list[-1]]).aggregate(Sum('billable_agents'))
                 tars = Targets.objects.filter(project=prj_id, center=center_id,from_date__gte=dates_list[0],to_date__lte=dates_list[-1]) 
@@ -61,7 +62,7 @@ class Command(BaseCommand):
                 else:
                     tars = Targets.objects.filter(project=prj_id, center=center_id,from_date__lte=dates_list[0],to_date__gte=dates_list[-1])
                     tar_packs = tars.values('sub_project','work_packet').distinct()
-                    tar_packs = tar_packs[1:]
+                   # tar_packs = tar_packs[1:]
                 for pac in tar_packs:
                     targets_vals, actual_vals, billable_vals = {}, {}, {}
                     if pac['work_packet'] != '' and pac['sub_project'] == '':
