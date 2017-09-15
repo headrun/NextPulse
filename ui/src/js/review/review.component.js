@@ -111,30 +111,33 @@
                  self.rev_id = review.id;
                  var sel_rev_id = self.rev_id;
 
-             if (!$('#check-past').is(':checked')) {
-                 $("#fileuploader").uploadFile({
-                    url:"/api/upload_review_doc/",
-                    dragDrop:false,
-                    fileName:"myfile",
-                    formData:{"review_id": self.rev_id },
-                    onSuccess:function(files,data,xhr,pd,sel_rev_id){
+             if (self.is_lead && !$('#check-past').is(':checked')) {
+                     self.no_data = true;
+                     setTimeout(function(){
+                     $("#fileuploader").uploadFile({
+                        url:"/api/upload_review_doc/",
+                        dragDrop:false,
+                        fileName:"myfile",
+                        formData:{"review_id": self.rev_id },
+                        onSuccess:function(files,data,xhr,pd,sel_rev_id){
 
-                        if (data == "Improper File name") {
-                            swal('File name in not proper');	
-                        }else{
-                            $('.ajax-file-upload-statusbar').hide();
-                            $('.loading').removeClass('hide').addClass('show');
-                            self.get_data_url = 'api/get_review_details/?review_id='+data.result;
+                            if (data == "Improper File name") {
+                                swal('File name in not proper');	
+                            }else{
+                                $('.ajax-file-upload-statusbar').hide();
+                                $('.loading').removeClass('hide').addClass('show');
+                                self.get_data_url = 'api/get_review_details/?review_id='+data.result;
 
-                            $http.get(self.get_data_url).then(function(result){
-                                self.all_review_data = result.data.result.rev_files;
-                                self.no_data = true;
-                                self.part_disable = true;
-                                $('.loading').removeClass('show').addClass('hide');
-                            });
+                                $http.get(self.get_data_url).then(function(result){
+                                    self.all_review_data = result.data.result.rev_files;
+                                    self.no_data = true;
+                                    self.part_disable = true;
+                                    $('.loading').removeClass('show').addClass('hide');
+                                });
+                            }
                         }
-                    }
-                });
+                    });
+                    }, 1000);
              }else{
                 $("#fileuploader").html('');    
              }
@@ -272,6 +275,7 @@
               else {
                 self.review = self.edit_review;
                 self.appendValues(self.edit_review);
+                self.review.reviewdate = self.review.reviewtime;
                 self.submit_type = 1;
                 self.track_id = self.rev_id;
               }
@@ -310,9 +314,7 @@
                  $('.loading').removeClass('hide').addClass('show');
                  self.create_rev_url = 'api/create_reviews/';
                  var data = {}
-                 if(review.rev_str == 'Add Review'){
-                    review.reviewtime = review.reviewdate;    
-                 }
+                 review.reviewtime = review.reviewdate;    
                  angular.forEach(review, function(key, value) {
                      if (key) {
                          data[value] = key.toString()
