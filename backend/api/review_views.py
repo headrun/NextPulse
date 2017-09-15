@@ -4,13 +4,16 @@ import json
 from collections import OrderedDict
 from django.http import HttpResponse
 from django.core.mail import EmailMultiAlternatives
-
+from api.commons import *
 from common.utils import getHttpResponse as json_HttpResponse
 from api.models import *
 
 
 def get_top_reviews(request):
     """ get list of reviews """
+
+    current_time = datetime.datetime.utcnow()
+    local_current_time = utc_to_local(current_time)
     search_term = request.GET.get('search', "")
     timeline = request.GET.get('timeline', "future")
     filter_param = {}
@@ -20,10 +23,10 @@ def get_top_reviews(request):
         if search_term:
             filter_param.update({'review_name__contains': search_term})
         if timeline == 'past':
-            filter_param.update({'review_date__lt' :datetime.datetime.now()})
+            filter_param.update({'review_date__lt' :local_current_time})
             search_param = "-review_date"
         else:
-            filter_param.update({'review_date__gte' :datetime.datetime.now()})
+            filter_param.update({'review_date__gte' :local_current_time})
             search_param = "review_date"
 
         rev_objs = Review.objects.filter( **filter_param).order_by(search_param)
