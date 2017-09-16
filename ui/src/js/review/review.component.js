@@ -120,9 +120,17 @@
                         formData:{"review_id": self.rev_id },
                         onSuccess:function(files,data,xhr,pd,sel_rev_id){
 
-                            if (data == "Improper File name") {
-                                swal('File name in not proper');	
-                            }else{
+                            if (data.result == "Improper File name") {
+                                swal('File name in not proper!');
+                                $('.ajax-file-upload-statusbar').hide();
+
+                            }
+                            else if (data.result == "File size is bigger than 10 MB"){
+                                swal("File size is bigger than 10 MB!");
+                                $('.ajax-file-upload-statusbar').hide();
+
+                                }
+                            else{
                                 $('.ajax-file-upload-statusbar').hide();
                                 $('.loading').removeClass('hide').addClass('show');
                                 self.get_data_url = 'api/get_review_details/?review_id='+data.result;

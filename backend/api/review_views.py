@@ -215,6 +215,9 @@ def upload_review_doc(request):
 
         r_obj = Review.objects.get(id = review_id)
         for item in attach_files:
+            file_size = attach_files[0].size/1024/1024
+            if file_size > 10.0:
+                return json_HttpResponse("File size is bigger than 10 MB")
             res = check_string(item.name)
             if not res:
                 return HttpResponse("Improper File name")
@@ -343,7 +346,7 @@ def send_review_mail(data, task, memb_obj = ""):
             _text = "Hi %s, %s, <p> %s </p>" %("Abhishek", "Yeswanth", process[task] )
 
         mail_body = create_mail_body(_text, data)
-        to = ['yeswanth@headrun.com', 'abhishek@headrun.com']
+        to = ['sivak@headrun.net', 'abhishek@headrun.com']
         to.append(memb_obj.member.email)
         msg = EmailMultiAlternatives("%s - %s Review for NextWealth - %s" % (task.upper(), data['review_type'], data['project']), "",
                 'nextpulse@nextwealth.in', to)
