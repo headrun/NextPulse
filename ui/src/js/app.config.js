@@ -38,7 +38,8 @@
                "template": "<reset></reset>"
              }).state("review", {
                "url"     : "/review",
-               "template": "<review></review>"
+               "template": "<review></review>",
+               "authRequired": true
              }).state("people", {
                "url"     : "/people",
                "template": "<people></people>"
