@@ -196,13 +196,13 @@
         var on_mouseleave = function(){
             if (that.annot_saved == false){
                 swal({
-                  title: "Are you sure?",
-                  text: "Annotation is not saved. Do you want to save!?",
+                  title: "Annotation is not saved yet!",
+                  text: "Do you want to save it?",
                   type: "warning",
                   showCancelButton: true,
                   confirmButtonColor: "#DD6B55",
                   confirmButtonText: "Yes, save it!",
-                  cancelButtonText: "No, cancel pls!",
+                  cancelButtonText: "No, Delete pls!",
                   closeOnConfirm: false,
                   closeOnCancel: false
                 }, 
@@ -210,6 +210,8 @@
                 function(isConfirm){
                     if (isConfirm) {
                         that.save_annotation();
+                        that.$popover.removeClass("in").removeClass("show");
+                        // that.destroy();
                         swal("Saved!", "Your annotation is saved.", "success");
                     }
                     else {
@@ -542,7 +544,7 @@
                if (JSON.parse(resp).message == "successfully updated") {
 
                     that.annot_saved = true;
-
+                    
                     }
                });
 

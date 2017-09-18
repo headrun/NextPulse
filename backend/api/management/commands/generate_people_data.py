@@ -32,16 +32,15 @@ class Command(BaseCommand):
             else:
                 months_dict[month] = [str(date)]
         final_project_data = []
-        proje_cent = Project.objects.values_list('name',flat=True)
-        not_req = ["3i VAPP", "Bridgei2i", "E4U", "indix", "Nextgen", "IBM Sri Lanka P2P", "Quarto","Tally", "Sulekha", "Webtrade", "Walmart Chittor", "Future Energie Tech", "3iKYC", "Bigbasket"]
-        proje_cent = filter(lambda x: x not in not_req, list(proje_cent))
+        #proje_cent = Project.objects.values_list('name',flat=True)
+        #not_req = ["3i VAPP", "Bridgei2i", "E4U", "indix", "Nextgen", "IBM Sri Lanka P2P", "Quarto","Tally", "Sulekha", "Webtrade", "Walmart Chittor", "Future Energie Tech", "3iKYC", "Bigbasket"]
+        #proje_cent = filter(lambda x: x not in not_req, list(proje_cent))
         for month_name,month_dates in months_dict.iteritems():
-            volume_sal, volume_chi, targets_sal, targets_chi, bill_age_sal, bill_age_chi = [], [], [], [], [], []
-            int_err_sal, int_aud_sal, ext_err_sal, ext_aud_sal = [], [], [], []
-            int_err_chi, int_aud_chi, ext_err_chi, ext_aud_chi = [], [], [], []
-            prod_sal, produc_sal, int_acc_sal, ext_acc_sal, tat_met_sal, tat_not_met_sal = [], [], [], [], [], []
-            prod_chi, produc_chi, int_acc_chi, ext_acc_chi, tat_met_chi, tat_not_met_chi = [], [], [], [], [], []
+            tat_met_sal, tat_not_met_sal = [], []
+            tat_met_chi, tat_not_met_chi = [], []
             dates_list = month_dates
+            #proje_cent = ['Walmart Chittor', 'Mobius']
+            proje_cent = ['Probe','NTT DATA Services TP','NTT DATA Services Coding','Federal Bank','Ujjivan','Gooru','Walmart Salem','IBM','IBM South East Asia','IBM Pakistan','IBM Africa','IBM DCIW Arabia','IBM Quality Control','IBM India and Sri Lanka','IBM NA and EU','IBM Arabia','IBM DCIW','IBM Latin America','IBM Sri Lanka P2P', 'Walmart Chittor', 'Mobius']
             for pro_cen in proje_cent:
                 values = Project.objects.filter(name=pro_cen).values_list('id','center_id')
                 prj_id = values[0][0]
@@ -50,32 +49,20 @@ class Command(BaseCommand):
                 final_productivity_list = []
                 conn = redis.Redis(host="localhost", port=6379, db=0)
                 center_name = Center.objects.filter(project=prj_id).values_list('name',flat=True)[0]
-
                 volumes = RawTable.objects.filter(project=prj_id,center=center_id,date__range=[dates_list[0],dates_list[-1]])
-                external_packets = Externalerrors.objects.filter(project=prj_id,center=center_id,date__range=[dates_list[0],dates_list[-1]])
-                internal_packets = Internalerrors.objects.filter(project=prj_id,center=center_id,date__range=[dates_list[0],dates_list[-1]])
                 volume_list = volumes.values('sub_project').distinct()
                 volumes_data = volumes.values('sub_project','work_packet').distinct()
                 if volume_list:
                     if volume_list[0]['sub_project']:
                         volume_list = volume_list
-                        internal_pack_list = internal_packets.values_list('sub_project',flat=True).distinct()
-                        external_pack_list = external_packets.values_list('sub_project',flat=True).distinct()
                     else:
                         volume_list = volumes.values_list('work_packet',flat=True).distinct()
-                        internal_pack_list = internal_packets.values_list('work_packet',flat=True).distinct()
-                        external_pack_list = external_packets.values_list('work_packet',flat=True).distinct()
                 else:
-                    break
+                    volume_list = []
                 final_productivity_dict = {}
                 new_date_list, tat_values = [] , []
-                productivity, tat_data = {}, {}
-                date_values, main_values = {}, {}
-                acc_values, int_acc_values = {}, {}
-                vol_error_values, int_vol_error_values = {}, {}
-                vol_audit_data, int_vol_audit_data = {}, {} 
-                all_error_types, int_all_error_types = [], []
-                sub_error_types, int_sub_error_types = [], []
+                #productivity, tat_data = {}, {}
+                tat_data = {}
                 fte_data, prod_utili = [], []
                 operational_data, targ_list = [], []
                 for date_va in dates_list:
@@ -86,170 +73,13 @@ class Command(BaseCommand):
                             final_work_packet = vol_type                            
                             if volumes_data[0]['work_packet'] != '' and volumes_data[0]['sub_project'] != '':
                                 final_work_packet = final_work_packet['sub_project']
-                                tar = Targets.objects.filter(project=prj_id,center=center_id,from_date__lte=date_va,to_date__gte=date_va,sub_project=final_work_packet,target_type = 'FTE Target').values_list('target_value',flat=True).distinct()
-                                targets = sum(tar)
-                                to_tar = Targets.objects.filter(project=prj_id,center=center_id,from_date__lte=date_va,to_date__gte=date_va,sub_project=final_work_packet,target_type = 'Target').values_list('target_value',flat=True).distinct()
-                                to_target = sum(to_tar)
-                                emp_count = Headcount.objects.filter(project=prj_id, center=center_id, date=date_va,sub_project = final_work_packet).aggregate(Sum('billable_agents'))
-                                tat_da = TatTable.objects.filter(project=prj_id, center=center_id, date=date_va, sub_project = final_work_packet)
-                                met_va = tat_da.aggregate(Sum('met_count'))
-                                not_met_va = tat_da.aggregate(Sum('non_met_count'))
-                                tat_met_va = met_va['met_count__sum']
-                                tat_not_met_va = not_met_va['non_met_count__sum']
                             else:
                                 final_work_packet = final_work_packet
-                                to_tar = Targets.objects.filter(project=prj_id,center=center_id,from_date=date_va,to_date=date_va,work_packet=final_work_packet,target_type = 'Target').values_list('target_value',flat=True).distinct()
-                                to_target = sum(to_tar)
-                                tar = Targets.objects.filter(project=prj_id,center=center_id,from_date=date_va,to_date=date_va,work_packet=final_work_packet,target_type = 'FTE Target').values_list('target_value',flat=True).distinct()
-                                targets = sum(tar)
-                                emp_count = Headcount.objects.filter(project=prj_id, center=center_id, date=date_va,work_packet = final_work_packet).aggregate(Sum('billable_agents'))
-                                tat_da = TatTable.objects.filter(project=prj_id, center=center_id, date=date_va, work_packet = final_work_packet)
-                                met_va = tat_da.aggregate(Sum('met_count'))
-                                not_met_va = tat_da.aggregate(Sum('non_met_count'))
-                                tat_met_va = met_va['met_count__sum']
-                                tat_not_met_va = not_met_va['non_met_count__sum']    
-                            if emp_count['billable_agents__sum'] == None:
-                                emp_count['billable_agents__sum'] = 0
-                            if targets > 0 and to_target == 0:
-                                targets = targets * emp_count['billable_agents__sum']
-                            else:
-                                targets = to_target
-                            targ_list.append(targets)
-    
-                        #generation of external accuracy code
-                        for packet in external_pack_list:
-                            work_packet = packet
-                            key_pattern = '{0}_{1}_{2}_{3}_{4}'.format(prj_name, center_name, work_packet, date_va,'externalerror')
-                            audit_key_list = conn.keys(pattern=key_pattern)
-                            if not audit_key_list:
-                                if vol_error_values.has_key(work_packet):
-                                    vol_error_values[work_packet].append("NA")
-                                    vol_audit_data[work_packet].append("NA")
-                                else:
-                                    vol_error_values[work_packet] = ["NA"]
-                                    vol_audit_data[work_packet] = ["NA"]
-                            var2 = [conn.hgetall(cur_key) for cur_key in audit_key_list]
-                            if var2:
-                                var2 = var2[0]
-                            else:
-                                var2 = {}
-                            for key, value in var2.iteritems():
-                                if key == 'types_of_errors':
-                                    int_all_error_types.append(value)
-                                elif key == 'sub_error_types':
-                                    int_sub_error_types.append(value)
-                                else:
-                                    if value == 'None':
-                                        value = "NA"
-                                    error_vol_type = work_packet
-                                    if key == 'total_errors':
-                                        if vol_error_values.has_key(error_vol_type):
-                                            if value =="NA":
-                                                vol_error_values[error_vol_type].append(value)
-                                            else:
-                                                vol_error_values[error_vol_type].append(int(value))
-                                        else:
-                                            if value =="NA":
-                                                vol_error_values[error_vol_type] = [value]
-                                            else:
-                                                vol_error_values[error_vol_type] = [int(value)]
-                                    else:
-                                        if vol_audit_data.has_key(error_vol_type):
-                                            if value=="NA":
-                                                vol_audit_data[error_vol_type].append(value)
-                                            else:
-                                                vol_audit_data[error_vol_type].append(int(value))
-                                        else:
-                                            if value=="NA":
-                                                vol_audit_data[error_vol_type] = [value]
-                                            else:
-                                                vol_audit_data[error_vol_type] = [int(value)]
-                            prod_pattern = '{0}_{1}_{2}_{3}'.format(prj_name, center_name, work_packet,date_va)
-                            prod_key_list = conn.keys(pattern=prod_pattern)
-                            if not prod_key_list:
-                                if acc_values.has_key(work_packet):
-                                    acc_values[work_packet].append(0)
-                                else:
-                                    acc_values[work_packet] = [0]
-                            for curr_key in prod_key_list:
-                                val = conn.hgetall(curr_key)
-                                for key,value in val.iteritems():
-                                    if value == 'None':
-                                        value = 0
-                                    if acc_values.has_key(key):
-                                        acc_values[key].append(int(value))
-                                    else:
-                                        acc_values[key] = [int(value)]
 
-                        #generation of internal accuracy
-                        for int_packet in internal_pack_list:
-                            int_work_packet = int_packet
-                            int_key_pattern = '{0}_{1}_{2}_{3}_{4}'.format(prj_name, center_name, int_work_packet, date_va,'error')
-                            int_audit_key_list = conn.keys(pattern=int_key_pattern)
-                            if not int_audit_key_list:
-                                if int_vol_error_values.has_key(int_work_packet):
-                                    int_vol_error_values[int_work_packet].append("NA")
-                                    int_vol_audit_data[int_work_packet].append("NA")
-                                else:
-                                    int_vol_error_values[int_work_packet] = ["NA"]
-                                    int_vol_audit_data[int_work_packet] = ["NA"]
-                            var1 = [conn.hgetall(cur_key) for cur_key in int_audit_key_list]
-                            if var1:
-                                var1 = var1[0]
-                            else:
-                                var1 = {}
-                            for key, value in var1.iteritems():
-                                if key == 'types_of_errors':
-                                    int_all_error_types.append(value)
-                                elif key == 'sub_error_types':
-                                    int_sub_error_types.append(value)
-                                else:
-                                    if value == 'None':
-                                        value = "NA"
-                                    error_vol_type = int_work_packet
-                                    if key == 'total_errors':
-                                        if int_vol_error_values.has_key(error_vol_type):
-                                            if value =="NA":
-                                                int_vol_error_values[error_vol_type].append(value)
-                                            else:
-                                                int_vol_error_values[error_vol_type].append(int(value))
-                                        else:
-                                            if value =="NA":
-                                                int_vol_error_values[error_vol_type] = [value]
-                                            else:
-                                                int_vol_error_values[error_vol_type] = [int(value)]
-                                    else:
-                                        if int_vol_audit_data.has_key(error_vol_type):
-                                            if value=="NA":
-                                                int_vol_audit_data[error_vol_type].append(value)
-                                            else:   
-                                                int_vol_audit_data[error_vol_type].append(int(value))
-                                        else:
-                                            if value=="NA":
-                                                int_vol_audit_data[error_vol_type] = [value]
-                                            else:
-                                                int_vol_audit_data[error_vol_type] = [int(value)]
-                            prod_int_pattern = '{0}_{1}_{2}_{3}'.format(prj_name, center_name, int_work_packet,date_va)
-                            prod_int_key_list = conn.keys(pattern=prod_int_pattern)
-                            if not prod_int_key_list:
-                                if int_acc_values.has_key(int_work_packet):
-                                    int_acc_values[int_work_packet].append(0)
-                                else:
-                                    int_acc_values[int_work_packet] = [0]
-                            for curr_key in prod_int_key_list:
-                                data = conn.hgetall(curr_key)
-                                for key,value in data.iteritems():
-                                    if value == 'None':
-                                        value = 0
-                                    if int_acc_values.has_key(key):
-                                        int_acc_values[key].append(int(value))
-                                    else:
-                                        int_acc_values[key] = [int(value)]
-
-                        #generation of fte and operational headcount data
-                        prod_vals = RawTable.objects.filter(project=prj_id, center=center_id, date=date_va).aggregate(Sum('per_day'))
+                           #generation of fte and operational headcount data
+                        #prod_vals = RawTable.objects.filter(project=prj_id, center=center_id, date=date_va).aggregate(Sum('per_day'))
                         headcount_details = Headcount.objects.filter(project=prj_id, center=center_id, date=date_va).aggregate(Sum('billable_hc'),Sum('buffer_agents'),Sum('qc_or_qa'),Sum('teamlead'),Sum('trainees_and_trainers'))
-                        pro_da = prod_vals['per_day__sum']
+                        #pro_da = prod_vals['per_day__sum']
                         if headcount_details['billable_hc__sum'] != None:
                             utilization_numerator = headcount_details['billable_hc__sum']
                             fte_utilization = headcount_details['billable_hc__sum'] + headcount_details['buffer_agents__sum'] + headcount_details['qc_or_qa__sum'] + headcount_details['teamlead__sum']
@@ -265,9 +95,9 @@ class Command(BaseCommand):
                             operational_data.append(0)
 
                 #calculation for productivity value
-                volumes = RawTable.objects.filter(project=prj_id, center=center_id, date__range = [dates_list[0],dates_list[-1]]).aggregate(Sum('per_day'))
-                volumes = volumes['per_day__sum']
-                bill_age = Headcount.objects.filter(project=prj_id, center=center_id, date__range = [dates_list[0],dates_list[-1]]).aggregate(Sum('billable_agents'))
+                #volumes = RawTable.objects.filter(project=prj_id, center=center_id, date__range = [dates_list[0],dates_list[-1]]).aggregate(Sum('per_day'))
+                #volumes = volumes['per_day__sum']
+                #bill_age = Headcount.objects.filter(project=prj_id, center=center_id, date__range = [dates_list[0],dates_list[-1]]).aggregate(Sum('billable_agents'))
                 tat = TatTable.objects.filter(project=prj_id, center=center_id, date__range = [dates_list[0],dates_list[-1]])
                 met_cnt = tat.aggregate(Sum('met_count'))
                 not_met_cnt = tat.aggregate(Sum('non_met_count'))
@@ -279,101 +109,12 @@ class Command(BaseCommand):
                     not_met_cnt = 0
                 else:
                     not_met_cnt = not_met_cnt['non_met_count__sum']
-                bill_age = bill_age['billable_agents__sum']
-                target_values = sum(targ_list)
 
-                if bill_age:
-                    produc_utilisation_val = float(volumes)/float(bill_age)
-                    final_prod_util = float('%.2f' % round(produc_utilisation_val,2))
-                else:
-                    final_prod_util = 'NA'
-                #calculation for external accuracy code
-                acc_values_sum = {}
-                for key, value in acc_values.iteritems():
-                    production_data = [i for i in value if i!='NA']
-                    acc_values_sum[key] = sum(production_data)
-                error_volume_data = {}
-                for key, value in vol_error_values.iteritems():
-                    error_filter = [i for i in value if i!='NA']
-                    error_volume_data[key] = sum(error_filter)
-                error_audit_data = {}
-                for key, value in vol_audit_data.iteritems():
-                    error_filter = [i for i in value if i!='NA']
-                    error_audit_data[key] = sum(error_filter)
-                error_accuracy = {}
-                for key,value in error_volume_data.iteritems():
-                    if error_audit_data[key]:
-                        percentage = ((float(value)/float(error_audit_data[key])))*100
-                        percentage = 100 - float('%.2f' % round(percentage, 2))
-                        error_accuracy[key] = [percentage]
-                    else:
-                        if error_audit_data[key] == 0 and acc_values_sum.has_key(key):
-                            try:
-                                percentage = (float(value) / acc_values_sum[key]) * 100
-                                percentage = 100 - float('%.2f' % round(percentage, 2))
-                                error_accuracy[key] = [percentage]
-                            except:
-                                error_accuracy[key] = [0]
-                        else:
-                            percentage = 0
-                            error_accuracy[key] = [percentage] 
-
-                accuracy_values = error_accuracy.values()
-                err_values = [i for i in error_accuracy.values() if i != [0]]
-                acc_err_values = [sum(k) for k in err_values]
-                sum_acc_values = sum(acc_err_values)
-                final_value = float('%.2f' % round(sum_acc_values,2))
-                if len(err_values):
-                    final_accuracy = float(float(final_value)/len(err_values))
-                    final_external_accuracy = float('%.2f' % round(final_accuracy,2))
-                else:
-                    final_external_accuracy = "NA"
-                #calculation for internal accuracy
-                int_acc_values_sum = {}
-                for key, value in int_acc_values.iteritems():
-                    int_production_data = [i for i in value if i!='NA']
-                    int_acc_values_sum[key] = sum(int_production_data)
-                int_error_volume_data = {}
-                for key, value in int_vol_error_values.iteritems():
-                    int_error_filter = [i for i in value if i!='NA']
-                    int_error_volume_data[key] = sum(int_error_filter)
-                int_error_audit_data = {}
-                for key, value in int_vol_audit_data.iteritems():
-                    error_filter = [i for i in value if i!='NA']
-                    int_error_audit_data[key] = sum(error_filter)
-                int_error_accuracy = {}
-                for key,value in int_error_volume_data.iteritems():
-                    if int_error_audit_data[key]:
-                        percentage = ((float(value)/float(int_error_audit_data[key])))*100
-                        int_percentage = 100 - float('%.2f' % round(percentage, 2))
-                        int_error_accuracy[key] = [int_percentage]
-                    else:
-                        if int_error_audit_data[key] == 0 and int_acc_values_sum.has_key(key):
-                            try:
-                                percentage = (float(value) / int_acc_values_sum[key]) * 100
-                                int_percentage = 100 - float('%.2f' % round(percentage, 2))
-                                int_error_accuracy[key] = [int_percentage]
-                            except:
-                                int_error_accuracy[key] = [0]
-                        else:
-                            int_percentage = 0
-                            int_error_accuracy[key] = [int_percentage]
-                
-                int_accuracy_values = int_error_accuracy.values()
-                int_err_values = [i for i in int_error_accuracy.values() if i != [0]]
-                int_acc_err_values = [sum(k) for k in int_err_values]
-                int_sum_acc_values = sum(int_acc_err_values)   
-                int_final_value = float('%.2f' % round(int_sum_acc_values,2))
-                if len(int_err_values):
-                    final_int_accuracy = float(float(int_final_value)/len(int_err_values))
-                    final_internal_accuracy = float('%.2f' % round(final_int_accuracy,2))
-                else:
-                    final_internal_accuracy = "NA"
                 if met_cnt:
                     tat_value = (float(met_cnt)/float(met_cnt+not_met_cnt))*100
                     tat_final_value = float('%.2f' % round(tat_value,2))
                 else:
-                    tat_final_value = 'NA'
+                    tat_final_value = 'NA' 
                 if len(new_date_list):
                     fte_utiliti_value = sum(fte_data)/len(new_date_list)
                     operational_utiliti_value = sum(operational_data)/len(new_date_list)
@@ -383,76 +124,34 @@ class Command(BaseCommand):
                     final_fte = 0
                     final_operational = 0
                     final_prod_util = 0
-                final_productivity_dict['project'] = prj_name
-                final_productivity_dict['center'] = center_name
-                final_productivity_dict['month'] = month_name
-                final_productivity_dict['external_accuracy'] = final_external_accuracy
-                final_productivity_dict['internal_accuracy'] = final_internal_accuracy
-                final_productivity_dict['fte_utilisation'] = final_fte
-                final_productivity_dict['operational_utilization'] = final_operational
-                final_productivity_dict['tat'] = tat_final_value
-                final_productivity_list.append(final_productivity_dict)
-                ext_audit_data, ext_err_data, int_audit_data, int_err_data = [], [], [], []
-                ext_audit = vol_audit_data.values()
+                if center_name == 'Salem':
+                    attrition = 0
+                    absent = 0
+                    final_productivity_dict['project'] = prj_name
+                    final_productivity_dict['center'] = center_name
+                    final_productivity_dict['month'] = month_name
+                    final_productivity_dict['fte_utilisation'] = final_fte
+                    final_productivity_dict['operational_utilization'] = final_operational
+                    final_productivity_dict['tat'] = tat_final_value
+                    final_productivity_dict['absenteeism'] = absent
+                    final_productivity_dict['attrition'] = attrition
+                    final_productivity_dict['center_absenteeism'] = absent
+                    final_productivity_dict['center_attrition'] = attrition
+                    final_productivity_list.append(final_productivity_dict)
+                else:
+                    attrition = 'NA'
+                    absent = 'NA'
+                    final_productivity_dict['project'] = prj_name
+                    final_productivity_dict['center'] = center_name
+                    final_productivity_dict['month'] = month_name
+                    final_productivity_dict['fte_utilisation'] = final_fte
+                    final_productivity_dict['operational_utilization'] = final_operational
+                    final_productivity_dict['tat'] = tat_final_value
+                    final_productivity_dict['absenteeism'] = absent
+                    final_productivity_dict['attrition'] = attrition
+                    final_productivity_dict['center_absenteeism'] = absent
+                    final_productivity_dict['center_attrition'] = attrition
                 if center_name == 'Salem' and prj_name != 'IBM':
-                    volume_sal.append(volumes)
-                    targets_list = sum(targ_list)
-                    targets_sal.append(targets_list)
-                    #productivity cneter data
-                    if sum(targets_sal):
-                        cen_prod = (float(sum(volume_sal))/float(sum(targets_sal)))*100
-                        prod_sum = float('%.2f' % round(cen_prod,2))
-                    else:
-                        prod_sum = 'NA'
-                    #prod_utility center data
-                    bill_age_sal.append(bill_age)
-                    if sum(bill_age_sal):
-                        cen_prod_uti = float(sum(volume_sal))/float(sum(bill_age_sal))
-                        produc_sum = float('%.2f' % round(cen_prod_uti,2))
-                    else:
-                        produc_sum = 'NA'
-                    #external accuarcy center data
-                    ext_audit = vol_audit_data.values()
-                    for audit in ext_audit:
-                       audit_data =  [i for i in audit if i != 'NA']
-                       ext_audit_data.append(audit_data)
-                    fin_ext_audit = sum([sum(i) for i in ext_audit_data])
-                    ext_aud_sal.append(fin_ext_audit)
-                    ext_err = vol_error_values.values()
-                    for err in ext_err:
-                        err_data = [k for k in err if k != 'NA']
-                        ext_err_data.append(err_data)
-                    fin_ext_err = sum([sum(i) for i in ext_err_data])
-                    ext_err_sal.append(fin_ext_err)
-                    if fin_ext_audit:
-                        ext_acc = (float(sum(ext_err_sal))/float(sum(ext_aud_sal)))*100
-                        ext_acc_sum = 100 - float('%.2f' % round(ext_acc, 2))
-                    elif volumes != 0 and fin_ext_err != 0:
-                        ext_acc = (float(sum(ext_err_sal))/float(sum(volume_sal)))*100
-                        ext_acc_sum = 100 - float('%.2f' % round(ext_acc, 2))
-                    else:
-                        ext_acc_sum = 'NA'
-                    #internal accuracy center data
-                    int_audit = int_vol_audit_data.values()
-                    for in_aud in int_audit:
-                        in_audi_data = [aud for aud in in_aud if aud != 'NA']
-                        int_audit_data.append(in_audi_data)
-                    fin_int_audit = sum([sum(i) for i in int_audit_data])
-                    int_aud_sal.append(fin_int_audit)
-                    int_err = int_vol_error_values.values()
-                    for error in int_err:
-                        error_data = [val for val in error if val != 'NA']
-                        int_err_data.append(error_data)
-                    fin_int_err = sum([sum(i) for i in int_err_data])
-                    int_err_sal.append(fin_int_err)
-                    if fin_int_audit:
-                        int_acc = (float(sum(int_err_sal))/float(sum(int_aud_sal)))*100
-                        int_acc_sum = 100 - float('%.2f' % round(int_acc, 2))
-                    elif volumes != 0 and fin_int_err != 0:
-                        int_acc = (float(sum(int_err_sal))/float(sum(volume_sal)))*100
-                        int_acc_sum = 100 - float('%.2f' % round(int_acc, 2))
-                    else:
-                        int_acc_sum = 'NA'
                     #tat center data
                     tat_met_sal.append(met_cnt)
                     tat_not_met_sal.append(not_met_cnt)
@@ -461,64 +160,6 @@ class Command(BaseCommand):
                     else:
                         tat_sum = 'NA'
                 elif center_name == 'Chittoor' and prj_name != 'IBM':
-                    volume_chi.append(volumes)
-                    targets_list = sum(targ_list)
-                    targets_chi.append(targets_list)
-                    #productivity center data
-                    if sum(targets_chi):
-                        cen_prod = (float(sum(volume_chi))/float(sum(targets_chi)))*100
-                        prod_sum = float('%.2f' % round(cen_prod,2))
-                    else:
-                        prod_sum = 'NA'
-                    bill_age_chi.append(bill_age)
-                    #prod utili center data
-                    if sum(bill_age_chi):
-                        cen_prod_uti = (float(sum(volume_chi))/float(sum(bill_age_chi)))*100
-                        produc_sum = float('%.2f' % round(cen_prod_uti,2))
-                    else:
-                        produc_sum = 'NA'
-                    #external accuarcy center data
-                    ext_audit = vol_audit_data.values()
-                    for audit in ext_audit:
-                       audit_data =  [i for i in audit if i != 'NA']
-                       ext_audit_data.append(audit_data)
-                    fin_ext_audit = sum([sum(i) for i in ext_audit_data])
-                    ext_aud_chi.append(fin_ext_audit)
-                    ext_err = vol_error_values.values()
-                    for err in ext_err:
-                        err_data = [k for k in err if k != 'NA']
-                        ext_err_data.append(err_data)
-                    fin_ext_err = sum([sum(i) for i in ext_err_data])
-                    ext_err_chi.append(fin_ext_err)
-                    if fin_ext_audit:
-                        ext_acc = (float(sum(ext_err_chi))/float(sum(ext_aud_chi)))*100
-                        ext_acc_sum = 100 - float('%.2f' % round(ext_acc, 2))
-                    elif volumes != 0 and fin_ext_err != 0:
-                        ext_acc = (float(sum(ext_err_chi))/float(sum(volume_chi)))*100
-                        ext_acc_sum = 100 - float('%.2f' % round(ext_acc, 2))
-                    else:
-                        ext_acc_sum = 'NA'
-                    #internal accuracy center data
-                    int_audit = int_vol_audit_data.values()
-                    for in_aud in int_audit:
-                        in_audi_data = [aud for aud in in_aud if aud != 'NA']
-                        int_audit_data.append(in_audi_data)
-                    fin_int_audit = sum([sum(i) for i in int_audit_data])
-                    int_aud_chi.append(fin_int_audit)
-                    int_err = int_vol_error_values.values()
-                    for error in int_err:
-                        error_data = [val for val in error if val != 'NA']
-                        int_err_data.append(error_data)
-                    fin_int_err = sum([sum(i) for i in int_err_data])
-                    int_err_chi.append(fin_int_err)
-                    if fin_int_audit:
-                        int_acc = (float(sum(int_err_chi))/float(sum(int_aud_chi)))*100
-                        int_acc_sum = 100 - float('%.2f' % round(int_acc, 2))
-                    elif volumes != 0 and fin_int_err != 0:
-                        int_acc = (float(sum(int_err_chi))/float(sum(volume_chi)))*100
-                        int_acc_sum = 100 - float('%.2f' % round(int_acc, 2))
-                    else:
-                        int_acc_sum = 'NA'
                     #tat center data
                     tat_met_chi.append(met_cnt)
                     tat_not_met_chi.append(not_met_cnt)
@@ -526,42 +167,14 @@ class Command(BaseCommand):
                         tat_sum = (float(sum(tat_met_chi))/float(sum(tat_met_chi)+sum(tat_not_met_chi)))*100
                     else:
                         tat_sum = 'NA'
-
-                final_productivity_dict['center_productivity'] = prod_sum
-                final_productivity_dict['center_prod_utili'] = produc_sum
-                final_productivity_dict['center_internal_accuracy'] = int_acc_sum
-                final_productivity_dict['center_external_accuracy'] = ext_acc_sum
+                    
                 final_productivity_dict['center_tat'] = tat_sum
                 data_dict = {}
                 for key,value in final_productivity_dict.iteritems():
                     value_dict = {}
-                    if key == 'external_accuracy':
-                        redis_key = '{0}_{1}_{2}_external_accuracy'.format(prj_name,center_name,month_name)
-                        value_dict['external_accuracy'] = str(final_external_accuracy)
-                        data_dict[redis_key] = value_dict
-                    if key == 'internal_accuracy':
-                        redis_key = '{0}_{1}_{2}_internal_accuracy'.format(prj_name,center_name,month_name)
-                        value_dict['internal_accuracy'] = str(final_internal_accuracy)
-                        data_dict[redis_key] = value_dict
                     if key == 'tat':
                         redis_key = '{0}_{1}_{2}_tat'.format(prj_name,center_name,month_name)
                         value_dict['tat'] = str(tat_final_value)
-                        data_dict[redis_key] = value_dict
-                    if key == 'center_productivity':
-                        redis_key = '{0}_{1}_center_productivity'.format(center_name,month_name)
-                        value_dict['center_productivity'] = str(prod_sum)
-                        data_dict[redis_key] = value_dict
-                    if key == 'center_prod_utili':
-                        redis_key = '{0}_{1}_center_prod_utili'.format(center_name,month_name)
-                        value_dict['center_prod_utili'] = str(produc_sum)
-                        data_dict[redis_key] = value_dict
-                    if key == 'center_internal_accuracy':
-                        redis_key = '{0}_{1}_center_internal_accuracy'.format(center_name,month_name)
-                        value_dict['center_internal_accuracy'] = str(int_acc_sum)
-                        data_dict[redis_key] = value_dict
-                    if key == 'center_external_accuracy':
-                        redis_key = '{0}_{1}_center_external_accuracy'.format(center_name,month_name)
-                        value_dict['center_external_accuracy'] = str(ext_acc_sum)
                         data_dict[redis_key] = value_dict
                     if key == 'fte_utilisation':
                         redis_key = '{0}_{1}_{2}_fte_utilisation'.format(prj_name,center_name,month_name)
@@ -575,6 +188,22 @@ class Command(BaseCommand):
                         redis_key = '{0}_{1}_center_tat'.format(center_name,month_name)
                         value_dict['center_tat'] = str(tat_sum)
                         data_dict[redis_key] = value_dict
+                    if key == 'absenteeism':
+                        redis_key = '{0}_{1}_{2}_absenteeism'.format(prj_name,center_name,month_name)
+                        value_dict['absenteeism'] = str(absent)
+                        data_dict[redis_key] = value_dict
+                    if key == 'center_absenteeism':
+                        redis_key = '{0}_{1}_center_absenteeism'.format(center_name,month_name)
+                        value_dict['center_absenteeism'] = str(absent)
+                        data_dict[redis_key] = value_dict
+                    if key == 'center_attrition':
+                        redis_key = '{0}_{1}_center_attrition'.format(center_name,month_name)
+                        value_dict['center_attrition'] = str(attrition)
+                        data_dict[redis_key] = value_dict
+                    if key == 'attrition':
+                        redis_key = '{0}_{1}_{2}_attrition'.format(prj_name,center_name,month_name)
+                        value_dict['attrition'] = str(attrition)
+                        data_dict[redis_key] = value_dict
                 conn = redis.Redis(host="localhost", port=6379, db=0) 
                 current_keys = []
                 for key, value in data_dict.iteritems():
@@ -582,6 +211,3 @@ class Command(BaseCommand):
                     conn.hmset(key, value) 
                     print key, value 
             final_project_data.append(final_productivity_list)
-
-
-            
