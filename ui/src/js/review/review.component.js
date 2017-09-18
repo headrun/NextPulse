@@ -65,7 +65,7 @@
 
 		 if (result.data.result.is_team_lead == false){
                     $('#fileuploader').hide();
-			$('.add-review').hide();
+			        $('.add-review').hide();
                     self.is_lead=false;
 		  }
 
@@ -95,11 +95,10 @@
             $('.fa-pencil-square-o').hide();
             $('.fa-trash').hide();
             swal('No reviews available! Click on plus button to create a new reveiw');
-
+            $('.fa-plus-circle').show();
         }
         else {
             $('.fa-plus-circle').hide();
-
             swal('No Reviews Available!');
             }
 		}
@@ -111,30 +110,41 @@
                  self.rev_id = review.id;
                  var sel_rev_id = self.rev_id;
 
-             if (!$('#check-past').is(':checked')) {
-                 $("#fileuploader").uploadFile({
-                    url:"/api/upload_review_doc/",
-                    dragDrop:false,
-                    fileName:"myfile",
-                    formData:{"review_id": self.rev_id },
-                    onSuccess:function(files,data,xhr,pd,sel_rev_id){
+             if (self.is_lead && !$('#check-past').is(':checked')) {
+                     self.no_data = true;
+                     setTimeout(function(){
+                     $("#fileuploader").uploadFile({
+                        url:"/api/upload_review_doc/",
+                        dragDrop:false,
+                        fileName:"myfile",
+                        formData:{"review_id": self.rev_id },
+                        onSuccess:function(files,data,xhr,pd,sel_rev_id){
 
-                        if (data == "Improper File name") {
-                            swal('File name in not proper');	
-                        }else{
-                            $('.ajax-file-upload-statusbar').hide();
-                            $('.loading').removeClass('hide').addClass('show');
-                            self.get_data_url = 'api/get_review_details/?review_id='+data.result;
+                            if (data.result == "Improper File name") {
+                                swal('File name in not proper!');
+                                $('.ajax-file-upload-statusbar').hide();
 
-                            $http.get(self.get_data_url).then(function(result){
-                                self.all_review_data = result.data.result.rev_files;
-                                self.no_data = true;
-                                self.part_disable = true;
-                                $('.loading').removeClass('show').addClass('hide');
-                            });
+                            }
+                            else if (data.result == "File size is bigger than 10 MB"){
+                                swal("File size is bigger than 10 MB!");
+                                $('.ajax-file-upload-statusbar').hide();
+
+                                }
+                            else{
+                                $('.ajax-file-upload-statusbar').hide();
+                                $('.loading').removeClass('hide').addClass('show');
+                                self.get_data_url = 'api/get_review_details/?review_id='+data.result;
+
+                                $http.get(self.get_data_url).then(function(result){
+                                    self.all_review_data = result.data.result.rev_files;
+                                    self.no_data = true;
+                                    self.part_disable = true;
+                                    $('.loading').removeClass('show').addClass('hide');
+                                });
+                            }
                         }
-                    }
-                });
+                    });
+                    }, 1000);
              }else{
                 $("#fileuploader").html('');    
              }
@@ -272,6 +282,7 @@
               else {
                 self.review = self.edit_review;
                 self.appendValues(self.edit_review);
+                self.review.reviewdate = self.review.reviewtime;
                 self.submit_type = 1;
                 self.track_id = self.rev_id;
               }
@@ -291,51 +302,81 @@
                 var selected_date = moment(review.reviewtime);
                 var today = moment(new Date());
                 var past_days = today.set({hour:0,minute:0,second:0,millisecond:0});
-                if(today.format('YYYY-MM-DD') == selected_date.format('YYYY-MM-DD') && selected_date.diff(moment(), 'minutes') < 0){
-//                    if (selected_date.diff(moment(), 'minutes') < 0){
-                        swal('Creating reviews in past time is restricted');
-  //                  }
+                if (selected_date.format('YYYY-MM-DD') == "Invalid date"){
+                    //swal('Invalid date entered!');
+                    swal({
+                      title: "Invalid date entered!",
+                      text: "", 
+                      type: "error",
+                      showCancelButton: false,
+                      confirmButtonColor: "#DD6B55",
+                      confirmButtonText: "Okay",
+                      cancelButtonText: "", 
+                      closeOnConfirm: true,
+                      closeOnCancel: false
+                    },  
+                    function(isConfirm){
+                      if (isConfirm) {
+                        $('#myModal').modal('show');
+                      }   
+                    }); 
+                }else if(today.format('YYYY-MM-DD') == selected_date.format('YYYY-MM-DD') && selected_date.diff(moment(), 'minutes') < 0){
+                    swal('Creating reviews in past time is restricted!');
                 }else if(today.format('YYYY-MM-DD') > selected_date.format('YYYY-MM-DD')){
                     if (selected_date.diff(past_days) < 0){
-                        swal('Creating reviews in past date is restricted');
+                        swal('Creating reviews in past date is restricted!');
                     }
                 }
                 else {
-		 if (review.reviewname && review.reviewdate && review.reviewagenda && review.review_type != 'select'){
-                 self.uids_list = []
-                 for (var i=0; i<review.participants.length; i++) {
-                    self.uids_list.push(self.map_list_item[review.participants[i]]);
-                 }
-                 $('.input-clear').val('');
-                 $('.loading').removeClass('hide').addClass('show');
-                 self.create_rev_url = 'api/create_reviews/';
-                 var data = {}
-                 if(review.rev_str == 'Add Review'){
-                    review.reviewtime = review.reviewdate;    
-                 }
-                 angular.forEach(review, function(key, value) {
-                     if (key) {
-                         data[value] = key.toString()
-                     }else { 
-                         data[value] = ''
-                     }
-                 });
-                 data['id'] = self.submit_type;
-                 data['track_id'] = self.track_id;
-                 var main_data = $.param({ json: JSON.stringify(data) });
-                 $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
-                 $http.post(self.create_rev_url, (main_data)).then(function(result){
-		    if (result.data == "Improper File name"){
-			swal("Improper review name");
-		    }
-                    return result.data.result;
-                 }).then(function(callback){
+        if (review.reviewname && review.reviewtime && review.reviewagenda && review.review_type != 'select'){
+            self.uids_list = []
+            for (var i=0; i<review.participants.length; i++) {
+                self.uids_list.push(self.map_list_item[review.participants[i]]);
+                }
+            $('.input-clear').val('');
+            $('.loading').removeClass('hide').addClass('show');
+            self.create_rev_url = 'api/create_reviews/';
+            var data = {}
+            //review.reviewtime = review.reviewdate;    
+            angular.forEach(review, function(key, value) {
+                if (key) {
+                    data[value] = key.toString()
+                }else { 
+                    data[value] = ''
+                }
+                });
+            data['id'] = self.submit_type;
+            data['track_id'] = self.track_id;
+            var main_data = $.param({ json: JSON.stringify(data) });
+            $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
+            $http.post(self.create_rev_url, (main_data)).then(function(result){
+		        if (result.data == "Improper File name"){
+			        swal("Improper review name!");
+                    /*swal({
+                      title: "Improper review name!",
+                      text: "", 
+                      type: "error",
+                      showCancelButton: false,
+                      confirmButtonColor: "#DD6B55",
+                      confirmButtonText: "Okay",
+                      cancelButtonText: "", 
+                      closeOnConfirm: true,
+                      closeOnCancel: false
+                    },  
+                    function(isConfirm){
+                      if (isConfirm) {
+                        $('#myModal').modal('show');
+                      }   
+                    });*/ 
+		            }
+                return result.data.result;
+                }).then(function(callback){
 
                    var data2 = {'review_id': callback, 'uids': self.uids_list};
                    var data_to_send = $.param({ json: JSON.stringify(data2)});
                    $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
                    $http.post('api/saving_members/', data_to_send).then(function(result){
-                   }).then(function() {
+                    }).then(function() {
 
                    $http.get(self.review_url).then(function(result){
                       if (result.data.result.is_team_lead == false){
@@ -448,13 +489,22 @@
                         if (result.data.result.is_team_lead == false){
                             self.is_lead=false;
                         } 
-			if (Object.keys(result.data.result.all_data).length != 0) {
-			 self.all_reviews = result.data.result.all_data;
-                         self.rev_id = self.all_reviews[Object.keys(self.all_reviews)[0]][0].id;
-                         self.get_review(self.all_reviews[Object.keys(self.all_reviews)[0]][0]);
-                         return self.rev_id;
-                         $('.loading').removeClass('show').addClass('hide');
+            if (Object.keys(result.data.result.all_data).length != 0) {
+		        self.all_reviews = result.data.result.all_data;
+                self.rev_id = self.all_reviews[Object.keys(self.all_reviews)[0]][0].id;
+                self.get_review(self.all_reviews[Object.keys(self.all_reviews)[0]][0]);
+                //return self.rev_id;
+                $('.loading').removeClass('show').addClass('hide');
+                if (self.is_lead){
+                    $('.fa-plus-circle').show();
+                    $('.fa-pencil-square-o').show();
+                    $('.fa-trash').show();
+                    }
+                return self.rev_id;
 			}else{
+                if (self.is_lead){
+                     $('.fa-plus-circle').show();
+                }
                 $('.fa-pencil-square-o').hide();
                 $('.fa-trash').hide();
 			self.all_reviews = result.data.result.all_data;
