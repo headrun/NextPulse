@@ -12,6 +12,8 @@ def get_annotations(request):
     chart_name = request.GET.get('chart_name')
     project_name = request.GET.get('proj_name', '')
     center_name = request.GET.get('cen_name', '')
+    start_date = request.GET.get('start_date', '')
+    end_date = request.GET.get('end_date', '')
     if project_name:
         project_name = project_name.split(' - ')[0];
     if center_name:
@@ -20,6 +22,14 @@ def get_annotations(request):
         day_type = request.GET['type']
     except:
         day_type = ''
+
+    #===================================================================================
+
+    #if day_type in ['week', 'month']:
+
+
+
+    #====================================================================================    
 
     annotations = Annotation.objects.filter(key__contains='<##>' + chart_name + '<##>' + series_name + '<##>', center__name = center_name,
                                             project__name = project_name)

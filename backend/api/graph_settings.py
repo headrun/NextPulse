@@ -40,17 +40,19 @@ def graph_data_alignment_color(volumes_data,name_key,level_structure_key,prj_id,
         for wp_key,wp_value in local_wp_color.iteritems():
             if wp_value != '':
                 wp_color[wp_key] = wp_value
-        if len(wp_color) == 4:
+
+        wp_color_count = len(wp_color)
+        if wp_color_count == 4:
             key = '{0}_{1}_{2}'.format(wp_color['sub_project'],wp_color['work_packet'],wp_color['sub_packet'])
             color_mapping[key] = wp_color['color_code']
-        elif len(wp_color) == 3:
+        elif wp_color_count == 3:
             if wp_color.has_key('sub_project') :
                 key = '{0}_{1}'.format(wp_color['sub_project'], wp_color['work_packet'])
                 color_mapping[key] = wp_color['color_code']
             else:
                 key = '{0}_{1}'.format(wp_color['work_packet'], wp_color['sub_packet'])
                 color_mapping[key] = wp_color['color_code']
-        elif len(wp_color) == 2:
+        elif wp_color_count == 2:
             item = wp_color.pop('color_code')
             key = wp_color.keys()[0]
             color_mapping[wp_color[key]] = item

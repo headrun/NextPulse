@@ -81,7 +81,7 @@ def internal_bar_data(pro_id, cen_id, from_, to_, main_work_packet, chart_type,p
             else:
                 sub_project_statuts = Internalerrors.objects.filter(project=pro_id,center=cen_id, date=date).values_list('sub_project',flat=True)
                 sub_project_statuts = filter(None, sub_project_statuts)
-                if len(sub_project_statuts) > 0:
+                if sub_project_statuts:
                     packets_list_type = 'sub_project'
                     is_work_pac_exist = Internalerrors.objects.filter(project=pro_id,center=cen_id,date=date).values_list('sub_project', 'work_packet', 'sub_packet').distinct()
                     if len(is_work_pac_exist) > 1:
@@ -128,7 +128,7 @@ def internal_bar_data(pro_id, cen_id, from_, to_, main_work_packet, chart_type,p
                 sub_project_statuts = Externalerrors.objects.filter(project=pro_id, center=cen_id, date=date).values_list('sub_project', flat=True)
                 sub_project_statuts = filter(None, sub_project_statuts)
 
-                if len(sub_project_statuts) > 0:
+                if sub_project_statuts:
                     packets_list_type = 'sub_project'
                     is_work_pac_exist = Externalerrors.objects.filter(project=pro_id,center=cen_id, date=date).values_list('sub_project','work_packet','sub_packet').distinct()
                     if len(is_work_pac_exist) > 1:
@@ -198,7 +198,7 @@ def internal_chart_data_multi(pro_id,cen_id,to_date,work_packet,chart_type,proje
                 accuracy = 100 - ((float(ans['total_errors']) / float(ans['productivity']))) * 100
                 accuracy_agg = float('%.2f' % round(accuracy, 2))
                 ans['accuracy'] = accuracy_agg
-        if len(list_ext_data) > 0:
+        if list_ext_data:
                 table_headers = ['date','productivity','total_errors']
         final_internal_drilldown['data'] = list_ext_data
         final_internal_drilldown['table_headers'] = table_headers
@@ -289,7 +289,7 @@ def internal_chart_data_multi(pro_id,cen_id,to_date,work_packet,chart_type,proje
         if len(packets_list) == 2:
             sub_project_statuts = Externalerrors.objects.filter(project=pro_id,center=cen_id, date__range=[to_date[0], to_date[-1]]).values_list('sub_project', flat=True)
             sub_project_statuts = filter(None, sub_project_statuts)
-            if len(sub_project_statuts) > 0:
+            if sub_project_statuts:
                 sub_project, work_packet = work_packet.split('_')
                 list_of_internal = Externalerrors.objects.filter(project=pro_id, center=cen_id,date__range=[to_date[0], to_date[-1]],sub_project=sub_project,work_packet=work_packet).values_list('employee_id','audited_errors','total_errors','date')
             work_packet_statuts = Externalerrors.objects.filter(project=pro_id,center=cen_id, date__range=[to_date[0], to_date[-1]]).values_list('work_packet',flat=True)
@@ -314,7 +314,7 @@ def internal_chart_data_multi(pro_id,cen_id,to_date,work_packet,chart_type,proje
         else:
             sub_project_statuts = Externalerrors.objects.filter(project=pro_id,center=cen_id, date__range=[to_date[0], to_date[-1]]).values_list('sub_project', flat=True)
             sub_project_statuts = filter(None, sub_project_statuts)
-            if len(sub_project_statuts) > 0:
+            if sub_project_statuts:
                 packets_list_type = 'sub_project'
                 is_work_pac_exist = Externalerrors.objects.filter(project=pro_id,center=cen_id, date__range=[to_date[0], to_date[-1]]).values_list('sub_project', 'work_packet', 'sub_packet').distinct()[0]
                 if len(is_work_pac_exist) > 1:
@@ -472,7 +472,7 @@ def internal_chart_data(pro_id,cen_id,to_date,work_packet,chart_type,project):
         if len(packets_list) == 2:
             sub_project_statuts = Externalerrors.objects.filter(project=pro_id,center=cen_id, date=to_date[0]).values_list('sub_project', flat=True)
             sub_project_statuts = filter(None, sub_project_statuts)
-            if len(sub_project_statuts) > 0:
+            if sub_project_statuts:
                 sub_project, work_packet = work_packet.split('_')
                 list_of_internal = Externalerrors.objects.filter(project=pro_id, center=cen_id, date=to_date[0],sub_project=sub_project,work_packet=work_packet).values_list('employee_id','audited_errors','total_errors','date')
             work_packet_statuts = Externalerrors.objects.filter(project=pro_id,center=cen_id, date=to_date[0]).values_list('work_packet', flat=True)
@@ -497,7 +497,7 @@ def internal_chart_data(pro_id,cen_id,to_date,work_packet,chart_type,project):
         else:
             sub_project_statuts = Externalerrors.objects.filter(project=pro_id,center=cen_id, date=to_date[0]).values_list('sub_project', flat=True)
             sub_project_statuts = filter(None, sub_project_statuts)
-            if len(sub_project_statuts) > 0:
+            if sub_project_statuts:
                 packets_list_type = 'sub_project'
                 is_work_pac_exist = Externalerrors.objects.filter(project=pro_id, center=cen_id, date=to_date[0]).values_list('sub_project','work_packet','sub_packet').distinct()[0]
                 if len(is_work_pac_exist) > 1:
@@ -623,7 +623,7 @@ def productivity_chart_data(pro_id,cen_id,to_date,work_packet,chart_type,project
         if len(packets_list) == 2:
             sub_project_statuts = RawTable.objects.filter(project=pro_id,center=cen_id, date=to_date[0]).values_list('sub_project',flat=True)
             sub_project_statuts  = filter(None,sub_project_statuts)
-            if len(sub_project_statuts) > 0:
+            if sub_project_statuts:
                 sub_project,work_packet = work_packet.split('_')
                 detail_list = RawTable.objects.filter(project=pro_id,center=cen_id,date=to_date[0],sub_project=sub_project,work_packet=work_packet).values_list('employee_id','per_day','sub_packet')
                 packets_list_type = 'sub_packet'
@@ -649,7 +649,7 @@ def productivity_chart_data(pro_id,cen_id,to_date,work_packet,chart_type,project
         else:
             sub_project_statuts = RawTable.objects.filter(project=pro_id,center=cen_id, date=to_date[0]).values_list('sub_project', flat=True)
             sub_project_statuts = filter(None, sub_project_statuts)
-            if len(sub_project_statuts) > 0:
+            if sub_project_statuts:
                 packets_list_type = 'work_packet'
                 is_work_pac_exist = RawTable.objects.filter(project=pro_id,center=cen_id,date=to_date[0]).values_list('sub_project','work_packet','sub_packet').distinct()[0]
                 if len(is_work_pac_exist) > 1:
@@ -679,7 +679,7 @@ def productivity_chart_data(pro_id,cen_id,to_date,work_packet,chart_type,project
 
                 else:
                     packet_dict.append({'name': i[0], 'done': i[1], packets_list_type: i[2]})
-        if len(packet_dict) > 0:
+        if packet_dict:
             table_headers = ['name', 'done']
             if len(packet_dict[0])==3:
                 table_headers = ['name',packets_list_type, 'done']
