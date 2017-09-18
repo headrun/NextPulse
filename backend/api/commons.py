@@ -1,7 +1,6 @@
 
 import datetime
 import calendar
-import pytz
 from api.models import *
 from api.basics import *
 from collections import OrderedDict
@@ -211,9 +210,10 @@ def utc_to_local(utc_dt):
     localtime = utc_dt + datetime.timedelta(hours = 5, minutes = 30)
     return localtime
 
-    
+"""    
 def local_to_utc(local_date):
-    """ convert local time to UTC """
+    "" convert local time to UTC ""
     local = pytz.timezone(LOCAL_ZONE)
     local_dt = local.localize(local_date, is_dst=None)
     return local_dt.astimezone(pytz.utc)
+"""

@@ -13,7 +13,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         from api.models import Project,Center
-        conn = MySQLdb.connect(db="nextpulse", user='root', passwd='hdrn59!', charset="utf8")
+        conn = MySQLdb.connect(db="nextpulse", user='root', passwd='Mbch@He@drn232017Mar', charset="utf8")
         cur = conn.cursor()
         #========================================================
         # LOGIC HERE
