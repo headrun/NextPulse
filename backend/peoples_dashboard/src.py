@@ -16,7 +16,7 @@ from peoples_dashboard.constants import *
 PROJECTS = ["Probe-Salem", "NTT DATA Services TP-Salem", "NTT DATA Services Coding-Salem", "Federal Bank-Salem","Gooru-Salem",\
             "Walmart Salem-Salem", "Ujjivan-Salem", "IBM-Salem", "IBM Africa-Salem", "IBM Arabia-Salem", "IBM DCIW-Salem",\
             "IBM DCIW Arabia-Salem", "IBM India and Sri Lanka-Salem", "IBM Latin America-Salem", "IBM NA and EU-Salem",\
-            "IBM Pakistan-Salem", "IBM Quality Control-Salem", "IBM South East Asia-Salem", "Mobius-Chittoor"]
+            "IBM Pakistan-Salem", "IBM Quality Control-Salem", "IBM South East Asia-Salem", "Mobius-Chittoor", "Walmart Chittor-Chittoor"]
 
 MONTHS = ["April", "May"]
 
@@ -77,7 +77,6 @@ def get_dash_data(projects=PROJECTS, tab=SLA):
                             pass
                     if t > 0:
                         DEFAULT_TARGET['prod_utili'] = "%.2f" % (sum(_target_list)/ t)
-
                 _target_objs = ColorCoding.objects.filter(project__id =_id, widget__config_name = WIDGET_SYNC.get(pro, ""), month = month)
                 if not _target_objs:
                     _target = DEFAULT_TARGET.get(pro, 0)
@@ -89,10 +88,27 @@ def get_dash_data(projects=PROJECTS, tab=SLA):
                     row_data['color'].update({_key1 : [get_color(float(row_data[_key1]), _target, pro), _target, core_key]})
 
             i +=1
-        
         result.append(row_data)
 
+    result = get_no_data(result)
     return result
+
+
+def get_no_data(result):
+    """ changing 0 to No Data """
+    result1 = []
+    for item in result:
+        dict1 = {}
+        for key, value in item.iteritems():
+            dict1[key] = value
+            if key != 'color':
+                if not (('attrition' in key) or ('absenteeism' in key)):
+                    if value in ['0', '0.0', 0, 0.0]:
+                        dict1[key] = 'No Data'
+
+        result1.append(dict1)
+
+    return result1
 
 
 def get_target(core_key, _remove_headers=[]):
@@ -110,6 +126,7 @@ def get_target(core_key, _remove_headers=[]):
         _target_list = list(set(target_list) - set(not_target_list))
     else:
         _target_list = target_list
+
     for item in _target_list:
         target_dict.update({ item: conn.hgetall(item).values()[0]})
 
@@ -151,7 +168,7 @@ def get_headers(core_key):
     target_list = conn.keys(_key)
     values_list = []
     remove_headers = []
-    #import pdb;pdb.set_trace()
+
     for item in target_list:
         values_list.append(conn.hgetall(item).values()[0])
 

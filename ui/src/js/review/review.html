@@ -411,7 +411,7 @@ input:checked + .slider:before {
             </span>
         </div>
         </div>
-        <div ng-if="$ctrl.no_data" id="fileuploader" class="review-data">Upload</div>
+        <div ng-if="$ctrl.no_data" id="fileuploader" class="review-data"></div>
             <!--<i class="fa fa-plus-circle fa-2x" id="add-revi" data-toggle="modal" data-target="#myModal" ng-click="$ctrl.get_maildata()" 
                aria-hidden="true"></i>
             <i class="fa fa-trash fa-2x" aria-hidden="true" ng-click="$ctrl.del_review()"></i>-->
@@ -456,12 +456,12 @@ input:checked + .slider:before {
               </span>-->
 <div class="dropdown">
   <a class="dropdown-toggle" id="dropdown2" role="button" data-toggle="dropdown">
-    <div class="input-group"><input type="text" class="form-control" name="revDate" data-ng-model="$ctrl.review.reviewdate">
+    <div class="input-group"><input type="text" class="form-control" name="revDate" data-ng-model="$ctrl.review.reviewtime">
         <span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
     </div>
   </a>
   <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
-    <datetimepicker data-ng-model="$ctrl.review.reviewdate" data-datetimepicker-config="{ dropdownSelector: '#dropdown2' }"/>
+    <datetimepicker data-ng-model="$ctrl.review.reviewtime" data-datetimepicker-config="{ dropdownSelector: '#dropdown2' }"/>
   </ul>
 </div>
             </div>
@@ -535,7 +535,7 @@ input:checked + .slider:before {
               <label>Meeting Agenda*: </label>
             </div>
             <div class="col-md-9">
-              <textarea  class="input-clear form-element" rows="4" cols="50" name="reviewagenda" ng-model="$ctrl.review.reviewagenda" 
+              <textarea  class="input-clear form-element" rows="4" cols="50" name="reviewagenda" ng-model="$ctrl.review.reviewagenda" style="resize:vertical;" 
                          required >
                 Enter text here...</textarea>
               <span ng-if="regForm.reviewagenda.$error.required && regForm.reviewagenda.$touched">
