@@ -405,16 +405,16 @@
         else {
             var message = '';
             if (review.reviewname == ""){
-                message += "Add review name.";
-            }
+                message += 'Add review name.'
+                }
             if (review.reviewagenda == ""){
-                message += " Add review agenda."
-            }
-            if (review.review_type != 'select'){
-                message += " Select review type."
-            }
+                message += ' Add review agenda.'
+                }
+            if (review.review_type == 'select'){
+                message += ' Select review type.'
+                }
             swal({
-              title: "All required fields are not filled",
+              title: "All required fields are not filled!",
               text: message, 
               type: "error",
               showCancelButton: false,

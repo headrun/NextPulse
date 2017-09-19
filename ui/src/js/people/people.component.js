@@ -323,15 +323,16 @@
 
 
                 $http({method:"GET", url:people_data}).success(function(result){
-
+                  $('.loading').removeClass('hide').addClass('show');
                   vm.data = result.result;
                   vm.center_data_1 = result.center_total;
-
+                  $('.loading').removeClass('show').addClass('hide');
                });
 
                 $http({method:"GET", url:people_data_2}).success(function(result){
                   vm.data_2 = result.result;
                   vm.center_data2 = result.center_total;
+
                   //debugger;
                });
 
