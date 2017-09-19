@@ -156,9 +156,13 @@ class Command(BaseCommand):
                         pac_billable_ppl = sum(bill_values[0])
                     else:
                         pac_billable_ppl = 0
-                    if pac_tar_vals:
-                        final_actual_val.append(pac_act_vals)
-                        final_target_val.append(pac_tar_vals)
+
+		    final_actual_val.append(pac_act_vals)
+                    #final_actual_val.append(pac_act_vals)
+	            final_target_val.append(pac_tar_vals)		
+                    if sum(final_target_val):
+                        #final_actual_val.append(pac_act_vals)
+                        #final_target_val.append(pac_tar_vals)
                         final_month_val = (float(sum(final_actual_val))/float(sum(final_target_val))) * 100
                         final_month_val = float('%.2f' % round(final_month_val,2))
                     else:

@@ -1,9 +1,10 @@
 
 import datetime
+import calendar
 from api.models import *
 from api.basics import *
 from collections import OrderedDict
-
+LOCAL_ZONE = "Asia/Kolkata"
 from common.utils import getHttpResponse as json_HttpResponse
 
 def data_dict(variable):
@@ -198,8 +199,21 @@ def get_packet_details(request):
     return json_HttpResponse(final_dict)
 
 
+def utc_to_local(utc_dt):
+    """convert utc time to local time """
+    """
+    import time
+    now_timestamp = time.time()
+    offset = datetime.datetime.fromtimestamp(now_timestamp) - datetime.datetime.utcfromtimestamp(now_timestamp)
+    return utc_dt + offset
+    """
+    localtime = utc_dt + datetime.timedelta(hours = 5, minutes = 30)
+    return localtime
 
-
-
-
-
+"""    
+def local_to_utc(local_date):
+    "" convert local time to UTC ""
+    local = pytz.timezone(LOCAL_ZONE)
+    local_dt = local.localize(local_date, is_dst=None)
+    return local_dt.astimezone(pytz.utc)
+"""

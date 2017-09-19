@@ -39,7 +39,6 @@ class Command(BaseCommand):
                 months_dict[month] = [str(date)]
                 month_count = month_count + 1
                 month_list.append([str(date)])
-        #proje_cent = ['Probe','NTT DATA Services TP','NTT DATA Services Coding','Federal Bank','Ujjivan','Gooru','Walmart Salem','IBM','IBM South East Asia','IBM Pakistan','IBM Africa','IBM DCIW Arabia','IBM Quality Control','IBM India and Sri Lanka','IBM NA and EU','IBM Arabia','IBM DCIW','IBM Latin America','IBM Sri Lanka P2P']
         proje_cent = ['Mobius', 'Walmart Chittor']
         for pro_cen in proje_cent:
             values = Project.objects.filter(name=pro_cen).values_list('id','center_id')
@@ -58,7 +57,6 @@ class Command(BaseCommand):
                 else:
                     tars = Targets.objects.filter(project=prj_id, center=center_id,from_date__lte=dates_list[0],to_date__gte=dates_list[-1])
                     tar_packs = tars.values('sub_project','work_packet').distinct()
-                    #tar_packs = tar_packs[1:]
                 for pac in tar_packs:
                     targets_vals, actual_vals, billable_vals = {}, {}, {}
                     if pac['work_packet'] != '' and pac['sub_project'] == '':

@@ -126,6 +126,7 @@ def get_target(core_key, _remove_headers=[]):
         _target_list = list(set(target_list) - set(not_target_list))
     else:
         _target_list = target_list
+
     for item in _target_list:
         target_dict.update({ item: conn.hgetall(item).values()[0]})
 
@@ -167,7 +168,7 @@ def get_headers(core_key):
     target_list = conn.keys(_key)
     values_list = []
     remove_headers = []
-    #import pdb;pdb.set_trace()
+
     for item in target_list:
         values_list.append(conn.hgetall(item).values()[0])
 
