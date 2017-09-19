@@ -346,7 +346,8 @@ def send_review_mail(data, task, memb_obj = ""):
             _text = "Hi %s, %s, <p> %s </p>" %("Abhishek", "Yeswanth", process[task] )
 
         mail_body = create_mail_body(_text, data)
-        to = ['sivak@headrun.net', 'abhishek@headrun.com']
+        #to = ['sivak@headrun.net', 'abhishek@headrun.com']
+	to = []
         to.append(memb_obj.member.email)
         msg = EmailMultiAlternatives("%s - %s Review for NextWealth - %s" % (task.upper(), data['review_type'], data['project']), "",
                 'nextpulse@nextwealth.in', to)
@@ -459,7 +460,7 @@ def create_mail_body(text, data):
                 </td>\
                 </tr>" % data['agenda']
 
-    extra = "<p> </p> <p> </p> Kindly log into NextPulse - http://nextpulse.nextwealth.in/ \
+    extra = "<p> </p> <p> </p> Kindly log into NextPulse - https://nextpulse.nextwealth.in/ \
             with your userid and password to view all the metrics ahead of the meeting.\
             <p>Additional documents for the review can be found in the Review Section of the NextPulse itself. </p>\
             <p>If you have any difficulty please reach to your Project Team Lead (%s). </p> \
