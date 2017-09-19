@@ -32,8 +32,7 @@ class Command(BaseCommand):
                 months_dict[month].append(str(date))
             else:
                 months_dict[month] = [str(date)]
-                month_count = month_count + 1
-                month_list.append([str(date)])
+	proje_cent = ['Probe','NTT DATA Services TP','NTT DATA Services Coding','Federal Bank','Ujjivan','Gooru','Walmart Salem', 'Mobius', 'Walmart Chittor','IBM','IBM South East Asia','IBM Pakistan','IBM Africa','IBM DCIW Arabia','IBM Quality Control','IBM India and Sri Lanka','IBM NA and EU','IBM Arabia','IBM DCIW','IBM Latin America','IBM Sri Lanka P2P']	
         for month_name,month_dates in months_dict.iteritems():
             project_salem_count, project_chittoor_count = [] , []
             billa_sal, buf_sal, qc_qa_sal, tl_sal, others_sal, total_sal = [], [], [], [], [], []
