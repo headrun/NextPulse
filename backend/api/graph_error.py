@@ -269,11 +269,6 @@ def err_field_graph(request):
     return json_HttpResponse(final_dict)
 
 
-
-
-
-
-
 def internal_extrnal_sub_error_types(request,date_list,prj_id,center_obj,level_structure_key,err_type):
     prj_name = Project.objects.filter(id=prj_id).values_list('name', flat=True)
     center_name = Center.objects.filter(id=center_obj).values_list('name', flat=True)

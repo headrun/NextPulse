@@ -29,7 +29,7 @@ def nw_exce(request):
         for sing_list in main_dates_list:
             for date_va in sing_list:
                 total_done_value = RawTable.objects.filter(project=prj_id,center=center,date=date_va).aggregate(Max('per_day'))
-                if total_done_value['per_day__max'] > 0:
+                if total_done_value['per_day__max']:
                     new_date_list.append(date_va)
             level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], main_data_dict['sub_packet'],main_data_dict['pro_cen_mapping'])
             nw_exception_details = nw_exception_data(sing_list, prj_id, center,level_structure_key)
@@ -83,7 +83,7 @@ def overall_exce(request):
         for sing_list in main_dates_list:
             for date_va in sing_list:
                 total_done_value = RawTable.objects.filter(project=prj_id,center=center,date=date_va).aggregate(Max('per_day'))
-                if total_done_value['per_day__max'] > 0:
+                if total_done_value['per_day__max']:
                     new_date_list.append(date_va)
             level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], main_data_dict['sub_packet'],main_data_dict['pro_cen_mapping'])
             overall_exception_details = overall_exception_data(sing_list, prj_id, center,level_structure_key)
@@ -115,8 +115,6 @@ def overall_exce(request):
         final_dict['date'] = data_date
     final_dict['type'] = main_data_dict['type']    
     return json_HttpResponse(final_dict)
-
-
 
 
 def pre_scan_exce(request):

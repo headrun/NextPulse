@@ -100,14 +100,14 @@ def Monthly_Volume_graph(prj_id,center,date_list, level_structure_key):
                 targets_packets = Targets.objects.filter(project=prj_id, center=center,from_date__lte=date_va,to_date__gte=date_va).values('work_packet','sub_project','sub_packet').distinct()[0]
                 if len(target_consideration) > 0 and len(fte_targets_list) > 0:
                     if target_consideration[0] < fte_targets_list[0]:
-                        if len(fte_targets_list) > 0:
+                        if fte_targets_list:
                             if _targets_list.has_key(final_work_packet):
                                 _targets_list[final_work_packet].append(int(fte_targets_list[0]) * employee_count)
                             else:
                                 _targets_list[final_work_packet] = [int(fte_targets_list[0]) * employee_count]
 
                     elif target_consideration[0] >= fte_targets_list[0]:
-                        if len(target_consideration) > 0:
+                        if target_consideration:
                             if _targets_list.has_key(final_work_packet):
                                 _targets_list[final_work_packet].append(int(target_consideration[0]))
                             else:
