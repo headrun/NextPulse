@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'dbbackup',
     'api',
     'peoples_dashboard',
+    'voice_service',
 ]
 
 MIDDLEWARE_CLASSES = [
