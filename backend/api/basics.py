@@ -39,7 +39,8 @@ def get_order_of_headers(open_sheet, Default_Headers, mandatory_fileds=[]):
 
 def change_password(request):
     data_to = json.loads(request.POST['json'])
-    if "auth_key" in data_to.keys():
+    #if "auth_key" in data_to.keys():
+    if data_to.has_key('auth_key'):
         user_id = data_to['user_id']
         auth_key = data_to['auth_key']
         new_pass = data_to['name']
@@ -120,19 +121,16 @@ def get_level_structure_key(work_packet, sub_project, sub_packet, pro_cen_mappin
 
 def latest_dates(request,prj_id):
     result= {}
+    result['from_date'] = '2017-01-05'
+    result['to_date'] = '2017-01-11'
     if len(prj_id) == 1:
         latest_date = RawTable.objects.filter(project=prj_id).all().aggregate(Max('date'))
         to_date = latest_date['date__max']
         if to_date:
             from_date = to_date - timedelta(6)
             result['from_date'] = str(from_date)
-            result['to_date'] = str(to_date)
-        else:
-            result['from_date'] = '2017-01-05'
-            result['to_date'] = '2017-01-11'
-    else:
-        result['from_date'] = '2017-01-05'
-        result['to_date'] = '2017-01-11'
+            result['to_date'] = str(to_date)    
+        
     return result
 
 
@@ -147,9 +145,16 @@ def sub_project_names(request,open_book):
     sub_prj_names = {}
     open_sheet = open_book.sheet_by_index(0)
     prj_names = set(open_sheet.col_values(2)[1:])
-    teamleader_obj = TeamLead.objects.filter(name_id=request.user.id).values_list('project_id','center_id')[0]
-    prj_obj = Project.objects.filter(id=teamleader_obj[0])[0]
-    center = TeamLead.objects.filter(name_id=request.user.id).values_list('center_id',flat=True)[0]
+
+    teamleader_objs = TeamLead.objects.filter(name_id=request.user.id)
+    if teamleader_objs:
+        teamleader_obj = teamleader_objs[0]
+        prj_obj = teamleader_obj.project
+        center = teamleader_obj.center
+
+    #teamleader_obj = TeamLead.objects.filter(name_id=request.user.id).values_list('project_id','center_id')[0]
+    #prj_obj = Project.objects.filter(id=teamleader_obj[0])[0]
+    #center = TeamLead.objects.filter(name_id=request.user.id).values_list('center_id',flat=True)[0]
     for project_name in prj_names:
         project_name = prj_obj.name +  " " + project_name
         main_prj_name = Project.objects.filter(name = project_name).values_list('id',flat=True)
@@ -194,9 +199,10 @@ def num_of_days(to_date,from_date):
         date_list.append(str(from_date + timedelta(days=i)))
     return date_list
 
-
+"""
 def from_too(request):
     return json_HttpResponse('Cool')
+"""
 
 def upload_target_data(date_list, prj_id, center):
     result_data = []
@@ -205,10 +211,11 @@ def upload_target_data(date_list, prj_id, center):
     for date in date_list:
         total_done_value = RawTable.objects.filter(project=prj_id, center=center, date=date).aggregate(Max('per_day'))
         if total_done_value['per_day__max'] > 0:
-            target = UploadDataTable.objects.filter(project=prj_id,center=center,date=date).aggregate(Sum('target'))
-            upload = UploadDataTable.objects.filter(project=prj_id,center=center,date=date).aggregate(Sum('upload'))
-            if target['target__sum'] > 0 and upload['upload__sum'] > 0:
-                percentage = (float(upload['upload__sum'])/float(target['target__sum'])) * 100
+            #target = UploadDataTable.objects.filter(project=prj_id,center=center,date=date).aggregate(Sum('target'))
+            #upload = UploadDataTable.objects.filter(project=prj_id,center=center,date=date).aggregate(Sum('upload'))
+            _data = UploadDataTable.objects.filter(project=prj_id,center=center,date=date).aggregate(Sum('upload'), Sum('target'))
+            if _data['target__sum'] > 0 and _data['upload__sum'] > 0:
+                percentage = (float(_data['upload__sum'])/float(_data['target__sum'])) * 100
                 final_percentage = (float('%.2f' % round(percentage, 2)))
             else:
                 final_percentage = 0
@@ -220,14 +227,16 @@ def upload_target_data(date_list, prj_id, center):
 def dropdown_data_types(request):
     project = request.GET['project'].split('-')[0].strip()
     center_id = request.GET['center'].split('-')[0].strip()
-    center = Center.objects.filter(name=center_id).values_list('id', flat=True)
-    prj_id = Project.objects.filter(name=project).values_list('id', flat=True)
+    #center = Center.objects.filter(name=center_id).values_list('id', flat=True)
+    #prj_id = Project.objects.filter(name=project).values_list('id', flat=True)
+    prj = Project.objects.filter(name=project).values_list('id', 'center__id')[0]
+    prj_id, center = prj
     result = {}
-    sub_project = RawTable.objects.filter(project_id=prj_id[0],center_id = center[0]).values_list('sub_project',flat=True).distinct()
+    sub_project = RawTable.objects.filter(project_id=prj_id,center_id = center).values_list('sub_project',flat=True).distinct()
     sub_project = filter(None, sub_project)
-    work_packet = RawTable.objects.filter(project_id=prj_id[0],center_id = center[0]).values_list('work_packet',flat=True).distinct()
+    work_packet = RawTable.objects.filter(project_id=prj_id,center_id = center).values_list('work_packet',flat=True).distinct()
     work_packet = filter(None, work_packet)
-    sub_packet = RawTable.objects.filter(project_id=prj_id[0], center_id=center[0]).values_list('sub_packet',flat=True).distinct()
+    sub_packet = RawTable.objects.filter(project_id=prj_id, center_id=center).values_list('sub_packet',flat=True).distinct()
     sub_packet = filter(None, sub_packet)
     result['sub_project'] = 0
     if len(sub_project) > 0:
@@ -251,7 +260,7 @@ def dates_sorting(timestamps):
 def Authoring_mapping(prj_obj,center_obj,model_name):
     table_model = apps.get_model('api', model_name)
     map_query = table_model.objects.filter(project=prj_obj, center=center_obj)
-    if len(map_query) > 0:
+    if map_query.count() > 0:
         map_query = map_query[0].__dict__
     else:
         map_query = {}
@@ -289,7 +298,7 @@ def level_hierarchy_key(level_structure_key,vol_type):
             else:
                 if vol_type['sub_packet'] != '':
                     final_work_packet = vol_type['sub_packet']
-    return  final_work_packet
+    return final_work_packet
 
 
 def min_max_value_data(int_value_range):
@@ -339,7 +348,7 @@ def pre_scan_exception_data(date_list, prj_id, center):
     for date_value in date_list:
         total_done_value = RawTable.objects.filter(project=prj_id, center=center, date=date_value).aggregate(Max('per_day'))
         if total_done_value['per_day__max'] > 0:
-            work_packet = RawTable.objects.filter(project=prj_id, center=center, date=date_value).values_list('work_packet',flat=True).distinct()
+            #work_packet = RawTable.objects.filter(project=prj_id, center=center, date=date_value).values_list('work_packet',flat=True).distinct()
             final_packet_value = RawTable.objects.filter(project=prj_id, center=center, date=date_value,work_packet='Scanning').aggregate(Sum('per_day'))
             error_count = Incomingerror.objects.filter(project=prj_id, center=center, date=date_value,work_packet='Scanning').aggregate(Sum('error_values'))
             if error_count['error_values__sum'] > 0 and final_packet_value['per_day__sum'] > 0:
@@ -361,7 +370,7 @@ def overall_exception_data(date_list, prj_id, center,level_structure_key):
             packets = Incomingerror.objects.filter(project=prj_id, center=center, date=date_value).values_list('work_packet',flat =True).distinct()
             for packet in packets:
                 if packet == 'Data Entry' or packet =='KYC Check':
-                    sub_packets = Incomingerror.objects.filter(project=prj_id, center=center, date=date_value,work_packet = packet).values_list('sub_packet',flat = True).distinct()
+                    #sub_packets = Incomingerror.objects.filter(project=prj_id, center=center, date=date_value,work_packet = packet).values_list('sub_packet',flat = True).distinct()
                     work_done = RawTable.objects.filter(project=prj_id, center=center, date=date_value,work_packet = packet).aggregate(Sum('per_day'))
                     error_value = Incomingerror.objects.filter(project=prj_id, center=center, date=date_value,work_packet=packet,sub_packet='Overall Exception').aggregate(Sum('error_values'))
                     if work_done['per_day__sum'] > 0 and error_value['error_values__sum'] > 0:
@@ -384,7 +393,7 @@ def nw_exception_data(date_list, prj_id, center,level_structure_key):
             packets = Incomingerror.objects.filter(project=prj_id, center=center, date=date_value).values_list('work_packet',flat =True).distinct()
             for packet in packets:
                 if packet == 'Data Entry' or packet =='KYC Check':
-                    sub_packets = Incomingerror.objects.filter(project=prj_id, center=center,work_packet = packet, date=date_value).values_list('sub_packet',flat = True).distinct()
+                    #sub_packets = Incomingerror.objects.filter(project=prj_id, center=center,work_packet = packet, date=date_value).values_list('sub_packet',flat = True).distinct()
                     error_value = Incomingerror.objects.filter(project=prj_id, center=center, work_packet=packet,sub_packet='NW Exception', date=date_value).aggregate(Sum('error_values'))
                     if error_value['error_values__sum'] > 0: 
                         percentage = float(error_value['error_values__sum'])

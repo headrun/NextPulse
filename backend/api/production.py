@@ -11,6 +11,7 @@ from datetime import timedelta
 from collections import OrderedDict
 from common.utils import getHttpResponse as json_HttpResponse
 
+
 def static_production_data(request):
     final_data_dict = {}
     try:
@@ -147,7 +148,7 @@ def static_production_data(request):
         for week in week_dates:
             data_date.append(week[0] + ' to ' + week[-1])
             result = product_total_graph(week, prj_id,center,level_structure_key)
-            if len(result['prod_days_data']) > 0:
+            if result['prod_days_data']:
                 week_name = str('week' + str(week_num))
                 week_names.append(week_name)
                 productivity_list[week_name] = result['volumes_data']['volume_values']
@@ -232,6 +233,7 @@ def static_production_data(request):
     del result['prod_days_data']
     del result['data']
     return json_HttpResponse(final_data_dict)
+
 
 def top_five_emp(center,prj_id,dwm_dict,level_key_structure):
     all_details_list = []

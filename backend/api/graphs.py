@@ -357,7 +357,7 @@ def main_prod(request):
         for sing_list in main_dates_list:
             level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], main_data_dict['sub_packet'],main_data_dict['pro_cen_mapping'])
             final_dict = product_total_graph(sing_list, main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0],level_structure_key)
-            if len(final_dict['prod_days_data']) > 0:
+            if final_dict['prod_days_data']:
                 final_dict['productivity_data'] = graph_data_alignment_color(final_dict['prod_days_data'], 'data',level_structure_key,main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0])
             else:
                 final_dict['productivity_data'] = []
@@ -370,7 +370,7 @@ def main_prod(request):
             week_num = week_num + 1
             level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], main_data_dict['sub_packet'],main_data_dict['pro_cen_mapping'])
             final_dict = product_total_graph(sing_list, main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0],level_structure_key)
-            if len(final_dict['prod_days_data']) > 0: 
+            if final_dict['prod_days_data']: 
                 productivity_list[week_name] = final_dict['volumes_data']['volume_values']
             else:
                 productivity_list[week_name] = {} 
