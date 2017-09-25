@@ -33,37 +33,33 @@ def project(request):
         """
     if 'customer' in user_group:
         select_list = []
-        details = {}
-        customer_objs = Customer.objects.filter(name_id=request.user.id).values_list('center', 'project')
-        customer_objs_count = customer_objs.count()
-        center_list, project_list = [], []
-        for item in customer_objs:
-            center_list.append(item[0])
-            project_list.append(item[1])    
-        #center_list = Customer.objects.filter(name_id=request.user.id).values_list('center')
-        #project_list = Customer.objects.filter(name_id=request.user.id).values_list('project')
-        if customer_objs_count== 1:
+        details = {}      
+        customer_objs = Customer.objects.filter(name_id=request.user.id) 
+        center_list = Customer.objects.filter(name_id=request.user.id).values_list('center')
+        project_list = Customer.objects.filter(name_id=request.user.id).values_list('project')
+        if (len(center_list) & len(project_list)) == 1:
             select_list.append('none')
-        if customer_objs_count < 2: 
-            center_name = str(Center.objects.filter(id=center_list[0])[0])
+        if len(center_list) < 2:  
+            center_name = str(Center.objects.filter(id=center_list[0][0])[0])
             for project in project_list:
-                project_name = str(Project.objects.filter(id=project)[0])
+                project_name = str(Project.objects.filter(id=project[0])[0])
                 vari = center_name + ' - ' + project_name
                 select_list.append(vari)
-        elif customer_objs_count >= 2:
+        elif len(center_list) >= 2:
             for center in center_list:
-                center_name = str(Center.objects.filter(id=center)[0])
+                center_name = str(Center.objects.filter(id=center[0])[0])
                 for project in project_list:
-                    project_name = str(Project.objects.filter(id=project)[0])
+                    project_name = str(Project.objects.filter(id=project[0])[0])
                     select_list.append(center_name + ' - ' + project_name) 
         details['list'] = select_list
 
-        if customer_objs_count > 1:
+        if len(select_list) > 1:
               if multi_project:
                  prj_id = Project.objects.filter(name=multi_project).values_list('id','center_id')
               else:
                  prj_name = select_list[1].split(' - ')[1]
                  prj_id = Project.objects.filter(name=prj_name).values_list('id','center_id') 
+
 
     if 'nextwealth_manager' in user_group:
         select_list = []
