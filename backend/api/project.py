@@ -125,9 +125,9 @@ def project(request):
 
 
     if user_group in ['nextwealth_manager','center_manager','customer']:
-        widgets_id = Widgets_group.objects.filter(User_Group_id=user_group_id, project=prj_id[0][0],center=prj_id[0][1]).values('widget_priority', 'is_drilldown','is_display', 'widget_name','col')
+        widgets_id = Widgets_group.objects.filter(User_Group_id=user_group_id, project=prj_id[0][0],center=prj_id[0][1]).values('widget_priority', 'is_drilldown','is_display', 'widget_name','col', 'display_value')
     else:
-        widgets_id = Widgets_group.objects.filter(User_Group_id=user_group_id, project__in=prj_id,center__in=center).values('widget_priority', 'is_drilldown','is_display', 'widget_name','col')
+        widgets_id = Widgets_group.objects.filter(User_Group_id=user_group_id, project__in=prj_id,center__in=center).values('widget_priority', 'is_drilldown','is_display', 'widget_name','col', 'display_value')
 
     for data in widgets_id:
         if data['is_display'] == True:
@@ -152,6 +152,7 @@ def project(request):
             wid_dict['widget_priority'] = data['widget_priority']
             wid_dict['is_drilldown'] = data['is_drilldown']
             wid_dict['col'] = data['col']
+            wid_dict['display_value'] = data['display_value']
             list_wid.append(wid_dict)
     sorted_dict = sorted(list_wid, key=lambda k: k['widget_priority'])
     lay_out_order = [] 

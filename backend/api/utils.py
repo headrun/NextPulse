@@ -253,7 +253,8 @@ def modified_utilization_calculations(center,prj_id,date_list,level_structure_ke
                     if hc_value == None:
                         headcount_data[hc_key] = 0
                 util_numerator = headcount_data['billable_hc__sum']
-                fte_denominator = headcount_data['billable_agents__sum'] + headcount_data['buffer_agents__sum'] + headcount_data['qc_or_qa__sum'] + headcount_data['teamlead__sum']
+                #fte_denominator = headcount_data['billable_agents__sum'] + headcount_data['buffer_agents__sum'] + headcount_data['qc_or_qa__sum'] + headcount_data['teamlead__sum']
+                fte_denominator = headcount_data['billable_hc__sum'] + headcount_data['buffer_agents__sum'] + headcount_data['qc_or_qa__sum'] + headcount_data['teamlead__sum']
                 operational_denominator  = fte_denominator + headcount_data['trainees_and_trainers__sum']
                 overall_util_denominator = operational_denominator + headcount_data['managers__sum'] + headcount_data['mis__sum']
                 if fte_denominator > 0:

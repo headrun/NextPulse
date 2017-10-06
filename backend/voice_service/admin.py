@@ -4,9 +4,9 @@ from django.contrib import admin
 from .models import *
 
 class InboundHourlyCallAuthoringAdmin(admin.ModelAdmin):
-    list_display = ['call_id', 'campaign', 'skill', 'location', 'caller_no', 'start_time', 'time_to_answer', 'end_time', 'talk_time',\
-                    'hold_time', 'duration', 'call_flow', 'agent', 'wrapup_duration', 'disposition', 'handling_time', 'status',\
-                    'dial_status', 'hangup_by', 'transfer', 'uui', 'comments', 'audio_url']
+    list_display = ['call_id', 'campaign', 'skill', 'location', 'caller_no', 'start_time', 'time_to_answer', 'end_time',\
+                    'talk_time','hold_time', 'duration', 'call_flow', 'agent', 'wrapup_duration', 'disposition', 'handling_time', \
+                    'status','dial_status', 'hangup_by', 'transfer', 'uui', 'comments', 'audio_url']
     list_filter  = ['skill', 'location', 'status']
 admin.site.register(InboundHourlyCallAuthoring, InboundHourlyCallAuthoringAdmin)
 
@@ -24,6 +24,24 @@ admin.site.register(OutboundHourlyCallAuthoring, OutboundHourlyCallAuthoringAdmi
 class OutboundHourlyCallAdmin(admin.ModelAdmin):
     list_display = ['call_id', 'call_type', 'called_no', 'call_flow', 'disposition', 'dial_status']
 admin.site.register(OutboundHourlyCall, OutboundHourlyCallAdmin)
+
+class InboundDailyAuthoringAdmin(admin.ModelAdmin):
+    list_display = ['agent', 'hours_worked', 'calls', 'connects_per_hr', 'project', 'center']
+admin.site.register(InboundDailyAuthoring, InboundDailyAuthoringAdmin)
+
+class OutboundDailyAuthoringAdmin(admin.ModelAdmin):
+    list_display = ['agent', 'hours_worked', 'calls', 'connects_per_hr', 'project', 'center']
+admin.site.register(OutboundDailyAuthoring, OutboundDailyAuthoringAdmin)
+
+class InboundDailyAdmin(admin.ModelAdmin):
+    list_display = ['agent', 'hours_worked', 'connects_per_hr', 'project', 'center']
+    list_filter  = ['project', 'center']
+admin.site.register(InboundDaily, InboundDailyAdmin)
+
+class OutboundDailyAdmin(admin.ModelAdmin):
+    list_display = ['agent', 'hours_worked', 'connects_per_hr', 'project', 'center']
+    list_filter  = ['project', 'center']
+admin.site.register(OutboundDaily, OutboundDailyAdmin)
 
 class InboundDailyCallAdmin(admin.ModelAdmin):
     list_display = ['agent', 'date', 'daily_duration', 'daily_handling_time']
