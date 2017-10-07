@@ -191,11 +191,14 @@
 
                     self.ajax_for_role = function() {
 
-                      $http({method: "GET", url: '/api/project/'}).success(function(result){
+                      $http({method: "GET", url: self.pro_landing_url}).success(function(result){
 
                         self.role_for_perm = result.result.role;
+
                       });
                     }
+
+                    var value_graph = 'api/project/?name='+callback[2]+callback[3]
 
                     self.ajax_for_role();
 
@@ -268,12 +271,36 @@
                             var data_list_line = result.result.volume_graphs.line_data;
 
                             if ((name == "self.chartOptions17") || (name == "")) {
+
+                                if (self.list_object.volume_bar_graph != undefined) {
+
+                                    if(self.list_object.volume_bar_graph.display_value === true) {
+                                    
+                                        var value = true;
+
+                                    }
+
+                                    else {
+                                        var value = false;    
+                                    }
+                                }
+
+                                else {
+                                    var value = false;
+                                }
+
                                 angular.extend(self.chartOptions17, {
                                     xAxis: {
                                         categories: date_list,
                                     },
                                     plotOptions: {
                                         series: {
+                                          dataLabels: {
+                                            enabled: value,
+                                            formatter: function () {
+                                                return Highcharts.numberFormat(this.y, null, null, ",");
+                                            }
+                                          },
                                           allowPointSelect: true,
                                           cursor: 'pointer',
                                             point: {
@@ -340,12 +367,35 @@
                             }
 
                             if ((name == "self.chartOptions18") || (name == "")) {
+
+                                if (self.list_object.volume_productivity_graph != undefined) {
+
+                                    if(self.list_object.volume_productivity_graph.display_value === true) {
+                                    
+                                        var value = true;
+
+                                    }
+                                    else {
+                                        var value = false;    
+                                    }
+                                }
+
+                                else {
+                                    var value = false;
+                                }
+
                                 angular.extend(self.chartOptions18, {
                                     xAxis: {
                                         categories: date_list,
                                     },
                                     plotOptions: {
                                         series: {
+                                          dataLabels: {
+                                            enabled: value,
+                                            formatter: function () {
+                                               return Highcharts.numberFormat(this.y, null, null, ",");
+                                            }
+                                          },
                                           allowPointSelect: true,
                                           cursor: 'pointer',
                                             point: {
@@ -439,6 +489,24 @@
                             var overall_utili_data = result.result.original_utilization_graph;
 
                             if ((name == "self.chartOptions25") || (name == "")) {
+                                
+                                if (self.list_object.operational_utilization != undefined) {
+
+                                    if (self.list_object.operational_utilization.display_value === true) {
+
+                                        var value = true;
+                                    }
+
+                                    else {
+                                    
+                                        var value = false;
+                                    }
+
+                                }
+                                else {
+
+                                    var value = false;
+                                }
 
                                 angular.extend(self.chartOptions25, {
                                     xAxis: {
@@ -446,6 +514,9 @@
                                     },
                                     plotOptions: {
                                         series: {
+                                          dataLabels: {
+                                            enabled: value,
+                                          },
                                           allowPointSelect: true,
                                           cursor: 'pointer',
                                             point: {
@@ -518,12 +589,33 @@
                             
                             if ((name == "self.chartOptions24") || (name == "")) {
 
+                                if (self.list_object.fte_utilization != undefined) {
+
+                                    if (self.list_object.fte_utilization.display_value === true) {
+
+                                        var value = true;
+                                    }
+
+                                    else {
+
+                                        var value = false;    
+                                    }
+                                }
+                                else {
+
+                                    var value = false;
+                                }
+
+
                                 angular.extend(self.chartOptions24, {
                                     xAxis: {
                                         categories: date_list,
                                     },
                                     plotOptions: {
-                                        series: {  
+                                        series: {
+                                          dataLabels: {
+                                            enabled: value,
+                                          },  
                                           allowPointSelect: true,
                                           cursor: 'pointer',
                                             point: { 
@@ -594,12 +686,28 @@
 
                             if ((name == "self.chartOptions15") || (name == "")) {
 
+                                if (self.list_object.utilisation_wrt_work_packet != undefined) {
+
+                                    if (self.list_object.utilisation_wrt_work_packet.display_value === true) {
+
+                                        var value = true;
+                                    }
+                                    else {
+                                        var value = false;    
+                                    }
+                                }
+                                else {
+                                    var value = false;
+                                }
                                 angular.extend(self.chartOptions15, {
                                     xAxis: {
                                         categories: date_list,
                                     },
                                      plotOptions: {
-                                     series: {  
+                                     series: {
+                                        dataLabels: {
+                                         enabled: value,
+                                       },
                                        allowPointSelect: true,
                                        cursor: 'pointer',
                                          point: { 
@@ -691,12 +799,31 @@
                             var date_list = result.result.date;
                             var productivity = result.result.original_productivity_graph;
 
+                            if (self.list_object.productivity_trends != undefined) {
+
+                                if (self.list_object.productivity_trends.display_value === true) {
+
+                                    var value = true;
+                                }
+                                else {
+                                    
+                                    var value = false;    
+                                }
+                            }
+                            else {
+                                var value = false;
+                            }
+
+
                             angular.extend(self.chartOptions19, {
                                 xAxis: {
                                     categories: date_list,
                                 },
                                     plotOptions: {
                                         series: {
+                                          dataLabels: {
+                                            enabled: value,
+                                          },
                                           allowPointSelect: true,
                                           cursor: 'pointer',
                                             point: {
@@ -767,7 +894,7 @@
                     }
 
                     self.prod_avg = function(final_work, type) {
-
+ 
                         if (type == undefined) {
                             type = 'day'
                         }
@@ -784,6 +911,20 @@
 
                            var date_list = result.result.date;
                            var prod_avg_data = result.result.production_avg_details
+
+                            if (self.list_object.production_avg_perday != undefined) {
+
+                                if (self.list_object.production_avg_perday.display_value === true) {
+
+                                    var value = true;
+                                }
+                                else {
+                                    var value = false;   
+                                }
+                            }
+                            else {
+                                var value = false;
+                            }
                             
                            angular.extend(self.chartOptions38, {
                                 xAxis: {
@@ -791,6 +932,9 @@
                                 },
 				plotOptions: {
 				    series: {
+                      dataLabels: {
+                         enabled: value,
+                      },
 				      allowPointSelect: true,
 				      cursor: 'pointer',
 					point: {
@@ -878,13 +1022,30 @@
                         $http({method:"GET", url: tat_data}).success(function(result){
                            var date_list = result.result.date;
                            var tat_values = result.result.tat_graph_details
+                            
+                           if (self.list_object.tat_graph != undefined) {
 
+                                if (self.list_object.tat_graph.display_value === true) {
+                                      
+                                    var value = true
+                                }
+                                else {
+                                    var value = false
+                                }
+                           }
+                           else {
+                                
+                                var value = false
+                           } 
                            angular.extend(self.chartOptions31, {
                                 xAxis: {
                                     categories: date_list,
                                 },
                 plotOptions: {
                     series: {
+                      dataLabels: {
+                         enabled: value,
+                      },
                       allowPointSelect: true,
                       cursor: 'pointer',
                     point: {
@@ -970,14 +1131,32 @@
                         return $http({method:"GET", url: mont_volume}).success(function(result){
 
                             var date_list  = result.result.date;
+
                             var monthly_volume = result.result.monthly_volume_graph_details
+
+                            if (self.list_object.monthly_volume_widget != undefined) {
                             
+                                if (self.list_object.monthly_volume_widget.display_value === true) {
+
+                                    var value = true;
+                                }
+                                else {
+                                    var value = false;
+                                }
+                            }
+                            else {
+                                var value = false;
+                            }
+
                             angular.extend(self.chartOptions26, {
                                 xAxis: {
                                     categories: date_list,
                                 },
                                     plotOptions: {
                                         series: {
+                                        dataLabels: {
+                                            enabled: value,
+                                        },
                                           allowPointSelect: true,
                                           cursor: 'pointer',
                                             point: {
@@ -1096,12 +1275,30 @@
                             
                             if ((name == "self.chartOptions16") || (name == "")) {
 
+                                if (self.list_object.total_fte != undefined) {
+                            
+                                    if (self.list_object.total_fte.display_value === true) { 
+
+                                        var value = true;   
+                                    }
+                                    else {
+                                        var value = false;
+                                    }
+                                }
+                                else {
+                                    var value = false;
+                                }
+
                                 angular.extend(self.chartOptions16, {
                                     xAxis: {
                                         categories: date_list,
                                     },
                                     plotOptions: {
-                                        series: {  
+                                        series: {
+                                        dataLabels: {
+                                            enabled: value,
+                                            valueDecimals: 2
+                                        },
                                           allowPointSelect: true,
                                           cursor: 'pointer',
                                             point: {
@@ -1172,12 +1369,31 @@
 
                             if ((name == "self.chartOptions16_2") || (name == "")) {
 
+                                if (self.list_object.sum_total_fte != undefined) {
+
+                                    if (self.list_object.sum_total_fte.display_value === true) {
+
+                                        var value = true;   
+                                    }
+                                    else {
+                                        var value = false;
+                                    }
+                                }
+                                else {
+                                    var value = false;
+                                }
+
+
                                 angular.extend(self.chartOptions16_2, {
                                     xAxis: {
                                         categories: date_list,
                                     },
                                     plotOptions: {
                                         series: {
+                                        dataLabels: {
+                                            enabled: value,
+                                            valueDecimals: 2
+                                        },
                                           allowPointSelect: true,
                                           cursor: 'pointer',
                                             point: {
@@ -1293,6 +1509,20 @@
                             var main_prod_data = result.result.productivity_data;
                             
                             if ((name == "self.chartOptions10") || (name == "")) {
+                                                                
+                                if (self.list_object.productivity_bar_graph != undefined) {
+                                
+                                    if (self.list_object.productivity_bar_graph.display_value === true) {
+
+                                        var value = true;
+                                    }
+                                    else {
+                                        var value = false;
+                                    }
+                                }
+                                else {
+                                    var value = false;
+                                }
 
                                 angular.extend(self.chartOptions10, {
                                    xAxis: {
@@ -1300,6 +1530,12 @@
                                     },
                                     plotOptions: {
                                         series: {
+                                          dataLabels: {
+                                            enabled: value,
+                                            formatter: function () {
+                                                return Highcharts.numberFormat(this.y, null, null, ",");
+                                            },
+                                          },
                                           allowPointSelect: true,
                                           cursor: 'pointer',
                                             point: { 
@@ -1368,12 +1604,34 @@
                             }
 
                             if ((name == "self.chartOptions") || (name == "")) {
+
+                                if (self.list_object.productivity_chart != undefined) {
+
+                                    if (self.list_object.productivity_chart.display_value === true) {
+
+                                        var value = true;
+                                    }
+                                    else {
+                                        var value = false;
+                                    }
+                                }
+                                else {
+                                    var value = false;
+                                }
+
                                 angular.extend(self.chartOptions, {
                                    xAxis: {
                                         categories: date_list,
                                     },
 				     plotOptions: {
 					 series: {
+                       dataLabels: {
+                         enabled: value,
+                         formatter: function () {
+                             return Highcharts.numberFormat(this.y, null, null, ",");
+                           },
+                       },
+
 					   allowPointSelect: true,
 					   cursor: 'pointer',
 					     point: {
@@ -1477,7 +1735,21 @@
 		self.pareto_category_error = function(pareto_cate_error){
 
                        return $http({method:"GET", url: pareto_cate_error}).success(function(result){
-                                
+                            
+                            if (self.list_object.error_category_internal_pareto_analysis != undefined) {
+
+                                if (self.list_object.error_category_internal_pareto_analysis.display_value === true) {
+
+                                    var value = true;
+                                }
+                                else {
+                                    var value = false;
+                                }
+                            }
+                            else {
+                                var value = false;
+                            }
+    
                             angular.extend(self.chartOptions29, {
                                 xAxis: {
                                     categories: result.result.Internal_Error_Category.category_name,
@@ -1487,6 +1759,9 @@
                                },
                                 plotOptions: {
                                     series: {
+                                      dataLabels: {
+                                        enabled: value,
+                                      },
                                       allowPointSelect: true,
                                       cursor: 'pointer',
                                         point: {
@@ -1555,6 +1830,20 @@
                             $('.widget-24a').removeClass('widget-loader-show');
                             $('.widget-24b').removeClass('widget-data-hide');
 
+                            if (self.list_object.error_category_external_pareto_analysis != undefined) {
+
+                                if (self.list_object.error_category_external_pareto_analysis.display_value === true) {
+
+                                    var value = true;
+                                }
+                                else {
+                                    var value = false;
+                                }
+                            }
+                            else {
+                                var value = false;
+                            }
+
                             angular.extend(self.chartOptions30, {
                                 xAxis: {
                                     categories: result.result.External_Error_Category.category_name,
@@ -1564,6 +1853,9 @@
                                },
                                 plotOptions: {
                                     series: {
+                                      dataLabels: {
+                                        enabled: value,
+                                      },
                                       allowPointSelect: true,
                                       cursor: 'pointer',
                                         point: {
@@ -1637,7 +1929,21 @@
 		  
 		self.agent_category_error = function(agent_cate_error){
                        return $http({method:"GET", url: agent_cate_error}).success(function(result){
-                                
+                            
+                            if (self.list_object.agent_wise_pareto_graph_data != undefined) {
+
+                                if (self.list_object.agent_wise_pareto_graph_data.display_value === true) {
+
+                                    var value = true;
+                                }
+                                else {
+                                    var value = false;
+                                }
+                            }
+                            else {
+                                var value = false;
+                            }
+    
                             angular.extend(self.chartOptions27, {
                                 xAxis: {
                                     categories: result.result.Pareto_data.emp_names,
@@ -1648,6 +1954,9 @@
 
                                 plotOptions: {
                                     series: {
+                                      dataLabels: {
+                                          enabled: value,
+                                      },
                                       allowPointSelect: true,
                                       cursor: 'pointer',
                                         point: {
@@ -1716,6 +2025,20 @@
                             $('.widget-22a').removeClass('widget-loader-show');
                             $('.widget-22b').removeClass('widget-data-hide');
 
+                            if (self.list_object.agent_wise_external_pareto_analysis != undefined) {
+
+                                if (self.list_object.agent_wise_external_pareto_analysis.display_value === true) {
+
+                                    var value = true;
+                                }
+                                else {
+                                    var value = false;
+                                }
+                            }
+                            else {
+                                var value = false;
+                            }
+
                             angular.extend(self.chartOptions28, {
                                 xAxis: {
                                     categories: result.result.External_Pareto_data.emp_names,
@@ -1726,6 +2049,9 @@
 
                                 plotOptions: {
                                     series: {
+                                      dataLabels: {
+                                        enabled: value,
+                                      },
                                       allowPointSelect: true,
                                       cursor: 'pointer',
                                         point: {
@@ -1816,6 +2142,20 @@
 
                             var date_list  = result.result.date;
                             var pre_scan_details = result.result.pre_scan_exception_data;
+                
+                            if (self.list_object.pre_scan_exception_chart != undefined) {
+                        
+                                if (self.list_object.pre_scan_exception_chart.display_value === true) {
+
+                                    var value = true;
+                                }
+                                else {
+                                    var value = false;
+                                }
+                            }
+                            else {
+                                var value = false;
+                            }
 
                             angular.extend(self.chartOptions40, {
 
@@ -1827,6 +2167,9 @@
                                },
                                 plotOptions: {
                                     series: {
+                                      dataLabels: {
+                                        enabled: value,
+                                      },
                                       allowPointSelect: true,
                                       cursor: 'pointer',
                                         point: {
@@ -1916,6 +2259,20 @@
                             var date_list  = result.result.date;
                             var nw_details = result.result.nw_exception_details;
 
+                            if (self.list_object.nw_exception_chart != undefined) {
+
+                                if (self.list_object.nw_exception_chart.display_value === true) {
+
+                                    var value = true;
+                                }
+                                else {
+                                    var value = false;
+                                }   
+                            }
+                            else {
+                                var value = false;
+                            }
+
                             angular.extend(self.chartOptions42, {
 
                                 xAxis: {
@@ -1926,6 +2283,9 @@
                                },
                                 plotOptions: {
                                     series: {
+                                      dataLabels: {
+                                        enabled: value,
+                                      },
                                       allowPointSelect: true,
                                       cursor: 'pointer',
                                         point: {
@@ -2015,6 +2375,20 @@
                             var date_list  = result.result.date;
                             var overall_details = result.result.overall_exception_details;
 
+                            if (self.list_object.overall_exception_chart != undefined) {
+                                
+                                if (self.list_object.overall_exception_chart.display_value === true) {
+
+                                    var value = true;
+                                }
+                                else {
+                                    var value = false;
+                                }
+                            }
+                            else {
+                                var value = false;
+                            }
+
                             angular.extend(self.chartOptions41, {
 
                                 xAxis: {
@@ -2025,6 +2399,9 @@
                                },
                                 plotOptions: {
                                     series: {
+                                      dataLabels: {
+                                        enabled: value,
+                                      },
                                       allowPointSelect: true,
                                       cursor: 'pointer',
                                         point: {
@@ -2115,6 +2492,21 @@
                             var date_list  = result.result.upload_target_data.date;
                             var upload_target_data = result.result.upload_target_data.data;
 
+                            if (self.list_object.target_upload_graph != undefined) {
+
+                                if (self.list_object.target_upload_graph.display_value === true) {
+                                    
+                                    var value = true;
+                                }
+                                
+                                else {
+                                    var value = false;
+                                }
+                            }
+                            else {
+                                var value = false;
+                            }
+
                             angular.extend(self.chartOptions39, {
 
                                 xAxis: {
@@ -2125,6 +2517,9 @@
                                },
                                 plotOptions: {
                                     series: {
+                                      dataLabels: {
+                                        enabled: value,
+                                      },
                                       allowPointSelect: true,
                                       cursor: 'pointer',
                                         point: {
@@ -2202,9 +2597,27 @@
                                 min:result.result.inter_min_value,
                                 max:result.result.inter_max_value
                             });
+
+                            if (self.list_object.internal_field_accuracy_graph != undefined) {
+
+                                if (self.list_object.internal_field_accuracy_graph.display_value === true) {
+
+                                    var value = true;
+                                }
+                                else {
+                                    var value = false;
+                                }                                       
+                            }
+                            else {
+                                var value = false;
+                            }
+
                            angular.extend(self.chartOptions43,{
                                 plotOptions: { 
                                     series: {
+                                      dataLabels: {
+                                        enabled: value,
+                                      },
                                       allowPointSelect: true,
                                       cursor: 'pointer',
                                         point: {
@@ -2285,9 +2698,27 @@
                                 max:result.result.exter_max_value
                             });
 
+                            if (self.list_object.external_field_accuracy_graph != undefined) {
+
+                                if (self.list_object.external_field_accuracy_graph.display_value === true) {
+
+                                    var value = true;
+                                }
+                                
+                                else {
+                                    var value = false;
+                                }
+                            }
+                            else {
+                                var value = false;
+                            }
+
                            angular.extend(self.chartOptions44,{
                                 plotOptions: { 
                                     series: {
+                                      dataLabels: {
+                                         enabled: value,
+                                      },
                                       allowPointSelect: true,
                                       cursor: 'pointer',
                                         point: {
@@ -2365,6 +2796,21 @@
 
 			self.error_bar_graph = function(error_bar_graph){
 	                       return $http({method:"GET", url: error_bar_graph}).success(function(result){
+
+                            if (self.list_object.internal_error_accuracy != undefined) {
+
+                                if (self.list_object.internal_error_accuracy.display_value === true) {
+
+                                    var value = true;
+                                }
+                                else {
+                                    var value = false;
+                                }
+                            }
+                            else {
+                                var value = false;
+                            }
+
                            angular.extend(self.chartOptions4.yAxis,{
                                 min:result.result.int_min_value,
                                 max:result.result.int_max_value
@@ -2372,6 +2818,11 @@
                            angular.extend(self.chartOptions4,{
                                 plotOptions: {
                                     series: {
+                                        dataLabels: {
+                                            enabled: value,
+                                            format: '{y} %',
+                                            valueDecimals: 2
+                                        },
                                       allowPointSelect: true,
                                       cursor: 'pointer',
                                         point: {
@@ -2450,9 +2901,28 @@
                                 max:result.result.ext_max_value
                             });
 
+                            if (self.list_object.external_error_accuracy != undefined) {
+
+                                if (self.list_object.external_error_accuracy.display_value === true) {
+
+                                    var value = true;
+                                }
+                                else {
+                                    var value = false;
+                                }
+                            }
+                            else {
+                                var value = false;
+                            }
+
                            angular.extend(self.chartOptions6,{
                                 plotOptions: {
                                     series: {
+                                        dataLabels: {
+                                            enabled: value,
+                                            format: '{y} %',
+                                            valueDecimals: 2
+                                        },
                                       allowPointSelect: true,
                                       cursor: 'pointer',
                                         point: {
@@ -2553,6 +3023,20 @@
                             var internal_error_timeline = result.result.internal_time_line;
 
                             if ((name == "self.chartOptions9_2") || (name == "")) {
+                            
+                                if (self.list_object.external_accuracy_timeline != undefined) {
+
+                                    if (self.list_object.external_accuracy_timeline.display_value === true) {
+
+                                        var value = true;
+                                    }
+                                    else {
+                                        var value = false;
+                                    }  
+                                }
+                                else {
+                                    var value = false;
+                                }
 
                                 angular.extend(self.chartOptions9_2.yAxis,{
                                     min:result.result.min_external_time_line,
@@ -2565,6 +3049,11 @@
                                     },
                                     plotOptions: {
                                         series: {
+                                          dataLabels: {
+                                            enabled: value,
+                                            format: '{y} %',
+                                            valueDecimals: 2
+                                          },
                                           allowPointSelect: true,
                                           cursor: 'pointer',
                                             point: {
@@ -2635,6 +3124,20 @@
 
                             if ((name == "self.chartOptions9") || (name == "")) {
 
+                                if (self.list_object.internal_accuracy_timeline != undefined) {
+
+                                    if (self.list_object.internal_accuracy_timeline.display_value === true) {
+
+                                        var value = true;
+                                    }
+                                    else {
+                                        var value = false;
+                                    }
+                                }
+                                else {
+                                    var value = false;
+                                }
+
                                 angular.extend(self.chartOptions9.yAxis,{
                                     min:result.result.min_internal_time_line,
                                     max:result.result.max_internal_time_line
@@ -2646,6 +3149,11 @@
                                     },
                                     plotOptions: {
                                         series: {
+                                          dataLabels: {
+                                            enabled: value,
+                                            format: '{y} %',
+                                            valueDecimals: 2
+                                          },
                                           allowPointSelect: true,
                                           cursor: 'pointer',
                                             point: {
@@ -2837,7 +3345,6 @@
 
                 self.list_object = result.data.result.lay[0];
                 self.layout_list = result.data.result.lay[1].layout;
-                    
                 var pro_cen_nam = $state.params.selpro;                                                                                           
                 self.call_back = [];
 
@@ -9102,10 +9609,23 @@ angular.extend(self.chartOptions18, {
                tooltip: {
                 valueSuffix: ''
                },
+               
+                plotOptions : {
+                series : {
+                    dataLabels: {
+                        /*formatter: function() {
+                            return this.x
+                        },*/
+                        enabled: true
+                    }
+                }
+            },
+
                credits: {
                 enabled: false
                },
             };
+
             self.chartOptions17 = {
             chart: {
                 type: 'column',
