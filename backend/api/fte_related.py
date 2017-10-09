@@ -24,22 +24,19 @@ def fte_calculation_sub_project_work_packet(result,level_structure_key):
                         new_level_structu_key['sub_project'] = level_structure_key['sub_project']
                     new_level_structu_key['work_packet'] = wp_key_new
                     new_level_structu_key['sub_packet'] = sub_packet
-            new_level_structu_key['from_date__lte'] = date_va
-            new_level_structu_key['to_date__gte'] = date_va
-            final_work_packet = level_hierarchy_key(level_structure_key, new_level_structu_key)
-
-            if result['data']['data'].has_key(final_work_packet):
-                if len(result['data']['data'][final_work_packet]) >= count:
-                    try:
-                        local_sum = local_sum + result['data']['data'][final_work_packet][count]
-                    except:
+                    new_level_structu_key['from_date__lte'] = date_va
+                    new_level_structu_key['to_date__gte'] = date_va
+                    final_work_packet = level_hierarchy_key(level_structure_key, new_level_structu_key)
+                    if result['data']['data'].has_key(final_work_packet):
+                        if len(result['data']['data'][final_work_packet]) >= count:
+                            try:
+                                local_sum = local_sum + result['data']['data'][final_work_packet][count]
+                            except:
+                                local_sum = local_sum
+                        else:
+                            local_sum = local_sum
+                    else:
                         local_sum = local_sum
-                else:
-                    local_sum = local_sum
-            else:
-                local_sum = local_sum
-
-                    
                 if level_structure_key.get('work_packet', '') != 'All':
                     if final_fte.has_key(final_work_packet):
                         final_fte_sum = float('%.2f' % round(local_sum, 2))
@@ -47,18 +44,18 @@ def fte_calculation_sub_project_work_packet(result,level_structure_key):
                     else:
                         final_fte_sum = float('%.2f' % round(local_sum, 2))
                         final_fte[final_work_packet] = [final_fte_sum]
-            if level_structure_key.get('work_packet', '') == 'All':
-                if level_structure_key.has_key('sub_project'):
-                    new_level_structu_key['sub_project'] = level_structure_key['sub_project']
-                new_level_structu_key['work_packet'] = wp_key_new
-                wp_final_work_packet = level_hierarchy_key(level_structure_key, new_level_structu_key)
-                if final_fte.has_key(wp_final_work_packet):
-                    final_fte_sum = float('%.2f' % round(local_sum, 2))
-                    final_fte[wp_final_work_packet].append(final_fte_sum)
-                else:
-                    final_fte_sum = float('%.2f' % round(local_sum, 2))
-                    final_fte[wp_final_work_packet] = [final_fte_sum]
-            count = count + 1
+                if level_structure_key.get('work_packet', '') == 'All':
+                    if level_structure_key.has_key('sub_project'):
+                        new_level_structu_key['sub_project'] = level_structure_key['sub_project']
+                    new_level_structu_key['work_packet'] = wp_key_new
+                    wp_final_work_packet = level_hierarchy_key(level_structure_key, new_level_structu_key)
+                    if final_fte.has_key(wp_final_work_packet):
+                        final_fte_sum = float('%.2f' % round(local_sum, 2))
+                        final_fte[wp_final_work_packet].append(final_fte_sum)
+                    else:
+                        final_fte_sum = float('%.2f' % round(local_sum, 2))
+                        final_fte[wp_final_work_packet] = [final_fte_sum]
+            count = count + 1            
         return final_fte
 
 
@@ -82,6 +79,7 @@ def fte_calculation_sub_project_sub_packet(prj_id,center_obj,work_packet_query,l
     for date_va in date_list:
         new_work_packet_query['from_date__lte'] = date_va
         new_work_packet_query['to_date__gte'] = date_va
+
         if new_work_packet_query.has_key('work_packet'):
             del new_work_packet_query['work_packet']
         work_packets = Targets.objects.filter(**new_work_packet_query).values('sub_project', 'work_packet', 'sub_packet','target_value').distinct()

@@ -25,22 +25,14 @@ class Command(BaseCommand):
         days = (to_date - from_date).days
         days = days + 1
         months_dict = {}
-        month_list = [[]]
-        month_names_list = []
-        month_count = 0
         for i in xrange(days):
             date = from_date + datetime.timedelta(i)
             month = date.strftime("%B")
-            if month not in month_names_list:
-                month_names_list.append(month)
             if month in months_dict:
                 months_dict[month].append(str(date))
-                month_list[month_count].append(str(date))
             else:
                 months_dict[month] = [str(date)]
-                month_count = month_count + 1
-                month_list.append([str(date)])
-        proje_cent = ['Probe','NTT DATA Services TP','NTT DATA Services Coding','Federal Bank','Ujjivan','Gooru','Walmart Salem','IBM','IBM South East Asia','IBM Pakistan','IBM Africa','IBM DCIW Arabia','IBM Quality Control','IBM India and Sri Lanka','IBM NA and EU','IBM Arabia','IBM DCIW','IBM Latin America','IBM Sri Lanka P2P', 'Mobius']
+	proje_cent = ['Probe','NTT DATA Services TP','NTT DATA Services Coding','Federal Bank','Ujjivan','Gooru','Walmart Salem', 'Mobius', 'Walmart Chittor','IBM','IBM South East Asia','IBM Pakistan','IBM Africa','IBM DCIW Arabia','IBM Quality Control','IBM India and Sri Lanka','IBM NA and EU','IBM Arabia','IBM DCIW','IBM Latin America','IBM Sri Lanka P2P']	
         for month_name,month_dates in months_dict.iteritems():
             project_salem_count, project_chittoor_count = [] , []
             billa_sal, buf_sal, qc_qa_sal, tl_sal, others_sal, total_sal = [], [], [], [], [], []
@@ -56,8 +48,8 @@ class Command(BaseCommand):
                 prj_name = pro_cen
                 center_name = Center.objects.filter(project=prj_id).values_list('name',flat=True)[0]
                 for date in dates_list:
-                    per_day_val = RawTable.objects.filter(project=prj_id, center=center_id, date=date).aggregate(Max('per_day'))
-                    if per_day_val['per_day__max'] > 0:
+                    per_day_val = Headcount.objects.filter(project=prj_id, center=center_id, date=date).aggregate(Max('billable_hc'))
+                    if per_day_val['billable_hc__max'] > 0:
                         date_li.append(date)
                 if date_li:
                     head_count = Headcount.objects.filter(project = prj_id, center = center_id, date = date_li[-1]).aggregate(Sum('billable_hc'),Sum('billable_agents'),Sum('buffer_agents'),Sum('qc_or_qa'),Sum('teamlead'),Sum('trainees_and_trainers'),Sum('managers'),Sum('mis'))
@@ -65,7 +57,6 @@ class Command(BaseCommand):
                     break
                 volumes = RawTable.objects.filter(project=prj_id, center=center_id, date__range=[dates_list[0],dates_list[-1]]).aggregate(Sum('per_day'))
                 volumes = volumes['per_day__sum']
-
                 if head_count['billable_hc__sum'] != None:
                     billable_head = head_count['billable_hc__sum']
                     billable_head = float('%.2f' % round(billable_head, 2))

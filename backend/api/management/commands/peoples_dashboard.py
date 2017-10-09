@@ -12,6 +12,7 @@ class Command(BaseCommand):
 
 
     def handle(self, *args, **options):
+        from api.models import Project,Center
         conn = MySQLdb.connect(db="nextpulse", user='root', passwd='Mbch@He@drn232017Mar', charset="utf8")
         cur = conn.cursor()
         #========================================================
@@ -40,14 +41,21 @@ class Command(BaseCommand):
         prj_teams = list(prj_teams)
         for team in prj_teams:
             team = team[0]
-            pr_team = team.split(" - ")[0]
+            if team in ["IBM - Quality Control",  "IBM - India",  "IBM - Sri Lanka", "IBM - Africa",  "IBM - DCIW",  "IBM - Pakistan", "IBM - Sri lanka P2P", "IBM - Arabia DCIW", "IBM - Arabia", "IBM - Latin America", "IBM - EMEA", "IBM - UASCC", "IBM - Europe", "IBM - Supply Chain", "IBM - North America", "3i - Payback"]:
+                pr_team = team
+            else:
+                pr_team = team.split(" - ")[0]
             projects.append(pr_team)
         project = set(projects)
-        not_req = ["indix", "Mahendra", "Bench", "HR", "Jeeves", "MIS", "E4U", "3i", "Admin", "Master Mind", "IT", "CureCrew", "QualityTeam", "WIPRO", "Worxogo", "StoreKing" ,"Training", "Pixm", "Accounts", "BCT", "Snap Diligence", "Compliance", "Kredx", "ER", "Indix", "Bridgei2i", "Tech","WIPRO" ,"MindTree"]
-        project = filter(lambda x: x not in not_req, list(project))
+        #import pdb;pdb.set_trace()
+        #not_req = ["indix", "Mahendra", "Bench", "HR", "Jeeves", "MIS", "E4U", "3i", "Admin", "Master Mind", "IT", "CureCrew", "QualityTeam", "WIPRO", "Worxogo", "StoreKing" ,"Training", "Pixm", "Accounts", "BCT", "Snap Diligence", "Compliance", "Kredx", "ER", "Indix", "Bridgei2i", "Tech","WIPRO" ,"MindTree"]
+        #project = filter(lambda x: x not in not_req, list(project))
+        project = ["Probe", "Dell-TP", "Dell-Coding", "Federal Bank", "gooru", "Walmart", "Ujjivan", "IBM - Africa", "IBM - Arabia", "IBM - DCIW", "IBM - Arabia DCIW", "IBM - India", "IBM - Sri Lanka", "IBM - Latin America", "IBM - Pakistan", "IBM - Quality Control", "IBM - North America", "IBM - Europe", "IBM - UASCC", "IBM - Sri lanka P2P", "IBM - Supply Chain", "IBM"]
         for month_name,month_dates in months_dict.iteritems():
             #final_data = {}
             absen_da, attri_da, attri_cnt, absen_cnt, emp_cnt = [], [], [], [], []
+            ibm_absen_cnt, ibm_attri_cnt, ibm_emp_cnt = [], [], []
+            #project = ["Probe", "Dell-TP", "Dell-Coding"]
             for prj in project:
                 final_data = {}
                 date_values = month_dates
@@ -77,7 +85,8 @@ class Command(BaseCommand):
                     absent_value = float('%.2f' % round(absent, 2))
                 else:
                     absent_value = 0
-                attri_value = 0
+                #attri_value = 0
+                #import pdb;pdb.set_trace()
                 if len(temp_rows) > 2:
                     query2 = 'select count(empid) from hrm_employee_resignation where empid in (%s) and (lastday between "%s" and "%s");' %(temp_rows[2:], date_values[0], date_values[-1])
                     cur.execute(query2)
@@ -85,6 +94,9 @@ class Command(BaseCommand):
                     if rows:
                         attri = float(sum(values[0]))/float(len(rows))*100
                         attri_value = float('%.2f' % round(attri, 2))
+                    else:
+                        attri_value = 0
+                    
                 if prj == "Walmart":
                     prj = "Walmart Salem"
                 elif prj == "gooru":
@@ -93,6 +105,22 @@ class Command(BaseCommand):
                     prj = "NTT DATA Services TP"
                 elif prj == "Dell-Coding":
                     prj = "NTT DATA Services Coding"
+                elif prj == "IBM - Africa":
+                    prj = "IBM Africa"
+                elif prj == "IBM - Arabia":
+                    prj = "IBM Arabia"
+                elif prj == "IBM - DCIW":
+                    prj = "IBM DCIW"
+                elif prj == "IBM - Arabia DCIW":
+                    prj = "IBM DCIW Arabia"
+                elif prj == "IBM - Pakistan":
+                    prj = "IBM Pakistan"
+                elif prj == "IBM - Quality Control":
+                    prj = "IBM Quality Control"
+                elif prj == "IBM - Latin America":
+                    prj = "IBM Latin America"
+                elif prj == "IBM - Sri Lanka":
+                    prj = "IBM India and Sri Lanka"
                 else:
                     prj = prj
                 center_name = "Salem"
