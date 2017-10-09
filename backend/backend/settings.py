@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'api',
     'peoples_dashboard',
+    'voice_service',
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -121,6 +122,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
+#TIME_ZONE = 'Asia/Kolkata'
 TIME_ZONE = 'UTC'
 
 USE_I18N = True

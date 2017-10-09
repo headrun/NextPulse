@@ -13,10 +13,6 @@
                 var vm = this;
                 var people_data = '/pd/get_sla_data';
                 var people_data_2 = '/pd/get_peoples_data';
-                $('#extra-table').hide();
-                $('#extra-table2').hide();
-                $('#prod_tab').hide();
-                $('#names_2').hide();
 
                 vm.render_chart_from_url = function(url, name) {
                     vm.chart_name = name;
@@ -91,9 +87,8 @@
                   $('#extra-table').hide();
                   $('#extra-table2').hide();
                   $('#prod_tab').hide();
+                  $('#names_2').hide();
                   if (name == "Productivity"){
-                      $('#extra-table2').show();
-                      $('#names_2').hide();
                       var pop_url_target = '/pd/get_individual_target?core_key='+vm.key_of_table+'&column_name='+vm.widget_name;
                       $http({method:"GET", url: pop_url_target}).success(function(result){
                          var big_object = result.result;
@@ -153,8 +148,15 @@
                             main_obj_name.volume = big_object[key_main+'final_actual'];
                             main_obj_name.product = big_object[key_main+'prod_utility'];
                             main_table_data.push(main_obj_name);
-                            $('#extra-table2').hide();
-                            $('#prod_tab').show();
+                            if ((main_obj_name.agents === undefined) && (main_obj_name.volume === undefined)){
+                                $('#extra-table2').hide();
+                                $('#prod_tab').hide();
+                            }
+                            else {
+                                $('#extra-table2').hide();
+                                $('#prod_tab').show();
+                            }
+
                         }
 
                          vm.main_data2 = main_table_data;
@@ -169,7 +171,6 @@
                     
                   }
                   if (name == "Target Achieved"){
-                       $('#prod_tab').hide(); 
                       var pop_url_target = '/pd/get_individual_target?core_key='+vm.key_of_table+'&column_name='+vm.widget_name;
 
                       $http({method:"GET", url: pop_url_target}).success(function(result){

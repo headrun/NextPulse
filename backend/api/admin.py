@@ -56,7 +56,7 @@ admin.site.register(Widget_Mapping,Widget_MappingAdmin)
 '''
 
 class Widgets_groupAdmin(admin.ModelAdmin):
-    list_display = ['User_Group','widget_name','widget_priority','is_display','is_drilldown','project','col']
+    list_display = ['User_Group','widget_name','widget_priority','is_display','is_drilldown','display_value','project','col']
     list_filter = ['User_Group','project']
 admin.site.register(Widgets_group,Widgets_groupAdmin)
 

@@ -3,6 +3,7 @@ import datetime
 import json
 from django.db.models import Q
 from api.models import *
+from django.db.models import Count
 from django.http import HttpResponse
 from common.utils import getHttpResponse as json_HttpResponse
 from django.db import IntegrityError
@@ -12,6 +13,8 @@ def get_annotations(request):
     chart_name = request.GET.get('chart_name')
     project_name = request.GET.get('proj_name', '')
     center_name = request.GET.get('cen_name', '')
+    start_date = request.GET.get('start_date', '')
+    end_date = request.GET.get('end_date', '')
     if project_name:
         project_name = project_name.split(' - ')[0];
     if center_name:
@@ -20,6 +23,14 @@ def get_annotations(request):
         day_type = request.GET['type']
     except:
         day_type = ''
+
+    #===================================================================================
+
+    #if day_type in ['week', 'month']:
+
+
+
+    #====================================================================================    
 
     annotations = Annotation.objects.filter(key__contains='<##>' + chart_name + '<##>' + series_name + '<##>', center__name = center_name,
                                             project__name = project_name)
@@ -56,12 +67,11 @@ def add_annotation(request):
     prj_obj = Project.objects.filter(name = prj_name)
     center = Center.objects.filter(name = cen_name)
     widget_obj = Widgets.objects.filter(id_num = widget_id)[0]
-
+    
     existed_annotations = Annotation.objects.filter(text=text, project=prj_obj[0],center=center[0],\
                                                         chart_type_name=widget_obj.chart_type_name)
-
     if existed_annotations:
-        return json_HttpResponse('Annotation already exist with same text')
+        return json_HttpResponse('Annotation already exist')
     try:
         annotation = Annotation.objects.create(epoch=epoch, text=text, key=key, project=prj_obj[0],\
                                             dt_created=dt_created, created_by=created_by,\
@@ -87,6 +97,7 @@ def update_annotation(request):
     epoch = request.POST.get("epoch")
     annotation_id = request.POST.get("id")
     series = request.POST.get('series_name')
+    #import pdb;pdb.set_trace()
     text = request.POST.get("text")
     widget_id = request.POST.get('widget_id','')
     key_to = request.POST.get('key', '')
@@ -111,9 +122,12 @@ def update_annotation(request):
         return HttpResponse(json.dumps({"status": "success", "message": "successfully updated"}))
     else:
         annotation = Annotation.objects.filter(epoch=epoch,created_by=request.user,key = key_to)
-    annotation = annotation[0]
-    annotation.text = text
-    annotation.save()
+    if annotation:
+        annotation = annotation[0]
+        annotation.text = text
+        annotation.save()
+    else:
+        annotation = annotation
     return HttpResponse(json.dumps({"status": "success", "message": "successfully updated"}))
 
     return HttpResponse('Nothing happened')

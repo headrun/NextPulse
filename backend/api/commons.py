@@ -34,9 +34,10 @@ def data_dict(variable):
     is_clicked = variable.get('is_clicked','NA')
     if type == 'day':
         if 'yes' not in is_clicked:
-            if len(date_list) > 15:
+            date_count = len(date_list)
+            if date_count > 15:
                 type = 'week'
-            if len(date_list) > 60:
+            if date_count > 60:
                 type = 'month'
         dwm_dict['day']= date_list
         main_data_dict['dwm_dict'] = dwm_dict
@@ -131,19 +132,19 @@ def get_packet_details(request):
                                              date__range=dates)
     sub_pro_level = filter(None, raw_master_set.values_list('sub_project',flat=True).distinct())
     sub_project_level = [i for i in sub_pro_level]
-    if len(sub_project_level) >= 1:
+    if sub_project_level:
         sub_project_level.append('all')
     else:
         sub_project_level = ''
     work_pac_level = filter(None, raw_master_set.values_list('work_packet',flat=True).distinct())
     work_packet_level = [j for j in work_pac_level]
-    if len(work_packet_level) >= 1:
+    if work_packet_level:
         work_packet_level.append('all')
     else:
         work_packet_level = ''
     sub_pac_level = filter(None, raw_master_set.values_list('sub_packet',flat=True).distinct())
     sub_packet_level = [k for k in sub_pac_level]
-    if len(sub_packet_level) >= 1:
+    if sub_packet_level:
         sub_packet_level.append('all')
     else:
         sub_packet_level = ''
@@ -151,11 +152,11 @@ def get_packet_details(request):
     final_details['sub_project'] = 0
     final_details['work_packet'] = 0
     final_details['sub_packet'] = 0
-    if len(sub_pro_level) >= 1:
+    if sub_pro_level:
         final_details['sub_project'] = 1
-    if len(work_pac_level) >= 1:
+    if work_pac_level:
         final_details['work_packet'] = 1
-    if len(sub_pac_level) >= 1:
+    if sub_pac_level:
         final_details['sub_packet'] = 1
     prj_id = main_data_dict['pro_cen_mapping'][0][0]
     center = main_data_dict['pro_cen_mapping'][1][0]
