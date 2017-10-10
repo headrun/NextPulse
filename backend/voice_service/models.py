@@ -292,3 +292,38 @@ class OutboundDailyAuthoring(models.Model):
     created_at      = models.DateTimeField(auto_now_add=True,null=True)
     updated_at      = models.DateTimeField(auto_now=True,null=True)
 
+
+class AgentPerformanceAuthoring(models.Model):
+    date            = models.CharField(max_length=255, blank=True)
+    agent           = models.CharField(max_length=255, blank=True)
+    call_type       = models.CharField(max_length=255, blank=True)
+    total_calls     = models.CharField(max_length=255, blank=True)
+    connected_calls = models.CharField(max_length=255, blank=True)
+    abandoned_calls = models.CharField(max_length=255, blank=True)
+    talk_time       = models.CharField(max_length=255, blank=True)
+    wrapup_time     = models.CharField(max_length=255, blank=True)
+    pause_time      = models.CharField(max_length=255, blank=True)
+    idle_time       = models.CharField(max_length=255, blank=True)
+    login_duration  = models.CharField(max_length=255, blank=True)
+    project         = models.ForeignKey(Project, null=True)
+    center          = models.ForeignKey(Center, null=True)
+    created_at      = models.DateTimeField(auto_now_add=True,null=True)
+    updated_at      = models.DateTimeField(auto_now=True,null=True)
+
+class AgentPerformance(models.Model):
+    date            = models.DateField(null=True)
+    agent           = models.ForeignKey(Agent, related_name = 'agent_performance_agents')
+    call_type       = models.CharField(max_length=255, blank=True)
+    total_calls     = models.IntegerField(default=0)
+    connected_calls = models.IntegerField(default=0)
+    abandoned_calls = models.IntegerField(default=0)
+    talk_time       = models.IntegerField(default=0)
+    wrapup_time     = models.IntegerField(default=0)
+    pause_time      = models.IntegerField(default=0)
+    idle_time       = models.IntegerField(default=0)
+    login_duration  = models.IntegerField(default=0)
+    project         = models.ForeignKey(Project, null=True)
+    center          = models.ForeignKey(Center, null=True)
+    created_at      = models.DateTimeField(auto_now_add=True,null=True)
+    updated_at      = models.DateTimeField(auto_now=True,null=True)
+

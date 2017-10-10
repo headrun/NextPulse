@@ -385,6 +385,7 @@ def internal_extrnal_graphs_same_formula(date_list,prj_id,center_obj,level_struc
                         date_values[key].append(int(value))
                     else:
                         date_values[key]=[int(value)]
+
             for vol_type in extr_volumes_list:
                 final_work_packet = level_hierarchy_key(level_structure_key, vol_type)
                 if not final_work_packet:

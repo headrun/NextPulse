@@ -116,6 +116,7 @@ def utilisation_all(request):
             final_dict['original_utilization_graph'] = graph_data_alignment_color(utilization_details['overall_utilization'], 'data', level_structure_key, 
              main_data_dict['pro_cen_mapping'][0][0], main_data_dict['pro_cen_mapping'][1][0],'utilisation_wrt_work_packet')
             final_dict['date'] = new_date_list
+
     elif main_data_dict['dwm_dict'].has_key('week') and main_data_dict['type'] == 'week':
         for sing_list in main_dates_list:
             data_date.append(sing_list[0] + ' to ' + sing_list[-1])
@@ -155,7 +156,20 @@ def utilisation_all(request):
             final_dict['original_utilization_graph'] = graph_data_alignment_color(final_overall_util, 'data',level_structure_key, prj_id, center,'utilisation_wrt_work_packet')
             final_dict['date'] = data_date
     final_dict['type'] = main_data_dict['type']
+    utili_fte_min_max = adding_min_max('utilization_fte_details', utilization_details['fte_utilization'])
+    utili_oper_min_max = adding_min_max('utilization_operational_details', utilization_details['operational_utilization'])
+    utili_all_min_max = adding_min_max('original_utilization_graph', utilization_details['overall_utilization'])
+    final_dict.update(utili_fte_min_max)
+    final_dict.update(utili_oper_min_max)
+    final_dict.update(utili_all_min_max)
     return json_HttpResponse(final_dict)
+
+def adding_min_max(high_chart_key,final_dict):
+    result = {}
+    min_max_values = error_timeline_min_max(final_dict)
+    result['min_'+high_chart_key] = min_max_values['min_value']
+    result['max_' + high_chart_key] = min_max_values['max_value']
+    return result
 
 def productivity(request):
     final_dict = {}
