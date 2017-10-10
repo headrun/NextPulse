@@ -55,11 +55,12 @@ def agent_pareto_data_generation(request,date_list,prj_id,center_obj,level_struc
                 sb_packet = level_structure_key['sub_packet']
                 total_errors = Internalerrors.objects.filter(project=prj_id, center=center_obj, employee_id=agent,
                 date__range=[date_list[0], date_list[-1]],work_packet = wk_packet, sub_packet = sb_packet).aggregate(Sum('total_errors'))
-            else:
+            elif level_structure_key.get('work_packet','') != "":
                 wk_packet = level_structure_key['work_packet']
                 total_errors = Internalerrors.objects.filter(project=prj_id, center=center_obj, employee_id=agent,
                 date__range=[date_list[0], date_list[-1]],work_packet = wk_packet).aggregate(Sum('total_errors'))
-
+            else:
+                continue
         if total_errors['total_errors__sum'] > 0:
             for key, value in total_errors.iteritems():
                 agent_name[agent] = value

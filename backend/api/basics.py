@@ -360,21 +360,19 @@ def overall_exception_data(date_list, prj_id, center,level_structure_key):
     for date_value in date_list:
         total_done_value = RawTable.objects.filter(project=prj_id, center=center, date=date_value).aggregate(Max('per_day'))
         if total_done_value['per_day__max'] > 0:
-            packets = Incomingerror.objects.filter(project=prj_id, center=center, date=date_value).values_list('work_packet',flat =True).distinct()
+            packets = ['Data Entry', 'KYC Check']
             for packet in packets:
-                if packet == 'Data Entry' or packet =='KYC Check':
-                    sub_packets = Incomingerror.objects.filter(project=prj_id, center=center, date=date_value,work_packet = packet).values_list('sub_packet',flat = True).distinct()
-                    work_done = RawTable.objects.filter(project=prj_id, center=center, date=date_value,work_packet = packet).aggregate(Sum('per_day'))
-                    error_value = Incomingerror.objects.filter(project=prj_id, center=center, date=date_value,work_packet=packet,sub_packet='Overall Exception').aggregate(Sum('error_values'))
-                    if work_done['per_day__sum'] > 0 and error_value['error_values__sum'] > 0:
-                        percentage = float(error_value['error_values__sum'])/float(work_done['per_day__sum'])*100
-                        percentage = (float('%.2f' % round(percentage, 2)))
-                    else:
-                        percentage = 0
-                    if result.has_key(packet):
-                        result[packet].append(percentage)
-                    else:
-                        result[packet] = [percentage]
+                work_done = RawTable.objects.filter(project=prj_id, center=center, date=date_value,work_packet = packet).aggregate(Sum('per_day'))
+                error_value = Incomingerror.objects.filter(project=prj_id, center=center, date=date_value,work_packet=packet,sub_packet='Overall Exception').aggregate(Sum('error_values'))
+                if work_done['per_day__sum'] > 0 and error_value['error_values__sum'] > 0:
+                    percentage = float(error_value['error_values__sum'])/float(work_done['per_day__sum'])*100
+                    percentage = (float('%.2f' % round(percentage, 2)))
+                else:
+                    percentage = 0
+                if result.has_key(packet):
+                    result[packet].append(percentage)
+                else:
+                    result[packet] = [percentage]
     return result
 
 
@@ -383,19 +381,17 @@ def nw_exception_data(date_list, prj_id, center,level_structure_key):
     for date_value in date_list:
         total_done_value = RawTable.objects.filter(project=prj_id, center=center, date=date_value).aggregate(Max('per_day'))
         if total_done_value['per_day__max'] > 0:
-            packets = Incomingerror.objects.filter(project=prj_id, center=center, date=date_value).values_list('work_packet',flat =True).distinct()
+            packets = ['Data Entry', 'KYC Check']
             for packet in packets:
-                if packet == 'Data Entry' or packet =='KYC Check':
-                    sub_packets = Incomingerror.objects.filter(project=prj_id, center=center,work_packet = packet, date=date_value).values_list('sub_packet',flat = True).distinct()
-                    error_value = Incomingerror.objects.filter(project=prj_id, center=center, work_packet=packet,sub_packet='NW Exception', date=date_value).aggregate(Sum('error_values'))
-                    if error_value['error_values__sum'] > 0: 
-                        percentage = float(error_value['error_values__sum'])
-                    else:
-                        percentage = 0
-                    if result.has_key(packet):
-                        result[packet].append(percentage)
-                    else:
-                        result[packet] = [percentage]
+                error_value = Incomingerror.objects.filter(project=prj_id, center=center, work_packet=packet,sub_packet='NW Exception', date=date_value).aggregate(Sum('error_values'))
+                if error_value['error_values__sum'] > 0: 
+                    value = float(error_value['error_values__sum'])
+                else:
+                    value = 0
+                if result.has_key(packet):
+                    result[packet].append(value)
+                else:
+                    result[packet] = [value]
     return result
 
 
