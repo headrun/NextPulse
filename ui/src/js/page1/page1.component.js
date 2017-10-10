@@ -488,6 +488,22 @@
                             var utili_fte_data = result.result.utilization_fte_details;
                             var overall_utili_data = result.result.original_utilization_graph;
 
+                            angular.extend(self.chartOptions25.yAxis,{
+                               min:result.result.min_utilization_operational_details,
+                               max:result.result.max_utilization_operational_details
+                            });
+
+                            angular.extend(self.chartOptions24.yAxis,{
+                                min:result.result.min_utilization_fte_details,
+                                max:result.result.max_utilization_fte_details
+                            });      
+
+                            angular.extend(self.chartOptions15.yAxis,{
+                                min:result.result.min_original_utilization_graph,
+                                max:result.result.max_original_utilization_graph
+                            });      
+
+
                             if ((name == "self.chartOptions25") || (name == "")) {
                                 
                                 if (self.list_object.operational_utilization != undefined) {
