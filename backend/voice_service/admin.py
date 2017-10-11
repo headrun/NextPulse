@@ -33,6 +33,7 @@ class OutboundDailyAuthoringAdmin(admin.ModelAdmin):
     list_display = ['agent', 'hours_worked', 'calls', 'connects_per_hr', 'project', 'center']
 admin.site.register(OutboundDailyAuthoring, OutboundDailyAuthoringAdmin)
 
+
 class InboundDailyAdmin(admin.ModelAdmin):
     list_display = ['agent', 'hours_worked', 'connects_per_hr', 'project', 'center']
     list_filter  = ['project', 'center']
@@ -43,23 +44,11 @@ class OutboundDailyAdmin(admin.ModelAdmin):
     list_filter  = ['project', 'center']
 admin.site.register(OutboundDaily, OutboundDailyAdmin)
 
-class InboundDailyCallAdmin(admin.ModelAdmin):
-    list_display = ['agent', 'date', 'daily_duration', 'daily_handling_time']
-admin.site.register(InboundDailyCall, InboundDailyCallAdmin)
-
-class OutboundDailyCallAdmin(admin.ModelAdmin):
-    list_display = ['agent', 'date', 'daily_duration', 'daily_handling_time']
-admin.site.register(OutboundDailyCall, OutboundDailyCallAdmin)
 
 class AgentAdmin(admin.ModelAdmin):
     list_display = ['name', 'project']
     list_filter  = ['project']
 admin.site.register(Agent, AgentAdmin)
-
-class SkillAdmin(admin.ModelAdmin):
-    list_display = ['name']
-    list_filter  = ['name']
-admin.site.register(Skill, SkillAdmin)
 
 class AgentTransferCallAdmin(admin.ModelAdmin):
     list_display = ['call', 'from_agent', 'to_agent']

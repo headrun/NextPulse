@@ -14,6 +14,7 @@ from voice_service.models import *
 from common.utils import getHttpResponse as json_HttpResponse
 
 def upload_new(request):
+    #import pdb;pdb.set_trace()
     teamleader_obj_name = TeamLead.objects.filter(name_id=request.user.id)[0]
     #teamleader_obj = TeamLead.objects.filter(name_id=request.user.id).values_list('project_id','center_id')[0]
     teamleader_obj = (teamleader_obj_name.project_id, teamleader_obj_name.center_id)
@@ -42,16 +43,13 @@ def upload_new(request):
         voice_check = prj_obj.is_voice
         if voice_check == True:
             voice_data = voice_upload(request, prj_obj, center_obj, open_book)
-        else:
-            pass
+        
         sub_project_boolean_check =  prj_obj.sub_project_check
         if sub_project_boolean_check == True:
             project_names = sub_project_names(request, open_book)
-            prj_obj = prj_obj
-            center_obj = center_obj
-        else:
-            prj_obj = prj_obj
-            center_obj = center_obj
+            #prj_obj = prj_obj
+            #center_obj = center_obj
+        
         mapping_ignores = ['project_id','center_id','_state','sheet_name','id','total_errors_require']
         raw_table_map_query = Authoring_mapping(prj_obj,center_obj,'RawtableAuthoring')
         for map_key,map_value in raw_table_map_query.iteritems():
