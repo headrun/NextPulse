@@ -17,35 +17,29 @@ class Agent(models.Model):
     class Meta:
         index_together = (('name', 'project'), )
 
-
-class Skill(models.Model):
-    name       = models.CharField(max_length=16, db_index=True)
-    created_at = models.DateTimeField(auto_now_add=True,null=True)
-    updated_at = models.DateTimeField(auto_now=True,null=True)
-
-
-class Location(models.Model):
-    name       = models.CharField(max_length=16, db_index=True)
-    created_at = models.DateTimeField(auto_now_add=True,null=True)
-    updated_at = models.DateTimeField(auto_now=True,null=True)
-
-
-class InboundDailyCall(models.Model):
-    agent               = models.ForeignKey(Agent, related_name='inbound_daily_calls') 
-    date                = models.DateField(default=datetime.date.today)
-    daily_duration      = models.IntegerField(default=0)
-    daily_handling_time = models.IntegerField(default=0)
-    created_at          = models.DateTimeField(auto_now_add=True, null=True)
-    updated_at          = models.DateTimeField(auto_now=True,null=True)
-
-    class Meta:
-        #unique_together = (('agent', 'date'), )
-        index_together  = (('agent', 'date'), )
-
+class InboundDaily(models.Model):
+    call_date       = models.DateField(null=True)
+    agent           = models.ForeignKey(Agent, related_name = 'inbound_daily_agents')
+    hours_worked    = models.IntegerField(default=0)
+    total_calls     = models.IntegerField()
+    connects_per_hr = models.IntegerField()
+    calls_answered  = models.IntegerField()
+    wrapup_time     = models.IntegerField(default=0)
+    hold_time       = models.IntegerField(default=0)
+    talk_time       = models.IntegerField(default=0)
+    time_to_answer  = models.IntegerField(default=0)
+    skill           = models.CharField(max_length=255, blank=True)
+    location        = models.CharField(max_length=255, blank=True)
+    disposition     = models.CharField(max_length=255, blank=True)
+    project         = models.ForeignKey(Project, null=True)
+    center          = models.ForeignKey(Center, null=True)
+    created_at      = models.DateTimeField(auto_now_add=True,null=True)
+    updated_at      = models.DateTimeField(auto_now=True,null=True)
+ 
 
 class InboundHourlyCall(models.Model):
     call_id             = models.CharField(max_length=32, primary_key=True)
-    inbound_daily_calls = models.ForeignKey(InboundDailyCall, blank=True, null=True, related_name='daily_calls')
+    inbound_daily_calls = models.ForeignKey(InboundDaily, blank=True, null=True, related_name='daily_calls')
     campaign            = models.CharField(max_length=255, blank=True)
     #skill              = models.ForeignKey(Skill, related_name='inbound_skills')
     skill               = models.CharField(max_length=255, blank=False)
@@ -122,8 +116,10 @@ class AgentTransferCall(models.Model):
 
 class SkillTransferCall(models.Model):
     call       = models.ForeignKey(InboundHourlyCall, related_name='skill_transfer_calls')
-    from_skill = models.ForeignKey(Skill, related_name='from_skills')
-    to_skill   = models.ForeignKey(Skill, related_name='to_skills')
+    #from_skill= models.ForeignKey(Skill, related_name='from_skills')
+    #to_skill  = models.ForeignKey(Skill, related_name='to_skills')
+    from_skill = models.CharField(max_length=255)
+    to_skill   = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True, null=True)
     updated_at = models.DateTimeField(auto_now=True, null=True)
 
@@ -133,29 +129,39 @@ class SkillTransferCall(models.Model):
 
 class LocationTransferCall(models.Model):
     call               = models.ForeignKey(InboundHourlyCall, related_name='location_transfer_calls')
-    from_location      = models.ForeignKey(Location, related_name='from_locations')
-    to_location        = models.ForeignKey(Location, related_name='to_locations')
+    from_location = models.CharField(max_length=255)
+    to_location   = models.CharField(max_length=255)
+    #from_location      = models.ForeignKey(Location, related_name='from_locations')
+    #to_location        = models.ForeignKey(Location, related_name='to_locations')
+    created_at = models.DateTimeField(auto_now_add=True, null=True)
+    updated_at = models.DateTimeField(auto_now=True,null=True)
+
 
     class Meta:
         index_together = (('call', 'from_location', 'to_location'), )
 
 
-class OutboundDailyCall(models.Model):
-    agent               = models.ForeignKey(Agent, related_name='outbound_daily_calls')
-    date                = models.DateField(default=datetime.date.today)
-    daily_duration      = models.IntegerField(default=0)
-    daily_handling_time = models.IntegerField(default=0)
-    created_at          = models.DateTimeField(auto_now_add=True,null=True)
-    updated_at          = models.DateTimeField(auto_now=True,null=True)
-
-    class Meta:
-        #unique_together = (('agent', 'date'), )
-        index_together  = (('agent', 'date'), )
+class OutboundDaily(models.Model):
+    call_date       = models.DateField(null=True)
+    agent           = models.ForeignKey(Agent, related_name = 'outbound_daily_agents')
+    hours_worked    = models.IntegerField(default=0)
+    total_calls     = models.IntegerField()
+    connects_per_hr = models.IntegerField()
+    calls_answered  = models.IntegerField()
+    wrapup_time     = models.IntegerField(default=0)
+    hold_time       = models.IntegerField(default=0)
+    talk_time       = models.IntegerField(default=0)
+    time_to_answer  = models.IntegerField(default=0)
+    disposition     = models.CharField(max_length=255, blank=True)
+    project         = models.ForeignKey(Project, null=True)
+    center          = models.ForeignKey(Center, null=True)
+    created_at      = models.DateTimeField(auto_now_add=True,null=True)
+    updated_at      = models.DateTimeField(auto_now=True,null=True)
 
 
 class OutboundHourlyCall(models.Model):
     call_id              = models.CharField(max_length=50, primary_key=True)
-    outbound_daily_calls = models.ForeignKey(OutboundDailyCall, blank=True, null=True, related_name='daily_calls')
+    outbound_daily_calls = models.ForeignKey(OutboundDaily, blank=True, null=True, related_name='daily_calls')
     campaign             = models.CharField(max_length=255, blank=True)
     call_type            = models.CharField(max_length=32,  choices=CALL_TYPE_OPTIONS)
     agent                = models.ForeignKey(Agent, related_name='outbound_agents')
@@ -214,43 +220,6 @@ class OutboundHourlyCallAuthoring(models.Model):
     created_at           = models.DateTimeField(auto_now_add=True,null=True)
     updated_at           = models.DateTimeField(auto_now=True,null=True)
 
-
-class InboundDaily(models.Model):
-    call_date       = models.DateField(null=True)
-    agent           = models.ForeignKey(Agent, related_name = 'inbound_daily_agents')
-    hours_worked    = models.IntegerField(default=0)
-    total_calls     = models.IntegerField()
-    connects_per_hr = models.IntegerField()
-    calls_answered  = models.IntegerField()
-    wrapup_time     = models.IntegerField(default=0)
-    hold_time       = models.IntegerField(default=0)
-    talk_time       = models.IntegerField(default=0)
-    time_to_answer  = models.IntegerField(default=0)
-    skill           = models.CharField(max_length=255, blank=True)
-    location        = models.CharField(max_length=255, blank=True)
-    disposition     = models.CharField(max_length=255, blank=True)
-    project         = models.ForeignKey(Project, null=True)
-    center          = models.ForeignKey(Center, null=True)
-    created_at      = models.DateTimeField(auto_now_add=True,null=True)
-    updated_at      = models.DateTimeField(auto_now=True,null=True)
- 
-
-class OutboundDaily(models.Model):
-    call_date       = models.DateField(null=True)
-    agent           = models.ForeignKey(Agent, related_name = 'outbound_daily_agents')
-    hours_worked    = models.IntegerField(default=0)
-    total_calls     = models.IntegerField()
-    connects_per_hr = models.IntegerField()
-    calls_answered  = models.IntegerField()
-    wrapup_time     = models.IntegerField(default=0)
-    hold_time       = models.IntegerField(default=0)
-    talk_time       = models.IntegerField(default=0)
-    time_to_answer  = models.IntegerField(default=0)
-    disposition     = models.CharField(max_length=255, blank=True)
-    project         = models.ForeignKey(Project, null=True)
-    center          = models.ForeignKey(Center, null=True)
-    created_at      = models.DateTimeField(auto_now_add=True,null=True)
-    updated_at      = models.DateTimeField(auto_now=True,null=True)
 
 
 class InboundDailyAuthoring(models.Model):
