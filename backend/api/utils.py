@@ -117,8 +117,6 @@ def graph_data_alignment_other(volumes_data, work_packets, name_key):
             productivity_series_list[work_packets[0]] = prod_main_dict
         return productivity_series_list
 
-
-
 def tat_graph(date_list, prj_id, center,level_structure_key):
     new_dict = {}
     final_data,final_notmet_data = [],[]
