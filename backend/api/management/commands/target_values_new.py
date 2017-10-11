@@ -57,7 +57,6 @@ class Command(BaseCommand):
                             tar_packs = tar_packs
                     else:
                         tar_packs = []
-                #import pdb;pdb.set_trace()
                 for pac in tar_packs:
                     targets_vals, actual_vals, billable_vals = {}, {}, {}
                     if pac['work_packet'] != '' and pac['sub_project'] == '':
