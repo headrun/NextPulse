@@ -3,7 +3,7 @@ import datetime
 import redis
 from api.models import *
 from api.commons import data_dict
-from django.db.models import Max
+from django.db.models import Max, Sum
 from collections import OrderedDict
 from api.utils import *
 from api.basics import *
@@ -35,14 +35,20 @@ def alloc_and_compl(request):
 
     if main_data_dict['dwm_dict'].has_key('day') and main_data_dict['type'] == 'day':
         for sing_list in main_dates_list:
-            for date_va in sing_list:
-                total_done_value = RawTable.objects.filter(project=prj_id,center=center,date=date_va).aggregate(Max('per_day'))
-                if total_done_value['per_day__max'] > 0:
+            total_done_value = RawTable.objects.filter(project=prj_id, center=center, date__range=[sing_list[0], sing_list[-1]]).values('date').annotate(total=Sum('per_day'))
+            values = OrderedDict(zip(map(lambda p: str(p['date']), total_done_value), map(lambda p: str(p['total']), total_done_value)))
+            for date_va, total_val in values.iteritems():
+                if total_val > 0:
                     new_date_list.append(date_va)
+            #for date_va in sing_list:
+                #total_done_value = RawTable.objects.filter(project=prj_id,center=center,date=date_va).aggregate(Max('per_day'))
+                #if total_done_value['per_day__max'] > 0:
+                    #new_date_list.append(date_va)
             level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], main_data_dict['sub_packet'], main_data_dict['pro_cen_mapping'])
             volume_graph = volume_graph_data(sing_list, main_data_dict['pro_cen_mapping'][0][0], main_data_dict['pro_cen_mapping'][1][0], level_structure_key)
             vol_graph_line_data = volume_graph['line_data']
             vol_graph_bar_data = volume_graph['bar_data']
+            #final_dict['date'] = volume_graph['date']
             final_dict['volume_graphs']['bar_data'] = graph_data_alignment_color(vol_graph_bar_data,'data',level_structure_key,
                                            main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0],'volume_bar_graph')
             final_dict['volume_graphs']['line_data'] = graph_data_alignment_color(vol_graph_line_data,'data', level_structure_key,
@@ -84,11 +90,10 @@ def alloc_and_compl(request):
 
 def utilisation_all(request):
     final_dict = {}
-    data_date = []
+    data_date, new_date_list = [], []
     week_names = []
     week_num = 0
     month_names = []
-    new_date_list = []
     utilization_operational_dt , utilization_fte_dt , utilization_ovearll_dt = {}, {}, {}
     main_data_dict = data_dict(request.GET)
     if main_data_dict['dwm_dict'].has_key('day') and main_data_dict['type'] == 'day':
@@ -99,23 +104,30 @@ def utilisation_all(request):
         main_dates_list = main_data_dict['dwm_dict']['month']['month_dates']
     prj_id = main_data_dict['pro_cen_mapping'][0][0]
     center = main_data_dict['pro_cen_mapping'][1][0]
-    if main_data_dict['dwm_dict'].has_key('day') and main_data_dict['type'] == 'day':       
+    if main_data_dict['dwm_dict'].has_key('day') and main_data_dict['type'] == 'day':   
         for sing_list in main_dates_list:
-            for date_va in sing_list:
-                total_done_value = RawTable.objects.filter(project=prj_id,center=center,date=date_va).aggregate(Max('per_day'))
-                if total_done_value['per_day__max'] > 0:
+            total_done_value = RawTable.objects.filter(project=prj_id, center=center, date__range=[sing_list[0], sing_list[-1]]).values('date').annotate(total=Sum('per_day'))
+            values = OrderedDict(zip(map(lambda p: str(p['date']), total_done_value), map(lambda p: str(p['total']), total_done_value)))
+            for date_va, total_val in values.iteritems():
+            #for date_va in sing_list:
+                #total_done_value = RawTable.objects.filter(project=prj_id,center=center,date=date_va).aggregate(Max('per_day'))
+                if total_val > 0:
+                #if total_done_value['per_day__max'] > 0:
                     new_date_list.append(date_va)
             level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], main_data_dict['sub_packet'],
                                                   main_data_dict['pro_cen_mapping'])
             utilization_details = modified_utilization_calculations(main_data_dict['pro_cen_mapping'][1][0],main_data_dict['pro_cen_mapping'][0][0],
                                                             sing_list,level_structure_key)
-            final_dict['utilization_fte_details'] = graph_data_alignment_color(utilization_details['fte_utilization'], 'data',level_structure_key, 
-                                       main_data_dict['pro_cen_mapping'][0][0], main_data_dict['pro_cen_mapping'][1][0],'fte_utilization')
-            final_dict['utilization_operational_details'] = graph_data_alignment_color(utilization_details['operational_utilization'], 'data',
-             level_structure_key, main_data_dict['pro_cen_mapping'][0][0], main_data_dict['pro_cen_mapping'][1][0],'operational_utilization')
-            final_dict['original_utilization_graph'] = graph_data_alignment_color(utilization_details['overall_utilization'], 'data', level_structure_key, 
-             main_data_dict['pro_cen_mapping'][0][0], main_data_dict['pro_cen_mapping'][1][0],'utilisation_wrt_work_packet')
+            final_dict['utilization_fte_details'] = graph_data_alignment_color(utilization_details['FTE Utilization'], 'data',level_structure_key, main_data_dict['pro_cen_mapping'][0][0], main_data_dict['pro_cen_mapping'][1][0],'fte_utilization')            
+            final_dict['utilization_operational_details'] = graph_data_alignment_color(utilization_details['Operational Utilization'], 'data',level_structure_key, main_data_dict['pro_cen_mapping'][0][0], main_data_dict['pro_cen_mapping'][1][0],'operational_utilization')
+            final_dict['original_utilization_graph'] = graph_data_alignment_color(utilization_details['Overall Utilization'], 'data', level_structure_key,main_data_dict['pro_cen_mapping'][0][0], main_data_dict['pro_cen_mapping'][1][0],'utilisation_wrt_work_packet')
             final_dict['date'] = new_date_list
+            utili_fte_min_max = adding_min_max('utilization_fte_details', utilization_details['FTE Utilization'])
+            utili_oper_min_max = adding_min_max('utilization_operational_details', utilization_details['Operational Utilization'])
+            utili_all_min_max = adding_min_max('original_utilization_graph', utilization_details['Overall Utilization'])
+            final_dict.update(utili_fte_min_max)
+            final_dict.update(utili_oper_min_max)
+            final_dict.update(utili_all_min_max)
 
     elif main_data_dict['dwm_dict'].has_key('week') and main_data_dict['type'] == 'week':
         for sing_list in main_dates_list:
@@ -125,9 +137,9 @@ def utilisation_all(request):
             week_num = week_num + 1
             level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], main_data_dict['sub_packet'],main_data_dict['pro_cen_mapping'])
             utilization_details = modified_utilization_calculations(main_data_dict['pro_cen_mapping'][1][0],main_data_dict['pro_cen_mapping'][0][0],sing_list,level_structure_key)
-            utilization_operational_dt[week_name] = utilization_details['operational_utilization']
-            utilization_fte_dt[week_name] = utilization_details['fte_utilization']
-            utilization_ovearll_dt[week_name] = utilization_details['overall_utilization']
+            utilization_operational_dt[week_name] = utilization_details['Operational Utilization']
+            utilization_fte_dt[week_name] = utilization_details['FTE Utilization']
+            utilization_ovearll_dt[week_name] = utilization_details['Overall Utilization']
             final_utlil_operational = prod_volume_week_util_headcount(week_names, utilization_operational_dt, {})
             final_util_fte = prod_volume_week_util_headcount(week_names, utilization_fte_dt, {})
             final_overall_util = prod_volume_week_util_headcount(week_names, utilization_ovearll_dt, {})
@@ -135,6 +147,13 @@ def utilisation_all(request):
             final_dict['utilization_operational_details'] = graph_data_alignment_color(final_utlil_operational,'data', level_structure_key, prj_id,center,'operational_utilization')
             final_dict['original_utilization_graph'] = graph_data_alignment_color(final_overall_util, 'data',level_structure_key, prj_id, center,'utilisation_wrt_work_packet')
             final_dict['date'] = data_date
+            utili_fte_min_max = adding_min_max('utilization_fte_details', final_util_fte)
+            utili_oper_min_max = adding_min_max('utilization_operational_details', final_utlil_operational)
+            utili_all_min_max = adding_min_max('original_utilization_graph', final_overall_util)
+            final_dict.update(utili_fte_min_max)
+            final_dict.update(utili_oper_min_max)
+            final_dict.update(utili_all_min_max)
+
     else:
         for month_na,month_va in zip(main_data_dict['dwm_dict']['month']['month_names'],main_data_dict['dwm_dict']['month']['month_dates']):
             month_name = month_na
@@ -145,9 +164,9 @@ def utilisation_all(request):
             center = main_data_dict['pro_cen_mapping'][1][0]
             level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], main_data_dict['sub_packet'],main_data_dict['pro_cen_mapping'])
             utilization_details = modified_utilization_calculations(center, prj_id, month_dates, level_structure_key)
-            utilization_operational_dt[month_name] = utilization_details['operational_utilization']
-            utilization_fte_dt[month_name] = utilization_details['fte_utilization']
-            utilization_ovearll_dt[month_name] = utilization_details['overall_utilization']
+            utilization_operational_dt[month_name] = utilization_details['Operational Utilization']
+            utilization_fte_dt[month_name] = utilization_details['FTE Utilization']
+            utilization_ovearll_dt[month_name] = utilization_details['Overall Utilization']
             final_utlil_operational = prod_volume_week_util_headcount(month_names, utilization_operational_dt, {})
             final_util_fte = prod_volume_week_util_headcount(month_names, utilization_fte_dt, {})
             final_overall_util = prod_volume_week_util_headcount(month_names, utilization_ovearll_dt, {})
@@ -155,13 +174,14 @@ def utilisation_all(request):
             final_dict['utilization_operational_details'] = graph_data_alignment_color(final_utlil_operational,'data', level_structure_key, prj_id,center,'operational_utilization')
             final_dict['original_utilization_graph'] = graph_data_alignment_color(final_overall_util, 'data',level_structure_key, prj_id, center,'utilisation_wrt_work_packet')
             final_dict['date'] = data_date
+            utili_fte_min_max = adding_min_max('utilization_fte_details', final_util_fte)
+            utili_oper_min_max = adding_min_max('utilization_operational_details', final_utlil_operational)
+            utili_all_min_max = adding_min_max('original_utilization_graph', final_overall_util)
+            final_dict.update(utili_fte_min_max)
+            final_dict.update(utili_oper_min_max)
+            final_dict.update(utili_all_min_max)
+
     final_dict['type'] = main_data_dict['type']
-    utili_fte_min_max = adding_min_max('utilization_fte_details', utilization_details['fte_utilization'])
-    utili_oper_min_max = adding_min_max('utilization_operational_details', utilization_details['operational_utilization'])
-    utili_all_min_max = adding_min_max('original_utilization_graph', utilization_details['overall_utilization'])
-    final_dict.update(utili_fte_min_max)
-    final_dict.update(utili_oper_min_max)
-    final_dict.update(utili_all_min_max)
     return json_HttpResponse(final_dict)
 
 def adding_min_max(high_chart_key,final_dict):
@@ -175,7 +195,7 @@ def productivity(request):
     final_dict = {}
     productivity_week_num = 0
     main_productivity_timeline = {}
-    data_date, new_date_list = [] , []
+    data_date, new_date_list = [], []
     week_names = []
     week_num = 0
     month_names = []
@@ -190,12 +210,17 @@ def productivity(request):
     center = main_data_dict['pro_cen_mapping'][1][0]
     if main_data_dict['dwm_dict'].has_key('day') and main_data_dict['type'] == 'day':
         for sing_list in main_dates_list:
-            for date_va in sing_list:
-                total_done_value = RawTable.objects.filter(project=prj_id,center=center,date=date_va).aggregate(Max('per_day'))
-                if total_done_value['per_day__max'] > 0:
+            total_done_value = RawTable.objects.filter(project=prj_id, center=center, date__range=[sing_list[0], sing_list[-1]]).values('date').annotate(total=Sum('per_day'))
+            values = OrderedDict(zip(map(lambda p: str(p['date']), total_done_value), map(lambda p: str(p['total']), total_done_value)))
+            for date_va, total_val in values.iteritems():
+            #for date_va in sing_list:
+                #total_done_value = RawTable.objects.filter(project=prj_id,center=center,date=date_va).aggregate(Max('per_day'))
+                #if total_done_value['per_day__max'] > 0:
+                if total_val > 0:
                     new_date_list.append(date_va)
             level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], main_data_dict['sub_packet'],main_data_dict['pro_cen_mapping'])
             productivity_utilization_data = main_productivity_data(main_data_dict['pro_cen_mapping'][1][0],main_data_dict['pro_cen_mapping'][0][0],                                         sing_list, level_structure_key)
+            #final_dict['date'] = productivity_utilization_data['date']
             final_dict['original_productivity_graph'] = graph_data_alignment_color(productivity_utilization_data['productivity'], 'data',level_structure_key,main_data_dict['pro_cen_mapping'][0][0], main_data_dict['pro_cen_mapping'][1][0],'productivity_trends')
             final_dict['date'] = new_date_list
     elif main_data_dict['dwm_dict'].has_key('week') and main_data_dict['type'] == 'week':
@@ -227,8 +252,6 @@ def productivity(request):
     final_dict['type'] = main_data_dict['type']
     return json_HttpResponse(final_dict)
 
-
-
 def fte_graphs(request):
     final_dict = {}
     result_dict = {}
@@ -249,9 +272,13 @@ def fte_graphs(request):
     center = main_data_dict['pro_cen_mapping'][1][0]
     if main_data_dict['dwm_dict'].has_key('day') and main_data_dict['type'] == 'day':
         for sing_list in main_dates_list:
-            for date_va in sing_list:
-                total_done_value = RawTable.objects.filter(project=prj_id,center=center,date=date_va).aggregate(Max('per_day'))
-                if total_done_value['per_day__max'] > 0:
+            total_done_value = RawTable.objects.filter(project=prj_id, center=center, date__range=[sing_list[0], sing_list[-1]]).values('date').annotate(total=Sum('per_day'))
+            values = OrderedDict(zip(map(lambda p: str(p['date']), total_done_value), map(lambda p: str(p['total']), total_done_value)))
+            for date_va, total_val in values.iteritems():
+            #for date_va in sing_list:
+                #total_done_value = RawTable.objects.filter(project=prj_id,center=center,date=date_va).aggregate(Max('per_day'))
+                #if total_done_value['per_day__max'] > 0:
+                if total_val > 0:
                     new_date_list.append(date_va)
             level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], main_data_dict['sub_packet'],main_data_dict['pro_cen_mapping'])
             fte_graph_data = fte_calculation(request, main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0],sing_list, level_structure_key)
@@ -297,7 +324,6 @@ def fte_graphs(request):
     return json_HttpResponse(result_dict)
  
 
-
 def tat_data(request):
     final_dict = {}
     data_date, new_date_list = [], []
@@ -316,12 +342,17 @@ def tat_data(request):
     center = main_data_dict['pro_cen_mapping'][1][0]
     if main_data_dict['dwm_dict'].has_key('day') and main_data_dict['type'] == 'day':
         for sing_list in main_dates_list:
-            for date_va in sing_list:
-                total_done_value = RawTable.objects.filter(project=prj_id,center=center,date=date_va).aggregate(Max('per_day'))
-                if total_done_value['per_day__max'] > 0:
+            total_done_value = RawTable.objects.filter(project=prj_id, center=center, date__range=[sing_list[0], sing_list[-1]]).values('date').annotate(total=Sum('per_day'))
+            values = OrderedDict(zip(map(lambda p: str(p['date']), total_done_value), map(lambda p: str(p['total']), total_done_value)))
+            #for date_va in sing_list:
+            for date_va, total_val in values.iteritems():
+                #total_done_value = RawTable.objects.filter(project=prj_id,center=center,date=date_va).aggregate(Max('per_day'))
+                #if total_done_value['per_day__max'] > 0:
+                if total_val > 0:
                     new_date_list.append(date_va)
             level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], main_data_dict['sub_packet'],main_data_dict['pro_cen_mapping'])
             tat_graph_details = tat_graph(sing_list, main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0], level_structure_key)
+            #final_dict['date'] = tat_graph_details['date']
             final_dict['tat_graph_details'] = graph_data_alignment_color(tat_graph_details,'data', level_structure_key,main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0])
             final_dict['date'] = new_date_list
     elif main_data_dict['dwm_dict'].has_key('week') and main_data_dict['type'] == 'week':
@@ -438,20 +469,30 @@ def main_prod(request):
 def volume_graph_data(date_list,prj_id,center_obj,level_structure_key):
     conn = redis.Redis(host="localhost", port=6379, db=0)
     result, volumes_dict, date_values = {}, {}, {}
-    prj_name = Project.objects.filter(id=prj_id).values_list('name',flat=True)
-    center_name = Center.objects.filter(id=center_obj).values_list('name', flat=True)
+    new_date_list = []
+    #prj_name = Project.objects.filter(id=prj_id).values_list('name',flat=True)
+    #center_name = Center.objects.filter(id=center_obj).values_list('name', flat=True)
+    project = Project.objects.filter(id=prj_id)
+    prj_name = project[0].name
+    center_name = project[0].center.name
     query_set = query_set_generation(prj_id,center_obj,level_structure_key,date_list)
     volume_list = worktrack_internal_external_workpackets_list(level_structure_key,'Worktrack',query_set)
-    for date_va in date_list:
-        total_done_value = RawTable.objects.filter(project=prj_id, center=center_obj, date=date_va).aggregate(Max('per_day'))
-        if total_done_value['per_day__max'] > 0:
+    total_done_value = RawTable.objects.filter(project=prj_id, center=center_obj, date__range=[date_list[0], date_list[-1]]).values('date').annotate(total=Sum('per_day'))
+    values = OrderedDict(zip(map(lambda p: str(p['date']), total_done_value), map(lambda p: str(p['total']), total_done_value)))
+    #for date_va in date_list:
+    for date_key, total_val in values.iteritems():
+        #total_done_value = RawTable.objects.filter(project=prj_id, center=center_obj, date=date_va).aggregate(Max('per_day'))
+        #if total_done_value['per_day__max'] > 0:
+        if total_val > 0:
             count =0
+            new_date_list.append(date_key)
             for vol_type in volume_list:
                 final_work_packet = level_hierarchy_key(level_structure_key,vol_type)
                 if not final_work_packet:
                     final_work_packet = level_hierarchy_key(volume_list[count],vol_type)
                 count = count+1
-                date_pattern = '{0}_{1}_{2}_{3}_worktrack'.format(prj_name[0], str(center_name[0]), str(final_work_packet), date_va)
+                #date_pattern = '{0}_{1}_{2}_{3}_worktrack'.format(prj_name[0], str(center_name[0]), str(final_work_packet), date_va)
+                date_pattern = '{0}_{1}_{2}_{3}_worktrack'.format(prj_name, center_name, str(final_work_packet), date_key)
                 key_list = conn.keys(pattern=date_pattern)
                 if not key_list:
                     if date_values.has_key(final_work_packet):
@@ -513,6 +554,7 @@ def volume_graph_data(date_list,prj_id,center_obj,level_structure_key):
         final_volume_graph = {}
         final_volume_graph['bar_data']  = worktrack_volumes
         final_volume_graph['line_data'] = worktrack_timeline
+        final_volume_graph['date'] = new_date_list
         return final_volume_graph
     else:
         final_volume_graph ={}
@@ -524,20 +566,28 @@ def volume_graph_data(date_list,prj_id,center_obj,level_structure_key):
 def volumes_graphs_data_table(date_list,prj_id,center,level_structure_key):
     conn = redis.Redis(host="localhost", port=6379, db=0)
     result, volumes_dict, date_values = {}, {}, {}
-    prj_name = Project.objects.filter(id=prj_id).values_list('name',flat=True)
-    center_name = Center.objects.filter(id=center).values_list('name', flat=True)
+    #prj_name = Project.objects.filter(id=prj_id).values_list('name',flat=True)
+    #center_name = Center.objects.filter(id=center).values_list('name', flat=True)
+    project = Project.objects.filter(id=prj_id)
+    prj_name = project[0].name
+    center_name = project[0].center.name
     query_set = query_set_generation(prj_id,center,level_structure_key,date_list)
     volume_list = worktrack_internal_external_workpackets_list(level_structure_key,'Worktrack',query_set)
-    for date_va in date_list:
-        total_done_value = RawTable.objects.filter(project=prj_id, center=center, date=date_va).aggregate(Max('per_day'))
-        if total_done_value['per_day__max'] > 0:
+    total_done_value = RawTable.objects.filter(project=prj_id, center=center, date__range=[date_list[0], date_list[-1]]).values('date').annotate(total=Sum('per_day'))
+    values = OrderedDict(zip(map(lambda p: str(p['date']), total_done_value), map(lambda p: str(p['total']), total_done_value)))
+    for date_key, total_val in values.iteritems():
+    #for date_va in date_list:
+        #total_done_value = RawTable.objects.filter(project=prj_id, center=center, date=date_va).aggregate(Max('per_day'))
+        #if total_done_value['per_day__max'] > 0:
+        if total_val > 0:
             count =0
             for vol_type in volume_list:
                 final_work_packet = level_hierarchy_key(level_structure_key,vol_type)
                 if not final_work_packet:
                     final_work_packet = level_hierarchy_key(volume_list[count],vol_type)
                 count = count+1
-                date_pattern = '{0}_{1}_{2}_{3}_worktrack'.format(prj_name[0], str(center_name[0]), str(final_work_packet), date_va)
+                #date_pattern = '{0}_{1}_{2}_{3}_worktrack'.format(prj_name[0], str(center_name[0]), str(final_work_packet), date_va)
+                date_pattern = '{0}_{1}_{2}_{3}_worktrack'.format(prj_name, center_name, str(final_work_packet), date_key)
                 key_list = conn.keys(pattern=date_pattern)
                 if not key_list:
                     if date_values.has_key(final_work_packet):
@@ -601,18 +651,22 @@ def volumes_graphs_data_table(date_list,prj_id,center,level_structure_key):
         volume_status_final_table['volume_data'] = []
         new_dates = []
         status_count = 0
-        for date_va in date_list:
-            total_done_value = RawTable.objects.filter(project=prj_id, center=center, date=date_va).aggregate(Max('per_day'))
-            if total_done_value['per_day__max'] > 0:
+        total_done_value = RawTable.objects.filter(project=prj_id, center=center, date__range=[date_list[0], date_list[-1]]).values('date').annotate(total=Sum('per_day'))
+        values = OrderedDict(zip(map(lambda p: str(p['date']), total_done_value), map(lambda p: str(p['total']), total_done_value)))
+        for date_key, total_val in values.iteritems():
+        #for date_va in date_list:
+            #total_done_value = RawTable.objects.filter(project=prj_id, center=center, date=date_va).aggregate(Max('per_day'))
+            #if total_done_value['per_day__max'] > 0:
+            if total_val > 0:
                 volume_status_table[date_va] = {}
                 volume_status_table[date_va]['opening'] = worktrack_volumes['opening'][status_count]
                 volume_status_table[date_va]['completed'] = worktrack_volumes['completed'][status_count]
                 volume_status_table[date_va]['received'] = worktrack_volumes['received'][status_count]
                 volume_status_table[date_va]['closing_balance'] = worktrack_volumes['closing_balance'][status_count]
                 volume_status_table[date_va]['non_workable_count'] = worktrack_volumes['non_workable_count'][status_count]
-                volume_status_table[date_va]['date'] = date_va
+                volume_status_table[date_va]['date'] = date_key
                 status_count = status_count +1
-                new_dates.append(volume_status_table[date_va])
+                new_dates.append(volume_status_table[date_key])
         return new_dates
     else:
         final_volume_graph ={}

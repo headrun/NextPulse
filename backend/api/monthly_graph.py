@@ -3,8 +3,9 @@ import datetime
 import redis
 from api.models import *
 from api.basics import *
-from django.db.models import Max
+from django.db.models import Max, Sum
 from api.query_generations import *
+from collections import OrderedDict
 from api.commons import data_dict
 from api.graph_settings import graph_data_alignment_color
 from common.utils import getHttpResponse as json_HttpResponse
@@ -16,8 +17,11 @@ def Monthly_Volume_graph(prj_id,center,date_list, level_structure_key):
     conn = redis.Redis(host="localhost", port=6379, db=0)
     date_values, date_targets = {}, {} 
     tar_count, done_value = 0, 0 
-    prj_name = Project.objects.filter(id=prj_id).values_list('name', flat=True)
-    center_name = Center.objects.filter(id=center).values_list('name', flat=True)
+    #prj_name = Project.objects.filter(id=prj_id).values_list('name', flat=True)
+    #center_name = Center.objects.filter(id=center).values_list('name', flat=True)
+    project = Project.objects.filter(id=prj_id)
+    prj_name = project[0].name
+    center_name = project[0].center.name
     query_set = query_set_generation(prj_id, center, level_structure_key, date_list)
     target_query_set=target_query_set_generation(prj_id, center, level_structure_key, date_list)
     noram_query_set = RawTable.objects.filter(**query_set)
@@ -78,17 +82,22 @@ def Monthly_Volume_graph(prj_id,center,date_list, level_structure_key):
     volumes_dict, _targets_list, final_values, final_targets = {}, {}, {}, {}
     final_values['total_workdone'], final_targets['total'] = [], []
     final_work_packet = ''
-    for date_va in date_list:
-        total_done_value = RawTable.objects.filter(project=prj_id, center=center, date=date_va).aggregate(Max('per_day'))
-        if total_done_value['per_day__max'] > 0:
-            new_date_list.append(str(date_va))
+    total_done_value = RawTable.objects.filter(project=prj_id, center=center, date__range=[date_list[0], date_list[-1]]).values('date').annotate(total=Sum('per_day'))
+    values = OrderedDict(zip(map(lambda p: str(p['date']), total_done_value), map(lambda p: str(p['total']), total_done_value)))
+    for date_va, total_val in values.iteritems():
+    #for date_va in date_list:
+        #total_done_value = RawTable.objects.filter(project=prj_id, center=center, date=date_va).aggregate(Max('per_day'))
+        #if total_done_value['per_day__max'] > 0:
+        if total_val > 0:
+            #new_date_list.append(str(date_va))
+            new_date_list.append(date_va)
             count = 0
             for vol_type in volume_list:
                 if level_structure_key.has_key('sub_project'):
                     local_level_hierarchy_key = vol_type
                 else:
                     local_level_hierarchy_key = level_structure_key
-                final_work_packet = level_hierarchy_key(local_level_hierarchy_key, vol_type)                
+                final_work_packet = level_hierarchy_key(local_level_hierarchy_key, vol_type)
                 target_query_set = target_query_generations(prj_id, center, date_va, final_work_packet,level_structure_key)
                 targe_master_set = Targets.objects.filter(**target_query_set)
                 rawtable_query_set = rawtable_query_generations(prj_id, center, str(date_va), final_work_packet,level_structure_key)
@@ -153,7 +162,7 @@ def Monthly_Volume_graph(prj_id,center,date_list, level_structure_key):
                 if not final_work_packet:
                         final_work_packet = level_hierarchy_key(volume_list[count], vol_type)
                 count = count + 1
-                date_pattern = '{0}_{1}_{2}_{3}'.format(prj_name[0], str(center_name[0]), str(final_work_packet),date_va)
+                date_pattern = '{0}_{1}_{2}_{3}'.format(prj_name, center_name, str(final_work_packet),date_va)
                 key_list = conn.keys(pattern=date_pattern)
                 if not key_list:
                     if date_values.has_key(final_work_packet):
@@ -206,8 +215,10 @@ def Monthly_Volume_graph(prj_id,center,date_list, level_structure_key):
     new_total_target = {}
     for tr_key, tr_value in total_target.iteritems():
         new_total_target[tr_key + '_target'] = tr_value
+    #new_total_target['date'] = new_date_list
     new_dict.update(new_total_target)
     #print datetime.now() - startTime
+    #new_dict['date'] = new_date_list
     return new_dict
 
 def monthly_volume(request):
@@ -230,12 +241,17 @@ def monthly_volume(request):
     center = main_data_dict['pro_cen_mapping'][1][0]
     if main_data_dict['dwm_dict'].has_key('day') and main_data_dict['type'] == 'day':
         for sing_list in main_dates_list:
-            for date_va in sing_list:
-                total_done_value = RawTable.objects.filter(project=prj_id,center=center,date=date_va).aggregate(Max('per_day'))
-                if total_done_value['per_day__max'] > 0:
+            total_done_value = RawTable.objects.filter(project=prj_id, center=center, date__range=[sing_list[0], sing_list[-1]]).values('date').annotate(total=Sum('per_day'))
+            values = OrderedDict(zip(map(lambda p: str(p['date']), total_done_value), map(lambda p: str(p['total']), total_done_value)))
+            for date_va, total_val in values.iteritems():
+            #for date_va in sing_list:
+                #total_done_value = RawTable.objects.filter(project=prj_id,center=center,date=date_va).aggregate(Max('per_day'))
+                #if total_done_value['per_day__max'] > 0:
+                if total_val > 0:
                     new_date_list.append(date_va)
             level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], main_data_dict['sub_packet'],main_data_dict['pro_cen_mapping'])
             monthly_volume_graph_details = Monthly_Volume_graph(main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0],sing_list,level_structure_key)
+            #final_dict['date'] = monthly_volume_graph_details['date']
             final_dict['monthly_volume_graph_details'] = graph_data_alignment_color(monthly_volume_graph_details, 'data',level_structure_key,main_data_dict['pro_cen_mapping'][0][0], main_data_dict['pro_cen_mapping'][1][0],'monthly_volume') 
             final_dict['date'] = new_date_list
     elif main_data_dict['dwm_dict'].has_key('week') and main_data_dict['type'] == 'week':
