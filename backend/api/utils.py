@@ -229,12 +229,12 @@ def worktrack_internal_external_workpackets_list(level_structure_key,table_model
 
 def modified_utilization_calculations(center,prj_id,date_list,level_structure_key):
     final_utilization_result = {}
-    final_utilization_result['fte_utilization'] = {}
-    final_utilization_result['fte_utilization']['fte_utilization'] = []
-    final_utilization_result['operational_utilization'] = {}
-    final_utilization_result['operational_utilization']['operational_utilization'] = []
-    final_utilization_result['overall_utilization'] = {}
-    final_utilization_result['overall_utilization']['overall_utilization'] = []
+    final_utilization_result['FTE Utilization'] = {}
+    final_utilization_result['FTE Utilization']['FTE Utilization'] = []
+    final_utilization_result['Operational Utilization'] = {}
+    final_utilization_result['Operational Utilization']['Operational Utilization'] = []
+    final_utilization_result['Overall Utilization'] = {}
+    final_utilization_result['Overall Utilization']['Overall Utilization'] = []
     new_date_list = []
     status = 0
     if level_structure_key.get('sub_project','') == 'All':
@@ -271,19 +271,19 @@ def modified_utilization_calculations(center,prj_id,date_list,level_structure_ke
                     fte_value = float('%.2f' % round(fte_value, 2))
                 else:
                     fte_value = 0
-                final_utilization_result['fte_utilization']['fte_utilization'].append(fte_value)
+                final_utilization_result['FTE Utilization']['FTE Utilization'].append(fte_value)
                 if operational_denominator > 0:
                     operational_value = (float(float(util_numerator) / float(operational_denominator))) * 100
                     operational_value = float('%.2f' % round(operational_value, 2))
                 else:
                     operational_value = 0
-                final_utilization_result['operational_utilization']['operational_utilization'].append(operational_value)
+                final_utilization_result['Operational Utilization']['Operational Utilization'].append(operational_value)
                 if overall_util_denominator > 0:
                     overall_util_value = (float(float(util_numerator) / float(overall_util_denominator))) * 100
                     overall_util_value = float('%.2f' % round(overall_util_value, 2))
                 else:
                     overall_util_value = 0
-                final_utilization_result['overall_utilization']['overall_utilization'].append(overall_util_value)
+                final_utilization_result['Overall Utilization']['Overall Utilization'].append(overall_util_value)
     return final_utilization_result 
 
 

@@ -118,17 +118,13 @@ def utilisation_all(request):
                                                   main_data_dict['pro_cen_mapping'])
             utilization_details = modified_utilization_calculations(main_data_dict['pro_cen_mapping'][1][0],main_data_dict['pro_cen_mapping'][0][0],
                                                             sing_list,level_structure_key)
-            #final_dict['date'] = utilization_details['date']
-            final_dict['utilization_fte_details'] = graph_data_alignment_color(utilization_details['fte_utilization'], 'data',level_structure_key, 
-                                       main_data_dict['pro_cen_mapping'][0][0], main_data_dict['pro_cen_mapping'][1][0],'fte_utilization')
-            final_dict['utilization_operational_details'] = graph_data_alignment_color(utilization_details['operational_utilization'], 'data',
-             level_structure_key, main_data_dict['pro_cen_mapping'][0][0], main_data_dict['pro_cen_mapping'][1][0],'operational_utilization')
-            final_dict['original_utilization_graph'] = graph_data_alignment_color(utilization_details['overall_utilization'], 'data', level_structure_key, 
-             main_data_dict['pro_cen_mapping'][0][0], main_data_dict['pro_cen_mapping'][1][0],'utilisation_wrt_work_packet')
+            final_dict['utilization_fte_details'] = graph_data_alignment_color(utilization_details['FTE Utilization'], 'data',level_structure_key, main_data_dict['pro_cen_mapping'][0][0], main_data_dict['pro_cen_mapping'][1][0],'fte_utilization')            
+            final_dict['utilization_operational_details'] = graph_data_alignment_color(utilization_details['Operational Utilization'], 'data',level_structure_key, main_data_dict['pro_cen_mapping'][0][0], main_data_dict['pro_cen_mapping'][1][0],'operational_utilization')
+            final_dict['original_utilization_graph'] = graph_data_alignment_color(utilization_details['Overall Utilization'], 'data', level_structure_key,main_data_dict['pro_cen_mapping'][0][0], main_data_dict['pro_cen_mapping'][1][0],'utilisation_wrt_work_packet')
             final_dict['date'] = new_date_list
-            utili_fte_min_max = adding_min_max('utilization_fte_details', utilization_details['fte_utilization'])
-            utili_oper_min_max = adding_min_max('utilization_operational_details', utilization_details['operational_utilization'])
-            utili_all_min_max = adding_min_max('original_utilization_graph', utilization_details['overall_utilization'])
+            utili_fte_min_max = adding_min_max('utilization_fte_details', utilization_details['FTE Utilization'])
+            utili_oper_min_max = adding_min_max('utilization_operational_details', utilization_details['Operational Utilization'])
+            utili_all_min_max = adding_min_max('original_utilization_graph', utilization_details['Overall Utilization'])
             final_dict.update(utili_fte_min_max)
             final_dict.update(utili_oper_min_max)
             final_dict.update(utili_all_min_max)
@@ -141,9 +137,9 @@ def utilisation_all(request):
             week_num = week_num + 1
             level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], main_data_dict['sub_packet'],main_data_dict['pro_cen_mapping'])
             utilization_details = modified_utilization_calculations(main_data_dict['pro_cen_mapping'][1][0],main_data_dict['pro_cen_mapping'][0][0],sing_list,level_structure_key)
-            utilization_operational_dt[week_name] = utilization_details['operational_utilization']
-            utilization_fte_dt[week_name] = utilization_details['fte_utilization']
-            utilization_ovearll_dt[week_name] = utilization_details['overall_utilization']
+            utilization_operational_dt[week_name] = utilization_details['Operational Utilization']
+            utilization_fte_dt[week_name] = utilization_details['FTE Utilization']
+            utilization_ovearll_dt[week_name] = utilization_details['Overall Utilization']
             final_utlil_operational = prod_volume_week_util_headcount(week_names, utilization_operational_dt, {})
             final_util_fte = prod_volume_week_util_headcount(week_names, utilization_fte_dt, {})
             final_overall_util = prod_volume_week_util_headcount(week_names, utilization_ovearll_dt, {})
@@ -168,9 +164,9 @@ def utilisation_all(request):
             center = main_data_dict['pro_cen_mapping'][1][0]
             level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], main_data_dict['sub_packet'],main_data_dict['pro_cen_mapping'])
             utilization_details = modified_utilization_calculations(center, prj_id, month_dates, level_structure_key)
-            utilization_operational_dt[month_name] = utilization_details['operational_utilization']
-            utilization_fte_dt[month_name] = utilization_details['fte_utilization']
-            utilization_ovearll_dt[month_name] = utilization_details['overall_utilization']
+            utilization_operational_dt[month_name] = utilization_details['Operational Utilization']
+            utilization_fte_dt[month_name] = utilization_details['FTE Utilization']
+            utilization_ovearll_dt[month_name] = utilization_details['Overall Utilization']
             final_utlil_operational = prod_volume_week_util_headcount(month_names, utilization_operational_dt, {})
             final_util_fte = prod_volume_week_util_headcount(month_names, utilization_fte_dt, {})
             final_overall_util = prod_volume_week_util_headcount(month_names, utilization_ovearll_dt, {})
