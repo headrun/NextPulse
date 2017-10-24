@@ -270,7 +270,7 @@ def top_five_emp(center,prj_id,dwm_dict,level_key_structure):
 
 def main_productivity_data(center,prj_id,date_list,level_structure_key):
     work_packet_dict, final_prodictivity = {}, {}
-    final_data = []
+    final_data, new_date_list = [], []
     final_prodictivity['utilization'] = {}
     final_prodictivity['utilization']['utilization']= []
     packet_names = Headcount.objects.filter(project=prj_id, center=center, date__range=[date_list[0],date_list[-1]]).values('sub_project', 'work_packet', 'sub_packet').distinct()
@@ -286,15 +286,22 @@ def main_productivity_data(center,prj_id,date_list,level_structure_key):
     elif level_structure_key.get('sub_project','') == '' and level_structure_key.get('work_packet','') == 'All':
         status = 1
     final_work_packet = ''
+    total_done_value = RawTable.objects.filter(project=prj_id, center=center, date__range=[date_list[0], date_list[-1]]).values('date').annotate(total=Sum('per_day'))
+    values = OrderedDict(zip(map(lambda p: str(p['date']), total_done_value), map(lambda p: str(p['total']), total_done_value)))
     if status and count:
         final_prodictivity, product_date_values, utilization_date_values = {}, {}, {}
         product_date_values['total_prodictivity'], utilization_date_values['total_utilization'] = [], []
-        for date_va in date_list:
-            total_done_value = RawTable.objects.filter(project=prj_id, center=center, date=date_va).aggregate(Max('per_day'))
-            if total_done_value['per_day__max'] > 0:
-                billable_emp_count = Headcount.objects.filter(project=prj_id, center=center, date=date_va).aggregate(Sum('billable_agents'))
-                total_work_done = RawTable.objects.filter(project=prj_id, center=center, date=date_va).aggregate(Sum('per_day'))
-                total_work_done = total_work_done['per_day__sum']
+        #for date_va in date_list:
+        for date_key, total_val in values.iteritems():
+            #total_done_value = RawTable.objects.filter(project=prj_id, center=center, date=date_va).aggregate(Max('per_day'))
+            #if total_done_value['per_day__max'] > 0:
+            if total_val > 0:
+                new_date_list.append(date_key)
+                #billable_emp_count = Headcount.objects.filter(project=prj_id,center=center,date=date_va).aggregate(Sum('billable_agents'))
+                billable_emp_count = Headcount.objects.filter(project=prj_id,center=center,date=date_key).aggregate(Sum('billable_agents'))
+                #total_work_done = RawTable.objects.filter(project=prj_id, center=center, date=date_va).aggregate(Sum('per_day'))
+                #total_work_done = total_work_done['per_day__sum']
+                total_work_done = int(total_val)
                 billable_emp_count = billable_emp_count['billable_agents__sum']
                 if billable_emp_count and total_work_done:
                     try:
@@ -306,15 +313,19 @@ def main_productivity_data(center,prj_id,date_list,level_structure_key):
                 final_prodictivity_value = float('%.2f' % round(productivity_value, 2))
                 product_date_values['total_prodictivity'].append(final_prodictivity_value)
         final_prodictivity['productivity'] = product_date_values
+        #final_prodictivity['date'] = new_date_list
     else:
-        new_date_list = []
+        #new_date_list = []
         product_date_values, utilization_date_values = {}, {}
         query_set = query_set_generation(prj_id, center, level_structure_key, date_list)
         volume_list = workpackets_list(level_structure_key, 'Headcount', query_set)
-        for date_va in date_list:
+        #for date_va in date_list:
+        for date_key, total_val in values.iteritems():
             packet_count = 0
-            total_done_value = RawTable.objects.filter(project=prj_id, center=center, date=date_va).aggregate(Max('per_day'))
-            if total_done_value['per_day__max'] > 0:
+            #total_done_value = RawTable.objects.filter(project=prj_id, center=center, date=date_va).aggregate(Max('per_day'))
+            #if total_done_value['per_day__max'] > 0:
+            if total_val > 0:
+                new_date_list.append(date_key)
                 for vol_type in volume_list:
                     if level_structure_key.has_key('sub_project'):
                         local_level_hierarchy_key = vol_type
@@ -324,7 +335,8 @@ def main_productivity_data(center,prj_id,date_list,level_structure_key):
                     total_work_query_set = {}
                     total_work_query_set['project'] = prj_id
                     total_work_query_set['center'] = center
-                    total_work_query_set['date'] = str(date_va)
+                    #total_work_query_set['date'] = str(date_va)
+                    total_work_query_set['date'] = date_key
                     for vol_key, vol_value in vol_type.iteritems():
                         total_work_query_set[vol_key] = vol_value
                     billable_emp_count = Headcount.objects.filter(**total_work_query_set).aggregate(Sum('billable_agents'))
@@ -341,5 +353,6 @@ def main_productivity_data(center,prj_id,date_list,level_structure_key):
                     else:
                         product_date_values[final_work_packet] = [final_prodictivity_value]
         final_prodictivity['productivity'] = product_date_values
+        #final_prodictivity['date'] = new_date_list
     return final_prodictivity
 

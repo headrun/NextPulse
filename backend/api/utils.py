@@ -121,12 +121,18 @@ def tat_graph(date_list, prj_id, center,level_structure_key):
     new_dict = {}
     final_data,final_notmet_data = [],[]
     data_list, tat_val_list = [],[]
-    for date_va in date_list:
-        total_done_value = RawTable.objects.filter(project=prj_id, center=center, date=date_va).aggregate(Max('per_day'))
-        if total_done_value['per_day__max'] > 0:
-            data_list.append(str(date_va))
+    total_done_value = RawTable.objects.filter(project=prj_id, center=center, date__range=[date_list[0], date_list[-1]]).values('date').annotate(total=Sum('per_day'))
+    values = OrderedDict(zip(map(lambda p: str(p['date']), total_done_value), map(lambda p: str(p['total']), total_done_value)))
+    for date_key, total_val in values.iteritems():
+    #for date_va in date_list:
+        #total_done_value = RawTable.objects.filter(project=prj_id, center=center, date=date_va).aggregate(Max('per_day'))
+        #if total_done_value['per_day__max'] > 0:
+        if total_val > 0:
+            #data_list.append(str(date_va))
+            data_list.append(date_key)
             count = 0
-            tat_da = TatTable.objects.filter(project = prj_id,center= center,date=date_va)
+            #tat_da = TatTable.objects.filter(project = prj_id,center= center,date=date_va)
+            tat_da = TatTable.objects.filter(project = prj_id,center= center,date=date_key)
             tat_met_value = tat_da.aggregate(Sum('met_count'))
             tat_not_met_value = tat_da.aggregate(Sum('non_met_count'))
             met_val = tat_met_value['met_count__sum']
@@ -141,6 +147,7 @@ def tat_graph(date_list, prj_id, center,level_structure_key):
             else:
                 tat_val_list = []
     new_dict['tat_graph_details'] = tat_val_list
+    #new_dict['date'] = data_list
     return new_dict
 
 def workpackets_list(level_structure_key,table_model_name,query_set):
@@ -220,7 +227,6 @@ def worktrack_internal_external_workpackets_list(level_structure_key,table_model
     return volume_list
 
 
-
 def modified_utilization_calculations(center,prj_id,date_list,level_structure_key):
     final_utilization_result = {}
     final_utilization_result['fte_utilization'] = {}
@@ -237,11 +243,16 @@ def modified_utilization_calculations(center,prj_id,date_list,level_structure_ke
         status = 1
     if status:
         final_prodictivity, product_date_values, utilization_date_values = {}, {}, {}
-        product_date_values['total_prodictivity'], utilization_date_values['total_utilization'] = [] , [] 
-        for date_va in date_list:
-            total_done_value = RawTable.objects.filter(project=prj_id, center=center, date=date_va).aggregate(Max('per_day'))
-            new_date_list.append(date_va)
-            if total_done_value['per_day__max'] > 0: 
+        product_date_values['total_prodictivity'], utilization_date_values['total_utilization'] = [] , []
+        total_done_value = RawTable.objects.filter(project=prj_id, center=center, date__range=[date_list[0], date_list[-1]]).values('date').annotate(total=Sum('per_day'))
+        values = OrderedDict(zip(map(lambda p: str(p['date']), total_done_value), map(lambda p: str(p['total']), total_done_value)))
+        for date_va, total_val in values.iteritems():
+        #for date_va in date_list:
+            #total_done_value = RawTable.objects.filter(project=prj_id, center=center, date=date_va).aggregate(Max('per_day'))
+            #new_date_list.append(date_va)
+            #if total_done_value['per_day__max'] > 0:
+            if total_val > 0:
+                new_date_list.append(date_va)
                 headcount_details = Headcount.objects.filter(project=prj_id, center=center, date=date_va).aggregate(Sum('billable_hc'),
                                     Sum('billable_agents'),Sum('buffer_agents'),Sum('qc_or_qa'),Sum('teamlead'),
                                     Sum('trainees_and_trainers'),Sum('managers'),Sum('mis'))

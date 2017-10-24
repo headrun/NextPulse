@@ -4,7 +4,8 @@ from api.models import *
 from api.basics import *
 from api.utils import *
 from api.commons import data_dict
-from django.db.models import Max
+from django.db.models import Max, Sum
+from collections import OrderedDict
 from api.graph_settings import graph_data_alignment_color
 from common.utils import getHttpResponse as json_HttpResponse
 
@@ -27,9 +28,13 @@ def nw_exce(request):
     date_value = []
     if main_data_dict['dwm_dict'].has_key('day') and main_data_dict['type'] == 'day':
         for sing_list in main_dates_list:
-            for date_va in sing_list:
-                total_done_value = RawTable.objects.filter(project=prj_id,center=center,date=date_va).aggregate(Max('per_day'))
-                if total_done_value['per_day__max']:
+            total_done_value = RawTable.objects.filter(project=prj_id, center=center, date__range=[sing_list[0], sing_list[-1]]).values('date').annotate(total=Sum('per_day'))
+            values = OrderedDict(zip(map(lambda p: str(p['date']), total_done_value), map(lambda p: str(p['total']), total_done_value)))
+            #for date_va in sing_list:
+            for date_va, total_val in values.iteritems():
+                #total_done_value = RawTable.objects.filter(project=prj_id,center=center,date=date_va).aggregate(Max('per_day'))
+                #if total_done_value['per_day__max']:
+                if total_val > 0:
                     new_date_list.append(date_va)
             level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], main_data_dict['sub_packet'],main_data_dict['pro_cen_mapping'])
             nw_exception_details = nw_exception_data(sing_list, prj_id, center,level_structure_key)
@@ -81,9 +86,13 @@ def overall_exce(request):
     date_value = []
     if main_data_dict['dwm_dict'].has_key('day') and main_data_dict['type'] == 'day':
         for sing_list in main_dates_list:
-            for date_va in sing_list:
-                total_done_value = RawTable.objects.filter(project=prj_id,center=center,date=date_va).aggregate(Max('per_day'))
-                if total_done_value['per_day__max']:
+            total_done_value = RawTable.objects.filter(project=prj_id, center=center, date__range=[sing_list[0], sing_list[-1]]).values('date').annotate(total=Sum('per_day'))
+            values = OrderedDict(zip(map(lambda p: str(p['date']), total_done_value), map(lambda p: str(p['total']), total_done_value)))
+            #for date_va in sing_list:
+            for date_va, total_val in values.iteritems():
+                #total_done_value = RawTable.objects.filter(project=prj_id,center=center,date=date_va).aggregate(Max('per_day'))
+                #if total_done_value['per_day__max']:
+                if total_val > 0:
                     new_date_list.append(date_va)
             level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], main_data_dict['sub_packet'],main_data_dict['pro_cen_mapping'])
             overall_exception_details = overall_exception_data(sing_list, prj_id, center,level_structure_key)
@@ -116,7 +125,6 @@ def overall_exce(request):
     final_dict['type'] = main_data_dict['type']    
     return json_HttpResponse(final_dict)
 
-
 def pre_scan_exce(request):
     final_dict = {}
     data_date = []
@@ -136,9 +144,13 @@ def pre_scan_exce(request):
     date_value = []
     if main_data_dict['dwm_dict'].has_key('day') and main_data_dict['type'] == 'day':
         for sing_list in main_dates_list:
-            for date_va in sing_list:
-                total_done_value = RawTable.objects.filter(project=prj_id,center=center,date=date_va).aggregate(Max('per_day'))
-                if total_done_value['per_day__max'] > 0:
+            total_done_value = RawTable.objects.filter(project=prj_id, center=center, date__range=[sing_list[0], sing_list[-1]]).values('date').annotate(total=Sum('per_day'))
+            values = OrderedDict(zip(map(lambda p: str(p['date']), total_done_value), map(lambda p: str(p['total']), total_done_value)))
+            for date_va, total_val in values.iteritems():
+            #for date_va in sing_list:
+                #total_done_value = RawTable.objects.filter(project=prj_id,center=center,date=date_va).aggregate(Max('per_day'))
+                #if total_done_value['per_day__max'] > 0:
+                if total_val > 0:
                     new_date_list.append(date_va)
 
             level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], main_data_dict['sub_packet'],main_data_dict['pro_cen_mapping'])

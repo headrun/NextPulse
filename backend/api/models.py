@@ -23,6 +23,7 @@ class Project(models.Model):
     project_db_handling = models.CharField(max_length=30,choices=project_db_handlings_choices,default='ignore',) 
     sub_project_check = models.BooleanField(default=None)
     is_voice = models.BooleanField(default = False)
+    display_value = models.BooleanField(default = False)
     class Meta:
         db_table = u'project'
         index_together = (('name', 'center',), ('name', 'sub_project_check', 'center'),)
@@ -94,8 +95,8 @@ class Widgets_group(models.Model):
     #widget_col = models.IntegerField(default=None)
     widget_priority = models.IntegerField()
     is_display = models.BooleanField(default=None)
-    is_drilldown = models.BooleanField(default=None)
-    display_value = models.BooleanField(default=None)
+    is_drilldown = models.BooleanField(default = None)
+    display_value = models.BooleanField(default = True)
 
     class Meta:
         db_table = u'Widgets_group'
