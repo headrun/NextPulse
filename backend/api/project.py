@@ -5,7 +5,6 @@ from api.models import *
 from api.basics import latest_dates
 from common.utils import getHttpResponse as json_HttpResponse
 
-
 def project(request):
 
     try:
@@ -122,12 +121,12 @@ def project(request):
                 prj_name = select_list[0]
                 prj_id = Project.objects.filter(name=prj_name).values_list('id','center_id') 
 
-
-
     if user_group in ['nextwealth_manager','center_manager','customer']:
         widgets_id = Widgets_group.objects.filter(User_Group_id=user_group_id, project=prj_id[0][0],center=prj_id[0][1]).values('widget_priority', 'is_drilldown','is_display', 'widget_name','col', 'display_value')
+        project_display_value = Project.objects.filter(id=prj_id[0][0], center=prj_id[0][1]).values_list('display_value', flat=True)[0]
     else:
         widgets_id = Widgets_group.objects.filter(User_Group_id=user_group_id, project__in=prj_id,center__in=center).values('widget_priority', 'is_drilldown','is_display', 'widget_name','col', 'display_value')
+        project_display_value = Project.objects.filter(id__in=prj_id, center__in=center).values_list('display_value', flat=True)[0]
 
     for data in widgets_id:
         if data['is_display'] == True:
@@ -152,10 +151,13 @@ def project(request):
             wid_dict['widget_priority'] = data['widget_priority']
             wid_dict['is_drilldown'] = data['is_drilldown']
             wid_dict['col'] = data['col']
-            wid_dict['display_value'] = data['display_value']
-            list_wid.append(wid_dict)
+            if project_display_value == True and data['display_value'] == True:
+                wid_dict['display_value'] = True
+            else:
+                wid_dict['display_value'] = False
+            list_wid.append(wid_dict)            
     sorted_dict = sorted(list_wid, key=lambda k: k['widget_priority'])
-    lay_out_order = [] 
+    lay_out_order = []
     for i in sorted_dict:
         config_name = i.pop('config_name')
         lay_out_order.append(config_name)
@@ -302,4 +304,5 @@ def project(request):
 
         details['dates'] = new_dates
         return json_HttpResponse(details)
+
 

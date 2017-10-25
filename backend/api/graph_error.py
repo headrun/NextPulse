@@ -270,8 +270,11 @@ def err_field_graph(request):
 
 
 def internal_extrnal_sub_error_types(request,date_list,prj_id,center_obj,level_structure_key,err_type):
-    prj_name = Project.objects.filter(id=prj_id).values_list('name', flat=True)
-    center_name = Center.objects.filter(id=center_obj).values_list('name', flat=True)
+    #prj_name = Project.objects.filter(id=prj_id).values_list('name', flat=True)
+    #center_name = Center.objects.filter(id=center_obj).values_list('name', flat=True)
+    project = Project.objects.filter(id=prj_id)
+    prj_name = project[0].name
+    center_name = project[0].center.name
     query_set = query_set_generation(prj_id, center_obj, level_structure_key,date_list)
     if err_type =='Internal' :
         extr_volumes_list = worktrack_internal_external_workpackets_list(level_structure_key, 'Internalerrors',query_set)
@@ -288,17 +291,22 @@ def internal_extrnal_sub_error_types(request,date_list,prj_id,center_obj,level_s
     extr_volumes_list_new=[]
     all_error_types = []
     sub_error_types = []
-    for date_va in date_list:
+    total_done_value = RawTable.objects.filter(project=prj_id, center=center_obj, date__range=[date_list[0], date_list[-1]]).values('date').annotate(total=Sum('per_day'))
+    values = OrderedDict(zip(map(lambda p: str(p['date']), total_done_value), map(lambda p: str(p['total']), total_done_value)))
+    for date_key, total_val in values.iteritems():
+    #for date_va in date_list:
         count =0
-        total_done_value = RawTable.objects.filter(project=prj_id, center=center_obj, date=date_va).aggregate(Max('per_day'))
-        if total_done_value['per_day__max'] > 0:
+        #total_done_value = RawTable.objects.filter(project=prj_id, center=center_obj, date=date_va).aggregate(Max('per_day'))
+        #if total_done_value['per_day__max'] > 0:
+        if total_val > 0:
             for vol_type in extr_volumes_list:
                 final_work_packet = level_hierarchy_key(level_structure_key, vol_type)
                 if not final_work_packet:
                     final_work_packet = level_hierarchy_key(extr_volumes_list[count],vol_type)
                 count = count+1
                 extr_volumes_list_new.append(final_work_packet)
-                key_pattern = '{0}_{1}_{2}_{3}_{4}'.format(prj_name[0], str(center_name[0]), final_work_packet, date_va,err_key_type)
+                #key_pattern = '{0}_{1}_{2}_{3}_{4}'.format(prj_name[0], str(center_name[0]), final_work_packet, date_va,err_key_type)
+                key_pattern = '{0}_{1}_{2}_{3}_{4}'.format(prj_name, center_name, final_work_packet, date_key,err_key_type)
                 audit_key_list = conn.keys(pattern=key_pattern)
                 if not audit_key_list:
                     if vol_error_values.has_key(final_work_packet):
@@ -345,8 +353,11 @@ def internal_extrnal_sub_error_types(request,date_list,prj_id,center_obj,level_s
 
 def internal_extrnal_error_types(request,date_list,prj_id,center_obj,level_structure_key,err_type):
     #from api.graphs_mod import worktrack_internal_external_workpackets_list
-    prj_name = Project.objects.filter(id=prj_id).values_list('name', flat=True)
-    center_name = Center.objects.filter(id=center_obj).values_list('name', flat=True)
+    #prj_name = Project.objects.filter(id=prj_id).values_list('name', flat=True)
+    #center_name = Center.objects.filter(id=center_obj).values_list('name', flat=True)
+    project = Project.objects.filter(id=prj_id)
+    prj_name = project[0].name
+    center_name = project[0].center.name
     query_set = query_set_generation(prj_id, center_obj, level_structure_key,date_list)
     if err_type =='Internal' :
         extr_volumes_list = worktrack_internal_external_workpackets_list(level_structure_key, 'Internalerrors',query_set)
@@ -365,17 +376,22 @@ def internal_extrnal_error_types(request,date_list,prj_id,center_obj,level_struc
     extr_volumes_list_new=[]
     all_error_types = []
     sub_error_types = []
-    for date_va in date_list:
+    total_done_value = RawTable.objects.filter(project=prj_id, center=center_obj, date__range=[date_list[0], date_list[-1]]).values('date').annotate(total=Sum('per_day'))
+    values = OrderedDict(zip(map(lambda p: str(p['date']), total_done_value), map(lambda p: str(p['total']), total_done_value)))
+    for date_key, total_val in values.iteritems():
+    #for date_va in date_list:
         count =0
-        total_done_value = RawTable.objects.filter(project=prj_id, center=center_obj, date=date_va).aggregate(Max('per_day'))
-        if total_done_value['per_day__max'] > 0:
+        #total_done_value = RawTable.objects.filter(project=prj_id, center=center_obj, date=date_va).aggregate(Max('per_day'))
+        #if total_done_value['per_day__max'] > 0:
+        if total_val > 0:
             for vol_type in extr_volumes_list:
                 final_work_packet = level_hierarchy_key(level_structure_key, vol_type)
                 if not final_work_packet:
                     final_work_packet = level_hierarchy_key(extr_volumes_list[count],vol_type)
                 count = count+1
                 extr_volumes_list_new.append(final_work_packet)
-                key_pattern = '{0}_{1}_{2}_{3}_{4}'.format(prj_name[0], str(center_name[0]), final_work_packet, date_va,err_key_type)
+                #key_pattern = '{0}_{1}_{2}_{3}_{4}'.format(prj_name[0], str(center_name[0]), final_work_packet, date_va,err_key_type)
+                key_pattern = '{0}_{1}_{2}_{3}_{4}'.format(prj_name, center_name, final_work_packet, date_key,err_key_type)
                 audit_key_list = conn.keys(pattern=key_pattern)
                 if not audit_key_list:
                     if vol_error_values.has_key(final_work_packet):

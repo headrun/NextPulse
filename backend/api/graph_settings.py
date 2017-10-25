@@ -2,8 +2,9 @@
 import datetime
 import redis
 from api.models import *
-from collections import defaultdict
-from django.db.models import Max
+from collections import defaultdict, OrderedDict
+#from collections import OrderedDict
+from django.db.models import Max, Sum
 from api.query_generations import query_set_generation
 from api.utils import Packet_Alias_Names
 from api.basics import level_hierarchy_key
@@ -97,15 +98,23 @@ def product_total_graph(date_list,prj_id,center_obj,level_structure_key):
     ratings = defaultdict(list)
     conn = redis.Redis(host="localhost", port=6379, db=0)
     result, volumes_dict, date_values = {}, {}, {}
-    prj_name = Project.objects.filter(id=prj_id).values_list('name',flat=True)
-    center_name = Center.objects.filter(id=center_obj).values_list('name', flat=True)
+    #prj_name = Project.objects.filter(id=prj_id).values_list('name',flat=True)
+    #center_name = Center.objects.filter(id=center_obj).values_list('name', flat=True)
+    project = Project.objects.filter(id=prj_id)
+    prj_name = project[0].name
+    center_name = project[0].center.name
     query_set = query_set_generation(prj_id,center_obj,level_structure_key,date_list)
     main_set = RawTable.objects.filter(**query_set)
     new_date_list = []
-    for date_va in date_list:
-        total_done_value = RawTable.objects.filter(project=prj_id,center=center_obj,date=date_va).aggregate(Max('per_day'))
-        if total_done_value['per_day__max'] > 0:
-            new_date_list.append(date_va)
+    total_done_value = RawTable.objects.filter(project=prj_id, center=center_obj, date__range=[date_list[0], date_list[-1]]).values('date').annotate(total=Sum('per_day'))
+    values = OrderedDict(zip(map(lambda p: str(p['date']), total_done_value), map(lambda p: str(p['total']), total_done_value)))
+    for date_key, total_val in values.iteritems():
+    #for date_va in date_list:
+        #total_done_value = RawTable.objects.filter(project=prj_id,center=center_obj,date=date_va).aggregate(Max('per_day'))
+        #if total_done_value['per_day__max'] > 0:
+        if total_val > 0:
+            #new_date_list.append(date_va)
+            new_date_list.append(date_key)
             if level_structure_key.has_key('sub_project'):
                 if level_structure_key['sub_project'] == "All":
                     volume_list = main_set.values('sub_project').distinct()
@@ -131,7 +140,8 @@ def product_total_graph(date_list,prj_id,center_obj,level_structure_key):
                 if not final_work_packet:
                     final_work_packet = level_hierarchy_key(volume_list[count],vol_type)
                 count = count+1
-                date_pattern = '{0}_{1}_{2}_{3}'.format(prj_name[0], str(center_name[0]), str(final_work_packet), str(date_va))
+                #date_pattern = '{0}_{1}_{2}_{3}'.format(prj_name[0], str(center_name[0]), str(final_work_packet), str(date_va))
+                date_pattern = '{0}_{1}_{2}_{3}'.format(prj_name, center_name, str(final_work_packet), date_key)
                 key_list = conn.keys(pattern=date_pattern)
                 if not key_list:
                     if date_values.has_key(final_work_packet):

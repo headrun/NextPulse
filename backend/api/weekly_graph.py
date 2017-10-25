@@ -16,20 +16,28 @@ from common.utils import getHttpResponse as json_HttpResponse
 def volume_graph_data_week_month(date_list,prj_id,center_obj,level_structure_key):
     conn = redis.Redis(host="localhost", port=6379, db=0)
     result, volumes_dict, date_values = {}, {}, {}
-    prj_name = Project.objects.filter(id=prj_id).values_list('name',flat=True)
-    center_name = Center.objects.filter(id=center_obj).values_list('name', flat=True)
+    #prj_name = Project.objects.filter(id=prj_id).values_list('name',flat=True)
+    #center_name = Center.objects.filter(id=center_obj).values_list('name', flat=True)
+    project = Project.objects.filter(id=prj_id)
+    prj_name = project[0].name
+    center_name = project[0].center.name
     query_set = query_set_generation(prj_id,center_obj,level_structure_key,date_list)
     volume_list = worktrack_internal_external_workpackets_list(level_structure_key,'Worktrack',query_set)
-    for date_va in date_list:
-        total_done_value = RawTable.objects.filter(project=prj_id, center=center_obj, date=date_va).aggregate(Max('per_day'))
-        if total_done_value['per_day__max'] > 0:
+    total_done_value = RawTable.objects.filter(project=prj_id, center=center_obj, date__range=[date_list[0], date_list[-1]]).values('date').annotate(total=Sum('per_day'))
+    values = OrderedDict(zip(map(lambda p: str(p['date']), total_done_value), map(lambda p: str(p['total']), total_done_value)))
+    for date_key, total_val in values.iteritems():
+    #for date_va in date_list:
+        #total_done_value = RawTable.objects.filter(project=prj_id, center=center_obj, date=date_va).aggregate(Max('per_day'))
+        #if total_done_value['per_day__max'] > 0:
+        if total_val > 0:
             count =0
             for vol_type in volume_list:
                 final_work_packet = level_hierarchy_key(level_structure_key,vol_type)
                 if not final_work_packet:
                     final_work_packet = level_hierarchy_key(volume_list[count],vol_type)
                 count = count+1
-                date_pattern = '{0}_{1}_{2}_{3}_worktrack'.format(prj_name[0], str(center_name[0]), str(final_work_packet), date_va)
+                #date_pattern = '{0}_{1}_{2}_{3}_worktrack'.format(prj_name[0], str(center_name[0]), str(final_work_packet), date_va)
+                date_pattern = '{0}_{1}_{2}_{3}_worktrack'.format(prj_name, center_name, str(final_work_packet), date_key)
                 key_list = conn.keys(pattern=date_pattern)
                 if not key_list:
                     if date_values.has_key(final_work_packet):
