@@ -51,15 +51,27 @@ class AgentAdmin(admin.ModelAdmin):
 admin.site.register(Agent, AgentAdmin)
 
 class AgentTransferCallAdmin(admin.ModelAdmin):
-    list_display = ['call', 'from_agent', 'to_agent']
+    list_display = ['call', 'transfers']
 admin.site.register(AgentTransferCall, AgentTransferCallAdmin)
 
 class SkillTransferCallAdmin(admin.ModelAdmin):
-    list_display = ['call', 'from_skill', 'to_skill']
-    list_filter  = ['from_skill', 'to_skill'] 
+    list_display = ['call', 'transfers'] 
 admin.site.register(SkillTransferCall, SkillTransferCallAdmin)
 
 class LocationTransferCallAdmin(admin.ModelAdmin):
-    list_display = ['call', 'from_location', 'to_location']
-    list_filter  = ['from_location', 'to_location']
+    list_display = ['call', 'transfers']
 admin.site.register(LocationTransferCall, LocationTransferCallAdmin)
+
+
+class AgentPerformanceAuthoringAdmin(admin.ModelAdmin):
+    list_display = ['date', 'agent', 'call_type']
+    list_filter  = ['date', 'agent', 'call_type']
+admin.site.register(AgentPerformanceAuthoring, AgentPerformanceAuthoringAdmin)
+
+class AgentPerformanceAdmin(admin.ModelAdmin):
+    list_display = ['date', 'agent', 'call_type']
+    list_filter  = ['date', 'agent', 'call_type']
+admin.site.register(AgentPerformance, AgentPerformanceAdmin)
+
+
+

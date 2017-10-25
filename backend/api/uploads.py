@@ -9,12 +9,11 @@ from api.utils import *
 from api.query_generations import *
 from xlrd import open_workbook
 from api.commons import data_dict
-from voice_service.views import *
+from voice_service.voice_uploads import *
 from voice_service.models import *
 from common.utils import getHttpResponse as json_HttpResponse
 
 def upload_new(request):
-    #import pdb;pdb.set_trace()
     teamleader_obj_name = TeamLead.objects.filter(name_id=request.user.id)[0]
     #teamleader_obj = TeamLead.objects.filter(name_id=request.user.id).values_list('project_id','center_id')[0]
     teamleader_obj = (teamleader_obj_name.project_id, teamleader_obj_name.center_id)

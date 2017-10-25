@@ -21,6 +21,7 @@ def voice_upload(request, prj_obj, center_obj, open_book):
     outbound_daily_mapping = {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
     ignorablable_fields, other_fileds = [], []
     mapping_ignores = ['project_id','center_id','_state','sheet_name','id','total_errors_require', 'updated_at', 'created_at']
+    """
     raw_table_map_query = Authoring_mapping(prj_obj,center_obj,'RawtableAuthoring')
     for map_key,map_value in raw_table_map_query.iteritems():
         if map_key == 'sheet_name':
@@ -84,7 +85,7 @@ def voice_upload(request, prj_obj, center_obj, open_book):
             headcount_mapping[map_key] = map_value.lower()
             if map_key == 'date':
                 authoring_dates['headcount_date'] = map_value.lower()
-
+    """
     inbound_hourly_map_query = Authoring_mapping(prj_obj,center_obj, 'InboundHourlyCallAuthoring', 'voice_service')
     for map_key, map_value in inbound_hourly_map_query.iteritems():
         if map_key == 'sheet_name':
