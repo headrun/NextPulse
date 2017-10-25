@@ -8,6 +8,7 @@ from api.models import *
 from django.contrib.auth.models import Group
 from voice_service.constrants import *
 
+
 class Agent(models.Model):
     name       = models.CharField(max_length=255, blank=True)
     project    = models.ForeignKey(Project, related_name='agents')
@@ -47,9 +48,9 @@ class InboundHourlyCall(models.Model):
     location            = models.CharField(max_length=255, blank=False)
     caller_no           = models.CharField(max_length=50, blank=False)
     call_date           = models.DateField(default=datetime.date.today)
-    start_time          = models.IntegerField(default=0)
+    start_time          = models.DateTimeField()
     time_to_answer      = models.IntegerField(blank=True)
-    end_time            = models.IntegerField(default=0)
+    end_time            = models.DateTimeField()
     talk_time           = models.IntegerField(default=0)
     hold_time           = models.IntegerField(default=0)
     duration            = models.IntegerField(default=0)
@@ -105,41 +106,39 @@ class InboundHourlyCallAuthoring(models.Model):
 
 class AgentTransferCall(models.Model):
     call       = models.ForeignKey(InboundHourlyCall, related_name='agent_tranfer_calls')
-    from_agent = models.ForeignKey(Agent, related_name='from_agents')
-    to_agent   = models.ForeignKey(Agent, related_name='to_agents')
+    transfers  = models.TextField(null=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True)
     updated_at = models.DateTimeField(auto_now=True, null=True)
-
+    """
     class Meta:
         index_together = (('call', 'from_agent', 'to_agent'), )
-
+    """
 
 class SkillTransferCall(models.Model):
     call       = models.ForeignKey(InboundHourlyCall, related_name='skill_transfer_calls')
     #from_skill= models.ForeignKey(Skill, related_name='from_skills')
     #to_skill  = models.ForeignKey(Skill, related_name='to_skills')
-    from_skill = models.CharField(max_length=255)
-    to_skill   = models.CharField(max_length=255)
+    #from_skill = models.CharField(max_length=255)
+    transfers  = models.TextField(null=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True)
     updated_at = models.DateTimeField(auto_now=True, null=True)
-
+    """
     class Meta:
         index_together = (('call', 'from_skill', 'to_skill'), )
-
+    """
 
 class LocationTransferCall(models.Model):
     call               = models.ForeignKey(InboundHourlyCall, related_name='location_transfer_calls')
-    from_location = models.CharField(max_length=255)
-    to_location   = models.CharField(max_length=255)
+    #from_location = models.CharField(max_length=255)
+    transfers   = models.TextField(null=True)
     #from_location      = models.ForeignKey(Location, related_name='from_locations')
     #to_location        = models.ForeignKey(Location, related_name='to_locations')
     created_at = models.DateTimeField(auto_now_add=True, null=True)
     updated_at = models.DateTimeField(auto_now=True,null=True)
-
-
+    """
     class Meta:
         index_together = (('call', 'from_location', 'to_location'), )
-
+    """
 
 class OutboundDaily(models.Model):
     call_date       = models.DateField(null=True)
@@ -274,6 +273,7 @@ class AgentPerformanceAuthoring(models.Model):
     pause_time      = models.CharField(max_length=255, blank=True)
     idle_time       = models.CharField(max_length=255, blank=True)
     login_duration  = models.CharField(max_length=255, blank=True)
+    sheet_name      = models.CharField(max_length=255, blank=True)
     project         = models.ForeignKey(Project, null=True)
     center          = models.ForeignKey(Center, null=True)
     created_at      = models.DateTimeField(auto_now_add=True,null=True)
