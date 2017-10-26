@@ -32,7 +32,6 @@ def alloc_and_compl(request):
         main_dates_list = main_data_dict['dwm_dict']['month']['month_dates']
     prj_id = main_data_dict['pro_cen_mapping'][0][0]
     center = main_data_dict['pro_cen_mapping'][1][0]
-
     if main_data_dict['dwm_dict'].has_key('day') and main_data_dict['type'] == 'day':
         for sing_list in main_dates_list:
             total_done_value = RawTable.objects.filter(project=prj_id, center=center, date__range=[sing_list[0], sing_list[-1]]).values('date').annotate(total=Sum('per_day'))

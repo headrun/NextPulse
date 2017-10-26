@@ -39,8 +39,16 @@ def data_dict(variable):
                 type = 'week'
             if date_count > 60:
                 type = 'month'
+            if date_count == 1:
+                type = 'hour'
         dwm_dict['day']= date_list
         main_data_dict['dwm_dict'] = dwm_dict
+    
+    if type == 'hour':
+        hours_data = []
+        data = [(i, dt.time(i).strftime('%I %p')) for i in range(24)]
+        for i in data:
+            hours_data.append(i[1])
 
     if type == 'week':
         months_dict = {}
@@ -148,6 +156,32 @@ def get_packet_details(request):
         sub_packet_level.append('all')
     else:
         sub_packet_level = ''
+    inbound_hourly_master_set = InboundHourlyCall.objects.filter(project=main_data_dict['pro_cen_mapping'][0][0], center=main_data_dict['pro_cen_mapping'][1][0], date = '2017-08-05')
+    location_names = filter(None, inbound_hourly_master_set.values_list('location',flat=True).distinct())
+    location_list, skill_list, dispo_list = [], [], []
+    for location in location_names:
+        if '->' not in location:
+            location_list.append(location)
+    skill_names = filter(None, inbound_hourly_master_set.values_list('skill',flat=True).distinct())
+    for skill in skill_names:
+        if '->' not in skill:
+            skill_list.append(skill)
+    disposition_names = filter(None, inbound_hourly_master_set.values_list('disposition',flat=True).distinct())
+    for dispo in disposition_names:
+        if '->' not in dispo:
+            dispo_list.append(dispo)
+    if location_list:
+        location_list.append('all')
+    else:
+        location_list = ''
+    if skill_list:
+        skill_list.append('all')
+    else:
+        skill_list = ''
+    if dispo_list:
+        dispo_list.append('all')
+    else:
+        dispo_list = ''
     final_details = {}
     final_details['sub_project'] = 0
     final_details['work_packet'] = 0
@@ -163,6 +197,9 @@ def get_packet_details(request):
     final_dict['sub_project_level'] = sub_project_level
     final_dict['work_packet_level'] = work_packet_level
     final_dict['sub_packet_level'] = sub_packet_level
+    final_dict['location'] = location_list
+    final_dict['skill'] = skill_list
+    final_dict['disposition'] = dispo_list
     big_dict = {}
     if final_details['sub_project']:
         if final_details['work_packet']:
