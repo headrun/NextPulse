@@ -19,7 +19,7 @@ class Agent(models.Model):
         index_together = (('name', 'project'), )
 
 class InboundDaily(models.Model):
-    call_date       = models.DateField(null=True)
+    date       = models.DateField(null=True)
     agent           = models.ForeignKey(Agent, related_name = 'inbound_daily_agents')
     hours_worked    = models.IntegerField(default=0)
     total_calls     = models.IntegerField()
@@ -47,7 +47,7 @@ class InboundHourlyCall(models.Model):
     #location           = models.ForeignKey(Center, related_name='inbound_centers')
     location            = models.CharField(max_length=255, blank=False)
     caller_no           = models.CharField(max_length=50, blank=False)
-    call_date           = models.DateField(default=datetime.date.today)
+    date           = models.DateField()
     start_time          = models.DateTimeField()
     time_to_answer      = models.IntegerField(blank=True)
     end_time            = models.DateTimeField()
@@ -78,7 +78,7 @@ class InboundHourlyCallAuthoring(models.Model):
     skill           = models.CharField(max_length=255, blank=False)
     location        = models.CharField(max_length=255, blank=False)
     caller_no       = models.CharField(max_length=255, blank=False)
-    call_date       = models.CharField(max_length=255, blank=False, default='Call Date')
+    date            = models.CharField(max_length=255, blank=False)
     start_time      = models.CharField(max_length=255, blank=False)
     time_to_answer  = models.CharField(max_length=255, blank=False)
     end_time        = models.CharField(max_length=255, blank=False)
@@ -141,7 +141,7 @@ class LocationTransferCall(models.Model):
     """
 
 class OutboundDaily(models.Model):
-    call_date       = models.DateField(null=True)
+    date       = models.DateField(null=True)
     agent           = models.ForeignKey(Agent, related_name = 'outbound_daily_agents')
     hours_worked    = models.IntegerField(default=0)
     total_calls     = models.IntegerField()
@@ -165,7 +165,7 @@ class OutboundHourlyCall(models.Model):
     call_type            = models.CharField(max_length=32,  choices=CALL_TYPE_OPTIONS)
     agent                = models.ForeignKey(Agent, related_name='outbound_agents')
     called_no            = models.CharField(max_length=50, blank=False)
-    call_date            = models.DateField(default=datetime.date.today)
+    date            = models.DateField()
     start_time           = models.DateTimeField()
     end_time             = models.DateTimeField()
     talk_time            = models.IntegerField(default=0)
@@ -195,7 +195,7 @@ class OutboundHourlyCallAuthoring(models.Model):
     campaign             = models.CharField(max_length=255, blank=False)
     call_type            = models.CharField(max_length=255, blank=False)
     called_no            = models.CharField(max_length=255, blank=False)
-    call_date            = models.CharField(max_length=255, blank=False, default='Call Date')
+    date            = models.CharField(max_length=255, blank=False)
     start_time           = models.CharField(max_length=255, blank=False)
     end_time             = models.CharField(max_length=255, blank=False)
     talk_time            = models.CharField(max_length=255, blank=False)
@@ -222,7 +222,7 @@ class OutboundHourlyCallAuthoring(models.Model):
 
 
 class InboundDailyAuthoring(models.Model):
-    call_date       = models.CharField(max_length=255, blank=True)
+    date       = models.CharField(max_length=255, blank=True)
     agent           = models.CharField(max_length=255, blank=True)
     hours_worked    = models.CharField(max_length=255, blank=True)    
     calls           = models.CharField(max_length=255, blank=True)
@@ -243,7 +243,7 @@ class InboundDailyAuthoring(models.Model):
 
 
 class OutboundDailyAuthoring(models.Model):
-    call_date       = models.CharField(max_length=255, blank=True)
+    date       = models.CharField(max_length=255, blank=True)
     agent           = models.CharField(max_length=255, blank=True)
     hours_worked    = models.CharField(max_length=255, blank=True)     
     calls           = models.CharField(max_length=255, blank=True)
