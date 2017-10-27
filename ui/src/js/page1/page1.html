@@ -113,7 +113,17 @@ thead {
                         </select>
                     </div>
                 </form>
-             </div> 
+           </div>
+           <div class="packet_num">
+                <form>
+                    <div class="form-group" ng-repeat="(key,val) in $ctrl.voice_filters">
+                        <label>{{key}}</label>
+                        <select class="form-control input-sm packet" id="{{key}}">
+                            <option ng-repeat="v in val">{{v}}</option>
+                        </select>
+                    </div>
+                </form>
+           </div>
         </div>
         <div class="col-md-3 col-sm-3 col-xs-10 btn-group dashboard">
             <button type="button" id="day" ng-model="radioModel" class="btn btn-default day" ng-click="$ctrl.active_filters('day','day_yes')" uib-btn-radio="'Day'"style="cursor:pointer;">Day</button>

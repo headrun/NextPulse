@@ -156,7 +156,7 @@ def get_packet_details(request):
         sub_packet_level.append('all')
     else:
         sub_packet_level = ''
-    inbound_hourly_master_set = InboundHourlyCall.objects.filter(project=main_data_dict['pro_cen_mapping'][0][0], center=main_data_dict['pro_cen_mapping'][1][0], date = '2017-08-05')
+    inbound_hourly_master_set = InboundHourlyCall.objects.filter(project=main_data_dict['pro_cen_mapping'][0][0], center=main_data_dict['pro_cen_mapping'][1][0], date__range = dates)
     location_names = filter(None, inbound_hourly_master_set.values_list('location',flat=True).distinct())
     location_list, skill_list, dispo_list = [], [], []
     for location in location_names:
@@ -167,6 +167,7 @@ def get_packet_details(request):
         if '->' not in skill:
             skill_list.append(skill)
     disposition_names = filter(None, inbound_hourly_master_set.values_list('disposition',flat=True).distinct())
+    is_voice = Project.objects.filter(id=main_data_dict['pro_cen_mapping'][0][0], center=main_data_dict['pro_cen_mapping'][1][0]).values_list('is_voice', flat=True).distinct()[0]
     for dispo in disposition_names:
         if '->' not in dispo:
             dispo_list.append(dispo)
@@ -200,6 +201,7 @@ def get_packet_details(request):
     final_dict['location'] = location_list
     final_dict['skill'] = skill_list
     final_dict['disposition'] = dispo_list
+    final_dict['is_voice'] = is_voice
     big_dict = {}
     if final_details['sub_project']:
         if final_details['work_packet']:

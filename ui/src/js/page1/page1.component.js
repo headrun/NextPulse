@@ -3396,7 +3396,13 @@
                                                                 self.drop_work_pack;
                     var packet_url = '/api/get_packet_details/?&project='+callback[3]+'&center='+callback[2]+'&from='+callback[0]+'&to='+callback[1];
                     self.call_back = callback;
-                    $http.get(packet_url).then(function(result){
+                    $http.get(packet_url).then(function(result) {
+                        if (result.data.result.is_voice) {
+                            self.voice_filters.location = result.data.result['location'];
+                            self.voice_filters.disposition = result.data.result['disposition'];
+                            self.voice_filters.skill = result.data.result['skill'];
+                            self.packet_hierarchy_list = [];
+                        }
                         $('#dropdown_title').html($(".brand_style").text().replace(" - DASHBOARD",''));
                         var sub_project_level = result.data.result.sub_project_level;
                         var sub_packet_level = result.data.result.sub_packet_level;
@@ -4101,7 +4107,7 @@
 
             $http({method:"GET", url:drop_down_link}).success(function(result){
                 angular.extend(self.packet_hierarchy_list, result.result.level);
-             })
+            })
 
             self.chartOptions = {
                 chart : {
@@ -5434,6 +5440,7 @@
             self.lastDate;
             self.start;
             self.end;
+            self.voice_filters = {};
             }],
 
             "bindings": {

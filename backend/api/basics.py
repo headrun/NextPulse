@@ -122,8 +122,13 @@ def get_level_structure_key(work_packet, sub_project, sub_packet, pro_cen_mappin
 def latest_dates(request,prj_id):
     result= {}
     if len(prj_id) == 1:
-        latest_date = RawTable.objects.filter(project=prj_id).all().aggregate(Max('date'))
-        to_date = latest_date['date__max']
+        project_check = Project.objects.filter(id=prj_id).values_list('is_voice',flat=True).distinct()[0]
+        if project_check == False:
+            latest_date = RawTable.objects.filter(project=prj_id).all().aggregate(Max('date'))
+            to_date = latest_date['date__max']
+        else:
+            latest_date = InboundHourlyCall.objects.filter(project=prj_id).all().aggregate(Max('date'))
+            to_date = latest_date['date__max']
         if to_date:
             from_date = to_date - timedelta(6)
             result['from_date'] = str(from_date)
