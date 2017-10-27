@@ -3397,19 +3397,24 @@
                     var packet_url = '/api/get_packet_details/?&project='+callback[3]+'&center='+callback[2]+'&from='+callback[0]+'&to='+callback[1];
                     self.call_back = callback;
                     $http.get(packet_url).then(function(result) {
-                        if (result.data.result.is_voice) {
-                            self.voice_filters.location = result.data.result['location'];
-                            self.voice_filters.disposition = result.data.result['disposition'];
-                            self.voice_filters.skill = result.data.result['skill'];
-                            self.packet_hierarchy_list = [];
-                        }
                         $('#dropdown_title').html($(".brand_style").text().replace(" - DASHBOARD",''));
                         var sub_project_level = result.data.result.sub_project_level;
                         var sub_packet_level = result.data.result.sub_packet_level;
                         var work_packet_level = result.data.result.work_packet_level;
+                        var fin_sub_project = result.data.result.fin.sub_project;
+                        var fin_sub_packet = result.data.result.fin.sub_packet;
+                        var fin_work_packet = result.data.result.fin.work_packet;
+                        self.is_voice_flag = result.data.result.is_voice;
+                        if (self.is_voice_flag) {
+                            self.voice_filters.Location = result.data.result['location'];
+                            self.voice_filters.Skill = result.data.result['skill'];
+                            self.voice_filters.Disposition = result.data.result['disposition'];
+                            if(!(fin_sub_project || fin_sub_packet || fin_work_packet )) {
+                                self.packet_hierarchy_list = [];
+                            }
+                        }
                         self.global_packet_values = result.data.result.fin;
                         self.drop_list = [];
-
                         self.top_employee_details =  result.data.result.top_five_employee_details;
                         self.top_five = result.data.result.only_top_five;
                         self.volume_graphs = result.data.result.volumes_graphs_details;
@@ -3417,25 +3422,24 @@
                         self.sub_pro_sel = document.getElementById("0");
                         self.wor_pac_sel = document.getElementById("1");
                         self.sub_pac_sel = document.getElementById("2");
-                    
                         $("#0, #1, #2").unbind("change");
 
-                            if (result.data.result.fin.sub_project) {
+                            if (fin_sub_project) {
                                 console.log('sub_projet_exist');
                             }
                             else {   
                                 $('#2').hide();
-                                if (result.data.result.fin.work_packet) {
+                                if (fin_work_packet) {
                                     console.log('work_packet_exist');
                                 }
-                                if (result.data.result.fin.sub_packet) {
+                                if (fin_sub_packet) {
                                     console.log('sub_packet_exist');
                                 }
                                 else {
                                     $('#1').hide();
                                 }
                             }
-                            if (result.data.result.fin.sub_packet) {
+                            if (fin_sub_packet) {
                                     console.log('sub_packet_exist');
                                 }
                             else {
@@ -3482,7 +3486,7 @@
                 self.drop_sub_proj = 'All';
                 self.drop_sub_pack = 'All';
 
-                if ((result.data.result.fin.sub_project) && (result.data.result.fin.work_packet)){
+                if ((fin_sub_project) && (fin_work_packet)){
                 $('#0').on('change', function(){
                     self.apply_class();   
                     self.add_loader();
@@ -3559,7 +3563,7 @@
 
                 else {
 
-                if ((result.data.result.fin.work_packet) && (result.data.result.fin.sub_packet)){
+                if ((fin_work_packet) && (fin_sub_packet)){
 
                 $('#0').on('change', function(){
 
@@ -3608,7 +3612,7 @@
                 });
                 }
                 else {
-                if (result.data.result.fin.work_packet){ 
+                if (fin_work_packet){ 
                     $('#0').on('change', function(){ 
                         self.apply_class();
                         self.add_loader();
@@ -3635,7 +3639,7 @@
                     });
                 }
                 }
-                if (result.data.result.fin.sub_packet) {
+                if (fin_sub_packet) {
                 $('#1').on('change', function(){
 
                 });

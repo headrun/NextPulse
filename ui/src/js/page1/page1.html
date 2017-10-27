@@ -102,10 +102,11 @@ thead {
 <div class="container volume">
  <div class="row">
     <div id="wrapper">
-        <div class="font_value">
-            <h3 class="pull-left brand_style">{{$ctrl.project}}DASHBOARD</h3>
-        </div>
-           <div ng-repeat="k in $ctrl.packet_hierarchy_list track by $index" class="packet_num">
+      <div class="font_value">
+        <h3 class="pull-left brand_style">{{$ctrl.project}}DASHBOARD</h3>
+      </div>
+    </div>
+        <div ng-repeat="k in $ctrl.packet_hierarchy_list track by $index" class="packet_num">
                 <form>
                     <div class="form-group">
                         <select class="form-control input-sm packet" id="{{$index}}">
@@ -113,24 +114,24 @@ thead {
                         </select>
                     </div>
                 </form>
-           </div>
-           <div class="packet_num">
-                <form>
+                </div>
+                <div class="packet_num">
+                    <form>
                     <div class="form-group" ng-repeat="(key,val) in $ctrl.voice_filters">
-                        <label>{{key}}</label>
+                        <!--<label>{{key}}</label>-->
                         <select class="form-control input-sm packet" id="{{key}}">
                             <option ng-repeat="v in val">{{v}}</option>
                         </select>
                     </div>
-                </form>
-           </div>
-        </div>
-        <div class="col-md-3 col-sm-3 col-xs-10 btn-group dashboard">
-            <button type="button" id="day" ng-model="radioModel" class="btn btn-default day" ng-click="$ctrl.active_filters('day','day_yes')" uib-btn-radio="'Day'"style="cursor:pointer;">Day</button>
-            <button type="button" id="week" ng-model="radioModel" class="btn btn-default week" ng-click="$ctrl.active_filters('week','week_yes')" uib-btn-radio="'Week'" style="cursor:pointer;">Week</button>
-            <button type="button" id="Month" ng-model="radioModel" class="btn btn-default month" ng-click="$ctrl.active_filters('month','month_yes')" uib-btn-radio="'Month'" style="cursor:pointer;">Month</button>
-        </div>
-        <div id="inner1" class="col-md-3 col-sm-3 col-xs-10" style="margin-bottom:initial;">
+                    </form>
+                </div>
+            <div class="col-md-3 col-sm-3 col-xs-10 btn-group dashboard">
+                <button ng-if="is_voice_flag" type="button" id="hour" ng-model="radioModel" class="btn btn-default hour" ng-click="$ctrl.active_filters('hour','hour_yes')" uib-btn-radio="'Hour'"style="cursor:pointer;">Hour</button>
+                <button type="button" id="day" ng-model="radioModel" class="btn btn-default day" ng-click="$ctrl.active_filters('day','day_yes')" uib-btn-radio="'Day'"style="cursor:pointer;">Day</button>
+                <button type="button" id="week" ng-model="radioModel" class="btn btn-default week" ng-click="$ctrl.active_filters('week','week_yes')" uib-btn-radio="'Week'" style="cursor:pointer;">Week</button>
+                <button type="button" id="Month" ng-model="radioModel" class="btn btn-default month" ng-click="$ctrl.active_filters('month','month_yes')" uib-btn-radio="'Month'" style="cursor:pointer;">Month</button>
+            </div>
+            <div id="inner1" class="col-md-3 col-sm-3 col-xs-10" style="margin-bottom:initial;">
                  <i class="fa fa-calendar date" aria-hidden="true"></i><input class="form-control select" id="select" size="22">
             </div>
     </div>
