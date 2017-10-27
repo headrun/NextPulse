@@ -4,13 +4,16 @@ import json
 from collections import OrderedDict
 from django.http import HttpResponse
 from django.core.mail import EmailMultiAlternatives
-
+from api.commons import *
 from common.utils import getHttpResponse as json_HttpResponse
 from api.models import *
 
 
 def get_top_reviews(request):
     """ get list of reviews """
+
+    current_time = datetime.datetime.utcnow()
+    local_current_time = utc_to_local(current_time)
     search_term = request.GET.get('search', "")
     timeline = request.GET.get('timeline', "future")
     filter_param = {}
@@ -20,10 +23,10 @@ def get_top_reviews(request):
         if search_term:
             filter_param.update({'review_name__contains': search_term})
         if timeline == 'past':
-            filter_param.update({'review_date__lt' :datetime.datetime.now()})
+            filter_param.update({'review_date__lt' :local_current_time})
             search_param = "-review_date"
         else:
-            filter_param.update({'review_date__gte' :datetime.datetime.now()})
+            filter_param.update({'review_date__gte' :local_current_time})
             search_param = "review_date"
 
         rev_objs = Review.objects.filter( **filter_param).order_by(search_param)
@@ -71,7 +74,7 @@ def create_reviews(request):
     curdate = datetime.datetime.now()
     review_name = eval(request.POST['json']).get('reviewname', "")
     agenda =  eval(request.POST['json']).get('reviewagenda', "")
-    _review_date = eval(request.POST['json']).get('reviewdate', '')
+    _review_date = eval(request.POST['json']).get('reviewtime', '')
     review_type = eval(request.POST['json']).get('review_type', '')
     _venue = eval(request.POST['json']).get('venue', "")
     _bridge = eval(request.POST['json']).get('bridge', "")
@@ -212,6 +215,9 @@ def upload_review_doc(request):
 
         r_obj = Review.objects.get(id = review_id)
         for item in attach_files:
+            file_size = attach_files[0].size/1024/1024
+            if file_size > 10.0:
+                return json_HttpResponse("File size is bigger than 10 MB")
             res = check_string(item.name)
             if not res:
                 return HttpResponse("Improper File name")
@@ -340,7 +346,8 @@ def send_review_mail(data, task, memb_obj = ""):
             _text = "Hi %s, %s, <p> %s </p>" %("Abhishek", "Yeswanth", process[task] )
 
         mail_body = create_mail_body(_text, data)
-        to = ['yeswanth@headrun.com', 'abhishek@headrun.com']
+        #to = ['sivak@headrun.net', 'abhishek@headrun.com']
+	to = []
         to.append(memb_obj.member.email)
         msg = EmailMultiAlternatives("%s - %s Review for NextWealth - %s" % (task.upper(), data['review_type'], data['project']), "",
                 'nextpulse@nextwealth.in', to)
@@ -453,7 +460,7 @@ def create_mail_body(text, data):
                 </td>\
                 </tr>" % data['agenda']
 
-    extra = "<p> </p> <p> </p> Kindly log into NextPulse - http://nextpulse.nextwealth.in/ \
+    extra = "<p> </p> <p> </p> Kindly log into NextPulse - https://nextpulse.nextwealth.in/ \
             with your userid and password to view all the metrics ahead of the meeting.\
             <p>Additional documents for the review can be found in the Review Section of the NextPulse itself. </p>\
             <p>If you have any difficulty please reach to your Project Team Lead (%s). </p> \

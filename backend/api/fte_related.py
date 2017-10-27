@@ -3,8 +3,8 @@ import datetime
 import redis
 from api.models import *
 from api.basics import *
-import collections
-from django.db.models import Max
+from collections import OrderedDict
+from django.db.models import Max, Sum
 from api.query_generations import query_set_generation
 from api.graph_settings import graph_data_alignment_color
 from common.utils import getHttpResponse as json_HttpResponse
@@ -24,22 +24,19 @@ def fte_calculation_sub_project_work_packet(result,level_structure_key):
                         new_level_structu_key['sub_project'] = level_structure_key['sub_project']
                     new_level_structu_key['work_packet'] = wp_key_new
                     new_level_structu_key['sub_packet'] = sub_packet
-            new_level_structu_key['from_date__lte'] = date_va
-            new_level_structu_key['to_date__gte'] = date_va
-            final_work_packet = level_hierarchy_key(level_structure_key, new_level_structu_key)
-
-            if result['data']['data'].has_key(final_work_packet):
-                if len(result['data']['data'][final_work_packet]) >= count:
-                    try:
-                        local_sum = local_sum + result['data']['data'][final_work_packet][count]
-                    except:
+                    new_level_structu_key['from_date__lte'] = date_va
+                    new_level_structu_key['to_date__gte'] = date_va
+                    final_work_packet = level_hierarchy_key(level_structure_key, new_level_structu_key)
+                    if result['data']['data'].has_key(final_work_packet):
+                        if len(result['data']['data'][final_work_packet]) >= count:
+                            try:
+                                local_sum = local_sum + result['data']['data'][final_work_packet][count]
+                            except:
+                                local_sum = local_sum
+                        else:
+                            local_sum = local_sum
+                    else:
                         local_sum = local_sum
-                else:
-                    local_sum = local_sum
-            else:
-                local_sum = local_sum
-
-                    
                 if level_structure_key.get('work_packet', '') != 'All':
                     if final_fte.has_key(final_work_packet):
                         final_fte_sum = float('%.2f' % round(local_sum, 2))
@@ -47,18 +44,18 @@ def fte_calculation_sub_project_work_packet(result,level_structure_key):
                     else:
                         final_fte_sum = float('%.2f' % round(local_sum, 2))
                         final_fte[final_work_packet] = [final_fte_sum]
-            if level_structure_key.get('work_packet', '') == 'All':
-                if level_structure_key.has_key('sub_project'):
-                    new_level_structu_key['sub_project'] = level_structure_key['sub_project']
-                new_level_structu_key['work_packet'] = wp_key_new
-                wp_final_work_packet = level_hierarchy_key(level_structure_key, new_level_structu_key)
-                if final_fte.has_key(wp_final_work_packet):
-                    final_fte_sum = float('%.2f' % round(local_sum, 2))
-                    final_fte[wp_final_work_packet].append(final_fte_sum)
-                else:
-                    final_fte_sum = float('%.2f' % round(local_sum, 2))
-                    final_fte[wp_final_work_packet] = [final_fte_sum]
-            count = count + 1
+                if level_structure_key.get('work_packet', '') == 'All':
+                    if level_structure_key.has_key('sub_project'):
+                        new_level_structu_key['sub_project'] = level_structure_key['sub_project']
+                    new_level_structu_key['work_packet'] = wp_key_new
+                    wp_final_work_packet = level_hierarchy_key(level_structure_key, new_level_structu_key)
+                    if final_fte.has_key(wp_final_work_packet):
+                        final_fte_sum = float('%.2f' % round(local_sum, 2))
+                        final_fte[wp_final_work_packet].append(final_fte_sum)
+                    else:
+                        final_fte_sum = float('%.2f' % round(local_sum, 2))
+                        final_fte[wp_final_work_packet] = [final_fte_sum]
+            count = count + 1            
         return final_fte
 
 
@@ -66,8 +63,11 @@ def fte_calculation_sub_project_sub_packet(prj_id,center_obj,work_packet_query,l
     packets_target, wp_subpackets = {}, {}
     new_date_list = []
     conn = redis.Redis(host="localhost", port=6379, db=0)
-    prj_name = Project.objects.filter(id=prj_id).values_list('name', flat=True)
-    center_name = Center.objects.filter(id=center_obj).values_list('name', flat=True)
+    #prj_name = Project.objects.filter(id=prj_id).values_list('name', flat=True)
+    #center_name = Center.objects.filter(id=center_obj).values_list('name', flat=True)
+    project = Project.objects.filter(id=prj_id)
+    prj_name = project[0].name
+    center_name = project[0].center.name
     distinct_wp = Targets.objects.filter(**work_packet_query).values_list('work_packet', flat=True).distinct()
     new_work_packet_query = work_packet_query
     for wrk_pkt in distinct_wp:
@@ -79,17 +79,24 @@ def fte_calculation_sub_project_sub_packet(prj_id,center_obj,work_packet_query,l
     raw_query_set['project'] = prj_id
     raw_query_set['center'] = center_obj
     date_values, volumes_dict, result = {}, {}, {}
-    for date_va in date_list:
-        new_work_packet_query['from_date__lte'] = date_va
-        new_work_packet_query['to_date__gte'] = date_va
+    total_done_value = RawTable.objects.filter(project=prj_id, center=center_obj, date__range=[date_list[0], date_list[-1]]).values('date').annotate(total=Sum('per_day'))
+    values = OrderedDict(zip(map(lambda p: str(p['date']), total_done_value), map(lambda p: str(p['total']), total_done_value)))
+    #for date_va in date_list:
+    for date_key, total_val in values.iteritems():
+        #new_work_packet_query['from_date__lte'] = date_va
+        #new_work_packet_query['to_date__gte'] = date_va
+        new_work_packet_query['from_date__lte'] = date_key
+        new_work_packet_query['to_date__gte'] = date_key
         if new_work_packet_query.has_key('work_packet'):
             del new_work_packet_query['work_packet']
         work_packets = Targets.objects.filter(**new_work_packet_query).values('sub_project', 'work_packet', 'sub_packet','target_value').distinct()
         for wp_dict in work_packets:
             packets_target[wp_dict['sub_packet']] = int(wp_dict['target_value'])
-        total_done_value = RawTable.objects.filter(project=prj_id, center=center_obj, date=date_va).aggregate(Max('per_day'))
-        if total_done_value['per_day__max'] > 0:
-            new_date_list.append(date_va)
+        #total_done_value = RawTable.objects.filter(project=prj_id, center=center_obj, date=date_va).aggregate(Max('per_day'))
+        #if total_done_value['per_day__max'] > 0:
+        if total_val > 0:
+            #new_date_list.append(date_va)
+            new_date_list.append(date_key)
             for wp_key, wp_name in wp_subpackets.iteritems():
                 for sub_packet in wp_name:
                     new_level_structu_key = {}
@@ -97,10 +104,13 @@ def fte_calculation_sub_project_sub_packet(prj_id,center_obj,work_packet_query,l
                         new_level_structu_key['sub_project'] = level_structure_key['sub_project']
                     new_level_structu_key['work_packet'] = wp_key
                     new_level_structu_key['sub_packet'] = sub_packet
-                    new_level_structu_key['from_date__lte'] = date_va
-                    new_level_structu_key['to_date__gte'] = date_va
+                    #new_level_structu_key['from_date__lte'] = date_va
+                    #new_level_structu_key['to_date__gte'] = date_va
+                    new_level_structu_key['from_date__lte'] = date_key
+                    new_level_structu_key['to_date__gte'] = date_key
                     final_work_packet = level_hierarchy_key(level_structure_key, new_level_structu_key)
-                    date_pattern = '{0}_{1}_{2}_{3}'.format(prj_name[0], str(center_name[0]), str(final_work_packet),str(date_va))
+                    #date_pattern = '{0}_{1}_{2}_{3}'.format(prj_name[0], str(center_name[0]), str(final_work_packet),str(date_va))
+                    date_pattern = '{0}_{1}_{2}_{3}'.format(prj_name, center_name, str(final_work_packet), date_key)
                     key_list = conn.keys(pattern=date_pattern)
                     packets_values = Targets.objects.filter(**new_level_structu_key).values('sub_project', 'work_packet', 'sub_packet','target_value').distinct()
                     if not key_list:
@@ -138,8 +148,11 @@ def fte_calculation(request,prj_id,center_obj,date_list,level_structure_key):
     query_set = {}
     query_set['project'] = prj_id
     query_set['center'] = center_obj
-    prj_name = Project.objects.filter(id=prj_id).values_list('name', flat=True)
-    center_name = Center.objects.filter(id=center_obj).values_list('name', flat=True)
+    #prj_name = Project.objects.filter(id=prj_id).values_list('name', flat=True)
+    #center_name = Center.objects.filter(id=center_obj).values_list('name', flat=True)
+    project = Project.objects.filter(id=prj_id)
+    prj_name = project[0].name
+    center_name = project[0].center.name
     work_packet_query =  query_set_generation(prj_id,center_obj,level_structure_key,[])
     work_packet_query['target_type'] = 'FTE Target'
     work_packets = Targets.objects.filter(**work_packet_query).values('sub_project','work_packet','sub_packet','target_value').distinct()
@@ -152,13 +165,19 @@ def fte_calculation(request,prj_id,center_obj,date_list,level_structure_key):
     if len(sub_packets) == 0:
         work_packets = Targets.objects.filter(**work_packet_query).values('sub_project', 'work_packet', 'sub_packet','target_value').distinct()
         date_values, volumes_dict, result = {}, {}, {}
-        for date_va in date_list:
-            total_done_value = RawTable.objects.filter(project=prj_id, center=center_obj, date=date_va).aggregate(Max('per_day'))
-            if total_done_value['per_day__max'] > 0:
-                new_date_list.append(date_va)
+        total_done_value = RawTable.objects.filter(project=prj_id, center=center_obj, date__range=[date_list[0], date_list[-1]]).values('date').annotate(total=Sum('per_day'))
+        values = OrderedDict(zip(map(lambda p: str(p['date']), total_done_value), map(lambda p: str(p['total']), total_done_value)))
+        for date_key, total_val in values.iteritems():
+        #for date_va in date_list:
+            #total_done_value = RawTable.objects.filter(project=prj_id, center=center_obj, date=date_va).aggregate(Max('per_day'))
+            #if total_done_value['per_day__max'] > 0:
+            if total_val > 0:
+                #new_date_list.append(date_va)
+                new_date_list.append(date_key)
                 for wp_packet in work_packets:
                     final_work_packet = level_hierarchy_key(level_structure_key, wp_packet)
-                    date_pattern = '{0}_{1}_{2}_{3}'.format(prj_name[0], str(center_name[0]), str(final_work_packet),str(date_va))
+                    #date_pattern = '{0}_{1}_{2}_{3}'.format(prj_name[0], str(center_name[0]), str(final_work_packet),str(date_va))
+                    date_pattern = '{0}_{1}_{2}_{3}'.format(prj_name, center_name, str(final_work_packet), date_key)
                     key_list = conn.keys(pattern=date_pattern)
                     if wp_packet['target_value'] >0:
                         if not key_list:
@@ -285,6 +304,7 @@ def fte_calculation(request,prj_id,center_obj,date_list,level_structure_key):
             fte_high_charts['total_fte'] = work_packet_fte
             fte_high_charts['work_packet_fte'] = graph_data_alignment_color(final_fte, 'data', level_structure_key, prj_id, center_obj,'')
             fte_high_charts['work_packet_fte'] = final_fte
+            fte_high_charts['date'] = new_date_list
         if type == "week" or type == "month":
             work_packet_fte = {}
             packet_fte = {}
@@ -310,6 +330,7 @@ def fte_calculation(request,prj_id,center_obj,date_list,level_structure_key):
             fte_high_charts['total_fte']['total_fte'] = [float('%.2f' % round(final_fte_values, 2))]
             fte_high_charts['work_packet_fte'] = graph_data_alignment_color(final_fte, 'data', level_structure_key, prj_id, center_obj,'')
             fte_high_charts['work_packet_fte'] = final_fte
+            fte_high_charts['date'] = new_date_list
         return fte_high_charts
     else:
         work_packet_fte = {}
@@ -319,5 +340,6 @@ def fte_calculation(request,prj_id,center_obj,date_list,level_structure_key):
         fte_high_charts = {}
         fte_high_charts['total_fte'] = work_packet_fte
         fte_high_charts['work_packet_fte'] = graph_data_alignment_color(final_fte, 'data', level_structure_key, prj_id, center_obj,'')
-        fte_high_charts['work_packet_fte'] =final_fte
+        fte_high_charts['work_packet_fte'] = final_fte
+        fte_high_charts['date'] = new_date_list
         return fte_high_charts

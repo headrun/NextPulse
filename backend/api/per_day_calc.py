@@ -5,11 +5,11 @@ from api.models import *
 from api.basics import *
 from api.utils import *
 from api.commons import *
-from django.db.models import Max
+from django.db.models import Max, Sum
+from collections import OrderedDict
 from api.query_generations import query_set_generation
 from api.graph_settings import graph_data_alignment_color
 from common.utils import getHttpResponse as json_HttpResponse
-
 
 def prod_avg_perday(request):
     final_dict = {}
@@ -29,9 +29,13 @@ def prod_avg_perday(request):
     center = main_data_dict['pro_cen_mapping'][1][0]
     if main_data_dict['dwm_dict'].has_key('day') and main_data_dict['type'] == 'day':
         for sing_list in main_dates_list:
-            for date_va in sing_list:
-                total_done_value = RawTable.objects.filter(project=prj_id,center=center,date=date_va).aggregate(Max('per_day'))
-                if total_done_value['per_day__max'] > 0:
+            total_done_value = RawTable.objects.filter(project=prj_id, center=center, date__range=[sing_list[0], sing_list[-1]]).values('date').annotate(total=Sum('per_day'))
+            values = OrderedDict(zip(map(lambda p: str(p['date']), total_done_value), map(lambda p: str(p['total']), total_done_value)))
+            for date_va, total_val in values.iteritems():
+            #for date_va in sing_list:
+                #total_done_value = RawTable.objects.filter(project=prj_id,center=center,date=date_va).aggregate(Max('per_day'))
+                #if total_done_value['per_day__max'] > 0:
+                if total_val > 0:
                     new_date_list.append(date_va)
             level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], main_data_dict['sub_packet'],main_data_dict['pro_cen_mapping'])
             production_avg_details = production_avg_perday(sing_list, main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0], level_structure_key)
@@ -67,14 +71,22 @@ def prod_avg_perday(request):
 def production_avg_perday(date_list,prj_id,center_obj,level_structure_key):
     conn = redis.Redis(host="localhost", port=6379, db=0)
     result, volumes_dict, date_values = {}, {}, {}
-    prj_name = Project.objects.filter(id=prj_id).values_list('name', flat=True)
-    center_name = Center.objects.filter(id=center_obj).values_list('name', flat=True)
+    #prj_name = Project.objects.filter(id=prj_id).values_list('name', flat=True)
+    #center_name = Center.objects.filter(id=center_obj).values_list('name', flat=True)
+    project = Project.objects.filter(id=prj_id)
+    prj_name = project[0].name
+    center_name = project[0].center.name
     query_set = query_set_generation(prj_id, center_obj, level_structure_key, date_list)
     new_date_list = []
-    for date_va in date_list:
-        total_done_value = RawTable.objects.filter(project=prj_id, center=center_obj, date=date_va).aggregate(Max('per_day'))
-        if total_done_value['per_day__max'] > 0:
-            new_date_list.append(date_va)
+    total_done_value = RawTable.objects.filter(project=prj_id, center=center_obj, date__range=[date_list[0], date_list[-1]]).values('date').annotate(total=Sum('per_day'))
+    values = OrderedDict(zip(map(lambda p: str(p['date']), total_done_value), map(lambda p: str(p['total']), total_done_value)))
+    for date_key, total_val in values.iteritems():
+    #for date_va in date_list:
+        #total_done_value = RawTable.objects.filter(project=prj_id, center=center_obj, date=date_va).aggregate(Max('per_day'))
+        #if total_done_value['per_day__max'] > 0:
+        if total_val > 0:
+            #new_date_list.append(date_va)
+            new_date_list.append(date_key)
             if level_structure_key.has_key('sub_project'):
                 if level_structure_key['sub_project'] == "All":
                     volume_list = RawTable.objects.filter(**query_set).values('sub_project').distinct()
@@ -99,7 +111,8 @@ def production_avg_perday(date_list,prj_id,center_obj,level_structure_key):
                 if not final_work_packet:
                     final_work_packet = level_hierarchy_key(volume_list[count], vol_type)
                 count = count + 1
-                date_pattern = '{0}_{1}_{2}_{3}'.format(prj_name[0], str(center_name[0]), str(final_work_packet),date_va)
+                #date_pattern = '{0}_{1}_{2}_{3}'.format(prj_name[0], str(center_name[0]), str(final_work_packet),date_va)
+                date_pattern = '{0}_{1}_{2}_{3}'.format(prj_name, center_name, str(final_work_packet), date_key)
                 key_list = conn.keys(pattern=date_pattern)
                 if not key_list:
                     if date_values.has_key(final_work_packet):

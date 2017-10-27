@@ -1,9 +1,10 @@
 
 import datetime
+import calendar
 from api.models import *
 from api.basics import *
 from collections import OrderedDict
-
+LOCAL_ZONE = "Asia/Kolkata"
 from common.utils import getHttpResponse as json_HttpResponse
 
 def data_dict(variable):
@@ -33,12 +34,21 @@ def data_dict(variable):
     is_clicked = variable.get('is_clicked','NA')
     if type == 'day':
         if 'yes' not in is_clicked:
-            if len(date_list) > 15:
+            date_count = len(date_list)
+            if date_count > 15:
                 type = 'week'
-            if len(date_list) > 60:
+            if date_count > 60:
                 type = 'month'
+            if date_count == 1:
+                type = 'hour'
         dwm_dict['day']= date_list
         main_data_dict['dwm_dict'] = dwm_dict
+    
+    if type == 'hour':
+        hours_data = []
+        data = [(i, dt.time(i).strftime('%I %p')) for i in range(24)]
+        for i in data:
+            hours_data.append(i[1])
 
     if type == 'week':
         months_dict = {}
@@ -130,37 +140,68 @@ def get_packet_details(request):
                                              date__range=dates)
     sub_pro_level = filter(None, raw_master_set.values_list('sub_project',flat=True).distinct())
     sub_project_level = [i for i in sub_pro_level]
-    if len(sub_project_level) >= 1:
+    if sub_project_level:
         sub_project_level.append('all')
     else:
         sub_project_level = ''
     work_pac_level = filter(None, raw_master_set.values_list('work_packet',flat=True).distinct())
     work_packet_level = [j for j in work_pac_level]
-    if len(work_packet_level) >= 1:
+    if work_packet_level:
         work_packet_level.append('all')
     else:
         work_packet_level = ''
     sub_pac_level = filter(None, raw_master_set.values_list('sub_packet',flat=True).distinct())
     sub_packet_level = [k for k in sub_pac_level]
-    if len(sub_packet_level) >= 1:
+    if sub_packet_level:
         sub_packet_level.append('all')
     else:
         sub_packet_level = ''
+    inbound_hourly_master_set = InboundHourlyCall.objects.filter(project=main_data_dict['pro_cen_mapping'][0][0], center=main_data_dict['pro_cen_mapping'][1][0], date__range = dates)
+    location_names = filter(None, inbound_hourly_master_set.values_list('location',flat=True).distinct())
+    location_list, skill_list, dispo_list = [], [], []
+    for location in location_names:
+        if '->' not in location:
+            location_list.append(location)
+    skill_names = filter(None, inbound_hourly_master_set.values_list('skill',flat=True).distinct())
+    for skill in skill_names:
+        if '->' not in skill:
+            skill_list.append(skill)
+    disposition_names = filter(None, inbound_hourly_master_set.values_list('disposition',flat=True).distinct())
+    is_voice = Project.objects.filter(id=main_data_dict['pro_cen_mapping'][0][0], center=main_data_dict['pro_cen_mapping'][1][0]).values_list('is_voice', flat=True).distinct()[0]
+    for dispo in disposition_names:
+        if '->' not in dispo:
+            dispo_list.append(dispo)
+    if location_list:
+        location_list.append('all')
+    else:
+        location_list = ''
+    if skill_list:
+        skill_list.append('all')
+    else:
+        skill_list = ''
+    if dispo_list:
+        dispo_list.append('all')
+    else:
+        dispo_list = ''
     final_details = {}
     final_details['sub_project'] = 0
     final_details['work_packet'] = 0
     final_details['sub_packet'] = 0
-    if len(sub_pro_level) >= 1:
+    if sub_pro_level:
         final_details['sub_project'] = 1
-    if len(work_pac_level) >= 1:
+    if work_pac_level:
         final_details['work_packet'] = 1
-    if len(sub_pac_level) >= 1:
+    if sub_pac_level:
         final_details['sub_packet'] = 1
     prj_id = main_data_dict['pro_cen_mapping'][0][0]
     center = main_data_dict['pro_cen_mapping'][1][0]
     final_dict['sub_project_level'] = sub_project_level
     final_dict['work_packet_level'] = work_packet_level
     final_dict['sub_packet_level'] = sub_packet_level
+    final_dict['location'] = location_list
+    final_dict['skill'] = skill_list
+    final_dict['disposition'] = dispo_list
+    final_dict['is_voice'] = is_voice
     big_dict = {}
     if final_details['sub_project']:
         if final_details['work_packet']:
@@ -198,8 +239,21 @@ def get_packet_details(request):
     return json_HttpResponse(final_dict)
 
 
+def utc_to_local(utc_dt):
+    """convert utc time to local time """
+    """
+    import time
+    now_timestamp = time.time()
+    offset = datetime.datetime.fromtimestamp(now_timestamp) - datetime.datetime.utcfromtimestamp(now_timestamp)
+    return utc_dt + offset
+    """
+    localtime = utc_dt + datetime.timedelta(hours = 5, minutes = 30)
+    return localtime
 
-
-
-
-
+"""    
+def local_to_utc(local_date):
+    "" convert local time to UTC ""
+    local = pytz.timezone(LOCAL_ZONE)
+    local_dt = local.localize(local_date, is_dst=None)
+    return local_dt.astimezone(pytz.utc)
+"""

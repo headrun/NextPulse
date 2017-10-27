@@ -65,7 +65,7 @@
 
 		 if (result.data.result.is_team_lead == false){
                     $('#fileuploader').hide();
-			$('.add-review').hide();
+			        $('.add-review').hide();
                     self.is_lead=false;
 		  }
 
@@ -94,11 +94,11 @@
          if (self.is_lead){
             $('.fa-pencil-square-o').hide();
             $('.fa-trash').hide();
-            swal('No Reviews Available! Click on plus button to create a new reveiw');
+            swal('No reviews available! Click on plus button to create a new reveiw');
+            $('.fa-plus-circle').show();
         }
         else {
             $('.fa-plus-circle').hide();
-
             swal('No Reviews Available!');
             }
 		}
@@ -110,31 +110,44 @@
                  self.rev_id = review.id;
                  var sel_rev_id = self.rev_id;
 
-             $("#fileuploader").uploadFile({
-                url:"/api/upload_review_doc/",
-                dragDrop:false,
-                fileName:"myfile",
-                formData:{"review_id": self.rev_id },
-                onSuccess:function(files,data,xhr,pd,sel_rev_id){
+             if (self.is_lead && !$('#check-past').is(':checked')) {
+                     self.no_data = true;
+                     setTimeout(function(){
+                     $("#fileuploader").uploadFile({
+                        url:"/api/upload_review_doc/",
+                        dragDrop:false,
+                        fileName:"myfile",
+                        formData:{"review_id": self.rev_id },
+                        onSuccess:function(files,data,xhr,pd,sel_rev_id){
 
-                    if (data == "Improper File name") {
-		        swal('File name in not proper');	
-		    }
-		    else {
-                    $('.ajax-file-upload-statusbar').hide();
-                    $('.loading').removeClass('hide').addClass('show');
-                    self.get_data_url = 'api/get_review_details/?review_id='+data.result;
+                            if (data.result == "Improper File name") {
+                                swal('File name in not proper!');
+                                $('.ajax-file-upload-statusbar').hide();
 
-                 $http.get(self.get_data_url).then(function(result){
+                            }
+                            else if (data.result == "File size is bigger than 10 MB"){
+                                swal("File size is bigger than 10 MB!");
+                                $('.ajax-file-upload-statusbar').hide();
 
-                    self.all_review_data = result.data.result.rev_files;
-		    self.no_data = true;
-		    self.part_disable = true;
-                    $('.loading').removeClass('show').addClass('hide');
-                 });
-		}
-                }
-             });
+                                }
+                            else{
+                                $('.ajax-file-upload-statusbar').hide();
+                                $('.loading').removeClass('hide').addClass('show');
+                                self.get_data_url = 'api/get_review_details/?review_id='+data.result;
+
+                                $http.get(self.get_data_url).then(function(result){
+                                    self.all_review_data = result.data.result.rev_files;
+                                    self.no_data = true;
+                                    self.part_disable = true;
+                                    $('.loading').removeClass('show').addClass('hide');
+                                });
+                            }
+                        }
+                    });
+                    }, 1000);
+             }else{
+                $("#fileuploader").html('');    
+             }
 
                  self.get_data_url = 'api/get_review_details/?review_id='+self.rev_id;
 
@@ -171,16 +184,19 @@
              }
 
             self.get_all_reviews = function() {
+                self.past_reviews = false;
                 if ($('#check-past').is(':checked')) {
                     self.all_review_url = 'api/get_top_reviews/?timeline=past';
                     $('#past-meet').hide();
                     $('#ong-meet').show();
+                    self.past_reviews = true;
                     //$('.fa-pencil-square-o').hide();
                 }
                 else {
                     self.all_review_url = 'api/get_top_reviews/?timeline=oncoming';
                     $('#ong-meet').hide();
                     $('#past-meet').show();
+                    self.past_reviews = false;
                     //$('.fa-pencil-square-o').show();
                 }
                 $http.get(self.all_review_url).then(function(result){
@@ -190,6 +206,16 @@
 		 if (Object.keys(self.all_reviews).length != 0){
                  self.rev_id = self.all_reviews[Object.keys(self.all_reviews)[0]][0].id;
                  self.get_review(self.all_reviews[Object.keys(self.all_reviews)[0]][0]);
+                 if (self.past_reviews) {
+                     $('.fa-trash').show();
+                     $('.fa-plus-circle').hide();
+                     $('.fa-pencil-square-o').hide();
+                 }
+                 else {
+                    $('.fa-plus-circle').show();    
+                    $('.fa-pencil-square-o').show();
+                    $('.fa-trash').show();
+                 }
                  /*if (result.data.result[Object.keys(result.data.result)[0]][0].is_team_lead == false){
                     $('#fileuploader').hide();
                     $('#add-revi').hide();
@@ -197,7 +223,17 @@
                  //$('.loading').removeClass('show').addClass('hide');
                  return self.rev_id;
 		     }
-		 else { console.log('No reviews to show');
+		 else { 
+                 if (self.past_reviews) {
+                     $('.fa-trash').hide();
+                     $('.fa-plus-circle').hide();
+                     $('.fa-pencil-square-o').hide();
+                 }   
+                 else {
+                    $('.fa-plus-circle').show();    
+                    $('.fa-pencil-square-o').hide();
+                    $('.fa-trash').hide();
+                 } 
              self.edit_review = { 
                     'reviewname': '', 'reviewdate': '', 'reviewtime': '', 'bridge': '', 'venue': '', 'review_type': '', 
                     'reviewagenda': '', 'participants': '', 'rev_str': 'Edit Review'
@@ -212,7 +248,14 @@
 			self.no_data = false;
 
 			self.part_disable = false;
-            swal('No Reviews Available! Click on plus button to create a new reveiw');
+         if (self.is_lead){
+//            swal('No Reviews Available! Click on plus button to create a new reveiw');
+            swal('No Reviews Available!');
+        }   
+        else {
+            swal('No Reviews Available!');
+            }   
+
 		      }
                });
             };
@@ -238,59 +281,119 @@
               }
               else {
                 self.review = self.edit_review;
+                self.appendValues(self.edit_review);
+                self.review.reviewdate = self.review.reviewtime;
                 self.submit_type = 1;
                 self.track_id = self.rev_id;
               }
             };
 
+            self.appendValues = function(data_array){
+                
+                $('.modal').find('input[name="reviewname"]').val(data_array.reviewname);
+                $('.modal').find('input[name="bridge"]').val(data_array.bridge);
+                $('.modal').find('input[name="venue"]').val(data_array.venue);
+                $('.modal').find('input[name="revDate"]').val(data_array.reviewtime);
+                $('.modal').find('textarea[name="reviewagenda"]').val(data_array.reviewagenda);
+            }
+
 
              self.submit = function(review) {
-                var selected_date = moment(review.reviewdate);
+                var selected_date = moment(review.reviewtime);
                 var today = moment(new Date());
-                today = today.set({hour:0,minute:0,second:0,millisecond:0});
-                if (selected_date.diff(today) < 0){
-                    swal('Creating Reviews in past date is restricted');
+                var past_days = today.set({hour:0,minute:0,second:0,millisecond:0});
+                if (selected_date.format('YYYY-MM-DD') == "Invalid date"){
+                    //swal('Invalid date entered!');
+                    swal({
+                      title: "Invalid date entered!",
+                      text: "", 
+                      type: "error",
+                      showCancelButton: false,
+                      confirmButtonColor: "#DD6B55",
+                      confirmButtonText: "Okay",
+                      cancelButtonText: "", 
+                      closeOnConfirm: true,
+                      closeOnCancel: false
+                    },  
+                    function(isConfirm){
+                      if (isConfirm) {
+                        $('#myModal').modal('show');
+                      }   
+                    }); 
+                }else if(today.format('YYYY-MM-DD') == selected_date.format('YYYY-MM-DD') && selected_date.diff(moment(), 'minutes') < 0){
+                    swal('Creating reviews in past time is restricted!');
+                }else if(today.format('YYYY-MM-DD') > selected_date.format('YYYY-MM-DD')){
+                    if (selected_date.diff(past_days) < 0){
+                        swal('Creating reviews in past date is restricted!');
+                    }
                 }
                 else {
-		 if (review.reviewname && review.reviewdate && review.reviewagenda && review.review_type != 'select'){
-                 self.uids_list = []
-                 for (var i=0; i<review.participants.length; i++) {
-                    self.uids_list.push(self.map_list_item[review.participants[i]]);
-                 }
-                 $('.input-clear').val('');
-                 $('.loading').removeClass('hide').addClass('show');
-                 self.create_rev_url = 'api/create_reviews/';
-                 var data = {}
-                 angular.forEach(review, function(key, value) {
-                     if (key) {
-                         data[value] = key.toString()
-                     }
-		     else { data[value] = ''}
-                 });
-                 data['id'] = self.submit_type;
-                 data['track_id'] = self.track_id;
-                 var main_data = $.param({ json: JSON.stringify(data) });
-                 $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
-                 $http.post(self.create_rev_url, (main_data)).then(function(result){
-		    if (result.data == "Improper File name"){
-			swal("Improper review name");
-		    }
-                    return result.data.result;
-                 }).then(function(callback){
+        if (review.reviewname && review.reviewtime && review.reviewagenda && review.review_type != 'select'){
+            self.uids_list = []
+            for (var i=0; i<review.participants.length; i++) {
+                self.uids_list.push(self.map_list_item[review.participants[i]]);
+                }
+            $('.input-clear').val('');
+            $('.loading').removeClass('hide').addClass('show');
+            self.create_rev_url = 'api/create_reviews/';
+            var data = {}
+            //review.reviewtime = review.reviewdate;    
+            angular.forEach(review, function(key, value) {
+                if (key) {
+                    data[value] = key.toString()
+                }else { 
+                    data[value] = ''
+                }
+                });
+            data['id'] = self.submit_type;
+            data['track_id'] = self.track_id;
+            var main_data = $.param({ json: JSON.stringify(data) });
+            $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
+            $http.post(self.create_rev_url, (main_data)).then(function(result){
+		        if (result.data == "Improper File name"){
+			        swal("Improper review name!");
+                    /*swal({
+                      title: "Improper review name!",
+                      text: "", 
+                      type: "error",
+                      showCancelButton: false,
+                      confirmButtonColor: "#DD6B55",
+                      confirmButtonText: "Okay",
+                      cancelButtonText: "", 
+                      closeOnConfirm: true,
+                      closeOnCancel: false
+                    },  
+                    function(isConfirm){
+                      if (isConfirm) {
+                        $('#myModal').modal('show');
+                      }   
+                    });*/ 
+		            }
+                return result.data.result;
+                }).then(function(callback){
 
                    var data2 = {'review_id': callback, 'uids': self.uids_list};
                    var data_to_send = $.param({ json: JSON.stringify(data2)});
                    $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
                    $http.post('api/saving_members/', data_to_send).then(function(result){
-                   }).then(function() {
+                    }).then(function() {
 
                    $http.get(self.review_url).then(function(result){
                       if (result.data.result.is_team_lead == false){
                         self.is_lead = false;
+                        
                       } 
                      self.all_reviews = result.data.result.all_data;
+                     $('.fa-pencil-square-o').show();
+                     $('.fa-trash').show();
 		     if ((Object.keys(result.data.result.all_data).length) != 0){
-                         self.get_review(self.all_reviews[Object.keys(self.all_reviews)[0]][0]);
+                    if(self.is_lead){
+                        self.no_data = true;
+                    }
+                    setTimeout(function(){
+                        self.get_review(self.all_reviews[Object.keys(self.all_reviews)[0]][0]);
+                        }, 600)
+//                         self.get_review(self.all_reviews[Object.keys(self.all_reviews)[0]][0]);
 		     }
                      $('.loading').removeClass('show').addClass('hide');
 
@@ -300,9 +403,19 @@
                 });
 		}
         else {
+            var message = '';
+            if (review.reviewname == ""){
+                message += 'Add review name.'
+                }
+            if (review.reviewagenda == ""){
+                message += ' Add review agenda.'
+                }
+            if (review.review_type == 'select'){
+                message += ' Select review type.'
+                }
             swal({
-              title: "All required fields are not filled",
-              text: "", 
+              title: "All required fields are not filled!",
+              text: message, 
               type: "error",
               showCancelButton: false,
               confirmButtonColor: "#DD6B55",
@@ -365,7 +478,7 @@
          self.del_review = function() {
 
             swal({
-              title: "Are you sure?",
+              title: "Ar you sure?",
               text: "You will not be able to recover this review!",
               type: "warning",
               showCancelButton: true,
@@ -386,13 +499,24 @@
                         if (result.data.result.is_team_lead == false){
                             self.is_lead=false;
                         } 
-			if (Object.keys(result.data.result.all_data).length != 0) {
-			 self.all_reviews = result.data.result.all_data;
-                         self.rev_id = self.all_reviews[Object.keys(self.all_reviews)[0]][0].id;
-                         self.get_review(self.all_reviews[Object.keys(self.all_reviews)[0]][0]);
-                         return self.rev_id;
-                         $('.loading').removeClass('show').addClass('hide');
+            if (Object.keys(result.data.result.all_data).length != 0) {
+		        self.all_reviews = result.data.result.all_data;
+                self.rev_id = self.all_reviews[Object.keys(self.all_reviews)[0]][0].id;
+                self.get_review(self.all_reviews[Object.keys(self.all_reviews)[0]][0]);
+                //return self.rev_id;
+                $('.loading').removeClass('show').addClass('hide');
+                if (self.is_lead){
+                    $('.fa-plus-circle').show();
+                    $('.fa-pencil-square-o').show();
+                    $('.fa-trash').show();
+                    }
+                return self.rev_id;
 			}else{
+                if (self.is_lead){
+                     $('.fa-plus-circle').show();
+                }
+                $('.fa-pencil-square-o').hide();
+                $('.fa-trash').hide();
 			self.all_reviews = result.data.result.all_data;
                    self.edit_review = {
                     'reviewname': '', 'reviewdate': '', 'reviewtime': '', 'bridge': '', 'venue': '', 'review_type': '',
@@ -415,11 +539,19 @@
                       });
                     });
                 swal("Deleted!", "Your Review has been deleted.", "success");
+
+               $('#check-past').attr('checked', false);
+               $('#ong-meet').hide();
+               $('#past-meet').show();
               } else {
                 swal("Cancelled", "Your Review is safe :)", "error");
               }
             });
          }
+
+         $(window).on('popstate', function() {
+            swal.close();
+         });
 
          }],
 

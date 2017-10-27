@@ -117,18 +117,22 @@ def graph_data_alignment_other(volumes_data, work_packets, name_key):
             productivity_series_list[work_packets[0]] = prod_main_dict
         return productivity_series_list
 
-
-
 def tat_graph(date_list, prj_id, center,level_structure_key):
     new_dict = {}
     final_data,final_notmet_data = [],[]
     data_list, tat_val_list = [],[]
-    for date_va in date_list:
-        total_done_value = RawTable.objects.filter(project=prj_id, center=center, date=date_va).aggregate(Max('per_day'))
-        if total_done_value['per_day__max'] > 0:
-            data_list.append(str(date_va))
+    total_done_value = RawTable.objects.filter(project=prj_id, center=center, date__range=[date_list[0], date_list[-1]]).values('date').annotate(total=Sum('per_day'))
+    values = OrderedDict(zip(map(lambda p: str(p['date']), total_done_value), map(lambda p: str(p['total']), total_done_value)))
+    for date_key, total_val in values.iteritems():
+    #for date_va in date_list:
+        #total_done_value = RawTable.objects.filter(project=prj_id, center=center, date=date_va).aggregate(Max('per_day'))
+        #if total_done_value['per_day__max'] > 0:
+        if total_val > 0:
+            #data_list.append(str(date_va))
+            data_list.append(date_key)
             count = 0
-            tat_da = TatTable.objects.filter(project = prj_id,center= center,date=date_va)
+            #tat_da = TatTable.objects.filter(project = prj_id,center= center,date=date_va)
+            tat_da = TatTable.objects.filter(project = prj_id,center= center,date=date_key)
             tat_met_value = tat_da.aggregate(Sum('met_count'))
             tat_not_met_value = tat_da.aggregate(Sum('non_met_count'))
             met_val = tat_met_value['met_count__sum']
@@ -138,7 +142,12 @@ def tat_graph(date_list, prj_id, center,level_structure_key):
             else:
                 tat_acc = 0
             tat_val_list.append(tat_acc)
+            if sum(tat_val_list):
+                tat_val_list = tat_val_list
+            else:
+                tat_val_list = []
     new_dict['tat_graph_details'] = tat_val_list
+    #new_dict['date'] = data_list
     return new_dict
 
 def workpackets_list(level_structure_key,table_model_name,query_set):
@@ -218,15 +227,14 @@ def worktrack_internal_external_workpackets_list(level_structure_key,table_model
     return volume_list
 
 
-
 def modified_utilization_calculations(center,prj_id,date_list,level_structure_key):
     final_utilization_result = {}
-    final_utilization_result['fte_utilization'] = {}
-    final_utilization_result['fte_utilization']['fte_utilization'] = []
-    final_utilization_result['operational_utilization'] = {}
-    final_utilization_result['operational_utilization']['operational_utilization'] = []
-    final_utilization_result['overall_utilization'] = {}
-    final_utilization_result['overall_utilization']['overall_utilization'] = []
+    final_utilization_result['FTE Utilization'] = {}
+    final_utilization_result['FTE Utilization']['FTE Utilization'] = []
+    final_utilization_result['Operational Utilization'] = {}
+    final_utilization_result['Operational Utilization']['Operational Utilization'] = []
+    final_utilization_result['Overall Utilization'] = {}
+    final_utilization_result['Overall Utilization']['Overall Utilization'] = []
     new_date_list = []
     status = 0
     if level_structure_key.get('sub_project','') == 'All':
@@ -235,11 +243,16 @@ def modified_utilization_calculations(center,prj_id,date_list,level_structure_ke
         status = 1
     if status:
         final_prodictivity, product_date_values, utilization_date_values = {}, {}, {}
-        product_date_values['total_prodictivity'], utilization_date_values['total_utilization'] = [] , [] 
-        for date_va in date_list:
-            total_done_value = RawTable.objects.filter(project=prj_id, center=center, date=date_va).aggregate(Max('per_day'))
-            new_date_list.append(date_va)
-            if total_done_value['per_day__max'] > 0: 
+        product_date_values['total_prodictivity'], utilization_date_values['total_utilization'] = [] , []
+        total_done_value = RawTable.objects.filter(project=prj_id, center=center, date__range=[date_list[0], date_list[-1]]).values('date').annotate(total=Sum('per_day'))
+        values = OrderedDict(zip(map(lambda p: str(p['date']), total_done_value), map(lambda p: str(p['total']), total_done_value)))
+        for date_va, total_val in values.iteritems():
+        #for date_va in date_list:
+            #total_done_value = RawTable.objects.filter(project=prj_id, center=center, date=date_va).aggregate(Max('per_day'))
+            #new_date_list.append(date_va)
+            #if total_done_value['per_day__max'] > 0:
+            if total_val > 0:
+                new_date_list.append(date_va)
                 headcount_details = Headcount.objects.filter(project=prj_id, center=center, date=date_va).aggregate(Sum('billable_hc'),
                                     Sum('billable_agents'),Sum('buffer_agents'),Sum('qc_or_qa'),Sum('teamlead'),
                                     Sum('trainees_and_trainers'),Sum('managers'),Sum('mis'))
@@ -249,7 +262,8 @@ def modified_utilization_calculations(center,prj_id,date_list,level_structure_ke
                     if hc_value == None:
                         headcount_data[hc_key] = 0
                 util_numerator = headcount_data['billable_hc__sum']
-                fte_denominator = headcount_data['billable_agents__sum'] + headcount_data['buffer_agents__sum'] + headcount_data['qc_or_qa__sum'] + headcount_data['teamlead__sum']
+                #fte_denominator = headcount_data['billable_agents__sum'] + headcount_data['buffer_agents__sum'] + headcount_data['qc_or_qa__sum'] + headcount_data['teamlead__sum']
+                fte_denominator = headcount_data['billable_hc__sum'] + headcount_data['buffer_agents__sum'] + headcount_data['qc_or_qa__sum'] + headcount_data['teamlead__sum']
                 operational_denominator  = fte_denominator + headcount_data['trainees_and_trainers__sum']
                 overall_util_denominator = operational_denominator + headcount_data['managers__sum'] + headcount_data['mis__sum']
                 if fte_denominator > 0:
@@ -257,19 +271,19 @@ def modified_utilization_calculations(center,prj_id,date_list,level_structure_ke
                     fte_value = float('%.2f' % round(fte_value, 2))
                 else:
                     fte_value = 0
-                final_utilization_result['fte_utilization']['fte_utilization'].append(fte_value)
+                final_utilization_result['FTE Utilization']['FTE Utilization'].append(fte_value)
                 if operational_denominator > 0:
                     operational_value = (float(float(util_numerator) / float(operational_denominator))) * 100
                     operational_value = float('%.2f' % round(operational_value, 2))
                 else:
                     operational_value = 0
-                final_utilization_result['operational_utilization']['operational_utilization'].append(operational_value)
+                final_utilization_result['Operational Utilization']['Operational Utilization'].append(operational_value)
                 if overall_util_denominator > 0:
                     overall_util_value = (float(float(util_numerator) / float(overall_util_denominator))) * 100
                     overall_util_value = float('%.2f' % round(overall_util_value, 2))
                 else:
                     overall_util_value = 0
-                final_utilization_result['overall_utilization']['overall_utilization'].append(overall_util_value)
+                final_utilization_result['Overall Utilization']['Overall Utilization'].append(overall_util_value)
     return final_utilization_result 
 
 
@@ -328,6 +342,7 @@ def received_volume_week(week_names,productivity_list,final_productivity):
             if week_key not in final_productivity.keys():
                 final_productivity[week_key] = []
     for prod_week_num in week_names:
+        print prod_week_num
         if len(productivity_list.get(prod_week_num,'')) > 0:
             values = productivity_list[prod_week_num]
             flag = isinstance(values.get('Received',""), list) & isinstance(values.get('Completed',""), list) & isinstance(values.get('Opening',""), list)

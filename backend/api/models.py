@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 from django.contrib.auth.models import User
 from django.db import models
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import Group
 
 
 class Center(models.Model):
@@ -14,6 +14,7 @@ class Center(models.Model):
 
 
 class Project(models.Model):
+    #project_choices = (('backoffice', 0), ('voice', 1),)
     name    = models.CharField(max_length=255,db_index=True)
     center  = models.ForeignKey(Center, null=True, db_index=True)
     days_week = models.IntegerField(default=5)
@@ -21,6 +22,8 @@ class Project(models.Model):
     project_db_handlings_choices = (('update','Update'),('aggregate','Aggregate'),('ignore','Ignore'),)
     project_db_handling = models.CharField(max_length=30,choices=project_db_handlings_choices,default='ignore',) 
     sub_project_check = models.BooleanField(default=None)
+    is_voice = models.BooleanField(default = False)
+    display_value = models.BooleanField(default = False)
     class Meta:
         db_table = u'project'
         index_together = (('name', 'center',), ('name', 'sub_project_check', 'center'),)
@@ -92,7 +95,8 @@ class Widgets_group(models.Model):
     #widget_col = models.IntegerField(default=None)
     widget_priority = models.IntegerField()
     is_display = models.BooleanField(default=None)
-    is_drilldown = models.BooleanField(default=None)
+    is_drilldown = models.BooleanField(default = None)
+    display_value = models.BooleanField(default = True)
 
     class Meta:
         db_table = u'Widgets_group'
@@ -520,6 +524,7 @@ class Annotation(models.Model):
     class Meta:
         db_table = u'annotations'
         index_together = (('project', 'center',), ('epoch', 'created_by', 'key'),)
+        unique_together = (('project', 'center', 'epoch', 'key'))
 
     def __unicode__(self):
         return self.epoch

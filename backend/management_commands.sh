@@ -9,7 +9,7 @@ cd /var/www/html/NextPulse/backend
 . venv/bin/activate
 
 
-python manage.py send_report
+python manage.py send_report --settings=backend.prod_settings
 
-python manage.py customer_login
+python manage.py customer_login --settings=backend.prod_settings
 

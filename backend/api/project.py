@@ -5,7 +5,6 @@ from api.models import *
 from api.basics import latest_dates
 from common.utils import getHttpResponse as json_HttpResponse
 
-
 def project(request):
 
     try:
@@ -20,19 +19,26 @@ def project(request):
     final_dict = {}
 
     if 'team_lead' in user_group:
-        team_lead_obj = TeamLead.objects.filter(name_id=request.user.id) 
+        
+        team_lead_obj = TeamLead.objects.filter(name_id=request.user.id).values_list('center', 'project')
+        center, prj_id = [],[]
+        for item in team_lead_obj:
+            center.append(item[0])
+            prj_id.append(item[1])
+        """
+        team_lead_obj = TeamLead.objects.filter(name_id=request.user.id)
         center = team_lead_obj.values_list('center', flat=True)
         prj_id = team_lead_obj.values_list('project', flat=True)
-
+        """
     if 'customer' in user_group:
         select_list = []
-        details = {}
+        details = {}      
         customer_objs = Customer.objects.filter(name_id=request.user.id) 
         center_list = Customer.objects.filter(name_id=request.user.id).values_list('center')
         project_list = Customer.objects.filter(name_id=request.user.id).values_list('project')
         if (len(center_list) & len(project_list)) == 1:
             select_list.append('none')
-        if len(center_list) < 2: 
+        if len(center_list) < 2:  
             center_name = str(Center.objects.filter(id=center_list[0][0])[0])
             for project in project_list:
                 project_name = str(Project.objects.filter(id=project[0])[0])
@@ -53,21 +59,22 @@ def project(request):
                  prj_name = select_list[1].split(' - ')[1]
                  prj_id = Project.objects.filter(name=prj_name).values_list('id','center_id') 
 
+
     if 'nextwealth_manager' in user_group:
         select_list = []
-        center_list = Nextwealthmanager.objects.filter(name_id=request.user.id).values_list('center')
-        if len(center_list) < 2:
-            center_name = str(Center.objects.filter(id=center_list[0][0])[0])
-            center_id = Center.objects.filter(name = center_name)[0].id
+        center_list = Nextwealthmanager.objects.filter(name_id=request.user.id).values_list('center', flat=True)
+        if center_list.count() < 2:
+            center_obj = Center.objects.filter(id=center_list[0])[0]
+            center_name, center_id = center_obj.name, center_obj.id
             project_list = Project.objects.filter(center_id=center_id)
             for project in project_list:
                 project_name = str(project)
                 select_list.append(project_name)
 
-        elif len(center_list) >= 2:
+        elif center_list.count() >= 2:
             for center in center_list:
-                center_name = str(Center.objects.filter(id=center[0])[0])
-                center_id = Center.objects.filter(id=center[0])[0].id
+                center_name = str(Center.objects.filter(id=center)[0])
+                center_id = Center.objects.filter(id=center)[0].id
                 project_list = Project.objects.filter(center_id=center_id)
                 for project in project_list:
                     project_name = str(project)
@@ -82,10 +89,10 @@ def project(request):
 
     if 'center_manager' in user_group:
         select_list = []
-        center_list = Centermanager.objects.filter(name_id=request.user.id).values_list('center')
-        if len(center_list) < 2:
-            center_name = str(Center.objects.filter(id=center_list[0][0])[0])
-            center_id = Center.objects.filter(name = center_name)[0].id
+        center_list = Centermanager.objects.filter(name_id=request.user.id).values_list('center', flat=True)        
+        if center_list.count() < 2:
+            center_obj = Center.objects.filter(id=center_list[0])[0]
+            center_name, center_id = center_obj.name, center_obj.id
             project_list = Project.objects.filter(center_id=center_id)
             for project in project_list:
                 project_name = str(project)
@@ -93,8 +100,8 @@ def project(request):
 
         elif len(center_list) >= 2:
             for center in center_list:
-                center_name = str(Center.objects.filter(id=center[0])[0])
-                center_id = Center.objects.filter(id=center[0])[0].id
+                center_name = str(Center.objects.filter(id=center)[0])
+                center_id = Center.objects.filter(id=center)[0].id
                 project_list = Project.objects.filter(center_id=center_id)
                 for project in project_list:
                     project_name = str(project)
@@ -114,12 +121,12 @@ def project(request):
                 prj_name = select_list[0]
                 prj_id = Project.objects.filter(name=prj_name).values_list('id','center_id') 
 
-
-
     if user_group in ['nextwealth_manager','center_manager','customer']:
-        widgets_id = Widgets_group.objects.filter(User_Group_id=user_group_id, project=prj_id[0][0],center=prj_id[0][1]).values('widget_priority', 'is_drilldown','is_display', 'widget_name','col')
+        widgets_id = Widgets_group.objects.filter(User_Group_id=user_group_id, project=prj_id[0][0],center=prj_id[0][1]).values('widget_priority', 'is_drilldown','is_display', 'widget_name','col', 'display_value')
+        project_display_value = Project.objects.filter(id=prj_id[0][0], center=prj_id[0][1]).values_list('display_value', flat=True)[0]
     else:
-        widgets_id = Widgets_group.objects.filter(User_Group_id=user_group_id, project=prj_id,center=center).values('widget_priority', 'is_drilldown','is_display', 'widget_name','col')
+        widgets_id = Widgets_group.objects.filter(User_Group_id=user_group_id, project__in=prj_id,center__in=center).values('widget_priority', 'is_drilldown','is_display', 'widget_name','col', 'display_value')
+        project_display_value = Project.objects.filter(id__in=prj_id, center__in=center).values_list('display_value', flat=True)[0]
 
     for data in widgets_id:
         if data['is_display'] == True:
@@ -127,7 +134,7 @@ def project(request):
             if user_group in ['nextwealth_manager','center_manager','customer']:
                 alias_name = Alias_Widget.objects.filter(project=prj_id[0][0],widget_name_id=data['widget_name']).values('alias_widget_name')
             else:
-                alias_name = Alias_Widget.objects.filter(project=prj_id,widget_name_id=data['widget_name']).values('alias_widget_name')
+                alias_name = Alias_Widget.objects.filter(project__in=prj_id,widget_name_id=data['widget_name']).values('alias_widget_name')
             new_dict ={}
             if len(alias_name) > 0:
                 if alias_name[0]['alias_widget_name']:
@@ -144,9 +151,13 @@ def project(request):
             wid_dict['widget_priority'] = data['widget_priority']
             wid_dict['is_drilldown'] = data['is_drilldown']
             wid_dict['col'] = data['col']
-            list_wid.append(wid_dict)
+            if project_display_value == True and data['display_value'] == True:
+                wid_dict['display_value'] = True
+            else:
+                wid_dict['display_value'] = False
+            list_wid.append(wid_dict)            
     sorted_dict = sorted(list_wid, key=lambda k: k['widget_priority'])
-    lay_out_order = [] 
+    lay_out_order = []
     for i in sorted_dict:
         config_name = i.pop('config_name')
         lay_out_order.append(config_name)
@@ -293,4 +304,5 @@ def project(request):
 
         details['dates'] = new_dates
         return json_HttpResponse(details)
+
 

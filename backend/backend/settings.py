@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'api',
     'peoples_dashboard',
+    'voice_service',
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -121,6 +122,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
+#TIME_ZONE = 'Asia/Kolkata'
 TIME_ZONE = 'UTC'
 
 USE_I18N = True
@@ -140,3 +142,9 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 CSRF_COOKIE_SECURE = False
+
+
+
+#DBBACKUP_STORAGE = 'dbbackup.storage.filesystem_storage'
+DBBACKUP_STORAGE = 'django.core.files.storage.FileSystemStorage'
+DBBACKUP_STORAGE_OPTIONS = {'location': '/home/headrun/backups/'}

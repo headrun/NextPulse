@@ -42,7 +42,7 @@ DEFAULT_LOCAL_DATABASE_CONFIG = {
     },
     'NAME': 'nextpulse',
     'USER': 'root',
-    'PASSWORD': 'hdrn59!',
+    'PASSWORD': 'root',
     'HOST': 'localhost',
 }
 

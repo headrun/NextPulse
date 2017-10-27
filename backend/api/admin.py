@@ -7,11 +7,9 @@ class ProjectAdmin(admin.ModelAdmin):
 admin.site.register(Project,ProjectAdmin)
 
 #admin.site.register(Annotation)
-
 class AnnotationAdmin(admin.ModelAdmin):
     list_display = ['project','created_by','dt_created']
 admin.site.register(Annotation,AnnotationAdmin)
-
 class CenterAdmin(admin.ModelAdmin):
     list_display = ['name']
 admin.site.register(Center,CenterAdmin)
@@ -58,7 +56,8 @@ admin.site.register(Widget_Mapping,Widget_MappingAdmin)
 '''
 
 class Widgets_groupAdmin(admin.ModelAdmin):
-    list_display = ['User_Group','widget_name','widget_priority','is_display','is_drilldown','project','col']
+    list_display = ['User_Group','widget_name','widget_priority','is_display','is_drilldown','display_value','project','col']
+    #list_display = ['User_Group','widget_name','widget_priority','is_display','is_drilldown','project','col']
     list_filter = ['User_Group','project']
 admin.site.register(Widgets_group,Widgets_groupAdmin)
 

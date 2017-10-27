@@ -50,7 +50,11 @@
 
         var new_annotation = !data;
 
+        that.new_annotation = new_annotation;
+
         if(new_annotation){
+
+            that.annot_saved = false;
 
             if (graph_name.indexOf("Week") > 0) {
 
@@ -154,13 +158,14 @@
         $("body").append(_get_popover_tmpl(data));
 
         this.$popover = $("#annotation-popover-" + data.id);
+        //this.on("mouseleave", on_mouseleave);
         var get_xpos = function(){
 
             //xpos is graph xpos  - half popover width - popover borderwidth + x offset
             //var wid_index = $graph[0].outerHTML.indexOf('width');
             //var wid_beg = $graph[0].outerHTML.slice(wid_index+7,wid_index+10);
             //return $graph.offset().left + parseInt(that.$el.attr("x")) - that.$popover.width()/2 - 2 + 20;
-            
+
             //return $($graph).position().left + parseInt(that.$el.attr("x")) - that.$popover.width()/2 - 2 + 20;
             //return parseInt(that.$el.attr("x")) - that.$popover.width()/2 - 2 + 20;
             return $graph.offset().left + parseInt(that.$el.attr("x")) - that.$popover.width()/2 - 2 + 20;
@@ -176,25 +181,69 @@
 
             //return $($graph).position().top + parseInt(that.$el.attr("y")) - that.$popover.height() - 2 + 40;
             //return parseInt(that.$el.attr("y")) - that.$popover.height() - 2 + 40;
-            return $graph.offset().top + parseInt(that.$el.attr("y")) - that.$popover.height() - 2 + 40;
+            if (that.new_annotation) {
+                return $graph.offset().top +parseInt(that.$el.attr('y')) - that.$popover.height();
+            }
+            else {
+                return $graph.offset().top + parseInt(that.$el.attr("y")) - that.$popover.height() - 2 + 40;
+            }
         }
-
         var on_mouseenter = function(){
-            show_annotation();
+            show_annotation(that.new_annotation);
             setCaret(that.$popover.find("p").get(0));
         };
 
         var on_mouseleave = function(){
-            
+            if(that.new_annotation){
+                if (that.annot_saved !== true){
+                    swal({
+                      title: "Annotation is not saved yet!",
+                      text: "Do you want to save it?",
+                      type: "warning",
+                      showCancelButton: true,
+                      confirmButtonColor: "#DD6B55",
+                      confirmButtonText: "Yes, save it!",
+                      cancelButtonText: "No, Delete pls!",
+                      closeOnConfirm: false,
+                      closeOnCancel: false
+                    }, 
+
+                    function(isConfirm){
+                        if (isConfirm) {
+                            that.save_annotation();
+                            that.$popover.removeClass("in").removeClass("show");
+                            swal("Saved!", "Your annotation is saved.", "success");
+                        }
+                        else {
+                            that.$popover.find("p").blur();
+                            that.$popover.removeClass("in").removeClass("show");
+                            that.destroy();
+                            swal("Deleted!", "Your annotation has been deleted.", "success");
+                        }
+                    });
+                    that.$popover.find("p").blur();
+                    $(this).removeClass("in").removeClass("show");
+                } else {
+                    that.$popover.find("p").blur();
+                    //$(this).removeClass("in").removeClass("show");
+                    $(this).removeClass("show");
+                }
+            }else{
+                that.$popover.removeClass("in").removeClass("show");
+            }
+        };
+
+        /*this.cancel_annotation = function(){
+            console.log(data);
             that.$popover.find("p").blur();
             $(this).removeClass("in").removeClass("show");
-        };
+        };*/
 
         var on_keydown = function(e){
 
             var yPos = get_ypos();
             that.$popover.css({"top": (yPos) + "px"});
-            show_annotation();
+            show_annotation(that.new_annotation);
 
             if($.inArray(e.which, keydown_whitelist) === -1 && $.inArray(e.which, blacklist_keys) >= 0){
                 e.preventDefault();
@@ -221,14 +270,23 @@
 
             data.text = text;
             that.text = text;
-            if(that.created){
+            /*if(that.created){
                that.update(data, function(){
 
                     $loading.removeClass("show");
                 });
-            }
+            }*/
 
         };
+
+        var save_annotation = function(e){
+            that.save_annotation(true);
+        }
+
+        /*var cancel_annotation = function(e){
+
+            that.cancel_annotation();
+        }*/
 
         var delete_annotation = function(e){
 
@@ -248,12 +306,16 @@
 
             $("body > div.annotation-popover").filter(".show").removeClass("show");
             if (vari == 'new') {
-                var xPos = get_xpos()-46.64;
-                var yPos = (get_ypos()-10)/2;
+                var xPos = get_xpos()-8;
+                var yPos = get_ypos()+20;
             }
             else {
                 var xPos = get_xpos()-10;
                 var yPos = get_ypos()-10;
+            }
+            if (vari == true) {
+                var xPos = get_xpos()-8;
+                var yPos = get_ypos()+20;
             }
             that.$popover.css({"top": (yPos) + "px", "left": (xPos) + "px"}).addClass("show").addClass("in");
             //that.$popover.css({"top": 99 + "px", "left": 270 + "px"}).addClass("show").addClass("in");
@@ -347,11 +409,15 @@
         this.bind_events = function(){
 
             this.$el.on("mouseenter", on_mouseenter);
-
             this.$popover.on("mouseleave", on_mouseleave)
                          .on("keydown", "div.popover-content > p", on_keydown)
+                         //.on("blur", "div.popover-content > p", on_mouseleave)
                          .on("keyup", "div.popover-content > p", on_keyup)
+                         .on("click", "span.glyphicon-floppy-disk", function(){
+                                save_annotation(true);
+                            })
                          .on("click", "span.glyphicon-trash", delete_annotation);
+                         //.on("click", "span.glyphicon-remove", cancel_annotation);
 
             $("body").on(data.graph_name + ".redraw", redraw)
                      .on("annotations.hide", hide_annotation_marker)
@@ -359,7 +425,7 @@
         };
 
         this.bind_events();
-
+        
         this.unbind_events = function(){
 
             this.$el.off("mouseenter", on_mouseenter);
@@ -367,7 +433,9 @@
             this.$popover.off("mouseleave", on_mouseleave)
                          .off("keydown", "div.popover-content > p", on_keydown)
                          .off("keyup", "div.popover-content > p", on_keyup)
+                         .off("click", "span.glyphicon-floppy-disk", save_annotation)
                          .off("click", "span.glypglyphicon-trashh", delete_annotation);
+                         //.off("click", "span.glyphicon-remove", cancel_annotation);
 
             $("body").off(data.graph_name + ".redraw", redraw)
                      .off("annotations.hide", hide_annotation_marker)
@@ -402,33 +470,231 @@
 
             return this.update();
         }
-
+        
         this.destroy = function(){
-
             this.unbind_events();
             this.collection = _.without(this.collection, this);
             this.$el.remove();
         }
 
-        var delete_annotaion = function(){
+        /*var delete_annotaion = function(){
 
-            return $.post("/api/annotations/update/", _.extend({"action": "delete"}, data), function(resp){
+              swal({
+                  title: "Are you sure?",
+                  text: "Do you want to delete the annotation!",
+                  type: "warning",
+                  showCancelButton: true,
+                  confirmButtonColor: "#DD6B55",
+                  confirmButtonText: "Yes, delete it!",
+                  cancelButtonText: "No, cancel pls!",
+                  closeOnConfirm: false,
+                  closeOnCancel: false
+                }, 
 
-            });
-        };
+                function(isConfirm){
+                  if (isConfirm) {
+                    $.post("/api/annotations/update/", _.extend({"action": "delete"}, data), function(resp){
+                      if (JSON.parse(resp.result).message == "deleted successfully") {
+                        swal("Deleted!", "Your annotation has been deleted.", "success");
+                      }
+                    });
+                  }
+                  else {
+                    swal("Saved!", "Your annotation is safe.", "success");
+                  }
+                });
+ 
+            //return $.post("/api/annotations/update/", _.extend({"action": "delete"}, data), function(resp){
 
-        var save_annotation = function(){
+            //});
+        };*/
 
+        this.save_annotation = function(disk_click_flag = false){
+           
+           /*swal({
+                  title: "Are you sure?",
+                  text: "Do you want to save it?",
+                  type: "warning",
+                  showCancelButton: true,
+                  confirmButtonColor: "#DD6B55",
+                  confirmButtonText: "Yes, save it!",
+                  cancelButtonText: "No, Delete pls!",
+                  closeOnConfirm: false,
+                  closeOnCancel: false
+                },  
+
+                function(isConfirm){
+                    if (isConfirm) {
+                        //that.save_annotation();
+                        that.$popover.removeClass("in").removeClass("show");
+                        //this.$popover.find("i.annotation-loading").addClass("show");
+
+                    $.post("/api/annotations/create/", data, function(resp){
+
+                        resp = resp.result;
+
+                        var id = resp.id,
+                            old_id = that.id;
+
+                        data.id  = id;
+
+                        that.$el.attr({"id": that.$el.attr("id").replace(old_id, id)});
+                        that.$popover.attr({"id": that.$popover.attr("id").replace(old_id, id)});
+
+                        that.created = true;
+
+                    }).fail(function(){
+                         $.post("/api/annotations/update/", _.extend({"action": "update"}, data), function(resp){
+
+                       if (JSON.parse(resp).message == "successfully updated") {
+
+                            that.annot_saved = true;
+
+                            }   
+                       }); 
+                        //buzz_data.utils.show_message("Unable to create annotation");
+                        //that.delete_annotation();
+                    }).always(function(){
+
+                        that.$popover.find("i.annotation-loading").removeClass("show");
+                    }).then(function() {
+                       $.post("/api/annotations/update/", _.extend({"action": "update"}, data), function(resp){
+
+                       if (JSON.parse(resp).message == "successfully updated") {
+
+                            that.annot_saved = true;
+
+                            }
+                       });
+
+                    });
+
+                        swal("Saved!", "Your annotation is saved.", "success");
+                    }   
+                    else {
+                        that.$popover.find("p").blur();
+                        that.$popover.removeClass("in").removeClass("show");
+                        //that.destroy();
+                        swal("Deleted!", "Your annotation has been deleted.", "success");
+                    }   
+                });*/
+        
+        if(new_annotation){
+
+            //this.$popover.find("i.annotation-loading").addClass("show");
+               
+            $.post("/api/annotations/create/", data, function(resp){
+            
+                /*if (resp.result == 'Annotation already exist'){
+                        swal(resp.result);
+                        that.$popover.find("p").blur();
+                        that.$popover.removeClass("in").removeClass("show");
+                        that.destroy();
+                        return;
+                }*/
+                that.annot_saved = true; 
+                resp = resp.result;
+                if(resp == 'Annotation already exist'){
+                    that.showAlert('Annotation already exist! Please try with another text');
+                    return true;
+                }
+                var id = resp.id,
+                    old_id = that.id;
+
+                data.id  = id;
+                that.$el.attr({"id": that.$el.attr("id").replace(old_id, id)});
+                that.$popover.attr({"id": that.$popover.attr("id").replace(old_id, id)});
+                that.created = true;
+                
+                if(disk_click_flag){
+                    that.showAlert('Annotation is saved successfully');
+                }
+
+            }).fail(function(){
+                $.post("/api/annotations/update/", _.extend({"action": "update"}, data), function(resp){
+
+               if (JSON.parse(resp).message == "successfully updated") {
+
+                    that.annot_saved = true;
+
+                    }
+               });
+            
+            });/*.then(function() {
+               $.post("/api/annotations/update/", _.extend({"action": "update"}, data), function(resp){
+
+               if (JSON.parse(resp).message == "successfully updated") {
+
+                    that.annot_saved = true;
+                    
+                    }
+               });
+
+            });*/
+        }else{
+
+            this.created = true;
+        
             return $.post("/api/annotations/update/", _.extend({"action": "update"}, data), function(resp){
                 
+               if (JSON.parse(resp).message == "successfully updated") {
+                
+                    that.annot_saved = true;
+
+                    if(disk_click_flag){
+                        that.showAlert('Annotation has been updated successfully');
+                    }
+                   
+                }
             });
+        }
         };
+
+        this.showAlert = function(msg){
+          swal({
+              title: msg,
+              type: "success",
+              showConfirmButton: true,
+              confirmButtonColor: "#DD6B55",
+              closeOnConfirm: true,
+          });  
+        } 
 
         this.delete_annotation = function(callback) {
 
             this.destroy();
 
-            var delete_annotation = delete_annotaion();
+              swal({
+                  title: "Are you sure?",
+                  text: "Do you want to delete the annotation!",
+                  type: "warning",
+                  showCancelButton: true,
+                  confirmButtonColor: "#DD6B55",
+                  confirmButtonText: "Yes, delete it!",
+                  cancelButtonText: "No, cancel pls!",
+                  closeOnConfirm: false,
+                  closeOnCancel: false
+                },
+
+                function(isConfirm){
+                  if (isConfirm) {
+                    $.post("/api/annotations/update/", _.extend({"action": "delete"}, data), function(resp){
+                      if (JSON.parse(resp.result).message == "deleted successfully") {
+                        that.$popover.remove();
+                        that.$el.remove();
+                        swal("Deleted!", "Your annotation has been deleted.", "success");
+                        
+                      }
+                    });
+                  }
+                  else {
+                    swal("Saved!", "Your annotation is safe.", "success");
+                  }
+                });
+
+                
+
+            /*var delete_annotation = delete_annotaion();
 
             var $loading = this.$popover.find("i.annotation-loading").addClass("show");
 
@@ -443,19 +709,19 @@
                 buzz_data.utils.show_message("Unable to delete annotation");
                 $loading.removeClass("show");
                 that.bind_events();
-            });
+            });*/
 
             return this;
         }
 
-        if(new_annotation){
+       /* if(new_annotation){
 
             this.$popover.find("i.annotation-loading").addClass("show");
 
             $.post("/api/annotations/create/", data, function(resp){
 
                 resp = resp.result;
-                    
+
                 var id = resp.id,
                     old_id = that.id;
 
@@ -477,7 +743,7 @@
         }else{
 
             this.created = true;
-        }
+        }*/
 
         this.collection.push(this);
 
