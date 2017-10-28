@@ -46,4 +46,8 @@ urlpatterns = [
     url(r'^err_field_graph',apiviews.err_field_graph),
     url(r'^tat_data',apiviews.tat_data),
     url(r'^get_packet_details', apiviews.get_packet_details),
+    url(r'^location', apiviews.location),
+    url(r'^skill', apiviews.skill),
+    url(r'^disposition', apiviews.disposition),
+    url(r'^status', apiviews.status)
 ]

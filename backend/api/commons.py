@@ -25,6 +25,7 @@ def data_dict(variable):
     main_data_dict['work_packet'] = variable.get('work_packet',[])
     main_data_dict['sub_project'] = variable.get('sub_project','')
     main_data_dict['sub_packet'] = variable.get('sub_packet','')
+    #import pdb;pdb.set_trace()
     dwm_dict= {}
     date_list=num_of_days(to_date,from_date)
     type = variable.get('type','')
@@ -172,15 +173,18 @@ def get_packet_details(request):
         if '->' not in dispo:
             dispo_list.append(dispo)
     if location_list:
-        location_list.append('all')
+        location_list.append('All')
+        location_list.sort()
     else:
         location_list = ''
     if skill_list:
-        skill_list.append('all')
+        skill_list.append('All')
+        skill_list.sort()
     else:
         skill_list = ''
     if dispo_list:
-        dispo_list.append('all')
+        dispo_list.append('All')
+        dispo_list.sort()
     else:
         dispo_list = ''
     final_details = {}
