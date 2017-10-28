@@ -56,7 +56,14 @@
 
                     }
                 });  
-             }); 
+             });
+
+            self.filterVoiceChange = '';
+
+            self.filterVoiceChange = function(type) {
+                console.log('Location changes');
+            }
+ 
 
              self.annotations_data = {};
 
@@ -143,7 +150,6 @@
                     }            
             }               
 
- 
              $('#annotation_button').click(function(){
 
                 var hasAnnotations = $("body").hasClass("add_annotation");
@@ -151,8 +157,7 @@
                 $("body")[!hasAnnotations ? "addClass"
                                           : "removeClass"]('add_annotation');
              });
-
-             $('#select').daterangepicker({
+             $('.select').daterangepicker({
                     "autoApply": true,
                     "locale": {
                         "format": 'YYYY-MM-DD',
@@ -3406,13 +3411,46 @@
                         var fin_work_packet = result.data.result.fin.work_packet;
                         self.is_voice_flag = result.data.result.is_voice;
                         if (self.is_voice_flag) {
-                            self.voice_filters.Location = result.data.result['location'];
-                            self.voice_filters.Skill = result.data.result['skill'];
-                            self.voice_filters.Disposition = result.data.result['disposition'];
+                            angular.element(document.querySelector('#voice_filter_div')).removeClass('hide');
+                            angular.extend(self.voice_filters.Location, result.data.result['location']);
+                            angular.extend(self.voice_filters.Skill, result.data.result['skill']);
+                            angular.extend(self.voice_filters.Disposition, result.data.result['disposition']);
+
+                            self.LocationFilter = document.getElementById("Location");
+                            self.SkillFilter = document.getElementById("Skill");
+                            self.DispositionFilter = document.getElementById("Disposition");
+
+                            angular.forEach(self.voice_filters.Location, function(location_value) {
+                                self.LocationFilter.options[self.LocationFilter.options.length] = new Option(location_value, location_value);
+                            });
+
+                            angular.forEach(self.voice_filters.Skill, function(skill_value) {
+                                self.SkillFilter.options[self.SkillFilter.options.length] = new Option(skill_value, skill_value);
+                            });
+
+                            angular.forEach(self.voice_filters.Disposition, function(disposition_value) {
+                                self.DispositionFilter.options[self.DispositionFilter.options.length] = new Option(disposition_value, disposition_value);
+                            });
+
+                            self.LocationFilter.onchange = function () {
+                                console.log(self.LocationFilter.value);
+                            }
+
+                            self.SkillFilter.onchange = function () {
+                                console.log(self.SkillFilter.value);
+                            }
+
+                            self.DispositionFilter.onchange = function () {
+                                console.log(self.DispositionFilter.value);
+                            }
+
                             if(!(fin_sub_project || fin_sub_packet || fin_work_packet )) {
                                 self.packet_hierarchy_list = [];
                             }
+                        } else {
+                            angular.element(document.querySelector('#voice_filter_div')).addClass('hide');
                         }
+
                         self.global_packet_values = result.data.result.fin;
                         self.drop_list = [];
                         self.top_employee_details =  result.data.result.top_five_employee_details;
@@ -3422,6 +3460,7 @@
                         self.sub_pro_sel = document.getElementById("0");
                         self.wor_pac_sel = document.getElementById("1");
                         self.sub_pac_sel = document.getElementById("2");
+
                         $("#0, #1, #2").unbind("change");
 
                             if (fin_sub_project) {
@@ -3449,6 +3488,7 @@
                         for (var sub_pro in self.drop_list) {
                             self.sub_pro_sel.options[self.sub_pro_sel.options.length] = new Option(sub_pro, sub_pro);
                         }
+
                         self.sub_pro_sel.onchange = function () {
                             self.wor_pac_sel.length = 1;
                             self.sub_pac_sel.length = 1;
@@ -5445,6 +5485,9 @@
             self.start;
             self.end;
             self.voice_filters = {};
+            self.voice_filters['Location'] = [];
+            self.voice_filters['Skill'] = [];
+            self.voice_filters['Disposition'] = [];
             }],
 
             "bindings": {
