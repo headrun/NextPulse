@@ -32,6 +32,7 @@
              var drop_down_link = '/api/dropdown_data/';
              var landing_pro = $state.params.selpro;
              self.pro_landing_url = 'api/project/?name='+landing_pro;
+            
 
              self.project_live = ''
              self.center_live = ''
@@ -178,6 +179,29 @@
 
                });
 
+            self.voice_widget_function = function(result) {
+                angular.extend(self.chartOptions47, {
+                                    xAxis: {
+                                        categories: result.result.date,
+                                    },
+                                    plotOptions: {
+                                        series: {
+                                          dataLabels: {
+                                            enabled: true,
+                                            formatter: function () {
+                                                return Highcharts.numberFormat(this.y, null, null, ",");
+                                            }
+                                          },
+                                          allowPointSelect: true,
+                                          cursor: 'pointer',
+                                        }
+                                    },
+                                    series: result.result.location,
+                 })
+                $('.widget-42a').removeClass('widget-loader-show');
+                $('.widget-42b').removeClass('widget-data-hide');
+            }
+
              self.main_widget_function = function(callback, packet) {
                     
                     self.center_live = callback[2];
@@ -187,7 +211,7 @@
                     $('#emp_widget').hide();
 
                     $('#volume_table').hide();
-                   
+
                     self.data_to_show = '?&project='+callback[3]+'&center='+callback[2]+'&from='+ callback[0]+'&to='+ callback[1]+packet+'&type=';
                     self.static_widget_data = '&project='+callback[3]+'&center='+callback[2]
                     self.common_for_all = self.data_to_show + self.day_type;
@@ -198,13 +222,14 @@
                     var agent_cate_error = '/api/agent_cate_error/'+self.common_for_all;
                     var nw_exce = '/api/nw_exce/'+self.common_for_all;
                     var overall_exce = '/api/overall_exce'+self.common_for_all;
+                    self.voice_filter = '?&project='+callback[3]+'&center='+callback[2]+'&from='+ callback[0]+'&to='+ callback[1] + '&type=';
+                    self.locationValue = 'All';
+                    self.skillValue = 'All';
+                    self.dispositionValue = 'All';
 
                     self.ajax_for_role = function() {
-
-                      $http({method: "GET", url: self.pro_landing_url}).success(function(result){
-
+                      $http({ method: "GET", url: self.pro_landing_url }).success(function(result) {
                         self.role_for_perm = result.result.role;
-
                       });
                     }
 
@@ -223,7 +248,7 @@
                           $('.popover-title').show();
                         }
                     }
-
+                    
                     self.allo_and_comp = function(final_work, type, name) {
 
                         if (type == undefined) {
@@ -3291,30 +3316,36 @@
                 });
 		}
 
+    
+        if(false) {        
+
         $q.all([self.allo_and_comp(undefined, undefined, undefined), self.utill_all(undefined, undefined, undefined),
-       self.productivity(undefined, undefined), self.prod_avg(undefined, undefined)]).then(function(){
+            self.productivity(undefined, undefined), self.prod_avg(undefined, undefined)]).then(function(){
 
-   $q.all([self.pareto_category_error(pareto_cate_error) ,self.agent_category_error(agent_cate_error), 
-           self.main_prod(undefined, undefined, undefined), self.category_error(cate_error)]).then(function(){
+            $q.all([self.pareto_category_error(pareto_cate_error) ,self.agent_category_error(agent_cate_error), 
+                self.main_prod(undefined, undefined, undefined), self.category_error(cate_error)]).then(function(){
 
-       $q.all([self.from_to(undefined, undefined, undefined) ,self.error_bar_graph(error_bar_graph),
+            $q.all([self.from_to(undefined, undefined, undefined) ,self.error_bar_graph(error_bar_graph),
                self.pre_scan(undefined, undefined), self.nw_exce(undefined, undefined)]).then(function(){
 
-           $q.all([self.overall_exce(undefined, undefined), self.upload_acc(undefined, undefined),
+            $q.all([self.overall_exce(undefined, undefined), self.upload_acc(undefined, undefined),
                    self.mont_volume(undefined, undefined), self.fte_graphs(undefined, undefined, undefined)]).then(function(){
 
               $q.all([self.error_field_graph(err_field_graph), self.tat_data(undefined, undefined),
-              self.static_data_call(static_ajax)]).then(function(){                                                               
+                self.static_data_call(static_ajax)]).then(function(){                                                               
                     self.annot_perm();                                                                                                    
                });                                        
 
-           });
+            });
 
-       });
+            });
 
-   });
+            });
 
-});
+        });
+
+
+        }
 
             }
 
@@ -3375,7 +3406,8 @@
                     'self.chartOptions43':self.chartOptions43,
                     'self.chartOptions44':self.chartOptions44,
                     'self.chartOptions45':self.chartOptions45,
-                    'self.chartOptions46':self.chartOptions46
+                    'self.chartOptions46':self.chartOptions46,
+                    'self.chartOptions47':self.chartOptions47
                     };
 
 
@@ -3432,20 +3464,34 @@
                                 self.DispositionFilter.options[self.DispositionFilter.options.length] = new Option(disposition_value, disposition_value);
                             });
 
-                            self.LocationFilter.onchange = function () {
-                                console.log(self.LocationFilter.value);
-                            }
-
-                            self.SkillFilter.onchange = function () {
-                                console.log(self.SkillFilter.value);
-                            }
-
-                            self.DispositionFilter.onchange = function () {
-                                console.log(self.DispositionFilter.value);
-                            }
-
                             if(!(fin_sub_project || fin_sub_packet || fin_work_packet )) {
                                 self.packet_hierarchy_list = [];
+                            }
+
+                            if(!(fin_sub_project || fin_sub_packet || fin_work_packet ) && self.is_voice_flag) {
+                                self.ajaxVoiceFilter = function() {
+                                    var voice_filter_ajax = '/api/location'+ self.voice_filter + self.day_type + '&location=' + self.locationValue + '&skill=' + self.skillValue + '&disposition=' + self.dispositionValue;
+                                    $http({ method: "GET", url: voice_filter_ajax }).success(function(result) {
+                                        self.voice_widget_function(result);
+                                    })
+                                }
+                                self.LocationFilter.onchange = function () {
+                                    //location_value
+                                    self.locationValue = self.LocationFilter.value;
+                                    self.ajaxVoiceFilter();
+                                    //self.main_widget_function(self.call_back, final_work);
+                                }
+                                self.SkillFilter.onchange = function () {
+                                    self.skillValue = self.SkillFilter.value;
+                                    self.ajaxVoiceFilter();
+                                    //self.main_widget_function(self.call_back, final_work);
+                                }
+                                self.DispositionFilter.onchange = function () {
+                                    self.dispositionValue = self.DispositionFilter.value;
+                                    self.ajaxVoiceFilter();
+                                    //self.main_widget_function(self.call_back, final_work);
+                                }
+                                self.ajaxVoiceFilter();
                             }
                         } else {
                             angular.element(document.querySelector('#voice_filter_div')).addClass('hide');
@@ -3694,7 +3740,6 @@
                     var final_work = '';
                     self.main_widget_function(callback, final_work);
                     return callback;
-
             }).then(function(callback){
 
                 self.dateType = function(key,all_data,name,button_clicked){
@@ -3728,7 +3773,8 @@
                     "self.chartOptions39":self.chartOptions39,
                     "self.chartOptions43":self.chartOptions43,
                     "self.chartOptions44":self.chartOptions44,
-                    "self.chartOptions31":self.chartOptions31
+                    "self.chartOptions31":self.chartOptions31,
+                    "self.chartOptions47":self.chartOptions47,
                 }
 
                 self.render_data = obj[all_data];
@@ -4043,8 +4089,8 @@
                     'self.chartOptions43':self.chartOptions43,
                     'self.chartOptions44':self.chartOptions44,
                     'self.chartOptions45':self.chartOptions45,
-                    'self.chartOptions46':self.chartOptions46
-
+                    'self.chartOptions46':self.chartOptions46,
+                    'self.chartOptions47':self.chartOptions47
                     };
                     var final_layout_list = [];
                     for (var single in self.layout_list){
@@ -5123,6 +5169,44 @@
                                     "<b>" + this.series.name + "</b> : " + Highcharts.numberFormat(this.y, null, null, ",");
                            }
                },
+            plotOptions:{
+                series:{
+                    allowPointSelect: true,
+                    cursor: 'pointer',
+                point: {
+                    events:{
+                    }
+                }
+                }
+            }
+            };
+
+            self.chartOptions47 = {
+            chart: {
+                type: 'column',
+                backgroundColor: "transparent"
+             },   
+            title: {
+                text: ''
+            },   
+            subtitle: {
+                text: ''
+            },   
+            yAxis: {
+                gridLineColor: 'a2a2a2',
+                min: 0,
+                title: {
+                    text: ''
+                }
+            },   
+            tooltip: {
+                valueSuffix: '',
+
+                formatter: function () { 
+                             return "<small>" + this.x + "</small><br/>" +
+                                    "<b>" + this.series.name + "</b> : " + Highcharts.numberFormat(this.y, null, null, ",");
+                           }
+               },   
             plotOptions:{
                 series:{
                     allowPointSelect: true,
