@@ -3310,7 +3310,6 @@
 		}
 
     
-        if(false) {        
 
         $q.all([self.allo_and_comp(undefined, undefined, undefined), self.utill_all(undefined, undefined, undefined),
             self.productivity(undefined, undefined), self.prod_avg(undefined, undefined)]).then(function(){
@@ -3338,7 +3337,6 @@
         });
 
 
-        }
 
             }
 
