@@ -172,27 +172,43 @@
 
                });
 
-            self.voice_widget_function = function(result) {
-                angular.extend(self.chartOptions47, {
-                                    xAxis: {
-                                        categories: result.result.date,
-                                    },
-                                    plotOptions: {
-                                        series: {
-                                          dataLabels: {
-                                            enabled: true,
-                                            formatter: function () {
-                                                return Highcharts.numberFormat(this.y, null, null, ",");
-                                            }
-                                          },
-                                          allowPointSelect: true,
-                                          cursor: 'pointer',
-                                        }
-                                    },
-                                    series: result.result.location,
-                 })
-                $('.widget-42a').removeClass('widget-loader-show');
-                $('.widget-42b').removeClass('widget-data-hide');
+            self.voice_widget_function = function(result, voiceFilterType) {
+                if(voiceFilterType == 'location') {
+                    var chartOptions = self.chartOptions47;
+                    var chartSeries = result.result.location;
+                    var widgetA = '.widget-42a';
+                    var widgetB = '.widget-42b';
+                } else if (voiceFilterType == 'skill') {
+                    var chartOptions = self.chartOptions48;
+                    var chartSeries = result.result.skill;
+                    var widgetA = '.widget-43a';
+                    var widgetB = '.widget-43b';
+                } else if (voiceFilterType == 'disposition') {
+                    var chartOptions = self.chartOptions49;
+                    var chartSeries = result.result.disposition;
+                    var widgetA = '.widget-44a';
+                    var widgetB = '.widget-44b';
+                }
+                angular.extend(chartOptions, {
+                    xAxis: {
+                        categories: result.result.date,
+                    },
+                    plotOptions: {
+                        series: {
+                          dataLabels: {
+                            enabled: true,
+                            formatter: function () {
+                                return Highcharts.numberFormat(this.y, null, null, ",");
+                            }
+                          },
+                          allowPointSelect: true,
+                          cursor: 'pointer',
+                        }
+                    },
+                    series: chartSeries
+                })
+                $(widgetA).removeClass('widget-loader-show');
+                $(widgetB).removeClass('widget-data-hide');
             }
 
              self.main_widget_function = function(callback, packet) {
@@ -215,19 +231,20 @@
                     var agent_cate_error = '/api/agent_cate_error/'+self.common_for_all;
                     var nw_exce = '/api/nw_exce/'+self.common_for_all;
                     var overall_exce = '/api/overall_exce'+self.common_for_all;
+                    //Voice Filter Default Parameters
                     self.voice_filter = '?&project='+callback[3]+'&center='+callback[2]+'&from='+ callback[0]+'&to='+ callback[1] + '&type=';
                     self.locationValue = 'All';
                     self.skillValue = 'All';
                     self.dispositionValue = 'All';
-
+                    self.voiceFilterType = 'location';
+                    //To get User Role
                     self.ajax_for_role = function() {
                       $http({ method: "GET", url: self.pro_landing_url }).success(function(result) {
                         self.role_for_perm = result.result.role;
                       });
                     }
-
                     self.ajax_for_role();
-
+                    //Annotate Code
                     self.annot_perm = function() {
 
                         if (self.role_for_perm == 'customer') {
@@ -3398,7 +3415,9 @@
                     'self.chartOptions44':self.chartOptions44,
                     'self.chartOptions45':self.chartOptions45,
                     'self.chartOptions46':self.chartOptions46,
-                    'self.chartOptions47':self.chartOptions47
+                    'self.chartOptions47':self.chartOptions47,
+                    'self.chartOptions48':self.chartOptions48,
+                    'self.chartOptions49':self.chartOptions49
                     };
 
 
@@ -3459,26 +3478,37 @@
                                 self.packet_hierarchy_list = [];
                             }
 
+                            var type = '';
                             if(!(fin_sub_project || fin_sub_packet || fin_work_packet ) && self.is_voice_flag) {
-                                self.ajaxVoiceFilter = function() {
-                                    var voice_filter_ajax = '/api/location'+ self.voice_filter + self.day_type + '&location=' + self.locationValue + '&skill=' + self.skillValue + '&disposition=' + self.dispositionValue;
+                                self.ajaxVoiceFilter = function(type) {
+                                    var voice_filter_ajax = '/api/'+ type + self.voice_filter + self.day_type + '&location=' + self.locationValue + '&skill=' + self.skillValue + '&disposition=' + self.dispositionValue;
                                     $http({ method: "GET", url: voice_filter_ajax }).success(function(result) {
-                                        self.voice_widget_function(result);
+                                        self.voice_widget_function(result, type);
                                     })
                                 }
                                 self.LocationFilter.onchange = function () {
                                     self.locationValue = self.LocationFilter.value;
-                                    self.ajaxVoiceFilter();
+                                    voice_filter_calls();
+                                    self.ajaxVoiceFilter(type);
                                 }
                                 self.SkillFilter.onchange = function () {
                                     self.skillValue = self.SkillFilter.value;
-                                    self.ajaxVoiceFilter();
+                                    voice_filter_calls();
+                                    self.ajaxVoiceFilter(type);
                                 }
                                 self.DispositionFilter.onchange = function () {
                                     self.dispositionValue = self.DispositionFilter.value;
-                                    self.ajaxVoiceFilter();
+                                    //type = 'disposition';
+                                    voice_filter_calls();
+                                    self.ajaxVoiceFilter(type);
                                 }
-                                self.ajaxVoiceFilter();
+                                var voice_filter_calls = function () {
+                                    var filter_list = ['location', 'skill', 'disposition'];
+                                    angular.forEach(filter_list, function(type) {
+                                        self.ajaxVoiceFilter(type);
+                                    });
+                                }
+                                voice_filter_calls();
                             }
                         } else {
                             angular.element(document.querySelector('#voice_filter_div')).addClass('hide');
@@ -3762,6 +3792,8 @@
                     "self.chartOptions44":self.chartOptions44,
                     "self.chartOptions31":self.chartOptions31,
                     "self.chartOptions47":self.chartOptions47,
+                    "self.chartOptions48":self.chartOptions48,
+                    "self.chartOptions49":self.chartOptions49
                 }
 
                 self.render_data = obj[all_data];
@@ -3883,6 +3915,7 @@
                 if (key == 'month') { some = 'Month';}
 
                 self.selected_date_type = some;
+                self.button_clicked = button_clicked;
 
                 if (self.selected_date_type === 'Week'){
                          $('.week2').addClass('active btn-success');
@@ -4077,7 +4110,9 @@
                     'self.chartOptions44':self.chartOptions44,
                     'self.chartOptions45':self.chartOptions45,
                     'self.chartOptions46':self.chartOptions46,
-                    'self.chartOptions47':self.chartOptions47
+                    'self.chartOptions47':self.chartOptions47,
+                    'self.chartOptions48':self.chartOptions48,
+                    'self.chartOptions49':self.chartOptions49
                     };
                     var final_layout_list = [];
                     for (var single in self.layout_list){
@@ -5194,6 +5229,82 @@
                                     "<b>" + this.series.name + "</b> : " + Highcharts.numberFormat(this.y, null, null, ",");
                            }
                },   
+            plotOptions:{
+                series:{
+                    allowPointSelect: true,
+                    cursor: 'pointer',
+                point: {
+                    events:{
+                    }
+                }
+                }
+            }
+            };
+
+            self.chartOptions48 = {
+            chart: {
+                type: 'column',
+                backgroundColor: "transparent"
+             },
+            title: {
+                text: ''
+            },
+            subtitle: {
+                text: ''
+            },
+            yAxis: {
+                gridLineColor: 'a2a2a2',
+                min: 0,
+                title: {
+                    text: ''
+                }
+            },
+            tooltip: {
+                valueSuffix: '',
+
+                formatter: function () {
+                             return "<small>" + this.x + "</small><br/>" +
+                                    "<b>" + this.series.name + "</b> : " + Highcharts.numberFormat(this.y, null, null, ",");
+                           }
+               },
+            plotOptions:{
+                series:{
+                    allowPointSelect: true,
+                    cursor: 'pointer',
+                point: {
+                    events:{
+                    }
+                }
+                }
+            }
+            };
+    
+            self.chartOptions49 = {
+            chart: {
+                type: 'column',
+                backgroundColor: "transparent"
+             },
+            title: {
+                text: ''
+            },
+            subtitle: {
+                text: ''
+            },
+            yAxis: {
+                gridLineColor: 'a2a2a2',
+                min: 0,
+                title: {
+                    text: ''
+                }
+            },
+            tooltip: {
+                valueSuffix: '',
+
+                formatter: function () {
+                             return "<small>" + this.x + "</small><br/>" +
+                                    "<b>" + this.series.name + "</b> : " + Highcharts.numberFormat(this.y, null, null, ",");
+                           }
+               },
             plotOptions:{
                 series:{
                     allowPointSelect: true,
