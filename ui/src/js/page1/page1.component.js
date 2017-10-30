@@ -59,13 +59,6 @@
                 });  
              });
 
-            self.filterVoiceChange = '';
-
-            self.filterVoiceChange = function(type) {
-                console.log('Location changes');
-            }
- 
-
              self.annotations_data = {};
 
                 self.add_loader = function() {
@@ -3476,20 +3469,16 @@
                                     })
                                 }
                                 self.LocationFilter.onchange = function () {
-                                    //location_value
                                     self.locationValue = self.LocationFilter.value;
                                     self.ajaxVoiceFilter();
-                                    //self.main_widget_function(self.call_back, final_work);
                                 }
                                 self.SkillFilter.onchange = function () {
                                     self.skillValue = self.SkillFilter.value;
                                     self.ajaxVoiceFilter();
-                                    //self.main_widget_function(self.call_back, final_work);
                                 }
                                 self.DispositionFilter.onchange = function () {
                                     self.dispositionValue = self.DispositionFilter.value;
                                     self.ajaxVoiceFilter();
-                                    //self.main_widget_function(self.call_back, final_work);
                                 }
                                 self.ajaxVoiceFilter();
                             }
