@@ -227,8 +227,13 @@
                         break;
                     case 'pie':
                         angular.extend(chartOptions, {
-                            series: chartSeries
+                            series: [{
+                                name: '',
+                                colorByPoint: true,
+                                data: chartSeries
+                            }]
                         })
+                        break;
                     default:
                         //Bar
                         angular.extend(chartOptions, {
@@ -3954,7 +3959,7 @@
                 }
              }                    
             
-             self.active_filters = function(key,button_clicked){
+             self.active_filters = function(key,button_clicked) {
                 var some = '' 
                 if (key == 'day') { some = 'Day';}
                 if (key == 'week') { some = 'Week';}
@@ -3966,11 +3971,11 @@
                 if (self.selected_date_type === 'Week'){
                          $('.week2').addClass('active btn-success');
                          $('.week2').siblings().removeClass('active btn-success');
-                  }
+                  }    
                 if (self.selected_date_type === 'Month'){
                          $('.month2').addClass('active btn-success');
                          $('.month2').siblings().removeClass('active btn-success');
-                 }
+                 }    
                 if (self.selected_date_type === 'Day'){
                          $('.day2').addClass('active btn-success');
                          $('.day2').siblings().removeClass('active btn-success');
@@ -3978,86 +3983,86 @@
 
                 var final_work =  '&sub_project=' + self.drop_sub_proj + '&sub_packet=' + self.drop_sub_pack + '&work_packet=' + self.drop_work_pack + '&is_clicked=' + self.button_clicked;
 
-                $('.widget-17a').addClass('widget-loader-show');    
-                $('.widget-17b').addClass('widget-data-hide');
-                $('.widget-13a').addClass('widget-loader-show');        
-                $('.widget-13b').addClass('widget-data-hide');
-
-                self.allo_and_comp(final_work, key);
-
-                $('.widget-20a').addClass('widget-loader-show');    
-                $('.widget-20b').addClass('widget-data-hide');
-                $('.widget-19a').addClass('widget-loader-show');    
-                $('.widget-19b').addClass('widget-data-hide');
-                $('.widget-9a').addClass('widget-loader-show');    
-                $('.widget-9b').addClass('widget-data-hide');
-
-                self.utill_all(final_work, key);
-
-                $('.widget-14a').addClass('widget-loader-show');     
-                $('.widget-14b').addClass('widget-data-hide');
-
-                self.productivity(final_work, key);
-
-                $('.widget-33a').addClass('widget-loader-show');   
-                $('.widget-33b').addClass('widget-data-hide');
-
-                self.prod_avg(final_work, key);
-
-                $('.widget-26a').addClass('widget-loader-show');
-                $('.widget-26b').addClass('widget-data-hide');
-
-                self.tat_data(final_work, key);
-
-                $('.widget-21a').addClass('widget-loader-show');     
-                $('.widget-21b').addClass('widget-data-hide');
-
-                self.mont_volume(final_work, key);
-
-                $('.widget-11a').addClass('widget-loader-show');    
-                $('.widget-11b').addClass('widget-data-hide');
-                $('.widget-12a').addClass('widget-loader-show');   
-                $('.widget-12b').addClass('widget-data-hide');
-
-                self.fte_graphs(final_work, key);
- 
-                $('.widget-6a').addClass('widget-loader-show');   
-                $('.widget-6b').addClass('widget-data-hide');
-                $('.widget-1a').addClass('widget-loader-show');   
-                $('.widget-1b').addClass('widget-data-hide');
-
-                self.main_prod(final_work, key);
-
-                $('.widget-8a').addClass('widget-loader-show');    
-                $('.widget-8b').addClass('widget-data-hide');
-                $('.widget-7a').addClass('widget-loader-show');   
-                $('.widget-7b').addClass('widget-data-hide');
-
-        		self.from_to(final_work, key)
-
-                $('.widget-35a').addClass('widget-loader-show');    
-                $('.widget-35b').addClass('widget-data-hide');
-
-                self.pre_scan(final_work, key);
-
-                $('.widget-37a').addClass('widget-loader-show');   
-                $('.widget-37b').addClass('widget-data-hide');
-
-                self.nw_exce(final_work, key);
-
-                $('.widget-36a').addClass('widget-loader-show');   
-                $('.widget-36b').addClass('widget-data-hide');
-
-                self.overall_exce(final_work, key);
-
-                $('.widget-34a').addClass('widget-loader-show');   
-                $('.widget-34b').addClass('widget-data-hide');
-
-                self.upload_acc(final_work, key);
-
                 if(!(self.fin_sub_project || self.fin_sub_packet || self.fin_work_packet ) && self.is_voice_flag) {
-                    self.datatype = '';
+                    self.day_type = key;
                     voice_filter_calls();
+                } else {
+                    $('.widget-17a').addClass('widget-loader-show');    
+                    $('.widget-17b').addClass('widget-data-hide');
+                    $('.widget-13a').addClass('widget-loader-show');        
+                    $('.widget-13b').addClass('widget-data-hide');
+
+                    self.allo_and_comp(final_work, key);
+
+                    $('.widget-20a').addClass('widget-loader-show');    
+                    $('.widget-20b').addClass('widget-data-hide');
+                    $('.widget-19a').addClass('widget-loader-show');    
+                    $('.widget-19b').addClass('widget-data-hide');
+                    $('.widget-9a').addClass('widget-loader-show');    
+                    $('.widget-9b').addClass('widget-data-hide');
+
+                    self.utill_all(final_work, key);
+
+                    $('.widget-14a').addClass('widget-loader-show');     
+                    $('.widget-14b').addClass('widget-data-hide');
+
+                    self.productivity(final_work, key);
+
+                    $('.widget-33a').addClass('widget-loader-show');   
+                    $('.widget-33b').addClass('widget-data-hide');
+
+                    self.prod_avg(final_work, key);
+
+                    $('.widget-26a').addClass('widget-loader-show');
+                    $('.widget-26b').addClass('widget-data-hide');
+
+                    self.tat_data(final_work, key);
+
+                    $('.widget-21a').addClass('widget-loader-show');     
+                    $('.widget-21b').addClass('widget-data-hide');
+
+                    self.mont_volume(final_work, key);
+
+                    $('.widget-11a').addClass('widget-loader-show');    
+                    $('.widget-11b').addClass('widget-data-hide');
+                    $('.widget-12a').addClass('widget-loader-show');   
+                    $('.widget-12b').addClass('widget-data-hide');
+
+                    self.fte_graphs(final_work, key);
+     
+                    $('.widget-6a').addClass('widget-loader-show');   
+                    $('.widget-6b').addClass('widget-data-hide');
+                    $('.widget-1a').addClass('widget-loader-show');   
+                    $('.widget-1b').addClass('widget-data-hide');
+
+                    self.main_prod(final_work, key);
+
+                    $('.widget-8a').addClass('widget-loader-show');    
+                    $('.widget-8b').addClass('widget-data-hide');
+                    $('.widget-7a').addClass('widget-loader-show');   
+                    $('.widget-7b').addClass('widget-data-hide');
+
+                    self.from_to(final_work, key)
+
+                    $('.widget-35a').addClass('widget-loader-show');    
+                    $('.widget-35b').addClass('widget-data-hide');
+
+                    self.pre_scan(final_work, key);
+
+                    $('.widget-37a').addClass('widget-loader-show');   
+                    $('.widget-37b').addClass('widget-data-hide');
+
+                    self.nw_exce(final_work, key);
+
+                    $('.widget-36a').addClass('widget-loader-show');   
+                    $('.widget-36b').addClass('widget-data-hide');
+
+                    self.overall_exce(final_work, key);
+
+                    $('.widget-34a').addClass('widget-loader-show');   
+                    $('.widget-34b').addClass('widget-data-hide');
+
+                    self.upload_acc(final_work, key);
                 }
              }  
             })
