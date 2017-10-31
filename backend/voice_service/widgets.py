@@ -165,5 +165,6 @@ def disposition_cate_data(prj_id, center, dates_list, location, skill, dispositi
                     final_dict[data['disposition']].append(data['total'])
                 else:
                     final_dict[data['disposition']] = [data['total']]
-    values = [{'name': item, 'y': final_dict[item]} for item in final_dict]
-    return values
+    #values = [{'name': item, 'y': final_dict[item]} for item in final_dict]
+    #return values
+    return final_dict

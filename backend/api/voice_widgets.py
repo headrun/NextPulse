@@ -38,12 +38,12 @@ def location(request):
         result['location'] = [{'name': item, 'data': loca_val[item]} for item in loca_val]
     elif main_dict['dwm_dict'].has_key('week') and main_dict['type'] == 'week':
         dates = main_dict['dwm_dict']['week']
-        for date_vaulues in dates:
-            dates_list.append(date_vaulues[0] + ' to ' + date_vaulues[-1])
+        for date_values in dates:
+            dates_list.append(date_values[0] + ' to ' + date_values[-1])
             week_name = str('week' + str(week_num))
             week_names.append(week_name)
             week_num = week_num + 1
-            location_details = location_data(prj_id, center, date_vaulues, curr_loc, dispo_val, skill_val)
+            location_details = location_data(prj_id, center, date_values, curr_loc, dispo_val, skill_val)
             location_week_name = str('week' + str(location_week_num))
             loc_week_dt[location_week_name] = location_details
             location_week_num = location_week_num + 1
@@ -89,12 +89,12 @@ def skill(request):
         result['skill'] = [{'name': item, 'data': skill_val[item]} for item in skill_val]
     elif main_dict['dwm_dict'].has_key('week') and main_dict['type'] == 'week':
         dates = main_dict['dwm_dict']['week']
-        for date_vaulues in dates:
-            dates_list.append(date_vaulues[0] + ' to ' + date_vaulues[-1])
+        for date_values in dates:
+            dates_list.append(date_values[0] + ' to ' + date_values[-1])
             week_name = str('week' + str(week_num))
             week_names.append(week_name)
             week_num = week_num + 1
-            skill_details = skill_data(prj_id, center, dates, skill, curr_loca, disposition)
+            skill_details = skill_data(prj_id, center, date_values, skill, curr_loca, disposition)
             skill_week_name = str('week' + str(skill_week_num))
             skill_week_dt[skill_week_name] = skill_details
             skill_week_num = skill_week_num + 1
@@ -107,7 +107,7 @@ def skill(request):
             month_dates = month_va
             dates_list.append(month_dates[0] + ' to ' + month_dates[-1])
             month_names.append(month_name)
-            skill_details = skill_data(prj_id, center, dates, skill, curr_loca, disposition)
+            skill_details = skill_data(prj_id, center, month_dates, skill, curr_loca, disposition)
             skill_week_dt[month_name] = skill_details
         final_skill_data = prod_volume_week_util(prj_id, month_names, skill_week_dt, {}, 'month')
         result['skill'] = final_skill_data
@@ -117,42 +117,105 @@ def skill(request):
 
 
 def disposition(request):
-    result = {} 
-    new_date_list = []
+    result, dispo_week_dt = {}, {} 
+    new_date_list, dates_list, week_names = [], [], []
+    month_names = []
+    week_num, dispo_week_num = 0, 0
     main_dict = data_dict(request.GET)
     disposition = request.GET['disposition']
     curr_loca = request.GET['location']
     skill = request.GET['skill']
     prj_id = main_dict['pro_cen_mapping'][0][0]
     center = main_dict['pro_cen_mapping'][1][0]
-    dates = main_dict['dwm_dict']['day']
-    date_check = InboundHourlyCall.objects.filter(project = prj_id, center = center, date__range = [dates[0], dates[-1]]).values('date').annotate(total = count('disposition')).order_by('date')
-    values = OrderedDict(zip(map(lambda p: str(p['date']), date_check), map(lambda p: str(p['total']), date_check)))
-    for date_key, date_value in values.iteritems():
-        if date_value > 0:
-            new_date_list.append(date_key)
-            result['date'] = new_date_list
-    result['disposition'] = disposition_data(prj_id, center, dates, disposition, curr_loca, skill)
+    if main_dict['dwm_dict'].has_key('day') and main_dict['type'] == 'day':
+        dates = main_dict['dwm_dict']['day']
+        date_check = InboundHourlyCall.objects.filter(project = prj_id, center = center, date__range = [dates[0], dates[-1]]).values('date').annotate(total = count('disposition')).order_by('date')
+        values = OrderedDict(zip(map(lambda p: str(p['date']), date_check), map(lambda p: str(p['total']), date_check)))
+        for date_key, date_value in values.iteritems():
+            if date_value > 0:
+                new_date_list.append(date_key)
+                result['date'] = new_date_list
+        #result['disposition'] = disposition_data(prj_id, center, dates, disposition, curr_loca, skill)
+        dispo_val = disposition_data(prj_id, center, dates, disposition, curr_loca, skill)
+        result['disposition'] = [{'name': item, 'data': dispo_val[item]} for item in dispo_val]
+
+    elif main_dict['dwm_dict'].has_key('week') and main_dict['type'] == 'week':
+        dates = main_dict['dwm_dict']['week']
+        for date_values in dates:
+            dates_list.append(date_values[0] + ' to ' + date_values[-1])
+            week_name = str('week' + str(week_num))
+            week_names.append(week_name)
+            week_num = week_num + 1
+            dispo_details = disposition_data(prj_id, center, date_values, disposition, curr_loca, skill)
+            dispo_week_name = str('week' + str(dispo_week_num))
+            dispo_week_dt[dispo_week_name] = dispo_details
+            dispo_week_num = dispo_week_num + 1
+        final_dispo_data = prod_volume_week_util(prj_id, week_names, dispo_week_dt, {}, 'week')
+        result['disposition'] = final_dispo_data
+        result['date'] = dates_list
+    else:
+        for month_na,month_va in zip(main_dict['dwm_dict']['month']['month_names'],main_dict['dwm_dict']['month']['month_dates']):
+            month_name = month_na
+            month_dates = month_va
+            dates_list.append(month_dates[0] + ' to ' + month_dates[-1])
+            month_names.append(month_name)
+            dispo_details = disposition_data(prj_id, center, month_dates, disposition, curr_loca, skill)
+            dispo_week_dt[month_name] = dispo_details
+        final_dispo_data = prod_volume_week_util(prj_id, month_names, dispo_week_dt, {}, 'month')
+        result['disposition'] = final_dispo_data
+        result['date'] = dates_list
     return json_HttpResponse(result)
 
 
 def call_status(request):
-    result = {}
-    new_date_list = []
+    result, call_week_dt = {}, {}
+    new_date_list, dates_list, week_names = [], [], []
+    month_names = []
+    week_num, call_week_num = 0, 0
     disposition = request.GET['disposition']
     curr_loca = request.GET['location']
     skill = request.GET['skill']
     main_dict = data_dict(request.GET)
     prj_id = main_dict['pro_cen_mapping'][0][0]
     center = main_dict['pro_cen_mapping'][1][0]
-    dates = main_dict['dwm_dict']['day']
-    date_check = InboundHourlyCall.objects.filter(project = prj_id, center = center, date__range = [dates[0], dates[-1]]).values('date').annotate(total = count('caller_no')).annotate(sta_total = count('status')).order_by('date')
-    values = OrderedDict(zip(map(lambda p: str(p['date']), date_check), map(lambda p: str(p['total']), date_check)))
-    for date_key, date_value in values.iteritems():
-        if date_value > 0:
-            new_date_list.append(date_key)
-            result['date'] = new_date_list
-    result['call_status'] = call_status_data(prj_id, center, dates, curr_loca, skill, disposition)
+    if main_dict['dwm_dict'].has_key('day') and main_dict['type'] == 'day':
+        dates = main_dict['dwm_dict']['day']
+        date_check = InboundHourlyCall.objects.filter(project = prj_id, center = center, date__range = [dates[0], dates[-1]]).values('date').annotate(total = count('caller_no')).annotate(sta_total = count('status')).order_by('date')
+        values = OrderedDict(zip(map(lambda p: str(p['date']), date_check), map(lambda p: str(p['total']), date_check)))
+        for date_key, date_value in values.iteritems():
+            if date_value > 0:
+                new_date_list.append(date_key)
+                result['date'] = new_date_list
+        #result['call_status'] = call_status_data(prj_id, center, dates, curr_loca, skill, disposition)
+        call_val = call_status_data(prj_id, center, dates, curr_loca, skill, disposition)
+        result['call_status'] = [{'name': item, 'data': call_val[item]} for item in call_val]
+
+    elif main_dict['dwm_dict'].has_key('week') and main_dict['type'] == 'week':
+        dates = main_dict['dwm_dict']['week']
+        for date_values in dates:
+            dates_list.append(date_values[0] + ' to ' + date_values[-1])
+            week_name = str('week' + str(week_num))
+            week_names.append(week_name)
+            week_num = week_num + 1
+            call_details = call_status_data(prj_id, center, date_values, curr_loca, skill, disposition)
+            call_week_name = str('week' + str(call_week_num))
+            call_week_dt[call_week_name] = call_details
+            call_week_num = call_week_num + 1
+        final_call_data = prod_volume_week_util(prj_id, week_names, call_week_dt, {}, 'week')
+        result['call_status'] = final_call_data
+        result['date'] = dates_list
+    else:
+        for month_na,month_va in zip(main_dict['dwm_dict']['month']['month_names'],main_dict['dwm_dict']['month']['month_dates']):
+            month_name = month_na
+            month_dates = month_va
+            dates_list.append(month_dates[0] + ' to ' + month_dates[-1])
+            month_names.append(month_name)
+            call_details = call_status_data(prj_id, center, month_dates, curr_loca, skill, disposition)
+            call_week_dt[month_name] = call_details
+        final_call_data = prod_volume_week_util(prj_id, month_names, call_week_dt, {}, 'month')
+        result['call_status'] = final_call_data
+        result['date'] = dates_list
+    result['type'] = main_dict['type']
     return json_HttpResponse(result)
 
 
