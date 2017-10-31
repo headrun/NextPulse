@@ -18,8 +18,8 @@ from django.db.models import Count as count
 from common.utils import getHttpResponse as json_HttpResponse
 
 
-def location_data(prj_id, center, dates_list, location, disposition, skill):
-    final_dict = {}
+def location_data(prj_id, center, dates_list, location, disposition, skill, type):
+    final_dict, week_final_dict = {}, {}
     if location == 'All' and disposition == 'All' and skill == 'All':
         location_query = InboundHourlyCall.objects.filter(project = prj_id, center = center, date__range = [dates_list[0], dates_list[-1]]).values('location', 'date').distinct().annotate(total = count('location')).order_by('date')
     elif location != 'All' and disposition == 'All' and skill == 'All':
@@ -45,7 +45,16 @@ def location_data(prj_id, center, dates_list, location, disposition, skill):
                    final_dict[data['location']].append(data['total'])
                else:
                    final_dict[data['location']] = [data['total']]
-    return [{'name': item, 'data': final_dict[item]} for item in final_dict]
+    if type == 'day':
+        location_values = [{'name': item, 'data': final_dict[item]} for item in final_dict]
+        #location_values = final_dict
+    
+    elif type == 'week':
+        location_values = {}
+        #location_values = final_dict
+        #week_final_dict['location'] = location_values
+        location_values['location'] = final_dict
+    return location_values
 
 
 def skill_data(prj_id, center, dates_list, skill, location, disposition):
