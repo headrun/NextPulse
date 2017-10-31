@@ -129,6 +129,6 @@ def cate_dispo_inbound(request):
     for date_key, date_value in values.iteritems():
         if date_value > 0:
             new_date_list.append(date_key)
-    result['disposition'] = disposition_cate_data(prj_id, center, dates, disposition, curr_loca, skill)
+    result['disposition_cate'] = disposition_cate_data(prj_id, center, dates, disposition, curr_loca, skill)
     return json_HttpResponse(result)
 
