@@ -173,40 +173,76 @@
                });
 
             self.voice_widget_function = function(result, voiceFilterType) {
+                var chartOptions, chartSeries, widgetA, widgetB, chartType;
                 if(voiceFilterType == 'location') {
-                    var chartOptions = self.chartOptions47;
-                    var chartSeries = result.result.location;
-                    var widgetA = '.widget-42a';
-                    var widgetB = '.widget-42b';
+                    chartOptions = self.chartOptions47;
+                    chartSeries = result.result.location;
+                    widgetA = '.widget-42a';
+                    widgetB = '.widget-42b';
+                    chartType = 'bar';
                 } else if (voiceFilterType == 'skill') {
-                    var chartOptions = self.chartOptions48;
-                    var chartSeries = result.result.skill;
-                    var widgetA = '.widget-43a';
-                    var widgetB = '.widget-43b';
+                    chartOptions = self.chartOptions48;
+                    chartSeries = result.result.skill;
+                    widgetA = '.widget-43a';
+                    widgetB = '.widget-43b';
+                    chartType = 'bar';
                 } else if (voiceFilterType == 'disposition') {
-                    var chartOptions = self.chartOptions49;
-                    var chartSeries = result.result.disposition;
-                    var widgetA = '.widget-44a';
-                    var widgetB = '.widget-44b';
+                    chartOptions = self.chartOptions49;
+                    chartSeries = result.result.disposition;
+                    widgetA = '.widget-44a';
+                    widgetB = '.widget-44b';
+                    chartType = 'bar';
+                } else if (voiceFilterType == 'call_status') {
+                    chartOptions = self.chartOptions50;
+                    chartSeries = result.result.call_status;
+                    widgetA = '.widget-45a';
+                    widgetB = '.widget-45b';
+                    chartType = 'stacked';
+                } else if (voiceFilterType == 'disposition_category') {
+                    chartOptions = self.chartOptions51;
+                    chartSeries = result.result.disposition_category;
+                    widgetA = '.widget-46a';
+                    widgetB = '.widget-46b';
+                    chartType = 'bar';
                 }
-                angular.extend(chartOptions, {
-                    xAxis: {
-                        categories: result.result.date,
-                    },
-                    plotOptions: {
-                        series: {
-                          dataLabels: {
-                            enabled: true,
-                            formatter: function () {
-                                return Highcharts.numberFormat(this.y, null, null, ",");
-                            }
-                          },
-                          allowPointSelect: true,
-                          cursor: 'pointer',
-                        }
-                    },
-                    series: chartSeries
-                })
+                switch (chartType) {
+                    case 'stacked':
+                        angular.extend(chartOptions, {
+                            xAxis: {
+                                categories: result.result.date,
+                            },
+                            plotOptions: {
+                                column: {
+                                    stacking: 'normal',
+                                    dataLabels: {
+                                        enabled: true,
+                                        color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'white'
+                                    }
+                                }
+                            },
+                            series: chartSeries
+                        })
+                        break;
+                    default:
+                        angular.extend(chartOptions, {
+                            xAxis: {
+                                categories: result.result.date,
+                            },
+                            plotOptions: {
+                                series: {
+                                  dataLabels: {
+                                    enabled: true,
+                                    formatter: function () {
+                                        return Highcharts.numberFormat(this.y, null, null, ",");
+                                    }
+                                  },
+                                  allowPointSelect: true,
+                                  cursor: 'pointer',
+                                }
+                            },
+                            series: chartSeries
+                        })
+                }
                 $(widgetA).removeClass('widget-loader-show');
                 $(widgetB).removeClass('widget-data-hide');
             }
@@ -3417,7 +3453,8 @@
                     'self.chartOptions46':self.chartOptions46,
                     'self.chartOptions47':self.chartOptions47,
                     'self.chartOptions48':self.chartOptions48,
-                    'self.chartOptions49':self.chartOptions49
+                    'self.chartOptions49':self.chartOptions49,
+                    'self.chartOptions50':self.chartOptions50,
                     };
 
 
@@ -3498,12 +3535,11 @@
                                 }
                                 self.DispositionFilter.onchange = function () {
                                     self.dispositionValue = self.DispositionFilter.value;
-                                    //type = 'disposition';
                                     voice_filter_calls();
                                     self.ajaxVoiceFilter(type);
                                 }
                                 var voice_filter_calls = function () {
-                                    var filter_list = ['location', 'skill', 'disposition'];
+                                    var filter_list = ['location', 'skill', 'disposition', 'call_status'];
                                     angular.forEach(filter_list, function(type) {
                                         self.ajaxVoiceFilter(type);
                                     });
@@ -3793,7 +3829,8 @@
                     "self.chartOptions31":self.chartOptions31,
                     "self.chartOptions47":self.chartOptions47,
                     "self.chartOptions48":self.chartOptions48,
-                    "self.chartOptions49":self.chartOptions49
+                    "self.chartOptions49":self.chartOptions49,
+                    "self.chartOptions50":self.chartOptions50
                 }
 
                 self.render_data = obj[all_data];
@@ -4112,7 +4149,8 @@
                     'self.chartOptions46':self.chartOptions46,
                     'self.chartOptions47':self.chartOptions47,
                     'self.chartOptions48':self.chartOptions48,
-                    'self.chartOptions49':self.chartOptions49
+                    'self.chartOptions49':self.chartOptions49,
+                    'self.chartOptions50':self.chartOptions50
                     };
                     var final_layout_list = [];
                     for (var single in self.layout_list){
@@ -5315,6 +5353,42 @@
                 }
                 }
             }
+            };
+
+            self.chartOptions50 = {
+                chart: {
+                    type: 'column',
+                    backgroundColor: "transparent"
+                },
+                title: {
+                    text: ''
+                 },
+                subtitle: {
+                    text: ''
+                },
+                yAxis: {
+                    gridLineColor: 'a2a2a2',
+                    min: 0,
+                    title: {
+                        text: ''
+                    }
+                },
+                tooltip: {
+                    valueSuffix: '',
+                    formatter: function () {
+                             return "<small>" + this.x + "</small><br/>" +
+                                    "<b>" + this.series.name + "</b> : " + Highcharts.numberFormat(this.y, null, null, ",");
+                           }
+               },
+                plotOptions:{
+                    column: {
+                        stacking: 'normal',
+                        dataLabels: {
+                            enabled: true,
+                            color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'white'
+                        }
+                    }
+                }
             };
 
             self.chartOptions18 = {
