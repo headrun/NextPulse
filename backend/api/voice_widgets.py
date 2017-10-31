@@ -237,21 +237,22 @@ def cate_dispo_inbound(request):
             if date_value > 0:
                 new_date_list.append(date_key)
         dispo_cate_val = disposition_cate_data(prj_id, center, dates, disposition, curr_loca, skill)
-        result['cate_dispo_inbound'] = [{'name': item, 'y': dispo_cate_val[item]} for item in dispo_cate_val]
+  
+        result['cate_dispo_inbound'] = [{'name': item, 'y': dispo_cate_val[item][0]} for item in dispo_cate_val]
     elif main_dict['dwm_dict'].has_key('week') and main_dict['type'] == 'week':
         dates = main_dict['dwm_dict']['week']
         week_dates = []
         for date_values in dates:
             week_dates = week_dates + date_values
         dispo_cate_val = disposition_cate_data(prj_id, center, week_dates, disposition, curr_loca, skill)
-        result['cate_dispo_inbound'] = [{'name': item, 'y': dispo_cate_val[item]} for item in dispo_cate_val]
+        result['cate_dispo_inbound'] = [{'name': item, 'y': dispo_cate_val[item][0]} for item in dispo_cate_val]
     else:
         month_dates = []
         dates = main_dict['dwm_dict']['month']['month_dates']
         for date_values in dates:
             month_dates = month_dates + date_values
         dispo_cate_val = disposition_cate_data(prj_id, center, month_dates, disposition, curr_loca, skill)
-        result['cate_dispo_inbound'] = [{'name': item, 'y': dispo_cate_val[item]} for item in dispo_cate_val]
+        result['cate_dispo_inbound'] = [{'name': item, 'y': dispo_cate_val[item][0]} for item in dispo_cate_val]
     result['type'] = main_dict['type']
     return json_HttpResponse(result)
 
