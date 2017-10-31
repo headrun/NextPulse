@@ -166,3 +166,21 @@ def disposition_cate_data(prj_id, center, dates_list, location, skill, dispositi
                 else:
                     final_dict[data['disposition']] = [data['total']]
     return final_dict
+
+
+def dispo_outbound_cate_data(prj_id, center, dates_list, disposition):
+    final_dict = {}
+    if disposition == 'All':
+        outbnd_dispo_query = OutboundHourlyCall.objects.filter(project = prj_id, center = center, date__range = [dates_list[0], dates_list[-1]]).values('disposition').distinct().annotate(total = count('disposition'))
+    elif disposition != 'All':
+        outbnd_dispo_query = OutboundHourlyCall.objects.filter(project = prj_id, center = center, date__range = [dates_list[0], dates_list[-1]],disposition = disposition).values('disposition').distinct().annotate(total = count('disposition'))
+    else:
+        return []
+    for value in outbnd_dispo_query:
+        if value['total'] > 0:
+            if ('->' not in value['disposition']) and (value['disposition'] != ''):
+                if final_dict.has_key(value['disposition']):
+                    final_dict[value['disposition']].append(value['total'])
+                else:
+                    final_dict[value['disposition']] = [value['total']]
+    return final_dict
