@@ -49,7 +49,7 @@ urlpatterns = [
     url(r'^location', apiviews.location),
     url(r'^skill', apiviews.skill),
     url(r'^disposition', apiviews.disposition),
-    url(r'^status', apiviews.status),
+    url(r'^call_status', apiviews.call_status),
     #url(r'^disposition_cate', apiviews.disposition_cate)
     url(r'^cate_dispo_inbound', apiviews.cate_dispo_inbound)
 ]

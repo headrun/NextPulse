@@ -16,16 +16,16 @@ from voice_service.widgets import *
 from common.utils import getHttpResponse as json_HttpResponse
 
 def location(request):
-    result, week_final_dict = {}, {}
-    new_date_list, dates_list, week_names, loc_week_dt = [], [], [], []
-    week_num = 0
+    result, week_final_dict, loc_week_dt, loction_values = {}, {}, {}, {}
+    new_date_list, dates_list, week_names = [], [], []
+    month_names = []
+    week_num, location_week_num = 0, 0
     curr_loc = request.GET['location']
     dispo_val = request.GET['disposition']
     skill_val = request.GET['skill']
     main_dict = data_dict(request.GET)
     prj_id = main_dict['pro_cen_mapping'][0][0]
     center = main_dict['pro_cen_mapping'][1][0]
-    #dates = main_dict['dwm_dict']['day']
     if main_dict['dwm_dict'].has_key('day') and main_dict['type'] == 'day':
         dates = main_dict['dwm_dict']['day']
         date_check = InboundHourlyCall.objects.filter(project = prj_id, center = center, date__range = [dates[0], dates[-1]]).values('date').annotate(total = count('location')).order_by('date')
@@ -34,9 +34,8 @@ def location(request):
             if date_value > 0:
                 new_date_list.append(date_key)
                 result['date'] = new_date_list
-        result['location'] = location_data(prj_id, center, dates, curr_loc, dispo_val, skill_val, main_dict['type'])
-        #loca_val = location_data(prj_id, center, dates, curr_loc, dispo_val, skill_val, main_dict['type'])
-        #result['location'] = [{'name': item, 'data': loca_val[item]} for item in loca_val]
+        loca_val = location_data(prj_id, center, dates, curr_loc, dispo_val, skill_val)
+        result['location'] = [{'name': item, 'data': loca_val[item]} for item in loca_val]
     elif main_dict['dwm_dict'].has_key('week') and main_dict['type'] == 'week':
         dates = main_dict['dwm_dict']['week']
         for date_vaulues in dates:
@@ -44,13 +43,24 @@ def location(request):
             week_name = str('week' + str(week_num))
             week_names.append(week_name)
             week_num = week_num + 1
-            location_details = location_data(prj_id, center, date_vaulues, curr_loc, dispo_val, skill_val, main_dict['type'])
-            #week_final_dict['location'] = location_details
-            #final_week_data = week_final_dict
-            loc_week_dt[week_names] = location_details
-            final_location_data = prod_volume_week_util_headcount(week_names, loc_week_dt, {})
-            result['location'] = final_location_data
-            result['date'] = dates_list
+            location_details = location_data(prj_id, center, date_vaulues, curr_loc, dispo_val, skill_val)
+            location_week_name = str('week' + str(location_week_num))
+            loc_week_dt[location_week_name] = location_details
+            location_week_num = location_week_num + 1
+        final_location_data = prod_volume_week_util(prj_id, week_names, loc_week_dt, {}, 'week')
+        result['location'] = final_location_data
+        result['date'] = dates_list
+    else:
+        for month_na,month_va in zip(main_dict['dwm_dict']['month']['month_names'],main_dict['dwm_dict']['month']['month_dates']):
+            month_name = month_na
+            month_dates = month_va
+            dates_list.append(month_dates[0] + ' to ' + month_dates[-1])
+            month_names.append(month_name)
+            location_details = location_data(prj_id, center, month_dates, curr_loc, dispo_val, skill_val)
+            loc_week_dt[month_name] = location_details
+        final_location_data = prod_volume_week_util(prj_id, month_names, loc_week_dt, {}, 'month')
+        result['location'] = final_location_data
+        result['date'] = dates_list
     return json_HttpResponse(result)
 
 
@@ -94,7 +104,7 @@ def disposition(request):
     return json_HttpResponse(result)
 
 
-def status(request):
+def call_status(request):
     result = {}
     new_date_list = []
     disposition = request.GET['disposition']
@@ -110,7 +120,7 @@ def status(request):
         if date_value > 0:
             new_date_list.append(date_key)
             result['date'] = new_date_list
-    result['status'] = call_status_data(prj_id, center, dates, curr_loca, skill, disposition)
+    result['call_status'] = call_status_data(prj_id, center, dates, curr_loca, skill, disposition)
     return json_HttpResponse(result)
 
 
@@ -129,6 +139,6 @@ def cate_dispo_inbound(request):
     for date_key, date_value in values.iteritems():
         if date_value > 0:
             new_date_list.append(date_key)
-    result['disposition_cate'] = disposition_cate_data(prj_id, center, dates, disposition, curr_loca, skill)
+    result['cate_dispo_inbound'] = disposition_cate_data(prj_id, center, dates, disposition, curr_loca, skill)
     return json_HttpResponse(result)
 
