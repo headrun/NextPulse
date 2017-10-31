@@ -75,7 +75,8 @@ def skill_data(prj_id, center, dates_list, skill, location, disposition):
                     final_dict[data['skill']].append(data['total'])
                 else:
                     final_dict[data['skill']] = [data['total']]
-    return [{'name': item, 'data': final_dict[item]} for item in final_dict]
+    #return [{'name': item, 'data': final_dict[item]} for item in final_dict]
+    return final_dict
 
 def disposition_data(prj_id, center, dates_list, disposition, location, skill):
     final_dict = {}
@@ -104,7 +105,8 @@ def disposition_data(prj_id, center, dates_list, disposition, location, skill):
                     final_dict[data['disposition']].append(data['total'])
                 else:
                     final_dict[data['disposition']] = [data['total']]
-    return [{'name': item, 'data': final_dict[item]} for item in final_dict]
+    #return [{'name': item, 'data': final_dict[item]} for item in final_dict]
+    return final_dict
 
 def call_status_data(prj_id, center, dates_list, location, skill, disposition):
     final_dict = {}
@@ -133,7 +135,8 @@ def call_status_data(prj_id, center, dates_list, location, skill, disposition):
                     final_dict[data['status']].append(data['total'])
                 else:
                     final_dict[data['status']] = [data['total']]
-    return [{'name': item, 'data': final_dict[item]} for item in final_dict]
+    #return [{'name': item, 'data': final_dict[item]} for item in final_dict]
+    return final_dict
 
 def disposition_cate_data(prj_id, center, dates_list, location, skill, disposition):
     final_dict = {} 

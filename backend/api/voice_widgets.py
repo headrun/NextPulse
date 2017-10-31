@@ -16,7 +16,7 @@ from voice_service.widgets import *
 from common.utils import getHttpResponse as json_HttpResponse
 
 def location(request):
-    result, week_final_dict, loc_week_dt, loction_values = {}, {}, {}, {}
+    result, loc_week_dt = {}, {}
     new_date_list, dates_list, week_names = [], [], []
     month_names = []
     week_num, location_week_num = 0, 0
@@ -61,26 +61,58 @@ def location(request):
         final_location_data = prod_volume_week_util(prj_id, month_names, loc_week_dt, {}, 'month')
         result['location'] = final_location_data
         result['date'] = dates_list
+    result['type'] = main_dict['type']
     return json_HttpResponse(result)
 
 
 def skill(request):
-    result = {}
-    new_date_list = []
+    result, skill_week_dt = {}, {}
+    new_date_list, dates_list, week_names = [], [], []
+    month_names = []
+    week_num, skill_week_num = 0, 0
     main_dict = data_dict(request.GET)
     skill = request.GET['skill']
     curr_loca = request.GET['location']
     disposition = request.GET['disposition']
     prj_id = main_dict['pro_cen_mapping'][0][0]
     center = main_dict['pro_cen_mapping'][1][0]
-    dates = main_dict['dwm_dict']['day']
-    date_check = InboundHourlyCall.objects.filter(project = prj_id, center = center, date__range = [dates[0], dates[-1]]).values('date').annotate(total = count('skill')).order_by('date')
-    values = OrderedDict(zip(map(lambda p: str(p['date']), date_check), map(lambda p: str(p['total']), date_check)))
-    for date_key, date_value in values.iteritems():
-        if date_value > 0:
-            new_date_list.append(date_key)
-            result['date'] = new_date_list
-    result['skill'] = skill_data(prj_id, center, dates, skill, curr_loca, disposition)
+    if main_dict['dwm_dict'].has_key('day') and main_dict['type'] == 'day':
+        dates = main_dict['dwm_dict']['day']
+        date_check = InboundHourlyCall.objects.filter(project = prj_id, center = center, date__range = [dates[0], dates[-1]]).values('date').annotate(total = count('skill')).order_by('date')
+        values = OrderedDict(zip(map(lambda p: str(p['date']), date_check), map(lambda p: str(p['total']), date_check)))
+        for date_key, date_value in values.iteritems():
+            if date_value > 0:
+                new_date_list.append(date_key)
+                result['date'] = new_date_list
+        #result['skill'] = skill_data(prj_id, center, dates, skill, curr_loca, disposition)
+        skill_val = skill_data(prj_id, center, dates, skill, curr_loca, disposition)
+        result['skill'] = [{'name': item, 'data': skill_val[item]} for item in skill_val]
+    elif main_dict['dwm_dict'].has_key('week') and main_dict['type'] == 'week':
+        dates = main_dict['dwm_dict']['week']
+        for date_vaulues in dates:
+            dates_list.append(date_vaulues[0] + ' to ' + date_vaulues[-1])
+            week_name = str('week' + str(week_num))
+            week_names.append(week_name)
+            week_num = week_num + 1
+            skill_details = skill_data(prj_id, center, dates, skill, curr_loca, disposition)
+            skill_week_name = str('week' + str(skill_week_num))
+            skill_week_dt[skill_week_name] = skill_details
+            skill_week_num = skill_week_num + 1
+        final_skill_data = prod_volume_week_util(prj_id, week_names, skill_week_dt, {}, 'week')
+        result['skill'] = final_skill_data
+        result['date'] = dates_list
+    else:
+        for month_na,month_va in zip(main_dict['dwm_dict']['month']['month_names'],main_dict['dwm_dict']['month']['month_dates']):
+            month_name = month_na
+            month_dates = month_va
+            dates_list.append(month_dates[0] + ' to ' + month_dates[-1])
+            month_names.append(month_name)
+            skill_details = skill_data(prj_id, center, dates, skill, curr_loca, disposition)
+            skill_week_dt[month_name] = skill_details
+        final_skill_data = prod_volume_week_util(prj_id, month_names, skill_week_dt, {}, 'month')
+        result['skill'] = final_skill_data
+        result['date'] = dates_list
+    result['type'] = main_dict['type']
     return json_HttpResponse(result)
 
 
