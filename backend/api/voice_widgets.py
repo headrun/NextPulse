@@ -48,7 +48,7 @@ def location(request):
             loc_week_dt[location_week_name] = location_details
             location_week_num = location_week_num + 1
         final_location_data = prod_volume_week_util(prj_id, week_names, loc_week_dt, {}, 'week')
-        result['location'] = final_location_data
+        result['location'] = [{'name': item, 'data': final_location_data[item]} for item in final_location_data]
         result['date'] = dates_list
     else:
         for month_na,month_va in zip(main_dict['dwm_dict']['month']['month_names'],main_dict['dwm_dict']['month']['month_dates']):
@@ -59,7 +59,7 @@ def location(request):
             location_details = location_data(prj_id, center, month_dates, curr_loc, dispo_val, skill_val)
             loc_week_dt[month_name] = location_details
         final_location_data = prod_volume_week_util(prj_id, month_names, loc_week_dt, {}, 'month')
-        result['location'] = final_location_data
+        result['location'] = [{'name': item, 'data': final_location_data[item]} for item in final_location_data]
         result['date'] = dates_list
     result['type'] = main_dict['type']
     return json_HttpResponse(result)
@@ -99,7 +99,7 @@ def skill(request):
             skill_week_dt[skill_week_name] = skill_details
             skill_week_num = skill_week_num + 1
         final_skill_data = prod_volume_week_util(prj_id, week_names, skill_week_dt, {}, 'week')
-        result['skill'] = final_skill_data
+        result['skill'] = [{'name': item, 'data': final_skill_data[item]} for item in final_skill_data]
         result['date'] = dates_list
     else:
         for month_na,month_va in zip(main_dict['dwm_dict']['month']['month_names'],main_dict['dwm_dict']['month']['month_dates']):
@@ -110,7 +110,7 @@ def skill(request):
             skill_details = skill_data(prj_id, center, month_dates, skill, curr_loca, disposition)
             skill_week_dt[month_name] = skill_details
         final_skill_data = prod_volume_week_util(prj_id, month_names, skill_week_dt, {}, 'month')
-        result['skill'] = final_skill_data
+        result['skill'] = [{'name': item, 'data': final_skill_data[item]} for item in final_skill_data]
         result['date'] = dates_list
     result['type'] = main_dict['type']
     return json_HttpResponse(result)
@@ -151,7 +151,7 @@ def disposition(request):
             dispo_week_dt[dispo_week_name] = dispo_details
             dispo_week_num = dispo_week_num + 1
         final_dispo_data = prod_volume_week_util(prj_id, week_names, dispo_week_dt, {}, 'week')
-        result['disposition'] = final_dispo_data
+        result['disposition'] = [{'name': item, 'data': final_dispo_data[item]} for item in final_dispo_data]
         result['date'] = dates_list
     else:
         for month_na,month_va in zip(main_dict['dwm_dict']['month']['month_names'],main_dict['dwm_dict']['month']['month_dates']):
@@ -162,7 +162,7 @@ def disposition(request):
             dispo_details = disposition_data(prj_id, center, month_dates, disposition, curr_loca, skill)
             dispo_week_dt[month_name] = dispo_details
         final_dispo_data = prod_volume_week_util(prj_id, month_names, dispo_week_dt, {}, 'month')
-        result['disposition'] = final_dispo_data
+        result['disposition'] = [{'name': item, 'data': final_dispo_data[item]} for item in final_dispo_data]
         result['date'] = dates_list
     return json_HttpResponse(result)
 
@@ -202,7 +202,7 @@ def call_status(request):
             call_week_dt[call_week_name] = call_details
             call_week_num = call_week_num + 1
         final_call_data = prod_volume_week_util(prj_id, week_names, call_week_dt, {}, 'week')
-        result['call_status'] = final_call_data
+        result['call_status'] = [{'name': item, 'data': final_call_data[item]} for item in final_call_data]
         result['date'] = dates_list
     else:
         for month_na,month_va in zip(main_dict['dwm_dict']['month']['month_names'],main_dict['dwm_dict']['month']['month_dates']):
@@ -213,7 +213,7 @@ def call_status(request):
             call_details = call_status_data(prj_id, center, month_dates, curr_loca, skill, disposition)
             call_week_dt[month_name] = call_details
         final_call_data = prod_volume_week_util(prj_id, month_names, call_week_dt, {}, 'month')
-        result['call_status'] = final_call_data
+        result['call_status'] = [{'name': item, 'data': final_call_data[item]} for item in final_call_data]
         result['date'] = dates_list
     result['type'] = main_dict['type']
     return json_HttpResponse(result)
