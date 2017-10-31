@@ -172,38 +172,39 @@
 
                });
 
+            var filter_list = ['location', 'skill', 'disposition', 'call_status', 'cate_dispo_inbound']; 
             self.voice_widget_function = function(result, voiceFilterType) {
                 var chartOptions, chartSeries, widgetA, widgetB, chartType;
-                if(voiceFilterType == 'location') {
+                if(voiceFilterType == filter_list[0]) {
                     chartOptions = self.chartOptions47;
-                    chartSeries = result.result.location;
+                    chartSeries = result.result[filter_list[0]];
                     widgetA = '.widget-42a';
                     widgetB = '.widget-42b';
                     chartType = 'bar';
-                } else if (voiceFilterType == 'skill') {
+                } else if (voiceFilterType == filter_list[1]) {
                     chartOptions = self.chartOptions48;
-                    chartSeries = result.result.skill;
+                    chartSeries = result.result[filter_list[1]];
                     widgetA = '.widget-43a';
                     widgetB = '.widget-43b';
                     chartType = 'bar';
-                } else if (voiceFilterType == 'disposition') {
+                } else if (voiceFilterType == filter_list[2]) {
                     chartOptions = self.chartOptions49;
-                    chartSeries = result.result.disposition;
+                    chartSeries = result.result[filter_list[2]];
                     widgetA = '.widget-44a';
                     widgetB = '.widget-44b';
                     chartType = 'bar';
-                } else if (voiceFilterType == 'call_status') {
+                } else if (voiceFilterType == filter_list[3]) {
                     chartOptions = self.chartOptions50;
-                    chartSeries = result.result.call_status;
+                    chartSeries = result.result[filter_list[3]];
                     widgetA = '.widget-45a';
                     widgetB = '.widget-45b';
                     chartType = 'stacked';
-                } else if (voiceFilterType == 'disposition_category') {
+                } else if (voiceFilterType == filter_list[4]) {
                     chartOptions = self.chartOptions51;
-                    chartSeries = result.result.disposition_category;
+                    chartSeries = result.result[filter_list[4]];
                     widgetA = '.widget-46a';
                     widgetB = '.widget-46b';
-                    chartType = 'bar';
+                    chartType = 'pie';
                 }
                 switch (chartType) {
                     case 'stacked':
@@ -223,7 +224,12 @@
                             series: chartSeries
                         })
                         break;
+                    case 'pie':
+                        angular.extend(chartOptions, {
+                            series: chartSeries
+                        })
                     default:
+                        //Bar
                         angular.extend(chartOptions, {
                             xAxis: {
                                 categories: result.result.date,
@@ -3455,6 +3461,7 @@
                     'self.chartOptions48':self.chartOptions48,
                     'self.chartOptions49':self.chartOptions49,
                     'self.chartOptions50':self.chartOptions50,
+                    'self.chartOptions51':self.chartOptions51,
                     };
 
 
@@ -3539,7 +3546,6 @@
                                     self.ajaxVoiceFilter(type);
                                 }
                                 var voice_filter_calls = function () {
-                                    var filter_list = ['location', 'skill', 'disposition', 'call_status'];
                                     angular.forEach(filter_list, function(type) {
                                         self.ajaxVoiceFilter(type);
                                     });
@@ -3830,7 +3836,8 @@
                     "self.chartOptions47":self.chartOptions47,
                     "self.chartOptions48":self.chartOptions48,
                     "self.chartOptions49":self.chartOptions49,
-                    "self.chartOptions50":self.chartOptions50
+                    "self.chartOptions50":self.chartOptions50,
+                    "self.chartOptions51":self.chartOptions51,
                 }
 
                 self.render_data = obj[all_data];
@@ -4150,7 +4157,8 @@
                     'self.chartOptions47':self.chartOptions47,
                     'self.chartOptions48':self.chartOptions48,
                     'self.chartOptions49':self.chartOptions49,
-                    'self.chartOptions50':self.chartOptions50
+                    'self.chartOptions50':self.chartOptions50,
+                    'self.chartOptions51':self.chartOptions51,
                     };
                     var final_layout_list = [];
                     for (var single in self.layout_list){
@@ -5317,42 +5325,37 @@
             }
             };
     
-            self.chartOptions49 = {
-            chart: {
-                type: 'column',
-                backgroundColor: "transparent"
-             },
-            title: {
-                text: ''
-            },
-            subtitle: {
-                text: ''
-            },
-            yAxis: {
-                gridLineColor: 'a2a2a2',
-                min: 0,
+            self.chartOptions51 = {
+                chart: {
+                    backgroundColor: "transparent",
+                    plotBackgroundColor: null,
+                    plotBorderWidth: null,
+                    plotShadow: false,
+                    type: 'pie'
+                  },
                 title: {
                     text: ''
-                }
-            },
-            tooltip: {
-                valueSuffix: '',
-
-                formatter: function () {
-                             return "<small>" + this.x + "</small><br/>" +
-                                    "<b>" + this.series.name + "</b> : " + Highcharts.numberFormat(this.y, null, null, ",");
+                  },
+                tooltip: {
+                    pointFormat: '<b>{point.y}</b>'
+                  },
+                plotOptions: {
+                    pie: {
+                        allowPointSelect: true,
+                        point: {
+                           events:{
                            }
-               },
-            plotOptions:{
-                series:{
-                    allowPointSelect: true,
-                    cursor: 'pointer',
-                point: {
-                    events:{
-                    }
-                }
-                }
-            }
+                        },
+                        cursor: 'pointer',
+                        dataLabels: {
+                            enabled: true,
+                            format: '<b>{point.name}</b>: {point.y} ',
+                            style: {
+                                color:(Highcharts.theme && Highcharts.theme.background2) || '#696969'
+                               }
+                            }
+                        }
+                    },
             };
 
             self.chartOptions50 = {
@@ -5381,6 +5384,42 @@
                            }
                },
                 plotOptions:{
+                    column: {
+                        stacking: 'normal',
+                        dataLabels: {
+                            enabled: true,
+                            color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'white'
+                        }
+                    }
+                }
+            };
+
+            self.chartOptions49 = {
+                chart: {
+                    type: 'column',
+                    backgroundColor: "transparent"
+                },   
+                title: {
+                    text: ''
+                 },   
+                subtitle: {
+                    text: ''
+                },   
+                yAxis: {
+                    gridLineColor: 'a2a2a2',
+                    min: 0,
+                    title: {
+                        text: ''
+                    }
+                },   
+                tooltip: {
+                    valueSuffix: '',
+                    formatter: function () { 
+                             return "<small>" + this.x + "</small><br/>" +
+                                    "<b>" + this.series.name + "</b> : " + Highcharts.numberFormat(this.y, null, null, ",");
+                           }
+               },   
+                plotOptions: {
                     column: {
                         stacking: 'normal',
                         dataLabels: {
