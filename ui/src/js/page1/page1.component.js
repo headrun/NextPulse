@@ -169,6 +169,7 @@
                 callback.push.apply(callback, [self.start, self.end, self.center_live, self.project_live])
                 self.apply_class();
                 self.main_widget_function(callback, '');
+                self.voiceTypeFilter();
                 $('.widget17b').addClass('widget-data-hide');
 
                });
@@ -3981,19 +3982,10 @@
                 }
             }
 
-            /*self.voiceTypeFilter = function(key) {
-                if(key == 'inbound') {
-                    $('.inbound').addClass('active btn-success');
-                    $('.inbound').siblings().removeClass('active btn-success');
-                } else {
-                    $('.outbound').addClass('active btn-success');
-                    $('.outbound').siblings().removeClass('active btn-success');
-                }
-            }*/
-
             self.voiceTypeFilter = function(key) {
                 var callback = [];
-                var dateEntered = document.getElementById('select').value
+                self.voiceProjectType = key;
+                var dateEntered = document.getElementById('select').value;
                 dateEntered = dateEntered.replace(' to ','to');
                 var from = dateEntered.split('to')[0].replace(' ','');
                 var to = dateEntered.split('to')[1].replace(' ','');
