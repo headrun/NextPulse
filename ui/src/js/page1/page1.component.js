@@ -173,42 +173,33 @@
 
                });
 
-            var filter_list = ['location', 'skill', 'disposition', 'call_status', 'cate_dispo_inbound']; 
-            self.voice_widget_function = function(result, voiceFilterType) {
-                var chartOptions, chartSeries, widgetA, widgetB, chartType;
-                if(voiceFilterType == filter_list[0]) {
+            self.filter_list = ['location', 'skill', 'disposition', 'call_status', 'cate_dispo_inbound'];
+            self.chartType = ['bar', 'stacked', 'pie'];
+            self.voice_widget_function = function(result, voiceFilterType, widgetA, widgetB) {
+                var chartOptions, chartSeries, chartType;
+                if(voiceFilterType == self.filter_list[0]) {
                     chartOptions = self.chartOptions47;
-                    chartSeries = result.result[filter_list[0]];
-                    widgetA = '.widget-42a';
-                    widgetB = '.widget-42b';
-                    chartType = 'bar';
-                } else if (voiceFilterType == filter_list[1]) {
+                    chartSeries = result.result[self.filter_list[0]];
+                    chartType = self.chartType[0];
+                } else if (voiceFilterType == self.filter_list[1]) {
                     chartOptions = self.chartOptions48;
-                    chartSeries = result.result[filter_list[1]];
-                    widgetA = '.widget-43a';
-                    widgetB = '.widget-43b';
-                    chartType = 'bar';
-                } else if (voiceFilterType == filter_list[2]) {
+                    chartSeries = result.result[self.filter_list[1]];
+                    chartType = self.chartType[0];
+                } else if (voiceFilterType == self.filter_list[2]) {
                     chartOptions = self.chartOptions49;
-                    chartSeries = result.result[filter_list[2]];
-                    widgetA = '.widget-44a';
-                    widgetB = '.widget-44b';
-                    chartType = 'bar';
-                } else if (voiceFilterType == filter_list[3]) {
+                    chartSeries = result.result[self.filter_list[2]];
+                    chartType = self.chartType[0];
+                } else if (voiceFilterType == self.filter_list[3]) {
                     chartOptions = self.chartOptions50;
-                    chartSeries = result.result[filter_list[3]];
-                    widgetA = '.widget-45a';
-                    widgetB = '.widget-45b';
-                    chartType = 'stacked';
-                } else if (voiceFilterType == filter_list[4]) {
+                    chartSeries = result.result[self.filter_list[3]];
+                    chartType = self.chartType[1];
+                } else if (voiceFilterType == self.filter_list[4]) {
                     chartOptions = self.chartOptions51;
-                    chartSeries = result.result[filter_list[4]];
-                    widgetA = '.widget-46a';
-                    widgetB = '.widget-46b';
-                    chartType = 'pie';
+                    chartSeries = result.result[self.filter_list[4]];
+                    chartType = self.chartType[2];
                 }
                 switch (chartType) {
-                    case 'stacked':
+                    case self.chartType[1]:
                         angular.extend(chartOptions, {
                             xAxis: {
                                 categories: result.result.date,
@@ -225,7 +216,7 @@
                             series: chartSeries
                         })
                         break;
-                    case 'pie':
+                    case self.chartType[2]:
                         angular.extend(chartOptions, {
                             series: [{
                                 name: '',
@@ -3489,118 +3480,143 @@
                 return self.call_back;
 
            }).then(function(callback){
+                    self.call_back = callback;
                     var final_work =  '&sub_project=' + self.drop_sub_proj + '&sub_packet=' + self.drop_sub_pack + '&work_packet=' +
                                                                 self.drop_work_pack;
-                    var packet_url = '/api/get_packet_details/?&project='+callback[3]+'&center='+callback[2]+'&from='+callback[0]+'&to='+callback[1];
+                    var packet_url = '/api/get_packet_details/?&project='+callback[3]+'&center='+callback[2]+'&from='+callback[0]+'&to='+callback[1]+'&voice_project_type='+self.voiceProjectType;
                     //var packet_url = '/api/get_packet_details/?&project='+callback[3]+'&center='+callback[2]+'&from='+callback[0]+'&to='+callback[1]+'&voice_type='+voice_type;
-                    self.call_back = callback;
                     $http.get(packet_url).then(function(result) {
-                        $('#dropdown_title').html($(".brand_style").text().replace(" - DASHBOARD",''));
-                        var sub_project_level = result.data.result.sub_project_level;
-                        var sub_packet_level = result.data.result.sub_packet_level;
-                        var work_packet_level = result.data.result.work_packet_level;
-                        self.fin_sub_project = result.data.result.fin.sub_project;
-                        self.fin_sub_packet = result.data.result.fin.sub_packet;
-                        self.fin_work_packet = result.data.result.fin.work_packet;
-                        self.is_voice_flag = result.data.result.is_voice;
-                        if (self.is_voice_flag) {
-                            angular.element(document.querySelector('#voice_filter_div')).removeClass('hide');
-                            angular.extend(self.voice_filters.Location, result.data.result['location']);
-                            angular.extend(self.voice_filters.Skill, result.data.result['skill']);
-                            angular.extend(self.voice_filters.Disposition, result.data.result['disposition']);
 
-                            self.LocationFilter = document.getElementById("Location");
-                            self.SkillFilter = document.getElementById("Skill");
-                            self.DispositionFilter = document.getElementById("Disposition");
+                        self.chartProcess = function(result) {
 
-                            angular.forEach(self.voice_filters.Location, function(location_value) {
-                                self.LocationFilter.options[self.LocationFilter.options.length] = new Option(location_value, location_value);
-                            });
+                            $('#dropdown_title').html($(".brand_style").text().replace(" - DASHBOARD",''));
+                            var sub_project_level = result.data.result.sub_project_level;
+                            var sub_packet_level = result.data.result.sub_packet_level;
+                            var work_packet_level = result.data.result.work_packet_level;
+                            self.voice_project_list = result.data.result.voice_project_types;
+                            self.voice_project_list = ['inbound', 'outbound'];
+                            self.voiceProjectType = result.data.result.voice_project_value;
+                            self.voiceProjectType = 'inbound';
+                            self.fin_sub_project = result.data.result.fin.sub_project;
+                            self.fin_sub_packet = result.data.result.fin.sub_packet;
+                            self.fin_work_packet = result.data.result.fin.work_packet;
+                            self.is_voice_flag = result.data.result.is_voice;
+                            
+                            if (self.is_voice_flag) {
+                                angular.element(document.querySelector('#voice_filter_div')).removeClass('hide');
+                                angular.extend(self.voice_filters.Location, result.data.result['location']);
+                                angular.extend(self.voice_filters.Skill, result.data.result['skill']);
+                                angular.extend(self.voice_filters.Disposition, result.data.result['disposition']);
 
-                            angular.forEach(self.voice_filters.Skill, function(skill_value) {
-                                self.SkillFilter.options[self.SkillFilter.options.length] = new Option(skill_value, skill_value);
-                            });
+                                self.LocationFilter = document.getElementById("Location");
+                                self.SkillFilter = document.getElementById("Skill");
+                                self.DispositionFilter = document.getElementById("Disposition");
 
-                            angular.forEach(self.voice_filters.Disposition, function(disposition_value) {
-                                self.DispositionFilter.options[self.DispositionFilter.options.length] = new Option(disposition_value, disposition_value);
-                            });
+                                angular.forEach(self.voice_filters.Location, function(location_value) {
+                                    self.LocationFilter.options[self.LocationFilter.options.length] = new Option(location_value, location_value);
+                                });
 
-                            if(!(self.fin_sub_project || self.fin_sub_packet || self.fin_work_packet )) {
-                                self.packet_hierarchy_list = [];
-                            }
+                                angular.forEach(self.voice_filters.Skill, function(skill_value) {
+                                    self.SkillFilter.options[self.SkillFilter.options.length] = new Option(skill_value, skill_value);
+                                });
 
-                            var type = '';
-                            if(!(self.fin_sub_project || self.fin_sub_packet || self.fin_work_packet ) && self.is_voice_flag) {
-                                self.ajaxVoiceFilter = function(type) {
-                                    var voice_filter_ajax = '/api/'+ type + self.voice_filter + self.day_type + '&location=' + self.locationValue + '&skill=' + self.skillValue + '&disposition=' + self.dispositionValue;
-                                    $http({ method: "GET", url: voice_filter_ajax }).success(function(result) {
-                                        self.voice_widget_function(result, type);
-                                    })
+                                angular.forEach(self.voice_filters.Disposition, function(disposition_value) {
+                                    self.DispositionFilter.options[self.DispositionFilter.options.length] = new Option(disposition_value, disposition_value);
+                                });
+
+                                if(!(self.fin_sub_project || self.fin_sub_packet || self.fin_work_packet )) {
+                                    self.packet_hierarchy_list = [];
                                 }
-                                self.LocationFilter.onchange = function () {
-                                    self.locationValue = self.LocationFilter.value;
-                                    voice_filter_calls();
-                                    self.ajaxVoiceFilter(type);
-                                }
-                                self.SkillFilter.onchange = function () {
-                                    self.skillValue = self.SkillFilter.value;
-                                    voice_filter_calls();
-                                    self.ajaxVoiceFilter(type);
-                                }
-                                self.DispositionFilter.onchange = function () {
-                                    self.dispositionValue = self.DispositionFilter.value;
-                                    voice_filter_calls();
-                                    self.ajaxVoiceFilter(type);
-                                }
-                                voice_filter_calls = function () {
-                                    angular.forEach(filter_list, function(type) {
+
+                                var type = '';
+                                if(!(self.fin_sub_project || self.fin_sub_packet || self.fin_work_packet ) && self.is_voice_flag) {
+                                    self.ajaxVoiceFilter = function(type) {
+                                        var voice_filter_ajax = '/api/'+ type + self.voice_filter + self.day_type + '&location=' + self.locationValue + '&skill=' + self.skillValue + '&disposition=' + self.dispositionValue;
+                                        var widgetA, widgetB;
+                                        if(type == self.filter_list[0]) {
+                                            widgetA = '.widget-42a';
+                                            widgetB = '.widget-42b';
+                                        } else if (type == self.filter_list[1]) {
+                                            widgetA = '.widget-43a';
+                                            widgetB = '.widget-43b';
+                                        } else if (type == self.filter_list[2]) {
+                                            widgetA = '.widget-44a';
+                                            widgetB = '.widget-44b';
+                                        } else if (type == self.filter_list[3]) {
+                                            widgetA = '.widget-45a';
+                                            widgetB = '.widget-45b';
+                                        } else if (type == self.filter_list[4]) {
+                                            widgetA = '.widget-46a';
+                                            widgetB = '.widget-46b';
+                                        }
+                                        $(widgetA).addClass('widget-loader-show');
+                                        $(widgetB).addClass('widget-data-hide');
+                                        $http({ method: "GET", url: voice_filter_ajax }).success(function(result) {
+                                            self.voice_widget_function(result, type, widgetA, widgetB);
+                                        })
+                                    }
+                                    self.LocationFilter.onchange = function () {
+                                        self.locationValue = self.LocationFilter.value;
+                                        voice_filter_calls();
                                         self.ajaxVoiceFilter(type);
-                                    });
+                                    }
+                                    self.SkillFilter.onchange = function () {
+                                        self.skillValue = self.SkillFilter.value;
+                                        voice_filter_calls();
+                                        self.ajaxVoiceFilter(type);
+                                    }
+                                    self.DispositionFilter.onchange = function () {
+                                        self.dispositionValue = self.DispositionFilter.value;
+                                        voice_filter_calls();
+                                        self.ajaxVoiceFilter(type);
+                                    }
+                                    voice_filter_calls = function () {
+                                        angular.forEach(self.filter_list, function(type) {
+                                            self.ajaxVoiceFilter(type);
+                                        });
+                                    }
+                                    voice_filter_calls();
                                 }
-                                voice_filter_calls();
+                            } else {
+                                angular.element(document.querySelector('#voice_filter_div')).addClass('hide');
                             }
-                        } else {
-                            angular.element(document.querySelector('#voice_filter_div')).addClass('hide');
+
+                            self.global_packet_values = result.data.result.fin;
+                            self.drop_list = [];
+                            self.top_employee_details =  result.data.result.top_five_employee_details;
+                            self.top_five = result.data.result.only_top_five;
+                            self.volume_graphs = result.data.result.volumes_graphs_details;
+                            self.drop_list =  result.data.result.drop_value;
+                            self.sub_pro_sel = document.getElementById("0");
+                            self.wor_pac_sel = document.getElementById("1");
+                            self.sub_pac_sel = document.getElementById("2");
                         }
 
-                        self.global_packet_values = result.data.result.fin;
-                        self.drop_list = [];
-                        self.top_employee_details =  result.data.result.top_five_employee_details;
-                        self.top_five = result.data.result.only_top_five;
-                        self.volume_graphs = result.data.result.volumes_graphs_details;
-                        self.drop_list =  result.data.result.drop_value;
-                        self.sub_pro_sel = document.getElementById("0");
-                        self.wor_pac_sel = document.getElementById("1");
-                        self.sub_pac_sel = document.getElementById("2");
+                        self.chartProcess(result);
 
                         $("#0, #1, #2").unbind("change");
 
-                            if (self.fin_sub_project) {
-                                console.log('sub_projet_exist');
-                            }
-                            else {   
-                                $('#2').hide();
-                                if (self.fin_work_packet) {
-                                    console.log('work_packet_exist');
-                                }
-                                if (self.fin_sub_packet) {
-                                    console.log('sub_packet_exist');
-                                }
-                                else {
-                                    $('#1').hide();
-                                }
+                        if (self.fin_sub_project) {
+                            console.log('sub_projet_exist');
+                        } else {   
+                            $('#2').hide();
+                            if (self.fin_work_packet) {
+                                console.log('work_packet_exist');
                             }
                             if (self.fin_sub_packet) {
-                                    console.log('sub_packet_exist');
-                                }
-                            else {
-                                    $('#2').hide();
-                              }   
-
+                                console.log('sub_packet_exist');
+                            } else {
+                                $('#1').hide();
+                            }
+                        }
+                        if (self.fin_sub_packet) {
+                            console.log('sub_packet_exist');
+                        } else {
+                            $('#2').hide();
+                        }   
                         for (var sub_pro in self.drop_list) {
                             self.sub_pro_sel.options[self.sub_pro_sel.options.length] = new Option(sub_pro, sub_pro);
                         }
-
                         self.sub_pro_sel.onchange = function () {
                             self.wor_pac_sel.length = 1;
                             self.sub_pac_sel.length = 1;
@@ -3633,175 +3649,175 @@
                                 self.sub_pac_sel.selectedIndex=1;
                                 self.sub_pac_sel.onchange();
                             }
-                            }
-                self.drop_work_pack = 'All';
-                self.drop_sub_proj = 'All';
-                self.drop_sub_pack = 'All';
+                        }
+                        self.drop_work_pack = 'All';
+                        self.drop_sub_proj = 'All';
+                        self.drop_sub_pack = 'All';
 
-                if ((self.fin_sub_project) && (self.fin_work_packet)){
-                $('#0').on('change', function(){
-                    self.apply_class();   
-                    self.add_loader();
-                    self.drop_sub_proj = this.value;
-                    self.drop_work_pack = self.wor_pac_sel.value;
-                    self.drop_sub_pack = self.sub_pac_sel.value;
-                    var dateEntered = document.getElementById('select').value
-                    dateEntered = dateEntered.replace(' to ','to');
-                    var from = dateEntered.split('to')[0].replace(' ','');
-                    var to = dateEntered.split('to')[1].replace(' ','');
-                    var placeholder = ''
-                    self.call_back = [];
-                    self.call_back.push(from);
-                    self.call_back.push(to);                                                                                                                       var pro_cen_nam = $state.params.selpro;                                                                                                        self.location = pro_cen_nam.split('-')[0].replace(' ','') + ' - '
-                    self.project = pro_cen_nam.split('-')[1].replace(' ','') + ' - '
-                    self.call_back.push(self.location);
-                    self.call_back.push(self.project);
-                    var final_work =  '&sub_project=' + self.drop_sub_proj + '&sub_packet=' + self.drop_sub_pack + '&work_packet=' +
-                                            self.drop_work_pack;
+                        if ((self.fin_sub_project) && (self.fin_work_packet)){
+                            $('#0').on('change', function(){
+                                self.apply_class();   
+                                self.add_loader();
+                                self.drop_sub_proj = this.value;
+                                self.drop_work_pack = self.wor_pac_sel.value;
+                                self.drop_sub_pack = self.sub_pac_sel.value;
+                                var dateEntered = document.getElementById('select').value
+                                dateEntered = dateEntered.replace(' to ','to');
+                                var from = dateEntered.split('to')[0].replace(' ','');
+                                var to = dateEntered.split('to')[1].replace(' ','');
+                                var placeholder = ''
+                                self.call_back = [];
+                                self.call_back.push(from);
+                                self.call_back.push(to);                                                                                                                       var pro_cen_nam = $state.params.selpro;                                                                                                        self.location = pro_cen_nam.split('-')[0].replace(' ','') + ' - '
+                                self.project = pro_cen_nam.split('-')[1].replace(' ','') + ' - '
+                                self.call_back.push(self.location);
+                                self.call_back.push(self.project);
+                                var final_work =  '&sub_project=' + self.drop_sub_proj + '&sub_packet=' + self.drop_sub_pack + '&work_packet=' +
+                                                        self.drop_work_pack;
 
-                    self.main_widget_function(self.call_back, final_work);
+                                self.main_widget_function(self.call_back, final_work);
 
-                });
+                            });
 
-                $('#1').on('change', function(){
-                    self.apply_class();
-                    self.add_loader();
-                    self.drop_sub_proj = self.sub_pro_sel.value;
-                    self.drop_work_pack = this.value;
-                    self.drop_sub_pack = self.sub_pac_sel.value;
-                    var dateEntered = document.getElementById('select').value
-                    dateEntered = dateEntered.replace(' to ','to');
-                    var from = dateEntered.split('to')[0].replace(' ','');
-                    var to = dateEntered.split('to')[1].replace(' ','');
-                    var placeholder = ''
-                    self.call_back = [];
-                    self.call_back.push(from);
-                    self.call_back.push(to);                                                                                                                       var pro_cen_nam = $state.params.selpro;                                                                                                        self.location = pro_cen_nam.split('-')[0].replace(' ','') + ' - '
-                    self.project = pro_cen_nam.split('-')[1].replace(' ','') + ' - '
-                    self.call_back.push(self.location);
-                    self.call_back.push(self.project);
+                            $('#1').on('change', function(){
+                                self.apply_class();
+                                self.add_loader();
+                                self.drop_sub_proj = self.sub_pro_sel.value;
+                                self.drop_work_pack = this.value;
+                                self.drop_sub_pack = self.sub_pac_sel.value;
+                                var dateEntered = document.getElementById('select').value
+                                dateEntered = dateEntered.replace(' to ','to');
+                                var from = dateEntered.split('to')[0].replace(' ','');
+                                var to = dateEntered.split('to')[1].replace(' ','');
+                                var placeholder = ''
+                                self.call_back = [];
+                                self.call_back.push(from);
+                                self.call_back.push(to);                                                                                                                       var pro_cen_nam = $state.params.selpro;                                                                                                        self.location = pro_cen_nam.split('-')[0].replace(' ','') + ' - '
+                                self.project = pro_cen_nam.split('-')[1].replace(' ','') + ' - '
+                                self.call_back.push(self.location);
+                                self.call_back.push(self.project);
 
-                    var final_work =  '&sub_project=' + self.drop_sub_proj + '&sub_packet=' + self.drop_sub_pack + '&work_packet=' +
-                                            self.drop_work_pack;
+                                var final_work =  '&sub_project=' + self.drop_sub_proj + '&sub_packet=' + self.drop_sub_pack + '&work_packet=' +
+                                                        self.drop_work_pack;
 
-                    self.main_widget_function(self.call_back, final_work);
+                                self.main_widget_function(self.call_back, final_work);
 
-                });
+                            });
 
-                $('#2').on('change', function(){
-                    self.apply_class();
-                    self.add_loader();
-                    self.drop_work_pack = self.wor_pac_sel.value;
-                    self.drop_sub_proj = self.sub_pro_sel.value;
-                    self.drop_sub_pack = this.value;
-                    var dateEntered = document.getElementById('select').value
-                    dateEntered = dateEntered.replace(' to ','to');
-                    var from = dateEntered.split('to')[0].replace(' ','');
-                    var to = dateEntered.split('to')[1].replace(' ','');
-                    var placeholder = ''
-                    self.call_back = [];
-                    self.call_back.push(from);
-                    self.call_back.push(to);                                                                                                                       var pro_cen_nam = $state.params.selpro;                                                                                                        self.location = pro_cen_nam.split('-')[0].replace(' ','') + ' - '
-                    self.project = pro_cen_nam.split('-')[1].replace(' ','') + ' - '
-                    self.call_back.push(self.location);
-                    self.call_back.push(self.project);
+                            $('#2').on('change', function(){
+                                self.apply_class();
+                                self.add_loader();
+                                self.drop_work_pack = self.wor_pac_sel.value;
+                                self.drop_sub_proj = self.sub_pro_sel.value;
+                                self.drop_sub_pack = this.value;
+                                var dateEntered = document.getElementById('select').value
+                                dateEntered = dateEntered.replace(' to ','to');
+                                var from = dateEntered.split('to')[0].replace(' ','');
+                                var to = dateEntered.split('to')[1].replace(' ','');
+                                var placeholder = ''
+                                self.call_back = [];
+                                self.call_back.push(from);
+                                self.call_back.push(to);                                                                                                                       var pro_cen_nam = $state.params.selpro;                                                                                                        self.location = pro_cen_nam.split('-')[0].replace(' ','') + ' - '
+                                self.project = pro_cen_nam.split('-')[1].replace(' ','') + ' - '
+                                self.call_back.push(self.location);
+                                self.call_back.push(self.project);
 
-                    var final_work =  '&sub_project=' + self.drop_sub_proj + '&sub_packet=' + self.drop_sub_pack + '&work_packet=' + self.drop_work_pack;
-                    self.main_widget_function(self.call_back, final_work);
+                                var final_work =  '&sub_project=' + self.drop_sub_proj + '&sub_packet=' + self.drop_sub_pack + '&work_packet=' + self.drop_work_pack;
+                                self.main_widget_function(self.call_back, final_work);
 
-                });
+                            });
 
-                }
+                        }
 
-                else {
+                        else {
 
-                if ((self.fin_work_packet) && (self.fin_sub_packet)){
+                        if ((self.fin_work_packet) && (self.fin_sub_packet)){
 
-                $('#0').on('change', function(){
+                        $('#0').on('change', function(){
 
-                    self.apply_class();                        
-                    self.add_loader();
-                    self.drop_work_pack = this.value;
-                    self.drop_sub_proj = 'undefined';
-                    self.drop_sub_pack = self.sub_pac_sel.value;
-                    var dateEntered = document.getElementById('select').value
-                    dateEntered = dateEntered.replace(' to ','to');
-                    var from = dateEntered.split('to')[0].replace(' ','');
-                    var to = dateEntered.split('to')[1].replace(' ','');
-                    var placeholder = ''
-                    self.call_back = [];
-                    self.call_back.push(from);
-                    self.call_back.push(to);                                                                                                                       var pro_cen_nam = $state.params.selpro;                                                                                                        self.location = pro_cen_nam.split('-')[0].replace(' ','') + ' - '
-                    self.project = pro_cen_nam.split('-')[1].replace(' ','') + ' - '
-                    self.call_back.push(self.location);
-                    self.call_back.push(self.project);
+                            self.apply_class();                        
+                            self.add_loader();
+                            self.drop_work_pack = this.value;
+                            self.drop_sub_proj = 'undefined';
+                            self.drop_sub_pack = self.sub_pac_sel.value;
+                            var dateEntered = document.getElementById('select').value
+                            dateEntered = dateEntered.replace(' to ','to');
+                            var from = dateEntered.split('to')[0].replace(' ','');
+                            var to = dateEntered.split('to')[1].replace(' ','');
+                            var placeholder = ''
+                            self.call_back = [];
+                            self.call_back.push(from);
+                            self.call_back.push(to);                                                                                                                       var pro_cen_nam = $state.params.selpro;                                                                                                        self.location = pro_cen_nam.split('-')[0].replace(' ','') + ' - '
+                            self.project = pro_cen_nam.split('-')[1].replace(' ','') + ' - '
+                            self.call_back.push(self.location);
+                            self.call_back.push(self.project);
 
-                    var final_work =  '&sub_project=' + self.drop_sub_proj + '&sub_packet=' + self.drop_sub_pack + '&work_packet=' + self.drop_work_pack;
-                    self.main_widget_function(self.call_back, final_work);
+                            var final_work =  '&sub_project=' + self.drop_sub_proj + '&sub_packet=' + self.drop_sub_pack + '&work_packet=' + self.drop_work_pack;
+                            self.main_widget_function(self.call_back, final_work);
 
-                });
+                        });
 
-                $('#1').on('change', function(){
-                    self.apply_class();   
-                    self.add_loader();
-                    self.drop_sub_pack = this.value;
-                    self.drop_sub_proj = 'undefined';
-                    self.drop_work_pack;
-                    var dateEntered = document.getElementById('select').value
-                    dateEntered = dateEntered.replace(' to ','to');
-                    var from = dateEntered.split('to')[0].replace(' ','');
-                    var to = dateEntered.split('to')[1].replace(' ','');
-                    var placeholder = ''
-                    self.call_back = [];
-                    self.call_back.push(from);
-                    self.call_back.push(to);                                                                                                                               var pro_cen_nam = $state.params.selpro;                                                                                                                self.location = pro_cen_nam.split('-')[0].replace(' ','') + ' - '
-                    self.project = pro_cen_nam.split('-')[1].replace(' ','') + ' - '
-                    self.call_back.push(self.location);
-                    self.call_back.push(self.project);
+                        $('#1').on('change', function(){
+                            self.apply_class();   
+                            self.add_loader();
+                            self.drop_sub_pack = this.value;
+                            self.drop_sub_proj = 'undefined';
+                            self.drop_work_pack;
+                            var dateEntered = document.getElementById('select').value
+                            dateEntered = dateEntered.replace(' to ','to');
+                            var from = dateEntered.split('to')[0].replace(' ','');
+                            var to = dateEntered.split('to')[1].replace(' ','');
+                            var placeholder = ''
+                            self.call_back = [];
+                            self.call_back.push(from);
+                            self.call_back.push(to);                                                                                                                               var pro_cen_nam = $state.params.selpro;                                                                                                                self.location = pro_cen_nam.split('-')[0].replace(' ','') + ' - '
+                            self.project = pro_cen_nam.split('-')[1].replace(' ','') + ' - '
+                            self.call_back.push(self.location);
+                            self.call_back.push(self.project);
 
-                    var final_work =  '&sub_project=' + self.drop_sub_proj + '&sub_packet=' + self.drop_sub_pack + '&work_packet=' + self.drop_work_pack;
-                    self.main_widget_function(self.call_back, final_work);
-                });
-                }
-                else {
-                if (self.fin_work_packet){ 
-                    $('#0').on('change', function(){ 
-                        self.apply_class();
-                        self.add_loader();
-                        self.drop_work_pack = this.value;
-                        self.drop_sub_proj = 'undefined';
-                        self.drop_sub_pack = 'undefined';
-                        var dateEntered = document.getElementById('select').value
-                        dateEntered = dateEntered.replace(' to ','to');
-                        var from = dateEntered.split('to')[0].replace(' ','');
-                        var to = dateEntered.split('to')[1].replace(' ','');
-                        var placeholder = '' 
-                        self.call_back = [];
-                        self.call_back.push(from);
-                        self.call_back.push(to);
-                        var pro_cen_nam = $state.params.selpro;                                                                                                        self.location = pro_cen_nam.split('-')[0].replace(' ','') + ' - '
-                        self.project = pro_cen_nam.split('-')[1].replace(' ','') + ' - '
-                        self.call_back.push(self.location);
-                        self.call_back.push(self.project);
+                            var final_work =  '&sub_project=' + self.drop_sub_proj + '&sub_packet=' + self.drop_sub_pack + '&work_packet=' + self.drop_work_pack;
+                            self.main_widget_function(self.call_back, final_work);
+                        });
+                        }
+                        else {
+                        if (self.fin_work_packet){ 
+                            $('#0').on('change', function(){ 
+                                self.apply_class();
+                                self.add_loader();
+                                self.drop_work_pack = this.value;
+                                self.drop_sub_proj = 'undefined';
+                                self.drop_sub_pack = 'undefined';
+                                var dateEntered = document.getElementById('select').value
+                                dateEntered = dateEntered.replace(' to ','to');
+                                var from = dateEntered.split('to')[0].replace(' ','');
+                                var to = dateEntered.split('to')[1].replace(' ','');
+                                var placeholder = '' 
+                                self.call_back = [];
+                                self.call_back.push(from);
+                                self.call_back.push(to);
+                                var pro_cen_nam = $state.params.selpro;                                                                                                        self.location = pro_cen_nam.split('-')[0].replace(' ','') + ' - '
+                                self.project = pro_cen_nam.split('-')[1].replace(' ','') + ' - '
+                                self.call_back.push(self.location);
+                                self.call_back.push(self.project);
 
-                        var final_work =  '&sub_project=' + self.drop_sub_proj + '&sub_packet=' + self.drop_sub_pack + '&work_packet=' + 
-                                            self.drop_work_pack;
-                        self.main_widget_function(self.call_back, final_work);
+                                var final_work =  '&sub_project=' + self.drop_sub_proj + '&sub_packet=' + self.drop_sub_pack + '&work_packet=' + 
+                                                    self.drop_work_pack;
+                                self.main_widget_function(self.call_back, final_work);
+
+                            });
+                        }
+                    }
+                    if (self.fin_sub_packet) {
+                    $('#1').on('change', function(){
 
                     });
-                }
-                }
-                if (self.fin_sub_packet) {
-                $('#1').on('change', function(){
-
-                });
                 }
                 else {
                 self.drop_sub_pack = 'undefined';
                 }
              }
-                    })
-                    return callback;
+           })
+           return callback;
            }).then(function(callback){
                     var final_work = '';
                     self.main_widget_function(callback, final_work);
@@ -3957,8 +3973,48 @@
                     $('.widget-34b').addClass('widget-data-hide');
                     self.upload_acc(final_work, key);
                 }
-             }                    
-            
+                var chart_type_map = {};
+                chart_type_map = { 'chartOptions47' : self.filter_list[0], 'chartOptions48' : self.filter_list[1] , 'chartOptions49' : self.filter_list[2], 'chartOptions50' : self.filter_list[3], 'chartOptions51' : self.filter_list[4] };
+                if( !(self.fin_sub_project || self.fin_sub_packet || self.fin_work_packet ) && self.is_voice_flag ) {
+                    if (name == 'chartOptions47' || name == 'chartOptions48' || name == 'chartOptions49' || name == 'chartOptions50' || name == 'chartOptions51') {
+                        self.day_type = key;
+                        self.ajaxVoiceFilter(chart_type_map[name]);
+                    }
+                }
+            }
+
+            /*self.voiceTypeFilter = function(key) {
+                if(key == 'inbound') {
+                    $('.inbound').addClass('active btn-success');
+                    $('.inbound').siblings().removeClass('active btn-success');
+                } else {
+                    $('.outbound').addClass('active btn-success');
+                    $('.outbound').siblings().removeClass('active btn-success');
+                }
+            }*/
+
+            self.voiceTypeFilter = function(key) {
+                var callback = [];
+                var dateEntered = document.getElementById('select').value
+                dateEntered = dateEntered.replace(' to ','to');
+                var from = dateEntered.split('to')[0].replace(' ','');
+                var to = dateEntered.split('to')[1].replace(' ','');
+                callback.push.apply(callback, [from, to, self.center_live, self.project_live]);
+                if(key == 'inbound') {
+                    $('.inbound').addClass('active btn-success');
+                    $('.inbound').siblings().removeClass('active btn-success');
+                } else {
+                    $('.outbound').addClass('active btn-success');
+                    $('.outbound').siblings().removeClass('active btn-success');
+                }
+                var packet_url = '/api/get_packet_details/?&project='+callback[3]+'&center='+callback[2]+'&from='+callback[0]+'&to='+callback[1]+'&voice_project_type='+key;
+                    $http.get(packet_url).then(function(result) {
+                        self.chartProcess(result);
+                    })
+            }
+
+            self.voiceTypeFilter(self.voiceType);
+
              self.active_filters = function(key,button_clicked) {
                 var some = '' 
                 if (key == 'day') { some = 'Day';}
@@ -5794,6 +5850,7 @@
             self.voice_filters['Location'] = [];
             self.voice_filters['Skill'] = [];
             self.voice_filters['Disposition'] = [];
+            self.voiceProjectType = 'inbound';
             }],
 
             "bindings": {
