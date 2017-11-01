@@ -51,5 +51,6 @@ urlpatterns = [
     url(r'^disposition', apiviews.disposition),
     url(r'^call_status', apiviews.call_status),
     #url(r'^disposition_cate', apiviews.disposition_cate)
-    url(r'^cate_dispo_inbound', apiviews.cate_dispo_inbound)
+    url(r'^cate_dispo_inbound', apiviews.cate_dispo_inbound),
+    url(r'^outbound_dispo_cate', apiviews.outbound_dispo_cate)
 ]

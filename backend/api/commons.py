@@ -1,5 +1,6 @@
 
 import datetime
+import datetime as dt
 import calendar
 from api.models import *
 from api.basics import *
@@ -25,13 +26,11 @@ def data_dict(variable):
     main_data_dict['work_packet'] = variable.get('work_packet',[])
     main_data_dict['sub_project'] = variable.get('sub_project','')
     main_data_dict['sub_packet'] = variable.get('sub_packet','')
-    #import pdb;pdb.set_trace()
     dwm_dict= {}
     date_list=num_of_days(to_date,from_date)
     type = variable.get('type','')
     if type == '':
         type = 'day'
-    
     is_clicked = variable.get('is_clicked','NA')
     if type == 'day':
         if 'yes' not in is_clicked:
@@ -49,7 +48,10 @@ def data_dict(variable):
         hours_data = []
         data = [(i, dt.time(i).strftime('%I %p')) for i in range(24)]
         for i in data:
-            hours_data.append(i[1])
+            hours_data.append(i[0])
+        dwm_dict['hour'] = hours_data
+    main_data_dict['dates'] = date_list
+    main_data_dict['dwm_dict'] = dwm_dict
 
     if type == 'week':
         months_dict = {}
@@ -126,7 +128,7 @@ def data_dict(variable):
             if employe_dates.has_key('days'):
                 employe_dates['days'] = employe_dates['days']+months_dict[month_na]
             else:
-                employe_dates['days']=months_dict[month_na]
+                employe_dates['days']= months_dict[month_na]
         dwm_dict['month'] = {'month_names':month_names_list, 'month_dates':month_list}
         main_data_dict['dwm_dict'] = dwm_dict
     main_data_dict['type'] = type
