@@ -1,6 +1,6 @@
 from django.shortcuts import render
 import xlrd
-import datetime
+import datetime, time
 from django.apps import apps
 from voice_service.models import *
 from api.models import *
@@ -138,9 +138,9 @@ def call_status_data(prj_id, center, dates_list, location, skill, disposition):
     #return [{'name': item, 'data': final_dict[item]} for item in final_dict]
     return final_dict
 
-def disposition_cate_data(prj_id, center, dates_list, location, skill, disposition):
-    final_dict = {} 
-    if disposition == 'All' and skill == 'All' and location == 'All':
+def disposition_cate_data(prj_id, center, dates_list, disposition, location, skill):
+    final_dict = {}
+    if location == 'All' and skill == 'All' and disposition == 'All':
         dispo_query = InboundHourlyCall.objects.filter(project = prj_id, center = center, date__range = [dates_list[0], dates_list[-1]]).values('disposition').distinct().annotate(total = count('disposition'))
     elif disposition != 'All' and skill == 'All' and location == 'All':
         dispo_query = InboundHourlyCall.objects.filter(project = prj_id, center = center, date__range = [dates_list[0], dates_list[-1]], disposition = disposition).values('disposition').distinct().annotate(total = count('disposition'))
@@ -150,12 +150,12 @@ def disposition_cate_data(prj_id, center, dates_list, location, skill, dispositi
         dispo_query = InboundHourlyCall.objects.filter(project = prj_id, center = center, date__range = [dates_list[0], dates_list[-1]], location = location).values('disposition').distinct().annotate(total = count('disposition'))
     elif disposition != 'All' and skill != 'All' and location == 'All':
         dispo_query = InboundHourlyCall.objects.filter(project = prj_id, center = center, date__range = [dates_list[0], dates_list[-1]], skill = skill, disposition = disposition).values('disposition').distinct().annotate(total = count('disposition'))
-    elif disposition != 'All' and skill == 'All' and location != 'All':
-        dispo_query = InboundHourlyCall.objects.filter(project = prj_id, center = center, date__range = [dates_list[0], dates_list[-1]], location = location, disposition = disposition).values('disposition').distinct().annotate(total = count('disposition'))
     elif disposition == 'All' and skill != 'All' and location != 'All':
-        dispo_query = InboundHourlyCall.objects.filter(project = prj_id, center = center, date__range = [dates_list[0], dates_list[-1]], location = location, skill = skill).values('disposition').distinct().annotate(total = count('disposition'))
+        dispo_query = InboundHourlyCall.objects.filter(project = prj_id, center = center, date__range = [dates_list[0], dates_list[-1]], skill = skill, location = location).values('disposition').distinct().annotate(total = count('disposition'))
+    elif disposition != 'All' and skill != 'All' and location == 'All':
+        dispo_query = InboundHourlyCall.objects.filter(project = prj_id, center = center, date__range = [dates_list[0], dates_list[-1]], skill = skill, disposition = disposition).values('disposition').distinct().annotate(total = count('disposition'))
     elif disposition != 'All' and skill != 'All' and location != 'All':
-        dispo_query = InboundHourlyCall.objects.filter(project = prj_id, center = center, date__range = [dates_list[0], dates_list[-1]], location = location, skill = skill, disposition = disposition).values('disposition').distinct().annotate(total = count('disposition'))
+        dispo_query = InboundHourlyCall.objects.filter(project = prj_id, center = center, date__range = [dates_list[0], dates_list[-1]], skill = skill, disposition = disposition, location = location).values('disposition').distinct().annotate(total = count('disposition')) 
     else:
         return []
     for data in dispo_query:
@@ -184,3 +184,192 @@ def dispo_outbound_cate_data(prj_id, center, dates_list, disposition):
                 else:
                     final_dict[value['disposition']] = [value['total']]
     return final_dict
+
+def hourly_location_data(prj_id, center, dates, hours, location, disposition, skill):
+    final_dict = {}
+    for date in dates:
+        for hour in hours:
+            hr = hour*60*60 
+            hr1 = (hour + 1)*60*60
+            final_hour1 = date + ' ' + time.strftime('%H:%M:%S', time.gmtime(hr1))       
+            final_hour = date + ' ' + time.strftime('%H:%M:%S', time.gmtime(hr))
+            if location == 'All' and disposition == 'All' and skill == 'All':
+                location_hr_query = InboundHourlyCall.objects.filter(project = prj_id, center = center, start_time__gte = final_hour, end_time__lte = final_hour1).values('location').distinct().annotate(total = count('location'))
+            elif location != 'All' and disposition == 'All' and skill == 'All':
+                location_hr_query = InboundHourlyCall.objects.filter(project = prj_id, center = center, start_time__gte = final_hour, end_time__lte = final_hour1, location = location).values('location').distinct().annotate(total = count('location'))
+            elif location == 'All' and disposition != 'All' and skill == 'All':
+                location_hr_query = InboundHourlyCall.objects.filter(project = prj_id, center = center, start_time__gte = final_hour, end_time__lte = final_hour1, disposition = disposition).values('location').distinct().annotate(total = count('location'))
+            elif location == 'All' and disposition == 'All' and skill != 'All':
+                location_hr_query = InboundHourlyCall.objects.filter(project = prj_id, center = center, start_time__gte = final_hour, end_time__lte = final_hour1, skill = skill).values('location').distinct().annotate(total = count('location'))
+            elif location != 'All' and disposition != 'All' and skill == 'All':
+                location_hr_query = InboundHourlyCall.objects.filter(project = prj_id, center = center, start_time__gte = final_hour, end_time__lte = final_hour1, location = location, disposition = disposition).values('location').distinct().annotate(total = count('location'))
+            elif location == 'All' and disposition != 'All' and skill != 'All':
+                location_hr_query = InboundHourlyCall.objects.filter(project = prj_id, center = center, start_time__gte = final_hour, end_time__lte = final_hour1, disposition = disposition, skill = skill).values('location').distinct().annotate(total = count('location'))
+            elif location != 'All' and disposition == 'All' and skill != 'All':
+                location_hr_query = InboundHourlyCall.objects.filter(project = prj_id, center = center, start_time__gte = final_hour, end_time__lte = final_hour1, location = location, skill = skill).values('location').distinct().annotate(total = count('location'))
+            elif location != 'All' and disposition != 'All' and skill != 'All':
+                location_hr_query = InboundHourlyCall.objects.filter(project = prj_id, center = center, start_time__gte = final_hour, end_time__lte = final_hour1, location = location, skill = skill, disposition = disposition).values('location').distinct().annotate(total = count('location'))
+            else:
+                return []
+            for value in location_hr_query:
+                if value['total'] > 0:
+                   if '->' not in value['location']:
+                       if final_dict.has_key(value['location']):
+                            final_dict[value['location']].append(value['total'])
+                       else:
+                           final_dict[value['location']] = [value['total']]
+    return final_dict
+
+def hourly_skill_data(prj_id, center, dates, hours, location, disposition, skill):
+    final_dict = {}
+    for date in dates:
+        for hour in hours:
+            hr = hour*60*60
+            hr1 = (hour + 1)*60*60
+            final_hour1 = date + ' ' + time.strftime('%H:%M:%S', time.gmtime(hr1))       
+            final_hour = date + ' ' + time.strftime('%H:%M:%S', time.gmtime(hr))
+            if location == 'All' and disposition == 'All' and skill == 'All':
+                skill_hr_query = InboundHourlyCall.objects.filter(project = prj_id, center = center, start_time__gte = final_hour, end_time__lte = final_hour1).values('skill').distinct().annotate(total = count('skill'))
+            elif location != 'All' and disposition == 'All' and skill == 'All':
+                skill_hr_query = InboundHourlyCall.objects.filter(project = prj_id, center = center, start_time__gte = final_hour, end_time__lte = final_hour1, location = location).values('skill').distinct().annotate(total = count('skill'))
+            elif location == 'All' and disposition != 'All' and skill == 'All':
+                skill_hr_query = InboundHourlyCall.objects.filter(project = prj_id, center = center, start_time__gte = final_hour, end_time__lte = final_hour1, disposition = disposition).values('skill').distinct().annotate(total = count('skill'))
+            elif location == 'All' and disposition == 'All' and skill != 'All':
+                skill_hr_query = InboundHourlyCall.objects.filter(project = prj_id, center = center, start_time__gte = final_hour, end_time__lte = final_hour1, skill = skill).values('skill').distinct().annotate(total = count('skill'))
+            elif location != 'All' and disposition != 'All' and skill == 'All':
+                skill_hr_query = InboundHourlyCall.objects.filter(project = prj_id, center = center, start_time__gte = final_hour, end_time__lte = final_hour1, location = location, disposition = disposition).values('skill').distinct().annotate(total = count('skill'))
+            elif location == 'All' and disposition != 'All' and skill != 'All':
+                skill_hr_query = InboundHourlyCall.objects.filter(project = prj_id, center = center, start_time__gte = final_hour, end_time__lte = final_hour1, disposition = disposition, skill = skill).values('skill').distinct().annotate(total = count('skill'))
+            elif location != 'All' and disposition == 'All' and skill != 'All':
+                skill_hr_query = InboundHourlyCall.objects.filter(project = prj_id, center = center, start_time__gte = final_hour, end_time__lte = final_hour1, location = location, skill = skill).values('skill').distinct().annotate(total = count('skill'))
+            elif location != 'All' and disposition != 'All' and skill != 'All':
+                skill_hr_query = InboundHourlyCall.objects.filter(project = prj_id, center = center, start_time__gte = final_hour, end_time__lte = final_hour1, location = location, skill = skill, disposition = disposition).values('skill').distinct().annotate(total = count('skill'))
+            else:
+                return []
+            for value in skill_hr_query:
+                if value['total'] > 0:
+                   if '->' not in value['skill']:
+                       if final_dict.has_key(value['skill']):
+                            final_dict[value['skill']].append(value['total'])
+                       else:
+                           final_dict[value['skill']] = [value['total']]
+    return final_dict
+
+def hourly_dispo_data(prj_id, center, dates, hours, location, disposition, skill):
+    final_dict = {}
+    for date in dates:
+        for hour in hours:
+            hr = hour*60*60
+            hr1 = (hour + 1)*60*60
+            final_hour1 = date + ' ' + time.strftime('%H:%M:%S', time.gmtime(hr1))
+            final_hour = date + ' ' + time.strftime('%H:%M:%S', time.gmtime(hr))
+            if location == 'All' and disposition == 'All' and skill == 'All':
+                dispo_hr_query = InboundHourlyCall.objects.filter(project = prj_id, center = center, start_time__gte = final_hour, end_time__lte = final_hour1).values('disposition').distinct().annotate(total = count('disposition'))
+            elif location != 'All' and disposition == 'All' and skill == 'All':
+                dispo_hr_query = InboundHourlyCall.objects.filter(project = prj_id, center = center, start_time__gte = final_hour, end_time__lte = final_hour1, location = location).values('disposition').distinct().annotate(total = count('disposition'))
+            elif location == 'All' and disposition != 'All' and skill == 'All':
+                dispo_hr_query = InboundHourlyCall.objects.filter(project = prj_id, center = center, start_time__gte = final_hour, end_time__lte = final_hour1, disposition = disposition).values('disposition').distinct().annotate(total = count('disposition'))
+            elif location == 'All' and disposition == 'All' and skill != 'All':
+                dispo_hr_query = InboundHourlyCall.objects.filter(project = prj_id, center = center, start_time__gte = final_hour, end_time__lte = final_hour1, skill = skill).values('disposition').distinct().annotate(total = count('disposition'))
+            elif location != 'All' and disposition != 'All' and skill == 'All':
+                dispo_hr_query = InboundHourlyCall.objects.filter(project = prj_id, center = center, start_time__gte = final_hour, end_time__lte = final_hour1, location = location, disposition = disposition).values('disposition').distinct().annotate(total = count('disposition'))
+            elif location == 'All' and disposition != 'All' and skill != 'All': 
+                dispo_hr_query = InboundHourlyCall.objects.filter(project = prj_id, center = center, start_time__gte = final_hour, end_time__lte = final_hour1, disposition = disposition, skill = skill).values('disposition').distinct().annotate(total = count('disposition'))
+            elif location != 'All' and disposition == 'All' and skill != 'All':
+                dispo_hr_query = InboundHourlyCall.objects.filter(project = prj_id, center = center, start_time__gte = final_hour, end_time__lte = final_hour1, location = location, skill = skill).values('disposition').distinct().annotate(total = count('disposition'))
+            elif location != 'All' and disposition != 'All' and skill != 'All':
+                dispo_hr_query = InboundHourlyCall.objects.filter(project = prj_id, center = center, start_time__gte = final_hour, end_time__lte = final_hour1, location = location, skill = skill, disposition = disposition).values('disposition').distinct().annotate(total = count('disposition'))
+            else:
+                return []
+            for value in dispo_hr_query:
+                if value['total'] > 0:
+                   if '->' not in value['disposition']:
+                       if final_dict.has_key(value['disposition']):
+                            final_dict[value['disposition']].append(value['total'])
+                       else:
+                           final_dict[value['disposition']] = [value['total']]
+    return final_dict
+
+
+def hourly_call_data(prj_id, center, dates, hours, location, disposition, skill):
+    final_dict = {}  
+    for date in dates:
+        for hour in hours:
+            hr = hour*60*60
+            hr1 = (hour + 1)*60*60
+            final_hour1 = date + ' ' + time.strftime('%H:%M:%S', time.gmtime(hr1))
+            final_hour = date + ' ' + time.strftime('%H:%M:%S', time.gmtime(hr))
+            if location == 'All' and disposition == 'All' and skill == 'All':
+                call_hr_query = InboundHourlyCall.objects.filter(project = prj_id, center = center, start_time__gte = final_hour, end_time__lte = final_hour1).values('status').distinct().annotate(total = count('status'))
+            elif location != 'All' and disposition == 'All' and skill == 'All':
+                call_hr_query = InboundHourlyCall.objects.filter(project = prj_id, center = center, start_time__gte = final_hour, end_time__lte = final_hour1, location = location).values('status').distinct().annotate(total = count('status'))
+            elif location == 'All' and disposition != 'All' and skill == 'All':
+                call_hr_query = InboundHourlyCall.objects.filter(project = prj_id, center = center, start_time__gte = final_hour, end_time__lte = final_hour1, disposition = disposition).values('status').distinct().annotate(total = count('status'))
+            elif location == 'All' and disposition == 'All' and skill != 'All':
+                call_hr_query = InboundHourlyCall.objects.filter(project = prj_id, center = center, start_time__gte = final_hour, end_time__lte = final_hour1, skill = skill).values('status').distinct().annotate(total = count('status'))
+            elif location != 'All' and disposition != 'All' and skill == 'All':
+                call_hr_query = InboundHourlyCall.objects.filter(project = prj_id, center = center, start_time__gte = final_hour, end_time__lte = final_hour1, location = location, disposition = disposition).values('status').distinct().annotate(total = count('status'))
+            elif location == 'All' and disposition != 'All' and skill != 'All':
+                call_hr_query = InboundHourlyCall.objects.filter(project = prj_id, center = center, start_time__gte = final_hour, end_time__lte = final_hour1, disposition = disposition, skill = skill).values('status').distinct().annotate(total = count('status'))
+            elif location != 'All' and disposition == 'All' and skill != 'All':
+                call_hr_query = InboundHourlyCall.objects.filter(project = prj_id, center = center, start_time__gte = final_hour, end_time__lte = final_hour1, location = location, skill = skill).values('status').distinct().annotate(total = count('status'))
+            elif location != 'All' and disposition != 'All' and skill != 'All':
+                call_hr_query = InboundHourlyCall.objects.filter(project = prj_id, center = center, start_time__gte = final_hour, end_time__lte = final_hour1, location = location, skill = skill, disposition = disposition).values('status').distinct().annotate(total = count('status'))
+            else:
+                return []
+            for value in call_hr_query:
+                if value['total'] > 0:
+                   if '->' not in value['status']:
+                       if final_dict.has_key(value['status']):
+                            final_dict[value['status']].append(value['total'])
+                       else:
+                           final_dict[value['status']] = [value['total']]
+    return final_dict
+
+
+def hrly_disposition_cate_data(prj_id, center, date, disposition, location, skill):
+    final_dict = {}
+    if location == 'All' and skill == 'All' and disposition == 'All':
+        cate_dispo_query = InboundHourlyCall.objects.filter(project = prj_id, center = center, date = date).values('disposition').distinct().annotate(total = count('disposition'))
+    elif disposition != 'All' and skill == 'All' and location == 'All':
+        cate_dispo_query = InboundHourlyCall.objects.filter(project = prj_id, center = center, date = date, disposition = disposition).values('disposition').distinct().annotate(total = count('disposition'))
+    elif disposition == 'All' and skill != 'All' and location == 'All':
+        cate_dispo_query = InboundHourlyCall.objects.filter(project = prj_id, center = center, date = date, skill = skill).values('disposition').distinct().annotate(total = count('disposition'))
+    elif disposition == 'All' and skill == 'All' and location != 'All':
+        cate_dispo_query = InboundHourlyCall.objects.filter(project = prj_id, center = center, date = date, location = location).values('disposition').distinct().annotate(total = count('disposition'))
+    elif disposition != 'All' and skill != 'All' and location == 'All':
+        cate_dispo_query = InboundHourlyCall.objects.filter(project = prj_id, center = center, date = date, skill = skill, disposition = disposition).values('disposition').distinct().annotate(total = count('disposition'))
+    elif disposition == 'All' and skill != 'All' and location != 'All':
+        cate_dispo_query = InboundHourlyCall.objects.filter(project = prj_id, center = center, date = date, skill = skill, location = location).values('disposition').distinct().annotate(total = count('disposition'))
+    elif disposition != 'All' and skill != 'All' and location == 'All':
+        cate_dispo_query = InboundHourlyCall.objects.filter(project = prj_id, center = center, date = date, skill = skill, disposition = disposition).values('disposition').distinct().annotate(total = count('disposition'))
+    elif disposition != 'All' and skill != 'All' and location != 'All':
+        cate_dispo_query = InboundHourlyCall.objects.filter(project = prj_id, center = center, date = date, skill = skill, disposition = disposition, location = location).values('disposition').distinct().annotate(total = count('disposition'))
+    else:
+        return []
+    for data in cate_dispo_query:
+        if data['total'] > 0:
+            if '->' not in data['disposition']:
+                if final_dict.has_key(data['disposition']):
+                    final_dict[data['disposition']].append(data['total'])
+                else:
+                    final_dict[data['disposition']] = [data['total']]
+    return final_dict
+
+def hrly_dispo_outbound_cate_data(prj_id, center, date, disposition):
+    final_dict = {}
+    if disposition == 'All':
+        outbnd_dispo_query = OutboundHourlyCall.objects.filter(project = prj_id, center = center, date = date).values('disposition').distinct().annotate(total = count('disposition'))
+    elif disposition != 'All':
+        outbnd_dispo_query = OutboundHourlyCall.objects.filter(project = prj_id, center = center, date = date, disposition = disposition).values('disposition').distinct().annotate(total = count('disposition'))
+    else:
+        return []
+    for value in outbnd_dispo_query:
+        if value['total'] > 0:
+            if ('->' not in value['disposition']) and (value['disposition'] != ''):
+                if final_dict.has_key(value['disposition']):
+                    final_dict[value['disposition']].append(value['total'])
+                else:
+                    final_dict[value['disposition']] = [value['total']]
+    return final_dict
+

@@ -26,7 +26,22 @@ def location(request):
     main_dict = data_dict(request.GET)
     prj_id = main_dict['pro_cen_mapping'][0][0]
     center = main_dict['pro_cen_mapping'][1][0]
-    if main_dict['dwm_dict'].has_key('day') and main_dict['type'] == 'day':
+    if main_dict['dwm_dict'].has_key('hour') and main_dict['type'] == 'hour':
+        hours = main_dict['dwm_dict']['hour'][8:22]
+        dates = main_dict['dates']
+        for date in dates:
+            for hour in hours:
+                hr = hour*60*60
+                hr1 = (hour + 1)*60*60
+                final_hour1 = date + ' ' + time.strftime('%H:%M:%S', time.gmtime(hr1))
+                final_hour = date + ' ' + time.strftime('%H:%M:%S', time.gmtime(hr))
+                hour_check = InboundHourlyCall.objects.filter(project = prj_id, center = center, start_time__gte = final_hour, end_time__lte = final_hour1).values('location').count()
+                if hour_check > 0:
+                    new_date_list.append(hour)
+        hrly_loc_val = hourly_location_data(prj_id, center, dates, hours, curr_loc, dispo_val, skill_val)
+        result['location'] = [{'name': item, 'data': hrly_loc_val[item]} for item in hrly_loc_val]
+        result['date'] = new_date_list
+    elif main_dict['dwm_dict'].has_key('day') and main_dict['type'] == 'day':
         dates = main_dict['dwm_dict']['day']
         date_check = InboundHourlyCall.objects.filter(project = prj_id, center = center, date__range = [dates[0], dates[-1]]).values('date').annotate(total = count('location')).order_by('date')
         values = OrderedDict(zip(map(lambda p: str(p['date']), date_check), map(lambda p: str(p['total']), date_check)))
@@ -78,7 +93,22 @@ def skill(request):
     disposition = request.GET['disposition']
     prj_id = main_dict['pro_cen_mapping'][0][0]
     center = main_dict['pro_cen_mapping'][1][0]
-    if main_dict['dwm_dict'].has_key('day') and main_dict['type'] == 'day':
+    if main_dict['dwm_dict'].has_key('hour') and main_dict['type'] == 'hour':
+        hours = main_dict['dwm_dict']['hour'][8:22]
+        dates = main_dict['dates']
+        for date in dates:
+            for hour in hours:
+                hr = hour*60*60
+                hr1 = (hour + 1)*60*60
+                final_hour1 = date + ' ' + time.strftime('%H:%M:%S', time.gmtime(hr1))
+                final_hour = date + ' ' + time.strftime('%H:%M:%S', time.gmtime(hr))
+                hour_check = InboundHourlyCall.objects.filter(project = prj_id, center = center, start_time__gte = final_hour, end_time__lte = final_hour1).values('skill').count()
+                if hour_check > 0:
+                    new_date_list.append(hour)
+        hrly_skill_val = hourly_skill_data(prj_id, center, dates, hours, curr_loca, disposition, skill)
+        result['skill'] = [{'name': item, 'data': hrly_skill_val[item]} for item in hrly_skill_val]
+        result['date'] = new_date_list
+    elif main_dict['dwm_dict'].has_key('day') and main_dict['type'] == 'day':
         dates = main_dict['dwm_dict']['day']
         date_check = InboundHourlyCall.objects.filter(project = prj_id, center = center, date__range = [dates[0], dates[-1]]).values('date').annotate(total = count('skill')).order_by('date')
         values = OrderedDict(zip(map(lambda p: str(p['date']), date_check), map(lambda p: str(p['total']), date_check)))
@@ -131,7 +161,22 @@ def disposition(request):
     skill = request.GET['skill']
     prj_id = main_dict['pro_cen_mapping'][0][0]
     center = main_dict['pro_cen_mapping'][1][0]
-    if main_dict['dwm_dict'].has_key('day') and main_dict['type'] == 'day':
+    if main_dict['dwm_dict'].has_key('hour') and main_dict['type'] == 'hour':
+        hours = main_dict['dwm_dict']['hour'][8:22]
+        dates = main_dict['dates']
+        for date in dates:
+            for hour in hours:
+                hr = hour*60*60
+                hr1 = (hour + 1)*60*60
+                final_hour1 = date + ' ' + time.strftime('%H:%M:%S', time.gmtime(hr1))
+                final_hour = date + ' ' + time.strftime('%H:%M:%S', time.gmtime(hr))
+                hour_check = InboundHourlyCall.objects.filter(project = prj_id, center = center, start_time__gte = final_hour, end_time__lte = final_hour1).values('disposition').count()
+                if hour_check > 0:
+                    new_date_list.append(hour)
+        hrly_dispo_val = hourly_dispo_data(prj_id, center, dates, hours, curr_loca, disposition, skill)
+        result['disposition'] = [{'name': item, 'data': hrly_dispo_val[item]} for item in hrly_dispo_val]
+        result['date'] = new_date_list
+    elif main_dict['dwm_dict'].has_key('day') and main_dict['type'] == 'day':
         dates = main_dict['dwm_dict']['day']
         date_check = InboundHourlyCall.objects.filter(project = prj_id, center = center, date__range = [dates[0], dates[-1]]).values('date').annotate(total = count('disposition')).order_by('date')
         values = OrderedDict(zip(map(lambda p: str(p['date']), date_check), map(lambda p: str(p['total']), date_check)))
@@ -184,7 +229,23 @@ def call_status(request):
     main_dict = data_dict(request.GET)
     prj_id = main_dict['pro_cen_mapping'][0][0]
     center = main_dict['pro_cen_mapping'][1][0]
-    if main_dict['dwm_dict'].has_key('day') and main_dict['type'] == 'day':
+    if main_dict['dwm_dict'].has_key('hour') and main_dict['type'] == 'hour':
+        hours = main_dict['dwm_dict']['hour'][8:22]
+        dates = main_dict['dates']
+        for date in dates:
+            for hour in hours:
+                hr = hour*60*60
+                hr1 = (hour + 1)*60*60
+                final_hour1 = date + ' ' + time.strftime('%H:%M:%S', time.gmtime(hr1))
+                final_hour = date + ' ' + time.strftime('%H:%M:%S', time.gmtime(hr))
+                hour_check = InboundHourlyCall.objects.filter(project = prj_id, center = center, start_time__gte = final_hour, end_time__lte = final_hour1).values('status').count()
+                if hour_check > 0:
+                    new_date_list.append(hour)
+        hrly_call_val = hourly_call_data(prj_id, center, dates, hours, curr_loca, disposition, skill)
+        result['call_status'] = [{'name': item, 'data': hrly_call_val[item]} for item in hrly_call_val]
+        result['date'] = new_date_list
+
+    elif main_dict['dwm_dict'].has_key('day') and main_dict['type'] == 'day':
         dates = main_dict['dwm_dict']['day']
         date_check = InboundHourlyCall.objects.filter(project = prj_id, center = center, date__range = [dates[0], dates[-1]]).values('date').annotate(total = count('caller_no')).annotate(sta_total = count('status')).order_by('date')
         values = OrderedDict(zip(map(lambda p: str(p['date']), date_check), map(lambda p: str(p['total']), date_check)))
@@ -237,7 +298,13 @@ def cate_dispo_inbound(request):
     main_dict = data_dict(request.GET)
     prj_id = main_dict['pro_cen_mapping'][0][0]
     center = main_dict['pro_cen_mapping'][1][0]
-    if main_dict['dwm_dict'].has_key('day') and main_dict['type'] == 'day':
+    if main_dict['dwm_dict'].has_key('hour') and main_dict['type'] == 'hour':
+        date = main_dict['dates'][0]
+        hour_check = InboundHourlyCall.objects.filter(project = prj_id, center = center, date = date).values('disposition').count()
+        if hour_check > 0:
+            hrly_dispo_cate = hrly_disposition_cate_data(prj_id, center, date, disposition, curr_loca, skill)
+        result['cate_dispo_inbound'] = [{'name': item, 'y': hrly_dispo_cate[item][0]} for item in hrly_dispo_cate]
+    elif main_dict['dwm_dict'].has_key('day') and main_dict['type'] == 'day':
         dates = main_dict['dwm_dict']['day']
         date_check = InboundHourlyCall.objects.filter(project = prj_id, center = center, date__range = [dates[0], dates[-1]]).values('date').annotate(total = count('disposition')).order_by('date')
         values = OrderedDict(zip(map(lambda p: str(p['date']), date_check), map(lambda p: str(p['total']), date_check)))
@@ -270,7 +337,14 @@ def outbound_dispo_cate(request):
     main_dict = data_dict(request.GET)
     prj_id = main_dict['pro_cen_mapping'][0][0]
     center = main_dict['pro_cen_mapping'][1][0]
-    if main_dict['dwm_dict'].has_key('day') and main_dict['type'] == 'day':
+    if main_dict['dwm_dict'].has_key('hour') and main_dict['type'] == 'hour':
+        date = main_dict['dates'][0]
+        hour_check = OutboundHourlyCall.objects.filter(project = prj_id, center = center, date = date).values('disposition').count()
+        if hour_check > 0:
+            hrly_dispo_outbnd_cate = hrly_dispo_outbound_cate_data(prj_id, center, date, disposition)
+        result['outbound_dispo_cate'] = [{'name': item, 'y': hrly_dispo_outbnd_cate[item][0]} for item in hrly_dispo_outbnd_cate]
+
+    elif main_dict['dwm_dict'].has_key('day') and main_dict['type'] == 'day':
         dates = main_dict['dwm_dict']['day']
         date_check = OutboundHourlyCall.objects.filter(project = prj_id, center = center, date__range = [dates[0], dates[-1]]).values('date').annotate(total = count('disposition')).order_by('date')
         values = OrderedDict(zip(map(lambda p: str(p['date']), date_check), map(lambda p: str(p['total']), date_check)))

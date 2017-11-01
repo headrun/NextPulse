@@ -49,6 +49,9 @@ def data_dict(variable):
         data = [(i, dt.time(i).strftime('%I %p')) for i in range(24)]
         for i in data:
             hours_data.append(i[0])
+        dwm_dict['hour'] = hours_data
+    main_data_dict['dates'] = date_list
+    main_data_dict['dwm_dict'] = dwm_dict
 
     if type == 'week':
         months_dict = {}
