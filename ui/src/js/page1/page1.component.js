@@ -3481,14 +3481,10 @@
 
            }).then(function(callback){
                     self.call_back = callback;
-                    var final_work =  '&sub_project=' + self.drop_sub_proj + '&sub_packet=' + self.drop_sub_pack + '&work_packet=' +
-                                                                self.drop_work_pack;
+                    var final_work =  '&sub_project=' + self.drop_sub_proj + '&sub_packet=' + self.drop_sub_pack + '&work_packet=' + self.drop_work_pack;
                     var packet_url = '/api/get_packet_details/?&project='+callback[3]+'&center='+callback[2]+'&from='+callback[0]+'&to='+callback[1]+'&voice_project_type='+self.voiceProjectType;
-                    //var packet_url = '/api/get_packet_details/?&project='+callback[3]+'&center='+callback[2]+'&from='+callback[0]+'&to='+callback[1]+'&voice_type='+voice_type;
                     $http.get(packet_url).then(function(result) {
-
                         self.chartProcess = function(result) {
-
                             $('#dropdown_title').html($(".brand_style").text().replace(" - DASHBOARD",''));
                             var sub_project_level = result.data.result.sub_project_level;
                             var sub_packet_level = result.data.result.sub_packet_level;
@@ -3504,22 +3500,24 @@
                             
                             if (self.is_voice_flag) {
                                 angular.element(document.querySelector('#voice_filter_div')).removeClass('hide');
-                                angular.extend(self.voice_filters.Location, result.data.result['location']);
-                                angular.extend(self.voice_filters.Skill, result.data.result['skill']);
-                                angular.extend(self.voice_filters.Disposition, result.data.result['disposition']);
+                                self.voice_filters.Location = result.data.result['location'];
+                                self.voice_filters.Skill = result.data.result['skill'];
+                                self.voice_filters.Disposition = result.data.result['disposition'];
 
                                 self.LocationFilter = document.getElementById("Location");
                                 self.SkillFilter = document.getElementById("Skill");
                                 self.DispositionFilter = document.getElementById("Disposition");
 
+                                $(self.LocationFilter.options).remove();
+                                $(self.SkillFilter.options).remove();
+                                $(self.DispositionFilter.options).remove();
+
                                 angular.forEach(self.voice_filters.Location, function(location_value) {
                                     self.LocationFilter.options[self.LocationFilter.options.length] = new Option(location_value, location_value);
                                 });
-
                                 angular.forEach(self.voice_filters.Skill, function(skill_value) {
                                     self.SkillFilter.options[self.SkillFilter.options.length] = new Option(skill_value, skill_value);
                                 });
-
                                 angular.forEach(self.voice_filters.Disposition, function(disposition_value) {
                                     self.DispositionFilter.options[self.DispositionFilter.options.length] = new Option(disposition_value, disposition_value);
                                 });
@@ -4013,13 +4011,12 @@
                     })
             }
 
-            self.voiceTypeFilter(self.voiceType);
-
              self.active_filters = function(key,button_clicked) {
                 var some = '' 
                 if (key == 'day') { some = 'Day';}
                 if (key == 'week') { some = 'Week';}
                 if (key == 'month') { some = 'Month';}
+                if (key == 'hour') { some = 'hour';}
 
                 self.selected_date_type = some;
                 self.button_clicked = button_clicked;
@@ -4036,6 +4033,10 @@
                          $('.day2').addClass('active btn-success');
                          $('.day2').siblings().removeClass('active btn-success');
                  }
+                if (self.selected_date_type === 'hour'){
+                         $('.hour2').addClass('active btn-success');
+                         $('.hour2').siblings().removeClass('active btn-success');
+                 } 
 
                 var final_work =  '&sub_project=' + self.drop_sub_proj + '&sub_packet=' + self.drop_sub_pack + '&work_packet=' + self.drop_work_pack + '&is_clicked=' + self.button_clicked;
 
