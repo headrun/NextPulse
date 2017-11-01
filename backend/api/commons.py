@@ -159,17 +159,34 @@ def get_packet_details(request):
         sub_packet_level.append('all')
     else:
         sub_packet_level = ''
+    prj_type = request.GET['voice_project_type']
     inbound_hourly_master_set = InboundHourlyCall.objects.filter(project=main_data_dict['pro_cen_mapping'][0][0], center=main_data_dict['pro_cen_mapping'][1][0], date__range = dates)
-    location_names = filter(None, inbound_hourly_master_set.values_list('location',flat=True).distinct())
+    outbound_hourly_master_set = OutboundHourlyCall.objects.filter(project=main_data_dict['pro_cen_mapping'][0][0], center=main_data_dict['pro_cen_mapping'][1][0], date__range = dates)
+    if prj_type == 'inbound':
+        location_names = filter(None, inbound_hourly_master_set.values_list('location',flat=True).distinct())
+    elif prj_type == 'outbound':
+        location_names = ''
+    else:
+        location_names = ''
     location_list, skill_list, dispo_list = [], [], []
     for location in location_names:
         if '->' not in location:
             location_list.append(location)
-    skill_names = filter(None, inbound_hourly_master_set.values_list('skill',flat=True).distinct())
+    if prj_type == 'inbound':
+        skill_names = filter(None, inbound_hourly_master_set.values_list('skill',flat=True).distinct())
+    elif prj_type == 'outbound':
+        skill_names = ''
+    else:
+        skill_names = ''
     for skill in skill_names:
         if '->' not in skill:
             skill_list.append(skill)
-    disposition_names = filter(None, inbound_hourly_master_set.values_list('disposition',flat=True).distinct())
+    if prj_type == 'inbound':
+        disposition_names = filter(None, inbound_hourly_master_set.values_list('disposition',flat=True).distinct())
+    elif prj_type == 'outbound':
+        disposition_names = filter(None, outbound_hourly_master_set.values_list('disposition',flat=True).distinct())
+    else:
+        disposition_names = ''
     is_voice = Project.objects.filter(id=main_data_dict['pro_cen_mapping'][0][0], center=main_data_dict['pro_cen_mapping'][1][0]).values_list('is_voice', flat=True).distinct()[0]
     for dispo in disposition_names:
         if '->' not in dispo:
