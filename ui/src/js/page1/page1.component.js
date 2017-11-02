@@ -152,6 +152,7 @@
                 $("body")[!hasAnnotations ? "addClass"
                                           : "removeClass"]('add_annotation');
              });
+
              $('.select').daterangepicker({
                     "autoApply": true,
                     "locale": {
@@ -163,18 +164,18 @@
                 self.start = start.format('YYYY-MM-DD');
                 self.end = end.format('YYYY-MM-DD');
                 $('.input-sm').prop('selectedIndex',0);
-              
                 self.add_loader();
-
                 callback.push.apply(callback, [self.start, self.end, self.center_live, self.project_live])
                 self.apply_class();
-                self.main_widget_function(callback, '');
-                self.voiceTypeFilter(self.voiceProjectType, 1);
+                if(self.is_voice_flag) {
+                    self.voiceTypeFilter(self.voiceProjectType, 1);
+                } else {
+                    self.main_widget_function(callback, '');
+                }
                 $('.widget17b').addClass('widget-data-hide');
+            });
 
-               });
-
-            self.filter_list = ['location', 'skill', 'disposition', 'call_status', 'cate_dispo_inbound'];
+            self.filter_list = ['location', 'skill', 'disposition', 'call_status', 'cate_dispo_inbound', 'outbound_dispo_cate'];
             self.chartType = ['bar', 'stacked', 'pie'];
             self.voice_widget_function = function(result, voiceFilterType, widgetA, widgetB) {
                 var chartOptions, chartSeries, chartType;
@@ -197,6 +198,10 @@
                 } else if (voiceFilterType == self.filter_list[4]) {
                     chartOptions = self.chartOptions51;
                     chartSeries = result.result[self.filter_list[4]];
+                    chartType = self.chartType[2];
+                } else if (voiceFilterType == self.filter_list[5]) {
+                    chartOptions = self.chartOptions52;
+                    chartSeries = result.result[self.filter_list[5]];
                     chartType = self.chartType[2];
                 }
                 switch (chartType) {
@@ -3484,6 +3489,7 @@
                     'self.chartOptions49':self.chartOptions49,
                     'self.chartOptions50':self.chartOptions50,
                     'self.chartOptions51':self.chartOptions51,
+                    'self.chartOptions52':self.chartOptions52
 
                     };
 
@@ -3566,31 +3572,48 @@
                                 if(!(self.fin_sub_project || self.fin_sub_packet || self.fin_work_packet ) && self.is_voice_flag) {
                                     self.ajaxVoiceFilter = function(type) {
                                         var voice_filter_ajax = '/api/'+ type + self.voice_filter + self.day_type + '&location=' + self.locationValue + '&skill=' + self.skillValue + '&disposition=' + self.dispositionValue;
-                                        var widgetA, widgetB;
+                                        var widgetA, widgetB, type_check;
                                         if(type == self.filter_list[0]) {
                                             widgetA = '.widget-42a';
                                             widgetB = '.widget-42b';
+                                            type_check = 'inbound';
                                         } else if (type == self.filter_list[1]) {
                                             widgetA = '.widget-43a';
                                             widgetB = '.widget-43b';
+                                            type_check = 'inbound';
                                         } else if (type == self.filter_list[2]) {
                                             widgetA = '.widget-44a';
                                             widgetB = '.widget-44b';
+                                            type_check = 'inbound';
                                         } else if (type == self.filter_list[3]) {
                                             widgetA = '.widget-45a';
                                             widgetB = '.widget-45b';
+                                            type_check = 'inbound';
                                         } else if (type == self.filter_list[4]) {
                                             widgetA = '.widget-46a';
                                             widgetB = '.widget-46b';
+                                            type_check = 'inbound';
+                                        } else if (type == self.filter_list[5]) {
+                                            widgetA = '.widget-47a';
+                                            widgetB = '.widget-47b';
+                                            type_check = 'outbound';
+                                        }
+                                        if (self.voiceProjectType == 'inbound') {
+                                            if(type_check == 'outbound') {
+                                                $(widgetA).parent().hide();
+                                            } else {
+                                                $(widgetA).parent().show();    
+                                            }
+                                        }
+                                        if (self.voiceProjectType == 'outbound') {
+                                            if(type_check == 'inbound') {
+                                                $(widgetA).parent().hide();
+                                            } else {
+                                                $(widgetA).parent().show();
+                                            }
                                         }
                                         $(widgetA).addClass('widget-loader-show');
                                         $(widgetB).addClass('widget-data-hide');
-                                        $(widgetA).parent().show();
-                                        if (self.voiceProjectType == 'outbound') {
-                                            $(widgetA).parent().hide();
-                                            $(widgetA).addClass('widget-loader-show');
-                                            $(widgetB).addClass('widget-data-hide');
-                                        }
                                         $http({ method: "GET", url: voice_filter_ajax }).success(function(result) {
                                             self.voice_widget_function(result, type, widgetA, widgetB);
                                         })
@@ -3902,6 +3925,7 @@
                     "self.chartOptions49":self.chartOptions49,
                     "self.chartOptions50":self.chartOptions50,
                     "self.chartOptions51":self.chartOptions51,
+                    "self.chartOptions52":self.chartOptions52
                 }
 
                 self.render_data = obj[all_data];
@@ -4017,7 +4041,7 @@
                 var chart_type_map = {};
                 chart_type_map = { 'chartOptions47' : self.filter_list[0], 'chartOptions48' : self.filter_list[1] , 'chartOptions49' : self.filter_list[2], 'chartOptions50' : self.filter_list[3], 'chartOptions51' : self.filter_list[4] };
                 if( !(self.fin_sub_project || self.fin_sub_packet || self.fin_work_packet ) && self.is_voice_flag ) {
-                    if (name == 'chartOptions47' || name == 'chartOptions48' || name == 'chartOptions49' || name == 'chartOptions50' || name == 'chartOptions51') {
+                    if (name == 'chartOptions47' || name == 'chartOptions48' || name == 'chartOptions49' || name == 'chartOptions50' || name == 'chartOptions51' || name == 'chartOptions52') {
                         self.day_type = key;
                         self.ajaxVoiceFilter(chart_type_map[name]);
                     }
@@ -4235,13 +4259,12 @@
                     'self.chartOptions44':self.chartOptions44,
                     'self.chartOptions45':self.chartOptions45,
                     'self.chartOptions46':self.chartOptions46,
-                    
-                    
                     'self.chartOptions47':self.chartOptions47,
                     'self.chartOptions48':self.chartOptions48,
                     'self.chartOptions49':self.chartOptions49,
                     'self.chartOptions50':self.chartOptions50,
                     'self.chartOptions51':self.chartOptions51,
+                    'self.chartOptions52':self.chartOptions52
                     };
                     var final_layout_list = [];
                     for (var single in self.layout_list){
@@ -5409,6 +5432,39 @@
             };
     
             self.chartOptions51 = {
+                chart: {
+                    backgroundColor: "transparent",
+                    plotBackgroundColor: null,
+                    plotBorderWidth: null,
+                    plotShadow: false,
+                    type: 'pie'
+                  },
+                title: {
+                    text: ''
+                  },
+                tooltip: {
+                    pointFormat: '<b>{point.y}</b>'
+                  },
+                plotOptions: {
+                    pie: {
+                        allowPointSelect: true,
+                        point: {
+                           events:{
+                           }
+                        },
+                        cursor: 'pointer',
+                        dataLabels: {
+                            enabled: true,
+                            format: '<b>{point.name}</b>: {point.y} ',
+                            style: {
+                                color:(Highcharts.theme && Highcharts.theme.background2) || '#696969'
+                               }
+                            }
+                        }
+                    },
+            };
+
+            self.chartOptions52 = {
                 chart: {
                     backgroundColor: "transparent",
                     plotBackgroundColor: null,
