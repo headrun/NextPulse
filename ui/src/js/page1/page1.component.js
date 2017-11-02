@@ -169,7 +169,7 @@
                 callback.push.apply(callback, [self.start, self.end, self.center_live, self.project_live])
                 self.apply_class();
                 self.main_widget_function(callback, '');
-                self.voiceTypeFilter();
+                self.voiceTypeFilter(self.voiceProjectType, 1);
                 $('.widget17b').addClass('widget-data-hide');
 
                });
@@ -252,6 +252,29 @@
             }
 
              self.main_widget_function = function(callback, packet) {
+
+                    self.voiceTypeFilter = function(key, make_ajax) {
+                        var callback = [];
+                        self.voiceProjectType = key;
+                        var dateEntered = document.getElementById('select').value;
+                        dateEntered = dateEntered.replace(' to ','to');
+                        var from = dateEntered.split('to')[0].replace(' ','');
+                        var to = dateEntered.split('to')[1].replace(' ','');
+                        callback.push.apply(callback, [from, to, self.center_live, self.project_live]);
+                        if(key == 'inbound') {
+                            $('.inbound').addClass('active btn-success');
+                            $('.inbound').siblings().removeClass('active btn-success');
+                        } else if (key == 'outbound') {
+                            $('.outbound').addClass('active btn-success');
+                            $('.outbound').siblings().removeClass('active btn-success');
+                        } 
+                        if(make_ajax) {
+                            var packet_url = '/api/get_packet_details/?&project='+callback[3]+'&center='+callback[2]+'&from='+callback[0]+'&to='+callback[1]+'&voice_project_type='+key;
+                            $http.get(packet_url).then(function(result) {
+                                self.chartProcess(result);
+                            })
+                        }
+                    }
                     
                     self.center_live = callback[2];
 
@@ -3455,11 +3478,13 @@
                     'self.chartOptions44':self.chartOptions44,
                     'self.chartOptions45':self.chartOptions45,
                     'self.chartOptions46':self.chartOptions46,
+                    
                     'self.chartOptions47':self.chartOptions47,
                     'self.chartOptions48':self.chartOptions48,
                     'self.chartOptions49':self.chartOptions49,
                     'self.chartOptions50':self.chartOptions50,
                     'self.chartOptions51':self.chartOptions51,
+
                     };
 
 
@@ -3481,6 +3506,7 @@
                 return self.call_back;
 
            }).then(function(callback){
+
                     self.call_back = callback;
                     var final_work =  '&sub_project=' + self.drop_sub_proj + '&sub_packet=' + self.drop_sub_pack + '&work_packet=' + self.drop_work_pack;
                     var packet_url = '/api/get_packet_details/?&project='+callback[3]+'&center='+callback[2]+'&from='+callback[0]+'&to='+callback[1]+'&voice_project_type='+self.voiceProjectType;
@@ -3490,43 +3516,52 @@
                             var sub_project_level = result.data.result.sub_project_level;
                             var sub_packet_level = result.data.result.sub_packet_level;
                             var work_packet_level = result.data.result.work_packet_level;
-                            self.voice_project_list = result.data.result.voice_project_types;
-                            self.voice_project_list = ['inbound', 'outbound'];
-                            self.voiceProjectType = result.data.result.voice_project_value;
-                            self.voiceProjectType = 'inbound';
                             self.fin_sub_project = result.data.result.fin.sub_project;
                             self.fin_sub_packet = result.data.result.fin.sub_packet;
                             self.fin_work_packet = result.data.result.fin.work_packet;
-                            self.is_voice_flag = result.data.result.is_voice;
-                            
+                            self.is_voice_flag = result.data.result.is_voice; 
                             if (self.is_voice_flag) {
+                                self.voiceProjectList = result.data.result.voice_project_types;
+                                self.voiceProjectList = ['inbound', 'outbound'];
+                                //self.voiceProjectType = result.data.result.voice_project_value;
+                                self.voiceTypeFilter(self.voiceProjectType, 0);
                                 angular.element(document.querySelector('#voice_filter_div')).removeClass('hide');
                                 self.voice_filters.Location = result.data.result['location'];
                                 self.voice_filters.Skill = result.data.result['skill'];
                                 self.voice_filters.Disposition = result.data.result['disposition'];
-
                                 self.LocationFilter = document.getElementById("Location");
                                 self.SkillFilter = document.getElementById("Skill");
                                 self.DispositionFilter = document.getElementById("Disposition");
-
                                 $(self.LocationFilter.options).remove();
                                 $(self.SkillFilter.options).remove();
                                 $(self.DispositionFilter.options).remove();
-
-                                angular.forEach(self.voice_filters.Location, function(location_value) {
-                                    self.LocationFilter.options[self.LocationFilter.options.length] = new Option(location_value, location_value);
-                                });
-                                angular.forEach(self.voice_filters.Skill, function(skill_value) {
-                                    self.SkillFilter.options[self.SkillFilter.options.length] = new Option(skill_value, skill_value);
-                                });
-                                angular.forEach(self.voice_filters.Disposition, function(disposition_value) {
-                                    self.DispositionFilter.options[self.DispositionFilter.options.length] = new Option(disposition_value, disposition_value);
-                                });
-
+                                if(self.voice_filters.Location.length) {
+                                    $(self.LocationFilter).parent().show();
+                                    angular.forEach(self.voice_filters.Location, function(location_value) {
+                                        self.LocationFilter.options[self.LocationFilter.options.length] = new Option(location_value, location_value);
+                                    });
+                                } else {
+                                    $(self.LocationFilter).parent().hide();
+                                }
+                                if(self.voice_filters.Skill.length) {
+                                    $(self.SkillFilter).parent().show();
+                                    angular.forEach(self.voice_filters.Skill, function(skill_value) {
+                                        self.SkillFilter.options[self.SkillFilter.options.length] = new Option(skill_value, skill_value);
+                                    });
+                                } else {
+                                    $(self.SkillFilter).parent().hide();
+                                }
+                                if (self.voice_filters.Disposition.length) {
+                                    $(self.DispositionFilter).parent().show();
+                                    angular.forEach(self.voice_filters.Disposition, function(disposition_value) {
+                                        self.DispositionFilter.options[self.DispositionFilter.options.length] = new Option(disposition_value, disposition_value);
+                                    });
+                                } else {
+                                    $(self.DispositionFilter).parent().hide();
+                                }
                                 if(!(self.fin_sub_project || self.fin_sub_packet || self.fin_work_packet )) {
                                     self.packet_hierarchy_list = [];
                                 }
-
                                 var type = '';
                                 if(!(self.fin_sub_project || self.fin_sub_packet || self.fin_work_packet ) && self.is_voice_flag) {
                                     self.ajaxVoiceFilter = function(type) {
@@ -3550,6 +3585,12 @@
                                         }
                                         $(widgetA).addClass('widget-loader-show');
                                         $(widgetB).addClass('widget-data-hide');
+                                        $(widgetA).parent().show();
+                                        if (self.voiceProjectType == 'outbound') {
+                                            $(widgetA).parent().hide();
+                                            $(widgetA).addClass('widget-loader-show');
+                                            $(widgetB).addClass('widget-data-hide');
+                                        }
                                         $http({ method: "GET", url: voice_filter_ajax }).success(function(result) {
                                             self.voice_widget_function(result, type, widgetA, widgetB);
                                         })
@@ -3855,6 +3896,7 @@
                     "self.chartOptions43":self.chartOptions43,
                     "self.chartOptions44":self.chartOptions44,
                     "self.chartOptions31":self.chartOptions31,
+                    
                     "self.chartOptions47":self.chartOptions47,
                     "self.chartOptions48":self.chartOptions48,
                     "self.chartOptions49":self.chartOptions49,
@@ -3980,27 +4022,6 @@
                         self.ajaxVoiceFilter(chart_type_map[name]);
                     }
                 }
-            }
-
-            self.voiceTypeFilter = function(key) {
-                var callback = [];
-                self.voiceProjectType = key;
-                var dateEntered = document.getElementById('select').value;
-                dateEntered = dateEntered.replace(' to ','to');
-                var from = dateEntered.split('to')[0].replace(' ','');
-                var to = dateEntered.split('to')[1].replace(' ','');
-                callback.push.apply(callback, [from, to, self.center_live, self.project_live]);
-                if(key == 'inbound') {
-                    $('.inbound').addClass('active btn-success');
-                    $('.inbound').siblings().removeClass('active btn-success');
-                } else {
-                    $('.outbound').addClass('active btn-success');
-                    $('.outbound').siblings().removeClass('active btn-success');
-                }
-                var packet_url = '/api/get_packet_details/?&project='+callback[3]+'&center='+callback[2]+'&from='+callback[0]+'&to='+callback[1]+'&voice_project_type='+key;
-                    $http.get(packet_url).then(function(result) {
-                        self.chartProcess(result);
-                    })
             }
 
              self.active_filters = function(key,button_clicked) {
@@ -4214,6 +4235,8 @@
                     'self.chartOptions44':self.chartOptions44,
                     'self.chartOptions45':self.chartOptions45,
                     'self.chartOptions46':self.chartOptions46,
+                    
+                    
                     'self.chartOptions47':self.chartOptions47,
                     'self.chartOptions48':self.chartOptions48,
                     'self.chartOptions49':self.chartOptions49,
@@ -5844,6 +5867,8 @@
             self.voice_filters['Skill'] = [];
             self.voice_filters['Disposition'] = [];
             self.voiceProjectType = 'inbound';
+            self.voiceProjectList = [];
+            self.voiceTypeFilter;
             }],
 
             "bindings": {

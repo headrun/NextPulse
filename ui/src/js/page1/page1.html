@@ -128,22 +128,26 @@ thead {
                     </select>
                 </div>
                 <div ng-if="$ctrl.is_voice_flag" class="btn-group" class="col-lg-3 col-md-3 col-sm-3 col-xs-3" style="margin-left: 0px;">
-                    <h5 style="margin-bottom: 9px;font-weight: bold;margin-top: 1px;">Voice Type</h5>
-                    <button type="button" ng-model="radioModel" class="btn btn-default inbound" ng-click="$ctrl.voiceTypeFilter('inbound')" uib-btn-radio="'inbound'" style="cursor:pointer;">Inbound</button>
-                    <button type="button" ng-model="radioModel" class="btn btn-default outbound" ng-click="$ctrl.voiceTypeFilter('outbound')" uib-btn-radio="'outbound'" style="cursor:pointer;">Outbound</button>
+                    <h5 style="margin-bottom: 9px;font-weight: bold;margin-top: 1px;">Voice Type</h5> 
+                        <button ng-repeat="val in $ctrl.voiceProjectList" type="button" ng-model="radioModel" class="btn btn-default {{val}}" ng-click="$ctrl.voiceTypeFilter(val,1)" uib-btn-radio="val" style="cursor:pointer;">{{val}}</button>
+                    <!--<button type="button" ng-model="radioModel" class="btn btn-default outbound" ng-click="$ctrl.voiceTypeFilter('outbound')" uib-btn-radio="'outbound'" style="cursor:pointer;">Outbound</button>-->
                 </div>
             </form>
         </div>
     </div>
     <div class="packet_num col-lg-5 col-md-5 col-sm-5 col-xs-5" style="padding-left: 10px;">
         <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6" style="margin-bottom:initial;">
-            <h5 style="margin-bottom: 9px;font-weight: bold;margin-top: 1px;">Choose Date</h5>
+            <div ng-if="$ctrl.is_voice_flag">
+                <h5 style="margin-bottom: 9px;font-weight: bold;margin-top: 1px;">Choose Date</h5>
+            </div>
             <i class="fa fa-calendar date" aria-hidden="true"></i><input class="form-control select" id="select" size="22" style="width: 80%;">
         </div>
         <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
             <div class="btn-group" style="float: right;">
-                <h5 style="margin-bottom: 9px;font-weight: bold;margin-top: 1px;">Choose Period</h5>
-                <button ng-if="$ctrl.is_voice_flag" type="button" id="hour" ng-model="radioModel" class="btn btn-default hour" ng-click="$ctrl.active_filters('hour','hour_yes')" uib-btn-radio="'Hour'"style="cursor:pointer;">Hour</button>
+                <div ng-if="$ctrl.is_voice_flag">
+                    <h5 style="margin-bottom: 9px;font-weight: bold;margin-top: 1px;">Choose Period</h5>
+                </div>
+                <button ng-if="$ctrl.is_voice_flag" type="button" id="hour" ng-model="radioModel" class="btn btn-default hour" ng-click="$ctrl.active_filters('hour','hour_yes')" uib-btn-radio="'Hour'" style="cursor:pointer;">Hour</button>
                 <button type="button" id="day" ng-model="radioModel" class="btn btn-default day" ng-click="$ctrl.active_filters('day','day_yes')" uib-btn-radio="'Day'"style="cursor:pointer;">Day</button>
                 <button type="button" id="week" ng-model="radioModel" class="btn btn-default week" ng-click="$ctrl.active_filters('week','week_yes')" uib-btn-radio="'Week'" style="cursor:pointer;">Week</button>
                 <button type="button" id="Month" ng-model="radioModel" class="btn btn-default month" ng-click="$ctrl.active_filters('month','month_yes')" uib-btn-radio="'Month'" style="cursor:pointer;">Month</button>
