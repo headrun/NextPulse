@@ -137,10 +137,15 @@ def data_dict(variable):
 def get_packet_details(request):
     """It will generate all the list of packets, projects and sub packets for the project"""
     main_data_dict = data_dict(request.GET)
-    dates = [main_data_dict['dwm_dict']['day'][:-1][0], main_data_dict['dwm_dict']['day'][-1:][0]]
+    if main_data_dict['type'] == 'hour':
+        dates = main_data_dict['dwm_dict']['day']
+    else:
+        dates = [main_data_dict['dwm_dict']['day'][:-1][0], main_data_dict['dwm_dict']['day'][-1:][0]]
     final_dict = {}
-    raw_master_set = RawTable.objects.filter(project=main_data_dict['pro_cen_mapping'][0][0], center=main_data_dict['pro_cen_mapping'][1][0], 
-                                             date__range=dates)
+    if main_data_dict['type'] == 'hour':
+        raw_master_set = RawTable.objects.filter(project=main_data_dict['pro_cen_mapping'][0][0], center=main_data_dict['pro_cen_mapping'][1][0], date=dates[0])
+    else:
+        raw_master_set = RawTable.objects.filter(project=main_data_dict['pro_cen_mapping'][0][0], center=main_data_dict['pro_cen_mapping'][1][0], date__range=dates)
     sub_pro_level = filter(None, raw_master_set.values_list('sub_project',flat=True).distinct())
     sub_project_level = [i for i in sub_pro_level]
     if sub_project_level:
@@ -160,8 +165,12 @@ def get_packet_details(request):
     else:
         sub_packet_level = ''
     prj_type = request.GET['voice_project_type']
-    inbound_hourly_master_set = InboundHourlyCall.objects.filter(project=main_data_dict['pro_cen_mapping'][0][0], center=main_data_dict['pro_cen_mapping'][1][0], date__range = dates)
-    outbound_hourly_master_set = OutboundHourlyCall.objects.filter(project=main_data_dict['pro_cen_mapping'][0][0], center=main_data_dict['pro_cen_mapping'][1][0], date__range = dates)
+    if main_data_dict['type'] == 'hour':
+        inbound_hourly_master_set = InboundHourlyCall.objects.filter(project=main_data_dict['pro_cen_mapping'][0][0], center=main_data_dict['pro_cen_mapping'][1][0], date = dates[0])
+        outbound_hourly_master_set = OutboundHourlyCall.objects.filter(project=main_data_dict['pro_cen_mapping'][0][0], center=main_data_dict['pro_cen_mapping'][1][0], date = dates[0])
+    else:
+        inbound_hourly_master_set = InboundHourlyCall.objects.filter(project=main_data_dict['pro_cen_mapping'][0][0], center=main_data_dict['pro_cen_mapping'][1][0], date__range = dates)
+        outbound_hourly_master_set = OutboundHourlyCall.objects.filter(project=main_data_dict['pro_cen_mapping'][0][0], center=main_data_dict['pro_cen_mapping'][1][0], date__range = dates)
     if prj_type == 'inbound':
         location_names = filter(None, inbound_hourly_master_set.values_list('location',flat=True).distinct())
     elif prj_type == 'outbound':
