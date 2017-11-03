@@ -103,7 +103,7 @@ thead {
         <div class="col-lg-2 col-md-2 col-sm-2 col-xs-2" style="padding-bottom: 20px;">
             <div id="wrapper">
                 <div class="font_value">
-                    <h3 class="pull-left brand_style">{{$ctrl.project}}DASHBOARD</h3>
+                    <h3 class="pull-left brand_style">{{$ctrl.project}}</h3>
                 </div>
             </div>
         </div>
@@ -129,8 +129,8 @@ thead {
                 </div>
                 <div ng-if="$ctrl.is_voice_flag" class="btn-group" class="col-lg-3 col-md-3 col-sm-3 col-xs-3" style="margin-left: 0px;">
                     <h5 style="margin-bottom: 9px;font-weight: bold;margin-top: 1px;">Voice Type</h5> 
-                        <button ng-repeat="val in $ctrl.voiceProjectList" type="button" ng-model="radioModel" class="btn btn-default {{val}}" ng-click="$ctrl.voiceTypeFilter(val,1)" uib-btn-radio="val" style="cursor:pointer;">{{val}}</button>
-                    <!--<button type="button" ng-model="radioModel" class="btn btn-default outbound" ng-click="$ctrl.voiceTypeFilter('outbound')" uib-btn-radio="'outbound'" style="cursor:pointer;">Outbound</button>-->
+                        <button type="button" ng-model="radioModel" class="btn btn-default inbound ng-touched btn-success ng-valid active ng-empty ng-dirty" ng-click="$ctrl.voiceTypeFilter('inbound',1)" uib-btn-radio="val" style="cursor:pointer;border-top-left-radius: 5px;border-bottom-left-radius:5px;">Inbound</button>
+                        <button type="button" ng-model="radioModel" class="btn btn-default outbound ng-not-empty ng-touched" ng-click="$ctrl.voiceTypeFilter('outbound',1)" uib-btn-radio="outbound" style="cursor:pointer;border-top-right-radius: 5px;border-bottom-right-radius:5px;">Outbound</button>
                 </div>
             </form>
         </div>

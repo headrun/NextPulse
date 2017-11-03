@@ -163,6 +163,7 @@
                 var callback = [];
                 self.start = start.format('YYYY-MM-DD');
                 self.end = end.format('YYYY-MM-DD');
+                $('#select').val(self.start + ' to ' + self.end)
                 $('.input-sm').prop('selectedIndex',0);
                 self.add_loader();
                 callback.push.apply(callback, [self.start, self.end, self.center_live, self.project_live])
@@ -256,43 +257,41 @@
                 $(widgetB).removeClass('widget-data-hide');
             }
 
+             self.highlightTypes = function (button_type) {
+                if (button_type == 'day') {
+                    $('.day2').addClass('active btn-success');
+                    $('.day2').siblings().removeClass('active btn-success');
+                    $('.day').addClass('active btn-success');
+                    $('.day').siblings().removeClass('active btn-success');
+                }
+
+                if (button_type == 'week') {
+                    $('.week2').addClass('active btn-success');
+                    $('.week2').siblings().removeClass('active btn-success');
+                    $('.week').addClass('active btn-success');
+                    $('.week').siblings().removeClass('active btn-success');
+                }
+
+                if (button_type == 'month') {
+                    $('.month2').addClass('active btn-success');
+                    $('.month2').siblings().removeClass('active btn-success');
+                    $('.month').addClass('active btn-success');
+                    $('.month').siblings().removeClass('active btn-success');
+                }
+
+                if (button_type == 'hour') {
+                    $('.hour2').addClass('active btn-success');
+                    $('.hour2').siblings().removeClass('active btn-success');
+                    $('.hour').addClass('active btn-success');
+                    $('.hour').siblings().removeClass('active btn-success');
+                }
+             }
+
              self.main_widget_function = function(callback, packet) {
-
-                    self.voiceTypeFilter = function(key, make_ajax) {
-                        var callback = [];
-                        self.voiceProjectType = key;
-                        var dateEntered = document.getElementById('select').value;
-                        dateEntered = dateEntered.replace(' to ','to');
-                        var from = dateEntered.split('to')[0].replace(' ','');
-                        var to = dateEntered.split('to')[1].replace(' ','');
-                        callback.push.apply(callback, [from, to, self.center_live, self.project_live]);
-                        self.locationValue = 'All';
-                        self.skillValue = 'All';
-                        self.dispositionValue = 'All';
-                        self.voiceFilterType = 'location';
-                        if(key == 'inbound') {
-                            $('.inbound').addClass('active btn-success');
-                            $('.inbound').siblings().removeClass('active btn-success');
-                        } else if (key == 'outbound') {
-                            $('.outbound').addClass('active btn-success');
-                            $('.outbound').siblings().removeClass('active btn-success');
-                        } 
-                        if(make_ajax) {
-                            var packet_url = '/api/get_packet_details/?&project='+callback[3]+'&center='+callback[2]+'&from='+callback[0]+'&to='+callback[1]+'&voice_project_type='+key;
-                            $http.get(packet_url).then(function(result) {
-                                self.chartProcess(result);
-                            })
-                        }
-                    }
-                    
                     self.center_live = callback[2];
-
                     self.project_live = callback[3];
-
                     $('#emp_widget').hide();
-
                     $('#volume_table').hide();
-
                     self.data_to_show = '?&project='+callback[3]+'&center='+callback[2]+'&from='+ callback[0]+'&to='+ callback[1]+packet+'&type=';
                     self.static_widget_data = '&project='+callback[3]+'&center='+callback[2]
                     self.common_for_all = self.data_to_show + self.day_type;
@@ -303,12 +302,6 @@
                     var agent_cate_error = '/api/agent_cate_error/'+self.common_for_all;
                     var nw_exce = '/api/nw_exce/'+self.common_for_all;
                     var overall_exce = '/api/overall_exce'+self.common_for_all;
-                    //Voice Filter Default Parameters
-                    self.voice_filter = '?&project='+callback[3]+'&center='+callback[2]+'&from='+ callback[0]+'&to='+ callback[1] + '&type=';
-                    self.locationValue = 'All';
-                    self.skillValue = 'All';
-                    self.dispositionValue = 'All';
-                    self.voiceFilterType = 'location';
                     //To get User Role
                     self.ajax_for_role = function() {
                       $http({ method: "GET", url: self.pro_landing_url }).success(function(result) {
@@ -332,23 +325,17 @@
                     }
                     
                     self.allo_and_comp = function(final_work, type, name) {
-
                         if (type == undefined) {
                             type = 'day'
                         }
-
                         if (final_work == undefined) {
                             final_work = ''
                         }
-
                         if (name == undefined) {
                             name = ''
                         }
-
                         self.type = type;
-                        
                         var allo_and_comp = '/api/alloc_and_compl/'+self.data_to_show + type + final_work;
-
                         return $http({method:"GET", url: allo_and_comp}).success(function(result){
                            if ((name == "self.chartOptions17") || (name == "")) {
                                 $('.widget-17a').removeClass('widget-loader-show');
@@ -358,7 +345,6 @@
                                 $('.widget-13a').removeClass('widget-loader-show');
                                 $('.widget-13b').removeClass('widget-data-hide');
                             }
-                            
                             if (type == 'day' && final_work == '') {
                                 if (result.result.type == 'day') {
                                     $('.day2').addClass('active btn-success');
@@ -366,14 +352,12 @@
                                     $('.day').addClass('active btn-success');
                                     $('.day').siblings().removeClass('active btn-success');
                                 }
-                               
                                 if (result.result.type == 'week') {
                                     $('.week2').addClass('active btn-success');
                                     $('.week2').siblings().removeClass('active btn-success');
                                     $('.week').addClass('active btn-success');
                                     $('.week').siblings().removeClass('active btn-success');
                                 }
-
                                 if (result.result.type == 'month') {
                                     $('.month2').addClass('active btn-success');
                                     $('.month2').siblings().removeClass('active btn-success');
@@ -384,22 +368,15 @@
                             var date_list = result.result.date;
                             var data_list_bar = result.result.volume_graphs.bar_data;
                             var data_list_line = result.result.volume_graphs.line_data;
-
                             if ((name == "self.chartOptions17") || (name == "")) {
-
                                 if (self.list_object.volume_bar_graph != undefined) {
-
                                     if(self.list_object.volume_bar_graph.display_value === true) {
-                                    
                                         var value = true;
-
                                     }
-
                                     else {
                                         var value = false;    
                                     }
                                 }
-
                                 else {
                                     var value = false;
                                 }
@@ -3433,11 +3410,14 @@
 
                 self.list_object = result.data.result.lay[0];
                 self.layout_list = result.data.result.lay[1].layout;
-                var pro_cen_nam = $state.params.selpro;                                                                                           
+                var pro_cen_nam = $state.params.selpro;                                                                                  
                 self.call_back = [];
 
-                self.first = result.data.result.dates.from_date;                                                                                       
+                self.first = result.data.result.dates.from_date;
                 self.last = result.data.result.dates.to_date;
+                
+                self.start = self.first;
+                self.end = self.last;
 
                 self.call_back.push(self.first);
                 self.call_back.push(self.last);
@@ -3486,15 +3466,13 @@
                     'self.chartOptions43':self.chartOptions43,
                     'self.chartOptions44':self.chartOptions44,
                     'self.chartOptions45':self.chartOptions45,
-                    'self.chartOptions46':self.chartOptions46,
-                    
+                    'self.chartOptions46':self.chartOptions46, 
                     'self.chartOptions47':self.chartOptions47,
                     'self.chartOptions48':self.chartOptions48,
                     'self.chartOptions49':self.chartOptions49,
                     'self.chartOptions50':self.chartOptions50,
                     'self.chartOptions51':self.chartOptions51,
                     'self.chartOptions52':self.chartOptions52
-
                     };
 
 
@@ -3508,7 +3486,7 @@
                 }
 
                 self.location = pro_cen_nam.split('-')[0].replace(' ','') + ' - '
-                self.project = pro_cen_nam.split('-')[1].replace(' ','') + ' - '
+                self.project = pro_cen_nam.split('-')[1].replace(' ','');
                 
                 self.call_back.push(self.location);
                 self.call_back.push(self.project);
@@ -3519,7 +3497,38 @@
 
                     self.call_back = callback;
                     var final_work =  '&sub_project=' + self.drop_sub_proj + '&sub_packet=' + self.drop_sub_pack + '&work_packet=' + self.drop_work_pack;
-                    var packet_url = '/api/get_packet_details/?&project='+callback[3]+'&center='+callback[2]+'&from='+callback[0]+'&to='+callback[1]+'&voice_project_type='+self.voiceProjectType;
+                    //self.start = callback[0];
+                    //self.end = callback[1];
+                    self.voiceTypeFilter = function(key, make_ajax) {
+                        var callback = [];
+                        self.voiceProjectType = key; 
+                        var dateEntered = document.getElementById('select').value;
+                        dateEntered = dateEntered.replace(' to ','to');
+                        var from = dateEntered.split('to')[0].replace(' ','');
+                        var to = dateEntered.split('to')[1].replace(' ','');
+                        callback.push.apply(callback, [from, to, self.center_live, self.project_live]);
+                        self.locationValue = 'All';
+                        self.skillValue = 'All';
+                        self.dispositionValue = 'All';
+                        self.voiceFilterType = 'location';
+                        if(key == 'inbound') {
+                            $('.inbound').addClass('active btn-success');
+                            $('.inbound').siblings().removeClass('active btn-success');
+                        } else if (key == 'outbound') {
+                            $('.outbound').addClass('active btn-success');
+                            $('.outbound').siblings().removeClass('active btn-success');
+                        }
+                        if(make_ajax) {
+                            var packet_url = '/api/get_packet_details/?&project='+callback[3]+'&center='+callback[2]+'&from='+self.start+'&to='+self.end+'&voice_project_type='+key;
+                            $http.get(packet_url).then(function(result) {
+                                self.chartProcess(result);
+                            })   
+                        }
+                    }
+                    //if (self.voiceProjectType) {
+                    //    self.voiceTypeFilter(self.voiceProjectType, 0);
+                    //}
+                    var packet_url = '/api/get_packet_details/?&project='+callback[3]+'&center='+callback[2]+'&from='+self.start+'&to='+self.end+'&voice_project_type='+self.voiceProjectType;
                     $http.get(packet_url).then(function(result) {
                         self.chartProcess = function(result) {
                             $('#dropdown_title').html($(".brand_style").text().replace(" - DASHBOARD",''));
@@ -3573,6 +3582,12 @@
                                     self.packet_hierarchy_list = [];
                                 }
                                 var type = '';
+                                //Voice Filter Default Parameters
+                                self.voice_filter = '?&project='+callback[3]+'&center='+callback[2]+'&from='+ self.start+'&to='+ self.end + '&type=';
+                                self.locationValue = 'All';
+                                self.skillValue = 'All';
+                                self.dispositionValue = 'All';
+                                self.voiceFilterType = 'location';
                                 if(!(self.fin_sub_project || self.fin_sub_packet || self.fin_work_packet ) && self.is_voice_flag) {
                                     self.ajaxVoiceFilter = function(type) {
                                         var voice_filter_ajax = '/api/'+ type + self.voice_filter + self.day_type + '&location=' + self.locationValue + '&skill=' + self.skillValue + '&disposition=' + self.dispositionValue;
@@ -3620,7 +3635,9 @@
                                         $(widgetB).addClass('widget-data-hide');
                                         $http({ method: "GET", url: voice_filter_ajax }).success(function(result) {
                                             self.voice_widget_function(result, type, widgetA, widgetB);
+                                            self.highlightTypes(result.result.type);
                                         })
+                                        self.voiceTypeFilter(self.voiceProjectType, 0);
                                     }
                                     self.LocationFilter.onchange = function () {
                                         self.locationValue = self.LocationFilter.value;
@@ -3736,7 +3753,7 @@
                                 self.call_back = [];
                                 self.call_back.push(from);
                                 self.call_back.push(to);                                                                                                                       var pro_cen_nam = $state.params.selpro;                                                                                                        self.location = pro_cen_nam.split('-')[0].replace(' ','') + ' - '
-                                self.project = pro_cen_nam.split('-')[1].replace(' ','') + ' - '
+                                self.project = pro_cen_nam.split('-')[1].replace(' ','');
                                 self.call_back.push(self.location);
                                 self.call_back.push(self.project);
                                 var final_work =  '&sub_project=' + self.drop_sub_proj + '&sub_packet=' + self.drop_sub_pack + '&work_packet=' +
@@ -3760,7 +3777,7 @@
                                 self.call_back = [];
                                 self.call_back.push(from);
                                 self.call_back.push(to);                                                                                                                       var pro_cen_nam = $state.params.selpro;                                                                                                        self.location = pro_cen_nam.split('-')[0].replace(' ','') + ' - '
-                                self.project = pro_cen_nam.split('-')[1].replace(' ','') + ' - '
+                                self.project = pro_cen_nam.split('-')[1].replace(' ','');
                                 self.call_back.push(self.location);
                                 self.call_back.push(self.project);
 
@@ -3785,7 +3802,7 @@
                                 self.call_back = [];
                                 self.call_back.push(from);
                                 self.call_back.push(to);                                                                                                                       var pro_cen_nam = $state.params.selpro;                                                                                                        self.location = pro_cen_nam.split('-')[0].replace(' ','') + ' - '
-                                self.project = pro_cen_nam.split('-')[1].replace(' ','') + ' - '
+                                self.project = pro_cen_nam.split('-')[1].replace(' ','');
                                 self.call_back.push(self.location);
                                 self.call_back.push(self.project);
 
@@ -3815,7 +3832,7 @@
                             self.call_back = [];
                             self.call_back.push(from);
                             self.call_back.push(to);                                                                                                                       var pro_cen_nam = $state.params.selpro;                                                                                                        self.location = pro_cen_nam.split('-')[0].replace(' ','') + ' - '
-                            self.project = pro_cen_nam.split('-')[1].replace(' ','') + ' - '
+                            self.project = pro_cen_nam.split('-')[1].replace(' ','');
                             self.call_back.push(self.location);
                             self.call_back.push(self.project);
 
@@ -3838,7 +3855,7 @@
                             self.call_back = [];
                             self.call_back.push(from);
                             self.call_back.push(to);                                                                                                                               var pro_cen_nam = $state.params.selpro;                                                                                                                self.location = pro_cen_nam.split('-')[0].replace(' ','') + ' - '
-                            self.project = pro_cen_nam.split('-')[1].replace(' ','') + ' - '
+                            self.project = pro_cen_nam.split('-')[1].replace(' ','');
                             self.call_back.push(self.location);
                             self.call_back.push(self.project);
 
@@ -3863,7 +3880,7 @@
                                 self.call_back.push(from);
                                 self.call_back.push(to);
                                 var pro_cen_nam = $state.params.selpro;                                                                                                        self.location = pro_cen_nam.split('-')[0].replace(' ','') + ' - '
-                                self.project = pro_cen_nam.split('-')[1].replace(' ','') + ' - '
+                                self.project = pro_cen_nam.split('-')[1].replace(' ','');
                                 self.call_back.push(self.location);
                                 self.call_back.push(self.project);
 
@@ -3873,6 +3890,7 @@
 
                             });
                         }
+                        //self.voiceTypeFilter(self.voiceProjectType, 0);
                     }
                     if (self.fin_sub_packet) {
                     $('#1').on('change', function(){
@@ -4175,7 +4193,7 @@
                     if (newVal) {
                         $scope.radioModel = 'Day';
                         self.location = newVal.split(' - ')[0] + ' - ';
-                        self.project = newVal.split(' - ')[1] + ' - ';
+                        self.project = newVal.split(' - ')[1];
                         $('#0').show();
                         $('#1').show();
                         $('#2').show();
@@ -4307,7 +4325,7 @@
                     self.useful_layout.push(first_row,second_row);
 
                     self.location = pro_cen_nam.split('-')[0].replace(' ','') + ' - '
-                    self.project = pro_cen_nam.split('-')[1].replace(' ','') + ' - '
+                    self.project = pro_cen_nam.split('-')[1].replace(' ','');
                     var from_to_data = from_to + 'from=' + self.lastDate + '&to=' + self.firstDate + '&project=' + self.project
                               + '&center=' + self.location  + '&type=' + self.day_type;
                 }
@@ -4321,7 +4339,7 @@
                         $("#2").append(new Option("All"));
                         $('.day').addClass('active btn-success');
                         $('.day').siblings().removeClass('active btn-success');
-                        if (self.project == "Wallmart - "){
+                        if (self.project == "Wallmart"){
                             var from_to_data = from_to + 'from=' + self.lastDate + '&to=' + self.firstDate + '&project=' + 'DellBilling - ' +
                                  '&center=' + 'Salem' + '&type=' + self.day_type;
                         }
@@ -5929,6 +5947,7 @@
             self.voiceProjectType = 'inbound';
             self.voiceProjectList = [];
             self.voiceTypeFilter;
+            self.is_voice_flag = 'false';
             }],
 
             "bindings": {
