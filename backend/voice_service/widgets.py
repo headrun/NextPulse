@@ -602,23 +602,36 @@ def hrly_dispo_outbound_cate_data(prj_id, center, date, disposition):
                     final_dict[value['disposition']] = [value['total']]
     return final_dict
 
-
 def outbnd_disposition_data(prj_id, center, dates, disposition):
     final_dict = {}
     if disposition == 'All':
-        outbnd_dispo_query = OutboundHourlyCall.objects.filter(project = prj_id, center = center, date__range = [dates[0], dates[-1]]).values('disposition', 'date').distinct().annotate(total = count('disposition')).order_by('date')
+        outbnd_dispo_query = OutboundHourlyCall.objects.filter(project = prj_id, center = center, date__range = [dates[0], dates[-1]])
+        dispo_filters = outbnd_dispo_query.values_list('disposition', flat = True).distinct()
+        for date in dates:
+            date_check = OutboundHourlyCall.objects.filter(project = prj_id, center = center, date = date).values('disposition').count()
+            if date_check > 0:
+                for name in dispo_filters:
+                    if ('->' not in name) and (name != ''):
+                        outbnd_dispo_val = OutboundHourlyCall.objects.filter(project = prj_id, center = center, date = date, disposition = name).count()
+                        if final_dict.has_key(name):
+                            final_dict[name].append(outbnd_dispo_val)
+                        else:
+                            final_dict[name] = [outbnd_dispo_val]
     elif disposition != 'All':
-        outbnd_dispo_query = OutboundHourlyCall.objects.filter(project = prj_id, center = center, date__range = [dates[0], dates[-1]],disposition = disposition).values('disposition', 'date').distinct().annotate(total = count('disposition')).order_by('date')
-    else:
-        return []
-    for value in outbnd_dispo_query:
-        if value['total'] > 0:
-            if ('->' not in value['disposition']) and (value['disposition'] != ''):
-                if final_dict.has_key(value['disposition']):
-                    final_dict[value['disposition']].append(value['total'])
+        for date in dates:
+            outbnd_dispo_val = OutboundHourlyCall.objects.filter(project = prj_id, center = center, date = date, disposition = disposition).count()
+            if dispo_val > 0:
+                if final_dict.has_key(disposition):
+                    final_dict[disposition].append(outbnd_dispo_val)
                 else:
-                    final_dict[value['disposition']] = [value['total']]
+                    final_dict[disposition] = [outbnd_dispo_val]
+    else:
+        return {}
     return final_dict
+
+
+
+
 
 
 def hourly_outbnd_dispo_data(prj_id, center, dates, hours, disposition):
