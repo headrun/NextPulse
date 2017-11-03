@@ -27,3 +27,10 @@ DATETIME_STORAGE = ['start time', 'end time']
 DATES = ['date', 'call date']
 
 INTEGER_NUMBERS = ['total calls', 'connected calls', 'abandoned calls']
+
+CANCEL_DISPOSITION = []
+
+CONVERT_TO_DAILY = ['Inbound Hourly', 'Outbound Hourly']
+
+TRANSFER = {'agent_transfer_list': 'AgentTransferCall', 'skill_transfer_list': 'SkillTransferCall',\
+				'location_transfer_list': 'LocationTransferCall', 'disposition_transfer_list': 'DispositionTransferCall'}

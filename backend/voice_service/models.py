@@ -140,6 +140,14 @@ class LocationTransferCall(models.Model):
         index_together = (('call', 'from_location', 'to_location'), )
     """
 
+
+class DispositionTransferCall(models.Model):
+    call        = models.ForeignKey(InboundHourlyCall, related_name='disposition_transfer_calls')
+    transfers   = models.TextField(null=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True)
+    updated_at = models.DateTimeField(auto_now=True,null=True)
+
+
 class OutboundDaily(models.Model):
     date       = models.DateField(null=True)
     agent           = models.ForeignKey(Agent, related_name = 'outbound_daily_agents')
