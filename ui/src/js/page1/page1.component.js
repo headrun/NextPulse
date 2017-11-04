@@ -269,34 +269,11 @@
                 $(widgetB).removeClass('widget-data-hide');
             }
 
-             self.highlightTypes = function (button_type) {
-                if (button_type == 'day') {
-                    $('.day2').addClass('active btn-success');
-                    $('.day2').siblings().removeClass('active btn-success');
-                    $('.day').addClass('active btn-success');
-                    $('.day').siblings().removeClass('active btn-success');
-                }
-
-                if (button_type == 'week') {
-                    $('.week2').addClass('active btn-success');
-                    $('.week2').siblings().removeClass('active btn-success');
-                    $('.week').addClass('active btn-success');
-                    $('.week').siblings().removeClass('active btn-success');
-                }
-
-                if (button_type == 'month') {
-                    $('.month2').addClass('active btn-success');
-                    $('.month2').siblings().removeClass('active btn-success');
-                    $('.month').addClass('active btn-success');
-                    $('.month').siblings().removeClass('active btn-success');
-                }
-
-                if (button_type == 'hour') {
-                    $('.hour2').addClass('active btn-success');
-                    $('.hour2').siblings().removeClass('active btn-success');
-                    $('.hour').addClass('active btn-success');
-                    $('.hour').siblings().removeClass('active btn-success');
-                }
+             self.highlightTypes = function (button_type, widgetName) {
+                $(widgetName + ' .' + button_type + '2').addClass('active btn-success');
+                $(widgetName + ' .' + button_type + '2').siblings().removeClass('active btn-success');
+                $(widgetName + ' .' + button_type).addClass('active btn-success');
+                $(widgetName + ' .' + button_type).siblings().removeClass('active btn-success');
              }
 
              self.main_widget_function = function(callback, packet) {
@@ -321,6 +298,7 @@
                       });
                     }
                     self.ajax_for_role();
+                    self.voiceTypeFilter('', 1);
                     //Annotate Code
                     self.annot_perm = function() {
 
@@ -3512,7 +3490,9 @@
                     var final_work =  '&sub_project=' + self.drop_sub_proj + '&sub_packet=' + self.drop_sub_pack + '&work_packet=' + self.drop_work_pack;
                     self.voiceTypeFilter = function(key, make_ajax) {
                         var callback = [];
-                        self.voiceProjectType = key; 
+                        if (!(key=='')) {
+                            self.voiceProjectType = key; 
+                        }
                         var dateEntered = document.getElementById('select').value;
                         dateEntered = dateEntered.replace(' to ','to');
                         var from = dateEntered.split('to')[0].replace(' ','');
@@ -3537,8 +3517,6 @@
                             }) 
                         }
                     }
-                    var packet_url = '/api/get_packet_details/?&project='+callback[3]+'&center='+callback[2]+'&from='+self.start+'&to='+self.end+'&voice_project_type='+self.voiceProjectType;
-                    $http.get(packet_url).then(function(result) {
                         self.chartProcess = function(result) {
                             $('#dropdown_title').html($(".brand_style").text().replace(" - DASHBOARD",''));
                             var sub_project_level = result.data.result.sub_project_level;
@@ -3599,6 +3577,7 @@
                                 self.voiceFilterType = 'location';
                                 if(!(self.fin_sub_project || self.fin_sub_packet || self.fin_work_packet ) && self.is_voice_flag) {
                                     self.ajaxVoiceFilter = function(type) {
+                                        
                                         var voice_filter_ajax = '/api/'+ type + self.voice_filter + self.day_type + '&location=' + self.locationValue + '&skill=' + self.skillValue + '&disposition=' + self.dispositionValue;
                                         var widgetA, widgetB, type_check;
                                         if(type == self.filter_list[0]) {
@@ -3648,7 +3627,7 @@
                                         $(widgetB).addClass('widget-data-hide');
                                         $http({ method: "GET", url: voice_filter_ajax }).success(function(result) {
                                             self.voice_widget_function(result, type, widgetA, widgetB);
-                                            self.highlightTypes(result.result.type);
+                                            self.highlightTypes(self.day_type, widgetB);
                                         })
                                         self.voiceTypeFilter(self.voiceProjectType, 0);
                                     }
@@ -3684,75 +3663,84 @@
                             self.top_five = result.data.result.only_top_five;
                             self.volume_graphs = result.data.result.volumes_graphs_details;
                             self.drop_list =  result.data.result.drop_value;
-                            self.sub_pro_sel = document.getElementById("0");
-                            self.wor_pac_sel = document.getElementById("1");
-                            self.sub_pac_sel = document.getElementById("2");
+                            if (!self.is_voice_flag) {
+                                self.sub_pro_sel = document.getElementById("0");
+                                self.wor_pac_sel = document.getElementById("1");
+                                self.sub_pac_sel = document.getElementById("2");
+                                $(self.sub_pro_sel.options).remove();
+                                self.sub_pro_sel.options[self.sub_pro_sel.options.length] = new Option('All', 'All');
+                                for (var sub_pro in self.drop_list) {
+                                    self.sub_pro_sel.options[self.sub_pro_sel.options.length] = new Option(sub_pro, sub_pro);
+                                }
+                            }
                         }
 
-                        self.chartProcess(result);
+                        var packet_url = '/api/get_packet_details/?&project='+callback[3]+'&center='+callback[2]+'&from='+self.start+'&to='+self.end+'&voice_project_type='+self.voiceProjectType;
+                        $http.get(packet_url).then(function(result) {
 
-                        $("#0, #1, #2").unbind("change");
+                            self.chartProcess(result);
 
-                        if (self.fin_sub_project) {
-                            console.log('sub_projet_exist');
-                        } else {   
-                            $('#2').hide();
-                            if (self.fin_work_packet) {
-                                console.log('work_packet_exist');
+                            $("#0, #1, #2").unbind("change");
+
+                            if (self.fin_sub_project) {
+                                console.log('sub_projet_exist');
+                            } else {   
+                                $('#2').hide();
+                                if (self.fin_work_packet) {
+                                    console.log('work_packet_exist');
+                                }
+                                if (self.fin_sub_packet) {
+                                    console.log('sub_packet_exist');
+                                } else {
+                                    $('#1').hide();
+                                }
                             }
                             if (self.fin_sub_packet) {
                                 console.log('sub_packet_exist');
                             } else {
-                                $('#1').hide();
+                                $('#2').hide();
                             }
-                        }
-                        if (self.fin_sub_packet) {
-                            console.log('sub_packet_exist');
-                        } else {
-                            $('#2').hide();
-                        }   
-                        for (var sub_pro in self.drop_list) {
-                            self.sub_pro_sel.options[self.sub_pro_sel.options.length] = new Option(sub_pro, sub_pro);
-                        }
-                        self.sub_pro_sel.onchange = function () {
-                            self.wor_pac_sel.length = 1;
-                            self.sub_pac_sel.length = 1;
-                            if (this.selectedIndex < 1) {
-                                self.wor_pac_sel.options[0].text = "All"
-                                self.sub_pac_sel.options[0].text = "All"
-                                return;
+                            if(!self.is_voice_flag) { 
+                                self.sub_pro_sel.onchange = function () {
+                                    self.wor_pac_sel.length = 1;
+                                    self.sub_pac_sel.length = 1;
+                                    if (this.selectedIndex < 1) {
+                                        self.wor_pac_sel.options[0].text = "All"
+                                        self.sub_pac_sel.options[0].text = "All"
+                                        return;
+                                    }
+                                    self.wor_pac_sel.options[0].text = "All"
+                                    for (var wor_pac in self.drop_list[this.value]) {
+                                        self.wor_pac_sel.options[self.wor_pac_sel.options.length] = new Option(wor_pac, wor_pac);
+                                    }
+                                    if (self.wor_pac_sel.options.length==2) {
+                                        self.wor_pac_sel.onchange();
+                                    }
+                                }
+                                self.sub_pro_sel.onchange();
+                                self.wor_pac_sel.onchange = function () {
+                                    self.sub_pac_sel.length = 1;
+                                    if (this.selectedIndex < 1) {
+                                        self.sub_pac_sel.options[0].text = "All"
+                                        return;
+                                    }
+                                    self.sub_pac_sel.options[0].text = "All"
+                                    var sub_pac = self.drop_list[self.sub_pro_sel.value][this.value];
+                                    for (var i = 0; i < sub_pac.length; i++) {
+                                        self.sub_pac_sel.options[self.sub_pac_sel.options.length] = new Option(sub_pac[i], sub_pac[i]);
+                                    }
+                                    if (self.sub_pac_sel.options.length==2) {
+                                        self.sub_pac_sel.selectedIndex=1;
+                                        self.sub_pac_sel.onchange();
+                                    }
+                                }
                             }
-                            self.wor_pac_sel.options[0].text = "All"
-                            for (var wor_pac in self.drop_list[this.value]) {
-                                self.wor_pac_sel.options[self.wor_pac_sel.options.length] = new Option(wor_pac, wor_pac);
-                            }
-                            if (self.wor_pac_sel.options.length==2) {
-                                self.wor_pac_sel.onchange();
-                            }
-                        }
-                        self.sub_pro_sel.onchange();
-                        self.wor_pac_sel.onchange = function () {
-                            self.sub_pac_sel.length = 1;
-                            if (this.selectedIndex < 1) {
-                                self.sub_pac_sel.options[0].text = "All"
-                                return;
-                            }
-                            self.sub_pac_sel.options[0].text = "All"
-                            var sub_pac = self.drop_list[self.sub_pro_sel.value][this.value];
-                            for (var i = 0; i < sub_pac.length; i++) {
-                                self.sub_pac_sel.options[self.sub_pac_sel.options.length] = new Option(sub_pac[i], sub_pac[i]);
-                            }
-                            if (self.sub_pac_sel.options.length==2) {
-                                self.sub_pac_sel.selectedIndex=1;
-                                self.sub_pac_sel.onchange();
-                            }
-                        }
-                        self.drop_work_pack = 'All';
-                        self.drop_sub_proj = 'All';
-                        self.drop_sub_pack = 'All';
+                            self.drop_work_pack = 'All';
+                            self.drop_sub_proj = 'All';
+                            self.drop_sub_pack = 'All';
 
-                        if ((self.fin_sub_project) && (self.fin_work_packet)){
-                            $('#0').on('change', function(){
+                            if ((self.fin_sub_project) && (self.fin_work_packet)){
+                                $('#0').on('change', function(){
                                 self.apply_class();   
                                 self.add_loader();
                                 self.drop_sub_proj = this.value;
@@ -3924,163 +3912,163 @@
 
                 self.dateType = function(key,all_data,name,button_clicked){
 
-                self.call_back = callback;
-                
-                var obj = {
-                    "self.chartOptions10":self.chartOptions10,
-                    "self.chartOptions17":self.chartOptions17,
-                    "self.chartOptions18":self.chartOptions18,
-                    "self.chartOptions25":self.chartOptions25,
-                    "self.chartOptions24":self.chartOptions24,
-                    "self.chartOptions15":self.chartOptions15,
-                    "self.chartOptions9":self.chartOptions9,
-                    "self.chartOptions9_2":self.chartOptions9_2,
-                    "self.chartOptions19":self.chartOptions19,
-                    "self.chartOptions26":self.chartOptions26,
-                    "self.chartOptions16":self.chartOptions16,
-                    "self.chartOptions16_2":self.chartOptions16_2,
-                    "self.chartOptions38":self.chartOptions38,
-                    "self.chartOptions5":self.chartOptions5,
-                    "self.chartOptions5_2":self.chartOptions5_2,
-                    "self.chartOptions29":self.chartOptions29,
-                    "self.chartOptions30":self.chartOptions30,
-                    "self.chartOptions27":self.chartOptions27,
-                    "self.chartOptions28":self.chartOptions28,
-                    "self.chartOptions":self.chartOptions,
-                    "self.chartOptions40":self.chartOptions40,
-                    "self.chartOptions41":self.chartOptions41,
-                    "self.chartOptions42":self.chartOptions42,
-                    "self.chartOptions39":self.chartOptions39,
-                    "self.chartOptions43":self.chartOptions43,
-                    "self.chartOptions44":self.chartOptions44,
-                    "self.chartOptions31":self.chartOptions31, 
-                    "self.chartOptions47":self.chartOptions47,
-                    "self.chartOptions48":self.chartOptions48,
-                    "self.chartOptions49":self.chartOptions49,
-                    "self.chartOptions50":self.chartOptions50,
-                    "self.chartOptions51":self.chartOptions51,
-                    "self.chartOptions52":self.chartOptions52,
-                    "self.chartOptions53":self.chartOptions53
-                }
+                    self.call_back = callback;
+                    
+                    var obj = {
+                        "self.chartOptions10":self.chartOptions10,
+                        "self.chartOptions17":self.chartOptions17,
+                        "self.chartOptions18":self.chartOptions18,
+                        "self.chartOptions25":self.chartOptions25,
+                        "self.chartOptions24":self.chartOptions24,
+                        "self.chartOptions15":self.chartOptions15,
+                        "self.chartOptions9":self.chartOptions9,
+                        "self.chartOptions9_2":self.chartOptions9_2,
+                        "self.chartOptions19":self.chartOptions19,
+                        "self.chartOptions26":self.chartOptions26,
+                        "self.chartOptions16":self.chartOptions16,
+                        "self.chartOptions16_2":self.chartOptions16_2,
+                        "self.chartOptions38":self.chartOptions38,
+                        "self.chartOptions5":self.chartOptions5,
+                        "self.chartOptions5_2":self.chartOptions5_2,
+                        "self.chartOptions29":self.chartOptions29,
+                        "self.chartOptions30":self.chartOptions30,
+                        "self.chartOptions27":self.chartOptions27,
+                        "self.chartOptions28":self.chartOptions28,
+                        "self.chartOptions":self.chartOptions,
+                        "self.chartOptions40":self.chartOptions40,
+                        "self.chartOptions41":self.chartOptions41,
+                        "self.chartOptions42":self.chartOptions42,
+                        "self.chartOptions39":self.chartOptions39,
+                        "self.chartOptions43":self.chartOptions43,
+                        "self.chartOptions44":self.chartOptions44,
+                        "self.chartOptions31":self.chartOptions31, 
+                        "self.chartOptions47":self.chartOptions47,
+                        "self.chartOptions48":self.chartOptions48,
+                        "self.chartOptions49":self.chartOptions49,
+                        "self.chartOptions50":self.chartOptions50,
+                        "self.chartOptions51":self.chartOptions51,
+                        "self.chartOptions52":self.chartOptions52,
+                        "self.chartOptions53":self.chartOptions53
+                    }
 
-                self.render_data = obj[all_data];
+                    self.render_data = obj[all_data];
 
-                self.button_clicked = button_clicked;
+                    self.button_clicked = button_clicked;
 
-                var final_work =  '&sub_project=' + self.drop_sub_proj + '&sub_packet=' + self.drop_sub_pack + '&work_packet=' + 
-                                  self.drop_work_pack + '&is_clicked=' + self.button_clicked;
+                    var final_work =  '&sub_project=' + self.drop_sub_proj + '&sub_packet=' + self.drop_sub_pack + '&work_packet=' + 
+                                      self.drop_work_pack + '&is_clicked=' + self.button_clicked;
 
-                if ((name == 'chartOptions17') || (name == 'chartOptions18')) {
+                    if ((name == 'chartOptions17') || (name == 'chartOptions18')) {
 
-                    if (name == 'chartOptions17') {
-                        $('.widget-17a').addClass('widget-loader-show');
-                        $('.widget-17b').addClass('widget-data-hide');
+                        if (name == 'chartOptions17') {
+                            $('.widget-17a').addClass('widget-loader-show');
+                            $('.widget-17b').addClass('widget-data-hide');
+                        }
+                        if (name == 'chartOptions18') {
+                            $('.widget-13a').addClass('widget-loader-show');
+                            $('.widget-13b').addClass('widget-data-hide');
+                        }
+                        self.allo_and_comp(final_work, key, all_data); 
                     }
-                    if (name == 'chartOptions18') {
-                        $('.widget-13a').addClass('widget-loader-show');
-                        $('.widget-13b').addClass('widget-data-hide');
+                    if ((name == 'chartOptions25') || (name == 'chartOptions15') || (name == 'chartOptions24')) {
+                        if (name == 'chartOptions25') {
+                            $('.widget-20a').addClass('widget-loader-show');
+                            $('.widget-20b').addClass('widget-data-hide');
+                        }
+                        if (name == 'chartOptions24') {
+                            $('.widget-19a').addClass('widget-loader-show');
+                            $('.widget-19b').addClass('widget-data-hide');
+                        }
+                        if (name == 'chartOptions15') {
+                            $('.widget-9a').addClass('widget-loader-show');
+                            $('.widget-9b').addClass('widget-data-hide');
+                        }
+                        self.utill_all(final_work, key, all_data);
                     }
-                    self.allo_and_comp(final_work, key, all_data); 
-                }
-                if ((name == 'chartOptions25') || (name == 'chartOptions15') || (name == 'chartOptions24')) {
-                    if (name == 'chartOptions25') {
-                        $('.widget-20a').addClass('widget-loader-show');
-                        $('.widget-20b').addClass('widget-data-hide');
+                    if (name == 'chartOptions19') {
+                        $('.widget-14a').addClass('widget-loader-show');
+                        $('.widget-14b').addClass('widget-data-hide');
+                        self.productivity(final_work, key);
                     }
-                    if (name == 'chartOptions24') {
-                        $('.widget-19a').addClass('widget-loader-show');
-                        $('.widget-19b').addClass('widget-data-hide');
+                    if (name == 'chartOptions38') {
+                        $('.widget-33a').addClass('widget-loader-show');
+                        $('.widget-33b').addClass('widget-data-hide');
+                        self.prod_avg(final_work, key);
                     }
-                    if (name == 'chartOptions15') {
-                        $('.widget-9a').addClass('widget-loader-show');
-                        $('.widget-9b').addClass('widget-data-hide');
+                    if (name == 'chartOptions31') {
+                        $('.widget-26a').addClass('widget-loader-show');
+                        $('.widget-26b').addClass('widget-data-hide');
+                        self.tat_data(final_work, key);
                     }
-                    self.utill_all(final_work, key, all_data);
-                }
-                if (name == 'chartOptions19') {
-                    $('.widget-14a').addClass('widget-loader-show');
-                    $('.widget-14b').addClass('widget-data-hide');
-                    self.productivity(final_work, key);
-                }
-                if (name == 'chartOptions38') {
-                    $('.widget-33a').addClass('widget-loader-show');
-                    $('.widget-33b').addClass('widget-data-hide');
-                    self.prod_avg(final_work, key);
-                }
-                if (name == 'chartOptions31') {
-                    $('.widget-26a').addClass('widget-loader-show');
-                    $('.widget-26b').addClass('widget-data-hide');
-                    self.tat_data(final_work, key);
-                }
 
-                if (name == 'chartOptions26') {
-                    $('.widget-21a').addClass('widget-loader-show');
-                    $('.widget-21b').addClass('widget-data-hide');
-                    self.mont_volume(final_work, key);
-                }
-                if ((name == 'chartOptions16') || (name == 'chartOptions16_2')) {
-                    if (name == 'chartOptions16') {
-                        $('.widget-11a').addClass('widget-loader-show');
-                        $('.widget-11b').addClass('widget-data-hide');
+                    if (name == 'chartOptions26') {
+                        $('.widget-21a').addClass('widget-loader-show');
+                        $('.widget-21b').addClass('widget-data-hide');
+                        self.mont_volume(final_work, key);
                     }
-                    if (name == 'chartOptions16_2') {
-                        $('.widget-12a').addClass('widget-loader-show');
-                        $('.widget-12b').addClass('widget-data-hide');
+                    if ((name == 'chartOptions16') || (name == 'chartOptions16_2')) {
+                        if (name == 'chartOptions16') {
+                            $('.widget-11a').addClass('widget-loader-show');
+                            $('.widget-11b').addClass('widget-data-hide');
+                        }
+                        if (name == 'chartOptions16_2') {
+                            $('.widget-12a').addClass('widget-loader-show');
+                            $('.widget-12b').addClass('widget-data-hide');
+                        }
+                        self.fte_graphs(final_work, key, all_data);
                     }
-                    self.fte_graphs(final_work, key, all_data);
-                }
-                if ((name == 'chartOptions10') || (name == 'chartOptions')) {
-                    if (name == 'chartOptions10') {
-                        $('.widget-6a').addClass('widget-loader-show');
-                        $('.widget-6b').addClass('widget-data-hide');
+                    if ((name == 'chartOptions10') || (name == 'chartOptions')) {
+                        if (name == 'chartOptions10') {
+                            $('.widget-6a').addClass('widget-loader-show');
+                            $('.widget-6b').addClass('widget-data-hide');
+                        }
+                        if (name == 'chartOptions') {
+                            $('.widget-1a').addClass('widget-loader-show');
+                            $('.widget-1b').addClass('widget-data-hide');
+                        }
+                        self.main_prod(final_work, key, all_data);
                     }
-                    if (name == 'chartOptions') {
-                        $('.widget-1a').addClass('widget-loader-show');
-                        $('.widget-1b').addClass('widget-data-hide');
-                    }
-                    self.main_prod(final_work, key, all_data);
-                }
 
-                if ((name == 'chartOptions9_2') || (name == 'chartOptions9')) {
-                    if (name == 'chartOptions9') {
-                       $('.widget-8a').addClass('widget-loader-show');
-                       $('.widget-8b').addClass('widget-data-hide');		
+                    if ((name == 'chartOptions9_2') || (name == 'chartOptions9')) {
+                        if (name == 'chartOptions9') {
+                           $('.widget-8a').addClass('widget-loader-show');
+                           $('.widget-8b').addClass('widget-data-hide');		
+                        }
+                        if (name == 'chartOptions9_2') {
+                        $('.widget-7a').addClass('widget-loader-show');
+                        $('.widget-7b').addClass('widget-data-hide');
+                        }
+                            self.from_to(final_work, key, all_data);		
                     }
-                    if (name == 'chartOptions9_2') {
-                    $('.widget-7a').addClass('widget-loader-show');
-                    $('.widget-7b').addClass('widget-data-hide');
-                    }
-                        self.from_to(final_work, key, all_data);		
-                }
 
-                if (name == 'chartOptions40') {
-                    $('.widget-35a').addClass('widget-loader-show');
-                    $('.widget-35b').addClass('widget-data-hide');
-                    self.pre_scan(final_work, key);
-                }
-                if (name == 'chartOptions42') {
-                    $('.widget-37a').addClass('widget-loader-show');
-                    $('.widget-37b').addClass('widget-data-hide');
-                    self.nw_exce(final_work, key);
-                }
-                if (name == 'chartOptions41') {
-                    $('.widget-36a').addClass('widget-loader-show');
-                    $('.widget-36b').addClass('widget-data-hide');
-                    self.overall_exce(final_work, key);
-                }
-                if (name == 'chartOptions39') {
-                    $('.widget-34a').addClass('widget-loader-show');
-                    $('.widget-34b').addClass('widget-data-hide');
-                    self.upload_acc(final_work, key);
-                }
-                var chart_type_map = {};
-                chart_type_map = { 'chartOptions47' : self.filter_list[0], 'chartOptions48' : self.filter_list[1] , 'chartOptions49' : self.filter_list[2], 'chartOptions50' : self.filter_list[3], 'chartOptions51' : self.filter_list[4] };
-                if( !(self.fin_sub_project || self.fin_sub_packet || self.fin_work_packet ) && self.is_voice_flag ) {
-                    if (name == 'chartOptions47' || name == 'chartOptions48' || name == 'chartOptions49' || name == 'chartOptions50' || name == 'chartOptions51' || name == 'chartOptions52' || name == 'chartOptions53') {
-                        self.day_type = key;
-                        self.ajaxVoiceFilter(chart_type_map[name]);
+                    if (name == 'chartOptions40') {
+                        $('.widget-35a').addClass('widget-loader-show');
+                        $('.widget-35b').addClass('widget-data-hide');
+                        self.pre_scan(final_work, key);
                     }
-                }
+                    if (name == 'chartOptions42') {
+                        $('.widget-37a').addClass('widget-loader-show');
+                        $('.widget-37b').addClass('widget-data-hide');
+                        self.nw_exce(final_work, key);
+                    }
+                    if (name == 'chartOptions41') {
+                        $('.widget-36a').addClass('widget-loader-show');
+                        $('.widget-36b').addClass('widget-data-hide');
+                        self.overall_exce(final_work, key);
+                    }
+                    if (name == 'chartOptions39') {
+                        $('.widget-34a').addClass('widget-loader-show');
+                        $('.widget-34b').addClass('widget-data-hide');
+                        self.upload_acc(final_work, key);
+                    }
+                    var chart_type_map = {};
+                    chart_type_map = { 'chartOptions47' : self.filter_list[0], 'chartOptions48' : self.filter_list[1] , 'chartOptions49' : self.filter_list[2], 'chartOptions50' : self.filter_list[3], 'chartOptions51' : self.filter_list[4], 'chartOptions52' : self.filter_list[5], 'chartOptions53' : self.filter_list[6] };
+                    if( !(self.fin_sub_project || self.fin_sub_packet || self.fin_work_packet ) && self.is_voice_flag ) {
+                        if (name == 'chartOptions47' || name == 'chartOptions48' || name == 'chartOptions49' || name == 'chartOptions50' || name == 'chartOptions51' || name == 'chartOptions52' || name == 'chartOptions53') {
+                            self.day_type = key;
+                            self.ajaxVoiceFilter(chart_type_map[name], key);
+                        }
+                    }
             }
 
              self.active_filters = function(key,button_clicked) {
