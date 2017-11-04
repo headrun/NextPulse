@@ -176,7 +176,7 @@
                 $('.widget17b').addClass('widget-data-hide');
             });
 
-            self.filter_list = ['location', 'skill', 'disposition', 'call_status', 'cate_dispo_inbound', 'outbound_dispo_cate'];
+            self.filter_list = ['location', 'skill', 'disposition', 'call_status', 'cate_dispo_inbound', 'outbound_dispo_cate', 'outbound_disposition'];
             self.chartType = ['bar', 'stacked', 'pie'];
             self.voice_widget_function = function(result, voiceFilterType, widgetA, widgetB) {
                 var chartOptions, chartSeries, chartType;
@@ -204,6 +204,10 @@
                     chartOptions = self.chartOptions52;
                     chartSeries = result.result[self.filter_list[5]];
                     chartType = self.chartType[2];
+                } else if (voiceFilterType == self.filter_list[6]) {
+                    chartOptions = self.chartOptions53;
+                    chartSeries = result.result[self.filter_list[6]];
+                    chartType = self.chartType[0];
                 }
                 switch (chartType) {
                     case self.chartType[1]:
@@ -3472,7 +3476,8 @@
                     'self.chartOptions49':self.chartOptions49,
                     'self.chartOptions50':self.chartOptions50,
                     'self.chartOptions51':self.chartOptions51,
-                    'self.chartOptions52':self.chartOptions52
+                    'self.chartOptions52':self.chartOptions52,
+                    "self.chartOptions53":self.chartOptions53
                     };
 
 
@@ -3497,8 +3502,6 @@
 
                     self.call_back = callback;
                     var final_work =  '&sub_project=' + self.drop_sub_proj + '&sub_packet=' + self.drop_sub_pack + '&work_packet=' + self.drop_work_pack;
-                    //self.start = callback[0];
-                    //self.end = callback[1];
                     self.voiceTypeFilter = function(key, make_ajax) {
                         var callback = [];
                         self.voiceProjectType = key; 
@@ -3525,9 +3528,6 @@
                             })   
                         }
                     }
-                    //if (self.voiceProjectType) {
-                    //    self.voiceTypeFilter(self.voiceProjectType, 0);
-                    //}
                     var packet_url = '/api/get_packet_details/?&project='+callback[3]+'&center='+callback[2]+'&from='+self.start+'&to='+self.end+'&voice_project_type='+self.voiceProjectType;
                     $http.get(packet_url).then(function(result) {
                         self.chartProcess = function(result) {
@@ -3615,6 +3615,10 @@
                                         } else if (type == self.filter_list[5]) {
                                             widgetA = '.widget-47a';
                                             widgetB = '.widget-47b';
+                                            type_check = 'outbound';
+                                        } else if (type == self.filter_list[6]) {
+                                            widgetA = '.widget-48a';
+                                            widgetB = '.widget-48b';
                                             type_check = 'outbound';
                                         }
                                         if (self.voiceProjectType == 'inbound') {
@@ -3940,14 +3944,14 @@
                     "self.chartOptions39":self.chartOptions39,
                     "self.chartOptions43":self.chartOptions43,
                     "self.chartOptions44":self.chartOptions44,
-                    "self.chartOptions31":self.chartOptions31,
-                    
+                    "self.chartOptions31":self.chartOptions31, 
                     "self.chartOptions47":self.chartOptions47,
                     "self.chartOptions48":self.chartOptions48,
                     "self.chartOptions49":self.chartOptions49,
                     "self.chartOptions50":self.chartOptions50,
                     "self.chartOptions51":self.chartOptions51,
-                    "self.chartOptions52":self.chartOptions52
+                    "self.chartOptions52":self.chartOptions52,
+                    "self.chartOptions53":self.chartOptions53
                 }
 
                 self.render_data = obj[all_data];
@@ -4063,7 +4067,7 @@
                 var chart_type_map = {};
                 chart_type_map = { 'chartOptions47' : self.filter_list[0], 'chartOptions48' : self.filter_list[1] , 'chartOptions49' : self.filter_list[2], 'chartOptions50' : self.filter_list[3], 'chartOptions51' : self.filter_list[4] };
                 if( !(self.fin_sub_project || self.fin_sub_packet || self.fin_work_packet ) && self.is_voice_flag ) {
-                    if (name == 'chartOptions47' || name == 'chartOptions48' || name == 'chartOptions49' || name == 'chartOptions50' || name == 'chartOptions51' || name == 'chartOptions52') {
+                    if (name == 'chartOptions47' || name == 'chartOptions48' || name == 'chartOptions49' || name == 'chartOptions50' || name == 'chartOptions51' || name == 'chartOptions52' || name == 'chartOptions53') {
                         self.day_type = key;
                         self.ajaxVoiceFilter(chart_type_map[name]);
                     }
@@ -4286,7 +4290,8 @@
                     'self.chartOptions49':self.chartOptions49,
                     'self.chartOptions50':self.chartOptions50,
                     'self.chartOptions51':self.chartOptions51,
-                    'self.chartOptions52':self.chartOptions52
+                    'self.chartOptions52':self.chartOptions52,
+                    "self.chartOptions53":self.chartOptions53
                     };
                     var final_layout_list = [];
                     for (var single in self.layout_list){
@@ -5416,41 +5421,41 @@
             };
 
             self.chartOptions48 = {
-            chart: {
-                type: 'column',
-                backgroundColor: "transparent"
-             },
-            title: {
-                text: ''
-            },
-            subtitle: {
-                text: ''
-            },
-            yAxis: {
-                gridLineColor: 'a2a2a2',
-                min: 0,
+                chart: {
+                    type: 'column',
+                    backgroundColor: "transparent"
+                 },
                 title: {
                     text: ''
-                }
-            },
-            tooltip: {
-                valueSuffix: '',
+                },
+                subtitle: {
+                    text: ''
+                },
+                yAxis: {
+                    gridLineColor: 'a2a2a2',
+                    min: 0,
+                    title: {
+                        text: ''
+                    }
+                },
+                tooltip: {
+                    valueSuffix: '',
 
-                formatter: function () {
-                             return "<small>" + this.x + "</small><br/>" +
-                                    "<b>" + this.series.name + "</b> : " + Highcharts.numberFormat(this.y, null, null, ",");
-                           }
-               },
-            plotOptions:{
-                series:{
-                    allowPointSelect: true,
-                    cursor: 'pointer',
-                point: {
-                    events:{
+                    formatter: function () {
+                                 return "<small>" + this.x + "</small><br/>" +
+                                        "<b>" + this.series.name + "</b> : " + Highcharts.numberFormat(this.y, null, null, ",");
+                               }
+                   },
+                plotOptions:{
+                    series:{
+                        allowPointSelect: true,
+                        cursor: 'pointer',
+                    point: {
+                        events:{
+                        }
+                    }
                     }
                 }
-                }
-            }
             };
     
             self.chartOptions51 = {
@@ -5483,7 +5488,7 @@
                                }
                             }
                         }
-                    },
+                 },
             };
 
             self.chartOptions52 = {
@@ -5517,6 +5522,44 @@
                             }
                         }
                     },
+            };
+
+            self.chartOptions53 = {
+                chart: {
+                type: 'column',
+                backgroundColor: "transparent"
+             },    
+            title: {
+                text: ''
+            },
+            subtitle: {
+                text: ''
+            },     
+            yAxis: {
+                gridLineColor: 'a2a2a2',
+                min: 0,
+                title: {
+                    text: ''
+                }
+            },
+            tooltip: {
+                valueSuffix: '',
+
+                formatter: function () {
+                             return "<small>" + this.x + "</small><br/>" +
+                                    "<b>" + this.series.name + "</b> : " + Highcharts.numberFormat(this.y, null, null, ",");
+                           }
+               },  
+            plotOptions:{
+                series:{
+                    allowPointSelect: true,
+                    cursor: 'pointer',
+                point: {   
+                    events:{
+                    }
+                }
+                }
+            }
             };
 
             self.chartOptions50 = {
