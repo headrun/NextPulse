@@ -143,7 +143,15 @@
                         $('.day').addClass('active btn-success');
                         $('.day').siblings().removeClass('active btn-success');
                     }            
-            }               
+            }
+
+            self.checkScroll = function() {
+                if($('.scroll').scrollTop() == 0) {
+                    $('.fa-arrow-circle-o-up').addClass('hide');
+                } else {
+                    $('.fa-arrow-circle-o-up').removeClass('hide');
+                }
+            }
 
              $('#annotation_button').click(function(){
 
@@ -3525,7 +3533,8 @@
                             var packet_url = '/api/get_packet_details/?&project='+callback[3]+'&center='+callback[2]+'&from='+self.start+'&to='+self.end+'&voice_project_type='+key;
                             $http.get(packet_url).then(function(result) {
                                 self.chartProcess(result);
-                            })   
+                                self.checkScroll();
+                            }) 
                         }
                     }
                     var packet_url = '/api/get_packet_details/?&project='+callback[3]+'&center='+callback[2]+'&from='+self.start+'&to='+self.end+'&voice_project_type='+self.voiceProjectType;
