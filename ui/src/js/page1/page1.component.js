@@ -3498,10 +3498,10 @@
                         var from = dateEntered.split('to')[0].replace(' ','');
                         var to = dateEntered.split('to')[1].replace(' ','');
                         callback.push.apply(callback, [from, to, self.center_live, self.project_live]);
-                        self.locationValue = 'All';
-                        self.skillValue = 'All';
-                        self.dispositionValue = 'All';
-                        self.voiceFilterType = 'location';
+                        //self.locationValue = 'All';
+                        //self.skillValue = 'All';
+                        //self.dispositionValue = 'All';
+                        //self.voiceFilterType = 'location';
                         if(key == 'inbound') {
                             $('.inbound').addClass('active btn-success');
                             $('.inbound').siblings().removeClass('active btn-success');
@@ -6001,6 +6001,9 @@
             self.voiceProjectList = [];
             self.voiceTypeFilter;
             self.is_voice_flag = 'false';
+            self.locationValue;
+            self.skillValue;
+            self.dispositionValue;
             }],
 
             "bindings": {
