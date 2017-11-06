@@ -123,26 +123,6 @@
                     $('.widget-39b').addClass('widget-data-hide');
                }
 
-                self.apply_class = function() {
-                    if ((self.day_type === 'week') || (self.sel_type === 'week')){
-                        $('.week2').addClass('active btn-success');
-                        $('.week2').siblings().removeClass('active btn-success');
-                        $('.week').addClass('active btn-success');
-                        $('.week').siblings().removeClass('active btn-success');
-                    }
-                    if ((self.day_type === 'month') || (self.sel_type === 'month')){
-                        $('.month2').addClass('active btn-success');
-                        $('.month2').siblings().removeClass('active btn-success');
-                        $('.month').addClass('active btn-success');
-                        $('.month').siblings().removeClass('active btn-success');
-                    }
-                    if ((self.day_type === 'day') || (self.sel_type === 'day')){
-                        $('.day2').addClass('active btn-success');
-                        $('.day2').siblings().removeClass('active btn-success');
-                        $('.day').addClass('active btn-success');
-                        $('.day').siblings().removeClass('active btn-success');
-                    }            
-                }
 
             self.checkScroll = function() {
                 if($('.scroll').scrollTop() == 0) {
@@ -174,7 +154,6 @@
                 $('.input-sm').prop('selectedIndex',0);
                 self.add_loader();
                 callback.push.apply(callback, [self.start, self.end, self.center_live, self.project_live])
-                //self.apply_class();
                 if(self.is_voice_flag) {
                     self.voiceTypeFilter(self.voiceProjectType, 1);
                 } else {
@@ -298,7 +277,6 @@
                       });
                     }
                     self.ajax_for_role();
-                    self.voiceTypeFilter('', 1);
                     //Annotate Code
                     self.annot_perm = function() {
 
@@ -3489,7 +3467,6 @@
                     self.call_back = callback;
                     var final_work =  '&sub_project=' + self.drop_sub_proj + '&sub_packet=' + self.drop_sub_pack + '&work_packet=' + self.drop_work_pack;
                     self.voiceTypeFilter = function(key, make_ajax) {
-                        var callback = [];
                         if (!(key=='')) {
                             self.voiceProjectType = key; 
                         }
@@ -3498,10 +3475,6 @@
                         var from = dateEntered.split('to')[0].replace(' ','');
                         var to = dateEntered.split('to')[1].replace(' ','');
                         callback.push.apply(callback, [from, to, self.center_live, self.project_live]);
-                        //self.locationValue = 'All';
-                        //self.skillValue = 'All';
-                        //self.dispositionValue = 'All';
-                        //self.voiceFilterType = 'location';
                         if(key == 'inbound') {
                             $('.inbound').addClass('active btn-success');
                             $('.inbound').siblings().removeClass('active btn-success');
@@ -3527,9 +3500,10 @@
                             self.fin_work_packet = result.data.result.fin.work_packet;
                             self.is_voice_flag = result.data.result.is_voice; 
                             if (self.is_voice_flag) {
+                                $('#emp_widget').hide();
+                                $('#volume_table').hide();
                                 self.voiceProjectList = result.data.result.voice_project_types;
                                 self.voiceProjectList = ['inbound', 'outbound'];
-                                //self.voiceProjectType = result.data.result.voice_project_value;
                                 self.voiceTypeFilter(self.voiceProjectType, 0);
                                 angular.element(document.querySelector('#voice_filter_div')).removeClass('hide');
                                 self.voice_filters.Location = result.data.result['location'];
@@ -3643,19 +3617,16 @@
                                     self.LocationFilter.onchange = function () {
                                         self.locationValue = self.LocationFilter.value;
                                         voice_filter_calls();
-                                        //self.day_type = '';
                                         self.ajaxVoiceFilter(type, '');
                                     }
                                     self.SkillFilter.onchange = function () {
                                         self.skillValue = self.SkillFilter.value;
                                         voice_filter_calls();
-                                        //self.day_type = '';
                                         self.ajaxVoiceFilter(type, '');
                                     }
                                     self.DispositionFilter.onchange = function () {
                                         self.dispositionValue = self.DispositionFilter.value;
                                         voice_filter_calls();
-                                        //self.day_type = '';
                                         self.ajaxVoiceFilter(type, '');
                                     }
                                     voice_filter_calls = function () {
@@ -3685,6 +3656,7 @@
                                     self.sub_pro_sel.options[self.sub_pro_sel.options.length] = new Option(sub_pro, sub_pro);
                                 }
                             }
+                            self.hideLoading();
                         }
 
                         var packet_url = '/api/get_packet_details/?&project='+callback[3]+'&center='+callback[2]+'&from='+self.start+'&to='+self.end+'&voice_project_type='+self.voiceProjectType;
@@ -3753,7 +3725,6 @@
 
                             if ((self.fin_sub_project) && (self.fin_work_packet)){
                                 $('#0').on('change', function(){
-                                //self.apply_class();   
                                 self.add_loader();
                                 self.drop_sub_proj = this.value;
                                 self.drop_work_pack = self.wor_pac_sel.value;
@@ -3777,7 +3748,6 @@
                             });
 
                             $('#1').on('change', function(){
-                                //self.apply_class();
                                 self.add_loader();
                                 self.drop_sub_proj = self.sub_pro_sel.value;
                                 self.drop_work_pack = this.value;
@@ -3802,7 +3772,6 @@
                             });
 
                             $('#2').on('change', function(){
-                                //self.apply_class();
                                 self.add_loader();
                                 self.drop_work_pack = self.wor_pac_sel.value;
                                 self.drop_sub_proj = self.sub_pro_sel.value;
@@ -3832,7 +3801,6 @@
 
                         $('#0').on('change', function(){
 
-                            //self.apply_class();                        
                             self.add_loader();
                             self.drop_work_pack = this.value;
                             self.drop_sub_proj = 'undefined';
@@ -3855,7 +3823,6 @@
                         });
 
                         $('#1').on('change', function(){
-                            //self.apply_class();   
                             self.add_loader();
                             self.drop_sub_pack = this.value;
                             self.drop_sub_proj = 'undefined';
@@ -3879,7 +3846,6 @@
                         else {
                         if (self.fin_work_packet){ 
                             $('#0').on('change', function(){ 
-                                //self.apply_class();
                                 self.add_loader();
                                 self.drop_work_pack = this.value;
                                 self.drop_sub_proj = 'undefined';
@@ -3903,7 +3869,6 @@
 
                             });
                         }
-                        //self.voiceTypeFilter(self.voiceProjectType, 0);
                     }
                     if (self.fin_sub_packet) {
                     $('#1').on('change', function(){
@@ -3918,7 +3883,11 @@
            return callback;
            }).then(function(callback){
                     var final_work = '';
-                    self.main_widget_function(callback, final_work);
+                    if(self.is_voice_flag) {
+                        self.voiceTypeFilter(self.voiceProjectType, 1);
+                    } else {
+                        self.main_widget_function(callback, final_work);
+                    }
                     return callback;
             }).then(function(callback){
 
@@ -4113,7 +4082,6 @@
 
                 if(!(self.fin_sub_project || self.fin_sub_packet || self.fin_work_packet ) && self.is_voice_flag) {
                     self.day_type = key;
-                    //self.main_day_type = key;
                     voice_filter_calls();
                 } else {
                     $('.widget-17a').addClass('widget-loader-show');    
@@ -6000,7 +5968,7 @@
             self.voiceProjectType = 'inbound';
             self.voiceProjectList = [];
             self.voiceTypeFilter;
-            self.is_voice_flag = 'false';
+            self.is_voice_flag = false;
             self.locationValue;
             self.skillValue;
             self.dispositionValue;
