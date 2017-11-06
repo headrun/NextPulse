@@ -3259,7 +3259,7 @@
                        }
                 self.hideLoading();
                 var static_ajax = static_data + self.static_widget_data;
-		self.static_data_call = function(static_ajax){
+		        self.static_data_call = function(static_ajax){
                 $http({method:"GET", url:static_ajax}).success(function(result){
 
                     angular.extend(self.chartOptions32, {
@@ -3344,31 +3344,32 @@
 		}
 
     
+            if (self.is_voice_flag == false) {
+                $q.all([self.allo_and_comp(undefined, undefined, undefined), self.utill_all(undefined, undefined, undefined),
+                    self.productivity(undefined, undefined), self.prod_avg(undefined, undefined)]).then(function(){
 
-        $q.all([self.allo_and_comp(undefined, undefined, undefined), self.utill_all(undefined, undefined, undefined),
-            self.productivity(undefined, undefined), self.prod_avg(undefined, undefined)]).then(function(){
+                    $q.all([self.pareto_category_error(pareto_cate_error) ,self.agent_category_error(agent_cate_error), 
+                        self.main_prod(undefined, undefined, undefined), self.category_error(cate_error)]).then(function(){
 
-            $q.all([self.pareto_category_error(pareto_cate_error) ,self.agent_category_error(agent_cate_error), 
-                self.main_prod(undefined, undefined, undefined), self.category_error(cate_error)]).then(function(){
+                    $q.all([self.from_to(undefined, undefined, undefined) ,self.error_bar_graph(error_bar_graph),
+                       self.pre_scan(undefined, undefined), self.nw_exce(undefined, undefined)]).then(function(){
 
-            $q.all([self.from_to(undefined, undefined, undefined) ,self.error_bar_graph(error_bar_graph),
-               self.pre_scan(undefined, undefined), self.nw_exce(undefined, undefined)]).then(function(){
+                    $q.all([self.overall_exce(undefined, undefined), self.upload_acc(undefined, undefined),
+                           self.mont_volume(undefined, undefined), self.fte_graphs(undefined, undefined, undefined)]).then(function(){
 
-            $q.all([self.overall_exce(undefined, undefined), self.upload_acc(undefined, undefined),
-                   self.mont_volume(undefined, undefined), self.fte_graphs(undefined, undefined, undefined)]).then(function(){
+                      $q.all([self.error_field_graph(err_field_graph), self.tat_data(undefined, undefined),
+                        self.static_data_call(static_ajax)]).then(function(){                                                               
+                            self.annot_perm();                                                                                                    
+                       });                                        
 
-              $q.all([self.error_field_graph(err_field_graph), self.tat_data(undefined, undefined),
-                self.static_data_call(static_ajax)]).then(function(){                                                               
-                    self.annot_perm();                                                                                                    
-               });                                        
+                    });
 
-            });
+                    });
 
-            });
+                    });
 
-            });
-
-        });
+                });
+            }
 
 
 
@@ -3389,6 +3390,7 @@
 
                 self.call_back.push(self.first);
                 self.call_back.push(self.last);
+
 
                 $('#select').val(self.first + ' to ' + self.last);
 
@@ -3504,7 +3506,6 @@
                                 $('#volume_table').hide();
                                 self.voiceProjectList = result.data.result.voice_project_types;
                                 self.voiceProjectList = ['inbound', 'outbound'];
-                                self.voiceTypeFilter(self.voiceProjectType, 0);
                                 angular.element(document.querySelector('#voice_filter_div')).removeClass('hide');
                                 self.voice_filters.Location = result.data.result['location'];
                                 self.voice_filters.Skill = result.data.result['skill'];
@@ -3548,7 +3549,7 @@
                                 self.skillValue = 'All';
                                 self.dispositionValue = 'All';
                                 self.voiceFilterType = 'location';
-                                if(!(self.fin_sub_project || self.fin_sub_packet || self.fin_work_packet ) && self.is_voice_flag) {
+                                if(self.is_voice_flag) {
                                     self.ajaxVoiceFilter = function(type, key) {
                                         var voice_filter_ajax = '/api/'+ type + self.voice_filter + self.day_type + '&location=' + self.locationValue + '&skill=' + self.skillValue + '&disposition=' + self.dispositionValue;
                                         var day_type = self.day_type;
@@ -3610,9 +3611,9 @@
                                             $http({ method: "GET", url: voice_filter_ajax }).success(function(result) {
                                                 self.voice_widget_function(result, type, widgetA, widgetB);
                                                 self.highlightTypes(day_type, widgetB);
+                                                self.voiceTypeFilter(self.voiceProjectType, 0);
                                             })
                                         }
-                                        self.voiceTypeFilter(self.voiceProjectType, 0);
                                     }
                                     self.LocationFilter.onchange = function () {
                                         self.locationValue = self.LocationFilter.value;
@@ -3638,6 +3639,7 @@
                                 }
                             } else {
                                 angular.element(document.querySelector('#voice_filter_div')).addClass('hide');
+                                self.main_widget_function(callback, '');
                             }
 
                             self.global_packet_values = result.data.result.fin;
@@ -3646,7 +3648,7 @@
                             self.top_five = result.data.result.only_top_five;
                             self.volume_graphs = result.data.result.volumes_graphs_details;
                             self.drop_list =  result.data.result.drop_value;
-                            if (!self.is_voice_flag) {
+                            if ( self.is_voice_flag == false) {
                                 self.sub_pro_sel = document.getElementById("0");
                                 self.wor_pac_sel = document.getElementById("1");
                                 self.sub_pac_sel = document.getElementById("2");
@@ -3684,7 +3686,7 @@
                             } else {
                                 $('#2').hide();
                             }
-                            if(!self.is_voice_flag) { 
+                            if( self.is_voice_flag == false) { 
                                 self.sub_pro_sel.onchange = function () {
                                     self.wor_pac_sel.length = 1;
                                     self.sub_pac_sel.length = 1;
@@ -3882,14 +3884,6 @@
            })
            return callback;
            }).then(function(callback){
-                    var final_work = '';
-                    if(self.is_voice_flag) {
-                        self.voiceTypeFilter(self.voiceProjectType, 1);
-                    } else {
-                        self.main_widget_function(callback, final_work);
-                    }
-                    return callback;
-            }).then(function(callback){
 
                 self.dateType = function(key,all_data,name,button_clicked){
 
@@ -4044,7 +4038,7 @@
                     }
                     var chart_type_map = {};
                     chart_type_map = { 'chartOptions47' : self.filter_list[0], 'chartOptions48' : self.filter_list[1] , 'chartOptions49' : self.filter_list[2], 'chartOptions50' : self.filter_list[3], 'chartOptions51' : self.filter_list[4], 'chartOptions52' : self.filter_list[5], 'chartOptions53' : self.filter_list[6] };
-                    if( !(self.fin_sub_project || self.fin_sub_packet || self.fin_work_packet ) && self.is_voice_flag ) {
+                    if( self.is_voice_flag ) {
                         if (name == 'chartOptions47' || name == 'chartOptions48' || name == 'chartOptions49' || name == 'chartOptions50' || name == 'chartOptions51' || name == 'chartOptions52' || name == 'chartOptions53') {
                             self.ajaxVoiceFilter(chart_type_map[name], key);
                         }
@@ -4080,7 +4074,7 @@
 
                 var final_work =  '&sub_project=' + self.drop_sub_proj + '&sub_packet=' + self.drop_sub_pack + '&work_packet=' + self.drop_work_pack + '&is_clicked=' + self.button_clicked;
 
-                if(!(self.fin_sub_project || self.fin_sub_packet || self.fin_work_packet ) && self.is_voice_flag) {
+                if(self.is_voice_flag) {
                     self.day_type = key;
                     voice_filter_calls();
                 } else {
