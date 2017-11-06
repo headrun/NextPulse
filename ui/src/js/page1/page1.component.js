@@ -183,6 +183,7 @@
                 $('.widget17b').addClass('widget-data-hide');
             });
 
+            //Voice Type User
             self.filter_list = ['location', 'skill', 'disposition', 'call_status', 'cate_dispo_inbound', 'outbound_dispo_cate', 'outbound_disposition'];
             self.chartType = ['bar', 'stacked', 'pie'];
             self.voice_widget_function = function(result, voiceFilterType, widgetA, widgetB) {
@@ -3631,10 +3632,12 @@
                                         }
                                         $(widgetA).addClass('widget-loader-show');
                                         $(widgetB).addClass('widget-data-hide');
-                                        $http({ method: "GET", url: voice_filter_ajax }).success(function(result) {
-                                            self.voice_widget_function(result, type, widgetA, widgetB);
-                                            self.highlightTypes(day_type, widgetB);
-                                        })
+                                        if (self.voiceProjectType == type_check) {
+                                            $http({ method: "GET", url: voice_filter_ajax }).success(function(result) {
+                                                self.voice_widget_function(result, type, widgetA, widgetB);
+                                                self.highlightTypes(day_type, widgetB);
+                                            })
+                                        }
                                         self.voiceTypeFilter(self.voiceProjectType, 0);
                                     }
                                     self.LocationFilter.onchange = function () {
