@@ -234,6 +234,7 @@ def get_packet_details(request):
     final_dict['skill'] = skill_list
     final_dict['disposition'] = dispo_list
     final_dict['is_voice'] = is_voice
+    final_dict['type'] = main_data_dict['type']
     big_dict = {}
     if final_details['sub_project']:
         if final_details['work_packet']:
