@@ -157,7 +157,32 @@
                 if(self.is_voice_flag) {
                     self.voiceTypeFilter(self.voiceProjectType, 1);
                 } else {
-                   self.main_widget_function(callback, '');
+                    var dateEntered = document.getElementById('select').value;
+                    dateEntered = dateEntered.replace(' to ','to');
+                    var from = dateEntered.split('to')[0].replace(' ','');
+                    var to = dateEntered.split('to')[1].replace(' ','');
+                    callback.push.apply(callback, [from, to, self.center_live, self.project_live]);
+                    var packet_url = '/api/get_packet_details/?&project='+callback[3]+'&center='+callback[2]+'&from='+self.start+'&to='+self.end+'&voice_project_type=';
+                    $http.get(packet_url).then(function(result) {
+                        self.global_packet_values = result.data.result.fin;
+                        self.drop_list = [];
+                        self.top_employee_details =  result.data.result.top_five_employee_details;
+                        self.top_five = result.data.result.only_top_five;
+                        self.volume_graphs = result.data.result.volumes_graphs_details;
+                        self.drop_list =  result.data.result.drop_value;
+                        if ( self.is_voice_flag == false) {
+                            self.sub_pro_sel = document.getElementById("0");
+                            self.wor_pac_sel = document.getElementById("1");
+                            self.sub_pac_sel = document.getElementById("2");
+                            $(self.sub_pro_sel.options).remove();
+                            self.sub_pro_sel.options[self.sub_pro_sel.options.length] = new Option('All', 'All');
+                            for (var sub_pro in self.drop_list) {
+                                self.sub_pro_sel.options[self.sub_pro_sel.options.length] = new Option(sub_pro, sub_pro);
+                            }
+                        }
+                        self.checkScroll();
+                    })
+                    self.main_widget_function(callback, '');
                 }
                 $('.widget17b').addClass('widget-data-hide');
             });
@@ -279,38 +304,12 @@
                     dateEntered = dateEntered.replace(' to ','to');
                     var from = dateEntered.split('to')[0].replace(' ','');
                     var to = dateEntered.split('to')[1].replace(' ','');
-                    callback.push.apply(callback, [from, to, self.center_live, self.project_live]);
-                    var packet_url = '/api/get_packet_details/?&project='+callback[3]+'&center='+callback[2]+'&from='+self.start+'&to='+self.end+'&voice_project_type=';
-                    $http.get(packet_url).then(function(result) {
-                        self.global_packet_values = result.data.result.fin;
-                        self.drop_list = [];
-                        self.top_employee_details =  result.data.result.top_five_employee_details;
-                        self.top_five = result.data.result.only_top_five;
-                        self.volume_graphs = result.data.result.volumes_graphs_details;
-                        self.drop_list =  result.data.result.drop_value;
-                        if ( self.is_voice_flag == false) {
-                        self.sub_pro_sel = document.getElementById("0");
-                        self.wor_pac_sel = document.getElementById("1");
-                        self.sub_pac_sel = document.getElementById("2");
-                        $(self.sub_pro_sel.options).remove();
-                        self.sub_pro_sel.options[self.sub_pro_sel.options.length] = new Option('All', 'All');
-                        for (var sub_pro in self.drop_list) {
-                            self.sub_pro_sel.options[self.sub_pro_sel.options.length] = new Option(sub_pro, sub_pro);
-                        }
-                        }
-                        self.checkScroll();
-                    }) 
-
-                            //Annotate Code
-                            self.annot_perm = function() {
-
-                                if (self.role_for_perm == 'customer') {
-
-                                  $('.annotation-popover').find('p').attr('contenteditable', 'false');
-                                  $('.popover-title').hide();
-                        }
-                        else {
-
+                    //Annotate Code
+                    self.annot_perm = function() {
+                        if (self.role_for_perm == 'customer') {
+                              $('.annotation-popover').find('p').attr('contenteditable', 'false');
+                              $('.popover-title').hide();
+                        } else {
                           $('.annotation-popover').find('p').attr('contenteditable', 'true');
                           $('.popover-title').show();
                         }
@@ -327,8 +326,10 @@
                             name = ''
                         }
                         self.type = type;
-                        var allo_and_comp = '/api/alloc_and_compl/'+self.data_to_show + type + final_work;
+                        var allo_and_comp = '/api/alloc_and_compl/'+self.data_to_show + type + final_work + '&chart_name=17&chart_name=13';
                         return $http({method:"GET", url: allo_and_comp}).success(function(result){
+                            var is_annotation = result.result.is_annotation;
+                            console.log(is_annotation);
                            if ((name == "self.chartOptions17") || (name == "")) {
                                 $('.widget-17a').removeClass('widget-loader-show');
                                 $('.widget-17b').removeClass('widget-data-hide');
@@ -418,15 +419,16 @@
                                     },   
                                     series: data_list_bar,
                                     onComplete: function(chart){
+                                    if (is_annotation) {
                                     var series = null;
                                     var chart_data = chart.series;
-
+                                    
                                     for(var i in chart_data){
                                         series = chart_data[i];
                                         (function(series){
                                           $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
 					  self.type+'&chart_name=17&proj_name='+self.project_live+'&cen_name='+
-					  self.center_live}).success(function(annotations){ 
+					  self.center_live}).success(function(annotations) { 
                                annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                                $.each(annotations, function(j, annotation){
 
@@ -445,6 +447,7 @@
                                         }(series));
                                     }
                                     self.annot_perm();
+                                    }
                                     }
                                 })
                             }
@@ -512,9 +515,9 @@
                                     },
                                     series: data_list_line,
                                     onComplete: function(chart){
+                                    if (is_annotation) {
                                     var series = null;
                                     var chart_data = chart.series;
-
                                     for(var i in chart_data){
                                         series = chart_data[i];
                                         (function(series){
@@ -541,7 +544,7 @@
                                     }
                                     self.annot_perm();
                                     }
-
+                                    }
                                 });
                            }
                         })
@@ -562,7 +565,7 @@
             
                         self.type = type;
 
-                        var utill_all = '/api/utilisation_all/'+self.data_to_show + type + final_work;
+                        var utill_all = '/api/utilisation_all/'+self.data_to_show + type + final_work + '&chart_name=20&chart_name=19&chart_name=9';
 
                         return $http({method:"GET", url: utill_all}).success(function(result){
 
@@ -570,6 +573,8 @@
                             var utili_opera_data = result.result.utilization_operational_details;
                             var utili_fte_data = result.result.utilization_fte_details;
                             var overall_utili_data = result.result.original_utilization_graph;
+                            var is_annotation = result.result.is_annotation;
+                            console.log(is_annotation);
 
                             angular.extend(self.chartOptions25.yAxis,{
                                min:result.result.min_utilization_operational_details,
@@ -584,7 +589,7 @@
                             angular.extend(self.chartOptions15.yAxis,{
                                 min:result.result.min_original_utilization_graph,
                                 max:result.result.max_original_utilization_graph
-                            });      
+                            });
 
                             if ((name == "self.chartOptions25") || (name == "")) {
                                 
@@ -648,10 +653,10 @@
                                     },
                                     series: utili_opera_data,
                                     onComplete: function(chart){
+                                    if(is_annotation) {
                                     var series = null;
                                     var chart_data = chart.series;
-
-                                    for(var i in chart_data){
+                                    for(var i in chart_data) {
                                         series = chart_data[i];
                                         (function(series){
                                           $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
@@ -674,6 +679,7 @@
 
                                         });
                                         }(series));
+                                    }
                                     }
                                     self.annot_perm();
                                     }
@@ -746,9 +752,9 @@
 
                                     series: utili_fte_data,
                                     onComplete: function(chart){
+                                    if (is_annotation) {
                                     var series = null;
                                     var chart_data = chart.series;
-
                                     for(var i in chart_data){
                                         series = chart_data[i];
                                         (function(series){
@@ -772,6 +778,7 @@
 
                                         });
                                         }(series));
+                                    }
                                     }
                                     self.annot_perm();
                                     }
@@ -838,6 +845,7 @@
 
                                     series: overall_utili_data,
                                     onComplete: function(chart){
+                                    if (is_annotation) {
                                     var series = null;
                                     var chart_data = chart.series;
        
@@ -865,6 +873,7 @@
                                         });
                                         }(series));
                                     }
+                                    }
                                     self.annot_perm();
                                     }
 
@@ -886,13 +895,15 @@
                         }
 
                         self.type = type;
-
-                        var productivity = '/api/productivity/'+self.data_to_show + type + final_work;
+                    
+                        var productivity = '/api/productivity/'+self.data_to_show + type + final_work + '&chart_name=14';
 
                         return $http({method:"GET", url: productivity}).success(function(result){
 
                             var date_list = result.result.date;
                             var productivity = result.result.original_productivity_graph;
+                            var is_annotation = result.result.is_annotation;
+                            console.log(is_annotation);
 
                             if (self.list_object.productivity_trends != undefined) {
 
@@ -952,6 +963,7 @@
 
                                 series: productivity,
                                     onComplete: function(chart){
+                                    if(is_annotation) { 
                                     var series = null;
                                     var chart_data = chart.series;
 
@@ -978,6 +990,7 @@
 
                                         });
                                         }(series));
+                                    }     
                                     }
                                     self.annot_perm();
                                     }
@@ -999,12 +1012,14 @@
  
                         self.type = type;
 
-                        var prod_avg = '/api/prod_avg_perday/'+self.data_to_show + type + final_work;
+                        var prod_avg = '/api/prod_avg_perday/'+self.data_to_show + type + final_work + '&chart_name=33';
 
                         return $http({method:"GET", url: prod_avg}).success(function(result){
 
                            var date_list = result.result.date;
                            var prod_avg_data = result.result.production_avg_details
+                           var is_annotation = result.result.is_annotation;
+                           console.log(is_annotation);
 
                             if (self.list_object.production_avg_perday != undefined) {
 
@@ -1062,6 +1077,7 @@
 				    },
                                 series: prod_avg_data,
                                 onComplete: function(chart){
+                                if (is_annotation) {
                                 var series = null;
                                 var chart_data = chart.series;
        
@@ -1089,6 +1105,7 @@
                                     });
                                     }(series));
                                 }
+                                }
                                 self.annot_perm();
                                 }
 
@@ -1110,11 +1127,13 @@
 
                         self.type = type;
 
-                        var tat_data = '/api/tat_data/'+ self.data_to_show + type + final_work;
+                        var tat_data = '/api/tat_data/'+ self.data_to_show + type + final_work + '&chart_name=26';
 
                         $http({method:"GET", url: tat_data}).success(function(result){
                            var date_list = result.result.date;
                            var tat_values = result.result.tat_graph_details
+                           var is_annotation = result.result.is_annotation;
+                           console.log(is_annotation);
                             
                            if (self.list_object.tat_graph != undefined) {
 
@@ -1218,13 +1237,15 @@
 
                         self.type = type;
 
-                        var mont_volume = '/api/monthly_volume/'+self.data_to_show + type + final_work;
+                        var mont_volume = '/api/monthly_volume/'+self.data_to_show + type + final_work + '&chart_name=21';
 
                         return $http({method:"GET", url: mont_volume}).success(function(result){
 
                             var date_list  = result.result.date;
 
                             var monthly_volume = result.result.monthly_volume_graph_details
+                            var is_annotation = result.result.is_annotation;
+                            console.log(is_annotation);
 
                             if (self.list_object.monthly_volume_widget != undefined) {
                             
@@ -1282,6 +1303,7 @@
                                     },
                                 series: monthly_volume,
                                 onComplete: function(chart){
+                                if (is_annotation) {
                                 var series = null;
                                 var chart_data = chart.series;
        
@@ -1309,6 +1331,7 @@
                                     });
                                     }(series));
                                 }
+                                }
                                 self.annot_perm();
                                 }
                             });
@@ -1333,7 +1356,7 @@
 
                         self.type = type;
 
-                        var fte_graphs = '/api/fte_graphs/'+self.data_to_show + type + final_work;
+                        var fte_graphs = '/api/fte_graphs/'+self.data_to_show + type + final_work + '&chart_name=11&chart_name=12';
 
                         return $http({method:"GET", url: fte_graphs}).success(function(result){
     
@@ -1422,6 +1445,7 @@
                                     },
                                     series: work_packet_fte,
                                     onComplete: function(chart){
+                                    if (is_annotation) {
                                     var series = null;
                                     var chart_data = chart.series;
 
@@ -1448,6 +1472,7 @@
 
                                         });
                                         }(series));
+                                    }
                                     }
                                     self.annot_perm();
                                     }
@@ -1516,10 +1541,11 @@
                                     },
                                     series: total_fte,
                                     onComplete: function(chart){
+                                    if (is_annotation) {
                                     var series = null;
                                     var chart_data = chart.series;
 
-                                    for(var i in chart_data){
+                                    for(var i in chart_data) {
                                         series = chart_data[i];
                                         (function(series){
                                           $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
@@ -1541,6 +1567,7 @@
 
                                         });
                                         }(series));
+                                    }
                                     }
                                     self.annot_perm();
                                     }
@@ -1567,7 +1594,7 @@
 
                         self.type = type;
 
-                        var main_prod = '/api/main_prod/'+self.data_to_show + type + final_work;
+                        var main_prod = '/api/main_prod/'+self.data_to_show + type + final_work + '&chart_name=1&chart_name=6&chart_name=22&chart_name=23&chart_name=24&chart_name=25';
 
                         return $http({method:"GET", url: main_prod}).success(function(result){
             
@@ -1595,6 +1622,8 @@
                             }
                             var date_list = result.result.data.date;
                             var main_prod_data = result.result.productivity_data;
+                            var is_annotation = result.result.is_annotation;
+                            console.log(is_annotation);
                             
                             if ((name == "self.chartOptions10") || (name == "")) {
                                                                 
@@ -1656,32 +1685,33 @@
                                     },
                                     series: main_prod_data,
                                     onComplete: function(chart){
+                                    if(is_annotation) {
                                     var series = null;
                                     var chart_data = chart.series;
+                                        for(var i in chart_data){  
+                                            series = chart_data[i];
+                                            (function(series){
+                                              $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
+                                              self.type+'&chart_name=6&proj_name='+self.project_live+'&cen_name='+
+                                              self.center_live}).success(function(annotations){
+                                              annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
+                                               $.each(annotations, function(j, annotation){
 
-                                    for(var i in chart_data){  
-                                        series = chart_data[i];
-                                        (function(series){
-                                          $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
-					  self.type+'&chart_name=6&proj_name='+self.project_live+'&cen_name='+
-					  self.center_live}).success(function(annotations){
-                               annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
-                               $.each(annotations, function(j, annotation){
+                                                 var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
 
-                                 var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
+                                                 point = point[0];
 
-                                 point = point[0];
+                                                 if(annotation.epoch){
+                                                   var a = new Annotation("6", $(self.chartOptions10.chart.renderTo),
+                                                        chart, point, annotation);
 
-                                 if(annotation.epoch){
-                                   var a = new Annotation("6", $(self.chartOptions10.chart.renderTo),
-                                        chart, point, annotation);
+                                                   console.log(a);
+                                                   }
+                                               })
 
-                                   console.log(a);
-                                   }
-                               })
-
-                                        });
-                                        }(series));
+                                            });
+                                            }(series));
+                                        }
                                     }
                                     self.annot_perm();
                                     }
@@ -1752,36 +1782,35 @@
 
                                     series: main_prod_data,
                                     onComplete: function(chart){
+                                    if (is_annotation) {
                                     var series = null;
                                     var chart_data = chart.series;
+                                        for(var i in chart_data) {
+                                            series = chart_data[i];
+                                            (function(series){
+                                               $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
+                                               self.type+'&chart_name=1&proj_name='+self.project_live+'&cen_name='+
+                                               self.center_live}).success(function(annotations){
+                                               annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
+                                               $.each(annotations, function(j, annotation){
 
-                                    for(var i in chart_data){
-                                        series = chart_data[i];
-                                        (function(series){
-                                          $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
-					  self.type+'&chart_name=1&proj_name='+self.project_live+'&cen_name='+
-					  self.center_live}).success(function(annotations){  
-                               annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
-                               $.each(annotations, function(j, annotation){
+                                                 var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
 
-                                 var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
+                                                 point = point[0];
 
-                                 point = point[0];
+                                                 if(annotation.epoch){
+                                                   var a = new Annotation("1", $(self.chartOptions.chart.renderTo),
+                                                        chart, point, annotation);
 
-                                 if(annotation.epoch){
-                                   var a = new Annotation("1", $(self.chartOptions.chart.renderTo),
-                                        chart, point, annotation);
-
-                                   console.log(a);
-                                   }
-                               })
-
-                                        });
-                                        }(series));
+                                                   console.log(a);
+                                                   }
+                                               })
+                                            });
+                                            }(series));
+                                        }
                                     }
                                     self.annot_perm();
                                     }
-
                                 });     
                                 $('.widget-1a').removeClass('widget-loader-show');
                                 $('.widget-1b').removeClass('widget-data-hide');
@@ -1883,7 +1912,6 @@
                                     onComplete: function(chart){
                                     var series = null;
                                     var chart_data = chart.series;
-
                                     for(var i in chart_data){
                                         series = chart_data[i];
                                         (function(series){
@@ -1974,6 +2002,7 @@
                                 },                            
                                series: result.result.External_Error_Category.category_pareto,
                                     onComplete: function(chart){
+                                        if(is_annotation) {
                                     var series = null;
                                     var chart_data = chart.series;
 
@@ -2001,6 +2030,7 @@
                                         });
                                         }(series));
                                     }
+                                        }
                                     self.annot_perm();
                                     }
 
@@ -2073,6 +2103,7 @@
                                 },
                                series: result.result.Pareto_data.agent_pareto_data,
                                     onComplete: function(chart){
+                                    if (is_annotation) {
                                     var series = null;
                                     var chart_data = chart.series;
 
@@ -2099,6 +2130,7 @@
 
                                         });
                                         }(series));
+                                    }
                                     }
                                     self.annot_perm();
                                     }
@@ -2167,6 +2199,7 @@
 
                                series: result.result.External_Pareto_data.agent_pareto_data,
                                     onComplete: function(chart){
+                                    if (is_annotation) {
                                     var series = null;
                                     var chart_data = chart.series;
 
@@ -2193,6 +2226,7 @@
                                         });
                                         }(series));
                                     }
+                                    }
                                     self.annot_perm();
                                     }
                             });
@@ -2213,12 +2247,14 @@
                         }
                         self.type = type;
 
-                        var pre_scan = '/api/pre_scan_exce/'+self.data_to_show + type + final_work;
+                        var pre_scan = '/api/pre_scan_exce/'+self.data_to_show + type + final_work + '&chart_name=35'
 
                         return $http({method:"GET", url: pre_scan}).success(function(result){
 
                             var date_list  = result.result.date;
                             var pre_scan_details = result.result.pre_scan_exception_data;
+                            var is_annotation = result.result.is_annotation;
+                            console.log(is_annotation);
                 
                             if (self.list_object.pre_scan_exception_chart != undefined) {
                         
@@ -2279,6 +2315,7 @@
                                 },
                                series: pre_scan_details,
                                 onComplete: function(chart){
+                                if (is_annotation) {
                                 var series = null;
                                 var chart_data = chart.series;
 
@@ -2305,6 +2342,7 @@
                                     });
                                     }(series));
                                 }
+                                }
                                 self.annot_perm();
                                 }
 
@@ -2325,12 +2363,14 @@
 
                         self.type = type;
 
-                        var nw_exce = '/api/nw_exce/'+self.data_to_show + type + final_work;
+                        var nw_exce = '/api/nw_exce/'+self.data_to_show + type + final_work + '&chart_name=37';
 
                         return $http({method:"GET", url: nw_exce}).success(function(result){
                                                                     
                             var date_list  = result.result.date;
                             var nw_details = result.result.nw_exception_details;
+                            var is_annotation = result.result.is_annotation;
+                            console.log(is_annotation);
 
                             if (self.list_object.nw_exception_chart != undefined) {
 
@@ -2392,6 +2432,7 @@
 
                                series: nw_details,
                                 onComplete: function(chart){
+                                if (is_annotation) {
                                 var series = null;
                                 var chart_data = chart.series;
 
@@ -2420,6 +2461,7 @@
                                 }
                                 self.annot_perm();
                                 }
+                                }
 
                             });
                             $('.widget-37a').removeClass('widget-loader-show');
@@ -2439,12 +2481,14 @@
 
                         self.type = type;
 
-                        var overall_exce = '/api/overall_exce/'+self.data_to_show + type + final_work;
+                        var overall_exce = '/api/overall_exce/'+self.data_to_show + type + final_work + '&chart_name=36';
 
                         return $http({method:"GET", url: overall_exce}).success(function(result){
                                                                     
                             var date_list  = result.result.date;
                             var overall_details = result.result.overall_exception_details;
+                            var is_annotation = result.result.is_annotation;
+                            console.log(is_annotation);
 
                             if (self.list_object.overall_exception_chart != undefined) {
                                 
@@ -2506,7 +2550,9 @@
                                 },
 
                                series: overall_details,
-                                onComplete: function(chart){
+                                onComplete: function(chart) {
+
+                                if (is_annotation) {    
                                 var series = null;
                                 var chart_data = chart.series;
 
@@ -2535,6 +2581,7 @@
                                 }
                                 self.annot_perm();
                                 }
+                                }
 
                             });
                             $('.widget-36a').removeClass('widget-loader-show');
@@ -2554,12 +2601,14 @@
 
                         self.type = type;
 
-                        var upload_acc = '/api/upload_acc/'+self.data_to_show + type + final_work;
+                        var upload_acc = '/api/upload_acc/'+self.data_to_show + type + final_work + '&chart_name=34&chart_name=38&chart_name=39'
 
                         return $http({method:"GET", url: upload_acc}).success(function(result){
 
                             var date_list  = result.result.upload_target_data.date;
                             var upload_target_data = result.result.upload_target_data.data;
+                            var is_annotation = result.result.is_annotation;
+                            console.log(is_annotation);
 
                             if (self.list_object.target_upload_graph != undefined) {
 
@@ -2623,6 +2672,7 @@
 
                                series: upload_target_data,
                                 onComplete: function(chart){
+                                if (is_annotation) { 
                                 var series = null;
                                 var chart_data = chart.series;
 
@@ -2648,6 +2698,7 @@
                            })
                                     });
                                     }(series));
+                                }
                                 }
                                 self.annot_perm();
                                 }
@@ -2724,15 +2775,16 @@
                                    data: result.result.internal_field_accuracy_graph
                                }],
                                 onComplete: function(chart){
+                                if (is_annotation) {
                                 var series = null;
                                 var chart_data = chart.series;
 
                                 for(var i in chart_data){
                                     series = chart_data[i];
                                     (function(series){
-                                      $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
+                                      $http({ method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
 				      self.type+'&chart_name=38&proj_name='+self.project_live+'&cen_name='+
-				      self.center_live}).success(function(annotations){  
+				      self.center_live }).success(function(annotations) {
                            annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                            $.each(annotations, function(j, annotation){
 
@@ -2749,6 +2801,7 @@
                            })   
                                     });
                                     }(series));
+                                }
                                 }
                                 self.annot_perm();
                                 }
@@ -2820,7 +2873,8 @@
                                    cursor: 'pointer',
                                    data: result.result.external_field_accuracy_graph
                                }],
-                                onComplete: function(chart){
+                                onComplete: function(chart) {
+                                if (is_annotation) {
                                 var series = null;
                                 var chart_data = chart.series;
 
@@ -2841,15 +2895,15 @@
                                var a = new Annotation("39", $(self.chartOptions44.chart.renderTo),
                                     chart, point, annotation);
 
-                               console.log(a);
-                               }
-                           })   
+                                console.log(a);
+                                }
+                                })   
                                     });
                                     }(series));
                                 }
                                 self.annot_perm();
                                 }
-
+                              }
                            });
                            $('.widget-39a').removeClass('widget-loader-show');
                            $('.widget-39b').removeClass('widget-data-hide');
@@ -2924,6 +2978,7 @@
                                    data: result.result.internal_accuracy_graph
                                }],
                                 onComplete: function(chart){
+                                if (is_annotation) {
                                 var series = null;
                                 var chart_data = chart.series;
 
@@ -2949,6 +3004,7 @@
                            })
                                     });
                                     }(series));
+                                }
                                 }
                                 self.annot_perm();
                                 }
@@ -3023,6 +3079,7 @@
                                    data: result.result.external_accuracy_graph
                                }],
                                 onComplete: function(chart){
+                                if (is_annotation) {
                                 var series = null;
                                 var chart_data = chart.series;
 
@@ -3052,7 +3109,7 @@
                                 }
                                 self.annot_perm();
                                 }
-
+                                }
                            });
                            $('.widget-3a').removeClass('widget-loader-show');
                            $('.widget-3b').removeClass('widget-data-hide');
@@ -3075,13 +3132,15 @@
 
                         self.type = type;
 
-                        var from_to = '/api/from_to/'+self.data_to_show + type + final_work;
+                        var from_to = '/api/from_to/'+self.data_to_show + type + final_work + '&chart_name=7&chart_name=8';
 
                         return $http({method:"GET", url: from_to}).success(function(result){
 
                             var date_list = result.result.date;
                             var external_error_timeline = result.result.external_time_line;
                             var internal_error_timeline = result.result.internal_time_line;
+                            var is_annotation = result.result.is_annotation;
+                            console.log(is_annotation);
 
                             if ((name == "self.chartOptions9_2") || (name == "")) {
                             
@@ -3148,6 +3207,7 @@
                                     },
                                     series: external_error_timeline,
                                     onComplete: function(chart){
+                                    if (is_annotation) {
                                     var series = null;
                                     var chart_data = chart.series;
                                     for(var i in chart_data){
@@ -3170,6 +3230,7 @@
                                })
                                         });
                                         }(series));
+                                    }
                                     }
                                     self.annot_perm();
                                     }
@@ -3244,6 +3305,7 @@
 
                                     series: internal_error_timeline,
                                     onComplete: function(chart){
+                                    if (is_annotation) {
                                     var series = null;
                                     var chart_data = chart.series;
 
@@ -3273,7 +3335,7 @@
                                     }
                                     self.annot_perm();
                                     }
-
+                                    }
                                 });
                                 $('.widget-8a').removeClass('widget-loader-show');
                                 $('.widget-8b').removeClass('widget-data-hide');

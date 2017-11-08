@@ -594,3 +594,24 @@ def validate_sheet(open_sheet, request, SOH_XL_HEADERS, SOH_XL_MAN_HEADERS):
         status = "Number of Rows: %s" % (str(open_sheet.nrows))
         index_status.update({1: status})
     return sheet_headers
+
+def annotation_check(request):
+    is_annotation = False
+    series_name = request.GET.get('series_name', '')
+    chart_ids = request.GET.getlist('chart_name', '')
+    project_name = request.GET.get('project', '')
+    center_name = request.GET.get('center', '')
+    start_date = request.GET.get('from', '')
+    end_date = request.GET.get('to', '')
+    sub_project = request.GET.get('sub_project', '')
+    sub_packet = request.GET.get('sub_packet', '')
+    work_packet = request.GET.get('work_packet', '')
+    type = request.GET.get('type', '')
+    if project_name:
+        project_name = project_name.split(' - ')[0];
+    if center_name:
+        center_name = center_name.split(' -')[0];
+    annotations = Annotation.objects.filter(center__name = center_name, project__name = project_name, chart_type_name_id__in = chart_ids)
+    if len(annotations):
+        is_annotation = True
+    return is_annotation

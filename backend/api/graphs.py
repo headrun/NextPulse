@@ -85,6 +85,7 @@ def alloc_and_compl(request):
             final_dict['volume_graphs']['line_data'] = graph_data_alignment_color(final_vol_graph_line_data,'data', level_structure_key,prj_id,center,'volume_productivity_graph')
             final_dict['date'] = data_date
     final_dict['type'] = main_data_dict['type']    
+    final_dict['is_annotation'] = annotation_check(request)
     return json_HttpResponse(final_dict)
 
 def utilisation_all(request):
@@ -181,6 +182,7 @@ def utilisation_all(request):
             final_dict.update(utili_all_min_max)
 
     final_dict['type'] = main_data_dict['type']
+    final_dict['is_annotation'] = annotation_check(request)
     return json_HttpResponse(final_dict)
 
 def adding_min_max(high_chart_key,final_dict):
@@ -249,6 +251,7 @@ def productivity(request):
         final_dict['original_productivity_graph'] = graph_data_alignment_color(final_main_productivity_timeline,'data', level_structure_key, prj_id,center,'productivity_trends')
         final_dict['date'] = data_date
     final_dict['type'] = main_data_dict['type']
+    final_dict['is_annotation'] = annotation_check(request)
     return json_HttpResponse(final_dict)
 
 def fte_graphs(request):
@@ -320,6 +323,7 @@ def fte_graphs(request):
         result_dict['fte_calc_data']['work_packet_fte'] = graph_data_alignment_color(final_total_wp_fte_calc, 'data',level_structure_key, prj_id,center,'total_fte')
         result_dict['date'] = data_date
     final_dict['type'] = main_data_dict['type']    
+    final_dict['is_annotation'] = annotation_check(request)
     return json_HttpResponse(result_dict)
  
 
@@ -379,6 +383,7 @@ def tat_data(request):
         final_dict['tat_graph_details'] = graph_data_alignment_color(final_tat_details,'data',level_structure_key, prj_id, center)
         final_dict['date'] = data_date
     final_dict['type'] = main_data_dict['type']
+    final_dict['is_annotation'] = annotation_check(request)
     return json_HttpResponse(final_dict)
 
 
@@ -461,7 +466,8 @@ def main_prod(request):
         final_dict['volumes_data'] = {}
         final_dict['volumes_data']['volume_new_data'] = volume_new_data
         final_dict['data']['date'] = data_date
-    final_dict['type'] = main_data_dict['type']    
+    final_dict['type'] = main_data_dict['type']
+    final_dict['is_annotation'] = annotation_check(request)
     return json_HttpResponse(final_dict)
 
 

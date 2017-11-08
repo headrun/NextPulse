@@ -297,4 +297,5 @@ def monthly_volume(request):
         final_dict['monthly_volume_graph_details'] = graph_data_alignment_color(final_montly_vol_data, 'data',level_structure_key, prj_id, center,'monthly_volume')    
         final_dict['date'] = data_date
     final_dict['type'] = main_data_dict['type']
+    final_dict['is_annotation'] = annotation_check(request)
     return json_HttpResponse(final_dict)
