@@ -3975,8 +3975,8 @@
                 } else {
                 self.drop_sub_pack = 'undefined';
                 }
-                self.main_widget_function(self.call_back, '');
              }
+             self.main_widget_function(self.call_back, '');
            })
            return callback;
            }).then(function(callback){
@@ -4139,7 +4139,7 @@
                             self.ajaxVoiceFilter(chart_type_map[name], key);
                         }
                     }
-            }
+                }
 
              self.active_filters = function(key,button_clicked) {
                 self.button_clicked = button_clicked;
