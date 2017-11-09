@@ -47,7 +47,7 @@ def cate_error(request):
         external_error_types = internal_extrnal_error_types(request, date_value, main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0],level_structure_key, "External")
         final_dict['internal_errors_types'] = graph_data_alignment_color(internal_error_types,'y',level_structure_key,main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0],'')
         final_dict['external_errors_types'] = graph_data_alignment_color(external_error_types,'y',level_structure_key,main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0],'')
- 
+    final_dict['is_annotation'] = annotation_check(request)
     return json_HttpResponse(final_dict)
 
 def pareto_cate_error(request):
@@ -85,6 +85,7 @@ def pareto_cate_error(request):
         extrnl_category_error_count = sample_pareto_analysis(request,date_value, main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0], level_structure_key, "External")
         final_dict['Internal_Error_Category'] = category_error_count
         final_dict['External_Error_Category'] = extrnl_category_error_count
+    final_dict['is_annotation'] = annotation_check(request)
     return json_HttpResponse(final_dict)
 
 def agent_cate_error(request):
@@ -122,6 +123,7 @@ def agent_cate_error(request):
         extrnl_agent_pareto_data = agent_external_pareto_data_generation(request,date_value, main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0], level_structure_key)
         final_dict['External_Pareto_data'] = extrnl_agent_pareto_data
         final_dict['Pareto_data'] = agent_internal_pareto_data
+    final_dict['is_annotation'] = annotation_check(request)
     return json_HttpResponse(final_dict)
 
 def error_bar_graph(request):
@@ -216,6 +218,7 @@ def error_bar_graph(request):
     int_min_max = min_max_value_data(int_value_range)
     final_dict['int_min_value'] = int_min_max['min_value']
     final_dict['int_max_value'] = int_min_max['max_value']
+    final_dict['is_annotation'] = annotation_check(request)
     return json_HttpResponse(final_dict)
 
 
@@ -266,6 +269,7 @@ def err_field_graph(request):
                 int_min_max = min_max_value_data(int_value_range)
                 final_dict['exter_min_value'] = int_min_max['min_value']
                 final_dict['exter_max_value'] = int_min_max['max_value']
+    final_dict['is_annotation'] = annotation_check(request)
     return json_HttpResponse(final_dict)
 
 

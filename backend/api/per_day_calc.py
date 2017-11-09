@@ -66,6 +66,7 @@ def prod_avg_perday(request):
         final_dict['production_avg_details'] = graph_data_alignment_color(final_prod_avg_details,'data',level_structure_key, prj_id, center)
         final_dict['date'] = data_date
     final_dict['type'] = main_data_dict['type']    
+    final_dict['is_annotation'] = annotation_check(request)
     return json_HttpResponse(final_dict)
 
 def production_avg_perday(date_list,prj_id,center_obj,level_structure_key):
