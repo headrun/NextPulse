@@ -264,6 +264,7 @@ def fte_graphs(request):
     week_names, month_names = [] , []
     week_num = 0
     main_data_dict = data_dict(request.GET)
+
     if main_data_dict['dwm_dict'].has_key('day') and main_data_dict['type'] == 'day':
         main_dates_list = [ main_data_dict['dwm_dict']['day']]
     elif main_data_dict['dwm_dict'].has_key('week') and main_data_dict['type'] == 'week':
@@ -272,6 +273,8 @@ def fte_graphs(request):
         main_dates_list = main_data_dict['dwm_dict']['month']['month_dates']
     prj_id = main_data_dict['pro_cen_mapping'][0][0]
     center = main_data_dict['pro_cen_mapping'][1][0]
+    #result_dict['type'] = main_data_dict['type']
+    result_dict['is_annotation'] = annotation_check(request)
     if main_data_dict['dwm_dict'].has_key('day') and main_data_dict['type'] == 'day':
         for sing_list in main_dates_list:
             total_done_value = RawTable.objects.filter(project=prj_id, center=center, date__range=[sing_list[0], sing_list[-1]]).values('date').annotate(total=Sum('per_day'))
@@ -322,8 +325,6 @@ def fte_graphs(request):
         result_dict['fte_calc_data']['total_fte'] = graph_data_alignment_color(final_total_fte_calc, 'data',level_structure_key, prj_id, center,'sum_total_fte')
         result_dict['fte_calc_data']['work_packet_fte'] = graph_data_alignment_color(final_total_wp_fte_calc, 'data',level_structure_key, prj_id,center,'total_fte')
         result_dict['date'] = data_date
-    final_dict['type'] = main_data_dict['type']    
-    final_dict['is_annotation'] = annotation_check(request)
     return json_HttpResponse(result_dict)
  
 
