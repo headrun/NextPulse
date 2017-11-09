@@ -520,6 +520,7 @@ class Annotation(models.Model):
     center = models.ForeignKey(Center,db_index=True)
     project = models.ForeignKey(Project,db_index=True)
     chart_type_name = models.ForeignKey(ChartType, null=True)
+    chart_id = models.IntegerField(default=0)
 
     class Meta:
         db_table = u'annotations'

@@ -2042,6 +2042,8 @@
 		  
 		self.agent_category_error = function(agent_cate_error){
                        return $http({method:"GET", url: agent_cate_error}).success(function(result){
+
+                            var is_annotation = result.result.is_annotation;
                             
                             if (self.list_object.agent_wise_pareto_graph_data != undefined) {
 
@@ -2913,6 +2915,7 @@
 			self.error_bar_graph = function(error_bar_graph){
 	                       return $http({method:"GET", url: error_bar_graph}).success(function(result){
 
+                            var is_annotation = result.result.is_annotation;
                             if (self.list_object.internal_error_accuracy != undefined) {
 
                                 if (self.list_object.internal_error_accuracy.display_value === true) {

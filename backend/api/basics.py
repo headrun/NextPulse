@@ -611,7 +611,7 @@ def annotation_check(request):
         project_name = project_name.split(' - ')[0];
     if center_name:
         center_name = center_name.split(' -')[0];
-    annotations = Annotation.objects.filter(center__name = center_name, project__name = project_name, chart_type_name_id__in = chart_ids)
+    annotations = Annotation.objects.filter(center__name = center_name, project__name = project_name, chart_id__in = chart_ids)
     if len(annotations):
         is_annotation = True
     return is_annotation
