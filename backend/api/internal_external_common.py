@@ -494,9 +494,9 @@ def internal_extrnal_graphs_same_formula(date_list,prj_id,center_obj,level_struc
                     percentage = 100 - float('%.2f' % round(percentage, 2))
                     error_accuracy[key] = [percentage]
                 except:
-                    error_accuracy[key] = ['NA']
+                    error_accuracy[key] = [0]
             else:
-                percentage = 'NA'
+                percentage = 0
                 error_accuracy[key] = [percentage]
 
     err_acc_name, err_acc_perc = [], []

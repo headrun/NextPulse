@@ -602,6 +602,7 @@ def hrly_dispo_outbound_cate_data(prj_id, center, date, disposition):
                     final_dict[value['disposition']] = [value['total']]
     return final_dict
 
+
 def outbnd_disposition_data(prj_id, center, dates, disposition):
     final_dict = {}
     if disposition == 'All':
@@ -628,7 +629,6 @@ def outbnd_disposition_data(prj_id, center, dates, disposition):
     else:
         return {}
     return final_dict
-
 def hourly_outbnd_dispo_data(prj_id, center, dates, hours, disposition):
     final_dict = {}
     for date in dates:
@@ -666,3 +666,65 @@ def agents_required_inbound(prj_id, center, dates, location, skill, disposition)
             for agent in inbnd_agents:
                 login_hrs = AgentPerformance.objects.filter(project = prj_id, center = center, date = date, name = agent).values_list('login_duration', flat=True)                
     return final_dict
+
+
+def common_outbnd_dispo_data(project, center, dates, disposition):
+    final_dict = {} 
+    dispo_list = []
+    outbnd_dispo_query = OutboundDaily.objects.filter(project = project, center = center, date__range = [dates[0], dates[-1]]).values_list('disposition', flat = True).distinct()
+    for date in dates:
+        values_list = []
+        for dispo_name in outbnd_dispo_query:
+            if dispo_name != '':
+                outbnd_val = OutboundDaily.objects.filter(project = project, center = center, date = date, disposition = dispo_name).count()
+                values_list.append(outbnd_val)
+        final_values = sum(values_list)
+        if final_values > 0:
+            oubnd_dispo_val = final_values
+            dispo_list.append(oubnd_dispo_val)
+    final_dict['outbnd_dispo_common'] = dispo_list
+    return final_dict
+
+def outbnd_utilization_data(project, center, dates):
+    final_dict = {}
+    utiliti_list = []
+    for date in dates:
+        agent_values = AgentPerformance.objects.filter(project = project, center = center, date = date, call_type = 'Manual')
+        agents_count = agent_values.values('agent').count()
+        if agents_count > 0:
+            login_time = agent_values.values_list('login_duration', flat = True)
+            hold_time = agent_values.values_list('pause_time', flat = True)
+            talk_time = agent_values.values_list('talk_time', flat = True)
+            wrapup_time = agent_values.values_list('wrapup_time', flat = True)
+            utili_val = (float(sum(hold_time)+sum(talk_time)+sum(wrapup_time))/float(sum(login_time)))*100
+            utili_val = float('%.2f' % round(utili_val, 2))
+            if login_time > 0:
+                final_utili_val = utili_val
+            else:
+                final_utili_val = 0
+            utiliti_list.append(final_utili_val)
+        final_dict['outbnd_utilization'] = utiliti_list
+    return final_dict
+
+
+def inbnd_utilization_data(project, center, dates):
+    final_dict = {}
+    utiliti_list = []
+    for date in dates:
+        agent_values = AgentPerformance.objects.filter(project = project, center = center, date = date, call_type = 'Inbound')
+        agents_count = agent_values.values('agent').count()
+        if agents_count > 0:
+            login_time = agent_values.values_list('login_duration', flat = True)
+            hold_time = agent_values.values_list('pause_time', flat = True)
+            talk_time = agent_values.values_list('talk_time', flat = True)
+            wrapup_time = agent_values.values_list('wrapup_time', flat = True)
+            utili_val = (float(sum(hold_time)+sum(talk_time)+sum(wrapup_time))/float(sum(login_time)))*100
+            utili_val = float('%.2f' % round(utili_val, 2))
+            if login_time > 0:
+                final_utili_val = utili_val
+            else:
+                final_utili_val = 0
+            utiliti_list.append(final_utili_val)
+        final_dict['inbnd_utilization'] = utiliti_list
+    return final_dict
+

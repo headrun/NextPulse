@@ -421,3 +421,141 @@ def outbound_disposition(request):
     return json_HttpResponse(result)
 
 
+def outbnd_dispo_common(request):
+    result, dispo_week_dt = {}, {}
+    new_date_list, dates_list, week_names = [], [], []
+    month_names = []
+    week_num, dispo_week_num = 0, 0
+    main_dict = data_dict(request.GET)
+    disposition = request.GET['disposition']
+    prj_id = main_dict['pro_cen_mapping'][0][0]
+    center = main_dict['pro_cen_mapping'][1][0]
+    if main_dict['dwm_dict'].has_key('day') and main_dict['type'] == 'day':
+        dates = main_dict['dwm_dict']['day']
+        date_check = OutboundDaily.objects.filter(project = prj_id, center = center, date__range = [dates[0], dates[-1]]).values('date').annotate(total = count('disposition')).order_by('date')
+        values = OrderedDict(zip(map(lambda p: str(p['date']), date_check), map(lambda p: str(p['total']), date_check)))
+        for date_key, date_value in values.iteritems():
+            if date_value > 0:
+                new_date_list.append(date_key)
+                result['date'] = new_date_list
+        outbnd_dispo_common_val = common_outbnd_dispo_data(prj_id, center, dates, disposition)
+        #result['outbnd_dispo_common'] = [{'name': item, 'data': outbnd_dispo_common_val[item]} for item in outbnd_dispo_common_val]
+        result['Disposition'] = outbnd_dispo_common_val
+    elif main_dict['dwm_dict'].has_key('week') and main_dict['type'] == 'week':
+        dates = main_dict['dwm_dict']['week']
+        for date_values in dates:
+            dates_list.append(date_values[0] + ' to ' + date_values[-1])
+            week_name = str('week' + str(week_num))
+            week_names.append(week_name)
+            week_num = week_num + 1
+            dispo_common_details = common_outbnd_dispo_data(prj_id, center, date_values, disposition)
+            dispo_week_name = str('week' + str(dispo_week_num))
+            dispo_week_dt[dispo_week_name] = dispo_common_details
+            dispo_week_num = dispo_week_num + 1
+        outbnd_dispo_common_data = prod_volume_week(week_names, dispo_week_dt, {})
+        #result['outbnd_dispo_common'] = [{'name': item, 'data': outbnd_dispo_common_data[item]} for item in outbnd_dispo_common_data]
+        result['Disposition'] = outbnd_dispo_common_data
+        result['date'] = dates_list
+    else:
+        for month_na,month_va in zip(main_dict['dwm_dict']['month']['month_names'],main_dict['dwm_dict']['month']['month_dates']):
+            month_name = month_na
+            month_dates = month_va
+            dates_list.append(month_dates[0] + ' to ' + month_dates[-1])
+            month_names.append(month_name)
+            dispo_common_details = common_outbnd_dispo_data(prj_id, center, month_dates, disposition)
+            dispo_week_dt[month_name] = dispo_common_details
+        outbnd_dispo_common_data = prod_volume_week(month_names, dispo_week_dt, {})
+        #result['outbnd_dispo_common'] = [{'name': item, 'data': outbnd_dispo_common_data[item]} for item in outbnd_dispo_common_data]
+        result['Disposition'] = outbnd_dispo_common_data
+        result['date'] = dates_list
+    return json_HttpResponse(result)
+
+def outbnd_utilization(request):
+    result, outbnd_utility_week_dt = {}, {}
+    new_date_list, dates_list, week_names = [], [], []
+    month_names = []
+    week_num, utiliti_week_num = 0, 0
+    main_dict = data_dict(request.GET)
+    prj_id = main_dict['pro_cen_mapping'][0][0]
+    center = main_dict['pro_cen_mapping'][1][0]
+    if main_dict['dwm_dict'].has_key('day') and main_dict['type'] == 'day':
+        dates = main_dict['dwm_dict']['day']
+        for date in dates:
+            utility_query = AgentPerformance.objects.filter(project = prj_id, center = center, date = date, call_type = 'Manual').values('agent').count()
+            if utility_query > 0:
+                new_date_list.append(date)
+                result['date'] = new_date_list
+        outbnd_utility_data = outbnd_utilization_data(prj_id, center, dates)
+        result['Outbound_Utilization'] = outbnd_utility_data
+    elif main_dict['dwm_dict'].has_key('week') and main_dict['type'] == 'week':
+        dates = main_dict['dwm_dict']['week']
+        for date_values in dates:
+            dates_list.append(date_values[0] + ' to ' + date_values[-1])
+            week_name = str('week' + str(week_num))
+            week_names.append(week_name)
+            week_num = week_num + 1
+            outbnd_utility_data = outbnd_utilization_data(prj_id, center, date_values)
+            utiliti_week_name = str('week' + str(utiliti_week_num))
+            outbnd_utility_week_dt[utiliti_week_name] = outbnd_utility_data
+            utiliti_week_num = utiliti_week_num + 1
+        week_outbnd_utility_data = prod_volume_week(week_names, outbnd_utility_week_dt, {})
+        result['Outbound_Utilization'] = week_outbnd_utility_data
+        result['date'] = dates_list
+    else:
+        for month_na,month_va in zip(main_dict['dwm_dict']['month']['month_names'],main_dict['dwm_dict']['month']['month_dates']):
+            month_name = month_na
+            month_dates = month_va
+            dates_list.append(month_dates[0] + ' to ' + month_dates[-1])
+            month_names.append(month_name)
+            outbnd_utility_data = outbnd_utilization_data(prj_id, center, month_dates)
+            outbnd_utility_week_dt[month_name] = outbnd_utility_data
+        month_outbnd_utility_data = prod_volume_week(month_names, outbnd_utility_week_dt, {})
+        result['Outbound_Utilization'] = month_outbnd_utility_data
+        result['date'] = dates_list
+    return json_HttpResponse(result)
+
+
+def inbnd_utilization(request):
+    result, inbnd_utility_week_dt = {}, {}
+    new_date_list, dates_list, week_names = [], [], []
+    month_names = []
+    week_num, inbnd_utiliti_week_num = 0, 0
+    main_dict = data_dict(request.GET)
+    prj_id = main_dict['pro_cen_mapping'][0][0]
+    center = main_dict['pro_cen_mapping'][1][0]
+    if main_dict['dwm_dict'].has_key('day') and main_dict['type'] == 'day':
+        dates = main_dict['dwm_dict']['day']
+        for date in dates:
+            utility_query = AgentPerformance.objects.filter(project = prj_id, center = center, date = date, call_type = 'Inbound').values('agent').count()   
+            if utility_query > 0:   
+                new_date_list.append(date)
+                result['date'] = new_date_list
+        inbnd_utility_data = inbnd_utilization_data(prj_id, center, dates)
+        result['Inbound_Utilization'] = inbnd_utility_data   
+    elif main_dict['dwm_dict'].has_key('week') and main_dict['type'] == 'week':
+        dates = main_dict['dwm_dict']['week']
+        for date_values in dates:
+            dates_list.append(date_values[0] + ' to ' + date_values[-1])
+            week_name = str('week' + str(week_num))
+            week_names.append(week_name)
+            week_num = week_num + 1
+            inbnd_utility_data = inbnd_utilization_data(prj_id, center, date_values)
+            inbnd_utiliti_week_name = str('week' + str(inbnd_utiliti_week_num))
+            inbnd_utility_week_dt[inbnd_utiliti_week_name] = inbnd_utility_data
+            inbnd_utiliti_week_num = inbnd_utiliti_week_num + 1
+        week_inbnd_utility_data = prod_volume_week(week_names, inbnd_utility_week_dt, {})
+        result['Inbound_Utilization'] = week_inbnd_utility_data
+        result['date'] = dates_list
+    else:
+        for month_na,month_va in zip(main_dict['dwm_dict']['month']['month_names'],main_dict['dwm_dict']['month']['month_dates']):
+            month_name = month_na 
+            month_dates = month_va
+            dates_list.append(month_dates[0] + ' to ' + month_dates[-1])
+            month_names.append(month_name)
+            inbnd_utility_data = inbnd_utilization_data(prj_id, center, month_dates)
+            inbnd_utility_week_dt[month_name] = inbnd_utility_data
+        month_inbnd_utility_data = prod_volume_week(month_names, inbnd_utility_week_dt, {})
+        result['Inbound_Utilization'] = month_inbnd_utility_data
+        result['date'] = dates_list
+    return json_HttpResponse(result)
+
