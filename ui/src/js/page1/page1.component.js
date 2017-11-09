@@ -1359,7 +1359,8 @@
                         var fte_graphs = '/api/fte_graphs/'+self.data_to_show + type + final_work + '&chart_name=11&chart_name=12';
 
                         return $http({method:"GET", url: fte_graphs}).success(function(result){
-    
+                            var is_annotation = result.result.is_annotation;
+                            console.log(is_annotation);
                             if (type == 'day' && final_work == '') {
                                 if (result.result.type == 'day') {
                                     $('.day2').addClass('active btn-success');
@@ -1849,6 +1850,8 @@
 		self.pareto_category_error = function(pareto_cate_error){
 
                        return $http({method:"GET", url: pareto_cate_error}).success(function(result){
+                           var is_annotation = result.result.is_annotation;
+                           console.log(is_annotation);
                             
                             if (self.list_object.error_category_internal_pareto_analysis != undefined) {
 
@@ -2044,6 +2047,7 @@
                        return $http({method:"GET", url: agent_cate_error}).success(function(result){
 
                             var is_annotation = result.result.is_annotation;
+                            console.log(is_annotation);
                             
                             if (self.list_object.agent_wise_pareto_graph_data != undefined) {
 
@@ -2916,6 +2920,7 @@
 	                       return $http({method:"GET", url: error_bar_graph}).success(function(result){
 
                             var is_annotation = result.result.is_annotation;
+                            console.log(is_annotation);
                             if (self.list_object.internal_error_accuracy != undefined) {
 
                                 if (self.list_object.internal_error_accuracy.display_value === true) {
