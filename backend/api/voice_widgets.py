@@ -439,7 +439,6 @@ def outbnd_dispo_common(request):
                 new_date_list.append(date_key)
                 result['date'] = new_date_list
         outbnd_dispo_common_val = common_outbnd_dispo_data(prj_id, center, dates, disposition)
-        #result['outbnd_dispo_common'] = [{'name': item, 'data': outbnd_dispo_common_val[item]} for item in outbnd_dispo_common_val]
         result['Disposition'] = outbnd_dispo_common_val
     elif main_dict['dwm_dict'].has_key('week') and main_dict['type'] == 'week':
         dates = main_dict['dwm_dict']['week']
@@ -453,7 +452,6 @@ def outbnd_dispo_common(request):
             dispo_week_dt[dispo_week_name] = dispo_common_details
             dispo_week_num = dispo_week_num + 1
         outbnd_dispo_common_data = prod_volume_week(week_names, dispo_week_dt, {})
-        #result['outbnd_dispo_common'] = [{'name': item, 'data': outbnd_dispo_common_data[item]} for item in outbnd_dispo_common_data]
         result['Disposition'] = outbnd_dispo_common_data
         result['date'] = dates_list
     else:
@@ -465,7 +463,6 @@ def outbnd_dispo_common(request):
             dispo_common_details = common_outbnd_dispo_data(prj_id, center, month_dates, disposition)
             dispo_week_dt[month_name] = dispo_common_details
         outbnd_dispo_common_data = prod_volume_week(month_names, dispo_week_dt, {})
-        #result['outbnd_dispo_common'] = [{'name': item, 'data': outbnd_dispo_common_data[item]} for item in outbnd_dispo_common_data]
         result['Disposition'] = outbnd_dispo_common_data
         result['date'] = dates_list
     return json_HttpResponse(result)
@@ -478,6 +475,7 @@ def outbnd_utilization(request):
     main_dict = data_dict(request.GET)
     prj_id = main_dict['pro_cen_mapping'][0][0]
     center = main_dict['pro_cen_mapping'][1][0]
+    disposition = request.GET['disposition']
     if main_dict['dwm_dict'].has_key('day') and main_dict['type'] == 'day':
         dates = main_dict['dwm_dict']['day']
         for date in dates:
@@ -485,7 +483,7 @@ def outbnd_utilization(request):
             if utility_query > 0:
                 new_date_list.append(date)
                 result['date'] = new_date_list
-        outbnd_utility_data = outbnd_utilization_data(prj_id, center, dates)
+        outbnd_utility_data = outbnd_utilization_data(prj_id, center, dates, disposition)
         result['Outbound_Utilization'] = outbnd_utility_data
     elif main_dict['dwm_dict'].has_key('week') and main_dict['type'] == 'week':
         dates = main_dict['dwm_dict']['week']
@@ -494,7 +492,7 @@ def outbnd_utilization(request):
             week_name = str('week' + str(week_num))
             week_names.append(week_name)
             week_num = week_num + 1
-            outbnd_utility_data = outbnd_utilization_data(prj_id, center, date_values)
+            outbnd_utility_data = outbnd_utilization_data(prj_id, center, date_values, disposition)
             utiliti_week_name = str('week' + str(utiliti_week_num))
             outbnd_utility_week_dt[utiliti_week_name] = outbnd_utility_data
             utiliti_week_num = utiliti_week_num + 1
@@ -507,7 +505,7 @@ def outbnd_utilization(request):
             month_dates = month_va
             dates_list.append(month_dates[0] + ' to ' + month_dates[-1])
             month_names.append(month_name)
-            outbnd_utility_data = outbnd_utilization_data(prj_id, center, month_dates)
+            outbnd_utility_data = outbnd_utilization_data(prj_id, center, month_dates, disposition)
             outbnd_utility_week_dt[month_name] = outbnd_utility_data
         month_outbnd_utility_data = prod_volume_week(month_names, outbnd_utility_week_dt, {})
         result['Outbound_Utilization'] = month_outbnd_utility_data
@@ -523,6 +521,9 @@ def inbnd_utilization(request):
     main_dict = data_dict(request.GET)
     prj_id = main_dict['pro_cen_mapping'][0][0]
     center = main_dict['pro_cen_mapping'][1][0]
+    location = request.GET['location']
+    skill = request.GET['skill']
+    disposition = request.GET['disposition']
     if main_dict['dwm_dict'].has_key('day') and main_dict['type'] == 'day':
         dates = main_dict['dwm_dict']['day']
         for date in dates:
@@ -530,7 +531,7 @@ def inbnd_utilization(request):
             if utility_query > 0:   
                 new_date_list.append(date)
                 result['date'] = new_date_list
-        inbnd_utility_data = inbnd_utilization_data(prj_id, center, dates)
+        inbnd_utility_data = inbnd_utilization_data(prj_id, center, dates, location, skill, disposition)
         result['Inbound_Utilization'] = inbnd_utility_data   
     elif main_dict['dwm_dict'].has_key('week') and main_dict['type'] == 'week':
         dates = main_dict['dwm_dict']['week']
@@ -539,7 +540,7 @@ def inbnd_utilization(request):
             week_name = str('week' + str(week_num))
             week_names.append(week_name)
             week_num = week_num + 1
-            inbnd_utility_data = inbnd_utilization_data(prj_id, center, date_values)
+            inbnd_utility_data = inbnd_utilization_data(prj_id, center, date_values, location, skill, disposition)
             inbnd_utiliti_week_name = str('week' + str(inbnd_utiliti_week_num))
             inbnd_utility_week_dt[inbnd_utiliti_week_name] = inbnd_utility_data
             inbnd_utiliti_week_num = inbnd_utiliti_week_num + 1
@@ -552,7 +553,7 @@ def inbnd_utilization(request):
             month_dates = month_va
             dates_list.append(month_dates[0] + ' to ' + month_dates[-1])
             month_names.append(month_name)
-            inbnd_utility_data = inbnd_utilization_data(prj_id, center, month_dates)
+            inbnd_utility_data = inbnd_utilization_data(prj_id, center, month_dates, location, skill, disposition)
             inbnd_utility_week_dt[month_name] = inbnd_utility_data
         month_inbnd_utility_data = prod_volume_week(month_names, inbnd_utility_week_dt, {})
         result['Inbound_Utilization'] = month_inbnd_utility_data
