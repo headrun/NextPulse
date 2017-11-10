@@ -33,7 +33,7 @@ def get_annotations(request):
     #====================================================================================    
 
     annotations = Annotation.objects.filter(key__contains='<##>' + chart_name + '<##>' + series_name + '<##>', center__name = center_name,
-                                            project__name = project_name)
+                                            project__name = project_name, chart_id = chart_name)
     annotations_data = []
     if annotations:
         for annotation in annotations:
@@ -75,7 +75,7 @@ def add_annotation(request):
     try:
         annotation = Annotation.objects.create(epoch=epoch, text=text, key=key, project=prj_obj[0],\
                                             dt_created=dt_created, created_by=created_by,\
-                                            center=center[0], chart_type_name=widget_obj.chart_type_name)
+                                            center=center[0], chart_type_name=widget_obj.chart_type_name, chart_id = widget_id)
     except IntegrityError:
         return json_HttpResponse('Annotation already exist')
     

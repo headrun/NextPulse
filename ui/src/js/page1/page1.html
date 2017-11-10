@@ -26,7 +26,7 @@
 table {
 
     margin : 0 auto;
-    border: 1 px solid #323232;
+    border: 1px solid #323232;
  }
 .table-responsive {
     border: 1px solid #ccc;
@@ -99,30 +99,61 @@ thead {
 }
 
 </style>
-<div class="container volume">
- <div class="row">
-    <div id="wrapper">
-        <div class="font_value">
-            <h3 class="pull-left brand_style">{{$ctrl.project}}DASHBOARD</h3>
-        </div>
-           <div ng-repeat="k in $ctrl.packet_hierarchy_list track by $index" class="packet_num">
-                <form>
-                    <div class="form-group">
-                        <select class="form-control input-sm packet" id="{{$index}}">
-                            <option>All</option>
-                        </select>
-                    </div>
-                </form>
-             </div> 
-        </div>
-        <div class="col-md-3 col-sm-3 col-xs-10 btn-group dashboard">
-            <button type="button" id="day" ng-model="radioModel" class="btn btn-default day" ng-click="$ctrl.active_filters('day','day_yes')" uib-btn-radio="'Day'"style="cursor:pointer;">Day</button>
-            <button type="button" id="week" ng-model="radioModel" class="btn btn-default week" ng-click="$ctrl.active_filters('week','week_yes')" uib-btn-radio="'Week'" style="cursor:pointer;">Week</button>
-            <button type="button" id="Month" ng-model="radioModel" class="btn btn-default month" ng-click="$ctrl.active_filters('month','month_yes')" uib-btn-radio="'Month'" style="cursor:pointer;">Month</button>
-        </div>
-        <div id="inner1" class="col-md-3 col-sm-3 col-xs-10" style="margin-bottom:initial;">
-                 <i class="fa fa-calendar date" aria-hidden="true"></i><input class="form-control select" id="select" size="22">
+    <div class="row">
+        <div class="col-lg-2 col-md-2 col-sm-2 col-xs-2" style="padding-bottom: 20px;">
+            <div id="wrapper">
+                <div class="font_value">
+                    <h3 class="pull-left brand_style">{{$ctrl.project}}</h3>
+                </div>
             </div>
+        </div>
+
+        <div class="row col-lg-5 col-md-5 col-sm-5 col-xs-5">
+        <div class = "col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div ng-repeat="k in $ctrl.packet_hierarchy_list track by $index" class="packet_num">
+            <form>
+                <div class="packet_num col-lg-3 col-md-3 col-sm-3 col-xs-3" style="margin-left: -15px;padding:10px">
+                    <select class="form-control input-sm packet" id="{{$index}}">
+                        <option>All</option>
+                    </select>
+                </div>
+            </form>
+        </div>
+        </div>
+        <div class="packet_num col-lg-12 col-md-12 col-sm-12 col-xs-12" id="voice_filter_div">
+            <form>
+                <div ng-repeat="(key,val) in $ctrl.voice_filters" class="col-lg-3 col-md-3 col-sm-3 col-xs-3" style="margin-left: -15px;">
+                    <label>{{key}}</label>
+                    <select class="form-control input-sm packet" id="{{key}}" style="height: 34px;">
+                    </select>
+                </div>
+                <div ng-if="$ctrl.is_voice_flag" class="btn-group" class="col-lg-3 col-md-3 col-sm-3 col-xs-3" style="margin-left: 0px;">
+                    <h5 style="margin-bottom: 9px;font-weight: bold;margin-top: 1px;">Voice Type</h5> 
+                        <button type="button" ng-model="radioModel" class="btn btn-default inbound ng-touched btn-success ng-valid active ng-empty ng-dirty" ng-click="$ctrl.voiceTypeFilter('inbound',1)" uib-btn-radio="val" style="cursor:pointer;border-top-left-radius: 5px;border-bottom-left-radius:5px;">Inbound</button>
+                        <button type="button" ng-model="radioModel" class="btn btn-default outbound ng-not-empty ng-touched" ng-click="$ctrl.voiceTypeFilter('outbound',1)" uib-btn-radio="outbound" style="cursor:pointer;border-top-right-radius: 5px;border-bottom-right-radius:5px;">Outbound</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="packet_num col-lg-5 col-md-5 col-sm-5 col-xs-5" style="padding-left: 10px;">
+        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6" style="margin-bottom:initial;">
+            <div ng-if="$ctrl.is_voice_flag">
+                <h5 style="margin-bottom: 9px;font-weight: bold;margin-top: 1px;">Choose Date</h5>
+            </div>
+            <i class="fa fa-calendar date" aria-hidden="true"></i><input class="form-control select" id="select" size="22" style="width: 80%;">
+        </div>
+        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+            <div class="btn-group" style="float: right;">
+                <div ng-if="$ctrl.is_voice_flag">
+                    <h5 style="margin-bottom: 9px;font-weight: bold;margin-top: 1px;">Choose Period</h5>
+                </div>
+                <button ng-if="$ctrl.is_voice_flag" type="button" id="hour" ng-model="radioModel" class="btn btn-default hour" ng-click="$ctrl.active_filters('hour','hour_yes')" uib-btn-radio="'Hour'" style="cursor:pointer;border-top-left-radius: 5px;border-bottom-left-radius: 5px;">Hour</button>
+                <button type="button" id="day" ng-model="radioModel" class="btn btn-default day" ng-click="$ctrl.active_filters('day','day_yes')" uib-btn-radio="'Day'"style="cursor:pointer;">Day</button>
+                <button type="button" id="week" ng-model="radioModel" class="btn btn-default week" ng-click="$ctrl.active_filters('week','week_yes')" uib-btn-radio="'Week'" style="cursor:pointer;">Week</button>
+                <button type="button" id="Month" ng-model="radioModel" class="btn btn-default month" ng-click="$ctrl.active_filters('month','month_yes')" uib-btn-radio="'Month'" style="cursor:pointer;">Month</button>
+            </div>
+        </div>
+    </div>
     </div>
 </div>
     <div class="scroll">
@@ -136,11 +167,12 @@ thead {
                 <div class="widget-body widget-data-hide widget-{{i.id_num}}b">
                     <div ng-if="i.day_type_widget" class="input-group"id="inner2">
                         <div class="btn-group">
+                            <button ng-if="$ctrl.is_voice_flag" type="button" id="hour" ng-model="radioModel" class="btn btn-default hour2" ng-click="$ctrl.dateType('hour', i.opt, i.api, 'hour_yes')" uib-btn-radio="'Hour'" style="cursor:pointer;border-top-left-radius: 5px;border-bottom-left-radius: 5px;">Hour</button>
                             <button type="button" id="day" ng-model="radioModel" class="btn btn-default day2" ng-click="$ctrl.dateType('day', i.opt, i.api, 'day_yes')" uib-btn-radio="'Day'" style="cursor:pointer;">Day</button>
                             <button type="button" id="week" ng-model="radioModel" class="btn btn-default week2" ng-click="$ctrl.dateType('week', i.opt, i.api, 'week_yes')" uib-btn-radio="'Week'" style="cursor:pointer;">Week</button>
                             <button type="button" id="Month" ng-model="radioModel" class="btn btn-default month2" ng-click="$ctrl.dateType('month', i.opt, i.api, 'month_yes')" uib-btn-radio="'Month'" style="cursor:pointer;">Month</button>
                          </div>
-                     </div>
+                    </div>
                     <highcharts options="$ctrl.final_layout_values_list[i.opt]"></highcharts>
                 </div>
             </div>
@@ -208,7 +240,7 @@ thead {
     </div>
 </div>
 <a class="back-to-top" id="goTop">
-    <i class="fa fa-arrow-circle-o-up"></i>
+    <i class="fa fa-arrow-circle-o-up hide"></i>
 </a>
 </div>
 
@@ -268,17 +300,22 @@ thead {
 
 $(document).ready(function() {
     $(window).scroll(function() {
-        if($(this).scrollTop() > 100){
+        if($(this).scrollTop() > 100) {
             $('#goTop').stop().animate({
                 bottom: '0'
                 }, 500);
+            $('.fa-arrow-circle-o-up').removeClass('hide');
         }
         else{
             $('#goTop').stop().animate({
                bottom: '0'
             }, 500);
+            $('.fa-arrow-circle-o-up').addClass('hide');
         }
     });
+    $('.scroll').scroll(function() {
+        checkScroll();
+    })
     $('#goTop').click(function() {
         $('.scroll').stop().animate({
            scrollTop: 0
@@ -288,5 +325,12 @@ $(document).ready(function() {
            }, 500);
         });
     });
+    function checkScroll() {
+        if($('.scroll').scrollTop() == 0) {
+            $('.fa-arrow-circle-o-up').addClass('hide');
+        } else {
+            $('.fa-arrow-circle-o-up').removeClass('hide');
+        }
+    }
 });
 </script>

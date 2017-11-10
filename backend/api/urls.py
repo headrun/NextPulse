@@ -46,4 +46,15 @@ urlpatterns = [
     url(r'^err_field_graph',apiviews.err_field_graph),
     url(r'^tat_data',apiviews.tat_data),
     url(r'^get_packet_details', apiviews.get_packet_details),
+    url(r'^location', apiviews.location),
+    url(r'^skill', apiviews.skill),
+    url(r'^disposition', apiviews.disposition),
+    url(r'^call_status', apiviews.call_status),
+    #url(r'^disposition_cate', apiviews.disposition_cate)
+    url(r'^cate_dispo_inbound', apiviews.cate_dispo_inbound),
+    url(r'^outbound_dispo_cate', apiviews.outbound_dispo_cate),
+    url(r'^outbound_disposition', apiviews.outbound_disposition),
+    url(r'^outbnd_dispo_common', apiviews.outbnd_dispo_common),
+    url(r'^outbnd_utilization', apiviews.outbnd_utilization),
+    url(r'^inbnd_utilization', apiviews.inbnd_utilization)
 ]

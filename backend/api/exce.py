@@ -65,6 +65,7 @@ def nw_exce(request):
         final_dict['nw_exception_details'] = graph_data_alignment_color(final_nw_exception, 'data',level_structure_key, prj_id, center,'')
         final_dict['date'] = data_date
     final_dict['type'] = main_data_dict['type']    
+    final_dict['is_annotation'] = annotation_check(request)
     return json_HttpResponse(final_dict)
 
 def overall_exce(request):
@@ -123,6 +124,7 @@ def overall_exce(request):
         final_dict['overall_exception_details'] = graph_data_alignment_color(final_overall_exception, 'data',level_structure_key, prj_id, center,'')
         final_dict['date'] = data_date
     final_dict['type'] = main_data_dict['type']    
+    final_dict['is_annotation'] = annotation_check(request)
     return json_HttpResponse(final_dict)
 
 def pre_scan_exce(request):
@@ -180,4 +182,5 @@ def pre_scan_exce(request):
         final_dict['pre_scan_exception_data'] = [final_pre_scan_exception_details]
         final_dict['date'] = data_date
     final_dict['type'] = main_data_dict['type']
+    final_dict['is_annotation'] = annotation_check(request)
     return json_HttpResponse(final_dict)

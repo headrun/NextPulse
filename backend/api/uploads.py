@@ -894,4 +894,5 @@ def upload_acc(request):
         final_data['data'] = [pre_final_data]
         final_dict['upload_target_data'] = final_data
     final_dict['type'] = main_data_dict['type']    
+    final_dict['is_annotation'] = annotation_check(request)
     return json_HttpResponse(final_dict)
