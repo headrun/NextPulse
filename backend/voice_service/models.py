@@ -36,7 +36,7 @@ class InboundDaily(models.Model):
     center          = models.ForeignKey(Center, null=True)
     created_at      = models.DateTimeField(auto_now_add=True,null=True)
     updated_at      = models.DateTimeField(auto_now=True,null=True)
- 
+    status              = models.CharField(max_length=50, choices=STATUS_OPTIONS, default='Answered')
 
 class InboundHourlyCall(models.Model):
     call_id             = models.CharField(max_length=32, primary_key=True)
@@ -59,7 +59,7 @@ class InboundHourlyCall(models.Model):
     wrapup_duration     = models.IntegerField(default=0)
     disposition         = models.CharField(max_length=128, blank=True)
     handling_time       = models.IntegerField(default=0)
-    status              = models.CharField(max_length=50, choices=STATUS_OPTIONS)
+    status              = models.CharField(max_length=50, choices=STATUS_OPTIONS, default='Answered')
     dial_status         = models.CharField(max_length=128, default = 'answered')
     hangup_by           = models.CharField(max_length=32, choices=HANGUP_OPTIONS)
     transfer            = models.CharField(max_length=255, null=True)
