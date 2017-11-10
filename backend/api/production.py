@@ -232,7 +232,6 @@ def static_production_data(request):
     del result['volumes_data']
     del result['prod_days_data']
     del result['data']
-    final_data_dict['is_annotation'] = annotation_check(request)
     return json_HttpResponse(final_data_dict)
 
 
@@ -355,6 +354,5 @@ def main_productivity_data(center,prj_id,date_list,level_structure_key):
                         product_date_values[final_work_packet] = [final_prodictivity_value]
         final_prodictivity['productivity'] = product_date_values
         #final_prodictivity['date'] = new_date_list
-    #final_prodictivity['is_annotation'] = annotation_check(request)
     return final_prodictivity
 

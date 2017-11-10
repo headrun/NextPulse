@@ -329,7 +329,6 @@
                         var allo_and_comp = '/api/alloc_and_compl/'+self.data_to_show + type + final_work + '&chart_name=17&chart_name=13';
                         return $http({method:"GET", url: allo_and_comp}).success(function(result){
                             var is_annotation = result.result.is_annotation;
-                            console.log(is_annotation);
                            if ((name == "self.chartOptions17") || (name == "")) {
                                 $('.widget-17a').removeClass('widget-loader-show');
                                 $('.widget-17b').removeClass('widget-data-hide');
@@ -574,7 +573,6 @@
                             var utili_fte_data = result.result.utilization_fte_details;
                             var overall_utili_data = result.result.original_utilization_graph;
                             var is_annotation = result.result.is_annotation;
-                            console.log(is_annotation);
 
                             angular.extend(self.chartOptions25.yAxis,{
                                min:result.result.min_utilization_operational_details,
@@ -903,7 +901,6 @@
                             var date_list = result.result.date;
                             var productivity = result.result.original_productivity_graph;
                             var is_annotation = result.result.is_annotation;
-                            console.log(is_annotation);
 
                             if (self.list_object.productivity_trends != undefined) {
 
@@ -1019,7 +1016,6 @@
                            var date_list = result.result.date;
                            var prod_avg_data = result.result.production_avg_details
                            var is_annotation = result.result.is_annotation;
-                           console.log(is_annotation);
 
                             if (self.list_object.production_avg_perday != undefined) {
 
@@ -1133,7 +1129,6 @@
                            var date_list = result.result.date;
                            var tat_values = result.result.tat_graph_details
                            var is_annotation = result.result.is_annotation;
-                           console.log(is_annotation);
                             
                            if (self.list_object.tat_graph != undefined) {
 
@@ -1245,7 +1240,6 @@
 
                             var monthly_volume = result.result.monthly_volume_graph_details
                             var is_annotation = result.result.is_annotation;
-                            console.log(is_annotation);
 
                             if (self.list_object.monthly_volume_widget != undefined) {
                             
@@ -1360,7 +1354,6 @@
 
                         return $http({method:"GET", url: fte_graphs}).success(function(result){
                             var is_annotation = result.result.is_annotation;
-                            console.log(is_annotation);
                             if (type == 'day' && final_work == '') {
                                 if (result.result.type == 'day') {
                                     $('.day2').addClass('active btn-success');
@@ -1624,7 +1617,6 @@
                             var date_list = result.result.data.date;
                             var main_prod_data = result.result.productivity_data;
                             var is_annotation = result.result.is_annotation;
-                            console.log(is_annotation);
                             
                             if ((name == "self.chartOptions10") || (name == "")) {
                                                                 
@@ -1850,7 +1842,6 @@
 		self.pareto_category_error = function(pareto_cate_error){
                        return $http({method:"GET", url: pareto_cate_error + '&chart_name=24&chart_name=25' }).success(function(result){
                            var is_annotation = result.result.is_annotation;
-                           console.log(is_annotation);
                             
                             if (self.list_object.error_category_internal_pareto_analysis != undefined) {
 
@@ -2046,7 +2037,6 @@
                        return $http({method:"GET", url: agent_cate_error + '&chart_name=22&chart_name=23' }).success(function(result){
 
                             var is_annotation = result.result.is_annotation;
-                            console.log(is_annotation);
                             
                             if (self.list_object.agent_wise_pareto_graph_data != undefined) {
 
@@ -2259,7 +2249,6 @@
                             var date_list  = result.result.date;
                             var pre_scan_details = result.result.pre_scan_exception_data;
                             var is_annotation = result.result.is_annotation;
-                            console.log(is_annotation);
                 
                             if (self.list_object.pre_scan_exception_chart != undefined) {
                         
@@ -2375,7 +2364,6 @@
                             var date_list  = result.result.date;
                             var nw_details = result.result.nw_exception_details;
                             var is_annotation = result.result.is_annotation;
-                            console.log(is_annotation);
 
                             if (self.list_object.nw_exception_chart != undefined) {
 
@@ -2493,7 +2481,6 @@
                             var date_list  = result.result.date;
                             var overall_details = result.result.overall_exception_details;
                             var is_annotation = result.result.is_annotation;
-                            console.log(is_annotation);
 
                             if (self.list_object.overall_exception_chart != undefined) {
                                 
@@ -2613,7 +2600,6 @@
                             var date_list  = result.result.upload_target_data.date;
                             var upload_target_data = result.result.upload_target_data.data;
                             var is_annotation = result.result.is_annotation;
-                            console.log(is_annotation);
 
                             if (self.list_object.target_upload_graph != undefined) {
 
@@ -2919,7 +2905,6 @@
 	                       return $http({method:"GET", url: error_bar_graph + '&chart_name=2&chart_name=3'}).success(function(result){
 
                             var is_annotation = result.result.is_annotation;
-                            console.log(is_annotation);
                             if (self.list_object.internal_error_accuracy != undefined) {
 
                                 if (self.list_object.internal_error_accuracy.display_value === true) {
@@ -3147,7 +3132,6 @@
                             var external_error_timeline = result.result.external_time_line;
                             var internal_error_timeline = result.result.internal_time_line;
                             var is_annotation = result.result.is_annotation;
-                            console.log(is_annotation);
 
                             if ((name == "self.chartOptions9_2") || (name == "")) {
                             
