@@ -1595,7 +1595,7 @@
 
                         self.type = type;
 
-                        var main_prod = '/api/main_prod/'+self.data_to_show + type + final_work + '&chart_name=1&chart_name=6&chart_name=22&chart_name=23&chart_name=24&chart_name=25';
+                        var main_prod = '/api/main_prod/'+self.data_to_show + type + final_work + '&chart_name=1&chart_name=6';
 
                         return $http({method:"GET", url: main_prod}).success(function(result){
             
@@ -1848,8 +1848,7 @@
 		}
 
 		self.pareto_category_error = function(pareto_cate_error){
-
-                       return $http({method:"GET", url: pareto_cate_error}).success(function(result){
+                       return $http({method:"GET", url: pareto_cate_error + '&chart_name=24&chart_name=25' }).success(function(result){
                            var is_annotation = result.result.is_annotation;
                            console.log(is_annotation);
                             
@@ -2044,7 +2043,7 @@
 		   }
 		  
 		self.agent_category_error = function(agent_cate_error){
-                       return $http({method:"GET", url: agent_cate_error}).success(function(result){
+                       return $http({method:"GET", url: agent_cate_error + '&chart_name=22&chart_name=23' }).success(function(result){
 
                             var is_annotation = result.result.is_annotation;
                             console.log(is_annotation);
@@ -2607,7 +2606,7 @@
 
                         self.type = type;
 
-                        var upload_acc = '/api/upload_acc/'+self.data_to_show + type + final_work + '&chart_name=34&chart_name=38&chart_name=39'
+                        var upload_acc = '/api/upload_acc/'+self.data_to_show + type + final_work + '&chart_name=34'
 
                         return $http({method:"GET", url: upload_acc}).success(function(result){
 
@@ -2716,12 +2715,12 @@
                     }
                 
 			self.error_field_graph = function(err_field_graph){
-
-                       return $http({method:"GET", url: err_field_graph}).success(function(result){
+                       return $http({method:"GET", url: err_field_graph + '&chart_name=38&chart_name=39'}).success(function(result){
                            angular.extend(self.chartOptions43.yAxis,{
                                 min:result.result.inter_min_value,
                                 max:result.result.inter_max_value
                             });
+                            var is_annotation = result.result.is_annotation;
 
                             if (self.list_object.internal_field_accuracy_graph != undefined) {
 
@@ -2917,7 +2916,7 @@
 			}
 
 			self.error_bar_graph = function(error_bar_graph){
-	                       return $http({method:"GET", url: error_bar_graph}).success(function(result){
+	                       return $http({method:"GET", url: error_bar_graph + '&chart_name=2&chart_name=3'}).success(function(result){
 
                             var is_annotation = result.result.is_annotation;
                             console.log(is_annotation);
