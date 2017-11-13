@@ -683,7 +683,7 @@ def common_outbnd_dispo_data(project, center, dates, disposition):
             if final_values > 0:
                 oubnd_dispo_val = final_values
                 dispo_list.append(oubnd_dispo_val)
-        final_dict['outbnd_dispo_common'] = dispo_list
+        final_dict['data'] = dispo_list
     else:
         final_dict = {}
     return final_dict
@@ -699,15 +699,15 @@ def outbnd_utilization_data(project, center, dates, disposition):
                 login_time = agent_values.values_list('login_duration', flat = True)
                 hold_time = agent_values.values_list('pause_time', flat = True)
                 talk_time = agent_values.values_list('talk_time', flat = True)
-                wrapup_time = agent_values.values_list('wrapup_time', flat = True)
-                utili_val = (float(sum(hold_time)+sum(talk_time)+sum(wrapup_time))/float(sum(login_time)))*100
+                wrapup_time = get_avg_wrapup_time(project, center, date, call_type = 'Manual')
+                utili_val = (float(sum(hold_time) + sum(talk_time) + wrapup_time)/float(sum(login_time)))*100
                 utili_val = float('%.2f' % round(utili_val, 2))
                 if login_time > 0:
                     final_utili_val = utili_val
                 else:
                     final_utili_val = 0
                 utiliti_list.append(final_utili_val)
-            final_dict['outbnd_utilization'] = utiliti_list
+            final_dict['data'] = utiliti_list
     else:
         final_dict = {}
     return final_dict
@@ -724,16 +724,85 @@ def inbnd_utilization_data(project, center, dates, location, skill, disposition)
                 login_time = agent_values.values_list('login_duration', flat = True)
                 hold_time = agent_values.values_list('pause_time', flat = True)
                 talk_time = agent_values.values_list('talk_time', flat = True)
-                wrapup_time = agent_values.values_list('wrapup_time', flat = True)
-                utili_val = (float(sum(hold_time)+sum(talk_time)+sum(wrapup_time))/float(sum(login_time)))*100
+                wrapup_time = get_avg_wrapup_time(project, center, date, call_type = 'Inbound')
+                utili_val = (float(sum(hold_time) + sum(talk_time) + wrapup_time)/float(sum(login_time)))*100
                 utili_val = float('%.2f' % round(utili_val, 2))
                 if login_time > 0:
                     final_utili_val = utili_val
                 else:
                     final_utili_val = 0
                 utiliti_list.append(final_utili_val)
-            final_dict['inbnd_utilization'] = utiliti_list
+            final_dict['data'] = utiliti_list
     else:
         final_dict = {}
     return final_dict
 
+
+def get_avg_wrapup_time(project, center, date, call_type):
+    agents_list = []
+    agent_data = AgentPerformance.objects.filter(project = project, center = center, date = date, call_type = call_type)
+    agents_vals = agent_data.values('agent').count()
+    agent_names = agent_data.values_list('agent', flat = True).distinct()
+    if agents_vals > 0:
+        for agent in agent_names:
+            agent_query = AgentPerformance.objects.filter(project = project, center = center, date = date, call_type = call_type, agent = agent)
+            wrap_time = agent_query.values_list('wrapup_time', flat = True)
+            no_of_calls = agent_query.values_list('total_calls', flat = True)
+            if sum(no_of_calls) > 0:
+                time_per_agent = float(sum(wrap_time))/float(sum(no_of_calls))
+            else:
+                time_per_agent = 0
+            agents_list.append(time_per_agent)
+    day_agent_val = float(sum(agents_list))/float(len(agents_list))
+    return day_agent_val
+
+def inbound_occupancy_data(project, center, dates, location, skill, disposition):
+    final_dict = {}
+    occupancy_list = []
+    if location == 'All' and skill == 'All' and disposition == 'All':
+        for date in dates:
+            agent_values = AgentPerformance.objects.filter(project = project, center = center, date = date, call_type = 'Inbound')
+            agents_count = agent_values.values('agent').count()
+            if agents_count > 0:
+                login_time = agent_values.values_list('login_duration', flat = True)
+                hold_time = agent_values.values_list('pause_time', flat = True)
+                talk_time = agent_values.values_list('talk_time', flat = True)
+                idle_time = agent_values.values_list('idle_time', flat = True)
+                wrapup_time = get_avg_wrapup_time(project, center, date, call_type = 'Inbound')
+                occupancy_val = (float(sum(hold_time) + sum(talk_time) + sum(idle_time) + wrapup_time)/float(sum(login_time)))*100
+                occupancy_val = float('%.2f' % round(occupancy_val, 2))
+                if login_time > 0:
+                    final_occupa_val = occupancy_val
+                else:
+                    final_occupa_val = 0
+                occupancy_list.append(final_occupa_val)
+            final_dict['data'] = occupancy_list
+    else:
+        final_dict = {}
+    return final_dict
+
+
+def outbound_occupancy_data(project, center, dates, disposition):
+    final_dict = {}
+    occupancy_list = []
+    if disposition == 'All':
+        for date in dates:
+            agent_values = AgentPerformance.objects.filter(project = project, center = center, date = date, call_type = 'Manual')
+            agents_count = agent_values.values('agent').count()
+            if agents_count > 0:
+                login_time = agent_values.values_list('login_duration', flat = True)
+                hold_time = agent_values.values_list('pause_time', flat = True)
+                talk_time = agent_values.values_list('talk_time', flat = True)
+                idle_time = agent_values.values_list('idle_time', flat = True)
+                wrapup_time = get_avg_wrapup_time(project, center, date, call_type = 'Manual')
+                occupancy_val = (float(sum(hold_time) + sum(talk_time) + sum(idle_time) + wrapup_time)/float(sum(login_time)))*100
+                occupancy_val = float('%.2f' % round(occupancy_val, 2))
+                if login_time > 0:
+                    final_occupa_val = occupancy_val
+                else:
+                    final_occupa_val = 0
+                occupancy_list.append(final_occupa_val)
+            final_dict['data'] = occupancy_list
+    else:
+        final_dict = {}
+    return final_dict

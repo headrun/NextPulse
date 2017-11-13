@@ -188,8 +188,8 @@
             });
 
             //Voice Type User
-            self.filter_list = ['location', 'skill', 'disposition', 'call_status', 'cate_dispo_inbound', 'outbound_dispo_cate', 'outbound_disposition'];
-            self.chartType = ['bar', 'stacked', 'pie'];
+            self.filter_list = ['location', 'skill', 'disposition', 'call_status', 'cate_dispo_inbound', 'outbound_dispo_cate', 'outbound_disposition', 'outbnd_dispo_common', 'inbnd_utilization', 'outbnd_utilization', 'inbnd_occupancy', 'outbnd_occupancy'];
+            self.chartType = ['bar', 'stacked', 'pie', 'line'];
             self.voice_widget_function = function(result, voiceFilterType, widgetA, widgetB) {
                 var chartOptions, chartSeries, chartType;
                 if(voiceFilterType == self.filter_list[0]) {
@@ -220,6 +220,26 @@
                     chartOptions = self.chartOptions53;
                     chartSeries = result.result[self.filter_list[6]];
                     chartType = self.chartType[0];
+                } else if (voiceFilterType == self.filter_list[7]) {
+                    chartOptions = self.chartOptions54;
+                    chartSeries = result.result[self.filter_list[7]];
+                    chartType = self.chartType[0];
+                } else if (voiceFilterType == self.filter_list[8]) {
+                    chartOptions = self.chartOptions55;
+                    chartSeries = result.result[self.filter_list[8]];
+                    chartType = self.chartType[0];
+                } else if (voiceFilterType == self.filter_list[9]) {
+                    chartOptions = self.chartOptions56;
+                    chartSeries = result.result[self.filter_list[9]];
+                    chartType = self.chartType[0];
+                } else if (voiceFilterType == self.filter_list[10]) {
+                    chartOptions = self.chartOptions57;
+                    chartSeries = result.result[self.filter_list[10]];
+                    chartType = self.chartType[0];
+                } else if (voiceFilterType == self.filter_list[11]) {
+                    chartOptions = self.chartOptions58;
+                    chartSeries = result.result[self.filter_list[11]];
+                    chartType = self.chartType[0];
                 }
                 switch (chartType) {
                     case self.chartType[1]:
@@ -232,7 +252,7 @@
                                     stacking: 'normal',
                                     dataLabels: {
                                         enabled: true,
-                                        color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'white'
+                                        color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'black'
                                     }
                                 }
                             },
@@ -3520,7 +3540,12 @@
                     'self.chartOptions50':self.chartOptions50,
                     'self.chartOptions51':self.chartOptions51,
                     'self.chartOptions52':self.chartOptions52,
-                    "self.chartOptions53":self.chartOptions53
+                    "self.chartOptions53":self.chartOptions53,
+                    'self.chartOptions54':self.chartOptions54,
+                    'self.chartOptions55':self.chartOptions55,
+                    'self.chartOptions56':self.chartOptions56,
+                    'self.chartOptions57':self.chartOptions57,
+                    'self.chartOptions58':self.chartOptions58
                     };
 
 
@@ -3671,7 +3696,28 @@
                                             widgetA = '.widget-48a';
                                             widgetB = '.widget-48b';
                                             type_check = 'outbound';
+                                        } else if (type == self.filter_list[7]) {
+                                            widgetA = '.widget-49a';
+                                            widgetB = '.widget-49b';
+                                            type_check = 'outbound';
+                                        } else if (type == self.filter_list[8]) {
+                                            widgetA = '.widget-50a';
+                                            widgetB = '.widget-50b';
+                                            type_check = 'inbound';
+                                        } else if (type == self.filter_list[9]) {
+                                            widgetA = '.widget-51a';
+                                            widgetB = '.widget-51b';
+                                            type_check = 'outbound';
+                                        } else if (type == self.filter_list[10]) {
+                                            widgetA = '.widget-52a';
+                                            widgetB = '.widget-52b';
+                                            type_check = 'inbound';
+                                        } else if (type == self.filter_list[11]) {
+                                            widgetA = '.widget-53a';
+                                            widgetB = '.widget-53b';
+                                            type_check = 'outbound';
                                         }
+
                                         if (self.voiceProjectType == 'inbound') {
                                             if(type_check == 'outbound') {
                                                 $(widgetA).parent().hide();
@@ -4002,7 +4048,12 @@
                         "self.chartOptions50":self.chartOptions50,
                         "self.chartOptions51":self.chartOptions51,
                         "self.chartOptions52":self.chartOptions52,
-                        "self.chartOptions53":self.chartOptions53
+                        "self.chartOptions53":self.chartOptions53,
+                        "self.chartOptions54":self.chartOptions54,
+                        "self.chartOptions55":self.chartOptions55,
+                        "self.chartOptions56":self.chartOptions56,
+                        "self.chartOptions57":self.chartOptions57,
+                        "self.chartOptions58":self.chartOptions58
                     }
 
                     self.render_data = obj[all_data];
@@ -4116,9 +4167,9 @@
                         self.upload_acc(final_work, key);
                     }
                     var chart_type_map = {};
-                    chart_type_map = { 'chartOptions47' : self.filter_list[0], 'chartOptions48' : self.filter_list[1] , 'chartOptions49' : self.filter_list[2], 'chartOptions50' : self.filter_list[3], 'chartOptions51' : self.filter_list[4], 'chartOptions52' : self.filter_list[5], 'chartOptions53' : self.filter_list[6] };
+                    chart_type_map = { 'chartOptions47' : self.filter_list[0], 'chartOptions48' : self.filter_list[1] , 'chartOptions49' : self.filter_list[2], 'chartOptions50' : self.filter_list[3], 'chartOptions51' : self.filter_list[4], 'chartOptions52' : self.filter_list[5], 'chartOptions53' : self.filter_list[6], 'chartOptions54' : self.filter_list[7], 'chartOptions55' : self.filter_list[8], 'chartOptions56' : self.filter_list[9], 'chartOptions57' : self.filter_list[10], 'chartOptions58' : self.filter_list[11] };
                     if( self.is_voice_flag ) {
-                        if (name == 'chartOptions47' || name == 'chartOptions48' || name == 'chartOptions49' || name == 'chartOptions50' || name == 'chartOptions51' || name == 'chartOptions52' || name == 'chartOptions53') {
+                        if (name == 'chartOptions47' || name == 'chartOptions48' || name == 'chartOptions49' || name == 'chartOptions50' || name == 'chartOptions51' || name == 'chartOptions52' || name == 'chartOptions53' || name == 'chartOptions54' || name == 'chartOptions55' || name == 'chartOptions56' || name == 'chartOptions57' || name == 'chartOptions58') {
                             self.ajaxVoiceFilter(chart_type_map[name], key);
                         }
                     }
@@ -4319,7 +4370,12 @@
                     'self.chartOptions50':self.chartOptions50,
                     'self.chartOptions51':self.chartOptions51,
                     'self.chartOptions52':self.chartOptions52,
-                    "self.chartOptions53":self.chartOptions53
+                    "self.chartOptions53":self.chartOptions53,
+                    "self.chartOptions54":self.chartOptions54,
+                    "self.chartOptions55":self.chartOptions55,
+                    "self.chartOptions56":self.chartOptions56,
+                    "self.chartOptions57":self.chartOptions57,
+                    "self.chartOptions58":self.chartOptions58
                     };
                     var final_layout_list = [];
                     for (var single in self.layout_list){
@@ -5588,6 +5644,138 @@
                 }
                 }
             }
+            };
+
+
+            self.chartOptions54 = {
+                chart: {
+                type: 'column',
+                backgroundColor: "transparent"
+             },
+            title: {
+                text: ''
+            },
+            subtitle: {
+                text: ''
+            },
+            yAxis: {
+                gridLineColor: 'a2a2a2',
+                min: 0,
+                title: {
+                    text: ''
+                }
+            },
+            tooltip: {
+                valueSuffix: '',
+
+                formatter: function () {
+                             return "<small>" + this.x + "</small><br/>" +
+                                    "<b>" + this.series.name + "</b> : " + Highcharts.numberFormat(this.y, null, null, ",");
+                           }
+               },
+            plotOptions:{
+                series:{
+                    allowPointSelect: true,
+                    cursor: 'pointer',
+                point: {
+                    events:{
+                    }
+                }
+                }
+            }
+            };
+
+            self.chartOptions55 = {
+                chart : {
+                 backgroundColor: "transparent"
+                },
+                               yAxis: {
+                gridLineColor: 'a2a2a2',
+                min: 0,
+                title: {
+                 text: '',
+                 align: 'high'
+                },
+                labels: {
+                 overflow: 'justify'
+                }
+               },
+               tooltip: {
+                valueSuffix: ''
+               },
+               credits: {
+                enabled: false
+               },
+            };
+
+
+            self.chartOptions56 = {
+                chart : {
+                 backgroundColor: "transparent"
+                },  
+                               yAxis: {
+                gridLineColor: 'a2a2a2',
+                min: 0,
+                title: {
+                 text: '',
+                 align: 'high'
+                },
+                labels: { 
+                 overflow: 'justify'
+                }
+               },
+               tooltip: {
+                valueSuffix: ''
+               },
+               credits: {
+                enabled: false
+               },
+            };
+
+            self.chartOptions57 = {
+                chart : {
+                 backgroundColor: "transparent"
+                },
+                               yAxis: {
+                gridLineColor: 'a2a2a2',
+                min: 0,
+                title: {
+                 text: '',
+                 align: 'high'
+                },
+                labels: {
+                 overflow: 'justify'
+                }
+               },
+               tooltip: {
+                valueSuffix: ''
+               },
+               credits: {
+                enabled: false
+               },
+            };
+
+            self.chartOptions58 = {
+                chart : {
+                 backgroundColor: "transparent"
+                },
+                               yAxis: {
+                gridLineColor: 'a2a2a2',
+                min: 0,
+                title: {
+                 text: '',
+                 align: 'high'
+                },
+                labels: {
+                 overflow: 'justify'
+                }
+               },
+               tooltip: {
+                valueSuffix: ''
+               },
+               credits: {
+                enabled: false
+               },
             };
 
             self.chartOptions50 = {
