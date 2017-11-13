@@ -188,8 +188,8 @@
             });
 
             //Voice Type User
-            self.filter_list = ['location', 'skill', 'disposition', 'call_status', 'cate_dispo_inbound', 'outbound_dispo_cate', 'outbound_disposition'];
-            self.chartType = ['bar', 'stacked', 'pie'];
+            self.filter_list = ['location', 'skill', 'disposition', 'call_status', 'cate_dispo_inbound', 'outbound_dispo_cate', 'outbound_disposition', 'outbnd_dispo_common', 'inbnd_utilization', 'outbnd_utilization', 'inbnd_occupancy', 'outbnd_occupancy'];
+            self.chartType = ['bar', 'stacked', 'pie', 'line'];
             self.voice_widget_function = function(result, voiceFilterType, widgetA, widgetB) {
                 var chartOptions, chartSeries, chartType;
                 if(voiceFilterType == self.filter_list[0]) {
@@ -220,6 +220,26 @@
                     chartOptions = self.chartOptions53;
                     chartSeries = result.result[self.filter_list[6]];
                     chartType = self.chartType[0];
+                } else if (voiceFilterType == self.filter_list[7]) {
+                    chartOptions = self.chartOptions54;
+                    chartSeries = result.result[self.filter_list[7]];
+                    chartType = self.chartType[0];
+                } else if (voiceFilterType == self.filter_list[8]) {
+                    chartOptions = self.chartOptions55;
+                    chartSeries = result.result[self.filter_list[8]];
+                    chartType = self.chartType[0];
+                } else if (voiceFilterType == self.filter_list[9]) {
+                    chartOptions = self.chartOptions56;
+                    chartSeries = result.result[self.filter_list[9]];
+                    chartType = self.chartType[0];
+                } else if (voiceFilterType == self.filter_list[10]) {
+                    chartOptions = self.chartOptions57;
+                    chartSeries = result.result[self.filter_list[10]];
+                    chartType = self.chartType[0];
+                } else if (voiceFilterType == self.filter_list[11]) {
+                    chartOptions = self.chartOptions58;
+                    chartSeries = result.result[self.filter_list[11]];
+                    chartType = self.chartType[0];
                 }
                 switch (chartType) {
                     case self.chartType[1]:
@@ -232,7 +252,7 @@
                                     stacking: 'normal',
                                     dataLabels: {
                                         enabled: true,
-                                        color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'white'
+                                        color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'black'
                                     }
                                 }
                             },
@@ -329,7 +349,6 @@
                         var allo_and_comp = '/api/alloc_and_compl/'+self.data_to_show + type + final_work + '&chart_name=17&chart_name=13';
                         return $http({method:"GET", url: allo_and_comp}).success(function(result){
                             var is_annotation = result.result.is_annotation;
-                            console.log(is_annotation);
                            if ((name == "self.chartOptions17") || (name == "")) {
                                 $('.widget-17a').removeClass('widget-loader-show');
                                 $('.widget-17b').removeClass('widget-data-hide');
@@ -574,7 +593,6 @@
                             var utili_fte_data = result.result.utilization_fte_details;
                             var overall_utili_data = result.result.original_utilization_graph;
                             var is_annotation = result.result.is_annotation;
-                            console.log(is_annotation);
 
                             angular.extend(self.chartOptions25.yAxis,{
                                min:result.result.min_utilization_operational_details,
@@ -903,7 +921,6 @@
                             var date_list = result.result.date;
                             var productivity = result.result.original_productivity_graph;
                             var is_annotation = result.result.is_annotation;
-                            console.log(is_annotation);
 
                             if (self.list_object.productivity_trends != undefined) {
 
@@ -1019,7 +1036,6 @@
                            var date_list = result.result.date;
                            var prod_avg_data = result.result.production_avg_details
                            var is_annotation = result.result.is_annotation;
-                           console.log(is_annotation);
 
                             if (self.list_object.production_avg_perday != undefined) {
 
@@ -1133,7 +1149,6 @@
                            var date_list = result.result.date;
                            var tat_values = result.result.tat_graph_details
                            var is_annotation = result.result.is_annotation;
-                           console.log(is_annotation);
                             
                            if (self.list_object.tat_graph != undefined) {
 
@@ -1245,7 +1260,6 @@
 
                             var monthly_volume = result.result.monthly_volume_graph_details
                             var is_annotation = result.result.is_annotation;
-                            console.log(is_annotation);
 
                             if (self.list_object.monthly_volume_widget != undefined) {
                             
@@ -1360,7 +1374,6 @@
 
                         return $http({method:"GET", url: fte_graphs}).success(function(result){
                             var is_annotation = result.result.is_annotation;
-                            console.log(is_annotation);
                             if (type == 'day' && final_work == '') {
                                 if (result.result.type == 'day') {
                                     $('.day2').addClass('active btn-success');
@@ -1595,7 +1608,7 @@
 
                         self.type = type;
 
-                        var main_prod = '/api/main_prod/'+self.data_to_show + type + final_work + '&chart_name=1&chart_name=6&chart_name=22&chart_name=23&chart_name=24&chart_name=25';
+                        var main_prod = '/api/main_prod/'+self.data_to_show + type + final_work + '&chart_name=1&chart_name=6';
 
                         return $http({method:"GET", url: main_prod}).success(function(result){
             
@@ -1624,7 +1637,6 @@
                             var date_list = result.result.data.date;
                             var main_prod_data = result.result.productivity_data;
                             var is_annotation = result.result.is_annotation;
-                            console.log(is_annotation);
                             
                             if ((name == "self.chartOptions10") || (name == "")) {
                                                                 
@@ -1848,10 +1860,8 @@
 		}
 
 		self.pareto_category_error = function(pareto_cate_error){
-
-                       return $http({method:"GET", url: pareto_cate_error}).success(function(result){
+                       return $http({method:"GET", url: pareto_cate_error + '&chart_name=24&chart_name=25' }).success(function(result){
                            var is_annotation = result.result.is_annotation;
-                           console.log(is_annotation);
                             
                             if (self.list_object.error_category_internal_pareto_analysis != undefined) {
 
@@ -2044,10 +2054,9 @@
 		   }
 		  
 		self.agent_category_error = function(agent_cate_error){
-                       return $http({method:"GET", url: agent_cate_error}).success(function(result){
+                       return $http({method:"GET", url: agent_cate_error + '&chart_name=22&chart_name=23' }).success(function(result){
 
                             var is_annotation = result.result.is_annotation;
-                            console.log(is_annotation);
                             
                             if (self.list_object.agent_wise_pareto_graph_data != undefined) {
 
@@ -2260,7 +2269,6 @@
                             var date_list  = result.result.date;
                             var pre_scan_details = result.result.pre_scan_exception_data;
                             var is_annotation = result.result.is_annotation;
-                            console.log(is_annotation);
                 
                             if (self.list_object.pre_scan_exception_chart != undefined) {
                         
@@ -2376,7 +2384,6 @@
                             var date_list  = result.result.date;
                             var nw_details = result.result.nw_exception_details;
                             var is_annotation = result.result.is_annotation;
-                            console.log(is_annotation);
 
                             if (self.list_object.nw_exception_chart != undefined) {
 
@@ -2494,7 +2501,6 @@
                             var date_list  = result.result.date;
                             var overall_details = result.result.overall_exception_details;
                             var is_annotation = result.result.is_annotation;
-                            console.log(is_annotation);
 
                             if (self.list_object.overall_exception_chart != undefined) {
                                 
@@ -2607,14 +2613,13 @@
 
                         self.type = type;
 
-                        var upload_acc = '/api/upload_acc/'+self.data_to_show + type + final_work + '&chart_name=34&chart_name=38&chart_name=39'
+                        var upload_acc = '/api/upload_acc/'+self.data_to_show + type + final_work + '&chart_name=34'
 
                         return $http({method:"GET", url: upload_acc}).success(function(result){
 
                             var date_list  = result.result.upload_target_data.date;
                             var upload_target_data = result.result.upload_target_data.data;
                             var is_annotation = result.result.is_annotation;
-                            console.log(is_annotation);
 
                             if (self.list_object.target_upload_graph != undefined) {
 
@@ -2716,12 +2721,12 @@
                     }
                 
 			self.error_field_graph = function(err_field_graph){
-
-                       return $http({method:"GET", url: err_field_graph}).success(function(result){
+                       return $http({method:"GET", url: err_field_graph + '&chart_name=38&chart_name=39'}).success(function(result){
                            angular.extend(self.chartOptions43.yAxis,{
                                 min:result.result.inter_min_value,
                                 max:result.result.inter_max_value
                             });
+                            var is_annotation = result.result.is_annotation;
 
                             if (self.list_object.internal_field_accuracy_graph != undefined) {
 
@@ -2917,10 +2922,9 @@
 			}
 
 			self.error_bar_graph = function(error_bar_graph){
-	                       return $http({method:"GET", url: error_bar_graph}).success(function(result){
+	                       return $http({method:"GET", url: error_bar_graph + '&chart_name=2&chart_name=3'}).success(function(result){
 
                             var is_annotation = result.result.is_annotation;
-                            console.log(is_annotation);
                             if (self.list_object.internal_error_accuracy != undefined) {
 
                                 if (self.list_object.internal_error_accuracy.display_value === true) {
@@ -3148,7 +3152,6 @@
                             var external_error_timeline = result.result.external_time_line;
                             var internal_error_timeline = result.result.internal_time_line;
                             var is_annotation = result.result.is_annotation;
-                            console.log(is_annotation);
 
                             if ((name == "self.chartOptions9_2") || (name == "")) {
                             
@@ -3537,7 +3540,12 @@
                     'self.chartOptions50':self.chartOptions50,
                     'self.chartOptions51':self.chartOptions51,
                     'self.chartOptions52':self.chartOptions52,
-                    "self.chartOptions53":self.chartOptions53
+                    "self.chartOptions53":self.chartOptions53,
+                    'self.chartOptions54':self.chartOptions54,
+                    'self.chartOptions55':self.chartOptions55,
+                    'self.chartOptions56':self.chartOptions56,
+                    'self.chartOptions57':self.chartOptions57,
+                    'self.chartOptions58':self.chartOptions58
                     };
 
 
@@ -3688,7 +3696,28 @@
                                             widgetA = '.widget-48a';
                                             widgetB = '.widget-48b';
                                             type_check = 'outbound';
+                                        } else if (type == self.filter_list[7]) {
+                                            widgetA = '.widget-49a';
+                                            widgetB = '.widget-49b';
+                                            type_check = 'outbound';
+                                        } else if (type == self.filter_list[8]) {
+                                            widgetA = '.widget-50a';
+                                            widgetB = '.widget-50b';
+                                            type_check = 'inbound';
+                                        } else if (type == self.filter_list[9]) {
+                                            widgetA = '.widget-51a';
+                                            widgetB = '.widget-51b';
+                                            type_check = 'outbound';
+                                        } else if (type == self.filter_list[10]) {
+                                            widgetA = '.widget-52a';
+                                            widgetB = '.widget-52b';
+                                            type_check = 'inbound';
+                                        } else if (type == self.filter_list[11]) {
+                                            widgetA = '.widget-53a';
+                                            widgetB = '.widget-53b';
+                                            type_check = 'outbound';
                                         }
+
                                         if (self.voiceProjectType == 'inbound') {
                                             if(type_check == 'outbound') {
                                                 $(widgetA).parent().hide();
@@ -4019,7 +4048,12 @@
                         "self.chartOptions50":self.chartOptions50,
                         "self.chartOptions51":self.chartOptions51,
                         "self.chartOptions52":self.chartOptions52,
-                        "self.chartOptions53":self.chartOptions53
+                        "self.chartOptions53":self.chartOptions53,
+                        "self.chartOptions54":self.chartOptions54,
+                        "self.chartOptions55":self.chartOptions55,
+                        "self.chartOptions56":self.chartOptions56,
+                        "self.chartOptions57":self.chartOptions57,
+                        "self.chartOptions58":self.chartOptions58
                     }
 
                     self.render_data = obj[all_data];
@@ -4133,9 +4167,9 @@
                         self.upload_acc(final_work, key);
                     }
                     var chart_type_map = {};
-                    chart_type_map = { 'chartOptions47' : self.filter_list[0], 'chartOptions48' : self.filter_list[1] , 'chartOptions49' : self.filter_list[2], 'chartOptions50' : self.filter_list[3], 'chartOptions51' : self.filter_list[4], 'chartOptions52' : self.filter_list[5], 'chartOptions53' : self.filter_list[6] };
+                    chart_type_map = { 'chartOptions47' : self.filter_list[0], 'chartOptions48' : self.filter_list[1] , 'chartOptions49' : self.filter_list[2], 'chartOptions50' : self.filter_list[3], 'chartOptions51' : self.filter_list[4], 'chartOptions52' : self.filter_list[5], 'chartOptions53' : self.filter_list[6], 'chartOptions54' : self.filter_list[7], 'chartOptions55' : self.filter_list[8], 'chartOptions56' : self.filter_list[9], 'chartOptions57' : self.filter_list[10], 'chartOptions58' : self.filter_list[11] };
                     if( self.is_voice_flag ) {
-                        if (name == 'chartOptions47' || name == 'chartOptions48' || name == 'chartOptions49' || name == 'chartOptions50' || name == 'chartOptions51' || name == 'chartOptions52' || name == 'chartOptions53') {
+                        if (name == 'chartOptions47' || name == 'chartOptions48' || name == 'chartOptions49' || name == 'chartOptions50' || name == 'chartOptions51' || name == 'chartOptions52' || name == 'chartOptions53' || name == 'chartOptions54' || name == 'chartOptions55' || name == 'chartOptions56' || name == 'chartOptions57' || name == 'chartOptions58') {
                             self.ajaxVoiceFilter(chart_type_map[name], key);
                         }
                     }
@@ -4336,7 +4370,12 @@
                     'self.chartOptions50':self.chartOptions50,
                     'self.chartOptions51':self.chartOptions51,
                     'self.chartOptions52':self.chartOptions52,
-                    "self.chartOptions53":self.chartOptions53
+                    "self.chartOptions53":self.chartOptions53,
+                    "self.chartOptions54":self.chartOptions54,
+                    "self.chartOptions55":self.chartOptions55,
+                    "self.chartOptions56":self.chartOptions56,
+                    "self.chartOptions57":self.chartOptions57,
+                    "self.chartOptions58":self.chartOptions58
                     };
                     var final_layout_list = [];
                     for (var single in self.layout_list){
@@ -5605,6 +5644,138 @@
                 }
                 }
             }
+            };
+
+
+            self.chartOptions54 = {
+                chart: {
+                type: 'column',
+                backgroundColor: "transparent"
+             },
+            title: {
+                text: ''
+            },
+            subtitle: {
+                text: ''
+            },
+            yAxis: {
+                gridLineColor: 'a2a2a2',
+                min: 0,
+                title: {
+                    text: ''
+                }
+            },
+            tooltip: {
+                valueSuffix: '',
+
+                formatter: function () {
+                             return "<small>" + this.x + "</small><br/>" +
+                                    "<b>" + this.series.name + "</b> : " + Highcharts.numberFormat(this.y, null, null, ",");
+                           }
+               },
+            plotOptions:{
+                series:{
+                    allowPointSelect: true,
+                    cursor: 'pointer',
+                point: {
+                    events:{
+                    }
+                }
+                }
+            }
+            };
+
+            self.chartOptions55 = {
+                chart : {
+                 backgroundColor: "transparent"
+                },
+                               yAxis: {
+                gridLineColor: 'a2a2a2',
+                min: 0,
+                title: {
+                 text: '',
+                 align: 'high'
+                },
+                labels: {
+                 overflow: 'justify'
+                }
+               },
+               tooltip: {
+                valueSuffix: ''
+               },
+               credits: {
+                enabled: false
+               },
+            };
+
+
+            self.chartOptions56 = {
+                chart : {
+                 backgroundColor: "transparent"
+                },  
+                               yAxis: {
+                gridLineColor: 'a2a2a2',
+                min: 0,
+                title: {
+                 text: '',
+                 align: 'high'
+                },
+                labels: { 
+                 overflow: 'justify'
+                }
+               },
+               tooltip: {
+                valueSuffix: ''
+               },
+               credits: {
+                enabled: false
+               },
+            };
+
+            self.chartOptions57 = {
+                chart : {
+                 backgroundColor: "transparent"
+                },
+                               yAxis: {
+                gridLineColor: 'a2a2a2',
+                min: 0,
+                title: {
+                 text: '',
+                 align: 'high'
+                },
+                labels: {
+                 overflow: 'justify'
+                }
+               },
+               tooltip: {
+                valueSuffix: ''
+               },
+               credits: {
+                enabled: false
+               },
+            };
+
+            self.chartOptions58 = {
+                chart : {
+                 backgroundColor: "transparent"
+                },
+                               yAxis: {
+                gridLineColor: 'a2a2a2',
+                min: 0,
+                title: {
+                 text: '',
+                 align: 'high'
+                },
+                labels: {
+                 overflow: 'justify'
+                }
+               },
+               tooltip: {
+                valueSuffix: ''
+               },
+               credits: {
+                enabled: false
+               },
             };
 
             self.chartOptions50 = {
