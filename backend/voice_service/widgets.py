@@ -700,13 +700,12 @@ def outbnd_utilization_data(project, center, dates, disposition):
                 hold_time = agent_values.values_list('pause_time', flat = True)
                 talk_time = agent_values.values_list('talk_time', flat = True)
                 wrapup_time = get_avg_wrapup_time(project, center, date, call_type = 'Manual')
-                utili_val = (float(sum(hold_time) + sum(talk_time) + wrapup_time)/float(sum(login_time)))*100
-                utili_val = float('%.2f' % round(utili_val, 2))
-                if login_time > 0:
-                    final_utili_val = utili_val
+                if sum(login_time) > 0:
+                    utili_val = (float(sum(hold_time) + sum(talk_time) + wrapup_time)/float(sum(login_time)))*100
+                    utili_val = float('%.2f' % round(utili_val, 2))
                 else:
-                    final_utili_val = 0
-                utiliti_list.append(final_utili_val)
+                    utili_val = 0
+                utiliti_list.append(utili_val)
             final_dict['data'] = utiliti_list
     else:
         final_dict = {}
@@ -725,13 +724,36 @@ def inbnd_utilization_data(project, center, dates, location, skill, disposition)
                 hold_time = agent_values.values_list('pause_time', flat = True)
                 talk_time = agent_values.values_list('talk_time', flat = True)
                 wrapup_time = get_avg_wrapup_time(project, center, date, call_type = 'Inbound')
-                utili_val = (float(sum(hold_time) + sum(talk_time) + wrapup_time)/float(sum(login_time)))*100
-                utili_val = float('%.2f' % round(utili_val, 2))
-                if login_time > 0:
-                    final_utili_val = utili_val
+                if sum(login_time) > 0:
+                    utili_val = (float(sum(hold_time) + sum(talk_time) + wrapup_time)/float(sum(login_time)))*100
+                    utili_val = float('%.2f' % round(utili_val, 2))
                 else:
-                    final_utili_val = 0
-                utiliti_list.append(final_utili_val)
+                    utili_val = 0
+                utiliti_list.append(utili_val)
+            final_dict['data'] = utiliti_list
+    else:
+        final_dict = {}
+    return final_dict
+
+
+def utilization_data(project, center, dates, location, skill, disposition):
+    final_dict = {}  
+    utiliti_list = []
+    if location == 'All' and skill == 'All' and disposition == 'All':
+        for date in dates:
+            agent_values = AgentPerformance.objects.filter(project = project, center = center, date = date)
+            agents_count = agent_values.values('agent').count()
+            if agents_count > 0:
+                login_time = agent_values.values_list('login_duration', flat = True)
+                hold_time = agent_values.values_list('pause_time', flat = True)
+                talk_time = agent_values.values_list('talk_time', flat = True)
+                wrapup_time = get_avg_wrapup_time(project, center, date, call_type = '')
+                if sum(login_time) > 0:
+                    utili_val = (float(sum(hold_time) + sum(talk_time) + wrapup_time)/float(sum(login_time)))*100
+                    utili_val = float('%.2f' % round(utili_val, 2))
+                else:
+                    utili_val = 0  
+                utiliti_list.append(utili_val)
             final_dict['data'] = utiliti_list
     else:
         final_dict = {}
@@ -740,12 +762,18 @@ def inbnd_utilization_data(project, center, dates, location, skill, disposition)
 
 def get_avg_wrapup_time(project, center, date, call_type):
     agents_list = []
-    agent_data = AgentPerformance.objects.filter(project = project, center = center, date = date, call_type = call_type)
+    if call_type != '':
+        agent_data = AgentPerformance.objects.filter(project = project, center = center, date = date, call_type = call_type)
+    else:
+        agent_data = AgentPerformance.objects.filter(project = project, center = center, date = date)
     agents_vals = agent_data.values('agent').count()
     agent_names = agent_data.values_list('agent', flat = True).distinct()
     if agents_vals > 0:
         for agent in agent_names:
-            agent_query = AgentPerformance.objects.filter(project = project, center = center, date = date, call_type = call_type, agent = agent)
+            if call_type != '':
+                agent_query = AgentPerformance.objects.filter(project = project, center = center, date = date, call_type = call_type, agent = agent)
+            else:
+                agent_query = AgentPerformance.objects.filter(project = project, center = center, date = date, agent = agent)
             wrap_time = agent_query.values_list('wrapup_time', flat = True)
             no_of_calls = agent_query.values_list('total_calls', flat = True)
             if sum(no_of_calls) > 0:
@@ -769,13 +797,12 @@ def inbound_occupancy_data(project, center, dates, location, skill, disposition)
                 talk_time = agent_values.values_list('talk_time', flat = True)
                 idle_time = agent_values.values_list('idle_time', flat = True)
                 wrapup_time = get_avg_wrapup_time(project, center, date, call_type = 'Inbound')
-                occupancy_val = (float(sum(hold_time) + sum(talk_time) + sum(idle_time) + wrapup_time)/float(sum(login_time)))*100
-                occupancy_val = float('%.2f' % round(occupancy_val, 2))
-                if login_time > 0:
-                    final_occupa_val = occupancy_val
+                if sum(login_time):
+                    occupancy_val = (float(sum(hold_time) + sum(talk_time) + sum(idle_time) + wrapup_time)/float(sum(login_time)))*100
+                    occupancy_val = float('%.2f' % round(occupancy_val, 2))
                 else:
-                    final_occupa_val = 0
-                occupancy_list.append(final_occupa_val)
+                    occupancy_val = 0
+                occupancy_list.append(occupancy_val)
             final_dict['data'] = occupancy_list
     else:
         final_dict = {}
@@ -795,14 +822,103 @@ def outbound_occupancy_data(project, center, dates, disposition):
                 talk_time = agent_values.values_list('talk_time', flat = True)
                 idle_time = agent_values.values_list('idle_time', flat = True)
                 wrapup_time = get_avg_wrapup_time(project, center, date, call_type = 'Manual')
-                occupancy_val = (float(sum(hold_time) + sum(talk_time) + sum(idle_time) + wrapup_time)/float(sum(login_time)))*100
-                occupancy_val = float('%.2f' % round(occupancy_val, 2))
-                if login_time > 0:
-                    final_occupa_val = occupancy_val
+                if sum(login_time) > 0:
+                    occupancy_val = (float(sum(hold_time) + sum(talk_time) + sum(idle_time) + wrapup_time)/float(sum(login_time)))*100
+                    occupancy_val = float('%.2f' % round(occupancy_val, 2))
                 else:
-                    final_occupa_val = 0
-                occupancy_list.append(final_occupa_val)
+                    occupancy_val = 0
+                occupancy_list.append(occupancy_val)
             final_dict['data'] = occupancy_list
     else:
         final_dict = {}
     return final_dict
+
+def occupancy_data(project, center, dates, location, skill, disposition):
+    final_dict = {}
+    occupancy_list = []
+    if location == 'All' and skill == 'All' and disposition == 'All':
+        for date in dates:
+            agent_values = AgentPerformance.objects.filter(project = project, center = center, date = date)
+            agents_count = agent_values.values('agent').count()
+            if agents_count > 0:
+                login_time = agent_values.values_list('login_duration', flat = True)
+                hold_time = agent_values.values_list('pause_time', flat = True)
+                talk_time = agent_values.values_list('talk_time', flat = True)
+                idle_time = agent_values.values_list('idle_time', flat = True)
+                wrapup_time = get_avg_wrapup_time(project, center, date, call_type = '')
+                if sum(login_time):
+                    occupancy_val = (float(sum(hold_time) + sum(talk_time) + sum(idle_time) + wrapup_time)/float(sum(login_time)))*100
+                    occupancy_val = float('%.2f' % round(occupancy_val, 2))
+                else:
+                    occupancy_val = 0
+                occupancy_list.append(occupancy_val)
+            final_dict['data'] = occupancy_list
+    else:
+        final_dict = {}
+    return final_dict
+
+def outbound_productivity_data(project, center, dates, disposition):
+    final_dict = {}
+    prod_list = []
+    if disposition == 'All':
+        for date in dates:
+            agent_values = AgentPerformance.objects.filter(project = project, center = center, date = date, call_type = 'Manual')
+            agents_count = agent_values.values('agent').count()
+            if agents_count > 0:
+                prod_val = get_prod_per_agent(project, center, date, call_type = 'Manual')
+                prod_list.append(prod_val)
+            final_dict['data'] = prod_list
+    else:
+        final_dict = {}
+    return final_dict
+
+def inbound_productivity_data(project, center, dates, location, skill, disposition):
+    final_dict = {}
+    prod_list = []
+    if location == 'All' and skill == 'All' and disposition == 'All':
+        for date in dates:
+            agent_values = AgentPerformance.objects.filter(project = project, center = center, date = date, call_type = 'Inbound')
+            agents_count = agent_values.values('agent').count()
+            if agents_count > 0:
+                prod_val = get_prod_per_agent(project, center, date, call_type = 'Inbound')
+                prod_list.append(prod_val)
+            final_dict['data'] = prod_list
+    else:
+        final_dict = {}
+    return final_dict
+
+def prod_data(project, center, dates, location, skill, disposition):
+    final_dict = {}
+    prod_list = []
+    if location == 'All' and skill == 'All' and disposition == 'All':
+        for date in dates:
+            agent_values = AgentPerformance.objects.filter(project = project, center = center, date = date)
+            agents_count = agent_values.values('agent').count()
+            if agents_count > 0:
+                prod_val = get_prod_per_agent(project, center, date, call_type = '')
+                prod_list.append(prod_val)
+            final_dict['data'] = prod_list
+    else:
+        final_dict = {}
+    return final_dict
+
+def get_prod_per_agent(project, center, date, call_type):
+    agent_prod = []
+    if call_type != '':
+        agent_data = AgentPerformance.objects.filter(project = project, center = center, date = date, call_type = call_type)
+    else:
+        agent_data = AgentPerformance.objects.filter(project = project, center = center, date = date)
+    agents_vals = agent_data.values('agent').count()
+    agent_names = agent_data.values_list('agent', flat = True).distinct()
+    if agents_vals > 0:
+        for agent in agent_names:
+            if call_type != '':
+                agent_query = AgentPerformance.objects.filter(project = project, center = center, date = date, call_type = call_type, agent = agent)
+            else:
+                agent_query = AgentPerformance.objects.filter(project = project, center = center, date = date, agent = agent)
+            login_time = agent_query.values_list('login_duration', flat = True)
+            productivity_val = float(sum(login_time))/float(28800)
+            agent_prod.append(productivity_val)    
+    final_prod_agent = (float(sum(agent_prod))/float(len(agent_prod)))*100
+    final_prod_agent = float('%.2f' % round(final_prod_agent, 2))
+    return final_prod_agent

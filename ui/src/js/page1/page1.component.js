@@ -188,7 +188,7 @@
             });
 
             //Voice Type User
-            self.filter_list = ['location', 'skill', 'disposition', 'call_status', 'cate_dispo_inbound', 'outbound_dispo_cate', 'outbound_disposition', 'outbnd_dispo_common', 'inbnd_utilization', 'outbnd_utilization', 'inbnd_occupancy', 'outbnd_occupancy'];
+            self.filter_list = ['location', 'skill', 'disposition', 'call_status', 'cate_dispo_inbound', 'outbound_dispo_cate', 'outbound_disposition', 'outbnd_dispo_common', 'inbnd_utilization', 'outbnd_utilization', 'inbnd_occupancy', 'outbnd_occupancy', 'inbound_productivity', 'outbound_productivity', 'utilization', 'occupancy', 'agent_productivity_data'];
             self.chartType = ['bar', 'stacked', 'pie', 'line'];
             self.voice_widget_function = function(result, voiceFilterType, widgetA, widgetB) {
                 var chartOptions, chartSeries, chartType;
@@ -239,6 +239,26 @@
                 } else if (voiceFilterType == self.filter_list[11]) {
                     chartOptions = self.chartOptions58;
                     chartSeries = result.result[self.filter_list[11]];
+                    chartType = self.chartType[0];
+                } else if (voiceFilterType == self.filter_list[12]) {
+                    chartOptions = self.chartOptions59;
+                    chartSeries = result.result[self.filter_list[12]];
+                    chartType = self.chartType[0];
+                } else if (voiceFilterType == self.filter_list[13]) {
+                    chartOptions = self.chartOptions60;
+                    chartSeries = result.result[self.filter_list[13]];
+                    chartType = self.chartType[0];
+                } else if (voiceFilterType == self.filter_list[14]) {
+                    chartOptions = self.chartOptions61;
+                    chartSeries = result.result[self.filter_list[14]];
+                    chartType = self.chartType[0];
+                } else if (voiceFilterType == self.filter_list[15]) {
+                    chartOptions = self.chartOptions62;
+                    chartSeries = result.result[self.filter_list[15]];
+                    chartType = self.chartType[0];
+                } else if (voiceFilterType == self.filter_list[16]) {
+                    chartOptions = self.chartOptions63;
+                    chartSeries = result.result[self.filter_list[16]];
                     chartType = self.chartType[0];
                 }
                 switch (chartType) {
@@ -3545,7 +3565,12 @@
                     'self.chartOptions55':self.chartOptions55,
                     'self.chartOptions56':self.chartOptions56,
                     'self.chartOptions57':self.chartOptions57,
-                    'self.chartOptions58':self.chartOptions58
+                    'self.chartOptions58':self.chartOptions58,
+                    'self.chartOptions59':self.chartOptions59,
+                    'self.chartOptions60':self.chartOptions60,
+                    'self.chartOptions61':self.chartOptions61,
+                    'self.chartOptions62':self.chartOptions62,
+                    'self.chartOptions63':self.chartOptions63
                     };
 
 
@@ -3716,6 +3741,26 @@
                                             widgetA = '.widget-53a';
                                             widgetB = '.widget-53b';
                                             type_check = 'outbound';
+                                        } else if (type == self.filter_list[12]) {
+                                            widgetA = '.widget-54a';
+                                            widgetB = '.widget-54b';
+                                            type_check = 'inbound';
+                                        } else if (type == self.filter_list[13]) {
+                                            widgetA = '.widget-55a';
+                                            widgetB = '.widget-55b';
+                                            type_check = 'outbound';
+                                        } else if (type == self.filter_list[14]) {
+                                            widgetA = '.widget-56a';
+                                            widgetB = '.widget-56b';
+                                            type_check = 'inbound';
+                                        } else if (type == self.filter_list[15]) {
+                                            widgetA = '.widget-57a';
+                                            widgetB = '.widget-57b';
+                                            type_check = 'inbound';
+                                        } else if (type == self.filter_list[16]) {
+                                            widgetA = '.widget-58a';
+                                            widgetB = '.widget-58b';
+                                            type_check = 'inbound';
                                         }
 
                                         if (self.voiceProjectType == 'inbound') {
@@ -4053,7 +4098,12 @@
                         "self.chartOptions55":self.chartOptions55,
                         "self.chartOptions56":self.chartOptions56,
                         "self.chartOptions57":self.chartOptions57,
-                        "self.chartOptions58":self.chartOptions58
+                        "self.chartOptions58":self.chartOptions58,
+                        "self.chartOptions59":self.chartOptions59,
+                        "self.chartOptions60":self.chartOptions60,
+                        "self.chartOptions61":self.chartOptions61,
+                        "self.chartOptions62":self.chartOptions62,
+                        "self.chartOptions63":self.chartOptions63
                     }
 
                     self.render_data = obj[all_data];
@@ -4167,9 +4217,9 @@
                         self.upload_acc(final_work, key);
                     }
                     var chart_type_map = {};
-                    chart_type_map = { 'chartOptions47' : self.filter_list[0], 'chartOptions48' : self.filter_list[1] , 'chartOptions49' : self.filter_list[2], 'chartOptions50' : self.filter_list[3], 'chartOptions51' : self.filter_list[4], 'chartOptions52' : self.filter_list[5], 'chartOptions53' : self.filter_list[6], 'chartOptions54' : self.filter_list[7], 'chartOptions55' : self.filter_list[8], 'chartOptions56' : self.filter_list[9], 'chartOptions57' : self.filter_list[10], 'chartOptions58' : self.filter_list[11] };
+                    chart_type_map = { 'chartOptions47' : self.filter_list[0], 'chartOptions48' : self.filter_list[1] , 'chartOptions49' : self.filter_list[2], 'chartOptions50' : self.filter_list[3], 'chartOptions51' : self.filter_list[4], 'chartOptions52' : self.filter_list[5], 'chartOptions53' : self.filter_list[6], 'chartOptions54' : self.filter_list[7], 'chartOptions55' : self.filter_list[8], 'chartOptions56' : self.filter_list[9], 'chartOptions57' : self.filter_list[10], 'chartOptions58' : self.filter_list[11], 'chartOptions59': self.filter_list[12], 'chartOptions60': self.filter_list[13], 'chartOptions61': self.filter_list[14], 'chartOptions62': self.filter_list[15], 'chartOptions63': self.filter_list[16] };
                     if( self.is_voice_flag ) {
-                        if (name == 'chartOptions47' || name == 'chartOptions48' || name == 'chartOptions49' || name == 'chartOptions50' || name == 'chartOptions51' || name == 'chartOptions52' || name == 'chartOptions53' || name == 'chartOptions54' || name == 'chartOptions55' || name == 'chartOptions56' || name == 'chartOptions57' || name == 'chartOptions58') {
+                        if (name == 'chartOptions47' || name == 'chartOptions48' || name == 'chartOptions49' || name == 'chartOptions50' || name == 'chartOptions51' || name == 'chartOptions52' || name == 'chartOptions53' || name == 'chartOptions54' || name == 'chartOptions55' || name == 'chartOptions56' || name == 'chartOptions57' || name == 'chartOptions58' || name == 'chartOptions59' || name == 'chartOptions60' || name == 'chartOptions61' || name == 'chartOptions62' || name == 'chartOptions63') {
                             self.ajaxVoiceFilter(chart_type_map[name], key);
                         }
                     }
@@ -4375,7 +4425,12 @@
                     "self.chartOptions55":self.chartOptions55,
                     "self.chartOptions56":self.chartOptions56,
                     "self.chartOptions57":self.chartOptions57,
-                    "self.chartOptions58":self.chartOptions58
+                    "self.chartOptions58":self.chartOptions58,
+                    "self.chartOptions59":self.chartOptions59,
+                    "self.chartOptions60":self.chartOptions60,
+                    "self.chartOptions61":self.chartOptions61,
+                    "self.chartOptions62":self.chartOptions62,
+                    "self.chartOptions63":self.chartOptions63
                     };
                     var final_layout_list = [];
                     for (var single in self.layout_list){
@@ -5777,6 +5832,124 @@
                 enabled: false
                },
             };
+
+
+            self.chartOptions59 = {
+                chart : {
+                 backgroundColor: "transparent"
+                },
+                               yAxis: {
+                gridLineColor: 'a2a2a2',
+                min: 0,
+                title: {
+                 text: '',
+                 align: 'high'
+                },
+                labels: {
+                 overflow: 'justify'
+                }
+               },
+               tooltip: {
+                valueSuffix: ''
+               },
+               credits: {
+                enabled: false
+               },
+            };
+
+            self.chartOptions60 = {
+                chart : {
+                 backgroundColor: "transparent"
+                },
+                               yAxis: {
+                gridLineColor: 'a2a2a2',
+                min: 0,
+                title: {
+                 text: '',
+                 align: 'high'
+                },
+                labels: {
+                 overflow: 'justify'
+                }
+               },
+               tooltip: {
+                valueSuffix: ''
+               },
+               credits: {
+                enabled: false
+               },
+            };
+
+            self.chartOptions61 = {
+                chart : {
+                 backgroundColor: "transparent"
+                },
+                               yAxis: {
+                gridLineColor: 'a2a2a2',
+                min: 0,
+                title: {
+                 text: '',
+                 align: 'high'
+                },
+                labels: {
+                 overflow: 'justify'
+                }
+               },
+               tooltip: {
+                valueSuffix: ''
+               },
+               credits: {
+                enabled: false
+               },
+            };
+
+            self.chartOptions62 = {
+                chart : {
+                 backgroundColor: "transparent"
+                },
+                               yAxis: {
+                gridLineColor: 'a2a2a2',
+                min: 0,
+                title: {
+                 text: '',
+                 align: 'high'
+                },
+                labels: {
+                 overflow: 'justify'
+                }
+               },
+               tooltip: {
+                valueSuffix: ''
+               },
+               credits: {
+                enabled: false
+               },
+            };
+
+
+            self.chartOptions63 = {
+                chart : {
+                 backgroundColor: "transparent"
+                },
+                               yAxis: {
+                gridLineColor: 'a2a2a2',
+                min: 0,
+                title: {
+                 text: '',
+                 align: 'high'
+                },
+                labels: {
+                 overflow: 'justify'
+                }
+               },
+               tooltip: {
+                valueSuffix: ''
+               },
+               credits: {
+                enabled: false
+               },
+            };
+
 
             self.chartOptions50 = {
                 chart: {

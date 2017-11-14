@@ -58,5 +58,10 @@ urlpatterns = [
     url(r'^outbnd_utilization', apiviews.outbnd_utilization),
     url(r'^inbnd_utilization', apiviews.inbnd_utilization),
     url(r'^outbnd_occupancy', apiviews.outbnd_occupancy),
-    url(r'^inbnd_occupancy', apiviews.inbnd_occupancy)
+    url(r'^inbnd_occupancy', apiviews.inbnd_occupancy),
+    url(r'^outbound_productivity', apiviews.outbound_productivity),
+    url(r'^inbound_productivity', apiviews.inbound_productivity),
+    url(r'^utilization', apiviews.utilization),
+    url(r'^occupancy', apiviews.occupancy),
+    url(r'^agent_productivity_data', apiviews.agent_productivity_data)
 ]
