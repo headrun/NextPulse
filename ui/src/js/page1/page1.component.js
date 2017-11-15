@@ -3203,7 +3203,7 @@
                 self.hideLoading();
                 var static_ajax = static_data + self.static_widget_data;
 		self.static_data_call = function(static_ajax){
-                $http({method:"GET", url:static_ajax}).success(function(result){
+                $http({method:"GET", url:static_ajax,timeout: 500000000}).success(function(result){
 
                     angular.extend(self.chartOptions32, {
                         xAxis: {
