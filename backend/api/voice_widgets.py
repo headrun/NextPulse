@@ -441,6 +441,7 @@ def outbnd_dispo_common(request):
                 result['date'] = new_date_list
         outbnd_dispo_common_val = common_outbnd_dispo_data(prj_id, center, dates, disposition)
         result['outbnd_dispo_common'] = [outbnd_dispo_common_val]
+        final_values = outbnd_dispo_common_val.update({'name':'Disposition'})
     elif main_dict['dwm_dict'].has_key('week') and main_dict['type'] == 'week':
         dates = main_dict['dwm_dict']['week']
         for date_values in dates:
@@ -454,6 +455,7 @@ def outbnd_dispo_common(request):
             dispo_week_num = dispo_week_num + 1
         outbnd_dispo_common_data = prod_volume_week(week_names, dispo_week_dt, {})
         result['outbnd_dispo_common'] = [outbnd_dispo_common_data]
+        final_values = outbnd_dispo_common_data.update({'name':'Disposition'})
         result['date'] = dates_list
     else:
         for month_na,month_va in zip(main_dict['dwm_dict']['month']['month_names'],main_dict['dwm_dict']['month']['month_dates']):
@@ -465,6 +467,7 @@ def outbnd_dispo_common(request):
             dispo_week_dt[month_name] = dispo_common_details
         outbnd_dispo_common_data = prod_volume_week(month_names, dispo_week_dt, {})
         result['outbnd_dispo_common'] = [outbnd_dispo_common_data]
+        final_values = outbnd_dispo_common_data.update({'name':'Disposition'})
         result['date'] = dates_list
     result['type'] = main_dict['type']
     return json_HttpResponse(result)

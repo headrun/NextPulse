@@ -272,6 +272,7 @@
                                     stacking: 'normal',
                                     dataLabels: {
                                         enabled: true,
+                                        valueDecimals: 2,
                                         color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'black'
                                     }
                                 }
@@ -298,6 +299,7 @@
                                 series: {
                                   dataLabels: {
                                     enabled: true,
+                                    valueDecimals: 2,
                                     formatter: function () {
                                         return Highcharts.numberFormat(this.y, null, null, ",");
                                     }
@@ -5851,6 +5853,14 @@
                },
                tooltip: {
                 valueSuffix: ''
+               },
+               plotOptions : {
+                series : {
+                    dataLabels: {
+                        enabled: true,
+                        valueDecimals: 2
+                    }
+                }
                },
                credits: {
                 enabled: false
