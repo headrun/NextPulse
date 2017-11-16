@@ -188,7 +188,7 @@
             });
 
             //Voice Type User
-            self.filter_list = ['location', 'skill', 'disposition', 'call_status', 'cate_dispo_inbound', 'outbound_dispo_cate', 'outbound_disposition', 'outbnd_dispo_common', 'inbnd_utilization', 'outbnd_utilization', 'inbnd_occupancy', 'outbnd_occupancy', 'inbound_productivity', 'outbound_productivity', 'utilization', 'occupancy', 'agent_productivity_data'];
+            self.filter_list = ['location', 'skill', 'disposition', 'call_status', 'cate_dispo_inbound', 'outbound_dispo_cate', 'outbound_disposition', 'outbnd_dispo_common', 'inbnd_utilization', 'outbnd_utilization', 'inbnd_occupancy', 'outbnd_occupancy', 'inbound_productivity', 'outbound_productivity', 'utilization', 'occupancy', 'agent_productivity_data', 'agent_required'];
             self.chartType = ['bar', 'stacked', 'pie', 'line'];
             self.voice_widget_function = function(result, voiceFilterType, widgetA, widgetB) {
                 var chartOptions, chartSeries, chartType;
@@ -260,7 +260,12 @@
                     chartOptions = self.chartOptions63;
                     chartSeries = result.result[self.filter_list[16]];
                     chartType = self.chartType[0];
+                } else if (voiceFilterType == self.filter_list[17]) {
+                    chartOptions = self.chartOptions64;
+                    chartSeries = result.result[self.filter_list[17]];
+                    chartType = self.chartType[0];
                 }
+
                 switch (chartType) {
                     case self.chartType[1]:
                         angular.extend(chartOptions, {
@@ -3572,7 +3577,8 @@
                     'self.chartOptions60':self.chartOptions60,
                     'self.chartOptions61':self.chartOptions61,
                     'self.chartOptions62':self.chartOptions62,
-                    'self.chartOptions63':self.chartOptions63
+                    'self.chartOptions63':self.chartOptions63,
+                    'self.chartOptions64':self.chartOptions64
                     };
 
 
@@ -3762,6 +3768,10 @@
                                         } else if (type == self.filter_list[16]) {
                                             widgetA = '.widget-58a';
                                             widgetB = '.widget-58b';
+                                            type_check = 'inbound';
+                                        } else if (type == self.filter_list[17]) {
+                                            widgetA = '.widget-59a';
+                                            widgetB = '.widget-59b';
                                             type_check = 'inbound';
                                         }
 
@@ -4105,7 +4115,8 @@
                         "self.chartOptions60":self.chartOptions60,
                         "self.chartOptions61":self.chartOptions61,
                         "self.chartOptions62":self.chartOptions62,
-                        "self.chartOptions63":self.chartOptions63
+                        "self.chartOptions63":self.chartOptions63,
+                        "self.chartOptions64":self.chartOptions64
                     }
 
                     self.render_data = obj[all_data];
@@ -4219,9 +4230,9 @@
                         self.upload_acc(final_work, key);
                     }
                     var chart_type_map = {};
-                    chart_type_map = { 'chartOptions47' : self.filter_list[0], 'chartOptions48' : self.filter_list[1] , 'chartOptions49' : self.filter_list[2], 'chartOptions50' : self.filter_list[3], 'chartOptions51' : self.filter_list[4], 'chartOptions52' : self.filter_list[5], 'chartOptions53' : self.filter_list[6], 'chartOptions54' : self.filter_list[7], 'chartOptions55' : self.filter_list[8], 'chartOptions56' : self.filter_list[9], 'chartOptions57' : self.filter_list[10], 'chartOptions58' : self.filter_list[11], 'chartOptions59': self.filter_list[12], 'chartOptions60': self.filter_list[13], 'chartOptions61': self.filter_list[14], 'chartOptions62': self.filter_list[15], 'chartOptions63': self.filter_list[16] };
+                    chart_type_map = { 'chartOptions47' : self.filter_list[0], 'chartOptions48' : self.filter_list[1] , 'chartOptions49' : self.filter_list[2], 'chartOptions50' : self.filter_list[3], 'chartOptions51' : self.filter_list[4], 'chartOptions52' : self.filter_list[5], 'chartOptions53' : self.filter_list[6], 'chartOptions54' : self.filter_list[7], 'chartOptions55' : self.filter_list[8], 'chartOptions56' : self.filter_list[9], 'chartOptions57' : self.filter_list[10], 'chartOptions58' : self.filter_list[11], 'chartOptions59': self.filter_list[12], 'chartOptions60': self.filter_list[13], 'chartOptions61': self.filter_list[14], 'chartOptions62': self.filter_list[15], 'chartOptions63': self.filter_list[16], 'chartOptions64' : self.filter_list[17] };
                     if( self.is_voice_flag ) {
-                        if (name == 'chartOptions47' || name == 'chartOptions48' || name == 'chartOptions49' || name == 'chartOptions50' || name == 'chartOptions51' || name == 'chartOptions52' || name == 'chartOptions53' || name == 'chartOptions54' || name == 'chartOptions55' || name == 'chartOptions56' || name == 'chartOptions57' || name == 'chartOptions58' || name == 'chartOptions59' || name == 'chartOptions60' || name == 'chartOptions61' || name == 'chartOptions62' || name == 'chartOptions63') {
+                        if (name == 'chartOptions47' || name == 'chartOptions48' || name == 'chartOptions49' || name == 'chartOptions50' || name == 'chartOptions51' || name == 'chartOptions52' || name == 'chartOptions53' || name == 'chartOptions54' || name == 'chartOptions55' || name == 'chartOptions56' || name == 'chartOptions57' || name == 'chartOptions58' || name == 'chartOptions59' || name == 'chartOptions60' || name == 'chartOptions61' || name == 'chartOptions62' || name == 'chartOptions63' || name == 'chartOptions64') {
                             self.ajaxVoiceFilter(chart_type_map[name], key);
                         }
                     }
@@ -4432,7 +4443,8 @@
                     "self.chartOptions60":self.chartOptions60,
                     "self.chartOptions61":self.chartOptions61,
                     "self.chartOptions62":self.chartOptions62,
-                    "self.chartOptions63":self.chartOptions63
+                    "self.chartOptions63":self.chartOptions63,
+                    "self.chartOptions64":self.chartOptions64
                     };
                     var final_layout_list = [];
                     for (var single in self.layout_list){
@@ -5960,6 +5972,64 @@
                },
             };
 
+
+    self.chartOptions64 = {
+                chart: {
+            zoomType: 'xy',
+            backgroundColor: "transparent",
+        },
+        xAxis: [{
+            crosshair: true,
+            color:'a2a2a2',
+        }],
+        yAxis: [{
+            gridLineWidth: 0,
+            minorGridLineWidth: 0,
+            gridLineColor: 'a2a2a2',
+            labels: {
+                color: 'a2a2a2',
+                format: '{value}',
+            },
+            title: {
+                text: 'Logged in',
+                color:'a2a2a2',
+            }
+        }, { // Secondary yAxis
+            gridLineWidth: 0,
+            minorGridLineWidth: 0,
+            title: {
+                text: 'Required',
+                color:'a2a2a2',
+            },
+            labels: {
+                color: 'a2a2a2',
+                format: '{value} ',
+            },
+            opposite: true
+        }, { // Teritary yAxis
+            gridLineWidth: 0,
+            minorGridLineWidth: 0,
+            title: {
+                text: 'Calls',
+                color:'a2a2a2',
+            },
+            labels: {
+                color: 'a2a2a2',
+                format: '{value} ',
+            },
+            opposite: true
+
+        
+        }],
+        tooltip: {
+            shared: true
+        },
+        legend: {
+               itemStyle: {
+                    'color' : '#717171',
+               }
+        },
+    }
 
             self.chartOptions50 = {
                 chart: {

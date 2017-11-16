@@ -629,6 +629,7 @@ def outbnd_disposition_data(prj_id, center, dates, disposition):
     else:
         return {}
     return final_dict
+
 def hourly_outbnd_dispo_data(prj_id, center, dates, hours, disposition):
     final_dict = {}
     for date in dates:
@@ -769,20 +770,13 @@ def get_avg_wrapup_time(project, center, date, call_type):
     agents_vals = agent_data.values('agent').count()
     agent_names = agent_data.values_list('agent', flat = True).distinct()
     if agents_vals > 0:
-        for agent in agent_names:
-            if call_type != '':
-                agent_query = AgentPerformance.objects.filter(project = project, center = center, date = date, call_type = call_type, agent = agent)
-            else:
-                agent_query = AgentPerformance.objects.filter(project = project, center = center, date = date, agent = agent)
-            wrap_time = agent_query.values_list('wrapup_time', flat = True)
-            no_of_calls = agent_query.values_list('total_calls', flat = True)
-            if sum(no_of_calls) > 0:
-                time_per_agent = float(sum(wrap_time))/float(sum(no_of_calls))
-            else:
-                time_per_agent = 0
-            agents_list.append(time_per_agent)
-    day_agent_val = float(sum(agents_list))/float(len(agents_list))
-    return day_agent_val
+        wrap_time = agent_data.values_list('wrapup_time', flat = True)
+        no_of_calls = agent_data.values_list('total_calls', flat = True)
+        if sum(no_of_calls) > 0:
+            time_per_agent = float(sum(wrap_time))/float(sum(no_of_calls))
+        else:
+            time_per_agent = 0
+    return time_per_agent
 
 def inbound_occupancy_data(project, center, dates, location, skill, disposition):
     final_dict = {}
@@ -922,3 +916,42 @@ def get_prod_per_agent(project, center, date, call_type):
     final_prod_agent = (float(sum(agent_prod))/float(len(agent_prod)))*100
     final_prod_agent = float('%.2f' % round(final_prod_agent, 2))
     return final_prod_agent
+
+
+def agent_deployed_call_data(project, center, dates, skill, location, disposition):
+    final_dict = {}
+    calls_list, agents_list, req_list = [], [], [] 
+    if skill == 'All' and location == 'All' and disposition == 'All':
+        for date in dates:
+            skill_data = InboundDaily.objects.filter(project = project, center = center, date = date)
+            skill_calls = skill_data.values('total_calls').count()
+            if skill_calls > 0:
+                agent_count = skill_data.values('agent').count()
+                agents_req = float(skill_calls)/float(agent_count)
+                fin_agents_val = float('%.2f' % round(agents_req, 2))
+                calls_list.append(skill_calls)
+                agents_list.append(agent_count)
+                req_list.append(fin_agents_val)
+    elif skill != 'All' and location == 'All' and disposition == 'All':
+        for date in dates:
+            normal_query = InboundDaily.objects.filter(project = project, center = center, date = date)
+            skill_data = InboundDaily.objects.filter(project = project, center = center, date = date, skill = skill)
+            date_check = normal_query.values('skill').count()
+            if date_check > 0:
+                skill_calls = skill_data.values('total_calls').count()
+                skill_agents = skill_data.values_list('agent', flat = True).distinct()
+                agent_count = sum(skill_agents)
+                if agent_count:
+                    agents_req = float(skill_calls)/float(agent_count)
+                else:
+                    agents_req = 0
+                fin_agents_val = float('%.2f' % round(agents_req, 2))
+                calls_list.append(skill_calls)
+                agents_list.append(agent_count)
+                req_list.append(fin_agents_val)
+    else:
+        final_dict = {}
+    final_dict['Calls'] = calls_list
+    final_dict['Logged in'] = agents_list
+    final_dict['Required'] = req_list
+    return final_dict
