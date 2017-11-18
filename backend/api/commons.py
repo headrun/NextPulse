@@ -166,11 +166,11 @@ def get_packet_details(request):
         sub_packet_level = ''
     prj_type = request.GET['voice_project_type']
     if main_data_dict['type'] == 'hour':
-        inbound_hourly_master_set = InboundHourlyCall.objects.filter(project=main_data_dict['pro_cen_mapping'][0][0], center=main_data_dict['pro_cen_mapping'][1][0], date = dates[0])
-        outbound_hourly_master_set = OutboundHourlyCall.objects.filter(project=main_data_dict['pro_cen_mapping'][0][0], center=main_data_dict['pro_cen_mapping'][1][0], date = dates[0])
+        inbound_hourly_master_set = InboundDaily.objects.filter(project=main_data_dict['pro_cen_mapping'][0][0], center=main_data_dict['pro_cen_mapping'][1][0], date = dates[0])
+        outbound_hourly_master_set = OutboundDaily.objects.filter(project=main_data_dict['pro_cen_mapping'][0][0], center=main_data_dict['pro_cen_mapping'][1][0], date = dates[0])
     else:
-        inbound_hourly_master_set = InboundHourlyCall.objects.filter(project=main_data_dict['pro_cen_mapping'][0][0], center=main_data_dict['pro_cen_mapping'][1][0], date__range = dates)
-        outbound_hourly_master_set = OutboundHourlyCall.objects.filter(project=main_data_dict['pro_cen_mapping'][0][0], center=main_data_dict['pro_cen_mapping'][1][0], date__range = dates)
+        inbound_hourly_master_set = InboundDaily.objects.filter(project=main_data_dict['pro_cen_mapping'][0][0], center=main_data_dict['pro_cen_mapping'][1][0], date__range = dates)
+        outbound_hourly_master_set = OutboundDaily.objects.filter(project=main_data_dict['pro_cen_mapping'][0][0], center=main_data_dict['pro_cen_mapping'][1][0], date__range = dates)
     if prj_type == 'inbound' or prj_type == '':
         location_names = filter(None, inbound_hourly_master_set.values_list('location',flat=True).distinct())
     elif prj_type == 'outbound':
@@ -179,8 +179,7 @@ def get_packet_details(request):
         location_names = ''
     location_list, skill_list, dispo_list = [], [], []
     for location in location_names:
-        if '->' not in location:
-            location_list.append(location)
+        location_list.append(location)
     if prj_type == 'inbound' or prj_type == '':
         skill_names = filter(None, inbound_hourly_master_set.values_list('skill',flat=True).distinct())
     elif prj_type == 'outbound':
@@ -188,8 +187,7 @@ def get_packet_details(request):
     else:
         skill_names = ''
     for skill in skill_names:
-        if '->' not in skill:
-            skill_list.append(skill)
+        skill_list.append(skill)
     if prj_type == 'inbound' or prj_type == '':
         disposition_names = filter(None, inbound_hourly_master_set.values_list('disposition',flat=True).distinct())
     elif prj_type == 'outbound':
@@ -198,20 +196,19 @@ def get_packet_details(request):
         disposition_names = ''
     is_voice = Project.objects.filter(id=main_data_dict['pro_cen_mapping'][0][0], center=main_data_dict['pro_cen_mapping'][1][0]).values_list('is_voice', flat=True).distinct()[0]
     for dispo in disposition_names:
-        if '->' not in dispo:
-            dispo_list.append(dispo)
+        dispo_list.append(dispo)
     if location_list:
-        location_list.append('All')
+        location_list.append('ALL')
         location_list.sort()
     else:
         location_list = ''
     if skill_list:
-        skill_list.append('All')
+        skill_list.append('ALL')
         skill_list.sort()
     else:
         skill_list = ''
     if dispo_list:
-        dispo_list.append('All')
+        dispo_list.append('ALL')
         dispo_list.sort()
     else:
         dispo_list = ''

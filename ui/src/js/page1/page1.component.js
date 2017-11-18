@@ -3467,7 +3467,25 @@
                 });
 		}
 
-    
+           var sort_array = [];
+           var final_array = []; 
+           for (var key in self.list_object) {
+                sort_array.push({key:key,value:self.list_object[key].widget_priority});
+           }
+           sort_array.sort(function(x,y){return x.value - y.value}); 
+           for (var i=0;i<sort_array.length;i++) {
+               if ((i.key == 'productivity_chart') || (i.key == 'productivity_bar_graph')) {
+                    final_array.push(self.main_prod(undefined, undefined, undefined))
+               } else if ((i.key == 'volume_bar_graph') || (i.key == 'volume_productivity_graph')) {
+                    final_array.push(self.allo_and_comp(undefined, undefined, undefined))
+               } else if ((i.key == 'fte_utilization') || (i.key == 'operational_utilization') || (i.key == 'utilisation_wrt_work_packet')) {
+                    final_array.push(self.utill_all(undefined, undefined, undefined))
+               } else if ((i.key == 'sum_total_fte') || (i.key == 'total_fte')) {
+                    final_array.push(self.fte_graphs(undefined, undefined, undefined))
+               }
+           } 
+            
+
             if (self.is_voice_flag == false) {
                 $q.all([self.allo_and_comp(undefined, undefined, undefined), self.utill_all(undefined, undefined, undefined),
                     self.productivity(undefined, undefined), self.prod_avg(undefined, undefined)]).then(function(){
@@ -5951,6 +5969,7 @@
 
             self.chartOptions63 = {
                 chart : {
+                 zoomType: 'xy',
                  backgroundColor: "transparent"
                 },
                                yAxis: {

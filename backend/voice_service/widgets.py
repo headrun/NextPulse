@@ -276,12 +276,11 @@ def call_status_data(prj_id, center, dates_list, location, skill, disposition):
             date_check = InboundHourlyCall.objects.filter(project = prj_id, center = center, date = date).values('status').count()
             if date_check > 0:
                 for name in call_filters:
-                    if '->' not in name:
-                        call_val = InboundHourlyCall.objects.filter(project = prj_id, center = center, date = date, status = name).count()
-                        if final_dict.has_key(name):
-                            final_dict[name].append(call_val)
-                        else:
-                            final_dict[name] = [call_val]
+                    call_val = InboundHourlyCall.objects.filter(project = prj_id, center = center, date = date, status = name).count()
+                    if final_dict.has_key(name):
+                        final_dict[name].append(call_val)
+                    else:
+                        final_dict[name] = [call_val]
     elif location != 'All' and disposition == 'All' and skill == 'All':
         call_status = InboundHourlyCall.objects.filter(project = prj_id, center = center, date__range = [dates_list[0], dates_list[-1]], location = location).values_list('status', flat = True).distinct()
         for date in dates_list:
@@ -676,14 +675,14 @@ def common_outbnd_dispo_data(project, center, dates, disposition):
         outbnd_dispo_query = OutboundDaily.objects.filter(project = project, center = center, date__range = [dates[0], dates[-1]]).values_list('disposition', flat = True).distinct()
         for date in dates:
             values_list = []
-            for dispo_name in outbnd_dispo_query:
-                if dispo_name != '':
-                    outbnd_val = OutboundDaily.objects.filter(project = project, center = center, date = date, disposition = dispo_name).count()
-                    values_list.append(outbnd_val)
-            final_values = sum(values_list)
-            if final_values > 0:
-                oubnd_dispo_val = final_values
-                dispo_list.append(oubnd_dispo_val)
+            date_check = OutboundDaily.objects.filter(project = project, center = center, date = date).values('disposition').count()
+            if date_check > 0:
+                for dispo_name in outbnd_dispo_query:
+                    if dispo_name != '':
+                        outbnd_val = OutboundDaily.objects.filter(project = project, center = center, date = date, disposition = dispo_name).count()
+                        values_list.append(outbnd_val)
+                final_values = sum(values_list)
+                dispo_list.append(final_values)
         final_dict['data'] = dispo_list
     else:
         final_dict = {}
