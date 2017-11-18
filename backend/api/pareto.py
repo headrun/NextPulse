@@ -339,3 +339,4 @@ def pareto_graph_data(pareto_dict):
                 single_dict['yAxis'] = 1
             final_list.append(single_dict)
     return final_list
+

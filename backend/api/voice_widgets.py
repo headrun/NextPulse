@@ -441,6 +441,7 @@ def outbnd_dispo_common(request):
                 result['date'] = new_date_list
         outbnd_dispo_common_val = common_outbnd_dispo_data(prj_id, center, dates, disposition)
         result['outbnd_dispo_common'] = [outbnd_dispo_common_val]
+        final_values = outbnd_dispo_common_val.update({'name':'Disposition'})
     elif main_dict['dwm_dict'].has_key('week') and main_dict['type'] == 'week':
         dates = main_dict['dwm_dict']['week']
         for date_values in dates:
@@ -454,6 +455,7 @@ def outbnd_dispo_common(request):
             dispo_week_num = dispo_week_num + 1
         outbnd_dispo_common_data = prod_volume_week(week_names, dispo_week_dt, {})
         result['outbnd_dispo_common'] = [outbnd_dispo_common_data]
+        final_values = outbnd_dispo_common_data.update({'name':'Disposition'})
         result['date'] = dates_list
     else:
         for month_na,month_va in zip(main_dict['dwm_dict']['month']['month_names'],main_dict['dwm_dict']['month']['month_dates']):
@@ -465,6 +467,7 @@ def outbnd_dispo_common(request):
             dispo_week_dt[month_name] = dispo_common_details
         outbnd_dispo_common_data = prod_volume_week(month_names, dispo_week_dt, {})
         result['outbnd_dispo_common'] = [outbnd_dispo_common_data]
+        final_values = outbnd_dispo_common_data.update({'name':'Disposition'})
         result['date'] = dates_list
     result['type'] = main_dict['type']
     return json_HttpResponse(result)
@@ -487,6 +490,7 @@ def outbnd_utilization(request):
                 result['date'] = new_date_list
         outbnd_utility_data = outbnd_utilization_data(prj_id, center, dates, disposition)
         result['outbnd_utilization'] = [outbnd_utility_data]
+        final_values = outbnd_utility_data.update({'name':'Outbound Utilization'})
     elif main_dict['dwm_dict'].has_key('week') and main_dict['type'] == 'week':
         dates = main_dict['dwm_dict']['week']
         for date_values in dates:
@@ -500,6 +504,7 @@ def outbnd_utilization(request):
             utiliti_week_num = utiliti_week_num + 1
         week_outbnd_utility_data = prod_volume_week_util_headcount(week_names, outbnd_utility_week_dt, {})
         result['outbnd_utilization'] = [week_outbnd_utility_data]
+        final_values = week_outbnd_utility_data.update({'name':'Outbound Utilization'})
         result['date'] = dates_list
     else:
         for month_na,month_va in zip(main_dict['dwm_dict']['month']['month_names'],main_dict['dwm_dict']['month']['month_dates']):
@@ -511,6 +516,7 @@ def outbnd_utilization(request):
             outbnd_utility_week_dt[month_name] = outbnd_utility_data
         month_outbnd_utility_data = prod_volume_week_util_headcount(month_names, outbnd_utility_week_dt, {})
         result['outbnd_utilization'] = [month_outbnd_utility_data]
+        final_values = month_outbnd_utility_data.update({'name':'Outbound Utilization'})
         result['date'] = dates_list
     return json_HttpResponse(result)
 
@@ -534,7 +540,8 @@ def inbnd_utilization(request):
                 new_date_list.append(date)
                 result['date'] = new_date_list
         inbnd_utility_data = inbnd_utilization_data(prj_id, center, dates, location, skill, disposition)
-        result['inbnd_utilization'] = [inbnd_utility_data]   
+        result['inbnd_utilization'] = [inbnd_utility_data]
+        final_values = inbnd_utility_data.update({'name':'Inbound Utilization'})
     elif main_dict['dwm_dict'].has_key('week') and main_dict['type'] == 'week':
         dates = main_dict['dwm_dict']['week']
         for date_values in dates:
@@ -548,6 +555,7 @@ def inbnd_utilization(request):
             inbnd_utiliti_week_num = inbnd_utiliti_week_num + 1
         week_inbnd_utility_data = prod_volume_week_util_headcount(week_names, inbnd_utility_week_dt, {})
         result['inbnd_utilization'] = [week_inbnd_utility_data]
+        final_values = week_inbnd_utility_data.update({'name':'Inbound Utilization'})
         result['date'] = dates_list
     else:
         for month_na,month_va in zip(main_dict['dwm_dict']['month']['month_names'],main_dict['dwm_dict']['month']['month_dates']):
@@ -559,6 +567,7 @@ def inbnd_utilization(request):
             inbnd_utility_week_dt[month_name] = inbnd_utility_data
         month_inbnd_utility_data = prod_volume_week_util_headcount(month_names, inbnd_utility_week_dt, {})
         result['inbnd_utilization'] = [month_inbnd_utility_data]
+        final_values = month_inbnd_utility_data.update({'name':'Inbound Utilization'})
         result['date'] = dates_list
     return json_HttpResponse(result)
 
@@ -582,6 +591,7 @@ def inbnd_occupancy(request):
                 result['date'] = new_date_list
         inbnd_occupancy = inbound_occupancy_data(prj_id, center, dates, location, skill, disposition)
         result['inbnd_occupancy'] = [inbnd_occupancy]
+        final_values = inbnd_occupancy.update({'name':'Inbound Occupancy'})
     elif main_dict['dwm_dict'].has_key('week') and main_dict['type'] == 'week':
         dates = main_dict['dwm_dict']['week']
         for date_values in dates:
@@ -595,6 +605,7 @@ def inbnd_occupancy(request):
             inbnd_occupa_week_num = inbnd_occupa_week_num + 1
         week_inbnd_occupancy_data = prod_volume_week_util_headcount(week_names, inbnd_occupa_week_dt, {})
         result['inbnd_occupancy'] = [week_inbnd_occupancy_data]
+        final_values = week_inbnd_occupancy_data.update({'name':'Inbound Occupancy'})
         result['date'] = dates_list
     else:
         for month_na,month_va in zip(main_dict['dwm_dict']['month']['month_names'],main_dict['dwm_dict']['month']['month_dates']):
@@ -606,6 +617,7 @@ def inbnd_occupancy(request):
             inbnd_occupa_week_dt[month_name] = inbnd_occupancy
         month_inbnd_occupa_data = prod_volume_week_util_headcount(month_names, inbnd_occupa_week_dt, {})
         result['inbnd_occupancy'] = [month_inbnd_occupa_data]
+        final_values = month_inbnd_occupa_data.update({'name':'Inbound Occupancy'})
         result['date'] = dates_list
     return json_HttpResponse(result)
 
@@ -622,12 +634,13 @@ def outbnd_occupancy(request):
     if main_dict['dwm_dict'].has_key('day') and main_dict['type'] == 'day':
         dates = main_dict['dwm_dict']['day']
         for date in dates:
-            occupancy_query = AgentPerformance.objects.filter(project = prj_id, center = center, date = date, call_type = 'Inbound').values('agent').count()
+            occupancy_query = AgentPerformance.objects.filter(project = prj_id, center = center, date = date, call_type = 'Manual').values('agent').count()
             if occupancy_query > 0:
                 new_date_list.append(date)
                 result['date'] = new_date_list
         otbnd_occupancy = outbound_occupancy_data(prj_id, center, dates, disposition)
         result['outbnd_occupancy'] = [otbnd_occupancy]
+        final_values = otbnd_occupancy.update({'name':'Outbound Occupancy'})
     elif main_dict['dwm_dict'].has_key('week') and main_dict['type'] == 'week':
         dates = main_dict['dwm_dict']['week']
         for date_values in dates:
@@ -641,6 +654,7 @@ def outbnd_occupancy(request):
             outbnd_occupa_week_num = outbnd_occupa_week_num + 1
         week_outbnd_occupancy_data = prod_volume_week_util_headcount(week_names, outbnd_occupa_week_dt, {})
         result['outbnd_occupancy'] = [week_outbnd_occupancy_data]
+        final_values = week_outbnd_occupancy_data.update({'name':'Outbound Occupancy'})
         result['date'] = dates_list
     else:
         for month_na,month_va in zip(main_dict['dwm_dict']['month']['month_names'],main_dict['dwm_dict']['month']['month_dates']):
@@ -652,6 +666,327 @@ def outbnd_occupancy(request):
             outbnd_occupa_week_dt[month_name] = otbnd_occupancy
         month_outbnd_occupa_data = prod_volume_week_util_headcount(month_names, outbnd_occupa_week_dt, {})
         result['outbnd_occupancy'] = [month_outbnd_occupa_data]
+        final_values = month_outbnd_occupa_data.update({'name':'Outbound Occupancy'})
         result['date'] = dates_list 
     return json_HttpResponse(result)
 
+
+def outbound_productivity(request):
+    result, outbnd_prod_week_dt = {}, {}
+    new_date_list, dates_list, week_names = [], [], []
+    month_names = []
+    week_num, outbnd_prod_week_num = 0, 0
+    main_dict = data_dict(request.GET)
+    prj_id = main_dict['pro_cen_mapping'][0][0]
+    center = main_dict['pro_cen_mapping'][1][0]
+    disposition = request.GET['disposition']
+    if main_dict['dwm_dict'].has_key('day') and main_dict['type'] == 'day':
+        dates = main_dict['dwm_dict']['day']
+        for date in dates:
+            prod_query = AgentPerformance.objects.filter(project = prj_id, center = center, date = date, call_type = 'Manual').values('agent').count()
+            if prod_query > 0:
+                new_date_list.append(date)
+                result['date'] = new_date_list
+        outbnd_prod = outbound_productivity_data(prj_id, center, dates, disposition)
+        result['outbound_productivity'] = [outbnd_prod]
+        final_values = outbnd_prod.update({'name':'Outbound Productivity'})
+    elif main_dict['dwm_dict'].has_key('week') and main_dict['type'] == 'week':
+        dates = main_dict['dwm_dict']['week']
+        for date_values in dates:
+            dates_list.append(date_values[0] + ' to ' + date_values[-1])
+            week_name = str('week' + str(week_num))
+            week_names.append(week_name)
+            week_num = week_num + 1
+            outbnd_prod = outbound_productivity_data(prj_id, center, date_values, disposition)
+            outbnd_prod_week_name = str('week' + str(outbnd_prod_week_num))
+            outbnd_prod_week_dt[outbnd_prod_week_name] = outbnd_prod
+            outbnd_prod_week_num = outbnd_prod_week_num + 1
+        week_outbnd_prod_data = prod_volume_week_util_headcount(week_names, outbnd_prod_week_dt, {})
+        result['outbound_productivity'] = [week_outbnd_prod_data]
+        final_values = week_outbnd_prod_data.update({'name':'Outbound Productivity'})
+        result['date'] = dates_list
+    else:
+        for month_na,month_va in zip(main_dict['dwm_dict']['month']['month_names'],main_dict['dwm_dict']['month']['month_dates']):
+            month_name = month_na 
+            month_dates = month_va
+            dates_list.append(month_dates[0] + ' to ' + month_dates[-1])
+            month_names.append(month_name)
+            outbnd_prod = outbound_productivity_data(prj_id, center, month_dates, disposition)
+            outbnd_prod_week_dt[month_name] = outbnd_prod
+        month_outbnd_prod_data = prod_volume_week_util_headcount(month_names, outbnd_prod_week_dt, {})
+        result['outbound_productivity'] = [month_outbnd_prod_data]
+        final_values = month_outbnd_prod_data.update({'name':'Outbound Productivity'})
+        result['date'] = dates_list  
+    return json_HttpResponse(result)
+
+
+def inbound_productivity(request):
+    result, inbnd_prod_week_dt = {}, {}
+    new_date_list, dates_list, week_names = [], [], []
+    month_names = []
+    week_num, inbnd_prod_week_num = 0, 0
+    main_dict = data_dict(request.GET)
+    prj_id = main_dict['pro_cen_mapping'][0][0]
+    center = main_dict['pro_cen_mapping'][1][0]
+    location = request.GET['location']
+    skill = request.GET['skill']
+    disposition = request.GET['disposition']
+    if main_dict['dwm_dict'].has_key('day') and main_dict['type'] == 'day':
+        dates = main_dict['dwm_dict']['day']
+        for date in dates:
+            prod_query = AgentPerformance.objects.filter(project = prj_id, center = center, date = date, call_type = 'Inbound').values('agent').count()
+            if prod_query > 0:
+                new_date_list.append(date)
+                result['date'] = new_date_list
+        inbnd_prod = inbound_productivity_data(prj_id, center, dates, location, skill, disposition)
+        result['inbound_productivity'] = [inbnd_prod]
+        final_values = inbnd_prod.update({'name':'Inbound Productivity'})
+    elif main_dict['dwm_dict'].has_key('week') and main_dict['type'] == 'week':
+        dates = main_dict['dwm_dict']['week']
+        for date_values in dates:
+            dates_list.append(date_values[0] + ' to ' + date_values[-1])
+            week_name = str('week' + str(week_num))
+            week_names.append(week_name)
+            week_num = week_num + 1
+            inbnd_prod = inbound_productivity_data(prj_id, center, date_values, location, skill, disposition)
+            inbnd_prod_week_name = str('week' + str(inbnd_prod_week_num))
+            inbnd_prod_week_dt[inbnd_prod_week_name] = inbnd_prod
+            inbnd_prod_week_num = inbnd_prod_week_num + 1
+        week_inbnd_prod_data = prod_volume_week_util_headcount(week_names, inbnd_prod_week_dt, {})
+        result['inbound_productivity'] = [week_inbnd_prod_data]
+        final_values = week_inbnd_prod_data.update({'name':'Inbound Productivity'})
+        result['date'] = dates_list
+    else:
+        for month_na,month_va in zip(main_dict['dwm_dict']['month']['month_names'],main_dict['dwm_dict']['month']['month_dates']):
+            month_name = month_na
+            month_dates = month_va
+            dates_list.append(month_dates[0] + ' to ' + month_dates[-1])
+            month_names.append(month_name)
+            inbnd_prod = inbound_productivity_data(prj_id, center, month_dates, location, skill, disposition)
+            inbnd_prod_week_dt[month_name] = inbnd_prod
+        month_inbnd_prod_data = prod_volume_week_util_headcount(month_names, inbnd_prod_week_dt, {})
+        result['inbound_productivity'] = [month_inbnd_prod_data]
+        final_values = month_inbnd_prod_data.update({'name':'Inbound Productivity'})
+        result['date'] = dates_list
+    return json_HttpResponse(result)
+
+def utilization(request):
+    result, utility_week_dt = {}, {}
+    new_date_list, dates_list, week_names = [], [], []
+    month_names = []
+    week_num, utiliti_week_num = 0, 0
+    main_dict = data_dict(request.GET)
+    prj_id = main_dict['pro_cen_mapping'][0][0]
+    center = main_dict['pro_cen_mapping'][1][0]
+    location = request.GET['location']
+    skill = request.GET['skill']
+    disposition = request.GET['disposition']
+    if main_dict['dwm_dict'].has_key('day') and main_dict['type'] == 'day':
+        dates = main_dict['dwm_dict']['day']
+        for date in dates:
+            common_utility_query = AgentPerformance.objects.filter(project = prj_id, center = center, date = date).values('agent').count()
+            if common_utility_query > 0:
+                new_date_list.append(date)
+                result['date'] = new_date_list
+        utility_data = utilization_data(prj_id, center, dates, location, skill, disposition)
+        result['utilization'] = [utility_data]
+        final_values = utility_data.update({'name':'Utilization'})
+    elif main_dict['dwm_dict'].has_key('week') and main_dict['type'] == 'week':
+        dates = main_dict['dwm_dict']['week']
+        for date_values in dates:
+            dates_list.append(date_values[0] + ' to ' + date_values[-1])
+            week_name = str('week' + str(week_num))
+            week_names.append(week_name)
+            week_num = week_num + 1
+            utility_data = utilization_data(prj_id, center, date_values, location, skill, disposition)
+            utiliti_week_name = str('week' + str(utiliti_week_num))
+            utility_week_dt[utiliti_week_name] = utility_data
+            utiliti_week_num = utiliti_week_num + 1
+        week_utility_data = prod_volume_week_util_headcount(week_names, utility_week_dt, {})
+        result['utilization'] = [week_utility_data]
+        final_values = week_utility_data.update({'name':'Utilization'})
+        result['date'] = dates_list
+    else:
+        for month_na,month_va in zip(main_dict['dwm_dict']['month']['month_names'],main_dict['dwm_dict']['month']['month_dates']):
+            month_name = month_na
+            month_dates = month_va
+            dates_list.append(month_dates[0] + ' to ' + month_dates[-1])
+            month_names.append(month_name)
+            utility_data = utilization_data(prj_id, center, month_dates, location, skill, disposition)
+            utility_week_dt[month_name] = utility_data
+        month_utility_data = prod_volume_week_util_headcount(month_names, utility_week_dt, {})
+        result['utilization'] = [month_utility_data]
+        final_values = month_utility_data.update({'name':'Utilization'})
+        result['date'] = dates_list
+    return json_HttpResponse(result)
+
+def occupancy(request):
+    result, occupa_week_dt = {}, {}
+    new_date_list, dates_list, week_names = [], [], []
+    month_names = []
+    week_num, occupa_week_num = 0, 0
+    main_dict = data_dict(request.GET)
+    prj_id = main_dict['pro_cen_mapping'][0][0]
+    center = main_dict['pro_cen_mapping'][1][0]
+    location = request.GET['location']
+    skill = request.GET['skill']
+    disposition = request.GET['disposition']
+    if main_dict['dwm_dict'].has_key('day') and main_dict['type'] == 'day':
+        dates = main_dict['dwm_dict']['day']
+        for date in dates:
+            common_occupancy_query = AgentPerformance.objects.filter(project = prj_id, center = center, date = date).values('agent').count()
+            if common_occupancy_query > 0:
+                new_date_list.append(date)
+                result['date'] = new_date_list
+        occup_data = occupancy_data(prj_id, center, dates, location, skill, disposition)
+        result['occupancy'] = [occup_data]
+        final_values = occup_data.update({'name':'Occupancy'})
+    elif main_dict['dwm_dict'].has_key('week') and main_dict['type'] == 'week':
+        dates = main_dict['dwm_dict']['week']
+        for date_values in dates:
+            dates_list.append(date_values[0] + ' to ' + date_values[-1])
+            week_name = str('week' + str(week_num))
+            week_names.append(week_name)
+            week_num = week_num + 1
+            occup_data = occupancy_data(prj_id, center, date_values, location, skill, disposition)
+            occupa_week_name = str('week' + str(occupa_week_num))
+            occupa_week_dt[occupa_week_name] = occup_data
+            occupa_week_num = occupa_week_num + 1
+        week_occupancy_data = prod_volume_week_util_headcount(week_names, occupa_week_dt, {})
+        result['occupancy'] = [week_occupancy_data]
+        final_values = week_occupancy_data.update({'name':'Occupancy'})
+        result['date'] = dates_list
+    else:
+        for month_na,month_va in zip(main_dict['dwm_dict']['month']['month_names'],main_dict['dwm_dict']['month']['month_dates']):
+            month_name = month_na
+            month_dates = month_va
+            dates_list.append(month_dates[0] + ' to ' + month_dates[-1])
+            month_names.append(month_name)
+            occup_data = occupancy_data(prj_id, center, month_dates, location, skill, disposition)
+            occupa_week_dt[month_name] = occup_data
+        month_occupa_data = prod_volume_week_util_headcount(month_names, occupa_week_dt, {})
+        result['occupancy'] = [month_occupa_data]
+        final_values = month_occupa_data.update({'name':'Occupancy'})
+        result['date'] = dates_list
+    return json_HttpResponse(result)
+
+
+def agent_productivity_data(request):
+    result, prod_week_dt = {}, {}
+    new_date_list, dates_list, week_names = [], [], []
+    month_names = []
+    week_num, prod_week_num = 0, 0
+    main_dict = data_dict(request.GET)
+    prj_id = main_dict['pro_cen_mapping'][0][0]
+    center = main_dict['pro_cen_mapping'][1][0]
+    location = request.GET['location']
+    skill = request.GET['skill']
+    disposition = request.GET['disposition']
+    if main_dict['dwm_dict'].has_key('day') and main_dict['type'] == 'day':
+        dates = main_dict['dwm_dict']['day']
+        for date in dates:
+            common_prod_query = AgentPerformance.objects.filter(project = prj_id, center = center, date = date).values('agent').count()
+            if common_prod_query > 0:
+                new_date_list.append(date)
+                result['date'] = new_date_list
+        productivity_val = prod_data(prj_id, center, dates, location, skill, disposition)
+        result['agent_productivity_data'] = [productivity_val]
+        final_values = productivity_val.update({'name':'Productivity'})
+    elif main_dict['dwm_dict'].has_key('week') and main_dict['type'] == 'week':
+        dates = main_dict['dwm_dict']['week']
+        for date_values in dates:
+            dates_list.append(date_values[0] + ' to ' + date_values[-1])
+            week_name = str('week' + str(week_num))
+            week_names.append(week_name)
+            week_num = week_num + 1
+            productivity_val = prod_data(prj_id, center, date_values, location, skill, disposition)
+            prod_week_name = str('week' + str(prod_week_num))
+            prod_week_dt[prod_week_name] = productivity_val
+            prod_week_num = prod_week_num + 1
+        week_prod_data = prod_volume_week_util_headcount(week_names, prod_week_dt, {})
+        result['agent_productivity_data'] = [week_prod_data]
+        final_values = week_prod_data.update({'name':'Productivity'})
+        result['date'] = dates_list
+    else:
+        for month_na,month_va in zip(main_dict['dwm_dict']['month']['month_names'],main_dict['dwm_dict']['month']['month_dates']):
+            month_name = month_na
+            month_dates = month_va
+            dates_list.append(month_dates[0] + ' to ' + month_dates[-1])
+            month_names.append(month_name)
+            productivity_val = prod_data(prj_id, center, month_dates, location, skill, disposition)
+            prod_week_dt[month_name] = productivity_val
+        month_prod_data = prod_volume_week_util_headcount(month_names, prod_week_dt, {})
+        result['agent_productivity_data'] = [month_prod_data]
+        final_values = month_prod_data.update({'name':'Productivity'})
+        result['date'] = dates_list
+    return json_HttpResponse(result)
+
+def agent_required(request):
+    result, skill_week_dt = {}, {}
+    new_date_list, dates_list, week_names = [], [], []
+    month_names = []
+    week_num, skill_week_num = 0, 0
+    main_dict = data_dict(request.GET)
+    skill = request.GET['skill']
+    curr_loca = request.GET['location']
+    disposition = request.GET['disposition']
+    prj_id = main_dict['pro_cen_mapping'][0][0]
+    center = main_dict['pro_cen_mapping'][1][0]
+    if main_dict['dwm_dict'].has_key('day') and main_dict['type'] == 'day':
+        dates = main_dict['dwm_dict']['day']
+        date_check = InboundHourlyCall.objects.filter(project = prj_id, center = center, date__range = [dates[0], dates[-1]]).values('date').annotate(total = count('skill')).order_by('date')
+        values = OrderedDict(zip(map(lambda p: str(p['date']), date_check), map(lambda p: str(p['total']), date_check)))
+        for date_key, date_value in values.iteritems():
+            if date_value > 0:
+                new_date_list.append(date_key)
+                result['date'] = new_date_list
+        skill_val = agent_deployed_call_data(prj_id, center, dates, skill, curr_loca, disposition)
+        final_values = [{'name': item, 'data': skill_val[item]} for item in skill_val]
+        agents_data  = agent_graph_data(final_values)
+        result['agent_required'] = agents_data
+    elif main_dict['dwm_dict'].has_key('week') and main_dict['type'] == 'week':
+        dates = main_dict['dwm_dict']['week']
+        for date_values in dates:
+            dates_list.append(date_values[0] + ' to ' + date_values[-1])
+            week_name = str('week' + str(week_num))
+            week_names.append(week_name)
+            week_num = week_num + 1
+            skill_details = agent_deployed_call_data(prj_id, center, date_values, skill, curr_loca, disposition)
+            skill_week_name = str('week' + str(skill_week_num))
+            skill_week_dt[skill_week_name] = skill_details
+            skill_week_num = skill_week_num + 1
+        final_skill_data = prod_volume_week(week_names, skill_week_dt, {})
+        final_values = [{'name': item, 'data': final_skill_data[item]} for item in final_skill_data]
+        agents_data  = agent_graph_data(final_values)
+        result['agent_required'] = agents_data
+        result['date'] = dates_list
+    else:
+        for month_na,month_va in zip(main_dict['dwm_dict']['month']['month_names'],main_dict['dwm_dict']['month']['month_dates']):
+            month_name = month_na
+            month_dates = month_va
+            dates_list.append(month_dates[0] + ' to ' + month_dates[-1])
+            month_names.append(month_name)
+            skill_details = agent_deployed_call_data(prj_id, center, month_dates, skill, curr_loca, disposition)
+            skill_week_dt[month_name] = skill_details
+        final_skill_data = prod_volume_week(month_names, skill_week_dt, {})
+        final_values = [{'name': item, 'data': final_skill_data[item]} for item in final_skill_data]
+        agents_data  = agent_graph_data(final_values)
+        result['agent_required'] = agents_data
+        result['date'] = dates_list
+    result['type'] = main_dict['type']
+    return json_HttpResponse(result)
+    
+
+def agent_graph_data(agent_data):
+    agent_list = []
+    for type_val in agent_data:
+        if type_val['name'] == 'Calls':
+            type_val['type'] = 'column'
+        if type_val['name'] == 'Logged in':
+            type_val['type'] = 'spline'
+            type_val['yAxis'] = 1
+        if type_val['name'] == 'Required':
+            type_val['type'] = 'spline'
+            type_val['yAxis'] = 2
+        agent_list.append(type_val)
+    return agent_list
