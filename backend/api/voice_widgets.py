@@ -1,16 +1,16 @@
 import datetime
-import redis
+#import redis
 from api.models import *
 from api.commons import data_dict
 from django.db.models import Max, Sum 
-from collections import OrderedDict
-from api.utils import *
-from api.basics import *
-from api.query_generations import query_set_generation
-from api.fte_related import fte_calculation
-from api.production import main_productivity_data
+#from collections import OrderedDict
+#from api.utils import *
+#from api.basics import *
+#from api.query_generations import query_set_generation
+#from api.fte_related import fte_calculation
+#from api.production import main_productivity_data
 from api.weekly_graph import *
-from api.graph_settings import *
+#from api.graph_settings import *
 from voice_service.models import *
 from voice_service.widgets import *
 from common.utils import getHttpResponse as json_HttpResponse
