@@ -3748,15 +3748,15 @@
                                 self.voiceFilterType = 'location';
                                 if(self.is_voice_flag) {
                                     self.ajaxVoiceFilter = function(type, key) {
-                                        var voice_filter_ajax = '/api/'+ type + self.voice_filter + self.day_type + '&location=' + self.locationValue + '&skill=' + self.skillValue + '&disposition=' + self.dispositionValue;
+                                        var voice_filter_ajax = '/api/'+ type + self.voice_filter + self.day_type + '&location=' + self.locationValue + '&skill=' + self.skillValue + '&disposition=' + self.dispositionValue + '&project_type=' + self.voiceProjectType;
                                         var day_type = self.day_type;
                                         if (self.day_type == '') {
-                                            var voice_filter_ajax = '/api/'+ type + self.voice_filter + self.main_day_type + '&location=' + self.locationValue + '&skill=' + self.skillValue + '&disposition=' + self.dispositionValue;
+                                            var voice_filter_ajax = '/api/'+ type + self.voice_filter + self.main_day_type + '&location=' + self.locationValue + '&skill=' + self.skillValue + '&disposition=' + self.dispositionValue + '&project_type=' + self.voiceProjectType;
                                             var day_type = self.main_day_type;
                                         }
                                         //For Single Widget Type Change
                                         if (key != '') {
-                                            var voice_filter_ajax = '/api/'+ type + self.voice_filter + key + '&location=' + self.locationValue + '&skill=' + self.skillValue + '&disposition=' + self.dispositionValue;
+                                            var voice_filter_ajax = '/api/'+ type + self.voice_filter + key + '&location=' + self.locationValue + '&skill=' + self.skillValue + '&disposition=' + self.dispositionValue + '&project_type=' + self.voiceProjectType;
                                             var day_type = key;
                                         }
                                         var widgetA, widgetB, type_check;

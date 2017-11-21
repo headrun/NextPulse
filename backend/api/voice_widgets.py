@@ -26,9 +26,16 @@ def location(request):
     main_dict = data_dict(request.GET)
     prj_id = main_dict['pro_cen_mapping'][0][0]
     center = main_dict['pro_cen_mapping'][1][0]
+    prj_type = request.GET['project_type']
     if main_dict['dwm_dict'].has_key('hour') and main_dict['type'] == 'hour':
         hours = main_dict['dwm_dict']['hour'][8:22]
         dates = main_dict['dates']
+        location = location_value(curr_loc)
+        disposition = dispo_value(dispo_val)
+        skill = skill_value(skill_val)
+        table_name = project_value(prj_type)
+        project = {'project' : [prj_id]}
+        dates = {'date' : dates}
         for date in dates:
             for hour in hours:
                 hr = hour*60*60
@@ -38,7 +45,7 @@ def location(request):
                 hour_check = InboundHourlyCall.objects.filter(project = prj_id, center = center, start_time__gte = final_hour, end_time__lte = final_hour1).values('location').count()
                 if hour_check > 0:
                     new_date_list.append(hour)
-        hrly_loc_val = hourly_location_data(prj_id, center, dates, hours, curr_loc, dispo_val, skill_val)
+        hrly_loc_val = hourly_location_data(project, dates, table_name, location, disposition, skill)
         result['location'] = [{'name': item, 'data': hrly_loc_val[item]} for item in hrly_loc_val]
         result['date'] = new_date_list
     elif main_dict['dwm_dict'].has_key('day') and main_dict['type'] == 'day':
@@ -990,3 +997,33 @@ def agent_graph_data(agent_data):
             type_val['yAxis'] = 2
         agent_list.append(type_val)
     return agent_list
+
+
+def location_value(location):
+    if location == 'All':
+        location = []
+    else:
+        location = [location]
+    return {'location' : location}
+
+def dispo_value(disposition):
+    if disposition == 'All':
+        disposition = []
+    else:
+        disposition = [disposition]
+    return {'disposition' : disposition}
+
+def skill_value(skill):
+    if skill == 'All':
+        skill = []
+    else:
+        skill = [skill]
+    return {'skill' : skill}
+
+
+def project_value(prj_type):
+    if prj_type == 'inbound':
+        table_name = 'InboundHourlyCall'
+    else:
+        table_name = 'OutboundHourlyCall'
+    return table_name
