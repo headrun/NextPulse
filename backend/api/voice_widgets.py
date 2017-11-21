@@ -57,9 +57,11 @@ def location(request):
                 new_date_list.append(date_key)
                 result['date'] = new_date_list
         loca_val = location_data(prj_id, center, dates, curr_loc, dispo_val, skill_val)
-        result['location'] = [{'name': item, 'data': loca_val[item]} for item in loca_val]
+        result['location'] = graph_format(loca_val)
+
     elif main_dict['dwm_dict'].has_key('week') and main_dict['type'] == 'week':
         dates = main_dict['dwm_dict']['week']
+        #location_details = location_data(prj_id, center, date_values, curr_loc, dispo_val, skill_val)
         for date_values in dates:
             dates_list.append(date_values[0] + ' to ' + date_values[-1])
             week_name = str('week' + str(week_num))
@@ -70,7 +72,9 @@ def location(request):
             loc_week_dt[location_week_name] = location_details
             location_week_num = location_week_num + 1
         final_location_data = prod_volume_week(week_names, loc_week_dt, {})
-        result['location'] = [{'name': item, 'data': final_location_data[item]} for item in final_location_data]
+        #final_week_data = week_calculation(prj_id, center, dates, curr_loc, dispo_val, skill_val)
+        result['location'] = graph_format(final_location_data)
+        #result['location'] = [{'name': item, 'data': final_week_data[item]} for item in final_week_data]
         result['date'] = dates_list
     else:
         for month_na,month_va in zip(main_dict['dwm_dict']['month']['month_names'],main_dict['dwm_dict']['month']['month_dates']):
@@ -81,7 +85,7 @@ def location(request):
             location_details = location_data(prj_id, center, month_dates, curr_loc, dispo_val, skill_val)
             loc_week_dt[month_name] = location_details
         final_location_data = prod_volume_week(month_names, loc_week_dt, {})
-        result['location'] = [{'name': item, 'data': final_location_data[item]} for item in final_location_data]
+        result['location'] = graph_format(final_location_data)
         result['date'] = dates_list
     result['type'] = main_dict['type']
     return json_HttpResponse(result)
@@ -111,7 +115,8 @@ def skill(request):
                 if hour_check > 0:
                     new_date_list.append(hour)
         hrly_skill_val = hourly_skill_data(prj_id, center, dates, hours, curr_loca, disposition, skill)
-        result['skill'] = [{'name': item, 'data': hrly_skill_val[item]} for item in hrly_skill_val]
+        #result['skill'] = [{'name': item, 'data': hrly_skill_val[item]} for item in hrly_skill_val]
+        result['skill'] = graph_format(hrly_skill_val)
         result['date'] = new_date_list
     elif main_dict['dwm_dict'].has_key('day') and main_dict['type'] == 'day':
         dates = main_dict['dwm_dict']['day']
@@ -122,7 +127,7 @@ def skill(request):
                 new_date_list.append(date_key)
                 result['date'] = new_date_list
         skill_val = skill_data(prj_id, center, dates, skill, curr_loca, disposition)
-        result['skill'] = [{'name': item, 'data': skill_val[item]} for item in skill_val]
+        result['skill'] = graph_format(skill_val)
     elif main_dict['dwm_dict'].has_key('week') and main_dict['type'] == 'week':
         dates = main_dict['dwm_dict']['week']
         for date_values in dates:
@@ -135,7 +140,7 @@ def skill(request):
             skill_week_dt[skill_week_name] = skill_details
             skill_week_num = skill_week_num + 1
         final_skill_data = prod_volume_week(week_names, skill_week_dt, {})
-        result['skill'] = [{'name': item, 'data': final_skill_data[item]} for item in final_skill_data]
+        result['skill'] = graph_format(final_skill_data)
         result['date'] = dates_list
     else:
         for month_na,month_va in zip(main_dict['dwm_dict']['month']['month_names'],main_dict['dwm_dict']['month']['month_dates']):
@@ -146,7 +151,7 @@ def skill(request):
             skill_details = skill_data(prj_id, center, month_dates, skill, curr_loca, disposition)
             skill_week_dt[month_name] = skill_details
         final_skill_data = prod_volume_week(month_names, skill_week_dt, {})
-        result['skill'] = [{'name': item, 'data': final_skill_data[item]} for item in final_skill_data]
+        result['skill'] = graph_format(final_skill_data)
         result['date'] = dates_list
     result['type'] = main_dict['type']
     return json_HttpResponse(result)
@@ -176,7 +181,7 @@ def disposition(request):
                 if hour_check > 0:
                     new_date_list.append(hour)
         hrly_dispo_val = hourly_dispo_data(prj_id, center, dates, hours, curr_loca, disposition, skill)
-        result['disposition'] = [{'name': item, 'data': hrly_dispo_val[item]} for item in hrly_dispo_val]
+        result['disposition'] = graph_format(hrly_dispo_val)
         result['date'] = new_date_list
     elif main_dict['dwm_dict'].has_key('day') and main_dict['type'] == 'day':
         dates = main_dict['dwm_dict']['day']
@@ -187,7 +192,7 @@ def disposition(request):
                 new_date_list.append(date_key)
                 result['date'] = new_date_list
         dispo_val = disposition_data(prj_id, center, dates, disposition, curr_loca, skill)
-        result['disposition'] = [{'name': item, 'data': dispo_val[item]} for item in dispo_val]
+        result['disposition'] = graph_format(dispo_val)
 
     elif main_dict['dwm_dict'].has_key('week') and main_dict['type'] == 'week':
         dates = main_dict['dwm_dict']['week']
@@ -201,7 +206,7 @@ def disposition(request):
             dispo_week_dt[dispo_week_name] = dispo_details
             dispo_week_num = dispo_week_num + 1
         final_dispo_data = prod_volume_week(week_names, dispo_week_dt, {})
-        result['disposition'] = [{'name': item, 'data': final_dispo_data[item]} for item in final_dispo_data]
+        result['disposition'] = graph_format(final_dispo_data)
         result['date'] = dates_list
     else:
         for month_na,month_va in zip(main_dict['dwm_dict']['month']['month_names'],main_dict['dwm_dict']['month']['month_dates']):
@@ -212,7 +217,7 @@ def disposition(request):
             dispo_details = disposition_data(prj_id, center, month_dates, disposition, curr_loca, skill)
             dispo_week_dt[month_name] = dispo_details
         final_dispo_data = prod_volume_week(month_names, dispo_week_dt, {})
-        result['disposition'] = [{'name': item, 'data': final_dispo_data[item]} for item in final_dispo_data]
+        result['disposition'] = graph_format(final_dispo_data)
         result['date'] = dates_list
     return json_HttpResponse(result)
 
@@ -241,7 +246,7 @@ def call_status(request):
                 if hour_check > 0:
                     new_date_list.append(hour)
         hrly_call_val = hourly_call_data(prj_id, center, dates, hours, curr_loca, disposition, skill)
-        result['call_status'] = [{'name': item, 'data': hrly_call_val[item]} for item in hrly_call_val]
+        result['call_status'] = graph_format(hrly_call_val)
         result['date'] = new_date_list
 
     elif main_dict['dwm_dict'].has_key('day') and main_dict['type'] == 'day':
@@ -253,7 +258,7 @@ def call_status(request):
                 new_date_list.append(date_key)
                 result['date'] = new_date_list
         call_val = call_status_data(prj_id, center, dates, curr_loca, skill, disposition)
-        result['call_status'] = [{'name': item, 'data': call_val[item]} for item in call_val]
+        result['call_status'] = graph_format(call_val)
 
     elif main_dict['dwm_dict'].has_key('week') and main_dict['type'] == 'week':
         dates = main_dict['dwm_dict']['week']
@@ -267,7 +272,7 @@ def call_status(request):
             call_week_dt[call_week_name] = call_details
             call_week_num = call_week_num + 1
         final_call_data = prod_volume_week(week_names, call_week_dt, {})
-        result['call_status'] = [{'name': item, 'data': final_call_data[item]} for item in final_call_data]
+        result['call_status'] = graph_format(final_call_data)
         result['date'] = dates_list
     else:
         for month_na,month_va in zip(main_dict['dwm_dict']['month']['month_names'],main_dict['dwm_dict']['month']['month_dates']):
@@ -278,7 +283,7 @@ def call_status(request):
             call_details = call_status_data(prj_id, center, month_dates, curr_loca, skill, disposition)
             call_week_dt[month_name] = call_details
         final_call_data = prod_volume_week(month_names, call_week_dt, {})
-        result['call_status'] = [{'name': item, 'data': final_call_data[item]} for item in final_call_data]
+        result['call_status'] = graph_format(final_call_data)
         result['date'] = dates_list
     result['type'] = main_dict['type']
     return json_HttpResponse(result)
@@ -388,7 +393,7 @@ def outbound_disposition(request):
                 if hour_check > 0:
                     new_date_list.append(hour)
         hrly_outbnd_dispo_val = hourly_outbnd_dispo_data(prj_id, center, dates, hours, disposition)
-        result['outbound_disposition'] = [{'name': item, 'data': hrly_outbnd_dispo_val[item]} for item in hrly_outbnd_dispo_val]
+        result['outbound_disposition'] = graph_format(hrly_outbnd_dispo_val)
         result['date'] = new_date_list
     elif main_dict['dwm_dict'].has_key('day') and main_dict['type'] == 'day':
         dates = main_dict['dwm_dict']['day']
@@ -399,7 +404,7 @@ def outbound_disposition(request):
                 new_date_list.append(date_key)
                 result['date'] = new_date_list
         outbnd_dispo_val = outbnd_disposition_data(prj_id, center, dates, disposition)
-        result['outbound_disposition'] = [{'name': item, 'data': outbnd_dispo_val[item]} for item in outbnd_dispo_val]
+        result['outbound_disposition'] = graph_format(outbnd_dispo_val)
     elif main_dict['dwm_dict'].has_key('week') and main_dict['type'] == 'week':
         dates = main_dict['dwm_dict']['week']
         for date_values in dates:
@@ -412,7 +417,7 @@ def outbound_disposition(request):
             dispo_week_dt[dispo_week_name] = dispo_details
             dispo_week_num = dispo_week_num + 1
         final_outbnd_dispo_data = prod_volume_week(week_names, dispo_week_dt, {})
-        result['outbound_disposition'] = [{'name': item, 'data': final_outbnd_dispo_data[item]} for item in final_outbnd_dispo_data]
+        result['outbound_disposition'] = graph_format(final_outbnd_dispo_data)
         result['date'] = dates_list
     else:
         for month_na,month_va in zip(main_dict['dwm_dict']['month']['month_names'],main_dict['dwm_dict']['month']['month_dates']):
@@ -423,7 +428,7 @@ def outbound_disposition(request):
             dispo_details = outbnd_disposition_data(prj_id, center, month_dates, disposition)
             dispo_week_dt[month_name] = dispo_details
         final_outbnd_dispo_data = prod_volume_week(month_names, dispo_week_dt, {})
-        result['outbound_disposition'] = [{'name': item, 'data': final_outbnd_dispo_data[item]} for item in final_outbnd_dispo_data]
+        result['outbound_disposition'] = graph_format(final_outbnd_dispo_data)
         result['date'] = dates_list
     result['type'] = main_dict['type']
     return json_HttpResponse(result)
@@ -948,7 +953,7 @@ def agent_required(request):
                 new_date_list.append(date_key)
                 result['date'] = new_date_list
         skill_val = agent_deployed_call_data(prj_id, center, dates, skill, curr_loca, disposition)
-        final_values = [{'name': item, 'data': skill_val[item]} for item in skill_val]
+        final_values = graph_format(skill_val)
         agents_data  = agent_graph_data(final_values)
         result['agent_required'] = agents_data
     elif main_dict['dwm_dict'].has_key('week') and main_dict['type'] == 'week':
@@ -963,7 +968,7 @@ def agent_required(request):
             skill_week_dt[skill_week_name] = skill_details
             skill_week_num = skill_week_num + 1
         final_skill_data = prod_volume_week(week_names, skill_week_dt, {})
-        final_values = [{'name': item, 'data': final_skill_data[item]} for item in final_skill_data]
+        final_values = graph_format(final_skill_data)
         agents_data  = agent_graph_data(final_values)
         result['agent_required'] = agents_data
         result['date'] = dates_list
@@ -976,7 +981,7 @@ def agent_required(request):
             skill_details = agent_deployed_call_data(prj_id, center, month_dates, skill, curr_loca, disposition)
             skill_week_dt[month_name] = skill_details
         final_skill_data = prod_volume_week(month_names, skill_week_dt, {})
-        final_values = [{'name': item, 'data': final_skill_data[item]} for item in final_skill_data]
+        final_values = graph_format(final_skill_data)
         agents_data  = agent_graph_data(final_values)
         result['agent_required'] = agents_data
         result['date'] = dates_list
@@ -1027,3 +1032,22 @@ def project_value(prj_type):
     else:
         table_name = 'OutboundHourlyCall'
     return table_name
+
+def week_calculation(prj_id, center, dates, curr_loc, dispo_val, skill_val):
+    date_list, week_names = [], []
+    data_week_dt = {}
+    week_num, data_week_num = 0, 0
+    for date in dates:
+        date_list.append(date[0] + ' to ' + date[-1])
+        week_name = str('week' + str(week_num))
+        week_names.append(week_name)
+        week_num = week_num + 1
+        data_week_name = str('week' + str(data_week_num))
+        data_values = location_data(prj_id, center, date, curr_loc, dispo_val, skill_val)
+        data_week_dt[data_week_name] = data_values
+        data_week_num = data_week_num + 1
+    final_data = prod_volume_week(week_names, data_week_dt, {})
+    return final_data
+
+def graph_format(week_data):
+    return [{'name': item, 'data': week_data[item]} for item in week_data]

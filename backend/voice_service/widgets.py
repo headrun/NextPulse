@@ -265,11 +265,11 @@ def call_status_data(prj_id, center, dates_list, location, skill, disposition):
     if skill == 'All' and location == 'All' and disposition == 'All':
         for date in dates_list:
             date_check = InboundDaily.objects.filter(project = prj_id, center = center, date = date)
-            calls = date_check.values('total_calls').count()
-            ans_calls = date_check.values('calls_answered').count()
+            calls = date_check.aggregate(Sum('total_calls'))
+            ans_calls = date_check.aggregate(Sum('calls_answered'))
             if calls > 0:
-                unans_calls = calls - ans_calls
-                ans_list.append(ans_calls)
+                unans_calls = calls['total_calls__sum'] - ans_calls['calls_answered__sum']
+                ans_list.append(ans_calls['calls_answered__sum'])
                 unans_list.append(unans_calls)
         final_dict['Answered'] = ans_list
         final_dict['UnAnswered'] = unans_list
@@ -279,10 +279,10 @@ def call_status_data(prj_id, center, dates_list, location, skill, disposition):
             date_check = inbnd_query.values('total_calls').count()
             if date_check > 0:
                 call_query = inbnd_query.filter(location = location)
-                calls = call_query.values('total_calls').count()
-                ans_calls = call_query.values('calls_answered').count()
-                unans_calls = calls - ans_calls
-                ans_list.append(ans_calls)
+                calls = call_query.aggregate(Sum('total_calls'))
+                ans_calls = call_query.aggregate(Sum('calls_answered'))
+                unans_calls = calls['total_calls__sum'] - ans_calls['calls_answered__sum']
+                ans_list.append(ans_calls['calls_answered__sum'])
                 unans_list.append(unans_calls)
         final_dict['Answered'] = ans_list
         final_dict['UnAnswered'] = unans_list
@@ -293,10 +293,10 @@ def call_status_data(prj_id, center, dates_list, location, skill, disposition):
             date_check = inbnd_query.values('total_calls').count()
             if date_check > 0:
                 call_query = inbnd_query.filter(disposition = disposition)
-                calls = call_query.values('total_calls').count()
-                ans_calls = call_query.values('calls_answered').count()
-                unans_calls = calls - ans_calls
-                ans_list.append(ans_calls)
+                calls = call_query.aggregate(Sum('total_calls'))
+                ans_calls = call_query.aggregate(Sum('calls_answered'))
+                unans_calls = calls['total_calls__sum'] - ans_calls['calls_answered__sum']
+                ans_list.append(ans_calls['calls_answered__sum'])
                 unans_list.append(unans_calls)
         final_dict['Answered'] = ans_list
         final_dict['UnAnswered'] = unans_list
@@ -307,10 +307,10 @@ def call_status_data(prj_id, center, dates_list, location, skill, disposition):
             date_check = inbnd_query.values('total_calls').count()
             if date_check > 0:
                 call_query = inbnd_query.filter(skill = skill)
-                calls = call_query.values('total_calls').count()
-                ans_calls = call_query.values('calls_answered').count()
-                unans_calls = calls - ans_calls
-                ans_list.append(ans_calls)
+                calls = call_query.aggregate(Sum('total_calls'))
+                ans_calls = call_query.aggregate(Sum('calls_answered'))
+                unans_calls = calls['total_calls__sum'] - ans_calls['calls_answered__sum']
+                ans_list.append(ans_calls['calls_answered__sum'])
                 unans_list.append(unans_calls)
         final_dict['Answered'] = ans_list
         final_dict['UnAnswered'] = unans_list
@@ -321,10 +321,10 @@ def call_status_data(prj_id, center, dates_list, location, skill, disposition):
             date_check = inbnd_query.values('total_calls').count()
             if date_check > 0:
                 call_query = inbnd_query.filter(skill = skill, location = location)
-                calls = call_query.values('total_calls').count()
-                ans_calls = call_query.values('calls_answered').count()
-                unans_calls = calls - ans_calls
-                ans_list.append(ans_calls)
+                calls = call_query.aggregate(Sum('total_calls'))
+                ans_calls = call_query.aggregate(Sum('calls_answered'))
+                unans_calls = calls['total_calls__sum'] - ans_calls['calls_answered__sum']
+                ans_list.append(ans_calls['calls_answered__sum'])
                 unans_list.append(unans_calls)
         final_dict['Answered'] = ans_list
         final_dict['UnAnswered'] = unans_list
@@ -335,10 +335,10 @@ def call_status_data(prj_id, center, dates_list, location, skill, disposition):
             date_check = inbnd_query.values('total_calls').count()
             if date_check > 0:
                 call_query = inbnd_query.filter(skill = skill, disposition = disposition)
-                calls = call_query.values('total_calls').count()
-                ans_calls = call_query.values('calls_answered').count()
-                unans_calls = calls - ans_calls
-                ans_list.append(ans_calls)
+                calls = call_query.aggregate(Sum('total_calls'))
+                ans_calls = call_query.aggregate(Sum('calls_answered'))
+                unans_calls = calls['total_calls__sum'] - ans_calls['calls_answered__sum']
+                ans_list.append(ans_calls['calls_answered__sum'])
                 unans_list.append(unans_calls)
         final_dict['Answered'] = ans_list
         final_dict['UnAnswered'] = unans_list
@@ -349,10 +349,10 @@ def call_status_data(prj_id, center, dates_list, location, skill, disposition):
             date_check = inbnd_query.values('total_calls').count()
             if date_check > 0:
                 call_query = inbnd_query.filter(location = location, disposition = disposition)
-                calls = call_query.values('total_calls').count()
-                ans_calls = call_query.values('calls_answered').count()
-                unans_calls = calls - ans_calls
-                ans_list.append(ans_calls)   
+                calls = call_query.aggregate(Sum('total_calls'))
+                ans_calls = call_query.aggregate(Sum('calls_answered'))
+                unans_calls = calls['total_calls__sum'] - ans_calls['calls_answered__sum']
+                ans_list.append(ans_calls['calls_answered__sum'])   
                 unans_list.append(unans_calls)
         final_dict['Answered'] = ans_list
         final_dict['UnAnswered'] = unans_list
@@ -363,10 +363,10 @@ def call_status_data(prj_id, center, dates_list, location, skill, disposition):
             date_check = inbnd_query.values('total_calls').count()
             if date_check > 0:
                 call_query = inbnd_query.filter(location = location, disposition = disposition, skill = skill)
-                calls = call_query.values('total_calls').count()   
-                ans_calls = call_query.values('calls_answered').count()
-                unans_calls = calls - ans_calls
-                ans_list.append(ans_calls)
+                calls = call_query.aggregate(Sum('total_calls'))   
+                ans_calls = call_query.aggregate(Sum('calls_answered'))
+                unans_calls = calls['total_calls__sum'] - ans_calls['calls_answered__sum']
+                ans_list.append(ans_calls['calls_answered__sum'])
                 unans_list.append(unans_calls)
         final_dict['Answered'] = ans_list
         final_dict['UnAnswered'] = unans_list
@@ -394,7 +394,7 @@ def disposition_cate_data(prj_id, center, dates_list, disposition, location, ski
         return []
     for data in dispo_query:
         if data['total'] > 0:
-            if '->' not in data['disposition']:
+            if '->' not in data['disposition'] and data['disposition'] != '':
                 if final_dict.has_key(data['disposition']):
                     final_dict[data['disposition']].append(data['total'])
                 else:
