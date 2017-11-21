@@ -265,7 +265,6 @@
                     chartSeries = result.result[self.filter_list[17]];
                     chartType = self.chartType[0];
                 }
-
                 switch (chartType) {
                     case self.chartType[1]:
                         angular.extend(chartOptions, {
@@ -277,7 +276,6 @@
                                     stacking: 'normal',
                                     dataLabels: {
                                         enabled: true,
-                                        valueDecimals: 2,
                                         color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'black'
                                     }
                                 }
@@ -304,7 +302,6 @@
                                 series: {
                                   dataLabels: {
                                     enabled: true,
-                                    valueDecimals: 2,
                                     formatter: function () {
                                         return Highcharts.numberFormat(this.y, null, null, ",");
                                     }
@@ -3467,27 +3464,9 @@
                 });
 		}
 
-           var sort_array = [];
-           var final_array = []; 
-           for (var key in self.list_object) {
-                sort_array.push({key:key,value:self.list_object[key].widget_priority});
-           }
-           sort_array.sort(function(x,y){return x.value - y.value}); 
-           for (var i=0;i<sort_array.length;i++) {
-               if ((i.key == 'productivity_chart') || (i.key == 'productivity_bar_graph')) {
-                    final_array.push(self.main_prod(undefined, undefined, undefined))
-               } else if ((i.key == 'volume_bar_graph') || (i.key == 'volume_productivity_graph')) {
-                    final_array.push(self.allo_and_comp(undefined, undefined, undefined))
-               } else if ((i.key == 'fte_utilization') || (i.key == 'operational_utilization') || (i.key == 'utilisation_wrt_work_packet')) {
-                    final_array.push(self.utill_all(undefined, undefined, undefined))
-               } else if ((i.key == 'sum_total_fte') || (i.key == 'total_fte')) {
-                    final_array.push(self.fte_graphs(undefined, undefined, undefined))
-               }
-           } 
-            
-
+    
             if (self.is_voice_flag == false) {
-                $q.all([self.allo_and_comp(undefined, undefined, undefined), self.utill_all(undefined, undefined, undefined),
+                /*$q.all([self.allo_and_comp(undefined, undefined, undefined), self.utill_all(undefined, undefined, undefined),
                     self.productivity(undefined, undefined), self.prod_avg(undefined, undefined)]).then(function(){
 
                     $q.all([self.pareto_category_error(pareto_cate_error) ,self.agent_category_error(agent_cate_error), 
@@ -3510,10 +3489,72 @@
 
                     });
 
-                });
-            }
+                });*/
+               var sort_array = [];
+               var final_array = []; 
+               for (var key in self.list_object) {
+                    sort_array.push({key:key,value:self.list_object[key].widget_priority});
+               }
+               sort_array.sort(function(x,y){return x.value - y.value});
+               var values_array = [];
+               sort_array.forEach( function (eachObj){
+                   for (var key in eachObj) {
+                       values_array.push(eachObj.key);
+                   }
+               });
 
+               /*var unique = values_array.filter(function(elem, index, self) {
+                   return index == self.indexOf(elem);
+               })*/
+                var names = values_array;
+                var uniqueNames = [];
+                $.each(names, function(i, el){
+                    if($.inArray(el, uniqueNames) === -1) uniqueNames.push(el);
+                }); 
+               //for (var val in uniqueNames) {
+               $.each(uniqueNames, function (key, val) {
+                   if ((val == 'productivity_chart') || (val == 'productivity_bar_graph')) {
+                        final_array.push(self.main_prod(undefined, undefined, undefined))
+                   } else if ((val == 'volume_bar_graph') || (val == 'volume_productivity_graph')) {
+                        final_array.push(self.allo_and_comp(undefined, undefined, undefined))
+                   } else if ((val == 'fte_utilization') || (val == 'operational_utilization') || (val == 'utilisation_wrt_work_packet')) {
+                        final_array.push(self.utill_all(undefined, undefined, undefined))
+                   } else if ((val == 'sum_total_fte') || (val == 'total_fte')) {
+                        final_array.push(self.fte_graphs(undefined, undefined, undefined))
+                   } else if ((val == 'internal_error_accuracy_pie') || (val == 'external_error_accuracy_pie')) {
+                        final_array.push(self.category_error(cate_error))
+                   } else if ((val == 'error_category_internal_pareto_analysis') || (val == 'error_category_external_pareto_analysis')) {
+                        final_array.push(self.pareto_category_error(pareto_cate_error))
+                   } else if ((val == 'agent_wise_pareto_graph_data') || (val == 'agent_wise_external_pareto_analysis')) {
+                        final_array.push(self.agent_category_error(agent_cate_error))
+                   } else if ((val == 'external_accuracy_timeline') || (val == 'internal_accuracy_timeline')) {
+                        final_array.push(self.from_to(undefined, undefined, undefined))
+                   } else if ((val == 'external_error_accuracy') || (val == 'internal_error_accuracy')) {
+                        final_array.push(self.error_bar_graph(error_bar_graph))
+                   } else if (val == 'productivity_trends') {
+                        final_array.push(self.productivity(undefined, undefined))
+                   } else if (val == 'monthly_volume_widget') {
+                        final_array.push(self.mont_volume(undefined, undefined))
+                   } else if (val == 'production_avg_perday') {
+                        final_array.push(self.prod_avg(undefined, undefined))
+                   } else if (val == 'target_upload_graph') {
+                        final_array.push(self.upload_acc(undefined, undefined))
+                   } else if (val == 'pre_scan_exception_chart') {
+                        final_array.push(self.pre_scan(undefined, undefined))
+                   } else if (val == 'nw_exception_chart') {
+                        final_array.push(self.nw_exce(undefined, undefined))
+                   } else if (val == 'overall_exception_chart') {
+                        final_array.push(self.overall_exce(undefined, undefined))
+                   } else if (val == 'tat_graph') {
+                        final_array.push(self.tat_data(undefined, undefined))
+                   } else if ((val == 'Static_Daily_Production_Trend') || (val == 'Static_Weekly_Production_Trend') || (val == 'Static_Monthly_Production_Trend') || (val == 'Static_Daily_Production_Bar') || (val == 'Static_Weekly_Production_Bar') || (val == 'Static_Monthly_Production_Bar')) {
+                        final_array.push(self.static_data_call(static_ajax))
+                } else if ((val == 'internal_field_accuracy_graph') || (val == 'external_field_accuracy_graph')) {
+                     final_array.push(self.error_field_graph(err_field_graph))
+                }
+               });
 
+             }
 
             }
 
@@ -3707,15 +3748,15 @@
                                 self.voiceFilterType = 'location';
                                 if(self.is_voice_flag) {
                                     self.ajaxVoiceFilter = function(type, key) {
-                                        var voice_filter_ajax = '/api/'+ type + self.voice_filter + self.day_type + '&location=' + self.locationValue + '&skill=' + self.skillValue + '&disposition=' + self.dispositionValue;
+                                        var voice_filter_ajax = '/api/'+ type + self.voice_filter + self.day_type + '&location=' + self.locationValue + '&skill=' + self.skillValue + '&disposition=' + self.dispositionValue + '&project_type=' + self.voiceProjectType;
                                         var day_type = self.day_type;
                                         if (self.day_type == '') {
-                                            var voice_filter_ajax = '/api/'+ type + self.voice_filter + self.main_day_type + '&location=' + self.locationValue + '&skill=' + self.skillValue + '&disposition=' + self.dispositionValue;
+                                            var voice_filter_ajax = '/api/'+ type + self.voice_filter + self.main_day_type + '&location=' + self.locationValue + '&skill=' + self.skillValue + '&disposition=' + self.dispositionValue + '&project_type=' + self.voiceProjectType;
                                             var day_type = self.main_day_type;
                                         }
                                         //For Single Widget Type Change
                                         if (key != '') {
-                                            var voice_filter_ajax = '/api/'+ type + self.voice_filter + key + '&location=' + self.locationValue + '&skill=' + self.skillValue + '&disposition=' + self.dispositionValue;
+                                            var voice_filter_ajax = '/api/'+ type + self.voice_filter + key + '&location=' + self.locationValue + '&skill=' + self.skillValue + '&disposition=' + self.dispositionValue + '&project_type=' + self.voiceProjectType;
                                             var day_type = key;
                                         }
                                         var widgetA, widgetB, type_check;
@@ -5884,14 +5925,6 @@
                tooltip: {
                 valueSuffix: ''
                },
-               plotOptions : {
-                series : {
-                    dataLabels: {
-                        enabled: true,
-                        valueDecimals: 2
-                    }
-                }
-               },
                credits: {
                 enabled: false
                },
@@ -5969,7 +6002,6 @@
 
             self.chartOptions63 = {
                 chart : {
-                 zoomType: 'xy',
                  backgroundColor: "transparent"
                 },
                                yAxis: {
