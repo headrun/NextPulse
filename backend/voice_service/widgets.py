@@ -739,7 +739,7 @@ def common_outbnd_dispo_data(project, center, dates, disposition):
             if date_check > 0:
                 for dispo_name in outbnd_dispo_query:
                     if dispo_name != '':
-                        outbnd_val = OutboundDaily.objects.filter(project = project, center = center, date = date, disposition = dispo_name).aggregate(sum('disposition'))
+                        outbnd_val = OutboundDaily.objects.filter(project = project, center = center, date = date, disposition = dispo_name).aggregate(Sum('total_calls'))
                         value = common_value(outbnd_val)
                         values_list.append(value)
                 final_values = sum(values_list)
