@@ -187,7 +187,7 @@
                          function onlyUnique(value, index, self) { 
                              return self.indexOf(value) === index;
                          }
-
+                        
                          var packets = all_packets.filter( onlyUnique );
                          var fin_ind = packets.indexOf('final');
                          packets.splice(fin_ind, 1);
