@@ -61,7 +61,6 @@ def location(request):
                 result['date'] = new_date_list
         loca_val = location_data(prj_id, center, dates, curr_loc, dispo_val, skill_val)
         result['location'] = graph_format(loca_val)
-
     elif main_dict['dwm_dict'].has_key('week') and main_dict['type'] == 'week':
         dates = main_dict['dwm_dict']['week']
         final_week_data = week_calculation(prj_id, center, dates, curr_loc, dispo_val, skill_val, name)
@@ -646,13 +645,13 @@ def occupancy(request):
         final_week_data = week_calculation_days(prj_id, center, dates, location, disposition, skill, name)
         result['occupancy'] = [final_week_data]
         final_values = final_week_data.update({'name':'Occupancy'})
-        result['date'] = dates_list
+        result['date'] = date_function(dates, main_dict['type'])
     else:
         dates = main_dict['dwm_dict']['month']
         final_month_data = month_calculation_days(prj_id, center, dates, location, disposition, skill, name)
         result['occupancy'] = [final_month_data]
         final_values = final_month_data.update({'name':'Occupancy'})
-        result['date'] = dates_list
+        result['date'] = date_function(dates, main_dict['type'])
     return json_HttpResponse(result)
 
 def agent_productivity_data(request):
@@ -845,7 +844,7 @@ def week_calculation_days(prj_id, center, dates, location, disposition, skill, t
         elif term == 'occupancy':
             data_values = occupancy_data(prj_id, center, date, location, skill, disposition)
         elif term == 'productivity':
-            data_values = prod_data(prj_id, center, date_values, location, skill, disposition)
+            data_values = prod_data(prj_id, center, date, location, skill, disposition)
         data_week_dt[data_week_name] = data_values
         data_week_num = data_week_num + 1
     final_data = prod_volume_week_util_headcount(week_names, data_week_dt, {})
@@ -869,7 +868,7 @@ def month_calculation_days(prj_id, center, dates, location, disposition, skill, 
         elif term == 'occupancy':
             data_values = occupancy_data(prj_id, center, month_dates, location, skill, disposition)
         elif term == 'productivity':
-            data_values = prod_data(prj_id, center, date_values, location, skill, disposition)
+            data_values = prod_data(prj_id, center, month_dates, location, skill, disposition)
         month_dict[month_name] = data_values
     final_data = prod_volume_week_util_headcount(month_names, month_dict, {})
     return final_data
