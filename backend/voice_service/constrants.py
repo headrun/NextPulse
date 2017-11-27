@@ -1,7 +1,4 @@
 
-
-
-
 HANGUP_OPTIONS = (
 		('Caller Disconnect', 'Caller Disconnect'),
 		('Agent Disconnect', 'Agent Disconnect'),
@@ -34,3 +31,11 @@ CONVERT_TO_DAILY = ['Inbound Hourly', 'Outbound Hourly']
 
 TRANSFER = {'agent_transfer_list': 'AgentTransferCall', 'skill_transfer_list': 'SkillTransferCall',\
 				'location_transfer_list': 'LocationTransferCall', 'disposition_transfer_list': 'DispositionTransferCall'}
+
+SHEET_NAMES = {
+				'inbound_hourly' : 'Inbound Hourly',
+				'outbound_hourly' : 'Outbound Hourly',
+				'inbound_daily' : '',
+				'outbound_hourly' : '',
+				'agent_summary' : 'Agent Transfer'
+}
