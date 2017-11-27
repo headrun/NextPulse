@@ -35,7 +35,7 @@ admin.site.register(OutboundDailyAuthoring, OutboundDailyAuthoringAdmin)
 
 
 class InboundDailyAdmin(admin.ModelAdmin):
-    list_display = ['agent', 'hours_worked', 'connects_per_hr', 'project', 'center']
+    list_display = ['total_calls', 'calls_answered', 'date', 'project', 'center']
     list_filter  = ['project', 'center']
 admin.site.register(InboundDaily, InboundDailyAdmin)
 
