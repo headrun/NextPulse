@@ -328,10 +328,12 @@ def call_status_data(prj_id, center, dates_list, location, skill, disposition):
         for date in dates_list:
             date_check = InboundDaily.objects.filter(project = prj_id, center = center, date = date)
             calls = date_check.aggregate(Sum('total_calls'))
+            value1 = common_value(calls)
             ans_calls = date_check.aggregate(Sum('calls_answered'))
+            value2 = ans_value(ans_calls)
             if calls > 0:
-                unans_calls = calls['total_calls__sum'] - ans_calls['calls_answered__sum']
-                ans_list.append(ans_calls['calls_answered__sum'])
+                unans_calls = value1 - value2
+                ans_list.append(value2)
                 unans_list.append(unans_calls)
         final_dict['Answered'] = ans_list
         final_dict['UnAnswered'] = unans_list
@@ -342,9 +344,11 @@ def call_status_data(prj_id, center, dates_list, location, skill, disposition):
             if date_check > 0:
                 call_query = inbnd_query.filter(location = location)
                 calls = call_query.aggregate(Sum('total_calls'))
+                value1 = common_value(calls)
                 ans_calls = call_query.aggregate(Sum('calls_answered'))
-                unans_calls = calls['total_calls__sum'] - ans_calls['calls_answered__sum']
-                ans_list.append(ans_calls['calls_answered__sum'])
+                value2 = ans_value(ans_calls)
+                unans_calls = value1 - value2
+                ans_list.append(value2)
                 unans_list.append(unans_calls)
         final_dict['Answered'] = ans_list
         final_dict['UnAnswered'] = unans_list    
@@ -356,8 +360,10 @@ def call_status_data(prj_id, center, dates_list, location, skill, disposition):
                 call_query = inbnd_query.filter(disposition = disposition)
                 calls = call_query.aggregate(Sum('total_calls'))
                 ans_calls = call_query.aggregate(Sum('calls_answered'))
-                unans_calls = calls['total_calls__sum'] - ans_calls['calls_answered__sum']
-                ans_list.append(ans_calls['calls_answered__sum'])
+                value1 = common_value(calls)
+                value2 = ans_value(ans_calls)
+                unans_calls = value1 - value2
+                ans_list.append(value2)
                 unans_list.append(unans_calls)
         final_dict['Answered'] = ans_list
         final_dict['UnAnswered'] = unans_list
@@ -369,8 +375,10 @@ def call_status_data(prj_id, center, dates_list, location, skill, disposition):
                 call_query = inbnd_query.filter(skill = skill)
                 calls = call_query.aggregate(Sum('total_calls'))
                 ans_calls = call_query.aggregate(Sum('calls_answered'))
-                unans_calls = calls['total_calls__sum'] - ans_calls['calls_answered__sum']
-                ans_list.append(ans_calls['calls_answered__sum'])
+                value1 = common_value(calls)
+                value2 = ans_value(ans_calls)
+                unans_calls = value1 - value2
+                ans_list.append(value2)
                 unans_list.append(unans_calls)
         final_dict['Answered'] = ans_list
         final_dict['UnAnswered'] = unans_list
@@ -382,8 +390,10 @@ def call_status_data(prj_id, center, dates_list, location, skill, disposition):
                 call_query = inbnd_query.filter(skill = skill, location = location)
                 calls = call_query.aggregate(Sum('total_calls'))
                 ans_calls = call_query.aggregate(Sum('calls_answered'))
-                unans_calls = calls['total_calls__sum'] - ans_calls['calls_answered__sum']
-                ans_list.append(ans_calls['calls_answered__sum'])
+                value1 = common_value(calls)
+                value2 = ans_value(ans_calls)
+                unans_calls = value1 - value2
+                ans_list.append(value2)
                 unans_list.append(unans_calls)
         final_dict['Answered'] = ans_list
         final_dict['UnAnswered'] = unans_list
@@ -395,8 +405,10 @@ def call_status_data(prj_id, center, dates_list, location, skill, disposition):
                 call_query = inbnd_query.filter(skill = skill, disposition = disposition)
                 calls = call_query.aggregate(Sum('total_calls'))
                 ans_calls = call_query.aggregate(Sum('calls_answered'))
-                unans_calls = calls['total_calls__sum'] - ans_calls['calls_answered__sum']
-                ans_list.append(ans_calls['calls_answered__sum'])
+                value1 = common_value(calls)
+                value2 = ans_value(ans_calls)
+                unans_calls = value1 - value2
+                ans_list.append(value2)
                 unans_list.append(unans_calls)
         final_dict['Answered'] = ans_list
         final_dict['UnAnswered'] = unans_list
@@ -408,8 +420,10 @@ def call_status_data(prj_id, center, dates_list, location, skill, disposition):
                 call_query = inbnd_query.filter(location = location, disposition = disposition)
                 calls = call_query.aggregate(Sum('total_calls'))
                 ans_calls = call_query.aggregate(Sum('calls_answered'))
-                unans_calls = calls['total_calls__sum'] - ans_calls['calls_answered__sum']
-                ans_list.append(ans_calls['calls_answered__sum'])   
+                value1 = common_value(calls)
+                value2 = ans_value(ans_calls)
+                unans_calls = value1 - value2
+                ans_list.append(value2)   
                 unans_list.append(unans_calls)
         final_dict['Answered'] = ans_list
         final_dict['UnAnswered'] = unans_list
@@ -421,8 +435,10 @@ def call_status_data(prj_id, center, dates_list, location, skill, disposition):
                 call_query = inbnd_query.filter(location = location, disposition = disposition, skill = skill)
                 calls = call_query.aggregate(Sum('total_calls'))   
                 ans_calls = call_query.aggregate(Sum('calls_answered'))
-                unans_calls = calls['total_calls__sum'] - ans_calls['calls_answered__sum']
-                ans_list.append(ans_calls['calls_answered__sum'])
+                calls = call_query.aggregate(Sum('total_calls'))
+                ans_calls = call_query.aggregate(Sum('calls_answered'))
+                unans_calls = value1 - value2
+                ans_list.append(value2)
                 unans_list.append(unans_calls)
         final_dict['Answered'] = ans_list
         final_dict['UnAnswered'] = unans_list
@@ -472,111 +488,6 @@ def dispo_outbound_cate_data(prj_id, center, dates_list, disposition):
                     final_dict[value['disposition']].append(value['total'])
                 else:
                     final_dict[value['disposition']] = [value['total']]
-    return final_dict
-
-def hourly_location_data(prj_id, center, dates, hours, location, disposition, skill):
-    final_dict = {}
-    for date in dates:
-        for hour in hours:
-            hr = hour*60*60 
-            hr1 = (hour + 1)*60*60
-            final_hour1 = date + ' ' + time.strftime('%H:%M:%S', time.gmtime(hr1))       
-            final_hour = date + ' ' + time.strftime('%H:%M:%S', time.gmtime(hr))
-            if location == 'All' and disposition == 'All' and skill == 'All':
-                location_hr_query = InboundHourlyCall.objects.filter(project = prj_id, center = center, start_time__gte = final_hour, end_time__lte = final_hour1).values('location').distinct().annotate(total = count('location'))
-            elif location != 'All' and disposition == 'All' and skill == 'All':
-                location_hr_query = InboundHourlyCall.objects.filter(project = prj_id, center = center, start_time__gte = final_hour, end_time__lte = final_hour1, location = location).values('location').distinct().annotate(total = count('location'))
-            elif location == 'All' and disposition != 'All' and skill == 'All':
-                location_hr_query = InboundHourlyCall.objects.filter(project = prj_id, center = center, start_time__gte = final_hour, end_time__lte = final_hour1, disposition = disposition).values('location').distinct().annotate(total = count('location'))
-            elif location == 'All' and disposition == 'All' and skill != 'All':
-                location_hr_query = InboundHourlyCall.objects.filter(project = prj_id, center = center, start_time__gte = final_hour, end_time__lte = final_hour1, skill = skill).values('location').distinct().annotate(total = count('location'))
-            elif location != 'All' and disposition != 'All' and skill == 'All':
-                location_hr_query = InboundHourlyCall.objects.filter(project = prj_id, center = center, start_time__gte = final_hour, end_time__lte = final_hour1, location = location, disposition = disposition).values('location').distinct().annotate(total = count('location'))
-            elif location == 'All' and disposition != 'All' and skill != 'All':
-                location_hr_query = InboundHourlyCall.objects.filter(project = prj_id, center = center, start_time__gte = final_hour, end_time__lte = final_hour1, disposition = disposition, skill = skill).values('location').distinct().annotate(total = count('location'))
-            elif location != 'All' and disposition == 'All' and skill != 'All':
-                location_hr_query = InboundHourlyCall.objects.filter(project = prj_id, center = center, start_time__gte = final_hour, end_time__lte = final_hour1, location = location, skill = skill).values('location').distinct().annotate(total = count('location'))
-            elif location != 'All' and disposition != 'All' and skill != 'All':
-                location_hr_query = InboundHourlyCall.objects.filter(project = prj_id, center = center, start_time__gte = final_hour, end_time__lte = final_hour1, location = location, skill = skill, disposition = disposition).values('location').distinct().annotate(total = count('location'))
-            else:
-                return []
-            for value in location_hr_query:
-                if value['total'] > 0:
-                   if '->' not in value['location']:
-                       if final_dict.has_key(value['location']):
-                            final_dict[value['location']].append(value['total'])
-                       else:
-                           final_dict[value['location']] = [value['total']]
-    return final_dict
-
-def hourly_skill_data(prj_id, center, dates, hours, location, disposition, skill):
-    final_dict = {}
-    for date in dates:
-        for hour in hours:
-            hr = hour*60*60
-            hr1 = (hour + 1)*60*60
-            final_hour1 = date + ' ' + time.strftime('%H:%M:%S', time.gmtime(hr1))       
-            final_hour = date + ' ' + time.strftime('%H:%M:%S', time.gmtime(hr))
-            if location == 'All' and disposition == 'All' and skill == 'All':
-                skill_hr_query = InboundHourlyCall.objects.filter(project = prj_id, center = center, start_time__gte = final_hour, end_time__lte = final_hour1).values('skill').distinct().annotate(total = count('skill'))
-            elif location != 'All' and disposition == 'All' and skill == 'All':
-                skill_hr_query = InboundHourlyCall.objects.filter(project = prj_id, center = center, start_time__gte = final_hour, end_time__lte = final_hour1, location = location).values('skill').distinct().annotate(total = count('skill'))
-            elif location == 'All' and disposition != 'All' and skill == 'All':
-                skill_hr_query = InboundHourlyCall.objects.filter(project = prj_id, center = center, start_time__gte = final_hour, end_time__lte = final_hour1, disposition = disposition).values('skill').distinct().annotate(total = count('skill'))
-            elif location == 'All' and disposition == 'All' and skill != 'All':
-                skill_hr_query = InboundHourlyCall.objects.filter(project = prj_id, center = center, start_time__gte = final_hour, end_time__lte = final_hour1, skill = skill).values('skill').distinct().annotate(total = count('skill'))
-            elif location != 'All' and disposition != 'All' and skill == 'All':
-                skill_hr_query = InboundHourlyCall.objects.filter(project = prj_id, center = center, start_time__gte = final_hour, end_time__lte = final_hour1, location = location, disposition = disposition).values('skill').distinct().annotate(total = count('skill'))
-            elif location == 'All' and disposition != 'All' and skill != 'All':
-                skill_hr_query = InboundHourlyCall.objects.filter(project = prj_id, center = center, start_time__gte = final_hour, end_time__lte = final_hour1, disposition = disposition, skill = skill).values('skill').distinct().annotate(total = count('skill'))
-            elif location != 'All' and disposition == 'All' and skill != 'All':
-                skill_hr_query = InboundHourlyCall.objects.filter(project = prj_id, center = center, start_time__gte = final_hour, end_time__lte = final_hour1, location = location, skill = skill).values('skill').distinct().annotate(total = count('skill'))
-            elif location != 'All' and disposition != 'All' and skill != 'All':
-                skill_hr_query = InboundHourlyCall.objects.filter(project = prj_id, center = center, start_time__gte = final_hour, end_time__lte = final_hour1, location = location, skill = skill, disposition = disposition).values('skill').distinct().annotate(total = count('skill'))
-            else:
-                return []
-            for value in skill_hr_query:
-                if value['total'] > 0:
-                   if '->' not in value['skill']:
-                       if final_dict.has_key(value['skill']):
-                            final_dict[value['skill']].append(value['total'])
-                       else:
-                           final_dict[value['skill']] = [value['total']]
-    return final_dict
-
-def hourly_dispo_data(prj_id, center, dates, hours, location, disposition, skill):
-    final_dict = {}
-    for date in dates:
-        for hour in hours:
-            hr = hour*60*60
-            hr1 = (hour + 1)*60*60
-            final_hour1 = date + ' ' + time.strftime('%H:%M:%S', time.gmtime(hr1))
-            final_hour = date + ' ' + time.strftime('%H:%M:%S', time.gmtime(hr))
-            if location == 'All' and disposition == 'All' and skill == 'All':
-                dispo_hr_query = InboundHourlyCall.objects.filter(project = prj_id, center = center, start_time__gte = final_hour, end_time__lte = final_hour1).values('disposition').distinct().annotate(total = count('disposition'))
-            elif location != 'All' and disposition == 'All' and skill == 'All':
-                dispo_hr_query = InboundHourlyCall.objects.filter(project = prj_id, center = center, start_time__gte = final_hour, end_time__lte = final_hour1, location = location).values('disposition').distinct().annotate(total = count('disposition'))
-            elif location == 'All' and disposition != 'All' and skill == 'All':
-                dispo_hr_query = InboundHourlyCall.objects.filter(project = prj_id, center = center, start_time__gte = final_hour, end_time__lte = final_hour1, disposition = disposition).values('disposition').distinct().annotate(total = count('disposition'))
-            elif location == 'All' and disposition == 'All' and skill != 'All':
-                dispo_hr_query = InboundHourlyCall.objects.filter(project = prj_id, center = center, start_time__gte = final_hour, end_time__lte = final_hour1, skill = skill).values('disposition').distinct().annotate(total = count('disposition'))
-            elif location != 'All' and disposition != 'All' and skill == 'All':
-                dispo_hr_query = InboundHourlyCall.objects.filter(project = prj_id, center = center, start_time__gte = final_hour, end_time__lte = final_hour1, location = location, disposition = disposition).values('disposition').distinct().annotate(total = count('disposition'))
-            elif location == 'All' and disposition != 'All' and skill != 'All': 
-                dispo_hr_query = InboundHourlyCall.objects.filter(project = prj_id, center = center, start_time__gte = final_hour, end_time__lte = final_hour1, disposition = disposition, skill = skill).values('disposition').distinct().annotate(total = count('disposition'))
-            elif location != 'All' and disposition == 'All' and skill != 'All':
-                dispo_hr_query = InboundHourlyCall.objects.filter(project = prj_id, center = center, start_time__gte = final_hour, end_time__lte = final_hour1, location = location, skill = skill).values('disposition').distinct().annotate(total = count('disposition'))
-            elif location != 'All' and disposition != 'All' and skill != 'All':
-                dispo_hr_query = InboundHourlyCall.objects.filter(project = prj_id, center = center, start_time__gte = final_hour, end_time__lte = final_hour1, location = location, skill = skill, disposition = disposition).values('disposition').distinct().annotate(total = count('disposition'))
-            else:
-                return []
-            for value in dispo_hr_query:
-                if value['total'] > 0:
-                   if '->' not in value['disposition']:
-                       if final_dict.has_key(value['disposition']):
-                            final_dict[value['disposition']].append(value['total'])
-                       else:
-                           final_dict[value['disposition']] = [value['total']]
     return final_dict
 
 def hourly_call_data(prj_id, center, dates, hours, location, disposition, skill):
@@ -993,11 +904,8 @@ def agent_deployed_call_data(project, center, dates, skill, location, dispositio
             skill_data = InboundDaily.objects.filter(project = project, center = center, date = date, skill = skill)
             date_check = normal_query.values('skill').count()
             if date_check > 0:
-                #skill_calls = skill_data.values('total_calls').count()
                 skill_calls = skill_data.aggregate(Sum('total_calls'))
                 agent_count = skill_data.values('agent').count()
-                #skill_agents = skill_data.values_list('agent', flat = True).distinct()
-                #agent_count = sum(skill_agents)
                 if agent_count:
                     agents_req = float(skill_calls['total_calls__sum'])/float(agent_count)
                 else:
@@ -1016,6 +924,13 @@ def agent_deployed_call_data(project, center, dates, skill, location, dispositio
 def common_value(data):
     if data['total_calls__sum'] != None:
         value = data['total_calls__sum']
+    else:
+        value = 0
+    return value
+
+def ans_value(values):
+    if values['calls_answered__sum'] != None:
+        value = values['calls_answered__sum']
     else:
         value = 0
     return value

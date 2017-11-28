@@ -65,7 +65,6 @@ def agent_pareto_data_generation(request,date_list,prj_id,center_obj,level_struc
             for key, value in total_errors.iteritems():
                 agent_name[agent] = value
         count = count + 1
-
     error_count = agent_name
     error_sum = sum(error_count.values())
     new_list, error_count_data, new_emp_list, accuracy_list = [], [], [], []

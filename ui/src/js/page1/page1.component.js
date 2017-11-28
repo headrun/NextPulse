@@ -315,6 +315,7 @@
                 }
                 $(widgetA).removeClass('widget-loader-show');
                 $(widgetB).removeClass('widget-data-hide');
+                
             }
 
              self.highlightTypes = function (button_type, widgetName) {
@@ -371,13 +372,13 @@
                         }
                         self.type = type;
                         var allo_and_comp = '/api/alloc_and_compl/'+self.data_to_show + type + final_work + '&chart_name=17&chart_name=13';
-                        return $http({method:"GET", url: allo_and_comp}).success(function(result){
+                        return $http({method:"GET", url: allo_and_comp}).success(function(result) {
                             var is_annotation = result.result.is_annotation;
-                           if ((name == "self.chartOptions17") || (name == "")) {
+                            if ((name == "self.chartOptions17") || (name == "")) {
                                 $('.widget-17a').removeClass('widget-loader-show');
                                 $('.widget-17b').removeClass('widget-data-hide');
                             }
-                           if ((name == "self.chartOptions18") || (name == "")) {
+                            if ((name == "self.chartOptions18") || (name == "")) {
                                 $('.widget-13a').removeClass('widget-loader-show');
                                 $('.widget-13b').removeClass('widget-data-hide');
                             }
@@ -410,223 +411,196 @@
                                         var value = true;
                                     }
                                     else {
-                                        var value = false;    
+                                        var value = false;
                                     }
                                 }
                                 else {
                                     var value = false;
                                 }
-
-                                angular.extend(self.chartOptions17, {
-                                    xAxis: {
-                                        categories: date_list,
-                                    },
-                                    plotOptions: {
-                                        series: {
-                                          dataLabels: {
+                            }
+                            angular.extend(self.chartOptions17, {
+                                xAxis: {
+                                    categories: date_list,
+                                },
+                                plotOptions: {
+                                    series: {
+                                        dataLabels: {
                                             enabled: value,
                                             formatter: function () {
                                                 return Highcharts.numberFormat(this.y, null, null, ",");
                                             }
-                                          },
-                                          allowPointSelect: true,
-                                          cursor: 'pointer',
-                                            point: {
-                                              events:{
+                                        },
+                                        allowPointSelect: true,
+                                        cursor: 'pointer',
+                                        point: {
+                                            events:{
                                                 contextmenu: function() {
-                                                 if (self.role_for_perm == 'customer') {
+                                                    if (self.role_for_perm == 'customer') {
 
-                                                    console.log('he is customer');
-                                                 }
-                                                 else {
-
-                                                  if (self.data_to_show.split('&').length == 6) { 
-                                                    var sub_proj = '';
-                                                    var work_pack = '';
-                                                    var sub_pack = '';
-                                                  }
-                                                  else {
-                                                    var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
-                                                    var work_pack = self.data_to_show.split('&')[6].split('=')[1];
-                                                    var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
-                                                  }
-                                            	    var str = '17<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
-                                            	    this['project_live'] = self.project_live;
-                                                    this['center_live'] = self.center_live;
-                                                    return new Annotation(str, $(self.chartOptions17.chart.renderTo),this.series.chart, this);
+                                                        console.log('he is customer');
                                                     }
-                                                  }
-                                                }
+                                                    else {
+                                                        if (self.data_to_show.split('&').length == 6) {
+                                                            var sub_proj = '';
+                                                            var work_pack = '';
+                                                            var sub_pack = '';
+                                                        }
+                                                        else {
+                                                            var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
+                                                            var work_pack = self.data_to_show.split('&')[6].split('=')[1];
+                                                            var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
+                                                        }
+                                                        var str = '17<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
+                                                        this['project_live'] = self.project_live;
+                                                        this['center_live'] = self.center_live;
+                                                        return new Annotation(str, $(self.chartOptions17.chart.renderTo),this.series.chart, this);
+                                                    }
+                                                } 
                                             }
                                         }
-                                    },   
-                                    series: data_list_bar,
-                                    onComplete: function(chart){
+                                    }
+                                },
+                                series: data_list_bar,
+                                onComplete: function(chart){
                                     if (is_annotation) {
-                                    var series = null;
-                                    var chart_data = chart.series;
-                                    
-                                    for(var i in chart_data){
-                                        series = chart_data[i];
-                                        (function(series){
-                                          $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
-					  self.type+'&chart_name=17&proj_name='+self.project_live+'&cen_name='+
-					  self.center_live}).success(function(annotations) { 
-                               annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
-                               $.each(annotations, function(j, annotation){
-
-                                 var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
-
-                                 point = point[0];
-
-                                 if(annotation.epoch){
-                                   var a = new Annotation("17", $(self.chartOptions17.chart.renderTo),
-                                        chart, point, annotation);
-
-                                   console.log(a);
-                                   }
-                               })
-                                        });
-                                        }(series));
-                                    }
-                                    self.annot_perm();
-                                    }
-                                    }
-                                })
-                            }
-
-                            if ((name == "self.chartOptions18") || (name == "")) {
-
-                                if (self.list_object.volume_productivity_graph != undefined) {
-
-                                    if(self.list_object.volume_productivity_graph.display_value === true) {
-                                    
-                                        var value = true;
-
-                                    }
-                                    else {
-                                        var value = false;    
+                                        var series = null;
+                                        var chart_data = chart.series;
+                                        for(var i in chart_data){
+                                            series = chart_data[i];
+                                            (function(series){
+                                                $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
+                                                    self.type+'&chart_name=17&proj_name='+self.project_live+'&cen_name='+
+                                                    self.center_live}).success(function(annotations) {
+                                                    annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
+                                                    $.each(annotations, function(j, annotation){
+                                                        var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
+                                                        point = point[0];
+                                                        if(annotation.epoch){
+                                                            var a = new Annotation("17", $(self.chartOptions17.chart.renderTo), chart, point, annotation);
+                                                            console.log(a);
+                                                        }
+                                                    })
+                                                    });
+                                            }(series));
+                                        }
+                                        self.annot_perm();
                                     }
                                 }
+                            });
 
+                            if ((name == "self.chartOptions18") || (name == "")) {
+                                if (self.list_object.volume_productivity_graph != undefined) {
+                                    if (self.list_object.volume_productivity_graph.display_value === true) {
+                                        var value = true;
+                                    }
+                                    else {
+                                        var value = false;
+                                    }
+                                }
                                 else {
                                     var value = false;
                                 }
-
-                                angular.extend(self.chartOptions18, {
-                                    xAxis: {
-                                        categories: date_list,
-                                    },
-                                    plotOptions: {
-                                        series: {
-                                          dataLabels: {
+                            }
+                            angular.extend(self.chartOptions18, {
+                                xAxis: {
+                                    categories: date_list,
+                                },
+                                plotOptions: {
+                                    series: {
+                                        dataLabels: {
                                             enabled: value,
                                             formatter: function () {
-                                               return Highcharts.numberFormat(this.y, null, null, ",");
+                                                return Highcharts.numberFormat(this.y, null, null, ",");
                                             }
-                                          },
-                                          allowPointSelect: true,
-                                          cursor: 'pointer',
-                                            point: {
-                                              events:{
+                                        },
+                                        allowPointSelect: true,
+                                        cursor: 'pointer',
+                                        point: {
+                                            events:{
                                                 contextmenu: function() {
-                                                 if (self.role_for_perm == 'customer') {
+                                                    if (self.role_for_perm == 'customer') {
 
-                                                    console.log('he is customer');
-                                                 }
-                                                 else {
-
-                                                  if (self.data_to_show.split('&').length == 6) {
-                                                    var sub_proj = '';
-                                                    var work_pack = '';
-                                                    var sub_pack = '';
-                                                  }
-                                                  else {
-                                                    var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
-                                                    var work_pack = self.data_to_show.split('&')[6].split('=')[1];
-                                                    var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
-                                                  }
-                                            	    var str = '13<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
-                                                    this['project_live'] = self.project_live;
-                                                    this['center_live'] = self.center_live;
-                                                    return new Annotation(str, $(self.chartOptions18.chart.renderTo),this.series.chart, this);
+                                                        console.log('he is customer');
                                                     }
-                                                  }
+                                                    else {
+                                                        if (self.data_to_show.split('&').length == 6) {
+                                                            var sub_proj = '';
+                                                            var work_pack = '';
+                                                            var sub_pack = '';
+                                                        }
+                                                        else {
+                                                            var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
+                                                            var work_pack = self.data_to_show.split('&')[6].split('=')[1];
+                                                            var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
+                                                        }
+                                                        var str = '13<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
+                                                        this['project_live'] = self.project_live;
+                                                        this['center_live'] = self.center_live;
+                                                        return new Annotation(str, $(self.chartOptions18.chart.renderTo),this.series.chart, this);
+                                                    }
                                                 }
                                             }
                                         }
-                                    },
-                                    series: data_list_line,
-                                    onComplete: function(chart){
+                                    }
+                                },
+                                series: data_list_line,
+                                onComplete: function(chart){
                                     if (is_annotation) {
-                                    var series = null;
-                                    var chart_data = chart.series;
-                                    for(var i in chart_data){
-                                        series = chart_data[i];
-                                        (function(series){
-                                          $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
-					  self.type+'&chart_name=13&proj_name='+self.project_live+'&cen_name='+
-				          self.center_live}).success(function(annotations){
-                               annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
-                               $.each(annotations, function(j, annotation){
-
-                                 var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
-
-                                 point = point[0];
-
-                                 if(annotation.epoch){
-                                   var a = new Annotation("13", $(self.chartOptions18.chart.renderTo),
-                                        chart, point, annotation);
-
-                                   console.log(a);
-                                   }
-                               })
-
-                                        });
-                                        }(series));
+                                        var series = null;
+                                        var chart_data = chart.series;
+                                        for(var i in chart_data){
+                                            series = chart_data[i];
+                                            (function(series){
+                                                $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
+                                                    self.type+'&chart_name=13&proj_name='+self.project_live+'&cen_name='+
+                                                    self.center_live}).success(function(annotations) {
+                                                    annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
+                                                    $.each(annotations, function(j, annotation){
+                                                        var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
+                                                        point = point[0];
+                                                        if(annotation.epoch){
+                                                            var a = new Annotation("13", $(self.chartOptions17.chart.renderTo), chart, point, annotation);
+                                                            console.log(a);
+                                                        }
+                                                    })
+                                                    });
+                                            }(series));
+                                        }
+                                        self.annot_perm();
                                     }
-                                    self.annot_perm();
-                                    }
-                                    }
-                                });
-                           }
+                                }
+                            });
                         })
                     }
 
-                    self.utill_all = function(final_work, type,name) {
+                    self.utill_all = function(final_work, type, name) {
                         if (type == undefined) {
                             type = 'day'
                         }
-
                         if (final_work == undefined) {
                             final_work = ''
                         }
-
                         if (name == undefined) {
                             name = ''
                         }
-            
                         self.type = type;
-
-                        var utill_all = '/api/utilisation_all/'+self.data_to_show + type + final_work + '&chart_name=20&chart_name=19&chart_name=9';
-
-                        return $http({method:"GET", url: utill_all}).success(function(result){
-
+                        var utill_all = '/api/utilisation_all/'+self.data_to_show + type + final_work + '&chart_name=20&chart_name=19&chart_nam=9';
+                        return $http({method:"GET", url: utill_all}).success(function(result) {
                             var date_list  = result.result.date;
                             var utili_opera_data = result.result.utilization_operational_details;
                             var utili_fte_data = result.result.utilization_fte_details;
                             var overall_utili_data = result.result.original_utilization_graph;
-                            var is_annotation = result.result.is_annotation;
+                            var is_annotation = result.result.is_annotation; 
 
                             angular.extend(self.chartOptions25.yAxis,{
-                               min:result.result.min_utilization_operational_details,
-                               max:result.result.max_utilization_operational_details
+                                min:result.result.min_utilization_operational_details,
+                                max:result.result.max_utilization_operational_details
                             });
 
                             angular.extend(self.chartOptions24.yAxis,{
                                 min:result.result.min_utilization_fte_details,
                                 max:result.result.max_utilization_fte_details
-                            });      
+                            });
 
                             angular.extend(self.chartOptions15.yAxis,{
                                 min:result.result.min_original_utilization_graph,
@@ -634,661 +608,275 @@
                             });
 
                             if ((name == "self.chartOptions25") || (name == "")) {
-                                
                                 if (self.list_object.operational_utilization != undefined) {
-
-                                    if (self.list_object.operational_utilization.display_value === true) {
-
+                                    if(self.list_object.operational_utilization.display_value === true) {
                                         var value = true;
                                     }
-
                                     else {
-                                    
                                         var value = false;
                                     }
-
                                 }
                                 else {
-
                                     var value = false;
                                 }
-
-                                angular.extend(self.chartOptions25, {
-                                    xAxis: {
-                                        categories: date_list,
-                                    },
-                                    plotOptions: {
-                                        series: {
-                                          dataLabels: {
+                            }
+                            angular.extend(self.chartOptions25, {
+                                xAxis: {
+                                    categories: date_list,
+                                },
+                                plotOptions: {
+                                    series: {
+                                        dataLabels: {
                                             enabled: value,
-                                          },
-                                          allowPointSelect: true,
-                                          cursor: 'pointer',
-                                            point: {
-                                              events:{
+                                            formatter: function () {
+                                                return Highcharts.numberFormat(this.y, null, null, ",");
+                                            }
+                                        },
+                                        allowPointSelect: true,
+                                        cursor: 'pointer',
+                                        point: {
+                                            events:{
                                                 contextmenu: function() {
-                                                 if (self.role_for_perm == 'customer') {
+                                                    if (self.role_for_perm == 'customer') {
 
-                                                    console.log('he is customer');
-                                                 }
-                                                 else {
-
-                                                  if (self.data_to_show.split('&').length == 6) {
-                                                    var sub_proj = '';
-                                                    var work_pack = '';
-                                                    var sub_pack = '';
-                                                  }
-                                                  else {
-                                                    var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
-                                                    var work_pack = self.data_to_show.split('&')[6].split('=')[1];
-                                                    var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
-                                                  }
-                                                    var str = '20<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
-                                                    this['project_live'] = self.project_live;
-                                                    this['center_live'] = self.center_live;
-                                                    return new Annotation(str, $(self.chartOptions25.chart.renderTo),this.series.chart, this);
+                                                        console.log('he is customer');
                                                     }
-                                                  }
-                                                }
+                                                    else {
+                                                        if (self.data_to_show.split('&').length == 6) {
+                                                            var sub_proj = '';
+                                                            var work_pack = '';
+                                                            var sub_pack = '';
+                                                        }
+                                                        else {
+                                                            var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
+                                                            var work_pack = self.data_to_show.split('&')[6].split('=')[1];
+                                                            var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
+                                                        }
+                                                        var str = '20<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
+                                                        this['project_live'] = self.project_live;
+                                                        this['center_live'] = self.center_live;
+                                                        return new Annotation(str, $(self.chartOptions25.chart.renderTo),this.series.chart, this);
+                                                    }
+                                                }    
                                             }
                                         }
-                                    },
-                                    series: utili_opera_data,
-                                    onComplete: function(chart){
-                                    if(is_annotation) {
-                                    var series = null;
-                                    var chart_data = chart.series;
-                                    for(var i in chart_data) {
-                                        series = chart_data[i];
-                                        (function(series){
-                                          $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
-					  self.type+'&chart_name=20&proj_name='+self.project_live+'&cen_name='+
-					  self.center_live}).success(function(annotations){ 
-                               annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
-                               $.each(annotations, function(j, annotation){
-
-                                 var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
-
-                                 point = point[0];
-
-                                 if(annotation.epoch){
-                                   var a = new Annotation("20", $(self.chartOptions25.chart.renderTo),
-                                        chart, point, annotation);
-
-                                   console.log(a);
-                                   }
-                               })
-
-                                        });
-                                        }(series));
                                     }
+                                },
+                                series: utili_opera_data,
+                                onComplete: function(chart){
+                                    if (is_annotation) {
+                                        var series = null;
+                                        var chart_data = chart.series;
+                                        for(var i in chart_data){
+                                            series = chart_data[i];
+                                            (function(series){
+                                                $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
+                                                    self.type+'&chart_name=20&proj_name='+self.project_live+'&cen_name='+
+                                                    self.center_live}).success(function(annotations) {
+                                                    annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
+                                                    $.each(annotations, function(j, annotation){
+                                                        var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
+                                                        point = point[0];
+                                                        if(annotation.epoch){
+                                                            var a = new Annotation("20", $(self.chartOptions25.chart.renderTo), chart, point, annotation);
+                                                            console.log(a);
+                                                        }
+                                                    })
+                                                    });
+                                            }(series));
+                                        }
+                                        self.annot_perm();
                                     }
-                                    self.annot_perm();
-                                    }
+                                }
+                            });
+                            $('.widget-20a').removeClass('widget-loader-show');
+                            $('.widget-20b').removeClass('widget-data-hide');
 
-                                });
-                            
-                                $('.widget-20a').removeClass('widget-loader-show');
-                                $('.widget-20b').removeClass('widget-data-hide');
-                            }
-                            
                             if ((name == "self.chartOptions24") || (name == "")) {
-
                                 if (self.list_object.fte_utilization != undefined) {
-
                                     if (self.list_object.fte_utilization.display_value === true) {
-
                                         var value = true;
                                     }
-
                                     else {
-
-                                        var value = false;    
+                                        var value = false;
                                     }
                                 }
                                 else {
-
                                     var value = false;
                                 }
-
-                                angular.extend(self.chartOptions24, {
-                                    xAxis: {
-                                        categories: date_list,
-                                    },
-                                    plotOptions: {
-                                        series: {
-                                          dataLabels: {
+                            }
+                            angular.extend(self.chartOptions24, {
+                                xAxis: {
+                                    categories: date_list,
+                                },
+                                plotOptions: {
+                                    series: {
+                                        dataLabels: {
                                             enabled: value,
-                                          },  
-                                          allowPointSelect: true,
-                                          cursor: 'pointer',
-                                            point: { 
-                                              events:{
+                                            formatter: function () {
+                                                return Highcharts.numberFormat(this.y, null, null, ",");
+                                            }
+                                        },
+                                        allowPointSelect: true,
+                                        cursor: 'pointer',
+                                        point: {
+                                            events:{
                                                 contextmenu: function() {
-                                                 if (self.role_for_perm == 'customer') {
-
-                                                    console.log('he is customer');
-                                                 }
-                                                 else {
-
-                                                  if (self.data_to_show.split('&').length == 6) {
-                                                    var sub_proj = '';
-                                                    var work_pack = '';
-                                                    var sub_pack = '';
-                                                  }
-                                                  else {
-                                                    var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
-                                                    var work_pack = self.data_to_show.split('&')[6].split('=')[1];
-                                                    var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
-                                                  }
-                                           	    var str = '19<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
-                                                    this['project_live'] = self.project_live;
-                                                    this['center_live'] = self.center_live;
-                                                    return new Annotation(str, $(self.chartOptions24.chart.renderTo),this.series.chart, this);
+                                                    if (self.role_for_perm == 'customer') {
+                                                        console.log('he is customer');
                                                     }
-                                                   }
+                                                    else {
+                                                        if (self.data_to_show.split('&').length == 6) {
+                                                            var sub_proj = '';
+                                                            var work_pack = '';
+                                                            var sub_pack = '';
+                                                        }
+                                                        else {
+                                                            var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
+                                                            var work_pack = self.data_to_show.split('&')[6].split('=')[1];
+                                                            var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
+                                                        }
+                                                        var str = '19<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
+                                                        this['project_live'] = self.project_live;
+                                                        this['center_live'] = self.center_live;
+                                                        return new Annotation(str, $(self.chartOptions24.chart.renderTo),this.series.chart, this);
+                                                    }
                                                 }
                                             }
                                         }
-                                    },
-
-                                    series: utili_fte_data,
-                                    onComplete: function(chart){
+                                    }
+                                },
+                                series: utili_fte_data,
+                                onComplete: function(chart){
                                     if (is_annotation) {
-                                    var series = null;
-                                    var chart_data = chart.series;
-                                    for(var i in chart_data){
-                                        series = chart_data[i];
-                                        (function(series){
-                                          $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
-					  self.type+'&chart_name=19&proj_name='+self.project_live+'&cen_name='+
-			                  self.center_live}).success(function(annotations){
-                               annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
-                               $.each(annotations, function(j, annotation){
-
-                                 var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
-
-                                 point = point[0];
-
-                                 if(annotation.epoch){
-                                   var a = new Annotation("19", $(self.chartOptions24.chart.renderTo),
-                                        chart, point, annotation);
-
-                                   console.log(a);
-                                   }
-                               })
-
-                                        });
-                                        }(series));
+                                        var series = null;
+                                        var chart_data = chart.series;
+                                        for(var i in chart_data){
+                                            series = chart_data[i];
+                                            (function(series){
+                                                $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
+                                                    self.type+'&chart_name=19&proj_name='+self.project_live+'&cen_name='+
+                                                    self.center_live}).success(function(annotations) {
+                                                    annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
+                                                    $.each(annotations, function(j, annotation){
+                                                        var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
+                                                        point = point[0];
+                                                        if(annotation.epoch){
+                                                            var a = new Annotation("19", $(self.chartOptions24.chart.renderTo), chart, point, annotation);
+                                                            console.log(a);
+                                                        }
+                                                    })
+                                                    });
+                                            }(series));
+                                        }
+                                        self.annot_perm();
                                     }
-                                    }
-                                    self.annot_perm();
-                                    }
-                                });
-                                $('.widget-19a').removeClass('widget-loader-show');
-                                $('.widget-19b').removeClass('widget-data-hide');
-                            }
+                                }
+                            });
+                            $('.widget-19a').removeClass('widget-loader-show');
+                            $('.widget-19b').removeClass('widget-data-hide');
 
                             if ((name == "self.chartOptions15") || (name == "")) {
-
                                 if (self.list_object.utilisation_wrt_work_packet != undefined) {
-
                                     if (self.list_object.utilisation_wrt_work_packet.display_value === true) {
-
                                         var value = true;
                                     }
                                     else {
-                                        var value = false;    
+                                        var value = false;
                                     }
                                 }
                                 else {
                                     var value = false;
                                 }
-                                angular.extend(self.chartOptions15, {
-                                    xAxis: {
-                                        categories: date_list,
-                                    },
-                                     plotOptions: {
-                                     series: {
-                                        dataLabels: {
-                                         enabled: value,
-                                       },
-                                       allowPointSelect: true,
-                                       cursor: 'pointer',
-                                         point: { 
-                                           events:{
-                                         contextmenu: function() {
-                                         if (self.role_for_perm == 'customer') {
-
-                                            console.log('he is customer');
-                                         }
-                                         else {
-
-                                           if (self.data_to_show.split('&').length == 6) {
-                                             var sub_proj = '';
-                                             var work_pack = '';
-                                             var sub_pack = '';
-                                           }
-                                           else {
-                                             var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
-                                             var work_pack = self.data_to_show.split('&')[6].split('=')[1];
-                                             var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
-                                           }
-                                                 var str = '9<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
-                                                                     this['project_live'] = self.project_live;
-                                                                     this['center_live'] = self.center_live;
-                                             return new Annotation(str, $(self.chartOptions15.chart.renderTo),this.series.chart, this);
-                                             }
-                                            }
-                                         }
-                                         }
-                                     }
-                                     },
-
-                                    series: overall_utili_data,
-                                    onComplete: function(chart){
-                                    if (is_annotation) {
-                                    var series = null;
-                                    var chart_data = chart.series;
-       
-                                    for(var i in chart_data){
-                                        series = chart_data[i];
-                                        (function(series){
-                                          $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
-					  self.type+'&chart_name=9&proj_name='+self.project_live+'&cen_name='+
-					  self.center_live}).success(function(annotations){
-                               annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
-                               $.each(annotations, function(j, annotation){
-       
-                                 var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
-       
-                                 point = point[0];
-       
-                                 if(annotation.epoch){
-                                   var a = new Annotation("9", $(self.chartOptions15.chart.renderTo),
-                                        chart, point, annotation);
-       
-                                   console.log(a);   
-                                   }
-                               })
-       
-                                        });
-                                        }(series));
-                                    }
-                                    }
-                                    self.annot_perm();
-                                    }
-
-                                });
-                               $('.widget-9a').removeClass('widget-loader-show');
-                               $('.widget-9b').removeClass('widget-data-hide');
                             }
+                            angular.extend(self.chartOptions15, {
+                                xAxis: {
+                                    categories: date_list,
+                                },
+                                plotOptions: {
+                                    series: {
+                                        dataLabels: {
+                                            enabled: value,
+                                            formatter: function () {
+                                                return Highcharts.numberFormat(this.y, null, null, ",");
+                                            }
+                                        },
+                                        allowPointSelect: true,
+                                        cursor: 'pointer',
+                                        point: {
+                                            events:{
+                                                contextmenu: function() {
+                                                    if (self.role_for_perm == 'customer') {
+                                                        console.log('he is customer');
+                                                    }
+                                                    else {
+                                                        if (self.data_to_show.split('&').length == 6) {
+                                                            var sub_proj = '';
+                                                            var work_pack = '';
+                                                            var sub_pack = '';
+                                                        }
+                                                        else {
+                                                            var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
+                                                            var work_pack = self.data_to_show.split('&')[6].split('=')[1];
+                                                            var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
+                                                        }
+                                                        var str = '9<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
+                                                        this['project_live'] = self.project_live;
+                                                        this['center_live'] = self.center_live;
+                                                        return new Annotation(str, $(self.chartOptions15.chart.renderTo),this.series.chart, this);
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                series: overall_utili_data,
+                                onComplete: function(chart){
+                                    if (is_annotation) {
+                                        var series = null;
+                                        var chart_data = chart.series;
+                                        for(var i in chart_data){
+                                            series = chart_data[i];
+                                            (function(series){
+                                                $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
+                                                    self.type+'&chart_name=9&proj_name='+self.project_live+'&cen_name='+
+                                                    self.center_live}).success(function(annotations) {
+                                                    annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
+                                                    $.each(annotations, function(j, annotation){
+                                                        var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
+                                                        point = point[0];
+                                                        if(annotation.epoch){
+                                                            var a = new Annotation("9", $(self.chartOptions25.chart.renderTo), chart, point, annotation);
+                                                            console.log(a);
+                                                        }
+                                                    })
+                                                    });
+                                            }(series));
+                                        }
+                                        self.annot_perm();
+                                    }
+                                }
+                            });
+                            $('.widget-9a').removeClass('widget-loader-show');
+                            $('.widget-9b').removeClass('widget-data-hide');
                         })
                     }
                     
                     self.productivity = function(final_work, type) {
-
                         if (type == undefined) {
                             type = 'day'
                         }
-
                         if (final_work == undefined) {
                             final_work = ''
                         }
-
                         self.type = type;
-                    
                         var productivity = '/api/productivity/'+self.data_to_show + type + final_work + '&chart_name=14';
-
                         return $http({method:"GET", url: productivity}).success(function(result){
-
                             var date_list = result.result.date;
                             var productivity = result.result.original_productivity_graph;
                             var is_annotation = result.result.is_annotation;
-
                             if (self.list_object.productivity_trends != undefined) {
-
                                 if (self.list_object.productivity_trends.display_value === true) {
-
-                                    var value = true;
-                                }
-                                else {
-                                    
-                                    var value = false;    
-                                }
-                            }
-                            else {
-                                var value = false;
-                            }
-
-                            angular.extend(self.chartOptions19, {
-                                xAxis: {
-                                    categories: date_list,
-                                },
-                                    plotOptions: {
-                                        series: {
-                                          dataLabels: {
-                                            enabled: value,
-                                          },
-                                          allowPointSelect: true,
-                                          cursor: 'pointer',
-                                            point: {
-                                              events:{
-                                                contextmenu: function() {
-                                                 if (self.role_for_perm == 'customer') {
-
-                                                    console.log('he is customer');
-                                                 }
-                                                 else {
-
-                                                  if (self.data_to_show.split('&').length == 6) {
-                                                    var sub_proj = '';
-                                                    var work_pack = '';
-                                                    var sub_pack = '';
-                                                  }
-                                                  else {
-                                                    var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
-                                                    var work_pack = self.data_to_show.split('&')[6].split('=')[1];
-                                                    var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
-                                                  }
-                                                    var str = '14<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
-                                                    this['project_live'] = self.project_live;
-                                                    this['center_live'] = self.center_live;
-                                                    return new Annotation(str, $(self.chartOptions19.chart.renderTo),this.series.chart, this);
-                                                    }
-                                                  }
-                                                }
-                                            }
-                                        }
-                                    },
-
-                                series: productivity,
-                                    onComplete: function(chart){
-                                    if(is_annotation) { 
-                                    var series = null;
-                                    var chart_data = chart.series;
-
-                                    for(var i in chart_data){
-                                        series = chart_data[i];
-                                        (function(series){
-                                          $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
-					  self.type+'&chart_name=14&proj_name='+self.project_live+'&cen_name='+
-					  self.center_live}).success(function(annotations){ 
-                               annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
-                               $.each(annotations, function(j, annotation){
-
-                                 var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
-
-                                 point = point[0];
-
-                                 if(annotation.epoch){
-                                   var a = new Annotation("14", $(self.chartOptions19.chart.renderTo),
-                                        chart, point, annotation);
-
-                                   console.log(a);
-                                   }
-                               })   
-
-                                        });
-                                        }(series));
-                                    }     
-                                    }
-                                    self.annot_perm();
-                                    }
-                            });
-                            $('.widget-14a').removeClass('widget-loader-show');
-                            $('.widget-14b').removeClass('widget-data-hide');
-                        })
-                    }
-
-                    self.prod_avg = function(final_work, type) {
- 
-                        if (type == undefined) {
-                            type = 'day'
-                        }
-
-                        if (final_work == undefined) {
-                            final_work = ''
-                        }
- 
-                        self.type = type;
-
-                        var prod_avg = '/api/prod_avg_perday/'+self.data_to_show + type + final_work + '&chart_name=33';
-
-                        return $http({method:"GET", url: prod_avg}).success(function(result){
-
-                           var date_list = result.result.date;
-                           var prod_avg_data = result.result.production_avg_details
-                           var is_annotation = result.result.is_annotation;
-
-                            if (self.list_object.production_avg_perday != undefined) {
-
-                                if (self.list_object.production_avg_perday.display_value === true) {
-
-                                    var value = true;
-                                }
-                                else {
-                                    var value = false;   
-                                }
-                            }
-                            else {
-                                var value = false;
-                            }
-                            
-                           angular.extend(self.chartOptions38, {
-                                xAxis: {
-                                    categories: date_list,
-                                },
-				plotOptions: {
-				    series: {
-                      dataLabels: {
-                         enabled: value,
-                      },
-				      allowPointSelect: true,
-				      cursor: 'pointer',
-					point: {
-					  events:{
-					    contextmenu: function() {
-                         if (self.role_for_perm == 'customer') {
-
-                            console.log('he is customer');
-                         }
-                         else {
-
-					      if (self.data_to_show.split('&').length == 6) {
-						var sub_proj = '';
-						var work_pack = '';
-						var sub_pack = '';
-					      }
-					      else {
-					      	var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
-						var work_pack = self.data_to_show.split('&')[6].split('=')[1];
-						var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
-					      }
-				                var str = '33<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
-                                                this['project_live'] = self.project_live;
-                                                this['center_live'] = self.center_live;
-					      return new Annotation(str, $(self.chartOptions38.chart.renderTo),this.series.chart, this);
-						    }
-                          }
-						}
-					    }
-					}
-				    },
-                                series: prod_avg_data,
-                                onComplete: function(chart){
-                                if (is_annotation) {
-                                var series = null;
-                                var chart_data = chart.series;
-       
-                                for(var i in chart_data){
-                                    series = chart_data[i];
-                                    (function(series){
-                                      $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
-				      self.type+'&chart_name=33&proj_name='+self.project_live+'&cen_name='+
-				      self.center_live}).success(function(annotations){
-                           annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
-                           $.each(annotations, function(j, annotation){
-       
-                             var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
-
-                             point = point[0];
-
-                             if(annotation.epoch){
-                               var a = new Annotation("33", $(self.chartOptions38.chart.renderTo),
-                                    chart, point, annotation);
-
-                               console.log(a);
-                               }
-                           })
-
-                                    });
-                                    }(series));
-                                }
-                                }
-                                self.annot_perm();
-                                }
-
-                            });
-                            $('.widget-33a').removeClass('widget-loader-show');
-                            $('.widget-33b').removeClass('widget-data-hide');
-                       }) 
-                    }
-
-                    self.tat_data = function(final_work, type) {
-
-                        if (type == undefined) {
-                            type = 'day'
-                        }
-
-                        if (final_work == undefined) {
-                            final_work = ''
-                        }
-
-                        self.type = type;
-
-                        var tat_data = '/api/tat_data/'+ self.data_to_show + type + final_work + '&chart_name=26';
-
-                        $http({method:"GET", url: tat_data}).success(function(result){
-                           var date_list = result.result.date;
-                           var tat_values = result.result.tat_graph_details
-                           var is_annotation = result.result.is_annotation;
-                            
-                           if (self.list_object.tat_graph != undefined) {
-
-                                if (self.list_object.tat_graph.display_value === true) {
-                                      
-                                    var value = true
-                                }
-                                else {
-                                    var value = false
-                                }
-                           }
-                           else {
-                                
-                                var value = false
-                           } 
-                           angular.extend(self.chartOptions31, {
-                                xAxis: {
-                                    categories: date_list,
-                                },
-                plotOptions: {
-                    series: {
-                      dataLabels: {
-                         enabled: value,
-                      },
-                      allowPointSelect: true,
-                      cursor: 'pointer',
-                    point: {
-                      events:{
-                        contextmenu: function() {
-                         if (self.role_for_perm == 'customer') {
-
-                            console.log('he is customer');
-                         }
-                         else {
-
-                          if (self.data_to_show.split('&').length == 6) {
-                        var sub_proj = '';
-                        var work_pack = '';
-                        var sub_pack = '';
-                          }
-                          else {
-                            var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
-                        var work_pack = self.data_to_show.split('&')[6].split('=')[1];
-                        var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
-                          }
-                      var str = '26<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
-                                                this['project_live'] = self.project_live;
-                                                this['center_live'] = self.center_live;
-                          return new Annotation(str, $(self.chartOptions31.chart.renderTo),this.series.chart, this);
-                            }
-                          }  
-                        }
-                        }
-                    }
-                    },
-                                series: tat_values,
-                    onComplete: function(chart){
-                    var series = null;
-                    var chart_data = chart.series;
-
-                    for(var i in chart_data){
-                   series = chart_data[i];
-                       (function(series){
-                      $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+self.type+'&chart_name=26&proj_name='+self.project_live+'&cen_name='+self.center_live}).success(function(annotations){
-               annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
-               $.each(annotations, function(j, annotation){
-
-             var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
-
-             point = point[0];
-
-             if(annotation.epoch){
-               var a = new Annotation("26", $(self.chartOptions31.chart.renderTo.innerHTML),
-                chart, point, annotation);
-
-               console.log(a);
-               }
-               })  
-
-                });
-                }(series));
-                }
-                self.annot_perm();
-                }
-
-                            });
-                            $('.widget-26a').removeClass('widget-loader-show');
-                            $('.widget-26b').removeClass('widget-data-hide');
-                       })
-                    }
-
-                    self.mont_volume = function(final_work, type) {
-
-                        if (type == undefined) {
-                            type = 'day'
-                        }
-
-                        if (final_work == undefined) {
-                            final_work = ''
-                        }
-
-                        self.type = type;
-
-                        var mont_volume = '/api/monthly_volume/'+self.data_to_show + type + final_work + '&chart_name=21';
-
-                        return $http({method:"GET", url: mont_volume}).success(function(result){
-
-                            var date_list  = result.result.date;
-
-                            var monthly_volume = result.result.monthly_volume_graph_details
-                            var is_annotation = result.result.is_annotation;
-
-                            if (self.list_object.monthly_volume_widget != undefined) {
-                            
-                                if (self.list_object.monthly_volume_widget.display_value === true) {
-
                                     var value = true;
                                 }
                                 else {
@@ -1298,106 +886,388 @@
                             else {
                                 var value = false;
                             }
+                            angular.extend(self.chartOptions19, {
+                                xAxis: {
+                                    categories: date_list,
+                                },
+                                plotOptions: {
+                                    series: {
+                                        dataLabels: {
+                                            enabled: value,
+                                            formatter: function () {
+                                                return Highcharts.numberFormat(this.y, null, null, ",");
+                                            }
+                                        },
+                                        allowPointSelect: true,
+                                        cursor: 'pointer',
+                                        point: {
+                                            events:{
+                                                contextmenu: function() {
+                                                    if (self.role_for_perm == 'customer') {
 
+                                                        console.log('he is customer');
+                                                    }
+                                                    else {
+                                                        if (self.data_to_show.split('&').length == 6) {
+                                                            var sub_proj = '';
+                                                            var work_pack = '';
+                                                            var sub_pack = '';
+                                                        }
+                                                        else {
+                                                            var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
+                                                            var work_pack = self.data_to_show.split('&')[6].split('=')[1];
+                                                            var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
+                                                        }
+                                                        var str = '14<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
+                                                        this['project_live'] = self.project_live;
+                                                        this['center_live'] = self.center_live;
+                                                        return new Annotation(str, $(self.chartOptions19.chart.renderTo),this.series.chart, this);
+                                                    }
+                                                }    
+                                            }
+                                        }
+                                    }
+                                },
+                                series: productivity,
+                                onComplete: function(chart){
+                                    if (is_annotation) {
+                                        var series = null;
+                                        var chart_data = chart.series;
+                                        for(var i in chart_data){
+                                            series = chart_data[i];
+                                            (function(series){
+                                                $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
+                                                    self.type+'&chart_name=14&proj_name='+self.project_live+'&cen_name='+
+                                                    self.center_live}).success(function(annotations) {
+                                                    annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
+                                                    $.each(annotations, function(j, annotation){
+                                                        var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
+                                                        point = point[0];
+                                                        if(annotation.epoch){
+                                                            var a = new Annotation("14", $(self.chartOptions19.chart.renderTo), chart, point, annotation);
+                                                            console.log(a);
+                                                        }
+                                                    })
+                                                    });
+                                            }(series));
+                                        }
+                                        self.annot_perm();
+                                    }
+                                }
+                            });
+                            $('.widget-14a').removeClass('widget-loader-show');
+                            $('.widget-14b').removeClass('widget-data-hide');
+                        });
+                    }
+
+                    self.prod_avg = function(final_work, type) {
+                        if (type == undefined) {
+                            type = 'day'
+                        }
+                        if (final_work == undefined) {
+                            final_work = ''
+                        }
+                        self.type = type;
+                        var prod_avg = '/api/prod_avg_perday/'+self.data_to_show + type + final_work + '&chart_name=33';
+                        return $http({method:"GET", url: prod_avg}).success(function(result){
+                            var date_list = result.result.date;
+                            var prod_avg_data = result.result.production_avg_details
+                            var is_annotation = result.result.is_annotation;
+                            if (self.list_object.production_avg_perday != undefined) {
+                                if (self.list_object.production_avg_perday.display_value === true) {
+                                    var value = true;
+                                }
+                                else {
+                                    var value = false;
+                                }
+                            }
+                            else {
+                                var value = false;
+                            }
+                            angular.extend(self.chartOptions38, {
+                                xAxis: {
+                                    categories: date_list,
+                                },
+                                plotOptions: {
+                                    series: {
+                                        dataLabels: {
+                                            enabled: value,
+                                            formatter: function () {
+                                                return Highcharts.numberFormat(this.y, null, null, ",");
+                                            }
+                                        },
+                                        allowPointSelect: true,
+                                        cursor: 'pointer',
+                                        point: {
+                                            events:{
+                                                contextmenu: function() {
+                                                    if (self.role_for_perm == 'customer') {
+
+                                                        console.log('he is customer');
+                                                    }
+                                                    else {
+                                                        if (self.data_to_show.split('&').length == 6) {
+                                                            var sub_proj = '';
+                                                            var work_pack = '';
+                                                            var sub_pack = '';
+                                                        }
+                                                        else {
+                                                            var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
+                                                            var work_pack = self.data_to_show.split('&')[6].split('=')[1];
+                                                            var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
+                                                        }
+                                                        var str = '33<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
+                                                        this['project_live'] = self.project_live;
+                                                        this['center_live'] = self.center_live;
+                                                        return new Annotation(str, $(self.chartOptions38.chart.renderTo),this.series.chart, this);
+                                                    }
+                                                }    
+                                            }
+                                        }
+                                    }
+                                },
+                                series: prod_avg_data,
+                                onComplete: function(chart){
+                                    if (is_annotation) {
+                                        var series = null;
+                                        var chart_data = chart.series;
+                                        for(var i in chart_data){
+                                            series = chart_data[i];
+                                            (function(series){
+                                                $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
+                                                    self.type+'&chart_name=33&proj_name='+self.project_live+'&cen_name='+
+                                                    self.center_live}).success(function(annotations) {
+                                                    annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
+                                                    $.each(annotations, function(j, annotation){
+                                                        var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
+                                                        point = point[0];
+                                                        if(annotation.epoch){
+                                                            var a = new Annotation("33", $(self.chartOptions38.chart.renderTo), chart, point, annotation);
+                                                            console.log(a);
+                                                        }
+                                                    })
+                                                    });
+                                            }(series));
+                                        }
+                                        self.annot_perm();
+                                    }
+                                }
+                            });
+                            $('.widget-33a').removeClass('widget-loader-show');
+                            $('.widget-33b').removeClass('widget-data-hide');
+                        });
+                    }
+
+                    self.tat_data = function(final_work, type) {
+                        if (type == undefined) {
+                            type = 'day'
+                        }
+                        if (final_work == undefined) {
+                            final_work = ''
+                        }
+                        self.type = type;
+                        var tat_data = '/api/tat_data/'+ self.data_to_show + type + final_work + '&chart_name=26';
+                        return $http({method:"GET", url: tat_data}).success(function(result){
+                            var date_list = result.result.date;
+                            var tat_values = result.result.tat_graph_details;
+                            var is_annotation = result.result.is_annotation;
+                            if (self.list_object.tat_graph != undefined) {
+                                if (self.list_object.tat_graph.display_value === true) {
+                                    var value = true;
+                                }
+                                else {
+                                    var value = false;
+                                }
+                            }
+                            else {
+                                var value = false;
+                            }
+                            angular.extend(self.chartOptions31, {
+                                xAxis: {
+                                    categories: date_list,
+                                },
+                                plotOptions: {
+                                    series: {
+                                        dataLabels: {
+                                            enabled: value,
+                                            formatter: function () {
+                                                return Highcharts.numberFormat(this.y, null, null, ",");
+                                            }
+                                        },
+                                        allowPointSelect: true,
+                                        cursor: 'pointer',
+                                        point: {
+                                            events:{
+                                                contextmenu: function() {
+                                                    if (self.role_for_perm == 'customer') {
+
+                                                        console.log('he is customer');
+                                                    }
+                                                    else {
+                                                        if (self.data_to_show.split('&').length == 6) {
+                                                            var sub_proj = '';
+                                                            var work_pack = '';
+                                                            var sub_pack = '';
+                                                        }
+                                                        else {
+                                                            var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
+                                                            var work_pack = self.data_to_show.split('&')[6].split('=')[1];
+                                                            var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
+                                                        }
+                                                        var str = '26<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
+                                                        this['project_live'] = self.project_live;
+                                                        this['center_live'] = self.center_live;
+                                                        return new Annotation(str, $(self.chartOptions31.chart.renderTo),this.series.chart, this);
+                                                    }
+                                                }    
+                                            }
+                                        }
+                                    }
+                                },
+                                series: tat_values,
+                                onComplete: function(chart){
+                                    if (is_annotation) {
+                                        var series = null;
+                                        var chart_data = chart.series;
+                                        for(var i in chart_data){
+                                            series = chart_data[i];
+                                            (function(series){
+                                                $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
+                                                    self.type+'&chart_name=26&proj_name='+self.project_live+'&cen_name='+
+                                                    self.center_live}).success(function(annotations) {
+                                                    annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
+                                                    $.each(annotations, function(j, annotation){
+                                                        var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
+                                                        point = point[0];
+                                                        if(annotation.epoch){
+                                                            var a = new Annotation("26", $(self.chartOptions31.chart.renderTo), chart, point, annotation);
+                                                            console.log(a);
+                                                        }
+                                                    })
+                                                    });
+                                            }(series));
+                                        }
+                                        self.annot_perm();
+                                    }
+                                }
+                            });
+                            $('.widget-26a').removeClass('widget-loader-show');
+                            $('.widget-26b').removeClass('widget-data-hide');
+                        });
+                    }
+
+                    self.mont_volume = function(final_work, type) {
+                        if (type == undefined) {
+                            type = 'day'
+                        }
+                        if (final_work == undefined) {
+                            final_work = ''
+                        }
+                        self.type = type;
+                        var mont_volume = '/api/monthly_volume/'+self.data_to_show + type + final_work + '&chart_name=21';
+                        return $http({method:"GET", url: mont_volume}).success(function(result){
+                            var date_list = result.result.date;
+                            var monthly_volume = result.result.monthly_volume_graph_details;
+                            var is_annotation = result.result.is_annotation;
+                            if (self.list_object.monthly_volume_widget != undefined) {
+                                if (self.list_object.monthly_volume_widget.display_value === true) {
+                                    var value = true;
+                                }
+                                else {
+                                    var value = false;
+                                }
+                            }
+                            else {
+                                var value = false;
+                            }
                             angular.extend(self.chartOptions26, {
                                 xAxis: {
                                     categories: date_list,
                                 },
-                                    plotOptions: {
-                                        series: {
+                                plotOptions: {
+                                    series: {
                                         dataLabels: {
                                             enabled: value,
+                                            formatter: function () {
+                                                return Highcharts.numberFormat(this.y, null, null, ",");
+                                            }
                                         },
-                                          allowPointSelect: true,
-                                          cursor: 'pointer',
-                                            point: {
-                                              events:{ 
+                                        allowPointSelect: true,
+                                        cursor: 'pointer',
+                                        point: {
+                                            events:{
                                                 contextmenu: function() {
-                                                 if (self.role_for_perm == 'customer') {
+                                                    if (self.role_for_perm == 'customer') {
 
-                                                    console.log('he is customer');
-                                                 }
-                                                 else {
-
-                                                  if (self.data_to_show.split('&').length == 6) {
-                                                    var sub_proj = '';
-                                                    var work_pack = '';
-                                                    var sub_pack = '';
-                                                  }
-                                                  else {
-                                                    var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
-                                                    var work_pack = self.data_to_show.split('&')[6].split('=')[1];
-                                                    var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
-                                                  }
-                                                    var str = '21<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
-                                                    this['project_live'] = self.project_live;
-                                                    this['center_live'] = self.center_live;
-                                                    return new Annotation(str, $(self.chartOptions26.chart.renderTo),this.series.chart, this);
+                                                        console.log('he is customer');
                                                     }
-                                                  }
-                                                }
+                                                    else {
+                                                        if (self.data_to_show.split('&').length == 6) {
+                                                            var sub_proj = '';
+                                                            var work_pack = '';
+                                                            var sub_pack = '';
+                                                        }
+                                                        else {
+                                                            var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
+                                                            var work_pack = self.data_to_show.split('&')[6].split('=')[1];
+                                                            var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
+                                                        }
+                                                        var str = '21<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
+                                                        this['project_live'] = self.project_live;
+                                                        this['center_live'] = self.center_live;
+                                                        return new Annotation(str, $(self.chartOptions26.chart.renderTo),this.series.chart, this);
+                                                    }
+                                                }    
                                             }
                                         }
-                                    },
+                                    }
+                                },
                                 series: monthly_volume,
                                 onComplete: function(chart){
-                                if (is_annotation) {
-                                var series = null;
-                                var chart_data = chart.series;
-       
-                                for(var i in chart_data){
-                                    series = chart_data[i];
-                                    (function(series){
-                                      $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
-				      self.type+'&chart_name=21&proj_name='+self.project_live+'&cen_name='+
-			              self.center_live}).success(function(annotations){
-                           annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
-                           $.each(annotations, function(j, annotation){
-       
-                             var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
-       
-                             point = point[0];
-       
-                             if(annotation.epoch){
-                               var a = new Annotation("21", $(self.chartOptions26.chart.renderTo),
-                                    chart, point, annotation);
-       
-                               console.log(a);
-                               }
-                           })
-       
-                                    });
-                                    }(series));
-                                }
-                                }
-                                self.annot_perm();
+                                    if (is_annotation) {
+                                        var series = null;
+                                        var chart_data = chart.series;
+                                        for(var i in chart_data){
+                                            series = chart_data[i];
+                                            (function(series){
+                                                $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
+                                                    self.type+'&chart_name=21&proj_name='+self.project_live+'&cen_name='+
+                                                    self.center_live}).success(function(annotations) {
+                                                    annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
+                                                    $.each(annotations, function(j, annotation){
+                                                        var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
+                                                        point = point[0];
+                                                        if(annotation.epoch){
+                                                            var a = new Annotation("21", $(self.chartOptions26.chart.renderTo), chart, point, annotation);
+                                                            console.log(a);
+                                                        }
+                                                    })
+                                                    });
+                                            }(series));
+                                        }
+                                        self.annot_perm();
+                                    }
                                 }
                             });
                             $('.widget-21a').removeClass('widget-loader-show');
                             $('.widget-21b').removeClass('widget-data-hide');
-                        })
+                        });
                     }
 
                     self.fte_graphs = function(final_work, type, name) {
-
                         if (type == undefined) {
                             type = 'day'
                         }
-
                         if (final_work == undefined) {
                             final_work = ''
                         }
-
                         if (name == undefined) {
                             name = ''
                         }
-
                         self.type = type;
-
                         var fte_graphs = '/api/fte_graphs/'+self.data_to_show + type + final_work + '&chart_name=11&chart_name=12';
-
-                        return $http({method:"GET", url: fte_graphs}).success(function(result){
-                            var is_annotation = result.result.is_annotation;
+                        return $http({method:"GET", url: fte_graphs}).success(function(result) {
+                            var is_annotation = result.result.is_annotation; 
                             if (type == 'day' && final_work == '') {
                                 if (result.result.type == 'day') {
                                     $('.day2').addClass('active btn-success');
@@ -1405,14 +1275,12 @@
                                     $('.day').addClass('active btn-success');
                                     $('.day').siblings().removeClass('active btn-success');
                                 }
-                               
                                 if (result.result.type == 'week') {
                                     $('.week2').addClass('active btn-success');
                                     $('.week2').siblings().removeClass('active btn-success');
                                     $('.week').addClass('active btn-success');
                                     $('.week').siblings().removeClass('active btn-success');
                                 }
-
                                 if (result.result.type == 'month') {
                                     $('.month2').addClass('active btn-success');
                                     $('.month2').siblings().removeClass('active btn-success');
@@ -1423,15 +1291,12 @@
                             var date_list = result.result.date;
                             var work_packet_fte = result.result.fte_calc_data.work_packet_fte;
                             var total_fte = result.result.fte_calc_data.total_fte;
-                            var date_range = $('#select').val().split('to');
-                            
+                            //var date_range = $('#select').val().split('to');
+
                             if ((name == "self.chartOptions16") || (name == "")) {
-
                                 if (self.list_object.total_fte != undefined) {
-                            
-                                    if (self.list_object.total_fte.display_value === true) { 
-
-                                        var value = true;   
+                                    if(self.list_object.total_fte.display_value === true) {
+                                        var value = true;
                                     }
                                     else {
                                         var value = false;
@@ -1440,93 +1305,81 @@
                                 else {
                                     var value = false;
                                 }
-
-                                angular.extend(self.chartOptions16, {
-                                    xAxis: {
-                                        categories: date_list,
-                                    },
-                                    plotOptions: {
-                                        series: {
+                            }
+                            angular.extend(self.chartOptions16, {
+                                xAxis: {
+                                    categories: date_list,
+                                },
+                                plotOptions: {
+                                    series: {
                                         dataLabels: {
                                             enabled: value,
                                             valueDecimals: 2
                                         },
-                                          allowPointSelect: true,
-                                          cursor: 'pointer',
-                                            point: {
-                                              events:{
+                                        allowPointSelect: true,
+                                        cursor: 'pointer',
+                                        point: {
+                                            events:{
                                                 contextmenu: function() {
-                                                 if (self.role_for_perm == 'customer') {
+                                                    if (self.role_for_perm == 'customer') {
 
-                                                    console.log('he is customer');
-                                                 }
-                                                 else {
-                                                  if (self.data_to_show.split('&').length == 6) {
-                                                    var sub_proj = '';
-                                                    var work_pack = '';
-                                                    var sub_pack = '';
-                                                  }
-                                                  else {
-                                                    var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
-                                                    var work_pack = self.data_to_show.split('&')[6].split('=')[1];
-                                                    var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
-                                                  }
-                                                    var str = '11<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
-                                                    this['project_live'] = self.project_live;
-                                                    this['center_live'] = self.center_live;
-                                                    return new Annotation(str, $(self.chartOptions16.chart.renderTo),this.series.chart, this);
+                                                        console.log('he is customer');
                                                     }
-                                                  }
-                                                }
+                                                    else {
+                                                        if (self.data_to_show.split('&').length == 6) {
+                                                            var sub_proj = '';
+                                                            var work_pack = '';
+                                                            var sub_pack = '';
+                                                        }
+                                                        else {
+                                                            var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
+                                                            var work_pack = self.data_to_show.split('&')[6].split('=')[1];
+                                                            var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
+                                                        }
+                                                        var str = '11<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
+                                                        this['project_live'] = self.project_live;
+                                                        this['center_live'] = self.center_live;
+                                                        return new Annotation(str, $(self.chartOptions16.chart.renderTo),this.series.chart, this);
+                                                    }
+                                                }    
                                             }
                                         }
-                                    },
-                                    series: work_packet_fte,
-                                    onComplete: function(chart){
+                                    }
+                                },
+                                series: work_packet_fte,
+                                onComplete: function(chart){
                                     if (is_annotation) {
-                                    var series = null;
-                                    var chart_data = chart.series;
-
-                                    for(var i in chart_data){
-                                        series = chart_data[i];
-                                        (function(series){
-                                          $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
-					  self.type+'&chart_name=11&proj_name='+self.project_live+'&cen_name='+
-					  self.center_live+'&start_date='+date_range[0]+'&end_date='+date_range[1]}).success(function(annotations){
-                               annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
-                               $.each(annotations, function(j, annotation){
-
-                                 var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
-
-                                 point = point[0];
-
-                                 if(annotation.epoch){
-                                   var a = new Annotation("11", $(self.chartOptions16.chart.renderTo),
-                                        chart, point, annotation);
-
-                                   console.log(a);
-                                   }
-                               })
-
-                                        });
-                                        }(series));
+                                        var series = null;
+                                        var chart_data = chart.series;
+                                        for(var i in chart_data){
+                                            series = chart_data[i];
+                                            (function(series){
+                                                $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
+                                                    self.type+'&chart_name=11&proj_name='+self.project_live+'&cen_name='+
+                                                    self.center_live+'&start_date='+date_range[0]+'&end_date='+date_range[1]}).success(function(annotations) {
+                                                    annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
+                                                    $.each(annotations, function(j, annotation){
+                                                        var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
+                                                        point = point[0];
+                                                        if(annotation.epoch){
+                                                            var a = new Annotation("11", $(self.chartOptions16.chart.renderTo), chart, point, annotation);
+                                                            console.log(a);
+                                                        }
+                                                    })
+                                                    });
+                                            }(series));
+                                        }
+                                        self.annot_perm();
                                     }
-                                    }
-                                    self.annot_perm();
-                                    }
-
-                                });
-                                $('.widget-11a').removeClass('widget-loader-show');
-                                $('.widget-11b').removeClass('widget-data-hide');
-                            }
+                                }
+                            });
+                            $('.widget-11a').removeClass('widget-loader-show');
+                            $('.widget-11b').removeClass('widget-data-hide');
 
                             if ((name == "self.chartOptions16_2") || (name == "")) {
-
                                 if (self.list_object.sum_total_fte != undefined) {
-
                                     if (self.list_object.sum_total_fte.display_value === true) {
-
-                                        var value = true;   
+                                        var value = true;
                                     }
                                     else {
                                         var value = false;
@@ -1535,107 +1388,92 @@
                                 else {
                                     var value = false;
                                 }
-
-                                angular.extend(self.chartOptions16_2, {
-                                    xAxis: {
-                                        categories: date_list,
-                                    },
-                                    plotOptions: {
-                                        series: {
+                            }
+                            angular.extend(self.chartOptions16_2, {
+                                xAxis: {
+                                    categories: date_list,
+                                },
+                                plotOptions: {
+                                    series: {
                                         dataLabels: {
                                             enabled: value,
                                             valueDecimals: 2
                                         },
-                                          allowPointSelect: true,
-                                          cursor: 'pointer',
-                                            point: {
-                                              events:{ 
+                                        allowPointSelect: true,
+                                        cursor: 'pointer',
+                                        point: {
+                                            events:{
                                                 contextmenu: function() {
-                                                 if (self.role_for_perm == 'customer') {
-
-                                                    console.log('he is customer');
-                                                 }
-                                                 else {
-
-                                                  if (self.data_to_show.split('&').length == 6) {
-                                                    var sub_proj = '';
-                                                    var work_pack = '';
-                                                    var sub_pack = '';
-                                                  }
-                                                  else {
-                                                    var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
-                                                    var work_pack = self.data_to_show.split('&')[6].split('=')[1];
-                                                    var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
-                                                  }
-                                                    var str = '12<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
-                                                    this['project_live'] = self.project_live;
-                                                    this['center_live'] = self.center_live;
-                                                    return new Annotation(str, $(self.chartOptions16_2.chart.renderTo),this.series.chart, this);
+                                                    if (self.role_for_perm == 'customer') {
+                                                        console.log('he is customer');
                                                     }
-                                                  }  
+                                                    else {
+                                                        if (self.data_to_show.split('&').length == 6) {
+                                                            var sub_proj = '';
+                                                            var work_pack = '';
+                                                            var sub_pack = '';
+                                                        }
+                                                        else {
+                                                            var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
+                                                            var work_pack = self.data_to_show.split('&')[6].split('=')[1];
+                                                            var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
+                                                        }
+                                                        var str = '12<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
+                                                        this['project_live'] = self.project_live;
+                                                        this['center_live'] = self.center_live;
+                                                        return new Annotation(str, $(self.chartOptions16_2.chart.renderTo),this.series.chart, this);
+                                                    }
                                                 }
                                             }
                                         }
-                                    },
-                                    series: total_fte,
-                                    onComplete: function(chart){
+                                    }
+                                },
+                                series: total_fte,
+                                onComplete: function(chart){
                                     if (is_annotation) {
-                                    var series = null;
-                                    var chart_data = chart.series;
-
-                                    for(var i in chart_data) {
-                                        series = chart_data[i];
-                                        (function(series){
-                                          $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
-                                          self.type+'&chart_name=12&proj_name='+self.project_live+'&cen_name='+
-					  self.center_live}).success(function(annotations){ 
-                               annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
-                               $.each(annotations, function(j, annotation){
-
-                                 var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
-
-                                 point = point[0];
-                                 if(annotation.epoch){
-                                   var a = new Annotation("12", $(self.chartOptions16_2.chart.renderTo),
-                                        chart, point, annotation);
-
-                                   console.log(a);   
-                                   }
-                               })
-
-                                        });
-                                        }(series));
+                                        var series = null;
+                                        var chart_data = chart.series;
+                                        for(var i in chart_data){
+                                            series = chart_data[i];
+                                            (function(series){
+                                                $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
+                                                    self.type+'&chart_name=12&proj_name='+self.project_live+'&cen_name='+
+                                                    self.center_live}).success(function(annotations) {
+                                                    annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
+                                                    $.each(annotations, function(j, annotation){
+                                                        var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
+                                                        point = point[0];
+                                                        if(annotation.epoch){
+                                                            var a = new Annotation("12", $(self.chartOptions16_2.chart.renderTo), chart, point, annotation);
+                                                            console.log(a);
+                                                        }
+                                                    })
+                                                    });
+                                            }(series));
+                                        }
+                                        self.annot_perm();
                                     }
-                                    }
-                                    self.annot_perm();
-                                    }
-                                });
-                                $('.widget-12a').removeClass('widget-loader-show');
-                                $('.widget-12b').removeClass('widget-data-hide');
-                          }
-                       })
+                                }
+                            });
+                            $('.widget-12a').removeClass('widget-loader-show');
+                            $('.widget-12b').removeClass('widget-data-hide');
+                        })
                     }
                 
                     self.main_prod = function(final_work, type, name) {
-
                         if (type == undefined) {
                             type = 'day'
                         }
-
                         if (final_work == undefined) {
                             final_work = ''
                         }
-
                         if (name == undefined) {
                             name = ''
                         }
-
                         self.type = type;
-
                         var main_prod = '/api/main_prod/'+self.data_to_show + type + final_work + '&chart_name=1&chart_name=6';
-
-                        return $http({method:"GET", url: main_prod}).success(function(result){
-            
+                        return $http({method:"GET", url: main_prod}).success(function(result) {
+                            var is_annotation = result.result.is_annotation; 
                             if (type == 'day' && final_work == '') {
                                 if (result.result.type == 'day') {
                                     $('.day2').addClass('active btn-success');
@@ -1643,14 +1481,12 @@
                                     $('.day').addClass('active btn-success');
                                     $('.day').siblings().removeClass('active btn-success');
                                 }
-                               
                                 if (result.result.type == 'week') {
                                     $('.week2').addClass('active btn-success');
                                     $('.week2').siblings().removeClass('active btn-success');
                                     $('.week').addClass('active btn-success');
                                     $('.week').siblings().removeClass('active btn-success');
                                 }
-
                                 if (result.result.type == 'month') {
                                     $('.month2').addClass('active btn-success');
                                     $('.month2').siblings().removeClass('active btn-success');
@@ -1660,14 +1496,10 @@
                             }
                             var date_list = result.result.data.date;
                             var main_prod_data = result.result.productivity_data;
-                            var is_annotation = result.result.is_annotation;
-                            
-                            if ((name == "self.chartOptions10") || (name == "")) {
-                                                                
-                                if (self.list_object.productivity_bar_graph != undefined) {
-                                
-                                    if (self.list_object.productivity_bar_graph.display_value === true) {
 
+                            if ((name == "self.chartOptions10") || (name == "")) {
+                                if (self.list_object.productivity_bar_graph != undefined) {
+                                    if(self.list_object.productivity_bar_graph.display_value === true) {
                                         var value = true;
                                     }
                                     else {
@@ -1677,92 +1509,82 @@
                                 else {
                                     var value = false;
                                 }
-                                angular.extend(self.chartOptions10, {
-                                   xAxis: {
-                                        categories: date_list,
-                                    },
-                                    plotOptions: {
-                                        series: {
-                                          dataLabels: {
+                            }
+                            angular.extend(self.chartOptions10, {
+                                xAxis: {
+                                    categories: date_list,
+                                },
+                                plotOptions: {
+                                    series: {
+                                        dataLabels: {
                                             enabled: value,
                                             formatter: function () {
                                                 return Highcharts.numberFormat(this.y, null, null, ",");
                                             },
-                                          },
-                                          allowPointSelect: true,
-                                          cursor: 'pointer',
-                                            point: { 
-                                              events:{
+                                        },
+                                        allowPointSelect: true,
+                                        cursor: 'pointer',
+                                        point: {
+                                            events:{
                                                 contextmenu: function() {
-                                                 if (self.role_for_perm == 'customer') {
+                                                    if (self.role_for_perm == 'customer') {
 
-                                                    console.log('he is customer');
-                                                 }
-                                                 else {
-
-                                                  if (self.data_to_show.split('&').length == 6) {
-                                                    var sub_proj = '';
-                                                    var work_pack = '';
-                                                    var sub_pack = '';
-                                                  }
-                                                  else {
-                                                    var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
-                                                    var work_pack = self.data_to_show.split('&')[6].split('=')[1];
-                                                    var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
-                                                  }
-                                                    var str = '6<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
-                                                    this['project_live'] = self.project_live;
-                                                    this['center_live'] = self.center_live;
-                                                    return new Annotation(str, $(self.chartOptions10.chart.renderTo),this.series.chart, this);
+                                                        console.log('he is customer');
                                                     }
-                                                  }
-                                                }
+                                                    else {
+                                                        if (self.data_to_show.split('&').length == 6) {
+                                                            var sub_proj = '';
+                                                            var work_pack = '';
+                                                            var sub_pack = '';
+                                                        }
+                                                        else {
+                                                            var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
+                                                            var work_pack = self.data_to_show.split('&')[6].split('=')[1];
+                                                            var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
+                                                        }
+                                                        var str = '6<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
+                                                        this['project_live'] = self.project_live;
+                                                        this['center_live'] = self.center_live;
+                                                        return new Annotation(str, $(self.chartOptions10.chart.renderTo),this.series.chart, this);
+                                                    }
+                                                }    
                                             }
                                         }
-                                    },
-                                    series: main_prod_data,
-                                    onComplete: function(chart){
-                                    if(is_annotation) {
-                                    var series = null;
-                                    var chart_data = chart.series;
-                                        for(var i in chart_data){  
+                                    }
+                                },
+                                series: main_prod_data,
+                                onComplete: function(chart){
+                                    if (is_annotation) {
+                                        var series = null;
+                                        var chart_data = chart.series;
+                                        for(var i in chart_data){
                                             series = chart_data[i];
                                             (function(series){
-                                              $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
-                                              self.type+'&chart_name=6&proj_name='+self.project_live+'&cen_name='+
-                                              self.center_live}).success(function(annotations){
-                                              annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
-                                               $.each(annotations, function(j, annotation){
-
-                                                 var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
-
-                                                 point = point[0];
-
-                                                 if(annotation.epoch){
-                                                   var a = new Annotation("6", $(self.chartOptions10.chart.renderTo),
-                                                        chart, point, annotation);
-
-                                                   console.log(a);
-                                                   }
-                                               })
-
-                                            });
+                                                $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
+                                                    self.type+'&chart_name=6&proj_name='+self.project_live+'&cen_name='+
+                                                    self.center_live}).success(function(annotations) {
+                                                    annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
+                                                    $.each(annotations, function(j, annotation){
+                                                        var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
+                                                        point = point[0];
+                                                        if(annotation.epoch){
+                                                            var a = new Annotation("6", $(self.chartOptions10.chart.renderTo), chart, point, annotation);
+                                                            console.log(a);
+                                                        }
+                                                    })
+                                                    });
                                             }(series));
                                         }
+                                        self.annot_perm();
                                     }
-                                    self.annot_perm();
-                                    }
-                                });
-                                $('.widget-6a').removeClass('widget-loader-show');
-                                $('.widget-6b').removeClass('widget-data-hide');
-                            }
+                                }
+                            });
+                            $('.widget-6a').removeClass('widget-loader-show');
+                            $('.widget-6b').removeClass('widget-data-hide');
 
                             if ((name == "self.chartOptions") || (name == "")) {
-
                                 if (self.list_object.productivity_chart != undefined) {
-
                                     if (self.list_object.productivity_chart.display_value === true) {
-
                                         var value = true;
                                     }
                                     else {
@@ -1772,94 +1594,81 @@
                                 else {
                                     var value = false;
                                 }
-
-                                angular.extend(self.chartOptions, {
-                                   xAxis: {
-                                        categories: date_list,
-                                    },
-				     plotOptions: {
-					 series: {
-                       dataLabels: {
-                         enabled: value,
-                         formatter: function () {
-                             return Highcharts.numberFormat(this.y, null, null, ",");
-                           },
-                       },
-					   allowPointSelect: true,
-					   cursor: 'pointer',
-					     point: {
-					       events:{ 
-						 contextmenu: function() {
-                         if (self.role_for_perm == 'customer') {
-
-                            console.log('he is customer');
-                         }
-                         else {
-						   if (self.data_to_show.split('&').length == 6) {
-						     var sub_proj = '';
-						     var work_pack = '';
-						     var sub_pack = '';
-						   }
-						   else {
-						     var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
-						     var work_pack = self.data_to_show.split('&')[6].split('=')[1];
-						     var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
-						   }
-					     	     var str = '1<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
-                                                     this['project_live'] = self.project_live;
-                                                     this['center_live'] = self.center_live;
-
-						     return new Annotation(str, $(self.chartOptions.chart.renderTo),this.series.chart, this);
-						     }
-                           } 
-						 }
-					     }
-					 }
-				     },
-
-                                    series: main_prod_data,
-                                    onComplete: function(chart){
-                                    if (is_annotation) {
-                                    var series = null;
-                                    var chart_data = chart.series;
-                                        for(var i in chart_data) {
-                                            series = chart_data[i];
-                                            (function(series){
-                                               $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
-                                               self.type+'&chart_name=1&proj_name='+self.project_live+'&cen_name='+
-                                               self.center_live}).success(function(annotations){
-                                               annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
-                                               $.each(annotations, function(j, annotation){
-
-                                                 var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
-
-                                                 point = point[0];
-
-                                                 if(annotation.epoch){
-                                                   var a = new Annotation("1", $(self.chartOptions.chart.renderTo),
-                                                        chart, point, annotation);
-
-                                                   console.log(a);
-                                                   }
-                                               })
-                                            });
-                                            }(series));
+                            }
+                            angular.extend(self.chartOptions, {
+                                xAxis: {
+                                    categories: date_list,
+                                },
+                                plotOptions: {
+                                    series: {
+                                        dataLabels: {
+                                            enabled: value,
+                                            valueDecimals: 2
+                                        },
+                                        allowPointSelect: true,
+                                        cursor: 'pointer',
+                                        point: {
+                                            events:{
+                                                contextmenu: function() {
+                                                    if (self.role_for_perm == 'customer') {
+                                                        console.log('he is customer');
+                                                    }
+                                                    else {
+                                                        if (self.data_to_show.split('&').length == 6) {
+                                                            var sub_proj = '';
+                                                            var work_pack = '';
+                                                            var sub_pack = '';
+                                                        }
+                                                        else {
+                                                            var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
+                                                            var work_pack = self.data_to_show.split('&')[6].split('=')[1];
+                                                            var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
+                                                        }
+                                                        var str = '1<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
+                                                        this['project_live'] = self.project_live;
+                                                        this['center_live'] = self.center_live;
+                                                        return new Annotation(str, $(self.chartOptions.chart.renderTo),this.series.chart, this);
+                                                    }
+                                                }
+                                            }
                                         }
                                     }
-                                    self.annot_perm();
+                                },
+                                series: main_prod_data,
+                                onComplete: function(chart){
+                                    if (is_annotation) {
+                                        var series = null;
+                                        var chart_data = chart.series;
+                                        for(var i in chart_data){
+                                            series = chart_data[i];
+                                            (function(series){
+                                                $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
+                                                    self.type+'&chart_name=1&proj_name='+self.project_live+'&cen_name='+
+                                                    self.center_live}).success(function(annotations) {
+                                                    annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
+                                                    $.each(annotations, function(j, annotation){
+                                                        var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
+                                                        point = point[0];
+                                                        if(annotation.epoch){
+                                                            var a = new Annotation("1", $(self.chartOptions.chart.renderTo), chart, point, annotation);
+                                                            console.log(a);
+                                                        }
+                                                    })
+                                                    });
+                                            }(series));
+                                        }
+                                        self.annot_perm();
                                     }
-                                });     
-                                $('.widget-1a').removeClass('widget-loader-show');
-                                $('.widget-1b').removeClass('widget-data-hide');
-                           }  
+                                }
+                            });
+                            $('.widget-1a').removeClass('widget-loader-show');
+                            $('.widget-1b').removeClass('widget-data-hide');
                         })
                     }
-    	
-	       	self.category_error = function(cate_error){
-                       return $http({method:"GET", url: cate_error}).success(function(result){
 
+                    self.category_error = function(cate_error){
+                        return $http({method:"GET", url: cate_error}).success(function(result){
                             angular.extend(self.chartOptions5,{
-
                                 series: [{
                                     name: '',
                                     colorByPoint: true,
@@ -1880,17 +1689,14 @@
                             });
                             $('.widget-5a').removeClass('widget-loader-show');
                             $('.widget-5b').removeClass('widget-data-hide');
-                       })
-		}
+                        })
+                    }    	
 
-		self.pareto_category_error = function(pareto_cate_error){
-                       return $http({method:"GET", url: pareto_cate_error + '&chart_name=24&chart_name=25' }).success(function(result){
-                           var is_annotation = result.result.is_annotation;
-                            
+                    self.pareto_category_error = function(pareto_cate_error) {
+                        return $http({method:"GET", url: pareto_cate_error + '&chart_name=24&chart_name=25' }).success(function(result){
+                            var is_annotation = result.result.is_annotation; 
                             if (self.list_object.error_category_internal_pareto_analysis != undefined) {
-
                                 if (self.list_object.error_category_internal_pareto_analysis.display_value === true) {
-
                                     var value = true;
                                 }
                                 else {
@@ -1900,90 +1706,80 @@
                             else {
                                 var value = false;
                             }
-    
                             angular.extend(self.chartOptions29, {
                                 xAxis: {
                                     categories: result.result.Internal_Error_Category.category_name,
                                 title: {
                                     text: '',
-                                 }
-                               },
+                                    }
+                                },
                                 plotOptions: {
                                     series: {
-                                      dataLabels: {
-                                        enabled: value,
-                                      },
-                                      allowPointSelect: true,
-                                      cursor: 'pointer',
+                                        dataLabels: {
+                                            enabled: value,
+                                        },
+                                        allowPointSelect: true,
+                                        cursor: 'pointer',
                                         point: {
-                                          events:{
-                                            contextmenu: function() {
-                                                 if (self.role_for_perm == 'customer') {
+                                            events:{
+                                                contextmenu: function() {
+                                                    if (self.role_for_perm == 'customer') {
 
-                                                    console.log('he is customer');
-                                                 }
-                                                 else {
-
-                                              if (self.data_to_show.split('&').length == 6) {
-                                                var sub_proj = '';
-                                                var work_pack = '';
-                                                var sub_pack = '';
-                                              }
-                                              else {
-                                                var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
-                                                var work_pack = self.data_to_show.split('&')[6].split('=')[1];
-                                                var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
-                                              }
-                                                var str = '24<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
-                                                this['project_live'] = self.project_live;
-                                                this['center_live'] = self.center_live;
-                                                return new Annotation(str, $(self.chartOptions29.chart.renderTo),this.series.chart, this);
-                                                }
+                                                        console.log('he is customer');
+                                                    }
+                                                    else {
+                                                        if (self.data_to_show.split('&').length == 6) {
+                                                            var sub_proj = '';
+                                                            var work_pack = '';
+                                                            var sub_pack = '';
+                                                        }
+                                                        else {
+                                                            var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
+                                                            var work_pack = self.data_to_show.split('&')[6].split('=')[1];
+                                                            var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
+                                                        }
+                                                        var str = '24<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
+                                                        this['project_live'] = self.project_live;
+                                                        this['center_live'] = self.center_live;
+                                                        return new Annotation(str, $(self.chartOptions29.chart.renderTo),this.series.chart, this);
+                                                    }
+                                                }    
                                             }
-                                           } 
                                         }
                                     }
                                 },
-	
-                               series: result.result.Internal_Error_Category.category_pareto,
-                                    onComplete: function(chart){
-                                    var series = null;
-                                    var chart_data = chart.series;
-                                    for(var i in chart_data){
-                                        series = chart_data[i];
-                                        (function(series){
-                                          $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
-				          self.type+'&chart_name=24&proj_name='+self.project_live+'&cen_name='+
-					  self.center_live}).success(function(annotations){ 
-                               annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
-                               $.each(annotations, function(j, annotation){
-
-                                 var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
-
-                                 point = point[0];
-
-                                 if(annotation.epoch){
-                                   var a = new Annotation("24", $(self.chartOptions29.chart.renderTo),
-                                        chart, point, annotation);
-
-                                   console.log(a);
-                                   }
-                               })
-
-                                        });
-                                        }(series));
+                                series: result.result.Internal_Error_Category.category_pareto,
+                                onComplete: function(chart){
+                                    if (is_annotation) {
+                                        var series = null;
+                                        var chart_data = chart.series;
+                                        for(var i in chart_data){
+                                            series = chart_data[i];
+                                            (function(series){
+                                                $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
+                                                    self.type+'&chart_name=24&proj_name='+self.project_live+'&cen_name='+
+                                                    self.center_live}).success(function(annotations) {
+                                                    annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
+                                                    $.each(annotations, function(j, annotation){
+                                                        var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
+                                                        point = point[0];
+                                                        if(annotation.epoch){
+                                                            var a = new Annotation("24", $(self.chartOptions29.chart.renderTo), chart, point, annotation);
+                                                            console.log(a);
+                                                        }
+                                                    })
+                                                    });
+                                            }(series));
+                                        }
+                                        self.annot_perm();
                                     }
-                                    self.annot_perm();
-                                    }
- 
+                                }
                             });
                             $('.widget-24a').removeClass('widget-loader-show');
                             $('.widget-24b').removeClass('widget-data-hide');
 
                             if (self.list_object.error_category_external_pareto_analysis != undefined) {
-
                                 if (self.list_object.error_category_external_pareto_analysis.display_value === true) {
-
                                     var value = true;
                                 }
                                 else {
@@ -1993,99 +1789,85 @@
                             else {
                                 var value = false;
                             }
+
                             angular.extend(self.chartOptions30, {
                                 xAxis: {
                                     categories: result.result.External_Error_Category.category_name,
-                                title: {
-                                    text: '',
-                                 }
-                               },
+                                    title: {
+                                        text: '',
+                                    }
+                                },
                                 plotOptions: {
                                     series: {
-                                      dataLabels: {
-                                        enabled: value,
-                                      },
-                                      allowPointSelect: true,
-                                      cursor: 'pointer',
+                                        dataLabels: {
+                                            enabled: value,
+                                        },
+                                        allowPointSelect: true,
+                                        cursor: 'pointer',
                                         point: {
-                                          events:{
-                                            contextmenu: function() {
-                                                 if (self.role_for_perm == 'customer') {
-
-                                                    console.log('he is customer');
-                                                 }
-                                                 else {
-
-                                              if (self.data_to_show.split('&').length == 6) { 
-                                                var sub_proj = '';
-                                                var work_pack = '';
-                                                var sub_pack = '';
-                                              }
-                                              else {
-                                                var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
-                                                var work_pack = self.data_to_show.split('&')[6].split('=')[1];
-                                                var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
-                                              }
-                                                var str = '25<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
-                                                this['project_live'] = self.project_live;
-                                                this['center_live'] = self.center_live;
-
-                                                return new Annotation(str, $(self.chartOptions30.chart.renderTo),this.series.chart, this);
+                                            events:{
+                                                contextmenu: function() {
+                                                    if (self.role_for_perm == 'customer') {
+                                                        console.log('he is customer');
+                                                    }
+                                                    else {
+                                                        if (self.data_to_show.split('&').length == 6) {
+                                                            var sub_proj = '';
+                                                            var work_pack = '';
+                                                            var sub_pack = '';
+                                                        }
+                                                        else {
+                                                            var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
+                                                            var work_pack = self.data_to_show.split('&')[6].split('=')[1];
+                                                            var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
+                                                        }
+                                                        var str = '25<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
+                                                        this['project_live'] = self.project_live;
+                                                        this['center_live'] = self.center_live;
+                                                        return new Annotation(str, $(self.chartOptions30.chart.renderTo),this.series.chart, this);
+                                                    }
                                                 }
-                                               } 
                                             }
                                         }
                                     }
-                                },                            
-                               series: result.result.External_Error_Category.category_pareto,
-                                    onComplete: function(chart){
-                                        if(is_annotation) {
-                                    var series = null;
-                                    var chart_data = chart.series;
-
-                                    for(var i in chart_data){
-                                        series = chart_data[i];
-                                        (function(series){
-                                          $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
-					  self.type+'&chart_name=25&proj_name='+self.project_live+'&cen_name='+
-					  self.center_live}).success(function(annotations){ 
-                               annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
-                               $.each(annotations, function(j, annotation){
-
-                                 var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
-
-                                 point = point[0];
-
-                                 if(annotation.epoch){
-                                   var a = new Annotation("25", $(self.chartOptions30.chart.renderTo),
-                                        chart, point, annotation);
-
-                                   console.log(a);
-                                   }
-                               })
-
-                                        });
-                                        }(series));
-                                    }
+                                },
+                                series: result.result.External_Error_Category.category_pareto,
+                                onComplete: function(chart){
+                                    if (is_annotation) {
+                                        var series = null;
+                                        var chart_data = chart.series;
+                                        for(var i in chart_data){
+                                            series = chart_data[i];
+                                            (function(series){
+                                                $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
+                                                    self.type+'&chart_name=25&proj_name='+self.project_live+'&cen_name='+
+                                                    self.center_live}).success(function(annotations) {
+                                                    annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
+                                                    $.each(annotations, function(j, annotation){
+                                                        var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
+                                                        point = point[0];
+                                                        if(annotation.epoch){
+                                                            var a = new Annotation("25", $(self.chartOptions30.chart.renderTo), chart, point, annotation);
+                                                            console.log(a);
+                                                        }
+                                                    })
+                                                    });
+                                            }(series));
                                         }
-                                    self.annot_perm();
+                                        self.annot_perm();
                                     }
-
+                                }
                             });
                             $('.widget-25a').removeClass('widget-loader-show');
                             $('.widget-25b').removeClass('widget-data-hide');
-                       })
-		   }
-		  
-		self.agent_category_error = function(agent_cate_error){
-                       return $http({method:"GET", url: agent_cate_error + '&chart_name=22&chart_name=23' }).success(function(result){
+                        })
+                    }
 
-                            var is_annotation = result.result.is_annotation;
-                            
+                    self.agent_category_error = function(pareto_cate_error) {
+                        return $http({method:"GET", url: agent_cate_error + '&chart_name=22&chart_name=23' }).success(function(result){
+                            var is_annotation = result.result.is_annotation; 
                             if (self.list_object.agent_wise_pareto_graph_data != undefined) {
-
                                 if (self.list_object.agent_wise_pareto_graph_data.display_value === true) {
-
                                     var value = true;
                                 }
                                 else {
@@ -2095,93 +1877,80 @@
                             else {
                                 var value = false;
                             }
-    
                             angular.extend(self.chartOptions27, {
                                 xAxis: {
                                     categories: result.result.Pareto_data.emp_names,
                                 title: {
                                     text: '',
-                                 }
-                               },
-
+                                    }
+                                },
                                 plotOptions: {
                                     series: {
-                                      dataLabels: {
-                                          enabled: value,
-                                      },
-                                      allowPointSelect: true,
-                                      cursor: 'pointer',
+                                        dataLabels: {
+                                            enabled: value,
+                                        },
+                                        allowPointSelect: true,
+                                        cursor: 'pointer',
                                         point: {
-                                          events:{
-                                            contextmenu: function() {
-                                                 if (self.role_for_perm == 'customer') {
+                                            events:{
+                                                contextmenu: function() {
+                                                    if (self.role_for_perm == 'customer') {
 
-                                                    console.log('he is customer');
-                                                 }
-                                                 else {
-
-                                              if (self.data_to_show.split('&').length == 6) {
-                                                var sub_proj = '';
-                                                var work_pack = '';
-                                                var sub_pack = '';
-                                              }
-                                              else {
-                                                var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
-                                                var work_pack = self.data_to_show.split('&')[6].split('=')[1];
-                                                var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
-                                              }
-                                                var str = '22<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
-                                                this['project_live'] = self.project_live;
-                                                this['center_live'] = self.center_live;
-                                                return new Annotation(str, $(self.chartOptions27.chart.renderTo),this.series.chart, this);
-                                                }
-                                              }
+                                                        console.log('he is customer');
+                                                    }
+                                                    else {
+                                                        if (self.data_to_show.split('&').length == 6) {
+                                                            var sub_proj = '';
+                                                            var work_pack = '';
+                                                            var sub_pack = '';
+                                                        }
+                                                        else {
+                                                            var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
+                                                            var work_pack = self.data_to_show.split('&')[6].split('=')[1];
+                                                            var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
+                                                        }
+                                                        var str = '22<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
+                                                        this['project_live'] = self.project_live;
+                                                        this['center_live'] = self.center_live;
+                                                        return new Annotation(str, $(self.chartOptions27.chart.renderTo),this.series.chart, this);
+                                                    }
+                                                }    
                                             }
                                         }
                                     }
                                 },
-                               series: result.result.Pareto_data.agent_pareto_data,
-                                    onComplete: function(chart){
+                                series: result.result.Pareto_data.agent_pareto_data,
+                                onComplete: function(chart){
                                     if (is_annotation) {
-                                    var series = null;
-                                    var chart_data = chart.series;
-
-                                    for(var i in chart_data){
-                                        series = chart_data[i];
-                                        (function(series){
-                                          $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
-				          self.type+'&chart_name=22&proj_name='+self.project_live+'&cen_name='+
-				          self.center_live}).success(function(annotations){ 
-                               annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
-                               $.each(annotations, function(j, annotation){
-
-                                 var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
-
-                                 point = point[0];
-
-                                 if(annotation.epoch){
-                                   var a = new Annotation("22", $(self.chartOptions27.chart.renderTo),
-                                        chart, point, annotation);
-
-                                   console.log(a);
-                                   }
-                               })
-
-                                        });
-                                        }(series));
+                                        var series = null;
+                                        var chart_data = chart.series;
+                                        for(var i in chart_data){
+                                            series = chart_data[i];
+                                            (function(series){
+                                                $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
+                                                    self.type+'&chart_name=22&proj_name='+self.project_live+'&cen_name='+
+                                                    self.center_live}).success(function(annotations) {
+                                                    annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
+                                                    $.each(annotations, function(j, annotation){
+                                                        var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
+                                                        point = point[0];
+                                                        if(annotation.epoch){
+                                                            var a = new Annotation("22", $(self.chartOptions27.chart.renderTo), chart, point, annotation);
+                                                            console.log(a);
+                                                        }
+                                                    })
+                                                    });
+                                            }(series));
+                                        }
+                                        self.annot_perm();
                                     }
-                                    }
-                                    self.annot_perm();
-                                    }
-
+                                }
                             });
                             $('.widget-22a').removeClass('widget-loader-show');
                             $('.widget-22b').removeClass('widget-data-hide');
 
                             if (self.list_object.agent_wise_external_pareto_analysis != undefined) {
-
                                 if (self.list_object.agent_wise_external_pareto_analysis.display_value === true) {
-
                                     var value = true;
                                 }
                                 else {
@@ -2195,109 +1964,91 @@
                             angular.extend(self.chartOptions28, {
                                 xAxis: {
                                     categories: result.result.External_Pareto_data.emp_names,
-                                title: {
-                                    text: '',
-                                 }
-                               },
+                                    title: {
+                                        text: '',
+                                    }
+                                },
                                 plotOptions: {
                                     series: {
-                                      dataLabels: {
-                                        enabled: value,
-                                      },
-                                      allowPointSelect: true,
-                                      cursor: 'pointer',
+                                        dataLabels: {
+                                            enabled: value,
+                                        },
+                                        allowPointSelect: true,
+                                        cursor: 'pointer',
                                         point: {
-                                          events:{
-                                            contextmenu: function() {
-                                             if (self.role_for_perm == 'customer') {
-
-                                                console.log('he is customer');
-                                             }
-                                             else {
-
-                                              if (self.data_to_show.split('&').length == 6) {
-                                                var sub_proj = '';
-                                                var work_pack = '';
-                                                var sub_pack = '';
-                                              }
-                                              else {
-                                                var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
-                                                var work_pack = self.data_to_show.split('&')[6].split('=')[1];
-                                                var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
-                                              }
-                                                var str = '23<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
-                                                this['project_live'] = self.project_live;
-                                                this['center_live'] = self.center_live;
-                                                return new Annotation(str, $(self.chartOptions28.chart.renderTo),this.series.chart, this);
+                                            events:{
+                                                contextmenu: function() {
+                                                    if (self.role_for_perm == 'customer') {
+                                                        console.log('he is customer');
+                                                    }
+                                                    else {
+                                                        if (self.data_to_show.split('&').length == 6) {
+                                                            var sub_proj = '';
+                                                            var work_pack = '';
+                                                            var sub_pack = '';
+                                                        }
+                                                        else {
+                                                            var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
+                                                            var work_pack = self.data_to_show.split('&')[6].split('=')[1];
+                                                            var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
+                                                        }
+                                                        var str = '23<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
+                                                        this['project_live'] = self.project_live;
+                                                        this['center_live'] = self.center_live;
+                                                        return new Annotation(str, $(self.chartOptions28.chart.renderTo),this.series.chart, this);
+                                                    }
                                                 }
-                                              }
                                             }
                                         }
                                     }
                                 },
-
-                               series: result.result.External_Pareto_data.agent_pareto_data,
-                                    onComplete: function(chart){
+                                series: result.result.External_Pareto_data.agent_pareto_data,
+                                onComplete: function(chart){
                                     if (is_annotation) {
-                                    var series = null;
-                                    var chart_data = chart.series;
-
-                                    for(var i in chart_data){
-                                        series = chart_data[i];
-                                        (function(series){
-                                          $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
-					  self.type+'&chart_name=23&proj_name='+self.project_live+'&cen_name='+
-					  self.center_live}).success(function(annotations){ 
-                               annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
-                               $.each(annotations, function(j, annotation){
-
-                                 var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
-
-                                 point = point[0];
-
-                                 if(annotation.epoch){
-                                   var a = new Annotation("23", $(self.chartOptions28.chart.renderTo),
-                                        chart, point, annotation);
-
-                                   console.log(a);
-                                   }
-                               })
-                                        });
-                                        }(series));
+                                        var series = null;
+                                        var chart_data = chart.series;
+                                        for(var i in chart_data){
+                                            series = chart_data[i];
+                                            (function(series){
+                                                $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
+                                                    self.type+'&chart_name=23&proj_name='+self.project_live+'&cen_name='+
+                                                    self.center_live}).success(function(annotations) {
+                                                    annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
+                                                    $.each(annotations, function(j, annotation){
+                                                        var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
+                                                        point = point[0];
+                                                        if(annotation.epoch){
+                                                            var a = new Annotation("23", $(self.chartOptions28.chart.renderTo), chart, point, annotation);
+                                                            console.log(a);
+                                                        }
+                                                    })
+                                                    });
+                                            }(series));
+                                        }
+                                        self.annot_perm();
                                     }
-                                    }
-                                    self.annot_perm();
-                                    }
+                                }
                             });
                             $('.widget-23a').removeClass('widget-loader-show');
                             $('.widget-23b').removeClass('widget-data-hide');
-                       }) 
-		 }
-
+                        })
+                    }
                 
                     self.pre_scan = function(final_work, type) {
-
                         if (type == undefined) {
                             type = 'day'
                         }
-
                         if (final_work == undefined) {
                             final_work = ''
                         }
                         self.type = type;
-
-                        var pre_scan = '/api/pre_scan_exce/'+self.data_to_show + type + final_work + '&chart_name=35'
-
+                        var pre_scan = '/api/pre_scan_exce/'+self.data_to_show + type + final_work + '&chart_name=35';
                         return $http({method:"GET", url: pre_scan}).success(function(result){
-
-                            var date_list  = result.result.date;
+                            var date_list = result.result.date;
                             var pre_scan_details = result.result.pre_scan_exception_data;
                             var is_annotation = result.result.is_annotation;
-                
                             if (self.list_object.pre_scan_exception_chart != undefined) {
-                        
                                 if (self.list_object.pre_scan_exception_chart.display_value === true) {
-
                                     var value = true;
                                 }
                                 else {
@@ -2308,228 +2059,186 @@
                                 var value = false;
                             }
                             angular.extend(self.chartOptions40, {
-
                                 xAxis: {
                                     categories: date_list,
-                                title: {
-                                    text: '',
-                                 }
-                               },
+                                },
                                 plotOptions: {
                                     series: {
-                                      dataLabels: {
-                                        enabled: value,
-                                      },
-                                      allowPointSelect: true,
-                                      cursor: 'pointer',
+                                        dataLabels: {
+                                            enabled: value,
+                                        },
+                                        allowPointSelect: true,
+                                        cursor: 'pointer',
                                         point: {
-                                          events:{
-                                            contextmenu: function() {
-                                             if (self.role_for_perm == 'customer') {
+                                            events:{
+                                                contextmenu: function() {
+                                                    if (self.role_for_perm == 'customer') {
 
-                                                console.log('he is customer');
-                                             }
-                                             else {
-
-                                              if (self.data_to_show.split('&').length == 6) { 
-                                                var sub_proj = '';
-                                                var work_pack = '';
-                                                var sub_pack = '';
-                                              }
-                                              else {
-                                                var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
-                                                var work_pack = self.data_to_show.split('&')[6].split('=')[1];
-                                                var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
-                                              }
-                                                var str = '35<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
-                                                this['project_live'] = self.project_live;
-                                                this['center_live'] = self.center_live;
-                                                return new Annotation(str, $(self.chartOptions40.chart.renderTo),this.series.chart, this);
-                                                }
-                                              }
+                                                        console.log('he is customer');
+                                                    }
+                                                    else {
+                                                        if (self.data_to_show.split('&').length == 6) {
+                                                            var sub_proj = '';
+                                                            var work_pack = '';
+                                                            var sub_pack = '';
+                                                        }
+                                                        else {
+                                                            var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
+                                                            var work_pack = self.data_to_show.split('&')[6].split('=')[1];
+                                                            var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
+                                                        }
+                                                        var str = '35<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
+                                                        this['project_live'] = self.project_live;
+                                                        this['center_live'] = self.center_live;
+                                                        return new Annotation(str, $(self.chartOptions40.chart.renderTo),this.series.chart, this);
+                                                    }
+                                                }    
                                             }
                                         }
                                     }
                                 },
-                               series: pre_scan_details,
+                                series: pre_scan_details,
                                 onComplete: function(chart){
-                                if (is_annotation) {
-                                var series = null;
-                                var chart_data = chart.series;
-
-                                for(var i in chart_data){
-                                    series = chart_data[i];
-                                    (function(series){
-                                      $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
-			              self.type+'&chart_name=35&proj_name='+self.project_live+'&cen_name='+
-				      self.center_live}).success(function(annotations){
-                           annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
-                           $.each(annotations, function(j, annotation){
-
-                             var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
-
-                             point = point[0];
-
-                             if(annotation.epoch){
-                               var a = new Annotation("35", $(self.chartOptions40.chart.renderTo),
-                                    chart, point, annotation);
-
-                               console.log(a);
-                               }
-                           })
-                                    });
-                                    }(series));
+                                    if (is_annotation) {
+                                        var series = null;
+                                        var chart_data = chart.series;
+                                        for(var i in chart_data){
+                                            series = chart_data[i];
+                                            (function(series){
+                                                $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
+                                                    self.type+'&chart_name=35&proj_name='+self.project_live+'&cen_name='+
+                                                    self.center_live}).success(function(annotations) {
+                                                    annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
+                                                    $.each(annotations, function(j, annotation){
+                                                        var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
+                                                        point = point[0];
+                                                        if(annotation.epoch){
+                                                            var a = new Annotation("35", $(self.chartOptions40.chart.renderTo), chart, point, annotation);
+                                                            console.log(a);
+                                                        }
+                                                    })
+                                                    });
+                                            }(series));
+                                        }
+                                        self.annot_perm();
+                                    }
                                 }
-                                }
-                                self.annot_perm();
-                                }
-
                             });
                             $('.widget-35a').removeClass('widget-loader-show');
                             $('.widget-35b').removeClass('widget-data-hide');
-                        }) 
+                        });
                     }
         
-                   self.nw_exce = function(final_work, type) {
-
+                    self.nw_exce = function(final_work, type) {
                         if (type == undefined) {
                             type = 'day'
                         }
                         if (final_work == undefined) {
                             final_work = ''
                         }
-
                         self.type = type;
-
                         var nw_exce = '/api/nw_exce/'+self.data_to_show + type + final_work + '&chart_name=37';
-
                         return $http({method:"GET", url: nw_exce}).success(function(result){
-                                                                    
-                            var date_list  = result.result.date;
+                            var date_list = result.result.date;
                             var nw_details = result.result.nw_exception_details;
                             var is_annotation = result.result.is_annotation;
-
                             if (self.list_object.nw_exception_chart != undefined) {
-
                                 if (self.list_object.nw_exception_chart.display_value === true) {
-
                                     var value = true;
                                 }
                                 else {
                                     var value = false;
-                                }   
+                                }
                             }
                             else {
                                 var value = false;
                             }
                             angular.extend(self.chartOptions42, {
-
                                 xAxis: {
                                     categories: date_list,
-                                title: {
-                                    text: '',
-                                 }
-                               },
+                                },
                                 plotOptions: {
                                     series: {
-                                      dataLabels: {
-                                        enabled: value,
-                                      },
-                                      allowPointSelect: true,
-                                      cursor: 'pointer',
+                                        dataLabels: {
+                                            enabled: value,
+                                        },
+                                        allowPointSelect: true,
+                                        cursor: 'pointer',
                                         point: {
-                                          events:{
-                                            contextmenu: function() {
-                                             if (self.role_for_perm == 'customer') {
+                                            events:{
+                                                contextmenu: function() {
+                                                    if (self.role_for_perm == 'customer') {
 
-                                                console.log('he is customer');
-                                             }
-                                             else {
-
-                                              if (self.data_to_show.split('&').length == 6) {
-                                                var sub_proj = '';
-                                                var work_pack = '';
-                                                var sub_pack = '';
-                                              }
-                                              else {
-                                                var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
-                                                var work_pack = self.data_to_show.split('&')[6].split('=')[1];
-                                                var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
-                                              }
-                                        	var str = '37<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
-                                                this['project_live'] = self.project_live;
-                                                this['center_live'] = self.center_live;
-                                                return new Annotation(str, $(self.chartOptions42.chart.renderTo),this.series.chart, this);
-                                                }
-                                              }  
+                                                        console.log('he is customer');
+                                                    }
+                                                    else {
+                                                        if (self.data_to_show.split('&').length == 6) {
+                                                            var sub_proj = '';
+                                                            var work_pack = '';
+                                                            var sub_pack = '';
+                                                        }
+                                                        else {
+                                                            var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
+                                                            var work_pack = self.data_to_show.split('&')[6].split('=')[1];
+                                                            var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
+                                                        }
+                                                        var str = '37<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
+                                                        this['project_live'] = self.project_live;
+                                                        this['center_live'] = self.center_live;
+                                                        return new Annotation(str, $(self.chartOptions42.chart.renderTo),this.series.chart, this);
+                                                    }
+                                                }    
                                             }
                                         }
                                     }
                                 },
-
-                               series: nw_details,
+                                series: nw_details,
                                 onComplete: function(chart){
-                                if (is_annotation) {
-                                var series = null;
-                                var chart_data = chart.series;
-
-                                for(var i in chart_data){
-                                    series = chart_data[i];
-                                    (function(series){
-                                      $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
-				      self.type+'&chart_name=37&proj_name='+self.project_live+'&cen_name='+
-				      self.center_live}).success(function(annotations){ 
-                           annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
-                           $.each(annotations, function(j, annotation){
-
-                             var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
-
-                             point = point[0];
-
-                             if(annotation.epoch){
-                               var a = new Annotation("37", $(self.chartOptions42.chart.renderTo),
-                                    chart, point, annotation);
-
-                               console.log(a);
-                               }
-                           })
-                                    });
-                                    }(series));
+                                    if (is_annotation) {
+                                        var series = null;
+                                        var chart_data = chart.series;
+                                        for(var i in chart_data){
+                                            series = chart_data[i];
+                                            (function(series){
+                                                $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
+                                                    self.type+'&chart_name=37&proj_name='+self.project_live+'&cen_name='+
+                                                    self.center_live}).success(function(annotations) {
+                                                    annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
+                                                    $.each(annotations, function(j, annotation){
+                                                        var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
+                                                        point = point[0];
+                                                        if(annotation.epoch){
+                                                            var a = new Annotation("37", $(self.chartOptions42.chart.renderTo), chart, point, annotation);
+                                                            console.log(a);
+                                                        }
+                                                    })
+                                                    });
+                                            }(series));
+                                        }
+                                        self.annot_perm();
+                                    }
                                 }
-                                self.annot_perm();
-                                }
-                                }
-
                             });
                             $('.widget-37a').removeClass('widget-loader-show');
                             $('.widget-37b').removeClass('widget-data-hide');
-                        })
+                        });
                     }
 
-                   self.overall_exce = function(final_work, type) {
-
+                    self.overall_exce = function(final_work, type) {
                         if (type == undefined) {
                             type = 'day'
-                        }   
-
+                        }
                         if (final_work == undefined) {
                             final_work = ''
                         }
-
                         self.type = type;
-
                         var overall_exce = '/api/overall_exce/'+self.data_to_show + type + final_work + '&chart_name=36';
-
                         return $http({method:"GET", url: overall_exce}).success(function(result){
-                                                                    
-                            var date_list  = result.result.date;
+                            var date_list = result.result.date;
                             var overall_details = result.result.overall_exception_details;
                             var is_annotation = result.result.is_annotation;
-
                             if (self.list_object.overall_exception_chart != undefined) {
-                                
                                 if (self.list_object.overall_exception_chart.display_value === true) {
-
                                     var value = true;
                                 }
                                 else {
@@ -2539,119 +2248,94 @@
                             else {
                                 var value = false;
                             }
-
                             angular.extend(self.chartOptions41, {
-
                                 xAxis: {
                                     categories: date_list,
-                                title: {
-                                    text: '',
-                                 }
-                               },
+                                },
                                 plotOptions: {
                                     series: {
-                                      dataLabels: {
-                                        enabled: value,
-                                      },
-                                      allowPointSelect: true,
-                                      cursor: 'pointer',
+                                        dataLabels: {
+                                            enabled: value,
+                                        },
+                                        allowPointSelect: true,
+                                        cursor: 'pointer',
                                         point: {
-                                          events:{
-                                            contextmenu: function() {
-                                             if (self.role_for_perm == 'customer') {
+                                            events:{
+                                                contextmenu: function() {
+                                                    if (self.role_for_perm == 'customer') {
 
-                                                console.log('he is customer');
-                                             }
-                                             else {
-
-                                              if (self.data_to_show.split('&').length == 6) {
-                                                var sub_proj = '';
-                                                var work_pack = '';
-                                                var sub_pack = '';
-                                              }
-                                              else {
-                                                var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
-                                                var work_pack = self.data_to_show.split('&')[6].split('=')[1];
-                                                var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
-                                              }
-                                        	var str = '36<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
-                                                this['project_live'] = self.project_live;
-                                                this['center_live'] = self.center_live;
-                                                return new Annotation(str, $(self.chartOptions41.chart.renderTo),this.series.chart, this);
-                                                }
-                                              }
+                                                        console.log('he is customer');
+                                                    }
+                                                    else {
+                                                        if (self.data_to_show.split('&').length == 6) {
+                                                            var sub_proj = '';
+                                                            var work_pack = '';
+                                                            var sub_pack = '';
+                                                        }
+                                                        else {
+                                                            var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
+                                                            var work_pack = self.data_to_show.split('&')[6].split('=')[1];
+                                                            var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
+                                                        }
+                                                        var str = '36<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
+                                                        this['project_live'] = self.project_live;
+                                                        this['center_live'] = self.center_live;
+                                                        return new Annotation(str, $(self.chartOptions41.chart.renderTo),this.series.chart, this);
+                                                    }
+                                                }    
                                             }
                                         }
                                     }
                                 },
-
-                               series: overall_details,
-                                onComplete: function(chart) {
-
-                                if (is_annotation) {    
-                                var series = null;
-                                var chart_data = chart.series;
-
-                                for(var i in chart_data){
-                                    series = chart_data[i];
-                                    (function(series){
-                                      $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
-				      self.type+'&chart_name=36&proj_name='+self.project_live+'&cen_name='+
-				      self.center_live}).success(function(annotations){ 
-                           annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
-                           $.each(annotations, function(j, annotation){
-
-                             var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
-
-                             point = point[0];
-
-                             if(annotation.epoch){
-                               var a = new Annotation("36", $(self.chartOptions41.chart.renderTo),
-                                    chart, point, annotation);
-
-                               console.log(a);
-                               }
-                           })
-                                    });
-                                    }(series));
+                                series: overall_details,
+                                onComplete: function(chart){
+                                    if (is_annotation) {
+                                        var series = null;
+                                        var chart_data = chart.series;
+                                        for(var i in chart_data){
+                                            series = chart_data[i];
+                                            (function(series){
+                                                $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
+                                                    self.type+'&chart_name=36&proj_name='+self.project_live+'&cen_name='+
+                                                    self.center_live}).success(function(annotations) {
+                                                    annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
+                                                    $.each(annotations, function(j, annotation){
+                                                        var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
+                                                        point = point[0];
+                                                        if(annotation.epoch){
+                                                            var a = new Annotation("36", $(self.chartOptions41.chart.renderTo), chart, point, annotation);
+                                                            console.log(a);
+                                                        }
+                                                    })
+                                                    });
+                                            }(series));
+                                        }
+                                        self.annot_perm();
+                                    }
                                 }
-                                self.annot_perm();
-                                }
-                                }
-
                             });
                             $('.widget-36a').removeClass('widget-loader-show');
                             $('.widget-36b').removeClass('widget-data-hide');
-                        })
+                        });
                     }
-                
-                    self.upload_acc = function(final_work, type) {
 
+                    self.upload_acc = function(final_work, type) {
                         if (type == undefined) {
                             type = 'day'
                         }
-
                         if (final_work == undefined) {
                             final_work = ''
                         }
-
                         self.type = type;
-
-                        var upload_acc = '/api/upload_acc/'+self.data_to_show + type + final_work + '&chart_name=34'
-
+                        var upload_acc = '/api/upload_acc/'+self.data_to_show + type + final_work + '&chart_name=34';
                         return $http({method:"GET", url: upload_acc}).success(function(result){
-
-                            var date_list  = result.result.upload_target_data.date;
+                            var date_list = result.result.date;
                             var upload_target_data = result.result.upload_target_data.data;
                             var is_annotation = result.result.is_annotation;
-
                             if (self.list_object.target_upload_graph != undefined) {
-
                                 if (self.list_object.target_upload_graph.display_value === true) {
-                                    
                                     var value = true;
                                 }
-                                
                                 else {
                                     var value = false;
                                 }
@@ -2659,204 +2343,175 @@
                             else {
                                 var value = false;
                             }
-
                             angular.extend(self.chartOptions39, {
-
                                 xAxis: {
                                     categories: date_list,
-                                title: {
-                                    text: '',
-                                 }
-                               },
+                                },
                                 plotOptions: {
                                     series: {
-                                      dataLabels: {
-                                        enabled: value,
-                                      },
-                                      allowPointSelect: true,
-                                      cursor: 'pointer',
+                                        dataLabels: {
+                                            enabled: value,
+                                        },
+                                        allowPointSelect: true,
+                                        cursor: 'pointer',
                                         point: {
-                                          events:{
-                                            contextmenu: function() {
-                                             if (self.role_for_perm == 'customer') {
+                                            events:{
+                                                contextmenu: function() {
+                                                    if (self.role_for_perm == 'customer') {
 
-                                                console.log('he is customer');
-                                             }
-                                             else {
-
-                                              if (self.data_to_show.split('&').length == 6) {
-                                                var sub_proj = '';
-                                                var work_pack = '';
-                                                var sub_pack = '';
-                                              }
-                                              else {
-                                                var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
-                                                var work_pack = self.data_to_show.split('&')[6].split('=')[1];
-                                                var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
-                                              }
-                                                var str = '34<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
-                                                this['project_live'] = self.project_live;
-                                                this['center_live'] = self.center_live;
-                                                return new Annotation(str, $(self.chartOptions39.chart.renderTo),this.series.chart, this);
-                                                }
-                                              }  
+                                                        console.log('he is customer');
+                                                    }
+                                                    else {
+                                                        if (self.data_to_show.split('&').length == 6) {
+                                                            var sub_proj = '';
+                                                            var work_pack = '';
+                                                            var sub_pack = '';
+                                                        }
+                                                        else {
+                                                            var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
+                                                            var work_pack = self.data_to_show.split('&')[6].split('=')[1];
+                                                            var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
+                                                        }
+                                                        var str = '34<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
+                                                        this['project_live'] = self.project_live;
+                                                        this['center_live'] = self.center_live;
+                                                        return new Annotation(str, $(self.chartOptions39.chart.renderTo),this.series.chart, this);
+                                                    }
+                                                }    
                                             }
                                         }
                                     }
                                 },
-
-                               series: upload_target_data,
+                                series: upload_target_data,
                                 onComplete: function(chart){
-                                if (is_annotation) { 
-                                var series = null;
-                                var chart_data = chart.series;
-
-                                for(var i in chart_data){
-                                    series = chart_data[i];
-                                    (function(series){
-                                      $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
-				      self.type+'&chart_name=34&proj_name='+self.project_live+'&cen_name='+
-				      self.center_live}).success(function(annotations){ 
-                           annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
-                           $.each(annotations, function(j, annotation){
-
-                             var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
-
-                             point = point[0];
-
-                             if(annotation.epoch){
-                               var a = new Annotation("34", $(self.chartOptions39.chart.renderTo),
-                                    chart, point, annotation);
-
-                               console.log(a);
-                               }
-                           })
-                                    });
-                                    }(series));
+                                    if (is_annotation) {
+                                        var series = null;
+                                        var chart_data = chart.series;
+                                        for(var i in chart_data){
+                                            series = chart_data[i];
+                                            (function(series){
+                                                $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
+                                                    self.type+'&chart_name=34&proj_name='+self.project_live+'&cen_name='+
+                                                    self.center_live}).success(function(annotations) {
+                                                    annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
+                                                    $.each(annotations, function(j, annotation){
+                                                        var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
+                                                        point = point[0];
+                                                        if(annotation.epoch){
+                                                            var a = new Annotation("34", $(self.chartOptions39.chart.renderTo), chart, point, annotation);
+                                                            console.log(a);
+                                                        }
+                                                    })
+                                                    });
+                                            }(series));
+                                        }
+                                        self.annot_perm();
+                                    }
                                 }
-                                }
-                                self.annot_perm();
-                                }
-
                             });
                             $('.widget-34a').removeClass('widget-loader-show');
                             $('.widget-34b').removeClass('widget-data-hide');
-                        })
+                        });
                     }
-                
-			self.error_field_graph = function(err_field_graph){
-                       return $http({method:"GET", url: err_field_graph + '&chart_name=38&chart_name=39'}).success(function(result){
-                           angular.extend(self.chartOptions43.yAxis,{
+
+                    self.error_field_graph = function(err_field_graph) {
+                        return $http({method:"GET", url: err_field_graph + '&chart_name=38&chart_name=39'}).success(function(result){
+                            angular.extend(self.chartOptions43.yAxis,{
                                 min:result.result.inter_min_value,
                                 max:result.result.inter_max_value
                             });
-                            var is_annotation = result.result.is_annotation;
-
+                            var is_annotation = result.result.is_annotation; 
                             if (self.list_object.internal_field_accuracy_graph != undefined) {
-
                                 if (self.list_object.internal_field_accuracy_graph.display_value === true) {
-
                                     var value = true;
                                 }
                                 else {
                                     var value = false;
-                                }                                       
+                                }
                             }
                             else {
                                 var value = false;
                             }
-
-                           angular.extend(self.chartOptions43,{
-                                plotOptions: { 
+                            angular.extend(self.chartOptions43, {
+                                plotOptions: {
                                     series: {
-                                      dataLabels: {
-                                        enabled: value,
-                                      },
-                                      allowPointSelect: true,
-                                      cursor: 'pointer',
+                                        dataLabels: {
+                                            enabled: value,
+                                        },
+                                        allowPointSelect: true,
+                                        cursor: 'pointer',
                                         point: {
-                                          events:{
-                                            contextmenu: function() {
-                                             if (self.role_for_perm == 'customer') {
+                                            events:{
+                                                contextmenu: function() {
+                                                    if (self.role_for_perm == 'customer') {
 
-                                                console.log('he is customer');
-                                             }
-                                             else {
-
-                                              if (self.data_to_show.split('&').length == 6) {
-                                                var sub_proj = '';
-                                                var work_pack = '';
-                                                var sub_pack = '';
-                                              }
-                                              else {
-                                                var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
-                                                var work_pack = self.data_to_show.split('&')[6].split('=')[1];
-                                                var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
-                                              }
-                                                var str = '38<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
-                                                this['project_live'] = self.project_live;
-                                                this['center_live'] = self.center_live;
-                                                return new Annotation(str, $(self.chartOptions43.chart.renderTo),this.series.chart, this);
-                                                }
+                                                        console.log('he is customer');
+                                                    }
+                                                    else {
+                                                        if (self.data_to_show.split('&').length == 6) {
+                                                            var sub_proj = '';
+                                                            var work_pack = '';
+                                                            var sub_pack = '';
+                                                        }
+                                                        else {
+                                                            var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
+                                                            var work_pack = self.data_to_show.split('&')[6].split('=')[1];
+                                                            var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
+                                                        }
+                                                        var str = '38<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
+                                                        this['project_live'] = self.project_live;
+                                                        this['center_live'] = self.center_live;
+                                                        return new Annotation(str, $(self.chartOptions43.chart.renderTo),this.series.chart, this);
+                                                    }
+                                                }    
                                             }
-                                          }
                                         }
                                     }
                                 },
-                               series: [{
-                                   name: 'accuracy',
-                                   colorByPoint: true,
-                                   cursor: 'pointer',
-                                   data: result.result.internal_field_accuracy_graph
-                               }],
+                                series: [{
+                                    name: 'accuracy',
+                                    colorByPoint: true,
+                                    cursor: 'pointer',
+                                    data: result.result.internal_field_accuracy_graph
+                                }],
                                 onComplete: function(chart){
-                                if (is_annotation) {
-                                var series = null;
-                                var chart_data = chart.series;
-
-                                for(var i in chart_data){
-                                    series = chart_data[i];
-                                    (function(series){
-                                      $http({ method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
-				      self.type+'&chart_name=38&proj_name='+self.project_live+'&cen_name='+
-				      self.center_live }).success(function(annotations) {
-                           annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
-                           $.each(annotations, function(j, annotation){
-
-                             var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
-
-                             point = point[0];
-
-                             if(annotation.epoch){
-                               var a = new Annotation("38", $(self.chartOptions43.chart.renderTo),
-                                    chart, point, annotation);
-
-                               console.log(a);
-                               }
-                           })   
-                                    });
-                                    }(series));
+                                    if (is_annotation) {
+                                        var series = null;
+                                        var chart_data = chart.series;
+                                        for(var i in chart_data){
+                                            series = chart_data[i];
+                                            (function(series){
+                                                $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
+                                                    self.type+'&chart_name=38&proj_name='+self.project_live+'&cen_name='+
+                                                    self.center_live}).success(function(annotations) {
+                                                    annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
+                                                    $.each(annotations, function(j, annotation){
+                                                        var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
+                                                        point = point[0];
+                                                        if(annotation.epoch){
+                                                            var a = new Annotation("38", $(self.chartOptions43.chart.renderTo), chart, point, annotation);
+                                                            console.log(a);
+                                                        }
+                                                    })
+                                                    });
+                                            }(series));
+                                        }
+                                        self.annot_perm();
+                                    }
                                 }
-                                }
-                                self.annot_perm();
-                                }
-
-                           });
+                            });
                             $('.widget-38a').removeClass('widget-loader-show');
                             $('.widget-38b').removeClass('widget-data-hide');
 
-                           angular.extend(self.chartOptions44.yAxis,{
+                            angular.extend(self.chartOptions44.yAxis,{
                                 min:result.result.exter_min_value,
                                 max:result.result.exter_max_value
                             });
 
                             if (self.list_object.external_field_accuracy_graph != undefined) {
-
                                 if (self.list_object.external_field_accuracy_graph.display_value === true) {
-
                                     var value = true;
                                 }
-                                
                                 else {
                                     var value = false;
                                 }
@@ -2865,94 +2520,83 @@
                                 var value = false;
                             }
 
-                           angular.extend(self.chartOptions44,{
-                                plotOptions: { 
+                            angular.extend(self.chartOptions44, {
+                                plotOptions: {
                                     series: {
-                                      dataLabels: {
-                                         enabled: value,
-                                      },
-                                      allowPointSelect: true,
-                                      cursor: 'pointer',
+                                        dataLabels: {
+                                            enabled: value,
+                                        },
+                                        allowPointSelect: true,
+                                        cursor: 'pointer',
                                         point: {
-                                          events:{
-                                            contextmenu: function() {
-                                             if (self.role_for_perm == 'customer') {
-
-                                                console.log('he is customer');
-                                             }
-                                             else {
-
-                                              if (self.data_to_show.split('&').length == 6) {
-                                                var sub_proj = '';
-                                                var work_pack = '';
-                                                var sub_pack = '';
-                                              }
-                                              else {
-                                                var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
-                                                var work_pack = self.data_to_show.split('&')[6].split('=')[1];
-                                                var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
-                                              }
-                                                var str = '39<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
-                                                this['project_live'] = self.project_live;
-                                                this['center_live'] = self.center_live;
-                                                return new Annotation(str, $(self.chartOptions44.chart.renderTo),this.series.chart, this);
+                                            events:{
+                                                contextmenu: function() {
+                                                    if (self.role_for_perm == 'customer') {
+                                                        console.log('he is customer');
+                                                    }
+                                                    else {
+                                                        if (self.data_to_show.split('&').length == 6) {
+                                                            var sub_proj = '';
+                                                            var work_pack = '';
+                                                            var sub_pack = '';
+                                                        }
+                                                        else {
+                                                            var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
+                                                            var work_pack = self.data_to_show.split('&')[6].split('=')[1];
+                                                            var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
+                                                        }
+                                                        var str = '39<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
+                                                        this['project_live'] = self.project_live;
+                                                        this['center_live'] = self.center_live;
+                                                        return new Annotation(str, $(self.chartOptions44.chart.renderTo),this.series.chart, this);
+                                                    }
                                                 }
                                             }
-                                           } 
                                         }
                                     }
                                 },
-                               series: [{
-                                   name: 'accuracy',
-                                   colorByPoint: true,
-                                   cursor: 'pointer',
-                                   data: result.result.external_field_accuracy_graph
-                               }],
-                                onComplete: function(chart) {
-                                if (is_annotation) {
-                                var series = null;
-                                var chart_data = chart.series;
-
-                                for(var i in chart_data){
-                                    series = chart_data[i];
-                                    (function(series){
-                                      $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
-				      self.type+'&chart_name=39&proj_name='+self.project_live+'&cen_name='+
-				      self.center_live}).success(function(annotations){  
-                           annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
-                           $.each(annotations, function(j, annotation){
-
-                             var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
-
-                             point = point[0];
-
-                             if(annotation.epoch){
-                               var a = new Annotation("39", $(self.chartOptions44.chart.renderTo),
-                                    chart, point, annotation);
-
-                                console.log(a);
+                                series: [{
+                                    name: 'accuracy',
+                                    colorByPoint: true,
+                                    cursor: 'pointer',
+                                    data: result.result.external_field_accuracy_graph
+                                }],
+                                onComplete: function(chart){
+                                    if (is_annotation) {
+                                        var series = null;
+                                        var chart_data = chart.series;
+                                        for(var i in chart_data){
+                                            series = chart_data[i];
+                                            (function(series){
+                                                $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
+                                                    self.type+'&chart_name=39&proj_name='+self.project_live+'&cen_name='+
+                                                    self.center_live}).success(function(annotations) {
+                                                    annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
+                                                    $.each(annotations, function(j, annotation){
+                                                        var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
+                                                        point = point[0];
+                                                        if(annotation.epoch){
+                                                            var a = new Annotation("39", $(self.chartOptions44.chart.renderTo), chart, point, annotation);
+                                                            console.log(a);
+                                                        }
+                                                    })
+                                                    });
+                                            }(series));
+                                        }
+                                        self.annot_perm();
+                                    }
                                 }
-                                })   
-                                    });
-                                    }(series));
-                                }
-                                self.annot_perm();
-                                }
-                              }
-                           });
-                           $('.widget-39a').removeClass('widget-loader-show');
-                           $('.widget-39b').removeClass('widget-data-hide');
-                       })
-			}
+                            });
+                            $('.widget-39a').removeClass('widget-loader-show');
+                            $('.widget-39b').removeClass('widget-data-hide');
+                        })
+                    }
 
-			self.error_bar_graph = function(error_bar_graph){
-	                       return $http({method:"GET", url: error_bar_graph + '&chart_name=2&chart_name=3'}).success(function(result){
-
-                            var is_annotation = result.result.is_annotation;
+                    self.error_bar_graph = function(error_bar_graph) {
+                        return $http({method:"GET", url: error_bar_graph + '&chart_name=2&chart_name=3'}).success(function(result){
+                            var is_annotation = result.result.is_annotation; 
                             if (self.list_object.internal_error_accuracy != undefined) {
-
                                 if (self.list_object.internal_error_accuracy.display_value === true) {
-
                                     var value = true;
                                 }
                                 else {
@@ -2962,12 +2606,11 @@
                             else {
                                 var value = false;
                             }
-
-                           angular.extend(self.chartOptions4.yAxis,{
+                            angular.extend(self.chartOptions4.yAxis,{
                                 min:result.result.int_min_value,
                                 max:result.result.int_max_value
                             });
-                           angular.extend(self.chartOptions4,{
+                            angular.extend(self.chartOptions4, {
                                 plotOptions: {
                                     series: {
                                         dataLabels: {
@@ -2975,89 +2618,78 @@
                                             format: '{y} %',
                                             valueDecimals: 2
                                         },
-                                      allowPointSelect: true,
-                                      cursor: 'pointer',
+                                        allowPointSelect: true,
+                                        cursor: 'pointer',
                                         point: {
-                                          events:{
-                                            contextmenu: function() {
-                                             if (self.role_for_perm == 'customer') {
+                                            events:{
+                                                contextmenu: function() {
+                                                    if (self.role_for_perm == 'customer') {
 
-                                                console.log('he is customer');
-                                             }
-                                             else {
-
-                                              if (self.data_to_show.split('&').length == 6) {
-                                                var sub_proj = '';
-                                                var work_pack = '';
-                                                var sub_pack = '';
-                                              }
-                                              else {
-                                                var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
-                                                var work_pack = self.data_to_show.split('&')[6].split('=')[1];
-                                                var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
-                                              }
-                                                var str = '2<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
-                                                this['project_live'] = self.project_live;
-                                                this['center_live'] = self.center_live;
-                                                return new Annotation(str, $(self.chartOptions4.chart.renderTo),this.series.chart, this);
-                                                }
-                                              }
+                                                        console.log('he is customer');
+                                                    }
+                                                    else {
+                                                        if (self.data_to_show.split('&').length == 6) {
+                                                            var sub_proj = '';
+                                                            var work_pack = '';
+                                                            var sub_pack = '';
+                                                        }
+                                                        else {
+                                                            var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
+                                                            var work_pack = self.data_to_show.split('&')[6].split('=')[1];
+                                                            var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
+                                                        }
+                                                        var str = '2<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
+                                                        this['project_live'] = self.project_live;
+                                                        this['center_live'] = self.center_live;
+                                                        return new Annotation(str, $(self.chartOptions4.chart.renderTo),this.series.chart, this);
+                                                    }
+                                                }    
                                             }
                                         }
                                     }
                                 },
-
-                               series: [{
-                                   name: 'accuracy',
-                                   colorByPoint: true,
-                                   cursor: 'pointer',
-                                   data: result.result.internal_accuracy_graph
-                               }],
+                                series: [{
+                                    name: 'accuracy',
+                                    colorByPoint: true,
+                                    cursor: 'pointer',
+                                    data: result.result.internal_accuracy_graph
+                                }],
                                 onComplete: function(chart){
-                                if (is_annotation) {
-                                var series = null;
-                                var chart_data = chart.series;
-
-                                for(var i in chart_data){
-                                    series = chart_data[i];
-                                    (function(series){
-                                      $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
-				      self.type+'&chart_name=2&proj_name='+self.project_live+'&cen_name='+
-				      self.center_live}).success(function(annotations){  
-                           annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
-                           $.each(annotations, function(j, annotation){
-
-                             var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
-
-                             point = point[0];
-
-                             if(annotation.epoch){
-                               var a = new Annotation("2", $(self.chartOptions4.chart.renderTo),
-                                    chart, point, annotation);
-
-                               console.log(a);
-                               }
-                           })
-                                    });
-                                    }(series));
+                                    if (is_annotation) {
+                                        var series = null;
+                                        var chart_data = chart.series;
+                                        for(var i in chart_data){
+                                            series = chart_data[i];
+                                            (function(series){
+                                                $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
+                                                    self.type+'&chart_name=2&proj_name='+self.project_live+'&cen_name='+
+                                                    self.center_live}).success(function(annotations) {
+                                                    annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
+                                                    $.each(annotations, function(j, annotation){
+                                                        var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
+                                                        point = point[0];
+                                                        if(annotation.epoch){
+                                                            var a = new Annotation("2", $(self.chartOptions4.chart.renderTo), chart, point, annotation);
+                                                            console.log(a);
+                                                        }
+                                                    })
+                                                    });
+                                            }(series));
+                                        }
+                                        self.annot_perm();
+                                    }
                                 }
-                                }
-                                self.annot_perm();
-                                }
+                            });
+                            $('.widget-2a').removeClass('widget-loader-show');
+                            $('.widget-2b').removeClass('widget-data-hide');
 
-                           });
-                           $('.widget-2a').removeClass('widget-loader-show');
-                           $('.widget-2b').removeClass('widget-data-hide');
-
-                           angular.extend(self.chartOptions6.yAxis,{
-                                min:result.result.ext_min_value,
-                                max:result.result.ext_max_value
+                            angular.extend(self.chartOptions6.yAxis,{
+                                min:result.result.exter_min_value,
+                                max:result.result.exter_max_value
                             });
 
                             if (self.list_object.external_error_accuracy != undefined) {
-
                                 if (self.list_object.external_error_accuracy.display_value === true) {
-
                                     var value = true;
                                 }
                                 else {
@@ -3068,7 +2700,7 @@
                                 var value = false;
                             }
 
-                           angular.extend(self.chartOptions6,{
+                            angular.extend(self.chartOptions6, {
                                 plotOptions: {
                                     series: {
                                         dataLabels: {
@@ -3076,210 +2708,93 @@
                                             format: '{y} %',
                                             valueDecimals: 2
                                         },
-                                      allowPointSelect: true,
-                                      cursor: 'pointer',
+                                        allowPointSelect: true,
+                                        cursor: 'pointer',
                                         point: {
-                                          events:{
-                                            contextmenu: function() {
-                                             if (self.role_for_perm == 'customer') {
-
-                                                console.log('he is customer');
-                                             }
-                                             else {
-
-                                              if (self.data_to_show.split('&').length == 6) {
-                                                var sub_proj = '';
-                                                var work_pack = '';
-                                                var sub_pack = '';
-                                              }
-                                              else {
-                                                var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
-                                                var work_pack = self.data_to_show.split('&')[6].split('=')[1];
-                                                var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
-                                              }
-                                                var str = '3<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
-                                                this['project_live'] = self.project_live;
-                                                this['center_live'] = self.center_live;
-                                                return new Annotation(str, $(self.chartOptions6.chart.renderTo),this.series.chart, this);
+                                            events:{
+                                                contextmenu: function() {
+                                                    if (self.role_for_perm == 'customer') {
+                                                        console.log('he is customer');
+                                                    }
+                                                    else {
+                                                        if (self.data_to_show.split('&').length == 6) {
+                                                            var sub_proj = '';
+                                                            var work_pack = '';
+                                                            var sub_pack = '';
+                                                        }
+                                                        else {
+                                                            var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
+                                                            var work_pack = self.data_to_show.split('&')[6].split('=')[1];
+                                                            var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
+                                                        }
+                                                        var str = '3<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
+                                                        this['project_live'] = self.project_live;
+                                                        this['center_live'] = self.center_live;
+                                                        return new Annotation(str, $(self.chartOptions6.chart.renderTo),this.series.chart, this);
+                                                    }
                                                 }
-                                              }
                                             }
                                         }
                                     }
                                 },
-
-                               series: [{
-                                   name: 'accuracy',
-                                   colorByPoint: true,
-                                   cursor: 'pointer',
-                                   data: result.result.external_accuracy_graph
-                               }],
+                                series: [{
+                                    name: 'accuracy',
+                                    colorByPoint: true,
+                                    cursor: 'pointer',
+                                    data: result.result.external_accuracy_graph
+                                }],
                                 onComplete: function(chart){
-                                if (is_annotation) {
-                                var series = null;
-                                var chart_data = chart.series;
-
-                                for(var i in chart_data){
-                                    series = chart_data[i];
-                                    (function(series){
-                                      $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
-				      self.type+'&chart_name=3&proj_name='+self.project_live+'&cen_name='+
-				      self.center_live}).success(function(annotations){  
-                           annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
-                           $.each(annotations, function(j, annotation){
-
-                             var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
-
-                             point = point[0];
-
-                             if(annotation.epoch){
-                               var a = new Annotation("3", $(self.chartOptions6.chart.renderTo),
-                                    chart, point, annotation);
-
-                               console.log(a);
-                               }
-                           })
-
-                                    });
-                                    }(series));
+                                    if (is_annotation) {
+                                        var series = null;
+                                        var chart_data = chart.series;
+                                        for(var i in chart_data){
+                                            series = chart_data[i];
+                                            (function(series){
+                                                $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
+                                                    self.type+'&chart_name=3&proj_name='+self.project_live+'&cen_name='+
+                                                    self.center_live}).success(function(annotations) {
+                                                    annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
+                                                    $.each(annotations, function(j, annotation){
+                                                        var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
+                                                        point = point[0];
+                                                        if(annotation.epoch){
+                                                            var a = new Annotation("3", $(self.chartOptions6.chart.renderTo), chart, point, annotation);
+                                                            console.log(a);
+                                                        }
+                                                    })
+                                                    });
+                                            }(series));
+                                        }
+                                        self.annot_perm();
+                                    }
                                 }
-                                self.annot_perm();
-                                }
-                                }
-                           });
-                           $('.widget-3a').removeClass('widget-loader-show');
-                           $('.widget-3b').removeClass('widget-data-hide');
-                       })
-			}
+                            });
+                            $('.widget-3a').removeClass('widget-loader-show');
+                            $('.widget-3b').removeClass('widget-data-hide');
+                        })
+                    }
 
                     self.from_to = function(final_work, type, name) {
-
                         if (type == undefined) {
                             type = 'day'
                         }
-
                         if (final_work == undefined) {
                             final_work = ''
                         }
-
                         if (name == undefined) {
                             name = ''
                         }
-
                         self.type = type;
-
                         var from_to = '/api/from_to/'+self.data_to_show + type + final_work + '&chart_name=7&chart_name=8';
-
-                        return $http({method:"GET", url: from_to}).success(function(result){
-
+                        return $http({method:"GET", url: from_to}).success(function(result) { 
                             var date_list = result.result.date;
                             var external_error_timeline = result.result.external_time_line;
                             var internal_error_timeline = result.result.internal_time_line;
                             var is_annotation = result.result.is_annotation;
 
                             if ((name == "self.chartOptions9_2") || (name == "")) {
-                            
                                 if (self.list_object.external_accuracy_timeline != undefined) {
-
-                                    if (self.list_object.external_accuracy_timeline.display_value === true) {
-
-                                        var value = true;
-                                    }
-                                    else {
-                                        var value = false;
-                                    }  
-                                }
-                                else {
-                                    var value = false;
-                                }
-
-                                angular.extend(self.chartOptions9_2.yAxis,{
-                                    min:result.result.min_external_time_line,
-                                    max:result.result.max_external_time_line
-                                });
-
-                                angular.extend(self.chartOptions9_2, {
-                                    xAxis: {
-                                        categories: date_list,
-                                    },
-                                    plotOptions: {
-                                        series: {
-                                          dataLabels: {
-                                            enabled: value,
-                                            format: '{y} %',
-                                            valueDecimals: 2
-                                          },
-                                          allowPointSelect: true,
-                                          cursor: 'pointer',
-                                            point: {
-                                              events:{
-                                                contextmenu: function() {
-                                                 if (self.role_for_perm == 'customer') {
-
-                                                    console.log('he is customer');
-                                                 }
-                                                 else {
-
-                                                  if (self.data_to_show.split('&').length == 6) {
-                                                    var sub_proj = '';
-                                                    var work_pack = '';
-                                                    var sub_pack = '';
-                                                  }
-                                                  else {
-                                                    var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
-                                                    var work_pack = self.data_to_show.split('&')[6].split('=')[1];
-                                                    var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
-                                                  }
-                                                    var str = '7<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
-                                                    this['project_live'] = self.project_live;
-                                                    this['center_live'] = self.center_live;
-                                                    return new Annotation(str, $(self.chartOptions9_2.chart.renderTo),this.series.chart, this);
-                                                    }
-                                                  }  
-                                                }
-                                            }
-                                        }
-                                    },
-                                    series: external_error_timeline,
-                                    onComplete: function(chart){
-                                    if (is_annotation) {
-                                    var series = null;
-                                    var chart_data = chart.series;
-                                    for(var i in chart_data){
-                                        series = chart_data[i];
-                                        (function(series){
-                                          $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
-					  self.type+'&chart_name=7&proj_name='+self.project_live+'&cen_name='+
-					  self.center_live}).success(function(annotations){
-                               annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
-                               $.each(annotations, function(j, annotation){
-
-                                 var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
-                                 point = point[0];
-                                 if(annotation.epoch){
-                                   var a = new Annotation("7", $(self.chartOptions9_2.chart.renderTo),
-                                        chart, point, annotation);
-
-                                   console.log(a);
-                                   }
-                               })
-                                        });
-                                        }(series));
-                                    }
-                                    }
-                                    self.annot_perm();
-                                    }
-                                });
-				}
-                                $('.widget-7a').removeClass('widget-loader-show');
-                                $('.widget-7b').removeClass('widget-data-hide');
-
-                            if ((name == "self.chartOptions9") || (name == "")) {
-
-                                if (self.list_object.internal_accuracy_timeline != undefined) {
-
-                                    if (self.list_object.internal_accuracy_timeline.display_value === true) {
-
+                                    if(self.list_object.external_accuracy_timeline.display_value === true) {
                                         var value = true;
                                     }
                                     else {
@@ -3289,180 +2804,250 @@
                                 else {
                                     var value = false;
                                 }
-
-                                angular.extend(self.chartOptions9.yAxis,{
-                                    min:result.result.min_internal_time_line,
-                                    max:result.result.max_internal_time_line
-                                });
-
-                                angular.extend(self.chartOptions9, {
-                                    xAxis: {
-                                        categories: date_list,
-                                    },
-                                    plotOptions: {
-                                        series: {
-                                          dataLabels: {
-                                            enabled: value,
-                                            format: '{y} %',
-                                            valueDecimals: 2
-                                          },
-                                          allowPointSelect: true,
-                                          cursor: 'pointer',
-                                            point: {
-                                              events:{ 
-                                                contextmenu: function() {
-                                                 if (self.role_for_perm == 'customer') {
-
-                                                    console.log('he is customer');
-                                                 }
-                                                 else {
-
-                                                  if (self.data_to_show.split('&').length == 6) {
-                                                    var sub_proj = '';
-                                                    var work_pack = '';
-                                                    var sub_pack = '';
-                                                  }
-                                                  else {
-                                                    var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
-                                                    var work_pack = self.data_to_show.split('&')[6].split('=')[1];
-                                                    var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
-                                                  }
-                                                    var str = '8<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
-                                                    this['project_live'] = self.project_live;
-                                                    this['center_live'] = self.center_live;
-                                                    return new Annotation(str, $(self.chartOptions9.chart.renderTo),this.series.chart, this);
-                                                    }
-                                                  }
-                                                }
-                                            }
-                                        }
-                                    },
-
-                                    series: internal_error_timeline,
-                                    onComplete: function(chart){
-                                    if (is_annotation) {
-                                    var series = null;
-                                    var chart_data = chart.series;
-
-                                    for(var i in chart_data){
-                                        series = chart_data[i];
-                                        (function(series){
-                                          $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
-					  self.type+'&chart_name=8&proj_name='+self.project_live+'&cen_name='+
-					  self.center_live}).success(function(annotations){  
-                               annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
-                               $.each(annotations, function(j, annotation){
-
-                                 var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
-
-                                 point = point[0];
-
-                                 if(annotation.epoch){
-                                   var a = new Annotation("8", $(self.chartOptions9.chart.renderTo),
-                                        chart, point, annotation);
-
-                                   console.log(a);
-                                   }
-                               })
-
-                                        });
-                                        }(series));
-                                    }
-                                    self.annot_perm();
-                                    }
-                                    }
-                                });
-                                $('.widget-8a').removeClass('widget-loader-show');
-                                $('.widget-8b').removeClass('widget-data-hide');
                             }
 
-                         })
-                       }
-                self.hideLoading();
-                var static_ajax = static_data + self.static_widget_data;
-		        self.static_data_call = function(static_ajax){
-                $http({method:"GET", url:static_ajax}).success(function(result){
+                            angular.extend(self.chartOptions9_2.yAxis,{
+                                min:result.result.min_external_time_line,
+                                max:result.result.max_external_time_line
+                            });
 
-                    angular.extend(self.chartOptions32, {
-                        xAxis: {
-                            categories: result.result.month_productivity_data.date,
-                        title: {
-                            text: '',
-                         }
-                       },
+                            angular.extend(self.chartOptions9_2, {
+                                xAxis: {
+                                    categories: date_list,
+                                },
+                                plotOptions: {
+                                    series: {
+                                        dataLabels: {
+                                            enabled: value,
+                                            format: '{y} %',
+                                            valueDecimals: 2
+                                        },
+                                        allowPointSelect: true,
+                                        cursor: 'pointer',
+                                        point: {
+                                            events:{
+                                                contextmenu: function() {
+                                                    if (self.role_for_perm == 'customer') {
 
-                       series: result.result.month_productivity_data.data
-                    });                   
-                    $('.widget-27a').removeClass('widget-loader-show');
-                    $('.widget-27b').removeClass('widget-data-hide');
+                                                        console.log('he is customer');
+                                                    }
+                                                    else {
+                                                        if (self.data_to_show.split('&').length == 6) {
+                                                            var sub_proj = '';
+                                                            var work_pack = '';
+                                                            var sub_pack = '';
+                                                        }
+                                                        else {
+                                                            var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
+                                                            var work_pack = self.data_to_show.split('&')[6].split('=')[1];
+                                                            var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
+                                                        }
+                                                        var str = '7<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
+                                                        this['project_live'] = self.project_live;
+                                                        this['center_live'] = self.center_live;
+                                                        return new Annotation(str, $(self.chartOptions9_2.chart.renderTo),this.series.chart, this);
+                                                    }
+                                                }    
+                                            }
+                                        }
+                                    }
+                                },
+                                series: external_error_timeline,
+                                onComplete: function(chart){
+                                    if (is_annotation) {
+                                        var series = null;
+                                        var chart_data = chart.series;
+                                        for(var i in chart_data){
+                                            series = chart_data[i];
+                                            (function(series){
+                                                $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
+                                                    self.type+'&chart_name=7&proj_name='+self.project_live+'&cen_name='+
+                                                    self.center_live}).success(function(annotations) {
+                                                    annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
+                                                    $.each(annotations, function(j, annotation){
+                                                        var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
+                                                        point = point[0];
+                                                        if(annotation.epoch){
+                                                            var a = new Annotation("7", $(self.chartOptions9_2.chart.renderTo), chart, point, annotation);
+                                                            console.log(a);
+                                                        }
+                                                    })
+                                                    });
+                                            }(series));
+                                        }
+                                        self.annot_perm();
+                                    }
+                                }
+                            });
+                            $('.widget-7a').removeClass('widget-loader-show');
+                            $('.widget-7b').removeClass('widget-data-hide');
 
-                    angular.extend(self.chartOptions33, {
-                        xAxis: {
-                            categories: result.result.week_productivity_data.date,
-                        title: {
-                            text: '',
-                         }
-                       },
+                            if ((name == "self.chartOptions9") || (name == "")) {
+                                if (self.list_object.internal_accuracy_timeline != undefined) {
+                                    if (self.list_object.internal_accuracy_timeline.display_value === true) {
+                                        var value = true;
+                                    }
+                                    else {
+                                        var value = false;
+                                    }
+                                }
+                                else {
+                                    var value = false;
+                                }
+                            }
+                            angular.extend(self.chartOptions9.yAxis,{
+                                min:result.result.min_internal_time_line,
+                                max:result.result.max_internal_time_line
+                            });
+                            angular.extend(self.chartOptions9, {
+                                xAxis: {
+                                    categories: date_list,
+                                },
+                                plotOptions: {
+                                    series: {
+                                        dataLabels: {
+                                            enabled: value,
+                                            format: '{y} %',
+                                            valueDecimals: 2
+                                        },
+                                        allowPointSelect: true,
+                                        cursor: 'pointer',
+                                        point: {
+                                            events:{
+                                                contextmenu: function() {
+                                                    if (self.role_for_perm == 'customer') {
+                                                        console.log('he is customer');
+                                                    }
+                                                    else {
+                                                        if (self.data_to_show.split('&').length == 6) {
+                                                            var sub_proj = '';
+                                                            var work_pack = '';
+                                                            var sub_pack = '';
+                                                        }
+                                                        else {
+                                                            var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
+                                                            var work_pack = self.data_to_show.split('&')[6].split('=')[1];
+                                                            var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
+                                                        }
+                                                        var str = '8<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
+                                                        this['project_live'] = self.project_live;
+                                                        this['center_live'] = self.center_live;
+                                                        return new Annotation(str, $(self.chartOptions9.chart.renderTo),this.series.chart, this);
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                series: internal_error_timeline,
+                                onComplete: function(chart){
+                                    if (is_annotation) {
+                                        var series = null;
+                                        var chart_data = chart.series;
+                                        for(var i in chart_data){
+                                            series = chart_data[i];
+                                            (function(series){
+                                                $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
+                                                    self.type+'&chart_name=8&proj_name='+self.project_live+'&cen_name='+
+                                                    self.center_live}).success(function(annotations) {
+                                                    annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
+                                                    $.each(annotations, function(j, annotation){
+                                                        var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
+                                                        point = point[0];
+                                                        if(annotation.epoch){
+                                                            var a = new Annotation("8", $(self.chartOptions9.chart.renderTo), chart, point, annotation);
+                                                            console.log(a);
+                                                        }
+                                                    })
+                                                    });
+                                            }(series));
+                                        }
+                                        self.annot_perm();
+                                    }
+                                }
+                            });
+                            $('.widget-8a').removeClass('widget-loader-show');
+                            $('.widget-8b').removeClass('widget-data-hide');
+                        })
+                    }
 
-                       series: result.result.week_productivity_data.data
-                    });
-                    $('.widget-28a').removeClass('widget-loader-show');
-                    $('.widget-28b').removeClass('widget-data-hide');
+                    self.hideLoading();
+                    var static_ajax = static_data + self.static_widget_data;
+		            self.static_data_call = function(static_ajax){
+                    $http({method:"GET", url:static_ajax}).success(function(result){
+                        angular.extend(self.chartOptions32, {
+                            xAxis: {
+                                categories: result.result.month_productivity_data.date,
+                            title: {
+                                text: '',
+                                }
+                            },   
+                            series: result.result.month_productivity_data.data
+                        });                   
+                        $('.widget-27a').removeClass('widget-loader-show');
+                        $('.widget-27b').removeClass('widget-data-hide');
 
-                    angular.extend(self.chartOptions34, {
-                        xAxis: {
-                            categories: result.result.data.date,
-                        title: {
-                            text: '',
-                         }
-                       },
+                        angular.extend(self.chartOptions33, {
+                            xAxis: {
+                                categories: result.result.week_productivity_data.date,
+                            title: {
+                                text: '',
+                                }
+                            },
+                            series: result.result.week_productivity_data.data
+                        });
+                        $('.widget-28a').removeClass('widget-loader-show');
+                        $('.widget-28b').removeClass('widget-data-hide');
 
-                       series: result.result.data.data
-                    });
-                    $('.widget-29a').removeClass('widget-loader-show');
-                    $('.widget-29b').removeClass('widget-data-hide');
+                        angular.extend(self.chartOptions34, {
+                            xAxis: {
+                                categories: result.result.data.date,
+                            title: {
+                                text: '',
+                                }
+                            },
+                            series: result.result.data.data
+                        });
+                        $('.widget-29a').removeClass('widget-loader-show');
+                        $('.widget-29b').removeClass('widget-data-hide');
 
-                    angular.extend(self.chartOptions35, {
-                        xAxis: {
-                            categories: result.result.data.date,
-                        title: {
-                            text: '',
-                         }
-                       },
+                        angular.extend(self.chartOptions35, {
+                            xAxis: {
+                                categories: result.result.data.date,
+                            title: {
+                                text: '',
+                                }
+                            },
+                            series: result.result.data.data
+                        });
+                        $('.widget-30a').removeClass('widget-loader-show');
+                        $('.widget-30b').removeClass('widget-data-hide');
 
-                       series: result.result.data.data
-                    });
-                    $('.widget-30a').removeClass('widget-loader-show');
-                    $('.widget-30b').removeClass('widget-data-hide');
+                        angular.extend(self.chartOptions36, {
+                            xAxis: {
+                                categories: result.result.week_productivity_data.date,
+                            title: {
+                                text: '',
+                                }
+                            },
+                            series: result.result.week_productivity_data.data
+                        });
+                        $('.widget-31a').removeClass('widget-loader-show');
+                        $('.widget-31b').removeClass('widget-data-hide');
 
-                    angular.extend(self.chartOptions36, {
-                        xAxis: {
-                            categories: result.result.week_productivity_data.date,
-                        title: {
-                            text: '',
-                         }
-                       },
-
-                       series: result.result.week_productivity_data.data
-                    });
-                    $('.widget-31a').removeClass('widget-loader-show');
-                    $('.widget-31b').removeClass('widget-data-hide');
-
-                    angular.extend(self.chartOptions37, {
-                        xAxis: {
-                            categories: result.result.month_productivity_data.date,
-                        title: {
-                            text: '',
-                         }
-                       },
-
-                       series: result.result.month_productivity_data.data
-                    });
-                    $('.widget-32a').removeClass('widget-loader-show');
-                    $('.widget-32b').removeClass('widget-data-hide');
-
-                });
-		}
+                        angular.extend(self.chartOptions37, {
+                            xAxis: {
+                                categories: result.result.month_productivity_data.date,
+                            title: {
+                                text: '',
+                                }
+                            },
+                            series: result.result.month_productivity_data.data
+                        });
+                        $('.widget-32a').removeClass('widget-loader-show');
+                        $('.widget-32b').removeClass('widget-data-hide');
+                 });
+		    }
 
     
             if (self.is_voice_flag == false) {
@@ -3503,15 +3088,11 @@
                    }
                });
 
-               /*var unique = values_array.filter(function(elem, index, self) {
-                   return index == self.indexOf(elem);
-               })*/
                 var names = values_array;
                 var uniqueNames = [];
                 $.each(names, function(i, el){
                     if($.inArray(el, uniqueNames) === -1) uniqueNames.push(el);
                 }); 
-               //for (var val in uniqueNames) {
                $.each(uniqueNames, function (key, val) {
                    if ((val == 'productivity_chart') || (val == 'productivity_bar_graph')) {
                         final_array.push(self.main_prod(undefined, undefined, undefined))
