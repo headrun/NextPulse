@@ -30,7 +30,6 @@ def get_hourly_sum(project, dates, table_name, location={}, skill={}, dispositio
         _term = term
     filter_param = create_filters([location, skill, disposition, project, dates])
 
-
     data_set = table_name.objects.filter(**filter_param).values_list('start_time', _term).order_by(_term)
 
     for item in data_set:
