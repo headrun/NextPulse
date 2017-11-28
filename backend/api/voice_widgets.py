@@ -190,10 +190,11 @@ def cate_dispo_inbound(request):
     prj_id = main_dict['pro_cen_mapping'][0][0]
     center = main_dict['pro_cen_mapping'][1][0]
     if main_dict['dwm_dict'].has_key('hour') and main_dict['type'] == 'hour':
-        date = main_dict['dates'][0]
-        hour_check = InboundHourlyCall.objects.filter(project = prj_id, center = center, date = date).values('disposition').count()
-        if hour_check > 0:
+        date, date_vals = main_dict['dates'][0], main_dict['dates']
+        if date_vals == 1:
             hrly_dispo_cate = hrly_disposition_cate_data(prj_id, center, date, disposition, curr_loca, skill)
+        else:
+            hrly_dispo_cate = disposition_cate_data(prj_id, center, date_vals, disposition, curr_loca, skill)
         result['cate_dispo_inbound'] = [{'name': item, 'y': hrly_dispo_cate[item][0]} for item in hrly_dispo_cate]
     elif main_dict['dwm_dict'].has_key('day') and main_dict['type'] == 'day':
         dates = main_dict['dwm_dict']['day']
@@ -230,10 +231,11 @@ def outbound_dispo_cate(request):
     prj_id = main_dict['pro_cen_mapping'][0][0]
     center = main_dict['pro_cen_mapping'][1][0]
     if main_dict['dwm_dict'].has_key('hour') and main_dict['type'] == 'hour':
-        date = main_dict['dates'][0]
-        hour_check = OutboundHourlyCall.objects.filter(project = prj_id, center = center, date = date).values('disposition').count()
-        if hour_check > 0:
+        date, dates_vals = main_dict['dates'][0], main_dict['dates']
+        if len(dates_vals) == 1:
             hrly_dispo_outbnd_cate = hrly_dispo_outbound_cate_data(prj_id, center, date, disposition)
+        else:
+            hrly_dispo_outbnd_cate = dispo_outbound_cate_data(prj_id, center, dates_vals, disposition)
         result['outbound_dispo_cate'] = [{'name': item, 'y': hrly_dispo_outbnd_cate[item][0]} for item in hrly_dispo_outbnd_cate]
     elif main_dict['dwm_dict'].has_key('day') and main_dict['type'] == 'day':
         dates = main_dict['dwm_dict']['day']
@@ -273,11 +275,10 @@ def outbound_disposition(request):
     if main_dict['dwm_dict'].has_key('hour') and main_dict['type'] == 'hour':
         hours = main_dict['dwm_dict']['hour'][8:22]
         dates = main_dict['dates']
-        location, skill, disposition, table_name = hour_parameters(curr_loc, skill_val, dispo_val, prj_type)
+        location, skill, disposition, table_name = hour_parameters(location, skill, disposition, prj_type)
         project = {'project' : [prj_id]}
         dates = {'date' : dates}
         result = get_hourly_sum(project, dates, table_name, location, skill, disposition, name)
-
     elif main_dict['dwm_dict'].has_key('day') and main_dict['type'] == 'day':
         dates = main_dict['dwm_dict']['day']
         date_check = OutboundHourlyCall.objects.filter(project = prj_id, center = center, date__range = [dates[0], dates[-1]])\
@@ -645,8 +646,12 @@ def agent_required(request):
     prj_id = main_dict['pro_cen_mapping'][0][0]
     center = main_dict['pro_cen_mapping'][1][0]
     location, skill, disposition, table_name = hour_parameters(curr_loc, skill_val, dispo_val, prj_type)
-    agent_data = actual_required_hourly(project, dates, table_name, location, skill, disposition)
-    return json_HttpResponse(result)
+    if ((main_dict['dwm_dict'].has_key('hour') and main_dict['type'] == 'hour') or \
+        (main_dict['dwm_dict'].has_key('day') and main_dict['type'] == 'day') or \
+        (main_dict['dwm_dict'].has_key('week') and main_dict['type'] == 'week') or \
+        (main_dict['dwm_dict'].has_key('month') and main_dict['type'] == 'month')):
+        agent_data = actual_required_hourly(project, dates, table_name, location, skill, disposition)
+    return json_HttpResponse(agent_data)
     
 def agent_graph_data(agent_data):
     agent_list = []

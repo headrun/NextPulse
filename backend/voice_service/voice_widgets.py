@@ -22,11 +22,16 @@ def create_filters(filter_params):
 def get_hourly_sum(project, dates, table_name, location={}, skill={}, disposition={}, term='disposition'):
 	"""take hourly summary of a selected date range
 	"""
-
 	_dict = {}
+    if term == 'outbound_disposition':
+        _term = 'disposition'
+    elif term == 'outbnd_dispo_common':
+        _term = 'disposition'
+    else:
+        _term = term
 	filter_param = create_filters([location, skill, disposition, project, dates])
 
-	data_set = table_name.objects.filter(**filter_param).values_list('start_time', term).order_by(term)
+	data_set = table_name.objects.filter(**filter_param).values_list('start_time', _term).order_by(_term)
 
 	for item in data_set:
 		result_dict = {}
