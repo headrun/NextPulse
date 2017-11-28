@@ -1,22 +1,12 @@
 import datetime
-#import redis
 from api.models import *
 from api.commons import data_dict
 from django.db.models import Max, Sum 
-#from collections import OrderedDict
-#from api.utils import *
-#from api.basics import *
-#from api.query_generations import query_set_generation
-#from api.fte_related import fte_calculation
-#from api.production import main_productivity_data
 from api.weekly_graph import *
-#from api.graph_settings import *
 from voice_service.models import *
 from voice_service.widgets import *
 from common.utils import getHttpResponse as json_HttpResponse
 from voice_service.voice_widgets import *
-
-
 
 def common_function(variable):
     location    = variable.GET['location']
@@ -29,7 +19,6 @@ def location(request):
     result = {}
     new_date_list = []
     curr_loc, skill_val, dispo_val, prj_type = common_function(request)
-
     main_dict = data_dict(request.GET)
     prj_id = main_dict['pro_cen_mapping'][0][0]
     center = main_dict['pro_cen_mapping'][1][0]
@@ -38,11 +27,10 @@ def location(request):
         hours = main_dict['dwm_dict']['hour'][8:22]
         dates = main_dict['dates']
         location, skill, disposition, table_name = hour_parameters(curr_loc, skill_val, dispo_val, prj_type)
+        print table_name
         project = {'project' : [prj_id]}
         dates = {'date' : dates}
-
         result = get_hourly_sum(project, dates, table_name, location, skill, disposition, name)
-
     elif main_dict['dwm_dict'].has_key('day') and main_dict['type'] == 'day':
         dates = main_dict['dwm_dict']['day']
         date_check = InboundHourlyCall.objects.filter(project = prj_id, center = center, date__range = [dates[0], dates[-1]])\
@@ -78,20 +66,10 @@ def skill(request):
     if main_dict['dwm_dict'].has_key('hour') and main_dict['type'] == 'hour':
         hours = main_dict['dwm_dict']['hour'][8:22]
         dates = main_dict['dates']
-        for date in dates:
-            for hour in hours:
-                hr = hour*60*60
-                hr1 = (hour + 1)*60*60
-                final_hour1 = date + ' ' + time.strftime('%H:%M:%S', time.gmtime(hr1))
-                final_hour = date + ' ' + time.strftime('%H:%M:%S', time.gmtime(hr))
-                hour_check = InboundHourlyCall.objects.filter(\
-                             project = prj_id, center = center, start_time__gte = final_hour, end_time__lte = final_hour1)\
-                             .values('skill').count()
-                if hour_check > 0:
-                    new_date_list.append(hour)
-        hrly_skill_val = hourly_skill_data(prj_id, center, dates, hours, curr_loca, disposition, skill)
-        result['skill'] = graph_format(hrly_skill_val)
-        result['date'] = new_date_list
+        location, skill, disposition, table_name = hour_parameters(curr_loca, skill, disposition, prj_type)
+        project = {'project' : [prj_id]}
+        dates = {'date' : dates}
+        result = get_hourly_sum(project, dates, table_name, location, skill, disposition, name)
     elif main_dict['dwm_dict'].has_key('day') and main_dict['type'] == 'day':
         dates = main_dict['dwm_dict']['day']
         date_check = InboundHourlyCall.objects.filter(project = prj_id, center = center, date__range = [dates[0], dates[-1]])\
@@ -127,20 +105,10 @@ def disposition(request):
     if main_dict['dwm_dict'].has_key('hour') and main_dict['type'] == 'hour':
         hours = main_dict['dwm_dict']['hour'][8:22]
         dates = main_dict['dates']
-        for date in dates:
-            for hour in hours:
-                hr = hour*60*60
-                hr1 = (hour + 1)*60*60
-                final_hour1 = date + ' ' + time.strftime('%H:%M:%S', time.gmtime(hr1))
-                final_hour = date + ' ' + time.strftime('%H:%M:%S', time.gmtime(hr))
-                hour_check = InboundHourlyCall.objects.filter(\
-                             project = prj_id, center = center, start_time__gte = final_hour, end_time__lte = final_hour1)\
-                             .values('disposition').count()
-                if hour_check > 0:
-                    new_date_list.append(hour)
-        hrly_dispo_val = hourly_dispo_data(prj_id, center, dates, hours, curr_loca, disposition, skill)
-        result['disposition'] = graph_format(hrly_dispo_val)
-        result['date'] = new_date_list
+        location, skill, disposition, table_name = hour_parameters(curr_loca, skill, disposition, prj_type)
+        project = {'project' : [prj_id]}
+        dates = {'date' : dates}
+        result = get_hourly_sum(project, dates, table_name, location, skill, disposition, name)
     elif main_dict['dwm_dict'].has_key('day') and main_dict['type'] == 'day':
         dates = main_dict['dwm_dict']['day']
         date_check = InboundHourlyCall.objects.filter(project = prj_id, center = center, date__range = [dates[0], dates[-1]])\
@@ -305,20 +273,11 @@ def outbound_disposition(request):
     if main_dict['dwm_dict'].has_key('hour') and main_dict['type'] == 'hour':
         hours = main_dict['dwm_dict']['hour'][8:22]
         dates = main_dict['dates']
-        for date in dates:
-            for hour in hours:
-                hr = hour*60*60
-                hr1 = (hour + 1)*60*60
-                final_hour1 = date + ' ' + time.strftime('%H:%M:%S', time.gmtime(hr1))
-                final_hour = date + ' ' + time.strftime('%H:%M:%S', time.gmtime(hr))
-                hour_check = OutboundHourlyCall.objects.filter(\
-                             project = prj_id, center = center, start_time__gte = final_hour, end_time__lte = final_hour1)\
-                             .values('disposition').count()
-                if hour_check > 0:
-                    new_date_list.append(hour)
-        hrly_outbnd_dispo_val = hourly_outbnd_dispo_data(prj_id, center, dates, hours, disposition)
-        result['outbound_disposition'] = graph_format(hrly_outbnd_dispo_val)
-        result['date'] = new_date_list
+        location, skill, disposition, table_name = hour_parameters(curr_loc, skill_val, dispo_val, prj_type)
+        project = {'project' : [prj_id]}
+        dates = {'date' : dates}
+        result = get_hourly_sum(project, dates, table_name, location, skill, disposition, name)
+
     elif main_dict['dwm_dict'].has_key('day') and main_dict['type'] == 'day':
         dates = main_dict['dwm_dict']['day']
         date_check = OutboundHourlyCall.objects.filter(project = prj_id, center = center, date__range = [dates[0], dates[-1]])\
@@ -680,59 +639,13 @@ def agent_productivity_data(request):
     return json_HttpResponse(result)
 
 def agent_required(request):
-    result, skill_week_dt = {}, {}
-    new_date_list, dates_list, week_names = [], [], []
-    month_names = []
-    week_num, skill_week_num = 0, 0
+    result = {}
     main_dict = data_dict(request.GET)
-    skill = request.GET['skill']
-    curr_loca = request.GET['location']
-    disposition = request.GET['disposition']
+    curr_loc, skill_val, dispo_val, prj_type = common_function(request)
     prj_id = main_dict['pro_cen_mapping'][0][0]
     center = main_dict['pro_cen_mapping'][1][0]
-    if main_dict['dwm_dict'].has_key('day') and main_dict['type'] == 'day':
-        dates = main_dict['dwm_dict']['day']
-        date_check = InboundHourlyCall.objects.filter(project = prj_id, center = center, date__range = [dates[0], dates[-1]])\
-                     .values('date').annotate(total = count('skill')).order_by('date')
-        values = OrderedDict(zip(map(lambda p: str(p['date']), date_check), map(lambda p: str(p['total']), date_check)))
-        for date_key, date_value in values.iteritems():
-            if date_value > 0:
-                new_date_list.append(date_key)
-                result['date'] = new_date_list
-        skill_val = agent_deployed_call_data(prj_id, center, dates, skill, curr_loca, disposition)
-        final_values = graph_format(skill_val)
-        agents_data  = agent_graph_data(final_values)
-        result['agent_required'] = agents_data
-    elif main_dict['dwm_dict'].has_key('week') and main_dict['type'] == 'week':
-        dates = main_dict['dwm_dict']['week']
-        for date_values in dates:
-            dates_list.append(date_values[0] + ' to ' + date_values[-1])
-            week_name = str('week' + str(week_num))
-            week_names.append(week_name)
-            week_num = week_num + 1
-            skill_details = agent_deployed_call_data(prj_id, center, date_values, skill, curr_loca, disposition)
-            skill_week_name = str('week' + str(skill_week_num))
-            skill_week_dt[skill_week_name] = skill_details
-            skill_week_num = skill_week_num + 1
-        final_skill_data = prod_volume_week(week_names, skill_week_dt, {})
-        final_values = graph_format(final_skill_data)
-        agents_data  = agent_graph_data(final_values)
-        result['agent_required'] = agents_data
-        result['date'] = dates_list
-    else:
-        for month_na,month_va in zip(main_dict['dwm_dict']['month']['month_names'],main_dict['dwm_dict']['month']['month_dates']):
-            month_name = month_na
-            month_dates = month_va
-            dates_list.append(month_dates[0] + ' to ' + month_dates[-1])
-            month_names.append(month_name)
-            skill_details = agent_deployed_call_data(prj_id, center, month_dates, skill, curr_loca, disposition)
-            skill_week_dt[month_name] = skill_details
-        final_skill_data = prod_volume_week(month_names, skill_week_dt, {})
-        final_values = graph_format(final_skill_data)
-        agents_data  = agent_graph_data(final_values)
-        result['agent_required'] = agents_data
-        result['date'] = dates_list
-    result['type'] = main_dict['type']
+    location, skill, disposition, table_name = hour_parameters(curr_loc, skill_val, dispo_val, prj_type)
+    agent_data = actual_required_hourly(project, dates, table_name, location, skill, disposition)
     return json_HttpResponse(result)
     
 def agent_graph_data(agent_data):
@@ -763,10 +676,10 @@ def hour_parameters(location, skill, dispo, prj_type):
     else:
         dispo = [dispo]
     if prj_type == 'inbound':
-        table_name = 'InboundHourlyCall'
+        table_name = InboundHourlyCall
     else:
-        table_name = 'OutboundHourlyCall'
-    return {'location' : location}, {'skill' : skill}, {'disposition' : dispo}, {'table_name' : table_name}
+        table_name = OutboundHourlyCall
+    return {'location' : location}, {'skill' : skill}, {'disposition' : dispo}, table_name
 
 def week_calculation(prj_id, center, dates, location, disposition, skill, term):
     week_names = []

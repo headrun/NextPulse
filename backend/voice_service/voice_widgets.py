@@ -36,16 +36,16 @@ def get_hourly_sum(project, dates, table_name, location={}, skill={}, dispositio
 		if not _dict.has_key(item[1]):
 			_dict.update({item[1]: result_dict})
 		_dict[item[1]][item[0].hour] +=1
-	final_dict = create_result(_dict, 'hour')
+	final_dict = create_result(_dict, 'hour', term)
 	
 	return final_dict
 
 
-def create_result(result_dict, type='hour'):
+def create_result(result_dict, type, term):
 	"""creating result data for output
 	"""
 	
-	final_dict = {'date':range(24), 'type':type, 'location':[]}
+	final_dict = {'date':range(24), 'type':type, term:[]}
 	locations = []
 	print result_dict
 	for key, value in result_dict.iteritems():
@@ -53,5 +53,5 @@ def create_result(result_dict, type='hour'):
 		term_dict.update({'name':key})
 		for value_key, value_value in value.iteritems():
 			term_dict['data'].append(value_value)
-		final_dict['location'].append(term_dict)
+		final_dict[term].append(term_dict)
 	return final_dict
