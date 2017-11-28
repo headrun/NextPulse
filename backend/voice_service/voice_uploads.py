@@ -1,51 +1,97 @@
-from django.shortcuts import render
-import xlrd
 import datetime
+
+from django.shortcuts import render
 from django.apps import apps
-from api.models import *
-from api.redis_operations import redis_insert
+
+import xlrd
+from xlrd import open_workbook
+
 from api.basics import *
+from api.commons import data_dict
+from api.models import *
 from api.uploads import *
 from api.utils import *
 from api.query_generations import *
+from api.redis_operations import redis_insert
+from common.utils import getHttpResponse as json_HttpResponse
 from voice_service.voice_query_insertion import *
 from voice_service.constrants import *
-from xlrd import open_workbook
-from api.commons import data_dict
-from common.utils import getHttpResponse as json_HttpResponse
+
 
 def voice_upload(request, prj_obj, center_obj, open_book):
+    """Main upload function for voice data.
+    """
+
+    st_time = datetime.datetime.now()
     project = prj_obj
     excel_sheet_names = open_book.sheet_names()
     sheet_names, authoring_dates, inbound_hourly_mapping = {}, {}, {}
     outbound_hourly_mapping, inbound_daily_mapping, outbound_daily_mapping = {}, {}, {}
     agent_performance_mapping, ignorablable_fields = {}, []
     
-    mapping_ignores = ['project_id','center_id','_state','sheet_name','id','total_errors_require', 'updated_at', 'created_at']
+    mapping_ignores = [
+        'project_id',
+        'center_id',
+        '_state',
+        'sheet_name',
+        'id',
+        'total_errors_require',
+        'updated_at',
+        'created_at'
+    ]
 
-    sheet_names, inbound_hourly_mapping, authoring_dates = matching_with_authoring(prj_obj, center_obj,\
-                    InboundHourlyCallAuthoring, 'inbound_hourly_sheet', 'inbound_hourly_date',\
-                    authoring_dates, inbound_hourly_mapping, excel_sheet_names, mapping_ignores, sheet_names)
+    sheet_names, inbound_hourly_mapping, authoring_dates = matching_with_authoring(
+        prj_obj, 
+        center_obj, 
+        InboundHourlyCallAuthoring, 
+        'inbound_hourly_sheet', 
+        'inbound_hourly_date',
+        authoring_dates, 
+        inbound_hourly_mapping, 
+        excel_sheet_names, 
+        mapping_ignores, 
+        sheet_names
+    )
 
-    sheet_names, outbound_hourly_mapping, authoring_dates = matching_with_authoring(prj_obj, center_obj,\
-                    OutboundHourlyCallAuthoring, 'outbound_hourly_sheet', 'outbound_hourly_date',\
-                    authoring_dates, outbound_hourly_mapping, excel_sheet_names, mapping_ignores, sheet_names)
+    sheet_names, outbound_hourly_mapping, authoring_dates = matching_with_authoring(
+        prj_obj,
+        center_obj,
+        OutboundHourlyCallAuthoring,
+        'outbound_hourly_sheet',
+        'outbound_hourly_date',
+        authoring_dates,
+        outbound_hourly_mapping,
+        excel_sheet_names,
+        mapping_ignores,
+        sheet_names
+    )
 
-    sheet_names, agent_performance_mapping, authoring_dates = matching_with_authoring(prj_obj, center_obj,\
-                    AgentPerformanceAuthoring, 'agent_performance_sheet', 'agent_performance_date',\
-                    authoring_dates, agent_performance_mapping, excel_sheet_names, mapping_ignores, sheet_names)
+    sheet_names, agent_performance_mapping, authoring_dates = matching_with_authoring(
+        prj_obj,
+        center_obj,
+        AgentPerformanceAuthoring,
+        'agent_performance_sheet',
+        'agent_performance_date',
+        authoring_dates,
+        agent_performance_mapping,
+        excel_sheet_names,
+        mapping_ignores,
+        sheet_names
+    )
 
     sheet_index_dict = {}
     for sh_name in excel_sheet_names:
-        #if sh_name in excel_sheet_names:
         sheet_index_dict[sh_name] = open_book.sheet_names().index(sh_name)
 
-    db_check = str(Project.objects.filter(name=prj_obj,center=center_obj).values_list('project_db_handling',flat=True))
-    raw_table_dataset, internal_error_dataset, external_error_dataset, work_track_dataset= {}, {}, {},{}
-    headcount_dataset, target_dataset, inbound_hourly_dataset, inbound_daily_dataset = {}, {}, {},{}
-    outbound_hourly_dataset, outbound_daily_dataset = {}, {}
+    obj = Project.objects.filter(
+        name=prj_obj,
+        center=center_obj
+    ).values_list(
+        'project_db_handling',
+        flat=True
+    )
+    db_check = str(obj)
     
-
     for key,value in sheet_index_dict.iteritems():
         _agents = []
         _data_dict = {}
@@ -70,15 +116,16 @@ def voice_upload(request, prj_obj, center_obj, open_book):
                 elif column in INTEGER_NUMBERS:
                     customer_data[column] = int(float(cell_data))
                 elif column in DATETIME_STORAGE:
-                    customer_data[column] = datetime.datetime.strptime((_date + cell_data), "%d/%m/%Y%H:%M:%S")
+                    customer_data[column] = datetime.datetime.strptime(
+                        (_date + cell_data), "%d/%m/%Y%H:%M:%S"
+                    )
                 elif column not in DATES:
                     customer_data[column] = ''.join(cell_data)
 
-            if key == 'Inbound Hourly':                
+            if key == 'Inbound Hourly':
                 local_inbound_hourly = {}
                 for key1, value1 in inbound_hourly_mapping.iteritems():
                     local_inbound_hourly[key1] = customer_data[value1]
-
                 _data_dict.update({local_inbound_hourly['call_id'] : local_inbound_hourly})
 
             elif key == 'Outbound Hourly':        
@@ -95,14 +142,22 @@ def voice_upload(request, prj_obj, center_obj, open_book):
                 for key1, value1 in agent_performance_mapping.iteritems():
                     local_agent_performance[key1] = customer_data[value1]
 
-                key2 = '%s_%s_%s' % (local_agent_performance['agent'], str(local_agent_performance['date'].date()),\
-                                    local_agent_performance['call_type'])
+                key2 = '%s_%s_%s' % (
+                    local_agent_performance['agent'],
+                    str(local_agent_performance['date'].date()),
+                    local_agent_performance['call_type']
+                )
                 _data_dict.update({key2 : local_agent_performance})
 
         saving_data(_data_dict, prj_obj, key)
+        end_time = datetime.datetime.now()
+        time_taken = end_time - st_time
+    print time_taken
 
 
-def matching_with_authoring(prj_obj, center_obj, table_name, _sheet_name, _authoring_date, authoring_dates, _dict, excel_sheet_names, mapping_ignores, sheet_names):
+def matching_with_authoring(
+    prj_obj, center_obj, table_name, _sheet_name, _authoring_date,\
+    authoring_dates, _dict, excel_sheet_names, mapping_ignores, sheet_names):
     
     _map_query = {}
     item = table_name.objects.filter(project=prj_obj, center=center_obj)
@@ -120,15 +175,23 @@ def matching_with_authoring(prj_obj, center_obj, table_name, _sheet_name, _autho
 
 
 def remove_existing_data_hourly(table_name, call_dicts):
-    """ Removing the keys which are existing in DB already """
-    existing_calls = list(table_name.objects.filter(call_id__in=call_dicts.keys()).values_list('call_id', flat=True))
+    """ Removing the keys which are existing in DB already 
+    """
+
+    existing_calls = table_name.objects.filter(
+        call_id__in=call_dicts.keys())\
+        .values_list('call_id', flat=True\
+    )
+    existing_calls = list(existing_calls)
     for key in existing_calls:
         del call_dicts[key]
     return call_dicts
 
 
 def remove_existing_data_performance(table_name, call_dicts):
-    """ Removing the keys which are existing in DB already """   
+    """Removing the keys which are existing in DB already 
+    """   
+
     existing_calls = list(table_name.objects.all().values_list('agent__name', 'date', 'call_type'))
 
     for item in existing_calls:
@@ -138,28 +201,35 @@ def remove_existing_data_performance(table_name, call_dicts):
 
 
 def convert_from_sec(duration):
-    """ converting time to seconds to display in DB """
+    """Converting time to seconds to display in DB
+    """
+
     m, s = divmod(int(duration), 60)
     h, m = divmod(m, 60)
     duration = "%d:%02d:%02d" % (h, m, s)
-    duration
+    return duration
 
 
 def convert_to_sec(duration):
-    """ convert time from sec to display """  
+    """Convert time from sec to display
+    """  
+
     _duration = duration.split(":")
     _duration1 = (int(_duration[0]) * 60 * 60) + (int(_duration[1]) * 60) + int(_duration[2])
     return _duration1
 
 
 def get_agent_details(data_dict, _agents, project):
-    """ get the user details """
+    """Get the user details
+    """
+
     agent_dict = {}
     agent_list = []
     agents = list(set(_agents))
     
     for agent in agents:
-        obj, created = Agent.objects.get_or_create(name= agent, project= project)
+        obj, created = Agent.objects.get_or_create(
+            name= agent, project= project)
         agent_list.append(obj)
     for item in agent_list:
         agent_dict.update({item.name: item})
@@ -171,7 +241,9 @@ def get_agent_details(data_dict, _agents, project):
 
 
 def check_transfer(data_dict, _agents, sheet_name):
-    ''' checking for transfer '''
+    """Checking for transfer
+    """
+
     agent_transfer_list, skill_transfer_list, location_transfer_list, disposition_transfer_list = [], [], [], []
 
     for key, value in data_dict.iteritems():   
@@ -186,27 +258,26 @@ def check_transfer(data_dict, _agents, sheet_name):
 
 
 def show_transfer(data_dict, term, transfer_call_list, _agents, key):
-    """ transfer function for all process """
+    """Transfer function for all process 
+    """
+
     _data = data_dict[term]
-
     data = data_dict[term].split(' -> ')
-
     if len(data) > 1:
         data_dict[term] = data[-1]
-
         if term == 'disposition':
             if data_dict[term] in CANCEL_DISPOSITION:
                 data_dict[term] = 'None'
-
         transfer_call_list.append([data_dict['call_id'], _data])
     if term == 'agent':
         _agents.append(data[-1])
-
     return transfer_call_list, data_dict, _agents
 
 
 def get_agents_from_performance(data_dict):
-    '''getting agents forperformance sheet'''
+    """Getting agents for performance sheet
+    """
+
     _agents = []
     for key, value in data_dict.iteritems():
         _agents.append(value['agent'])
@@ -214,7 +285,9 @@ def get_agents_from_performance(data_dict):
 
     
 def saving_data(data_dict, project, sheet_name):
-    ''' final setup to save data '''
+    """Final setup to save data
+    """
+
     _agents = []
     transfer_dict = []
     agent_transfer_list, skill_transfer_list, location_transfer_list, disposition_transfer_list = [], [], [], []
@@ -246,7 +319,8 @@ def saving_data(data_dict, project, sheet_name):
 
 
 def create_daily_from_hourly(sheet_name, _project, dates):
-    """ convert hourly data into daily data """
+    """Convert hourly data into daily data
+    """
 
     if sheet_name == 'Inbound Hourly':
         table_name = InboundHourlyCall
@@ -262,10 +336,12 @@ def create_daily_from_hourly(sheet_name, _project, dates):
 
 
 def create_daily_data(hourly_list, _project, sheet_name):
-    """ summarising data from hourly data to daily data """
+    """Summarising data from hourly data to daily data 
+    """
+
     daily_data = {}
     daily_data_temp = {}
-    __agents = {}
+    agents = {}
     for _item in hourly_list:
 
         _agent = Agent.objects.get(id=_item['agent_id'])
@@ -274,18 +350,30 @@ def create_daily_data(hourly_list, _project, sheet_name):
             daily_data_temp[key1] = []
 
         daily_data_temp[key1].append(_item)
-        __agents.update({_agent.id:_agent})
+        agents.update({_agent.id:_agent})
 
     for key, value in daily_data_temp.iteritems():
-        daily_data[key] = {'date': '', 'agent': '', 'hours_worked' : 1, 'total_calls' : 0, 'connects_per_hr' : 0,\
-                            'calls_answered' : 0, 'wrapup_time': 0, 'hold_time':0, 'talk_time':0, 'time_to_answer': 0,\
-                            'disposition': '', 'project': '', 'center': ''}
+        daily_data[key] = {
+            'date': '', 
+            'agent': '', 
+            'hours_worked' : 1, 
+            'total_calls' : 0, 
+            'connects_per_hr' : 0,
+            'calls_answered' : 0, 
+            'wrapup_time': 0, 
+            'hold_time':0, 
+            'talk_time':0, 
+            'time_to_answer': 0,
+            'disposition': '', 
+            'project': '', 
+            'center': ''
+        }
 
         daily_data[key]['total_calls'] = len(value)
-
-        daily_data[key]['connects_per_hr'] = float(daily_data[key]['total_calls']) / daily_data[key]['hours_worked']
+        daily_data[key]['connects_per_hr'] = float(daily_data[key]['total_calls']) / \
+                daily_data[key]['hours_worked']
         daily_data[key]['date'] = value[0]['date']
-        daily_data[key]['agent'] = __agents[value[0]['agent_id']]
+        daily_data[key]['agent'] = agents[value[0]['agent_id']]
 
         for item in value:
             if sheet_name == 'Inbound Hourly':
@@ -303,11 +391,3 @@ def create_daily_data(hourly_list, _project, sheet_name):
             daily_data[key]['center'] = _project.center
 
     return daily_data
-
-    
-
-
-
-
-
-

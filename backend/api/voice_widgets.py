@@ -14,6 +14,9 @@ from api.weekly_graph import *
 from voice_service.models import *
 from voice_service.widgets import *
 from common.utils import getHttpResponse as json_HttpResponse
+from voice_service.voice_widgets import *
+
+
 
 def common_function(variable):
     location    = variable.GET['location']
@@ -26,6 +29,7 @@ def location(request):
     result = {}
     new_date_list = []
     curr_loc, skill_val, dispo_val, prj_type = common_function(request)
+
     main_dict = data_dict(request.GET)
     prj_id = main_dict['pro_cen_mapping'][0][0]
     center = main_dict['pro_cen_mapping'][1][0]
@@ -36,20 +40,9 @@ def location(request):
         location, skill, disposition, table_name = hour_parameters(curr_loc, skill_val, dispo_val, prj_type)
         project = {'project' : [prj_id]}
         dates = {'date' : dates}
-        for date in dates:
-            for hour in hours:
-                hr = hour*60*60
-                hr1 = (hour + 1)*60*60
-                final_hour1 = date + ' ' + time.strftime('%H:%M:%S', time.gmtime(hr1))
-                final_hour = date + ' ' + time.strftime('%H:%M:%S', time.gmtime(hr))
-                hour_check = InboundHourlyCall.objects.filter(\
-                             project = prj_id, center = center, start_time__gte = final_hour, end_time__lte = final_hour1)\
-                             .values('location').count()
-                if hour_check > 0:
-                    new_date_list.append(hour)
-        hrly_loc_val = hourly_location_data(project, dates, table_name, location, disposition, skill)
-        result['location'] = [{'name': item, 'data': hrly_loc_val[item]} for item in hrly_loc_val]
-        result['date'] = new_date_list
+
+        result = get_hourly_sum(project, dates, table_name, location, skill, disposition, name)
+
     elif main_dict['dwm_dict'].has_key('day') and main_dict['type'] == 'day':
         dates = main_dict['dwm_dict']['day']
         date_check = InboundHourlyCall.objects.filter(project = prj_id, center = center, date__range = [dates[0], dates[-1]])\
