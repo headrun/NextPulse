@@ -27,7 +27,6 @@ def location(request):
         hours = main_dict['dwm_dict']['hour'][8:22]
         dates = main_dict['dates']
         location, skill, disposition, table_name = hour_parameters(curr_loc, skill_val, dispo_val, prj_type)
-        print table_name
         project = {'project' : [prj_id]}
         dates = {'date' : dates}
         result = get_hourly_sum(project, dates, table_name, location, skill, disposition, name)
@@ -141,22 +140,12 @@ def call_status(request):
     center = main_dict['pro_cen_mapping'][1][0]
     name = 'call_status'
     if main_dict['dwm_dict'].has_key('hour') and main_dict['type'] == 'hour':
-        hours = main_dict['dwm_dict']['hour'][8:22]
         dates = main_dict['dates']
-        for date in dates:
-            for hour in hours:
-                hr = hour*60*60
-                hr1 = (hour + 1)*60*60
-                final_hour1 = date + ' ' + time.strftime('%H:%M:%S', time.gmtime(hr1))
-                final_hour = date + ' ' + time.strftime('%H:%M:%S', time.gmtime(hr))
-                hour_check = InboundHourlyCall.objects.filter(\
-                             project = prj_id, center = center, start_time__gte = final_hour, end_time__lte = final_hour1)\
-                             .values('status').count()
-                if hour_check > 0:
-                    new_date_list.append(hour)
-        hrly_call_val = hourly_call_data(prj_id, center, dates, hours, curr_loca, disposition, skill)
-        result['call_status'] = graph_format(hrly_call_val)
-        result['date'] = new_date_list
+        location, skill, disposition, table_name = hour_parameters(curr_loca, skill, disposition, prj_type)
+        project = {'project' : [prj_id]}
+        dates = {'date' : dates}
+        result = get_hourly_sum(project, dates, table_name, location, skill, disposition, name)
+
     elif main_dict['dwm_dict'].has_key('day') and main_dict['type'] == 'day':
         dates = main_dict['dwm_dict']['day']
         date_check = InboundHourlyCall.objects.filter(project = prj_id, center = center, date__range = [dates[0], dates[-1]])\
@@ -311,7 +300,13 @@ def outbnd_dispo_common(request):
     prj_id = main_dict['pro_cen_mapping'][0][0]
     center = main_dict['pro_cen_mapping'][1][0]
     name = 'outbnd_dispo_common'
-    if main_dict['dwm_dict'].has_key('day') and main_dict['type'] == 'day':
+    if main_dict['dwm_dict'].has_key('hour') and main_dict['type'] == 'hour':
+        dates = main_dict['dates']
+        location, skill, disposition, table_name = hour_parameters(location, skill, disposition, prj_type)
+        project = {'project' : [prj_id]}
+        dates = {'date' : dates}
+        result = get_hourly_sum(project, dates, table_name, location, skill, disposition, name)
+    elif main_dict['dwm_dict'].has_key('day') and main_dict['type'] == 'day':
         dates = main_dict['dwm_dict']['day']
         date_check = OutboundDaily.objects.filter(project = prj_id, center = center, date__range = [dates[0], dates[-1]])\
                      .values('date').annotate(total = count('disposition')).order_by('date')
@@ -346,7 +341,9 @@ def outbnd_utilization(request):
     center = main_dict['pro_cen_mapping'][1][0]
     disposition = request.GET['disposition']
     name = 'outbnd_utilization'
-    if main_dict['dwm_dict'].has_key('day') and main_dict['type'] == 'day':
+    if main_dict['dwm_dict'].has_key('hour') and main_dict['type'] == 'hour':
+        result = {}
+    elif main_dict['dwm_dict'].has_key('day') and main_dict['type'] == 'day':
         dates = main_dict['dwm_dict']['day']
         for date in dates:
             utility_query = AgentPerformance.objects.filter(\
@@ -380,7 +377,9 @@ def inbnd_utilization(request):
     center = main_dict['pro_cen_mapping'][1][0]
     location, skill, disposition, prj_type = common_function(request)
     name = 'inbnd_utilization'
-    if main_dict['dwm_dict'].has_key('day') and main_dict['type'] == 'day':
+    if main_dict['dwm_dict'].has_key('hour') and main_dict['type'] == 'hour':
+        result = {}
+    elif main_dict['dwm_dict'].has_key('day') and main_dict['type'] == 'day':
         dates = main_dict['dwm_dict']['day']
         for date in dates:
             utility_query = AgentPerformance.objects.filter(\
@@ -415,7 +414,9 @@ def inbnd_occupancy(request):
     center = main_dict['pro_cen_mapping'][1][0]
     location, skill, disposition, prj_type = common_function(request)
     name = 'inbnd_occupancy'
-    if main_dict['dwm_dict'].has_key('day') and main_dict['type'] == 'day':
+    if main_dict['dwm_dict'].has_key('hour') and main_dict['type'] == 'hour':
+        result = {}
+    elif main_dict['dwm_dict'].has_key('day') and main_dict['type'] == 'day':
         dates = main_dict['dwm_dict']['day']
         for date in dates:
             occupancy_query = AgentPerformance.objects.filter(\
@@ -449,7 +450,9 @@ def outbnd_occupancy(request):
     center = main_dict['pro_cen_mapping'][1][0]
     disposition = request.GET['disposition']
     name = 'outbnd_occupancy'
-    if main_dict['dwm_dict'].has_key('day') and main_dict['type'] == 'day':
+    if main_dict['dwm_dict'].has_key('hour') and main_dict['type'] == 'hour':
+        result = {}
+    elif main_dict['dwm_dict'].has_key('day') and main_dict['type'] == 'day':
         dates = main_dict['dwm_dict']['day']
         for date in dates:
             occupancy_query = AgentPerformance.objects.filter(\
@@ -483,7 +486,9 @@ def outbound_productivity(request):
     center = main_dict['pro_cen_mapping'][1][0]
     disposition = request.GET['disposition']
     name = 'outbound_productivity'
-    if main_dict['dwm_dict'].has_key('day') and main_dict['type'] == 'day':
+    if main_dict['dwm_dict'].has_key('hour') and main_dict['type'] == 'hour':
+        result = {}
+    elif main_dict['dwm_dict'].has_key('day') and main_dict['type'] == 'day':
         dates = main_dict['dwm_dict']['day']
         for date in dates:
             prod_query = AgentPerformance.objects.filter(\
@@ -517,7 +522,9 @@ def inbound_productivity(request):
     center = main_dict['pro_cen_mapping'][1][0]
     location, skill, disposition, prj_type = common_function(request)
     name = 'inbound_productivity'
-    if main_dict['dwm_dict'].has_key('day') and main_dict['type'] == 'day':
+    if main_dict['dwm_dict'].has_key('hour') and main_dict['type'] == 'hour':
+        result = {}
+    elif main_dict['dwm_dict'].has_key('day') and main_dict['type'] == 'day':
         dates = main_dict['dwm_dict']['day']
         for date in dates:
             prod_query = AgentPerformance.objects.filter(\
@@ -551,7 +558,9 @@ def utilization(request):
     center = main_dict['pro_cen_mapping'][1][0]
     location, skill, disposition, prj_type = common_function(request)
     name = 'utilization'
-    if main_dict['dwm_dict'].has_key('day') and main_dict['type'] == 'day':
+    if main_dict['dwm_dict'].has_key('hour') and main_dict['type'] == 'hour':
+        result = {}
+    elif main_dict['dwm_dict'].has_key('day') and main_dict['type'] == 'day':
         dates = main_dict['dwm_dict']['day']
         for date in dates:
             common_utility_query = AgentPerformance.objects.filter(project = prj_id, center = center, date = date).values('agent').count()
@@ -583,7 +592,9 @@ def occupancy(request):
     center = main_dict['pro_cen_mapping'][1][0]
     location, skill, disposition, prj_type = common_function(request)
     name = 'occupancy'
-    if main_dict['dwm_dict'].has_key('day') and main_dict['type'] == 'day':
+    if main_dict['dwm_dict'].has_key('hour') and main_dict['type'] == 'hour':
+        result = {}
+    elif main_dict['dwm_dict'].has_key('day') and main_dict['type'] == 'day':
         dates = main_dict['dwm_dict']['day']
         for date in dates:
             common_occupancy_query = AgentPerformance.objects.filter(project = prj_id, center = center, date = date).values('agent').count()
@@ -615,7 +626,9 @@ def agent_productivity_data(request):
     center = main_dict['pro_cen_mapping'][1][0]
     location, skill, disposition, prj_type = common_function(request)
     name = 'productivity'
-    if main_dict['dwm_dict'].has_key('day') and main_dict['type'] == 'day':
+    if main_dict['dwm_dict'].has_key('hour') and main_dict['type'] == 'hour':
+        result = {}
+    elif main_dict['dwm_dict'].has_key('day') and main_dict['type'] == 'day':
         dates = main_dict['dwm_dict']['day']
         for date in dates:
             common_prod_query = AgentPerformance.objects.filter(project = prj_id, center = center, date = date).values('agent').count()
@@ -646,6 +659,8 @@ def agent_required(request):
     prj_id = main_dict['pro_cen_mapping'][0][0]
     center = main_dict['pro_cen_mapping'][1][0]
     location, skill, disposition, table_name = hour_parameters(curr_loc, skill_val, dispo_val, prj_type)
+    project = {'project' : [prj_id]}
+    dates = {'date' : dates}
     if ((main_dict['dwm_dict'].has_key('hour') and main_dict['type'] == 'hour') or \
         (main_dict['dwm_dict'].has_key('day') and main_dict['type'] == 'day') or \
         (main_dict['dwm_dict'].has_key('week') and main_dict['type'] == 'week') or \
