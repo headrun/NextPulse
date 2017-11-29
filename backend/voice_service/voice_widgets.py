@@ -27,6 +27,8 @@ def get_hourly_sum(project, dates, table_name, location={}, skill={}, dispositio
         _term = 'disposition'
     elif term == 'outbnd_dispo_common':
         _term = 'disposition'
+    elif term == 'call_status':
+        _term = 'status'
     else:
         _term = term
 

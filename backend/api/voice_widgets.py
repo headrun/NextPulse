@@ -27,7 +27,6 @@ def location(request):
         hours = main_dict['dwm_dict']['hour'][8:22]
         dates = main_dict['dates']
         location, skill, disposition, table_name = hour_parameters(curr_loc, skill_val, dispo_val, prj_type)
-        print table_name
         project = {'project' : [prj_id]}
         dates = {'date' : dates}
         result = get_hourly_sum(project, dates, table_name, location, skill, disposition, name)
@@ -141,22 +140,12 @@ def call_status(request):
     center = main_dict['pro_cen_mapping'][1][0]
     name = 'call_status'
     if main_dict['dwm_dict'].has_key('hour') and main_dict['type'] == 'hour':
-        hours = main_dict['dwm_dict']['hour'][8:22]
         dates = main_dict['dates']
-        for date in dates:
-            for hour in hours:
-                hr = hour*60*60
-                hr1 = (hour + 1)*60*60
-                final_hour1 = date + ' ' + time.strftime('%H:%M:%S', time.gmtime(hr1))
-                final_hour = date + ' ' + time.strftime('%H:%M:%S', time.gmtime(hr))
-                hour_check = InboundHourlyCall.objects.filter(\
-                             project = prj_id, center = center, start_time__gte = final_hour, end_time__lte = final_hour1)\
-                             .values('status').count()
-                if hour_check > 0:
-                    new_date_list.append(hour)
-        hrly_call_val = hourly_call_data(prj_id, center, dates, hours, curr_loca, disposition, skill)
-        result['call_status'] = graph_format(hrly_call_val)
-        result['date'] = new_date_list
+        location, skill, disposition, table_name = hour_parameters(curr_loca, skill, disposition, prj_type)
+        project = {'project' : [prj_id]}
+        dates = {'date' : dates}
+        result = get_hourly_sum(project, dates, table_name, location, skill, disposition, name)
+
     elif main_dict['dwm_dict'].has_key('day') and main_dict['type'] == 'day':
         dates = main_dict['dwm_dict']['day']
         date_check = InboundHourlyCall.objects.filter(project = prj_id, center = center, date__range = [dates[0], dates[-1]])\

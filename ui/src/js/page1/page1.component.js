@@ -315,7 +315,17 @@
                 }
                 $(widgetA).removeClass('widget-loader-show');
                 $(widgetB).removeClass('widget-data-hide');
-                
+                self.hour_button = [];
+                for (var value in self.list_object){
+                    if ((value === 'outbound_occupancy') || (value === 'outbound_utilization') || (value === 'outbound_productivity') || ( value === 'common_occupancy') || (value === 'common_productivity') || (value === 'common_utilization') || (value === 'inbound_occupancy') || (value === 'inbound_productivity') || (value === 'inbound_utilization')) {                            
+                            self.hour_button.push(value);
+                            var test=value.replace("_"," ");
+                            var t2=test.replace(/(^|\s)[a-z]/g, function(block) {
+                                        return block.toUpperCase();
+                                    });
+                            $('div').find(':contains('+t2+')').parent(".widget-content").find(".hour2").addClass("hide");
+                        }
+                } 
             }
 
              self.highlightTypes = function (button_type, widgetName) {
