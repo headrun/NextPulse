@@ -659,6 +659,8 @@ def agent_required(request):
     prj_id = main_dict['pro_cen_mapping'][0][0]
     center = main_dict['pro_cen_mapping'][1][0]
     location, skill, disposition, table_name = hour_parameters(curr_loc, skill_val, dispo_val, prj_type)
+    project = {'project' : [prj_id]}
+    dates = {'date' : dates}
     if ((main_dict['dwm_dict'].has_key('hour') and main_dict['type'] == 'hour') or \
         (main_dict['dwm_dict'].has_key('day') and main_dict['type'] == 'day') or \
         (main_dict['dwm_dict'].has_key('week') and main_dict['type'] == 'week') or \
