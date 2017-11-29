@@ -1,5 +1,4 @@
 
-import collections
 import datetime
 from voice_service.models import *
 
@@ -81,14 +80,15 @@ def calculate_average(result_dict, no_of_days):
     return result_dict
 
 
-"""
+
 def actual_required_hourly(project, dates, table_name, location={}, skill={}, disposition={}):
-    ""Its hourly record for actualvsrequired
-    "
+    """Its hourly record for actualvsrequired
+    """
     
     result_dict = {}
+    print [location, skill, disposition, project, dates]
     filter_param = create_filters([location, skill, disposition, project, dates])
-    import pdb;pdb.set_trace()
+    #import pdb;pdb.set_trace()
     data_sets = table_name.objects.filter(**filter_param).values()
 
     for data_set in data_sets:
@@ -97,12 +97,13 @@ def actual_required_hourly(project, dates, table_name, location={}, skill={}, di
             _dict.update({time : {
                 'total_calls': 0,
                 'actual_present':[],
-                'required':0
                 }})
         if not result_dict.has_key(data_set['date']):
             result_dict.update({data_set['date']: _dict})
         result_dict[data_set['date']][data_set[start_time.hour]]['total_calls'] += 1
         if data_set['status'] == 'Answered':
             result_dict[data_set['date']][data_set[start_time.hour]]['actual_present'].append(data_set['agent'].name)
+        print result_dict
 
-"""
+    return 'apple is red'
+
