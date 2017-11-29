@@ -660,12 +660,12 @@ def agent_required(request):
     center = main_dict['pro_cen_mapping'][1][0]
     location, skill, disposition, table_name = hour_parameters(curr_loc, skill_val, dispo_val, prj_type)
     project = {'project' : [prj_id]}
-    dates = {'date' : dates}
-    if ((main_dict['dwm_dict'].has_key('hour') and main_dict['type'] == 'hour') or \
-        (main_dict['dwm_dict'].has_key('day') and main_dict['type'] == 'day') or \
-        (main_dict['dwm_dict'].has_key('week') and main_dict['type'] == 'week') or \
-        (main_dict['dwm_dict'].has_key('month') and main_dict['type'] == 'month')):
-        agent_data = actual_required_hourly(project, dates, table_name, location, skill, disposition)
+    if (main_dict['dwm_dict'].has_key('hour') and main_dict['type'] == 'hour'):
+        date = main_dict['dates']
+    else:
+        date = main_dict['dwm_dict']['day']
+    dates = {'date' : date}
+    agent_data = actual_required_hourly(project, dates, table_name, location, skill, disposition)
     return json_HttpResponse(agent_data)
     
 def agent_graph_data(agent_data):
