@@ -253,13 +253,19 @@ def get_related_user(request):
     tl_objs = TeamLead.objects.filter(name = user_id)
     tl = ""
     project = ""
-    result_data = {'name_list' : [], 'id_list' : []}
+
     if not tl_objs:
         return json_HttpResponse('User is not TeamLead')
     tl_obj = tl_objs[0]
     project = tl_obj.project
     center = tl_obj.center
 
+    result_data = get_all_related_user(project, center, tl_obj)
+    return json_HttpResponse(result_data)
+
+
+def get_all_related_user(project, center, tl_obj=0):
+    result_data = {'name_list' : [], 'id_list' : []}
     nxtwlth_managers = Nextwealthmanager.objects.all()
     if nxtwlth_managers:
         for nxtwlth_manager in nxtwlth_managers:
@@ -287,8 +293,7 @@ def get_related_user(request):
             _name = centermanager.name.first_name + " " + centermanager.name.last_name
             result_data['name_list'].append(_name)
             result_data['id_list'].append(centermanager.name.id)
-
-    return json_HttpResponse(result_data)
+    return result_data
 
 
 def saving_members(request):
