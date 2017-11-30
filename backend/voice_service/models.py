@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from api.models import *
 #from api import models as apimodels
 from django.contrib.auth.models import Group
-from voice_service.constrants import *
+from voice_service.constants import *
 
 
 class Agent(models.Model):

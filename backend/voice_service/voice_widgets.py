@@ -1,7 +1,7 @@
 
 import datetime
 from voice_service.models import *
-
+from voice_service.constants import *
 
 def create_filters(filter_params):
     """Creating filters for voice
@@ -109,6 +109,7 @@ def actual_required_hourly(project, dates, table_name, location={}, skill={}, di
     result_dict=calculate_actual_required(result_dict)
     result_dict = avg_actual_required(result_dict)
     result_dict = create_result_actual_required(result_dict, 'hour')
+
     return result_dict
 
 
