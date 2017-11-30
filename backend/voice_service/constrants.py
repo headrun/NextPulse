@@ -39,3 +39,5 @@ SHEET_NAMES = {
 				'outbound_hourly' : '',
 				'agent_summary' : 'Agent Transfer'
 }
+
+CALL_TARGET_PER_AGENT = 10

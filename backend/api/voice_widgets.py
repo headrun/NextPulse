@@ -666,17 +666,21 @@ def agent_required(request):
         date = main_dict['dwm_dict']['day']
     dates = {'date' : date}
     agent_data = actual_required_hourly(project, dates, table_name, location, skill, disposition)
+    #print agent_data
+    #agent_data = agent_graph_data(agent_data)
+
     return json_HttpResponse(agent_data)
     
+
 def agent_graph_data(agent_data):
     agent_list = []
     for type_val in agent_data:
-        if type_val['name'] == 'Calls':
+        if type_val['name'] == 'total_calls':
             type_val['type'] = 'column'
-        if type_val['name'] == 'Logged in':
+        if type_val['name'] == 'actual_login':
             type_val['type'] = 'spline'
             type_val['yAxis'] = 1
-        if type_val['name'] == 'Required':
+        if type_val['name'] == 'required_login':
             type_val['type'] = 'spline'
             type_val['yAxis'] = 2
         agent_list.append(type_val)
