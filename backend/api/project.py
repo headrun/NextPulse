@@ -170,21 +170,22 @@ def project(request):
         final_details = {}
         details = {}
         select_list = []
-        center_list = TeamLead.objects.filter(name_id=request.user.id).values_list('center')
-        project_list = TeamLead.objects.filter(name_id=request.user.id).values_list('project')
+        tl_query = TeamLead.objects.filter(name_id=request.user.id)
+        center_list = tl_query.values_list('center', flat = True)
+        project_list = tl_query.values_list('project', flat = True)
         if (len(center_list) & len(project_list)) == 1:
             select_list.append('none')
         if len(center_list) < 2:
-            center_name = str(Center.objects.filter(id=center_list[0][0])[0])
+            center_name = str(Center.objects.filter(id=center_list[0])[0])
             for project in project_list:
-                project_name = str(Project.objects.filter(id=project[0])[0])
+                project_name = str(Project.objects.filter(id=project)[0])
                 vari = center_name + ' - ' + project_name
                 select_list.append(vari)
         elif len(center_list) >= 2:
             for center in center_list:
-                center_name = str(Center.objects.filter(id=center[0])[0])
+                center_name = str(Center.objects.filter(id=center)[0])
                 for project in project_list:
-                    project_name = str(Project.objects.filter(id=project[0])[0])
+                    project_name = str(Project.objects.filter(id=project)[0])
                     select_list.append(center_name + ' - ' + project_name)
         details['list'] = select_list
         details['role'] = 'team_lead'
@@ -192,7 +193,7 @@ def project(request):
         details['final'] = final_details
         new_dates = latest_dates(request, project_list)
         user = request.user.id
-        user_status = get_permitted_user(prj_id[0], center_name, user)
+        user_status = get_permitted_user(project_list[0], center_list[0], user)
         details['user_status'] = user_status
         details['dates'] = new_dates
         return json_HttpResponse(details)
@@ -221,7 +222,7 @@ def project(request):
             new_dates = latest_dates(request, project_names)
         details['dates'] = new_dates
         user = request.user.id 
-        user_status = get_permitted_user(prj_id[0], center_name, user)
+        user_status = get_permitted_user(prj_id[0], center, user)
         details['user_status'] = user_status
         return json_HttpResponse(details)
 
@@ -232,7 +233,7 @@ def project(request):
         center_list = Nextwealthmanager.objects.filter(name_id=request.user.id).values_list('center')
         if len(center_list) < 2:
             center_name = str(Center.objects.filter(id=center_list[0][0])[0])
-            center_id = Center.objects.filter(name = center_name)[0].id
+            center_id = center[0]
             project_list = Project.objects.filter(center_id=center_id)
             for project in project_list:
                 project_name = str(project)
@@ -246,7 +247,7 @@ def project(request):
         elif len(center_list) >= 2:
             for center in center_list:
                 center_name = str(Center.objects.filter(id=center[0])[0])
-                center_id = Center.objects.filter(id=center[0])[0].id
+                center_id = center[0]
                 project_list = Project.objects.filter(center_id=center_id)
                 for project in project_list:
                     project_name = str(project)
@@ -281,21 +282,22 @@ def project(request):
         final_details = {}
         details = {}
         select_list = []
-        center_list = Customer.objects.filter(name_id=request.user.id).values_list('center')
-        project_list = Customer.objects.filter(name_id=request.user.id).values_list('project')
+        customer_query = Customer.objects.filter(name_id=request.user.id)
+        center_list = customer_query.values_list('center', flat = True)
+        project_list = customer_query.values_list('project', flat = True)
         if (len(center_list) & len(project_list)) == 1:
             select_list.append('none')
         if len(center_list) < 2:
-            center_name = str(Center.objects.filter(id=center_list[0][0])[0])
+            center_name = str(Center.objects.filter(id=center_list[0])[0])
             for project in project_list:
-                project_name = str(Project.objects.filter(id=project[0])[0])
+                project_name = str(Project.objects.filter(id=project)[0])
                 vari = center_name + ' - ' + project_name
                 select_list.append(vari)
         elif len(center_list) >= 2:
             for center in center_list:
-                center_name = str(Center.objects.filter(id=center[0])[0])
+                center_name = str(Center.objects.filter(id=center)[0])
                 for project in project_list:
-                    project_name = str(Project.objects.filter(id=project[0])[0])
+                    project_name = str(Project.objects.filter(id=project)[0])
                     select_list.append(center_name + ' - ' + project_name)
         details['list'] = select_list
         details['role'] = 'customer'
@@ -311,7 +313,8 @@ def project(request):
         else:
             new_dates = latest_dates(request, project_names)
         details['dates'] = new_dates
-        user_status = get_permitted_user(data)
+        user = request.user.id
+        user_status = get_permitted_user(prj_id[0], center_list[0], user)
         details['user_status'] = user_status
         return json_HttpResponse(details)
 
