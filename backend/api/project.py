@@ -3,6 +3,7 @@ import datetime
 from django.db.models import Max
 from api.models import *
 from api.basics import latest_dates
+from api.security import get_permitted_user
 from common.utils import getHttpResponse as json_HttpResponse
 
 def project(request):
@@ -190,6 +191,9 @@ def project(request):
         details['lay'] = layout_list
         details['final'] = final_details
         new_dates = latest_dates(request, project_list)
+        user = request.user.id
+        user_status = get_permitted_user(prj_id[0], center_name, user)
+        details['user_status'] = user_status
         details['dates'] = new_dates
         return json_HttpResponse(details)
 
@@ -216,6 +220,9 @@ def project(request):
         else:
             new_dates = latest_dates(request, project_names)
         details['dates'] = new_dates
+        user = request.user.id 
+        user_status = get_permitted_user(prj_id[0], center_name, user)
+        details['user_status'] = user_status
         return json_HttpResponse(details)
 
     if 'nextwealth_manager' in user_group:
@@ -265,6 +272,9 @@ def project(request):
         else:
             new_dates = latest_dates(request, project_list)
         details['dates'] = new_dates
+        user = request.user.id
+        user_status = get_permitted_user(prj_id[0], center_id, user)
+        details['user_status'] = user_status
         return json_HttpResponse(details)
 
     if 'customer' in user_group:
@@ -301,8 +311,8 @@ def project(request):
         else:
             new_dates = latest_dates(request, project_names)
         details['dates'] = new_dates
-
-        details['dates'] = new_dates
+        user_status = get_permitted_user(data)
+        details['user_status'] = user_status
         return json_HttpResponse(details)
 
 
