@@ -15,7 +15,7 @@ from api.query_generations import *
 from api.redis_operations import redis_insert
 from common.utils import getHttpResponse as json_HttpResponse
 from voice_service.voice_query_insertion import *
-from voice_service.constrants import *
+from voice_service.constants import *
 
 
 def voice_upload(request, prj_obj, center_obj, open_book):
