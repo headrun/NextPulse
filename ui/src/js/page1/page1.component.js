@@ -5614,7 +5614,6 @@
                },
             };
 
-
     self.chartOptions64 = {
                 chart: {
             zoomType: 'xy',
@@ -5635,20 +5634,9 @@
             title: {
                 text: 'Logged in',
                 color:'a2a2a2',
-            }
-        }, { // Secondary yAxis
-            gridLineWidth: 0,
-            minorGridLineWidth: 0,
-            title: {
-                text: 'Required',
-                color:'a2a2a2',
-            },
-            labels: {
-                color: 'a2a2a2',
-                format: '{value} ',
             },
             opposite: true
-        }, { // Teritary yAxis
+        }, { // Secondary yAxis
             gridLineWidth: 0,
             minorGridLineWidth: 0,
             title: {
@@ -5659,8 +5647,24 @@
                 color: 'a2a2a2',
                 format: '{value} ',
             },
-            opposite: true
-
+        }, { // Teritary yAxis
+            gridLineWidth: 0,
+            minorGridLineWidth: 0,
+            title: {
+                text: 'Required',
+                color:'a2a2a2',
+            },
+            labels: {
+                color: 'a2a2a2',
+                format: '{value} ',
+            },
+            plotLines: [{
+                color: '#1919ff',
+                dashStyle: 'shortdash',
+                width: 3,
+                zIndex: 10
+            }],
+            opposite: true        
         
         }],
         tooltip: {

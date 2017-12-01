@@ -653,7 +653,7 @@ def agent_productivity_data(request):
     return json_HttpResponse(result)
 
 def agent_required(request):
-    result = {}
+    agent_data = {}
     main_dict = data_dict(request.GET)
     curr_loc, skill_val, dispo_val, prj_type = common_function(request)
     prj_id = main_dict['pro_cen_mapping'][0][0]
@@ -666,25 +666,28 @@ def agent_required(request):
         date = main_dict['dwm_dict']['day']
     dates = {'date' : date}
     agent_data = actual_required_hourly(project, dates, table_name, location, skill, disposition)
-    #print agent_data
-    #agent_data = agent_graph_data(agent_data)
-
+    agent_data['date'] = agent_data['date']
+    agent_data['agent_required'] = agent_graph_data(agent_data)
     return json_HttpResponse(agent_data)
-    
-
+   
 def agent_graph_data(agent_data):
-    agent_list = []
-    for type_val in agent_data:
-        if type_val['name'] == 'total_calls':
-            type_val['type'] = 'column'
-        if type_val['name'] == 'actual_login':
-            type_val['type'] = 'spline'
-            type_val['yAxis'] = 1
-        if type_val['name'] == 'required_login':
-            type_val['type'] = 'spline'
-            type_val['yAxis'] = 2
-        agent_list.append(type_val)
-    return agent_list
+    agents_list = []
+    for key, value in agent_data.iteritems():
+        if key == 'agent_required':
+            for value_val in value:
+                if value_val['name'] == 'required_login':
+                    value_val['type'] = 'spline'
+                    value_val['yAxis'] = 2
+                    value_val['name'] = 'Required'
+                if value_val['name'] == 'actual_login':
+                    value_val['type'] = 'spline'
+                    value_val['name'] = 'Logged in'
+                if value_val['name'] == 'total_calls':
+                    value_val['type'] = 'column'
+                    value_val['yAxis'] = 1
+                    value_val['name'] = 'Calls'
+                agents_list.append(value_val)
+    return agents_list
 
 def hour_parameters(location, skill, dispo, prj_type):
     if location == 'All':

@@ -106,7 +106,7 @@ def actual_required_hourly(project, dates, table_name, location={}, skill={}, di
             result_dict[str(data_set['date'])][data_set['start_time'].hour]['actual_present']\
                     .append(data_set['agent_id'])
 
-    result_dict=calculate_actual_required(result_dict)
+    result_dict = calculate_actual_required(result_dict)
     result_dict = avg_actual_required(result_dict)
     result_dict = create_result_actual_required(result_dict, 'hour')
 
