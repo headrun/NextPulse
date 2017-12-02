@@ -1,4 +1,3 @@
-
 import datetime
 from django.db.models import Max
 from api.models import *
@@ -7,12 +6,15 @@ from api.security import get_permitted_user
 from common.utils import getHttpResponse as json_HttpResponse
 
 def project(request):
-
     try:
         multi_center, multi_project = request.GET.get('name').split(' - ')
     except: 
         multi_center, multi_project = '',''
-
+    try:
+        project_vals = Project.objects.filter(name=multi_project).values_list('id','center_id')
+        _project, _center = project_vals[0][0], project_vals[0][1]
+    except:
+        _project, _center = '', ''
     user_group = request.user.groups.values_list('name', flat=True)[0]
     user_group_id = Group.objects.filter(name=user_group).values_list('id', flat=True)
     list_wid = []
@@ -34,22 +36,28 @@ def project(request):
     if 'customer' in user_group:
         select_list = []
         details = {}      
-        customer_objs = Customer.objects.filter(name_id=request.user.id) 
-        center_list = Customer.objects.filter(name_id=request.user.id).values_list('center')
-        project_list = Customer.objects.filter(name_id=request.user.id).values_list('project')
+        customer_objs = Customer.objects.filter(name_id=request.user.id)
+        center_list = customer_objs.values_list('center', flat = True)
+        project_list = customer_objs.values_list('project', flat =True)
+        #center_list = Customer.objects.filter(name_id=request.user.id).values_list('center')
+        #project_list = Customer.objects.filter(name_id=request.user.id).values_list('project')
         if (len(center_list) & len(project_list)) == 1:
             select_list.append('none')
         if len(center_list) < 2:  
-            center_name = str(Center.objects.filter(id=center_list[0][0])[0])
+            #center_name = str(Center.objects.filter(id=center_list[0][0])[0])
+            center_name = str(Center.objects.filter(id=center_list[0])[0])
             for project in project_list:
-                project_name = str(Project.objects.filter(id=project[0])[0])
+                #project_name = str(Project.objects.filter(id=project[0])[0])
+                project_name = str(Project.objects.filter(id=project)[0])
                 vari = center_name + ' - ' + project_name
                 select_list.append(vari)
         elif len(center_list) >= 2:
             for center in center_list:
-                center_name = str(Center.objects.filter(id=center[0])[0])
+                #center_name = str(Center.objects.filter(id=center[0])[0])
+                center_name = str(Center.objects.filter(id=center)[0])
                 for project in project_list:
-                    project_name = str(Project.objects.filter(id=project[0])[0])
+                    #project_name = str(Project.objects.filter(id=project[0])[0])
+                    project_name = str(Project.objects.filter(id=project)[0])
                     select_list.append(center_name + ' - ' + project_name) 
         details['list'] = select_list
 
@@ -74,8 +82,11 @@ def project(request):
 
         elif center_list.count() >= 2:
             for center in center_list:
-                center_name = str(Center.objects.filter(id=center)[0])
-                center_id = Center.objects.filter(id=center)[0].id
+                center_query = Center.objects.filter(id=center)
+                #center_name = str(Center.objects.filter(id=center)[0])
+                center_name = str(center_query[0])
+                #center_id = Center.objects.filter(id=center)[0].id
+                center_id = center_query[0].id
                 project_list = Project.objects.filter(center_id=center_id)
                 for project in project_list:
                     project_name = str(project)
@@ -101,8 +112,11 @@ def project(request):
 
         elif len(center_list) >= 2:
             for center in center_list:
-                center_name = str(Center.objects.filter(id=center)[0])
-                center_id = Center.objects.filter(id=center)[0].id
+                center_query = Center.objects.filter(id=center)
+                center_name = str(center_query[0])
+                center_id = center_query[0].id
+                #center_name = str(Center.objects.filter(id=center)[0])
+                #center_id = Center.objects.filter(id=center)[0].id
                 project_list = Project.objects.filter(center_id=center_id)
                 for project in project_list:
                     project_name = str(project)
@@ -193,7 +207,7 @@ def project(request):
         details['final'] = final_details
         new_dates = latest_dates(request, project_list)
         user = request.user.id
-        user_status = get_permitted_user(project_list[0], center_list[0], user)
+        user_status = get_permitted_user(_project, _center, user)
         details['user_status'] = user_status
         details['dates'] = new_dates
         return json_HttpResponse(details)
@@ -222,7 +236,7 @@ def project(request):
             new_dates = latest_dates(request, project_names)
         details['dates'] = new_dates
         user = request.user.id 
-        user_status = get_permitted_user(prj_id[0], center, user)
+        user_status = get_permitted_user(_project, _center, user)
         details['user_status'] = user_status
         return json_HttpResponse(details)
 
@@ -274,7 +288,7 @@ def project(request):
             new_dates = latest_dates(request, project_list)
         details['dates'] = new_dates
         user = request.user.id
-        user_status = get_permitted_user(prj_id[0], center_id, user)
+        user_status = get_permitted_user(_project, _center, user)
         details['user_status'] = user_status
         return json_HttpResponse(details)
 
@@ -314,7 +328,7 @@ def project(request):
             new_dates = latest_dates(request, project_names)
         details['dates'] = new_dates
         user = request.user.id
-        user_status = get_permitted_user(prj_id[0], center_list[0], user)
+        user_status = get_permitted_user(_project, _center, user)
         details['user_status'] = user_status
         return json_HttpResponse(details)
 
