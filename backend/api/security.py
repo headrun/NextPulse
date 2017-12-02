@@ -1,5 +1,4 @@
 
-
 from api.review_views import get_all_related_user
 
 
@@ -8,7 +7,7 @@ def get_permitted_user(project, center, user):
 	"""
 
 	user_dict = get_all_related_user(project, center)
-	if user.id in user_dict['id_list']:
+	if user in user_dict['id_list']:
 		return 'Valid User'
 	else:
 		return 'Invalid User'
