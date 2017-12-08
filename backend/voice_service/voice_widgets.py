@@ -36,7 +36,6 @@ def get_hourly_sum(project, dates, table_name, location={}, skill={}, dispositio
     _date = []
     data_set = table_name.objects.filter(**filter_param).values_list('start_time', _term, 'date')\
                 .order_by(_term)
-
     for item in data_set:
         _date.append(str(item[2]))
         if not _dict.has_key(item[1]):

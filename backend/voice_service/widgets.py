@@ -4,18 +4,29 @@ import datetime, time
 from django.apps import apps
 from voice_service.models import *
 from api.models import *
-from api.redis_operations import redis_insert
-from api.basics import *
-from api.uploads import *
-from api.utils import *
-from api.query_generations import *
 from voice_service.voice_query_insertion import *
 from voice_service.constrants import *
+from voice_service.voice_widgets import *
 from api.voice_widgets import *
-from xlrd import open_workbook
-from api.commons import data_dict
 from django.db.models import Count as count
 from common.utils import getHttpResponse as json_HttpResponse
+
+"""def get_daily_data(project, dates, table_name, location={}, skill={}, disposition={}, term='disposition'):
+    _dict = {}
+    filter_params = create_filters([location, skill, disposition, project, dates])
+    _date = []
+    data_set = table_name.objects.filter(**filter_params).values('date', term).annotate(total=Sum('total_calls')).order_by('date')
+    import pdb;pdb.set_trace()
+    for item in data_set:
+       if not _dict.has_key(item[term]):
+           result_dict = {}
+           for date in dates['date']:
+               result_dict.update({date : 0}) 
+           _dict.update({item[term] : result_dict})
+       _dict[item[term]] = [item['total']]
+       _dict[item[term]].append(item['total'])
+    print _dict
+    return _dict"""
 
 def location_data(prj_id, center, dates_list, location, disposition, skill):
     final_dict = {}
@@ -323,7 +334,7 @@ def disposition_data(prj_id, center, dates_list, disposition, location, skill):
 
 def call_status_data(prj_id, center, dates_list, location, skill, disposition):
     final_dict = {}
-    ans_list, unans_list = [], []
+    ans_list, unans_list, perc_calls = [], [], []
     if skill == 'All' and location == 'All' and disposition == 'All':
         for date in dates_list:
             date_check = InboundDaily.objects.filter(project = prj_id, center = center, date = date)
@@ -335,6 +346,9 @@ def call_status_data(prj_id, center, dates_list, location, skill, disposition):
                 unans_calls = value1 - value2
                 ans_list.append(value2)
                 unans_list.append(unans_calls)
+                #precen_cal = percentage_calculation(value2, value1)
+                #perc_calls.append(precen_cal)
+        #final_dict['values'] = perc_calls
         final_dict['Answered'] = ans_list
         final_dict['UnAnswered'] = unans_list
     elif location != 'All' and disposition == 'All' and skill == 'All':
@@ -899,3 +913,9 @@ def ans_value(values):
     else:
         value = 0
     return value
+
+def percentage_calculation(ans_calls, total_calls):
+    value = (float(ans_calls )/ total_calls) * 100
+    final_value = float('%.2f' % round(value, 2))
+    print ans_calls, total_calls, final_value
+    return final_value
