@@ -39,7 +39,11 @@ def location(request):
             if date_value > 0:
                 new_date_list.append(date_key)
                 result['date'] = new_date_list
+        #project = {'project' : [prj_id]}
+        #dates = {'date' : dates}
         loca_val = location_data(prj_id, center, dates, curr_loc, dispo_val, skill_val)
+        #location, skill, disposition, table_name = hour_parameters(curr_loc, skill_val, dispo_val, prj_type)
+        #loca_val = get_daily_data(project, dates, table_name, location, skill, disposition, name)
         result['location'] = graph_format(loca_val)
     elif main_dict['dwm_dict'].has_key('week') and main_dict['type'] == 'week':
         dates = main_dict['dwm_dict']['week']
@@ -660,10 +664,20 @@ def agent_required(request):
     center = main_dict['pro_cen_mapping'][1][0]
     location, skill, disposition, table_name = hour_parameters(curr_loc, skill_val, dispo_val, prj_type)
     project = {'project' : [prj_id]}
-    if (main_dict['dwm_dict'].has_key('hour') and main_dict['type'] == 'hour'):
+    if main_dict['dwm_dict'].has_key('hour') and main_dict['type'] == 'hour':
         date = main_dict['dates']
-    else:
+    elif main_dict['dwm_dict'].has_key('day') and main_dict['type'] == 'day':
         date = main_dict['dwm_dict']['day']
+    elif main_dict['dwm_dict'].has_key('week') and main_dict['type'] == 'week':
+        date_vals = main_dict['dwm_dict']['week']
+        date = []
+        for value in date_vals:
+            date = date + value
+    else:
+        date_vals = main_dict['dwm_dict']['month']['month_dates']
+        date = []
+        for value in date_vals:
+            date = date + value
     dates = {'date' : date}
     agent_data = actual_required_hourly(project, dates, table_name, location, skill, disposition)
     agent_data['date'] = agent_data['date']
@@ -704,8 +718,10 @@ def hour_parameters(location, skill, dispo, prj_type):
         dispo = [dispo]
     if prj_type == 'inbound':
         table_name = InboundHourlyCall
+        #table_name = InboundDaily
     else:
         table_name = OutboundHourlyCall
+        #table_name = OutboundDaily
     return {'location' : location}, {'skill' : skill}, {'disposition' : dispo}, table_name
 
 def week_calculation(prj_id, center, dates, location, disposition, skill, term):
