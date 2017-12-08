@@ -24,29 +24,59 @@ def cate_error(request):
         main_dates_list = main_data_dict['dwm_dict']['month']['month_dates']
     if main_data_dict['dwm_dict'].has_key('day'):
         for sing_list in main_dates_list:
-            level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], main_data_dict['sub_packet'],main_data_dict['pro_cen_mapping'])
-            internal_error_types = internal_extrnal_error_types(request, sing_list, main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0], level_structure_key,"Internal")
-            external_error_types = internal_extrnal_error_types(request, sing_list, main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0],level_structure_key, "External")
-            final_dict['internal_errors_types'] = graph_data_alignment_color(internal_error_types,'y',level_structure_key,main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0],'')
-            final_dict['external_errors_types'] = graph_data_alignment_color(external_error_types,'y',level_structure_key,main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0],'')
+            level_structure_key = get_level_structure_key(\
+                                    main_data_dict['work_packet'], main_data_dict['sub_project'],\
+                                    main_data_dict['sub_packet'],main_data_dict['pro_cen_mapping'])
+            internal_error_types = internal_extrnal_error_types(\
+                                    request, sing_list, main_data_dict['pro_cen_mapping'][0][0],\
+                                    main_data_dict['pro_cen_mapping'][1][0], level_structure_key,"Internal")
+            external_error_types = internal_extrnal_error_types(request, sing_list, \
+                                   main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0],\
+                                   level_structure_key, "External")
+            final_dict['internal_errors_types'] = graph_data_alignment_color(\
+                                                  internal_error_types,'y',level_structure_key,\
+                                                  main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0],'')
+            final_dict['external_errors_types'] = graph_data_alignment_color(\
+                                                  external_error_types,'y',level_structure_key,\
+                                                  main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0],'')
     elif main_data_dict['dwm_dict'].has_key('week'):
         date_value = []
         for sing_list in main_dates_list:
             date_value = date_value + sing_list
-            level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], main_data_dict['sub_packet'],main_data_dict['pro_cen_mapping'])
-            internal_error_types = internal_extrnal_error_types(request, date_value, main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0], level_structure_key,"Internal")
-            external_error_types = internal_extrnal_error_types(request, date_value, main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0],level_structure_key, "External")
-            final_dict['internal_errors_types'] = graph_data_alignment_color(internal_error_types,'y',level_structure_key,main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0],'')
-            final_dict['external_errors_types'] = graph_data_alignment_color(external_error_types,'y',level_structure_key,main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0],'')
+            level_structure_key = get_level_structure_key(\
+                                   main_data_dict['work_packet'], main_data_dict['sub_project'],\
+                                   main_data_dict['sub_packet'],main_data_dict['pro_cen_mapping'])
+            internal_error_types = internal_extrnal_error_types(\
+                                   request, date_value, main_data_dict['pro_cen_mapping'][0][0],\
+                                   main_data_dict['pro_cen_mapping'][1][0], level_structure_key,"Internal")
+            external_error_types = internal_extrnal_error_types(\
+                                   request, date_value, main_data_dict['pro_cen_mapping'][0][0],\
+                                   main_data_dict['pro_cen_mapping'][1][0],level_structure_key, "External")
+            final_dict['internal_errors_types'] = graph_data_alignment_color(\
+                                                  internal_error_types,'y',level_structure_key,\
+                                                  main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0],'')
+            final_dict['external_errors_types'] = graph_data_alignment_color(\
+                                                  external_error_types,'y',level_structure_key,\
+                                                  main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0],'')
     else:
         date_value = []
         for sing_list in main_dates_list:
             date_value = date_value + sing_list
-        level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], main_data_dict['sub_packet'],main_data_dict['pro_cen_mapping'])
-        internal_error_types = internal_extrnal_error_types(request, date_value, main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0], level_structure_key,"Internal")
-        external_error_types = internal_extrnal_error_types(request, date_value, main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0],level_structure_key, "External")
-        final_dict['internal_errors_types'] = graph_data_alignment_color(internal_error_types,'y',level_structure_key,main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0],'')
-        final_dict['external_errors_types'] = graph_data_alignment_color(external_error_types,'y',level_structure_key,main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0],'')
+        level_structure_key = get_level_structure_key(\
+                              main_data_dict['work_packet'], main_data_dict['sub_project'],\
+                              main_data_dict['sub_packet'],main_data_dict['pro_cen_mapping'])
+        internal_error_types = internal_extrnal_error_types(\
+                               request, date_value, main_data_dict['pro_cen_mapping'][0][0],\
+                               main_data_dict['pro_cen_mapping'][1][0], level_structure_key,"Internal")
+        external_error_types = internal_extrnal_error_types(\
+                               request, date_value, main_data_dict['pro_cen_mapping'][0][0],\
+                               main_data_dict['pro_cen_mapping'][1][0],level_structure_key, "External")
+        final_dict['internal_errors_types'] = graph_data_alignment_color(\
+                                              internal_error_types,'y',level_structure_key,\
+                                              main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0],'')
+        final_dict['external_errors_types'] = graph_data_alignment_color(\
+                                              external_error_types,'y',level_structure_key,\
+                                              main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0],'')
     final_dict['is_annotation'] = annotation_check(request)
     return json_HttpResponse(final_dict)
 
@@ -62,27 +92,45 @@ def pareto_cate_error(request):
         main_dates_list = main_data_dict['dwm_dict']['month']['month_dates']
     if main_data_dict['dwm_dict'].has_key('day'):
         for sing_list in main_dates_list:
-            level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], main_data_dict['sub_packet'],main_data_dict['pro_cen_mapping'])
-            category_error_count = sample_pareto_analysis(request,sing_list, main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0],level_structure_key,"Internal")
-            extrnl_category_error_count = sample_pareto_analysis(request,sing_list, main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0], level_structure_key, "External")
+            level_structure_key = get_level_structure_key(\
+                                  main_data_dict['work_packet'], main_data_dict['sub_project'],\
+                                  main_data_dict['sub_packet'],main_data_dict['pro_cen_mapping'])
+            category_error_count = sample_pareto_analysis(\
+                                   request,sing_list, main_data_dict['pro_cen_mapping'][0][0],\
+                                   main_data_dict['pro_cen_mapping'][1][0],level_structure_key,"Internal")
+            extrnl_category_error_count = sample_pareto_analysis(\
+                                          request,sing_list, main_data_dict['pro_cen_mapping'][0][0],\
+                                          main_data_dict['pro_cen_mapping'][1][0], level_structure_key, "External")
             final_dict['Internal_Error_Category'] = category_error_count
             final_dict['External_Error_Category'] = extrnl_category_error_count
     elif main_data_dict['dwm_dict'].has_key('week'):
         date_value = []
         for sing_list in main_dates_list:
             date_value = date_value + sing_list
-            level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], main_data_dict['sub_packet'],main_data_dict['pro_cen_mapping'])
-            category_error_count = sample_pareto_analysis(request,date_value, main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0],level_structure_key,"Internal")
-            extrnl_category_error_count = sample_pareto_analysis(request,date_value, main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0], level_structure_key, "External")
+            level_structure_key = get_level_structure_key(\
+                                  main_data_dict['work_packet'], main_data_dict['sub_project'],\
+                                  main_data_dict['sub_packet'],main_data_dict['pro_cen_mapping'])
+            category_error_count = sample_pareto_analysis(\
+                                   request,date_value, main_data_dict['pro_cen_mapping'][0][0],\
+                                   main_data_dict['pro_cen_mapping'][1][0],level_structure_key,"Internal")
+            extrnl_category_error_count = sample_pareto_analysis(\
+                                          request,date_value, main_data_dict['pro_cen_mapping'][0][0],\
+                                          main_data_dict['pro_cen_mapping'][1][0], level_structure_key, "External")
             final_dict['Internal_Error_Category'] = category_error_count
             final_dict['External_Error_Category'] = extrnl_category_error_count
     else:
         date_value = []
         for sing_list in main_dates_list:
             date_value = date_value + sing_list
-        level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], main_data_dict['sub_packet'],main_data_dict['pro_cen_mapping'])
-        category_error_count = sample_pareto_analysis(request,date_value, main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0],level_structure_key,"Internal")
-        extrnl_category_error_count = sample_pareto_analysis(request,date_value, main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0], level_structure_key, "External")
+        level_structure_key = get_level_structure_key(\
+                              main_data_dict['work_packet'], main_data_dict['sub_project'],\
+                              main_data_dict['sub_packet'],main_data_dict['pro_cen_mapping'])
+        category_error_count = sample_pareto_analysis(\
+                               request,date_value, main_data_dict['pro_cen_mapping'][0][0],\
+                               main_data_dict['pro_cen_mapping'][1][0],level_structure_key,"Internal")
+        extrnl_category_error_count = sample_pareto_analysis(\
+                                      request,date_value, main_data_dict['pro_cen_mapping'][0][0],\
+                                      main_data_dict['pro_cen_mapping'][1][0], level_structure_key, "External")
         final_dict['Internal_Error_Category'] = category_error_count
         final_dict['External_Error_Category'] = extrnl_category_error_count
     final_dict['is_annotation'] = annotation_check(request)
@@ -100,27 +148,45 @@ def agent_cate_error(request):
         main_dates_list = main_data_dict['dwm_dict']['month']['month_dates']
     if main_data_dict['dwm_dict'].has_key('day'):
         for sing_list in main_dates_list:
-            level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], main_data_dict['sub_packet'],main_data_dict['pro_cen_mapping'])
-            agent_internal_pareto_data = agent_pareto_data_generation(request,sing_list, main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0],level_structure_key)
-            extrnl_agent_pareto_data = agent_external_pareto_data_generation(request,sing_list, main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0], level_structure_key)
+            level_structure_key = get_level_structure_key(\
+                                  main_data_dict['work_packet'], main_data_dict['sub_project'], \
+                                  main_data_dict['sub_packet'],main_data_dict['pro_cen_mapping'])
+            agent_internal_pareto_data = agent_pareto_data_generation(\
+                                         request,sing_list, main_data_dict['pro_cen_mapping'][0][0],\
+                                         main_data_dict['pro_cen_mapping'][1][0],level_structure_key)
+            extrnl_agent_pareto_data = agent_external_pareto_data_generation(\
+                                       request,sing_list, main_data_dict['pro_cen_mapping'][0][0],\
+                                       main_data_dict['pro_cen_mapping'][1][0], level_structure_key)
             final_dict['External_Pareto_data'] = extrnl_agent_pareto_data
             final_dict['Pareto_data'] = agent_internal_pareto_data
     elif main_data_dict['dwm_dict'].has_key('week'):
         date_value = []
         for sing_list in main_dates_list:
             date_value = date_value + sing_list
-            level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], main_data_dict['sub_packet'],main_data_dict['pro_cen_mapping'])
-            agent_internal_pareto_data = agent_pareto_data_generation(request,date_value, main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0],level_structure_key)
-            extrnl_agent_pareto_data = agent_external_pareto_data_generation(request,date_value, main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0], level_structure_key)
+            level_structure_key = get_level_structure_key(\
+                                  main_data_dict['work_packet'], main_data_dict['sub_project'],\
+                                  main_data_dict['sub_packet'],main_data_dict['pro_cen_mapping'])
+            agent_internal_pareto_data = agent_pareto_data_generation(\
+                                         request,date_value, main_data_dict['pro_cen_mapping'][0][0],\
+                                         main_data_dict['pro_cen_mapping'][1][0],level_structure_key)
+            extrnl_agent_pareto_data = agent_external_pareto_data_generation(\
+                                       request,date_value, main_data_dict['pro_cen_mapping'][0][0],\
+                                       main_data_dict['pro_cen_mapping'][1][0], level_structure_key)
             final_dict['External_Pareto_data'] = extrnl_agent_pareto_data
             final_dict['Pareto_data'] = agent_internal_pareto_data
     else:
         date_value = []
         for sing_list in main_dates_list:
             date_value = date_value + sing_list
-        level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], main_data_dict['sub_packet'],main_data_dict['pro_cen_mapping'])
-        agent_internal_pareto_data = agent_pareto_data_generation(request,date_value, main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0],level_structure_key)
-        extrnl_agent_pareto_data = agent_external_pareto_data_generation(request,date_value, main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0], level_structure_key)
+        level_structure_key = get_level_structure_key(\
+                              main_data_dict['work_packet'], main_data_dict['sub_project'], \
+                              main_data_dict['sub_packet'],main_data_dict['pro_cen_mapping'])
+        agent_internal_pareto_data = agent_pareto_data_generation(\
+                                     request,date_value, main_data_dict['pro_cen_mapping'][0][0],\
+                                     main_data_dict['pro_cen_mapping'][1][0],level_structure_key)
+        extrnl_agent_pareto_data = agent_external_pareto_data_generation(\
+                                   request,date_value, main_data_dict['pro_cen_mapping'][0][0],\
+                                   main_data_dict['pro_cen_mapping'][1][0], level_structure_key)
         final_dict['External_Pareto_data'] = extrnl_agent_pareto_data
         final_dict['Pareto_data'] = agent_internal_pareto_data
     final_dict['is_annotation'] = annotation_check(request)
@@ -140,12 +206,15 @@ def error_bar_graph(request):
     date_value = []
     if main_data_dict['dwm_dict'].has_key('day'):
         for sing_list in main_dates_list:
-            level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], main_data_dict['sub_packet'],main_data_dict['pro_cen_mapping'])
+            level_structure_key = get_level_structure_key(\
+                                  main_data_dict['work_packet'], main_data_dict['sub_project'],\
+                                  main_data_dict['sub_packet'],main_data_dict['pro_cen_mapping'])
             error_graphs_data = internal_extrnal_graphs(sing_list, main_data_dict['pro_cen_mapping'][0][0],
                                                         main_data_dict['pro_cen_mapping'][1][0],level_structure_key)
             if error_graphs_data.has_key('internal_accuracy_graph'):
-                final_dict['internal_accuracy_graph'] = graph_data_alignment_color(error_graphs_data['internal_accuracy_graph'], 'y',
-               level_structure_key, main_data_dict['pro_cen_mapping'][0][0], main_data_dict['pro_cen_mapping'][1][0],'internal_error_accuracy')
+                final_dict['internal_accuracy_graph'] = graph_data_alignment_color(error_graphs_data['internal_accuracy_graph'],\
+                                'y',level_structure_key, main_data_dict['pro_cen_mapping'][0][0],\
+                                main_data_dict['pro_cen_mapping'][1][0],'internal_error_accuracy')
             if error_graphs_data.has_key('intr_err_accuracy'):
                 final_intrn_accuracy = {}
                 for perc_key,perc_value in error_graphs_data['intr_err_accuracy']['packets_percntage'].iteritems():
@@ -274,8 +343,6 @@ def err_field_graph(request):
 
 
 def internal_extrnal_sub_error_types(request,date_list,prj_id,center_obj,level_structure_key,err_type):
-    #prj_name = Project.objects.filter(id=prj_id).values_list('name', flat=True)
-    #center_name = Center.objects.filter(id=center_obj).values_list('name', flat=True)
     project = Project.objects.filter(id=prj_id)
     prj_name = project[0].name
     center_name = project[0].center.name
@@ -298,10 +365,7 @@ def internal_extrnal_sub_error_types(request,date_list,prj_id,center_obj,level_s
     total_done_value = RawTable.objects.filter(project=prj_id, center=center_obj, date__range=[date_list[0], date_list[-1]]).values('date').annotate(total=Sum('per_day'))
     values = OrderedDict(zip(map(lambda p: str(p['date']), total_done_value), map(lambda p: str(p['total']), total_done_value)))
     for date_key, total_val in values.iteritems():
-    #for date_va in date_list:
         count =0
-        #total_done_value = RawTable.objects.filter(project=prj_id, center=center_obj, date=date_va).aggregate(Max('per_day'))
-        #if total_done_value['per_day__max'] > 0:
         if total_val > 0:
             for vol_type in extr_volumes_list:
                 final_work_packet = level_hierarchy_key(level_structure_key, vol_type)
@@ -309,7 +373,6 @@ def internal_extrnal_sub_error_types(request,date_list,prj_id,center_obj,level_s
                     final_work_packet = level_hierarchy_key(extr_volumes_list[count],vol_type)
                 count = count+1
                 extr_volumes_list_new.append(final_work_packet)
-                #key_pattern = '{0}_{1}_{2}_{3}_{4}'.format(prj_name[0], str(center_name[0]), final_work_packet, date_va,err_key_type)
                 key_pattern = '{0}_{1}_{2}_{3}_{4}'.format(prj_name, center_name, final_work_packet, date_key,err_key_type)
                 audit_key_list = conn.keys(pattern=key_pattern)
                 if not audit_key_list:
@@ -357,8 +420,6 @@ def internal_extrnal_sub_error_types(request,date_list,prj_id,center_obj,level_s
 
 def internal_extrnal_error_types(request,date_list,prj_id,center_obj,level_structure_key,err_type):
     #from api.graphs_mod import worktrack_internal_external_workpackets_list
-    #prj_name = Project.objects.filter(id=prj_id).values_list('name', flat=True)
-    #center_name = Center.objects.filter(id=center_obj).values_list('name', flat=True)
     project = Project.objects.filter(id=prj_id)
     prj_name = project[0].name
     center_name = project[0].center.name

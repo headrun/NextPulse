@@ -567,7 +567,8 @@ def utilization(request):
     elif main_dict['dwm_dict'].has_key('day') and main_dict['type'] == 'day':
         dates = main_dict['dwm_dict']['day']
         for date in dates:
-            common_utility_query = AgentPerformance.objects.filter(project = prj_id, center = center, date = date).values('agent').count()
+            common_utility_query = AgentPerformance.objects.filter(project = prj_id, center = center, date = date)\
+            .values('agent').count()
             if common_utility_query > 0:
                 new_date_list.append(date)
                 result['date'] = new_date_list
@@ -601,7 +602,8 @@ def occupancy(request):
     elif main_dict['dwm_dict'].has_key('day') and main_dict['type'] == 'day':
         dates = main_dict['dwm_dict']['day']
         for date in dates:
-            common_occupancy_query = AgentPerformance.objects.filter(project = prj_id, center = center, date = date).values('agent').count()
+            common_occupancy_query = AgentPerformance.objects.filter(project = prj_id, center = center, date = date)\
+            .values('agent').count()
             if common_occupancy_query > 0:
                 new_date_list.append(date)
                 result['date'] = new_date_list
@@ -635,7 +637,8 @@ def agent_productivity_data(request):
     elif main_dict['dwm_dict'].has_key('day') and main_dict['type'] == 'day':
         dates = main_dict['dwm_dict']['day']
         for date in dates:
-            common_prod_query = AgentPerformance.objects.filter(project = prj_id, center = center, date = date).values('agent').count()
+            common_prod_query = AgentPerformance.objects.filter(project = prj_id, center = center, date = date)\
+            .values('agent').count()
             if common_prod_query > 0:
                 new_date_list.append(date)
                 result['date'] = new_date_list
