@@ -315,7 +315,7 @@
                 }
                 $(widgetA).removeClass('widget-loader-show');
                 $(widgetB).removeClass('widget-data-hide');
-                self.hour_button = [];
+                /*self.hour_button = [];
                 for (var value in self.list_object){
                     if ((value === 'outbound_occupancy') || (value === 'outbound_utilization') || (value === 'outbound_productivity') || ( value === 'common_occupancy') || (value === 'common_productivity') || (value === 'common_utilization') || (value === 'inbound_occupancy') || (value === 'inbound_productivity') || (value === 'inbound_utilization')) {                            
                             self.hour_button.push(value);
@@ -325,7 +325,7 @@
                                     });
                             $('div').find(':contains('+t2+')').parent(".widget-content").find(".hour2").addClass("hide");
                         }
-                } 
+                }*/ 
             }
 
              self.highlightTypes = function (button_type, widgetName) {
@@ -338,6 +338,15 @@
                     self.project_live = callback[3];
                     $('#emp_widget').hide();
                     $('#volume_table').hide();
+
+                    if (self.user_status === 'Invalid User') {
+                        swal({
+                            title: 'Your Not Authorised for ' + self.project_live,
+                            showConfirmButton: false
+                        });
+                        window.location = window.location.origin;     
+                    }
+
                     self.data_to_show = '?&project='+callback[3]+'&center='+callback[2]+'&from='+ callback[0]+'&to='+ callback[1]+packet+'&type=';
                     self.static_widget_data = '&project='+callback[3]+'&center='+callback[2]
                     self.common_for_all = self.data_to_show + self.day_type;
@@ -3153,9 +3162,10 @@
 
                 self.list_object = result.data.result.lay[0];
                 self.layout_list = result.data.result.lay[1].layout;
+                self.user_status = result.data.result.user_status; 
                 var pro_cen_nam = $state.params.selpro;                                                                                  
                 self.call_back = [];
-
+                
                 self.first = result.data.result.dates.from_date;
                 self.last = result.data.result.dates.to_date;
                 
@@ -5693,14 +5703,23 @@
                     min: 0,
                     title: {
                         text: ''
+                    },
+                    stackLabels: {
+                        enabled: true,
+                            style: {
+                                fontWeight: 'bold',
+                                color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray'
+                            }
                     }
                 },
                 tooltip: {
                     valueSuffix: '',
-                    formatter: function () {
+                    headerFormat: '<b>{point.x}</b><br/>',
+                    /*formatter: function () {
                              return "<small>" + this.x + "</small><br/>" +
                                     "<b>" + this.series.name + "</b> : " + Highcharts.numberFormat(this.y, null, null, ",");
-                           }
+                           }*/
+                    pointFormat: '{series.name}: {point.y}<br/>Total: {point.stackTotal}'
                },
                 plotOptions:{
                     column: {
