@@ -18,7 +18,7 @@ def data_bulk_insertion(table_name, data_dict):
     	db_objs.append(obj)
     	dates.append(obj.date)
         
-    table_name.objects.bulk_create(db_objs)
+    table_name.objects.bulk_create(db_objs, batch_size=1500)
 
     return dates
 
