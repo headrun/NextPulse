@@ -5701,6 +5701,7 @@
                 yAxis: {
                     gridLineColor: 'a2a2a2',
                     min: 0,
+                    reversedStacks: false,
                     title: {
                         text: ''
                     },
