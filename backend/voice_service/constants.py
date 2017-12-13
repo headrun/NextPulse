@@ -27,17 +27,19 @@ INTEGER_NUMBERS = ['total calls', 'connected calls', 'abandoned calls']
 
 CANCEL_DISPOSITION = []
 
-CONVERT_TO_DAILY = ['Inbound Hourly', 'Outbound Hourly']
+CONVERT_TO_DAILY = ['inbound_hourly_sheet', 'outbound_hourly_sheet']
 
 TRANSFER = {'agent_transfer_list': 'AgentTransferCall', 'skill_transfer_list': 'SkillTransferCall',\
 				'location_transfer_list': 'LocationTransferCall', 'disposition_transfer_list': 'DispositionTransferCall'}
 
-SHEET_NAMES = {
-				'inbound_hourly' : 'Inbound Hourly',
-				'outbound_hourly' : 'Outbound Hourly',
-				'inbound_daily' : '',
-				'outbound_hourly' : '',
-				'agent_summary' : 'Agent Transfer'
-}
 
 CALL_TARGET_PER_AGENT = 10
+
+
+LANGUAGES = [
+		'Telugu',
+		'Hindi',
+		'Kannada',
+		'Tamil',
+		'Malayalam'
+	]
