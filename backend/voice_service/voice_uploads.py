@@ -300,7 +300,6 @@ def saving_data(data_dict, project, sheet_name):
     """Final setup to save data
     """
 
-    print sheet_name
     _agents = []
     transfer_dict = []
     agent_transfer_list, skill_transfer_list, location_transfer_list, disposition_transfer_list = [], [], [], []
@@ -400,7 +399,6 @@ def create_daily_data(hourly_list, _project, sheet_name):
             daily_data[key]['wrapup_time'] += item['wrapup_duration']
             daily_data[key]['hold_time'] += item['hold_time']
             daily_data[key]['talk_time'] += item['talk_time']
-            #daily_data[key]['time_to_answer'] +=  item['time_to_answer']
             daily_data[key]['disposition'] = item['disposition']
             daily_data[key]['project'] = _project
             daily_data[key]['center'] = _project.center
@@ -411,16 +409,17 @@ def create_daily_data(hourly_list, _project, sheet_name):
 def update_language_disposition(result_dict, sheet_name):
     """Checking the empty disposition
     """
-    #import pdb;pdb.set_trace()
+
     for key, value in result_dict.iteritems():
-        #value['skill']=convert_language(value['skill'])
         value = convert_disposition(value, sheet_name)
 
     return result_dict
 
+
 def convert_language(language):
     """Converting all irrelevent names of languages
     """
+
     if language == 'StoreKing_NW':
         language = 'Kannada'
     if language not in LANGUAGES:
@@ -439,7 +438,7 @@ def convert_disposition(dict, sheet_name):
             if dict['status'] == 'Answered':
                 dict['disposition'] = 'Wrap up time exceeded'
             else:
-                dict['disposition'] = 'Not Answered LA LA'
+                dict['disposition'] = 'Not Answered'
     elif sheet_name == 'outbound_hourly_sheet':
         if not dict['disposition']:
             dict['disposition'] = 'Not Answered'
