@@ -299,7 +299,6 @@ def get_agents_from_performance(data_dict):
 def saving_data(data_dict, project, sheet_name):
     """Final setup to save data
     """
-
     _agents = []
     transfer_dict = []
     agent_transfer_list, skill_transfer_list, location_transfer_list, disposition_transfer_list = [], [], [], []
@@ -319,8 +318,9 @@ def saving_data(data_dict, project, sheet_name):
     _data_dict = get_agent_details(data_dict, _agents, project)
     date = []
     if _data_dict:
-        print _data_dict
-        _data_dict = update_language_disposition(_data_dict , sheet_name)
+        #print _data_dict
+        if project.name == 'Store King':
+            _data_dict = update_language_disposition(_data_dict , sheet_name)
         date = data_bulk_insertion(table_name, _data_dict)
     for tkey, tvalue in TRANSFER.iteritems():
         if eval(tkey):
