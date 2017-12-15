@@ -41,16 +41,18 @@ class Command(BaseCommand):
         prj_teams = list(prj_teams)
         for team in prj_teams:
             team = team[0]
-            if team in ["IBM - Quality Control",  "IBM - India",  "IBM - Sri Lanka", "IBM - Africa",  "IBM - DCIW",  "IBM - Pakistan", "IBM - Sri lanka P2P", "IBM - Arabia DCIW", "IBM - Arabia", "IBM - Latin America", "IBM - EMEA", "IBM - UASCC", "IBM - Europe", "IBM - Supply Chain", "IBM - North America", "3i - Payback"]:
+            if team in ["IBM - Quality Control",  "IBM - India",  "IBM - Sri Lanka", "IBM - Africa",  "IBM - DCIW",\
+                        "IBM - Pakistan", "IBM - Sri lanka P2P", "IBM - Arabia DCIW", "IBM - Arabia", "IBM - Latin America",\
+                        "IBM - EMEA", "IBM - UASCC", "IBM - Europe", "IBM - Supply Chain", "IBM - North America", "3i - Payback"]:
                 pr_team = team
             else:
                 pr_team = team.split(" - ")[0]
             projects.append(pr_team)
         project = set(projects)
-        #import pdb;pdb.set_trace()
-        #not_req = ["indix", "Mahendra", "Bench", "HR", "Jeeves", "MIS", "E4U", "3i", "Admin", "Master Mind", "IT", "CureCrew", "QualityTeam", "WIPRO", "Worxogo", "StoreKing" ,"Training", "Pixm", "Accounts", "BCT", "Snap Diligence", "Compliance", "Kredx", "ER", "Indix", "Bridgei2i", "Tech","WIPRO" ,"MindTree"]
-        #project = filter(lambda x: x not in not_req, list(project))
-        project = ["Probe", "Dell-TP", "Dell-Coding", "Federal Bank", "gooru", "Walmart", "Ujjivan", "IBM - Africa", "IBM - Arabia", "IBM - DCIW", "IBM - Arabia DCIW", "IBM - India", "IBM - Sri Lanka", "IBM - Latin America", "IBM - Pakistan", "IBM - Quality Control", "IBM - North America", "IBM - Europe", "IBM - UASCC", "IBM - Sri lanka P2P", "IBM - Supply Chain", "IBM"]
+        project = ["Probe", "Dell-TP", "Dell-Coding", "Federal Bank", "gooru", "Walmart", "Ujjivan", "IBM - Africa", \
+                   "IBM - Arabia", "IBM - DCIW", "IBM - Arabia DCIW", "IBM - India", "IBM - Sri Lanka", "IBM - Latin America",\
+                   "IBM - Pakistan", "IBM - Quality Control", "IBM - North America", "IBM - Europe", "IBM - UASCC",\
+                   "IBM - Sri lanka P2P", "IBM - Supply Chain", "IBM"]
         for month_name,month_dates in months_dict.iteritems():
             #final_data = {}
             absen_da, attri_da, attri_cnt, absen_cnt, emp_cnt = [], [], [], [], []
@@ -59,7 +61,9 @@ class Command(BaseCommand):
             for prj in project:
                 final_data = {}
                 date_values = month_dates
-                query = 'select distinct(empid) from hrm_employee_process where team like "%%%s%%" and start_date < "%s" and (end_date like "0000-00-00" or (end_date between "%s" and "%s"));' %(prj, date_values[-1], date_values[0], date_values[-1])
+                query = 'select distinct(empid) from hrm_employee_process where team like "%%%s%%" and start_date < "%s" \
+                          and (end_date like "0000-00-00" or (end_date between "%s" and "%s"));' \
+                          %(prj, date_values[-1], date_values[0], date_values[-1])
                 cur.execute(query)
                 rows = cur.fetchall()
                 na_count = 0
@@ -88,7 +92,9 @@ class Command(BaseCommand):
                 #attri_value = 0
                 #import pdb;pdb.set_trace()
                 if len(temp_rows) > 2:
-                    query2 = 'select count(empid) from hrm_employee_resignation where empid in (%s) and (lastday between "%s" and "%s");' %(temp_rows[2:], date_values[0], date_values[-1])
+                    query2 = 'select count(empid) from hrm_employee_resignation where empid in (%s) and \
+                              (lastday between "%s" and "%s");'\
+                              %(temp_rows[2:], date_values[0], date_values[-1])
                     cur.execute(query2)
                     values = cur.fetchall()
                     if rows:
