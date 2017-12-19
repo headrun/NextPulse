@@ -339,8 +339,8 @@ def common_user_data(request, projects_list, role, widgets_list, dates, user_sta
     sub_project = request.GET.get('sub_project', '')
     work_packet = request.GET.get('work_packet', '')
     sub_packet  = request.GET.get('sub_packet', '') 
-    result_dict['from'] = first_date
-    result_dict['to'] = last_date
+    result_dict['from_date'] = first_date
+    result_dict['to_date'] = last_date
     result_dict['type'] = data_type
     result_dict['sub_project'] = sub_project
     result_dict['work_packet'] = work_packet
