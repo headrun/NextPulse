@@ -31,6 +31,7 @@
              var project = 'api/project/';
              var drop_down_link = '/api/dropdown_data/';
              var landing_pro = $state.params.selpro;
+             //self.pro_landing_url = 'api/project/?name='+landing_pro;
              self.pro_landing_url = 'api/project/?name='+landing_pro;
              var voice_filter_calls;
             
@@ -188,7 +189,10 @@
             });
 
             //Voice Type User
-            self.filter_list = ['location', 'skill', 'disposition', 'call_status', 'cate_dispo_inbound', 'outbound_dispo_cate', 'outbound_disposition', 'outbnd_dispo_common', 'inbnd_utilization', 'outbnd_utilization', 'inbnd_occupancy', 'outbnd_occupancy', 'inbound_productivity', 'outbound_productivity', 'utilization', 'occupancy', 'agent_productivity_data', 'agent_required'];
+            self.filter_list = ['location', 'skill', 'disposition', 'call_status', 'cate_dispo_inbound', 'outbound_dispo_cate', 
+                                'outbound_disposition', 'outbnd_dispo_common', 'inbnd_utilization', 'outbnd_utilization', 
+                                'inbnd_occupancy', 'outbnd_occupancy', 'inbound_productivity', 'outbound_productivity', 
+                                'utilization', 'occupancy', 'agent_productivity_data', 'agent_required'];
             self.chartType = ['bar', 'stacked', 'pie', 'line'];
             self.voice_widget_function = function(result, voiceFilterType, widgetA, widgetB) {
                 var chartOptions, chartSeries, chartType;
