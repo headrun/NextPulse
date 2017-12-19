@@ -6,6 +6,7 @@ from api.security import get_permitted_user
 from common.utils import getHttpResponse as json_HttpResponse
 
 def project(request):
+
     try:
         multi_center, multi_project = request.GET.get('name').split(' - ')
     except: 
@@ -137,19 +138,29 @@ def project(request):
                 prj_id = Project.objects.filter(name=prj_name).values_list('id','center_id') 
 
     if user_group in ['nextwealth_manager','center_manager','customer']:
-        widgets_id = Widgets_group.objects.filter(User_Group_id=user_group_id, project=prj_id[0][0],center=prj_id[0][1]).values('widget_priority', 'is_drilldown','is_display', 'widget_name','col', 'display_value')
-        project_display_value = Project.objects.filter(id=prj_id[0][0], center=prj_id[0][1]).values_list('display_value', flat=True)[0]
+        widgets_id = Widgets_group.objects.filter(\
+                        User_Group_id=user_group_id, project=prj_id[0][0],center=prj_id[0][1])\
+                        .values('widget_priority', 'is_drilldown','is_display', 'widget_name','col', 'display_value')
+        project_display_value = Project.objects.filter(\
+                                id=prj_id[0][0], center=prj_id[0][1]).values_list('display_value', flat=True)[0]
     else:
-        widgets_id = Widgets_group.objects.filter(User_Group_id=user_group_id, project__in=prj_id,center__in=center).values('widget_priority', 'is_drilldown','is_display', 'widget_name','col', 'display_value')
-        project_display_value = Project.objects.filter(id__in=prj_id, center__in=center).values_list('display_value', flat=True)[0]
+        widgets_id = Widgets_group.objects.filter(\
+                        User_Group_id=user_group_id, project__in=prj_id,center__in=center)\
+                        .values('widget_priority', 'is_drilldown','is_display', 'widget_name','col', 'display_value')
+        project_display_value = Project.objects.filter(\
+                                id__in=prj_id, center__in=center)\
+                                .values_list('display_value', flat=True)[0]
 
     for data in widgets_id:
         if data['is_display'] == True:
-            widgets_data = Widgets.objects.filter(id=data['widget_name']).values('config_name', 'name', 'id_num', 'opt', 'day_type_widget', 'api')
+            widgets_data = Widgets.objects.filter(\
+                            id=data['widget_name']).values('config_name', 'name', 'id_num', 'opt', 'day_type_widget', 'api')
             if user_group in ['nextwealth_manager','center_manager','customer']:
-                alias_name = Alias_Widget.objects.filter(project=prj_id[0][0],widget_name_id=data['widget_name']).values('alias_widget_name')
+                alias_name = Alias_Widget.objects.filter(\
+                             project=prj_id[0][0],widget_name_id=data['widget_name']).values('alias_widget_name')
             else:
-                alias_name = Alias_Widget.objects.filter(project__in=prj_id,widget_name_id=data['widget_name']).values('alias_widget_name')
+                alias_name = Alias_Widget.objects.filter(\
+                             project__in=prj_id,widget_name_id=data['widget_name']).values('alias_widget_name')
             new_dict ={}
             if len(alias_name) > 0:
                 if alias_name[0]['alias_widget_name']:
@@ -201,16 +212,12 @@ def project(request):
                 for project in project_list:
                     project_name = str(Project.objects.filter(id=project)[0])
                     select_list.append(center_name + ' - ' + project_name)
-        details['list'] = select_list
-        details['role'] = 'team_lead'
-        details['lay'] = layout_list
-        details['final'] = final_details
         new_dates = latest_dates(request, project_list)
         user = request.user.id
         user_status = get_permitted_user(_project, _center, user)
-        details['user_status'] = user_status
-        details['dates'] = new_dates
-        return json_HttpResponse(details)
+        role = 'team_lead'
+        final_values = common_user_data(request, select_list, role, layout_list, new_dates, user_status)
+        return json_HttpResponse(final_values)
 
     if 'center_manager' in user_group:
         final_details = {}
@@ -222,10 +229,6 @@ def project(request):
         for project in project_names:
             vari = center_name + ' - ' + project
             select_list.append(center_name + ' - ' + project)
-        details['list'] = select_list
-        details['role'] = 'center_manager'
-        details['lay'] = layout_list
-        details['final'] = final_details
         if len(project_names) > 1: 
             if multi_project:
                 prj_id = Project.objects.filter(name=multi_project).values_list('id',flat=True)
@@ -234,11 +237,11 @@ def project(request):
             new_dates = latest_dates(request, prj_id)
         else:
             new_dates = latest_dates(request, project_names)
-        details['dates'] = new_dates
+        role = 'center_manager'
         user = request.user.id 
         user_status = get_permitted_user(_project, _center, user)
-        details['user_status'] = user_status
-        return json_HttpResponse(details)
+        final_values = common_user_data(request, select_list, role, layout_list, new_dates, user_status)
+        return json_HttpResponse(final_values)
 
     if 'nextwealth_manager' in user_group:
         final_details = {}
@@ -273,10 +276,6 @@ def project(request):
                     layout_list.append({vari:lay_list})
                     select_list.append(center_name + ' - ' + project_name)
 
-        details['list'] = select_list
-        details['role'] = 'nextwealth_manager'
-        details['lay'] = layout_list
-        details['final'] = final_details
         if len(select_list) > 1:
             if multi_project:
                 prj_id = Project.objects.filter(name=multi_project).values_list('id',flat=True)
@@ -286,11 +285,11 @@ def project(request):
             new_dates = latest_dates(request, prj_id)
         else:
             new_dates = latest_dates(request, project_list)
-        details['dates'] = new_dates
         user = request.user.id
         user_status = get_permitted_user(_project, _center, user)
-        details['user_status'] = user_status
-        return json_HttpResponse(details)
+        role = 'nextwealth_manager'
+        final_values = common_user_data(request, select_list, role, layout_list, new_dates, user_status)
+        return json_HttpResponse(final_values)
 
     if 'customer' in user_group:
         final_details = {}
@@ -313,10 +312,6 @@ def project(request):
                 for project in project_list:
                     project_name = str(Project.objects.filter(id=project)[0])
                     select_list.append(center_name + ' - ' + project_name)
-        details['list'] = select_list
-        details['role'] = 'customer'
-        details['lay'] = layout_list
-        details['final'] = final_details
         project_names = project_list
         if len(project_names) > 1: 
             if multi_project:
@@ -326,10 +321,35 @@ def project(request):
             new_dates = latest_dates(request, prj_id)
         else:
             new_dates = latest_dates(request, project_names)
-        details['dates'] = new_dates
         user = request.user.id
         user_status = get_permitted_user(_project, _center, user)
-        details['user_status'] = user_status
-        return json_HttpResponse(details)
+        role = 'customer'
+        final_values = common_user_data(request, select_list, role, layout_list, new_dates, user_status)
+        return json_HttpResponse(final_values)
 
+
+def common_user_data(request, projects_list, role, widgets_list, dates, user_status):
+
+    "passing parameters required for opening of dashboard page"
+
+    result_dict = {}
+    first_date = request.GET.get('from', '')
+    last_date  = request.GET.get('to', '')
+    data_type  = request.GET.get('type', '')
+    sub_project = request.GET.get('sub_project', '')
+    work_packet = request.GET.get('work_packet', '')
+    sub_packet  = request.GET.get('sub_packet', '') 
+    result_dict['from'] = first_date
+    result_dict['to'] = last_date
+    result_dict['type'] = data_type
+    result_dict['sub_project'] = sub_project
+    result_dict['work_packet'] = work_packet
+    result_dict['sub_packet'] = sub_packet
+    result_dict['list'] = projects_list
+    result_dict['dates'] = dates
+    result_dict['lay'] = widgets_list
+    result_dict['role'] = role
+    result_dict['user_status'] = user_status
+
+    return result_dict
 
