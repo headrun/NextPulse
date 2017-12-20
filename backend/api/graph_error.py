@@ -219,34 +219,40 @@ def error_bar_graph(request):
                 final_intrn_accuracy = {}
                 for perc_key,perc_value in error_graphs_data['intr_err_accuracy']['packets_percntage'].iteritems():
                     final_intrn_accuracy[perc_key] = perc_value[0]
-                final_dict['internal_accuracy_graph'] = graph_data_alignment_color(final_intrn_accuracy, 'y', level_structure_key,
+                final_dict['internal_accuracy_graph'] = graph_data_alignment_color(final_intrn_accuracy, 'y', level_structure_key,\
                     main_data_dict['pro_cen_mapping'][0][0], main_data_dict['pro_cen_mapping'][1][0],'intenal_error_accuracy')
             if error_graphs_data.has_key('external_accuracy_graph'):
-                final_dict['external_accuracy_graph'] = graph_data_alignment_color(error_graphs_data['external_accuracy_graph'], 'y',
-               level_structure_key, main_data_dict['pro_cen_mapping'][0][0], main_data_dict['pro_cen_mapping'][1][0],'external_error_accuracy')
+                final_dict['external_accuracy_graph'] = graph_data_alignment_color(error_graphs_data['external_accuracy_graph'], 'y',\
+                level_structure_key, main_data_dict['pro_cen_mapping'][0][0], main_data_dict['pro_cen_mapping'][1][0],\
+                    'external_error_accuracy')
             if error_graphs_data.has_key('extr_err_accuracy'):
                 final_extrn_accuracy = {}
                 for perc_key,perc_value in error_graphs_data['extr_err_accuracy']['packets_percntage'].iteritems():
                     final_extrn_accuracy[perc_key] = perc_value[0]
-                final_dict['external_accuracy_graph'] = graph_data_alignment_color(final_extrn_accuracy, 'y', level_structure_key,
+                final_dict['external_accuracy_graph'] = graph_data_alignment_color(final_extrn_accuracy, 'y', level_structure_key,\
                      main_data_dict['pro_cen_mapping'][0][0], main_data_dict['pro_cen_mapping'][1][0],'external_error_accuracy')
 
     elif main_data_dict['dwm_dict'].has_key('week'):
         for sing_list in main_dates_list:
             date_value = date_value + sing_list
-            level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], main_data_dict['sub_packet'],main_data_dict['pro_cen_mapping'])
-            error_graphs_data = internal_extrnal_graphs(date_value, main_data_dict['pro_cen_mapping'][0][0],
+            level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], \
+                main_data_dict['sub_packet'],main_data_dict['pro_cen_mapping'])
+            error_graphs_data = internal_extrnal_graphs(date_value, main_data_dict['pro_cen_mapping'][0][0],\
                                                         main_data_dict['pro_cen_mapping'][1][0],level_structure_key)
             if error_graphs_data.has_key('internal_accuracy_graph'):
-                final_dict['internal_accuracy_graph'] = graph_data_alignment_color(error_graphs_data['internal_accuracy_graph'], 'y',
-               level_structure_key, main_data_dict['pro_cen_mapping'][0][0], main_data_dict['pro_cen_mapping'][1][0],'internal_error_accuracy')
+                final_dict['internal_accuracy_graph'] = graph_data_alignment_color(error_graphs_data['internal_accuracy_graph'], 'y',\
+                level_structure_key, main_data_dict['pro_cen_mapping'][0][0], main_data_dict['pro_cen_mapping'][1][0],\
+                    'internal_error_accuracy')
+            if error_graphs_data.has_key('intr_err_accuracy'):
+                final_intrn_accuracy = {}
                 for perc_key,perc_value in error_graphs_data['intr_err_accuracy']['packets_percntage'].iteritems():
                     final_intrn_accuracy[perc_key] = perc_value[0]
-                final_dict['internal_accuracy_graph'] = graph_data_alignment_color(final_intrn_accuracy, 'y', level_structure_key,
+                final_dict['internal_accuracy_graph'] = graph_data_alignment_color(final_intrn_accuracy, 'y', level_structure_key,\
                     main_data_dict['pro_cen_mapping'][0][0], main_data_dict['pro_cen_mapping'][1][0],'intenal_error_accuracy')
             if error_graphs_data.has_key('external_accuracy_graph'):
-                final_dict['external_accuracy_graph'] = graph_data_alignment_color(error_graphs_data['external_accuracy_graph'], 'y',
-               level_structure_key, main_data_dict['pro_cen_mapping'][0][0], main_data_dict['pro_cen_mapping'][1][0],'external_error_accuracy')
+                final_dict['external_accuracy_graph'] = graph_data_alignment_color(error_graphs_data['external_accuracy_graph'], 'y',\
+                level_structure_key, main_data_dict['pro_cen_mapping'][0][0], main_data_dict['pro_cen_mapping'][1][0],\
+                    'external_error_accuracy')
             if error_graphs_data.has_key('extr_err_accuracy'):
                 final_extrn_accuracy = {}
                 for perc_key,perc_value in error_graphs_data['extr_err_accuracy']['packets_percntage'].iteritems():
@@ -257,12 +263,14 @@ def error_bar_graph(request):
     else:
         for sing_list in main_dates_list:
             date_value = date_value + sing_list
-            level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], main_data_dict['sub_packet'],main_data_dict['pro_cen_mapping'])
-            error_graphs_data = internal_extrnal_graphs(date_value, main_data_dict['pro_cen_mapping'][0][0],
+            level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], \
+                main_data_dict['sub_packet'],main_data_dict['pro_cen_mapping'])
+            error_graphs_data = internal_extrnal_graphs(date_value, main_data_dict['pro_cen_mapping'][0][0],\
                                                         main_data_dict['pro_cen_mapping'][1][0],level_structure_key)
             if error_graphs_data.has_key('internal_accuracy_graph'):
-                final_dict['internal_accuracy_graph'] = graph_data_alignment_color(error_graphs_data['internal_accuracy_graph'], 'y',
-               level_structure_key, main_data_dict['pro_cen_mapping'][0][0], main_data_dict['pro_cen_mapping'][1][0],'internal_error_accuracy')
+                final_dict['internal_accuracy_graph'] = graph_data_alignment_color(error_graphs_data['internal_accuracy_graph'], 'y',\
+                level_structure_key, main_data_dict['pro_cen_mapping'][0][0], main_data_dict['pro_cen_mapping'][1][0],\
+                    'internal_error_accuracy')
             if error_graphs_data.has_key('intr_err_accuracy'):
                 final_intrn_accuracy = {}
                 for perc_key,perc_value in error_graphs_data['intr_err_accuracy']['packets_percntage'].iteritems():
@@ -271,7 +279,8 @@ def error_bar_graph(request):
                     main_data_dict['pro_cen_mapping'][0][0], main_data_dict['pro_cen_mapping'][1][0],'intenal_error_accuracy')
             if error_graphs_data.has_key('external_accuracy_graph'):
                 final_dict['external_accuracy_graph'] = graph_data_alignment_color(error_graphs_data['external_accuracy_graph'], 'y',
-               level_structure_key, main_data_dict['pro_cen_mapping'][0][0], main_data_dict['pro_cen_mapping'][1][0],'external_error_accuracy')
+                level_structure_key, main_data_dict['pro_cen_mapping'][0][0], \
+                main_data_dict['pro_cen_mapping'][1][0],'external_error_accuracy')
             if error_graphs_data.has_key('extr_err_accuracy'):
                 final_extrn_accuracy = {}
                 for perc_key,perc_value in error_graphs_data['extr_err_accuracy']['packets_percntage'].iteritems():
