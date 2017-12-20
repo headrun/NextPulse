@@ -124,6 +124,8 @@ def get_level_structure_key(work_packet, sub_project, sub_packet, pro_cen_mappin
 
 def latest_dates(request,prj_id):
     result= {}
+    req_from_date = request.GET.get('from', '')
+    req_last_date = request.GET.get('to', '')
     if len(prj_id) == 1:
         project_check = Project.objects.filter(id=prj_id).values_list('is_voice',flat=True).distinct()[0]
         if project_check == False:
@@ -132,10 +134,13 @@ def latest_dates(request,prj_id):
         else:
             latest_date = InboundHourlyCall.objects.filter(project=prj_id).all().aggregate(Max('date'))
             to_date = latest_date['date__max']
-        if to_date:
+        if to_date and ((req_from_date == '') or (req_from_date == 'undefined')):
             from_date = to_date - timedelta(6)
             result['from_date'] = str(from_date)
             result['to_date'] = str(to_date)
+        elif req_from_date:
+            result['from_date'] = str(req_from_date)
+            result['to_date'] = str(req_last_date)
         else:
             result['from_date'] = '2017-01-05'
             result['to_date'] = '2017-01-11'
@@ -143,7 +148,6 @@ def latest_dates(request,prj_id):
         result['from_date'] = '2017-01-05'
         result['to_date'] = '2017-01-11'
     return result
-
 
 def dropdown_data(request):
     final_dict = {}
@@ -259,7 +263,7 @@ def dates_sorting(timestamps):
 
 
 def Authoring_mapping(prj_obj,center_obj,model_name, app_name='api'):
-    print model_name
+    #print model_name
     table_model = apps.get_model(app_name, model_name)
     map_query = table_model.objects.filter(project=prj_obj, center=center_obj)
     if len(map_query) > 0:
