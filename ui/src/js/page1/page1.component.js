@@ -31,7 +31,7 @@
              var project = 'api/project/';
              var drop_down_link = '/api/dropdown_data/';
              var landing_pro = $state.params.selpro;
-             self.pro_landing_url = 'api/project/?name='+landing_pro;
+             self.pro_landing_url = 'api/project/?name='+landing_pro+'&from='+'2017-08-01'+'&to='+'2017-08-31';
              /*self.pro_landing_url = 'api/project/?name='+landing_pro+'&from='+self.first+'&to='+self.last+'&type='+self.type+
                          '&sub_project='+self.drop_sub_proj+'&work_packet='+self.drop_work_pack+'&sub_packet='+self.drop_sub_pack;*/
              var voice_filter_calls;
