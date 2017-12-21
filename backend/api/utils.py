@@ -342,7 +342,6 @@ def received_volume_week(week_names,productivity_list,final_productivity):
             if week_key not in final_productivity.keys():
                 final_productivity[week_key] = []
     for prod_week_num in week_names:
-        print prod_week_num
         if len(productivity_list.get(prod_week_num,'')) > 0:
             values = productivity_list[prod_week_num]
             flag = isinstance(values.get('Received',""), list) & isinstance(values.get('Completed',""), list) & isinstance(values.get('Opening',""), list)

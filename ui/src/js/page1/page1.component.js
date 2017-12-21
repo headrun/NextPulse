@@ -31,12 +31,9 @@
              var project = 'api/project/';
              var drop_down_link = '/api/dropdown_data/';
              var landing_pro = $state.params.selpro;
-             self.pro_landing_url = 'api/project/?name='+landing_pro+'&from='+'2017-08-01'+'&to='+'2017-08-31';
-             /*self.pro_landing_url = 'api/project/?name='+landing_pro+'&from='+self.first+'&to='+self.last+'&type='+self.type+
-                         '&sub_project='+self.drop_sub_proj+'&work_packet='+self.drop_work_pack+'&sub_packet='+self.drop_sub_pack;*/
+             self.pro_landing_url = 'api/project/?name='+landing_pro;
              var voice_filter_calls;
             
-
              self.project_live = ''
              self.center_live = ''
 
@@ -3375,8 +3372,15 @@
                 }
 
                 self.location = pro_cen_nam.split('-')[0].replace(' ','') + ' - '
-                self.project = pro_cen_nam.split('-')[1].replace(' ','');
-                
+                //self.project = pro_cen_nam.split('-')[1].replace(' ','');
+                var project_check = pro_cen_nam.split('-')[1].replace(' ','');
+                var project_val = project_check.search('&');
+                if (project_val != -1) {
+                    self.project = pro_cen_nam.split('-')[1].split('&')[0].replace(' ','');    
+                }
+                else {
+                    self.project = pro_cen_nam.split('-')[1].replace(' ','');    
+                }
                 self.call_back.push(self.location);
                 self.call_back.push(self.project);
              
@@ -4188,6 +4192,7 @@
                         self.lastDate = self.first;
                         self.last = result.result.dates.to_date;
                         self.firstDate = self.last;
+                        //self.pro_landing_url = 'api/project/?name='+landing_pro+'&from='+self.first+'&to='+self.last;
                         $('#select').val(self.first + ' to ' + self.last)
 
                     if ((result.result.role === 'customer') || (result.result.role === 'team_lead') || 
