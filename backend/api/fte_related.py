@@ -1,9 +1,10 @@
-
+#from collections import OrderedDict
 import datetime
 import redis
 from api.models import *
 from api.basics import *
-from collections import OrderedDict
+#from collections import OrderedDict
+import collections
 from django.db.models import Max, Sum
 from api.query_generations import query_set_generation
 from api.graph_settings import graph_data_alignment_color
