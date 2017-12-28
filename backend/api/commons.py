@@ -137,6 +137,7 @@ def data_dict(variable):
 def get_packet_details(request):
     """It will generate all the list of packets, projects and sub packets for the project"""
     main_data_dict = data_dict(request.GET)
+    #import pdb;pdb.set_trace()
     if main_data_dict['type'] == 'hour':
         dates = main_data_dict['dwm_dict']['day']
     else:
@@ -167,7 +168,7 @@ def get_packet_details(request):
         sub_packet_level.append('all')
     else:
         sub_packet_level = ''
-    prj_type = request.GET['voice_project_type']
+    prj_type = request.GET.get('voice_project_type', '')
     if main_data_dict['type'] == 'hour':
         inbound_hourly_master_set = InboundDaily.objects.filter(\
                                     project=main_data_dict['pro_cen_mapping'][0][0], center=main_data_dict['pro_cen_mapping'][1][0],\
@@ -207,7 +208,11 @@ def get_packet_details(request):
         disposition_names = ''
     is_voice = Project.objects.filter(\
                                    id=main_data_dict['pro_cen_mapping'][0][0], center=main_data_dict['pro_cen_mapping'][1][0])\
-                                   .values_list('is_voice', flat=True).distinct()[0]
+                                   .values_list('is_voice', flat=True).distinct()
+    if is_voice:
+        is_voice = is_voice[0]
+    else:
+        is_voice = ''
     for dispo in disposition_names:
         dispo_list.append(dispo)
     if location_list:

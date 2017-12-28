@@ -308,9 +308,13 @@ def project(request):
         _type       = request.GET.get('link_type', '')
         first_date  = request.GET.get('from', '')
         last_date   = request.GET.get('to', '')
+        sub_project = request.GET.get('sub_project', '')
+        sub_packet  = request.GET.get('sub_packet', '')
+        work_packet = request.GET.get('work_packet', '')
         if _type == 'dashboard':
             parameters = multi_center+'%20-%20'+multi_project+'&from='+first_date+'&to='+last_date
-            redirectional_url = 'http://stats.headrun.com/#!/page1/'+parameters
+            packet_params = '&sub_project='+sub_project+'&sub_packet='+sub_packet+'&work_packet='+work_packet
+            redirectional_url = 'http://stats.headrun.com/#!/page1/'+parameters+packet_params
             return redirect(redirectional_url)
         return json_HttpResponse(final_values)
 
