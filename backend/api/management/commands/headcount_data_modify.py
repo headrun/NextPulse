@@ -5,7 +5,7 @@ class Command(BaseCommand):
 
     commands = ['generatedata',]
     args = '[command]'
-    help = 'generate data'
+    help = 'calculation of headcount data parameters'
 
     def handle(self, *args, **options):
 
