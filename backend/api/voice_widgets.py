@@ -9,10 +9,10 @@ from common.utils import getHttpResponse as json_HttpResponse
 from voice_service.voice_widgets import *
 
 def common_function(variable):
-    location    = variable.GET['location']
-    skill       = variable.GET['skill']
-    disposition = variable.GET['disposition']
-    prj_type    = variable.GET['project_type']
+    location    = variable.GET.get('location', '')
+    skill       = variable.GET.get('skill', '')
+    disposition = variable.GET.get('disposition', '')
+    prj_type    = variable.GET.get('project_type', '')
     return location, skill, disposition, prj_type
 
 def location(request):
@@ -182,36 +182,34 @@ def cate_dispo_inbound(request):
     main_dict = data_dict(request.GET)
     prj_id = main_dict['pro_cen_mapping'][0][0]
     center = main_dict['pro_cen_mapping'][1][0]
+    project = {'project' : [prj_id]}
+    location, skill, disposition, table_name = hour_parameters(curr_loca, skill, disposition, prj_type)
     if main_dict['dwm_dict'].has_key('hour') and main_dict['type'] == 'hour':
-        date, date_vals = main_dict['dates'][0], main_dict['dates']
-        if date_vals == 1:
-            hrly_dispo_cate = hrly_disposition_cate_data(prj_id, center, date, disposition, curr_loca, skill)
-        else:
-            hrly_dispo_cate = disposition_cate_data(prj_id, center, date_vals, disposition, curr_loca, skill)
+        date = main_dict['dates']
+        dates = {'date' : date}
+        hrly_dispo_cate = disposition_cate_data(project, dates, table_name, location, skill, disposition)
         result['cate_dispo_inbound'] = [{'name': item, 'y': hrly_dispo_cate[item][0]} for item in hrly_dispo_cate]
     elif main_dict['dwm_dict'].has_key('day') and main_dict['type'] == 'day':
         dates = main_dict['dwm_dict']['day']
-        date_check = InboundHourlyCall.objects.filter(project = prj_id, center = center, date__range = [dates[0], dates[-1]])\
-                     .values('date').annotate(total = count('disposition')).order_by('date')
-        values = OrderedDict(zip(map(lambda p: str(p['date']), date_check), map(lambda p: str(p['total']), date_check)))
-        for date_key, date_value in values.iteritems():
-            if date_value > 0:
-                new_date_list.append(date_key)
-        dispo_cate_val = disposition_cate_data(prj_id, center, dates, disposition, curr_loca, skill)  
+        dates = {'date' : dates}
+        project = {'project' : [prj_id]}
+        dispo_cate_val = disposition_cate_data(project, dates, table_name, location, skill, disposition)
         result['cate_dispo_inbound'] = [{'name': item, 'y': dispo_cate_val[item][0]} for item in dispo_cate_val]
     elif main_dict['dwm_dict'].has_key('week') and main_dict['type'] == 'week':
         dates = main_dict['dwm_dict']['week']
         week_dates = []
         for date_values in dates:
             week_dates = week_dates + date_values
-        dispo_cate_val = disposition_cate_data(prj_id, center, week_dates, disposition, curr_loca, skill)
+        date_vals = {'date' : week_dates}
+        dispo_cate_val = disposition_cate_data(project, date_vals, table_name, location, skill, disposition)
         result['cate_dispo_inbound'] = [{'name': item, 'y': dispo_cate_val[item][0]} for item in dispo_cate_val]
     else:
         month_dates = []
         dates = main_dict['dwm_dict']['month']['month_dates']
         for date_values in dates:
             month_dates = month_dates + date_values
-        dispo_cate_val = disposition_cate_data(prj_id, center, month_dates, disposition, curr_loca, skill)
+        date_vals = {'date' : month_dates}
+        dispo_cate_val = disposition_cate_data(project, date_vals, table_name, location, skill, disposition)
         result['cate_dispo_inbound'] = [{'name': item, 'y': dispo_cate_val[item][0]} for item in dispo_cate_val]
     result['type'] = main_dict['type']
     return json_HttpResponse(result)
@@ -223,36 +221,34 @@ def outbound_dispo_cate(request):
     main_dict = data_dict(request.GET)
     prj_id = main_dict['pro_cen_mapping'][0][0]
     center = main_dict['pro_cen_mapping'][1][0]
+    project = {'project' : [prj_id]}
+    curr_loca, skill, disposition, prj_type = common_function(request)
+    location, skill, disposition, table_name = hour_parameters(curr_loca, skill, disposition, prj_type)
     if main_dict['dwm_dict'].has_key('hour') and main_dict['type'] == 'hour':
-        date, dates_vals = main_dict['dates'][0], main_dict['dates']
-        if len(dates_vals) == 1:
-            hrly_dispo_outbnd_cate = hrly_dispo_outbound_cate_data(prj_id, center, date, disposition)
-        else:
-            hrly_dispo_outbnd_cate = dispo_outbound_cate_data(prj_id, center, dates_vals, disposition)
+        date = main_dict['dates']
+        date_vals = {'date' : date}
+        hrly_dispo_outbnd_cate = disposition_cate_data(project, date_vals, table_name, location, skill, disposition)
         result['outbound_dispo_cate'] = [{'name': item, 'y': hrly_dispo_outbnd_cate[item][0]} for item in hrly_dispo_outbnd_cate]
     elif main_dict['dwm_dict'].has_key('day') and main_dict['type'] == 'day':
         dates = main_dict['dwm_dict']['day']
-        date_check = OutboundHourlyCall.objects.filter(project = prj_id, center = center, date__range = [dates[0], dates[-1]])\
-                     .values('date').annotate(total = count('disposition')).order_by('date')
-        values = OrderedDict(zip(map(lambda p: str(p['date']), date_check), map(lambda p: str(p['total']), date_check)))
-        for date_key, date_value in values.iteritems():
-            if date_value > 0:
-                new_date_list.append(date_key)
-        dispo_out_cate_val = dispo_outbound_cate_data(prj_id, center, dates, disposition)
+        date_vals = {'date' : dates}
+        dispo_out_cate_val = disposition_cate_data(project, date_vals, table_name, location, skill, disposition)
         result['outbound_dispo_cate'] = [{'name': item, 'y': dispo_out_cate_val[item][0]} for item in dispo_out_cate_val]
     elif main_dict['dwm_dict'].has_key('week') and main_dict['type'] == 'week':
         dates = main_dict['dwm_dict']['week']
         week_dates = []
         for date_values in dates:
             week_dates = week_dates + date_values
-        dispo_out_cate_val = dispo_outbound_cate_data(prj_id, center, week_dates, disposition)
+        date_vals = {'date' : week_dates}
+        dispo_out_cate_val = disposition_cate_data(project, date_vals, table_name, location, skill, disposition)
         result['outbound_dispo_cate'] = [{'name': item, 'y': dispo_out_cate_val[item][0]} for item in dispo_out_cate_val]
     else:
         month_dates = []
         dates = main_dict['dwm_dict']['month']['month_dates']
         for date_values in dates:
             month_dates = month_dates + date_values
-        dispo_out_cate_val = dispo_outbound_cate_data(prj_id, center, month_dates, disposition)
+        date_vals = {'date' : month_dates}
+        dispo_out_cate_val = disposition_cate_data(project, date_vals, table_name, location, skill, disposition)
         result['outbound_dispo_cate'] = [{'name': item, 'y': dispo_out_cate_val[item][0]} for item in dispo_out_cate_val]
     result['type'] = main_dict['type']
     return json_HttpResponse(result)

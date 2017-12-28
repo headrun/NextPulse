@@ -11,23 +11,6 @@ from api.voice_widgets import *
 from django.db.models import Count as count
 from common.utils import getHttpResponse as json_HttpResponse
 
-"""def get_daily_data(project, dates, table_name, location={}, skill={}, disposition={}, term='disposition'):
-    _dict = {}
-    filter_params = create_filters([location, skill, disposition, project, dates])
-    _date = []
-    data_set = table_name.objects.filter(**filter_params).values('date', term).annotate(total=Sum('total_calls')).order_by('date')
-    import pdb;pdb.set_trace()
-    for item in data_set:
-       if not _dict.has_key(item[term]):
-           result_dict = {}
-           for date in dates['date']:
-               result_dict.update({date : 0}) 
-           _dict.update({item[term] : result_dict})
-       _dict[item[term]] = [item['total']]
-       _dict[item[term]].append(item['total'])
-    print _dict
-    return _dict"""
-
 def location_data(prj_id, center, dates_list, location, disposition, skill):
     final_dict = {}
     if location == 'All' and disposition == 'All' and skill == 'All':
@@ -37,7 +20,8 @@ def location_data(prj_id, center, dates_list, location, disposition, skill):
             date_check = InboundDaily.objects.filter(project = prj_id, center = center, date = date).values('location').count()
             if date_check > 0:
                 for loc_name in location_filters:
-                    loc_val = InboundDaily.objects.filter(project = prj_id, center = center, date = date, location = loc_name).aggregate(Sum('total_calls'))
+                    loc_val = InboundDaily.objects.filter(project = prj_id, center = center, date = date, location = loc_name).\
+                              aggregate(Sum('total_calls'))
                     value = common_value(loc_val)
                     if final_dict.has_key(loc_name):
                         final_dict[loc_name].append(value)
@@ -55,7 +39,9 @@ def location_data(prj_id, center, dates_list, location, disposition, skill):
                 else:
                     final_dict[location] = [value]
     elif location == 'All' and disposition == 'All' and skill != 'All':
-        location_names = InboundDaily.objects.filter(project = prj_id, center = center, date__range = [dates_list[0], dates_list[-1]], skill = skill).values_list('location', flat = True).distinct()
+        location_names = InboundDaily.objects.filter(\
+                         project = prj_id, center = center, date__range = [dates_list[0], dates_list[-1]], \
+                         skill = skill).values_list('location', flat = True).distinct()
         for date in dates_list:
             for name in location_names:
                 location_query = InboundDaily.objects.filter(project = prj_id, center = center, date = date)
@@ -68,7 +54,9 @@ def location_data(prj_id, center, dates_list, location, disposition, skill):
                     else:
                         final_dict[name] = [value]
     elif location == 'All' and disposition != 'All' and skill == 'All':
-        location_names = InboundHourlyCall.objects.filter(project = prj_id, center = center, date__range = [dates_list[0], dates_list[-1]], disposition = disposition).values_list('location', flat = True).distinct()
+        location_names = InboundHourlyCall.objects.filter(\
+                         project = prj_id, center = center, date__range = [dates_list[0], dates_list[-1]], \
+                         disposition = disposition).values_list('location', flat = True).distinct()
         for date in dates_list:
             for name in location_names:
                 location_query = InboundDaily.objects.filter(project = prj_id, center = center, date = date)
@@ -103,13 +91,16 @@ def location_data(prj_id, center, dates_list, location, disposition, skill):
                 else:
                     final_dict[location] = [value]
     elif location == 'All' and disposition != 'All' and skill != 'All':
-        location_names = InboundDaily.objects.filter(project = prj_id, center = center, date__range = [dates_list[0], dates_list[-1]], disposition = disposition, skill = skill).values_list('location', flat = True).distinct()
+        location_names = InboundDaily.objects.filter(\
+                         project = prj_id, center = center, date__range = [dates_list[0], dates_list[-1]], \
+                         disposition = disposition, skill = skill).values_list('location', flat = True).distinct()
         for date in dates_list:
             for name in location_names:
                 location_query = InboundDaily.objects.filter(project = prj_id, center = center, date = date)
                 date_check = location_query.values('location').count()
                 if date_check > 0:
-                    loc_val = location_query.filter(location = name, skill = skill, disposition = disposition).aggregate(Sum('total_calls'))
+                    loc_val = location_query.filter(location = name, skill = skill, disposition = disposition).\
+                              aggregate(Sum('total_calls'))
                     value = common_value(loc_val)
                     if final_dict.has_key(name):
                         final_dict[name].append(value)
@@ -120,7 +111,8 @@ def location_data(prj_id, center, dates_list, location, disposition, skill):
             location_query = InboundDaily.objects.filter(project = prj_id, center = center, date = date)
             date_check = location_query.values('location').count()
             if date_check > 0:
-                loc_val = location_query.filter(location = location, skill = skill, disposition = disposition).aggregate(Sum('total_calls'))
+                loc_val = location_query.filter(location = location, skill = skill, disposition = disposition).\
+                          aggregate(Sum('total_calls'))
                 value = common_value(loc_val)
                 if final_dict.has_key(location):
                     final_dict[location].append(value)
@@ -137,7 +129,8 @@ def skill_data(prj_id, center, dates_list, skill, location, disposition):
             date_check = InboundDaily.objects.filter(project = prj_id, center = center, date = date).values('skill').count()
             if date_check > 0:
                 for skill_name in skill_filters:
-                    skill_val = InboundDaily.objects.filter(project = prj_id, center = center, date = date, skill = skill_name).aggregate(Sum('total_calls'))
+                    skill_val = InboundDaily.objects.filter(\
+                                project = prj_id, center = center, date = date, skill = skill_name).aggregate(Sum('total_calls'))
                     value = common_value(skill_val)
                     if final_dict.has_key(skill_name):
                         final_dict[skill_name].append(value)
@@ -155,7 +148,9 @@ def skill_data(prj_id, center, dates_list, skill, location, disposition):
                 else:
                     final_dict[skill] = [value]
     elif location != 'All' and disposition == 'All' and skill == 'All':
-        skill_names = InboundDaily.objects.filter(project = prj_id, center = center, date__range = [dates_list[0], dates_list[-1]], location = location).values_list('skill', flat = True).distinct()
+        skill_names = InboundDaily.objects.filter(\
+                      project = prj_id, center = center, date__range = [dates_list[0], dates_list[-1]], \
+                      location = location).values_list('skill', flat = True).distinct()
         for date in dates_list:
             for name in skill_names:
                 skill_query = InboundDaily.objects.filter(project = prj_id, center = center, date = date)
@@ -168,7 +163,9 @@ def skill_data(prj_id, center, dates_list, skill, location, disposition):
                     else:
                         final_dict[name] = [value]
     elif location == 'All' and disposition != 'All' and skill == 'All':
-        skill_names = InboundDaily.objects.filter(project = prj_id, center = center, date__range = [dates_list[0], dates_list[-1]], disposition = disposition).values_list('skill', flat = True).distinct()
+        skill_names = InboundDaily.objects.filter(\
+                      project = prj_id, center = center, date__range = [dates_list[0], dates_list[-1]], \
+                      disposition = disposition).values_list('skill', flat = True).distinct()
         for date in dates_list:
             for name in skill_names:
                 skill_query = InboundDaily.objects.filter(project = prj_id, center = center, date = date)
@@ -203,13 +200,16 @@ def skill_data(prj_id, center, dates_list, skill, location, disposition):
                 else:
                     final_dict[skill] = [value]
     elif location != 'All' and disposition != 'All' and skill == 'All':
-        skill_names = InboundDaily.objects.filter(project = prj_id, center = center, date__range = [dates_list[0], dates_list[-1]], disposition = disposition, location = location).values_list('skill', flat = True).distinct()
+        skill_names = InboundDaily.objects.filter(\
+                        project = prj_id, center = center, date__range = [dates_list[0], dates_list[-1]], \
+                        disposition = disposition, location = location).values_list('skill', flat = True).distinct()
         for date in dates_list:
             for name in skill_names:
                 skill_query = InboundDaily.objects.filter(project = prj_id, center = center, date = date)
                 date_check = skill_query.values('skill').count()
                 if date_check > 0:
-                    skill_val = skill_query.filter(skill = name, location = location, disposition = disposition).aggregate(Sum('total_calls'))
+                    skill_val = skill_query.filter(skill = name, location = location, disposition = disposition).\
+                                aggregate(Sum('total_calls'))
                     value = common_value(skill_val)
                     if final_dict.has_key(name):
                         final_dict[name].append(value)
@@ -220,7 +220,8 @@ def skill_data(prj_id, center, dates_list, skill, location, disposition):
             skill_query = InboundDaily.objects.filter(project = prj_id, center = center, date = date)
             date_check = skill_query.values('skill').count() 
             if date_check > 0:
-                skill_val = skill_query.filter(skill = skill, location = location, disposition = disposition).aggregate(Sum('total_calls'))
+                skill_val = skill_query.filter(skill = skill, location = location, disposition = disposition).\
+                            aggregate(Sum('total_calls'))
                 value = common_value(skill_val)
                 if final_dict.has_key(skill):
                     final_dict[skill].append(value)
@@ -238,7 +239,8 @@ def disposition_data(prj_id, center, dates_list, disposition, location, skill):
             if date_check > 0:
                 for name in dispo_filters:
                     if name != '':
-                        dispo_val = InboundDaily.objects.filter(project = prj_id, center = center, date = date, disposition = name).aggregate(Sum('total_calls'))
+                        dispo_val = InboundDaily.objects.filter(\
+                                    project = prj_id, center = center, date = date, disposition = name).aggregate(Sum('total_calls'))
                         value = common_value(dispo_val)
                         if final_dict.has_key(name):
                             final_dict[name].append(value)
@@ -256,7 +258,9 @@ def disposition_data(prj_id, center, dates_list, disposition, location, skill):
                 else:
                     final_dict[disposition] = [value]
     elif location != 'All' and disposition == 'All' and skill == 'All':
-        dispo_names = InboundDaily.objects.filter(project = prj_id, center = center, date__range = [dates_list[0], dates_list[-1]], location = location).values_list('disposition', flat = True).distinct()  
+        dispo_names = InboundDaily.objects.filter(\
+                      project = prj_id, center = center, date__range = [dates_list[0], dates_list[-1]], location = location).\
+                      values_list('disposition', flat = True).distinct()  
         for date in dates_list:
             dispo_query = InboundDaily.objects.filter(project = prj_id, center = center, date = date)
             date_check = dispo_query.values('disposition').count()
@@ -270,7 +274,9 @@ def disposition_data(prj_id, center, dates_list, disposition, location, skill):
                         else:
                             final_dict[name] = [value]   
     elif location == 'All' and disposition == 'All' and skill != 'All':
-        dispo_names = InboundDaily.objects.filter(project = prj_id, center = center, date__range = [dates_list[0], dates_list[-1]], skill = skill).values_list('disposition', flat = True).distinct()
+        dispo_names = InboundDaily.objects.filter(\
+                        project = prj_id, center = center, date__range = [dates_list[0], dates_list[-1]], \
+                        skill = skill).values_list('disposition', flat = True).distinct()
         for date in dates_list:
             dispo_query = InboundDaily.objects.filter(project = prj_id, center = center, date = date)
             date_check = dispo_query.values('disposition').count()
@@ -306,14 +312,17 @@ def disposition_data(prj_id, center, dates_list, disposition, location, skill):
                 else:
                     final_dict[disposition] = [value]
     elif location != 'All' and disposition == 'All' and skill != 'All':
-        dispo_names = InboundDaily.objects.filter(project = prj_id, center = center, date__range = [dates_list[0], dates_list[-1]], skill = skill, location = location).values_list('disposition', flat = True).distinct()
+        dispo_names = InboundDaily.objects.filter(\
+                        project = prj_id, center = center, date__range = [dates_list[0], dates_list[-1]], \
+                        skill = skill, location = location).values_list('disposition', flat = True).distinct()
         for date in dates_list:
             dispo_query = InboundDaily.objects.filter(project = prj_id, center = center, date = date)
             date_check = dispo_query.values('disposition').count()
             for name in dispo_names:
                 if name != '':
                     if date_check > 0:
-                        dispo_val = dispo_query.filter(disposition = name, location = location, skill = skill).aggregate(Sum('total_calls'))
+                        dispo_val = dispo_query.filter(disposition = name, location = location, skill = skill).\
+                                    aggregate(Sum('total_calls'))
                         value = common_value(dispo_val)
                         if final_dict.has_key(name):
                             final_dict[name].append(value)
@@ -324,7 +333,8 @@ def disposition_data(prj_id, center, dates_list, disposition, location, skill):
             dispo_query = InboundDaily.objects.filter(project = prj_id, center = center, date = date)
             date_check = dispo_query.values('disposition').count()
             if date_check > 0:
-                dispo_val = dispo_query.filter(disposition = disposition, location = location, skill = skill).aggregate(Sum('total_calls'))
+                dispo_val = dispo_query.filter(disposition = disposition, location = location, skill = skill).\
+                            aggregate(Sum('total_calls'))
                 value = common_value(dispo_val)
                 if final_dict.has_key(disposition):
                     final_dict[disposition].append(value)
@@ -458,97 +468,23 @@ def call_status_data(prj_id, center, dates_list, location, skill, disposition):
         final_dict['UnAnswered'] = unans_list
     return final_dict
 
-def disposition_cate_data(prj_id, center, dates_list, disposition, location, skill):
+def disposition_cate_data(prj_id, dates_list, table_name, location = {}, skill = {}, disposition = {}):
     final_dict = {}
-    if location == 'All' and skill == 'All' and disposition == 'All':
-        dispo_query = InboundDaily.objects.filter(project = prj_id, center = center, date__range = [dates_list[0], dates_list[-1]]).values('disposition').distinct().annotate(total = Sum('total_calls'))
-    elif disposition != 'All' and skill == 'All' and location == 'All':
-        dispo_query = InboundDaily.objects.filter(project = prj_id, center = center, date__range = [dates_list[0], dates_list[-1]], disposition = disposition).values('disposition').distinct().annotate(total = Sum('total_calls'))
-    elif disposition == 'All' and skill != 'All' and location == 'All':
-        dispo_query = InboundDaily.objects.filter(project = prj_id, center = center, date__range = [dates_list[0], dates_list[-1]], skill = skill).values('disposition').distinct().annotate(total = Sum('total_calls'))
-    elif disposition == 'All' and skill == 'All' and location != 'All':
-        dispo_query = InboundDaily.objects.filter(project = prj_id, center = center, date__range = [dates_list[0], dates_list[-1]], location = location).values('disposition').distinct().annotate(total = Sum('total_calls'))
-    elif disposition != 'All' and skill != 'All' and location == 'All':
-        dispo_query = InboundDaily.objects.filter(project = prj_id, center = center, date__range = [dates_list[0], dates_list[-1]], skill = skill, disposition = disposition).values('disposition').distinct().annotate(total = Sum('total_calls'))
-    elif disposition == 'All' and skill != 'All' and location != 'All':
-        dispo_query = InboundDaily.objects.filter(project = prj_id, center = center, date__range = [dates_list[0], dates_list[-1]], skill = skill, location = location).values('disposition').distinct().annotate(total = Sum('total_calls'))
-    elif disposition != 'All' and skill != 'All' and location == 'All':
-        dispo_query  = InboundDaily.objects.filter(project = prj_id, center = center, date__range = [dates_list[0], dates_list[-1]], skill = skill, disposition = disposition).values('disposition').distinct().annotate(total = Sum('total_calls'))
-    elif disposition != 'All' and skill != 'All' and location != 'All':
-        dispo_query = InboundDaily.objects.filter(project = prj_id, center = center, date__range = [dates_list[0], dates_list[-1]], skill = skill, disposition = disposition, location = location).values('disposition').distinct().annotate(total = Sum('total_calls')) 
+    term = 'disposition'
+    filter_parameters = create_filters([location, skill, disposition, prj_id, dates_list])
+    if table_name == OutboundHourlyCall:
+        table_name = OutboundDaily
     else:
-        return []
+        table_name = InboundDaily
+    dispo_query = table_name.objects.filter(**filter_parameters).values(term).distinct().annotate(total = Sum('total_calls'))
     for data in dispo_query:
         if data['total'] > 0:
-            if '->' not in data['disposition'] and data['disposition'] != '':
-                if final_dict.has_key(data['disposition']):
-                    final_dict[data['disposition']].append(data['total'])
-                else:
-                    final_dict[data['disposition']] = [data['total']]
+            if final_dict.has_key(data[term]):
+                final_dict[data[term]].append(data['total'])
+            else:
+                final_dict[data[term]] = [data['total']]
     return final_dict
 
-def dispo_outbound_cate_data(prj_id, center, dates_list, disposition):
-    final_dict = {}
-    if disposition == 'All':
-        outbnd_dispo_cate_query = OutboundDaily.objects.filter(project = prj_id, center = center, date__range = [dates_list[0], dates_list[-1]]).values('disposition').distinct().annotate(total = Sum('total_calls'))
-    elif disposition != 'All':
-        outbnd_dispo_cate_query = OutboundDaily.objects.filter(project = prj_id, center = center, date__range = [dates_list[0], dates_list[-1]],disposition = disposition).values('disposition').distinct().annotate(total = Sum('total_calls'))
-    else:
-        return []
-    for value in outbnd_dispo_cate_query:
-        if value['total'] > 0:
-            if value['disposition'] != '':
-                if final_dict.has_key(value['disposition']):
-                    final_dict[value['disposition']].append(value['total'])
-                else:
-                    final_dict[value['disposition']] = [value['total']]
-    return final_dict
-
-def hrly_disposition_cate_data(prj_id, center, date, disposition, location, skill):
-    final_dict = {}
-    if location == 'All' and skill == 'All' and disposition == 'All':
-        cate_dispo_query = InboundDaily.objects.filter(project = prj_id, center = center, date = date).values('disposition').distinct().annotate(total = count('disposition'))
-    elif disposition != 'All' and skill == 'All' and location == 'All':
-        cate_dispo_query = InboundDaily.objects.filter(project = prj_id, center = center, date = date, disposition = disposition).values('disposition').distinct().annotate(total = count('disposition'))
-    elif disposition == 'All' and skill != 'All' and location == 'All':
-        cate_dispo_query = InboundDaily.objects.filter(project = prj_id, center = center, date = date, skill = skill).values('disposition').distinct().annotate(total = count('disposition'))
-    elif disposition == 'All' and skill == 'All' and location != 'All':
-        cate_dispo_query = InboundDaily.objects.filter(project = prj_id, center = center, date = date, location = location).values('disposition').distinct().annotate(total = count('disposition'))
-    elif disposition != 'All' and skill != 'All' and location == 'All':
-        cate_dispo_query = InboundDaily.objects.filter(project = prj_id, center = center, date = date, skill = skill, disposition = disposition).values('disposition').distinct().annotate(total = count('disposition'))
-    elif disposition == 'All' and skill != 'All' and location != 'All':
-        cate_dispo_query = InboundDaily.objects.filter(project = prj_id, center = center, date = date, skill = skill, location = location).values('disposition').distinct().annotate(total = count('disposition'))
-    elif disposition != 'All' and skill != 'All' and location == 'All':
-        cate_dispo_query = InboundDaily.objects.filter(project = prj_id, center = center, date = date, skill = skill, disposition = disposition).values('disposition').distinct().annotate(total = count('disposition'))
-    elif disposition != 'All' and skill != 'All' and location != 'All':
-        cate_dispo_query = InboundDaily.objects.filter(project = prj_id, center = center, date = date, skill = skill, disposition = disposition, location = location).values('disposition').distinct().annotate(total = count('disposition'))
-    else:
-        return []
-    for data in cate_dispo_query:
-        if data['total'] > 0:
-            if '->' not in data['disposition']:
-                if final_dict.has_key(data['disposition']):
-                    final_dict[data['disposition']].append(data['total'])
-                else:
-                    final_dict[data['disposition']] = [data['total']]
-    return final_dict
-
-def hrly_dispo_outbound_cate_data(prj_id, center, date, disposition):
-    final_dict = {}
-    if disposition == 'All':
-        outbnd_dispo_query = OutboundDaily.objects.filter(project = prj_id, center = center, date = date).values('disposition').distinct().annotate(total = count('disposition'))
-    elif disposition != 'All':
-        outbnd_dispo_query = OutboundDaily.objects.filter(project = prj_id, center = center, date = date, disposition = disposition).values('disposition').distinct().annotate(total = count('disposition'))
-    else:
-        return []
-    for value in outbnd_dispo_query:
-        if value['total'] > 0:
-            if ('->' not in value['disposition']) and (value['disposition'] != ''):
-                if final_dict.has_key(value['disposition']):
-                    final_dict[value['disposition']].append(value['total'])
-                else:
-                    final_dict[value['disposition']] = [value['total']]
-    return final_dict
 
 def outbnd_disposition_data(prj_id, center, dates, disposition):
     final_dict = {}
@@ -560,7 +496,9 @@ def outbnd_disposition_data(prj_id, center, dates, disposition):
             if date_check > 0:
                 for name in dispo_filters:
                     if name != '':
-                        outbnd_dispo_val = OutboundDaily.objects.filter(project = prj_id, center = center, date = date, disposition = name).aggregate(Sum('total_calls'))
+                        outbnd_dispo_val = OutboundDaily.objects.filter(\
+                                           project = prj_id, center = center, date = date, disposition = name).\
+                                           aggregate(Sum('total_calls'))
                         value = common_value(outbnd_dispo_val)
                         if final_dict.has_key(name):
                             final_dict[name].append(value)
@@ -581,29 +519,6 @@ def outbnd_disposition_data(prj_id, center, dates, disposition):
         return {}
     return final_dict
 
-def hourly_outbnd_dispo_data(prj_id, center, dates, hours, disposition):
-    final_dict = {}
-    for date in dates:
-        for hour in hours:
-            hr = hour*60*60
-            hr1 = (hour + 1)*60*60
-            final_hour1 = date + ' ' + time.strftime('%H:%M:%S', time.gmtime(hr1))
-            final_hour = date + ' ' + time.strftime('%H:%M:%S', time.gmtime(hr))
-            if disposition == 'All':
-                outbnd_dispo_hr_query = OutboundHourlyCall.objects.filter(project = prj_id, center = center, start_time__gte = final_hour, end_time__lte = final_hour1).values('disposition').distinct().annotate(total = count('disposition'))
-            elif disposition != 'All':
-                outbnd_dispo_hr_query = OutboundHourlyCall.objects.filter(project = prj_id, center = center, start_time__gte = final_hour, end_time__lte = final_hour1, disposition = disposition).values('disposition').distinct().annotate(total = count('disposition'))
-            else:
-                return []
-            for value in outbnd_dispo_hr_query:
-                if value['total'] > 0:
-                    if ('->' not in value['disposition']) and (value['disposition'] != ''):
-                        if final_dict.has_key(value['disposition']):
-                            final_dict[value['disposition']].append(value['total'])
-                        else:
-                            final_dict[value['disposition']] = [value['total']]
-    return final_dict
-
 def agents_required_inbound(prj_id, center, dates, location, skill, disposition):
     final_dict = {}
     inbnd_calls_query = InboundDaily.objects.filter(project = prj_id, center = center, date__range = [dates[0], dates[-1]])
@@ -615,21 +530,26 @@ def agents_required_inbound(prj_id, center, dates, location, skill, disposition)
             total_calls = skill_agent_query.values('total_calls').count()
             inbnd_agents = skill_agent_query.values_list('agent', flat = True).distinct()
             for agent in inbnd_agents:
-                login_hrs = AgentPerformance.objects.filter(project = prj_id, center = center, date = date, name = agent).values_list('login_duration', flat=True)                
+                login_hrs = AgentPerformance.objects.filter(project = prj_id, center = center, date = date, name = agent).\
+                            values_list('login_duration', flat=True)                
     return final_dict
 
 def common_outbnd_dispo_data(project, center, dates, disposition):
     final_dict = {} 
     dispo_list = []
     if disposition == 'All':
-        outbnd_dispo_query = OutboundDaily.objects.filter(project = project, center = center, date__range = [dates[0], dates[-1]]).values_list('disposition', flat = True).distinct()
+        outbnd_dispo_query = OutboundDaily.objects.filter(\
+                                project = project, center = center, date__range = [dates[0], dates[-1]]).\
+                                values_list('disposition', flat = True).distinct()
         for date in dates:
             values_list = []
             date_check = OutboundDaily.objects.filter(project = project, center = center, date = date).values('disposition').count()
             if date_check > 0:
                 for dispo_name in outbnd_dispo_query:
                     if dispo_name != '':
-                        outbnd_val = OutboundDaily.objects.filter(project = project, center = center, date = date, disposition = dispo_name).aggregate(Sum('total_calls'))
+                        outbnd_val = OutboundDaily.objects.filter(\
+                                     project = project, center = center, date = date, disposition = dispo_name).\
+                                     aggregate(Sum('total_calls'))
                         value = common_value(outbnd_val)
                         values_list.append(value)
                 final_values = sum(values_list)
@@ -853,7 +773,8 @@ def get_prod_per_agent(project, center, date, call_type):
     if agents_vals > 0:
         for agent in agent_names:
             if call_type != '':
-                agent_query = AgentPerformance.objects.filter(project = project, center = center, date = date, call_type = call_type, agent = agent)
+                agent_query = AgentPerformance.objects.filter(\
+                              project = project, center = center, date = date, call_type = call_type, agent = agent)
             else:
                 agent_query = AgentPerformance.objects.filter(project = project, center = center, date = date, agent = agent)
             login_time = agent_query.values_list('login_duration', flat = True)
