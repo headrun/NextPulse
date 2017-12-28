@@ -414,10 +414,9 @@ input:checked + .slider:before {
                     <br>
                 </div>
             </div>
-            <div ng-if="$ctrl.no_data" id="fileuploader" class="review-data"></div>
-                <div ng-if="$ctrl.no_data" id="file-size" class="file-name">
-                    (File size limit 10 Mb).
-                </div>
+            <div ng-if="$ctrl.no_data" id="fileuploader" class="review-data">
+            </div>
+            <p ng-if="$ctrl.no_data" id="file-size" class="file-name">(File size limit 10 MB).</p>
         </div>
     </div>
 </div>
