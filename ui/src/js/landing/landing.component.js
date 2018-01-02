@@ -113,9 +113,6 @@
 
                     $('.mythili').show();
 
-                    //$scope.check = $rootScope.check;
-                    //$scope.check_url = $rootScope.check_url;
-
                     if (self.mapping_list.length == 1) {
 
                         window.location = "#!/page1/"+self.mapping_list[0];

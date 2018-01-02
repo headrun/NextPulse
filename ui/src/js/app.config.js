@@ -92,11 +92,11 @@
                 }(next, params));
               }
             });
+
             if (window.location.href.indexOf('page1') > 0) {
                 var host = window.location.host;
                 var hash = window.location.hash;
                 self.landing_url = 'http://'+ host + '/' + hash;
-                window.location.href = self.landing_url;
             }
 
             $rootScope.$on(AUTH_EVENTS.loginSuccess, function () {
@@ -111,10 +111,11 @@
             }
             else {
               $state.go(LOGIN_STATE, {"location": "replace"});
-              $rootScope.check_url = self.landing_url;  
-              $rootScope.check = 1;
-            }
-            //$state.go(LOGIN_STATE, {"location": "replace"});
+                if (window.location.href.indexOf('page1') > 0) {
+                  $rootScope.check_url = self.landing_url;  
+                  $rootScope.check = 1;
+                }
+              }   
             }
 
             $rootScope.$on(AUTH_EVENTS.unAuthorized, goToLogin);
