@@ -11,7 +11,7 @@ from api.voice_widgets import *
 from django.db.models import Count as count
 from common.utils import getHttpResponse as json_HttpResponse
 
-def location_data(prj_id, center, dates_list, location, disposition, skill):
+def location_data(prj_id, center, dates_list, location, skill, disposition):
     final_dict = {}
     if location == 'All' and disposition == 'All' and skill == 'All':
         location_query = InboundDaily.objects.filter(project = prj_id, center = center, date__range = [dates_list[0], dates_list[-1]])
@@ -120,7 +120,7 @@ def location_data(prj_id, center, dates_list, location, disposition, skill):
                     final_dict[location] = [value]
     return final_dict
 
-def skill_data(prj_id, center, dates_list, skill, location, disposition):
+def skill_data(prj_id, center, dates_list, location, skill, disposition):
     final_dict = {}
     if skill == 'All' and location == 'All' and disposition == 'All':
         skill_query = InboundDaily.objects.filter(project = prj_id, center = center, date__range = [dates_list[0], dates_list[-1]])
@@ -229,7 +229,7 @@ def skill_data(prj_id, center, dates_list, skill, location, disposition):
                     final_dict[skill] = [value]
     return final_dict
 
-def disposition_data(prj_id, center, dates_list, disposition, location, skill):
+def disposition_data(prj_id, center, dates_list, location, skill, disposition):
     final_dict = {}
     if skill == 'All' and location == 'All' and disposition == 'All':
         dispo_query = InboundDaily.objects.filter(project = prj_id, center = center, date__range = [dates_list[0], dates_list[-1]])
@@ -486,7 +486,7 @@ def disposition_cate_data(prj_id, dates_list, table_name, location = {}, skill =
     return final_dict
 
 
-def outbnd_disposition_data(prj_id, center, dates, disposition):
+def outbnd_disposition_data(prj_id, center, dates, location, skill, disposition):
     final_dict = {}
     if disposition == 'All':
         outbnd_dispo_query = OutboundDaily.objects.filter(project = prj_id, center = center, date__range = [dates[0], dates[-1]])
@@ -559,7 +559,7 @@ def common_outbnd_dispo_data(project, center, dates, disposition):
         final_dict = {}
     return final_dict
 
-def outbnd_utilization_data(project, center, dates, disposition):
+def outbnd_utilization_data(project, center, dates, location, disposition, skill):
     final_dict = {}
     utiliti_list = []
     if disposition == 'All':
@@ -582,7 +582,7 @@ def outbnd_utilization_data(project, center, dates, disposition):
         final_dict = {}
     return final_dict
 
-def inbnd_utilization_data(project, center, dates, location, skill, disposition):
+def inbnd_utilization_data(project, center, dates, location, disposition, skill):
     final_dict = {}
     utiliti_list = []
     if location == 'All' and skill == 'All' and disposition == 'All':
@@ -669,7 +669,7 @@ def inbound_occupancy_data(project, center, dates, location, skill, disposition)
         final_dict = {}
     return final_dict
 
-def outbound_occupancy_data(project, center, dates, disposition):
+def outbound_occupancy_data(project, center, dates, location, disposition, skill):
     final_dict = {}
     occupancy_list = []
     if disposition == 'All':
@@ -717,7 +717,7 @@ def occupancy_data(project, center, dates, location, skill, disposition):
         final_dict = {}
     return final_dict
 
-def outbound_productivity_data(project, center, dates, disposition):
+def outbound_productivity_data(project, center, dates, location, disposition, skill):
     final_dict = {}
     prod_list = []
     if disposition == 'All':
@@ -732,7 +732,7 @@ def outbound_productivity_data(project, center, dates, disposition):
         final_dict = {}
     return final_dict
 
-def inbound_productivity_data(project, center, dates, location, skill, disposition):
+def inbound_productivity_data(project, center, dates, location, disposition, skill):
     final_dict = {}
     prod_list = []
     if location == 'All' and skill == 'All' and disposition == 'All':
