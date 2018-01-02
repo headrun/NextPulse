@@ -17,6 +17,10 @@
 
              self.hideLoading();
 
+             $scope.check = $rootScope.check;
+
+             $scope.check_url = $rootScope.check_url;
+
               self.clickPro = function(val, $rootScope){
 
                 self.showLoading();
@@ -45,10 +49,17 @@
                         self.mapping_list = map_list;
                     }
                     
-                    if (self.mapping_list.length == 1) {
+                    if ((self.mapping_list.length == 1) && ($scope.check == undefined)) {
 
                         window.location = "#!/page1/"+self.mapping_list[0];
-                    }
+
+                    } else if ($scope.check == 1) {
+
+                        window.location = $scope.check_url;
+                        
+                      } else {
+                            self.mapping_list;
+                       }
                 }
 
                 if (result.result.role == "team_lead") {
@@ -57,13 +68,20 @@
 
                     self.mapping_list.push(result.result.list[1]);
 
-                    if (self.mapping_list.length == 1) {
+                    if ((self.mapping_list.length == 1) && ($scope.check == undefined)) {
 
                         self.showLoading();
 
                         window.location = "#!/page1/"+self.mapping_list[0];
-                    }
 
+                    } else if ($scope.check == 1) {
+
+                        window.location = $scope.check_url;
+
+                    } else {
+                        
+                           self.mapping_list; 
+                    }
                 }
 
                 if (result.result['role'] == "center_manager") {
@@ -72,11 +90,19 @@
 
                     self.mapping_list = map_list;
 
-                    if (self.mapping_list.length == 1) {
+                    if ((self.mapping_list.length == 1) && ($scope.check == undefined)) {
 
                         window.location = "#!/page1/"+self.mapping_list[0];
-                    }
 
+                    } else if ($scope.check == 1) {
+                        
+                          window.location = $scope.check_url;
+
+                    } else {
+
+                        self.mapping_list;
+
+                    }
                  }
 
                 if (result.result['role'] == "nextwealth_manager") {
@@ -87,11 +113,19 @@
 
                     $('.mythili').show();
 
+                    //$scope.check = $rootScope.check;
+                    //$scope.check_url = $rootScope.check_url;
+
                     if (self.mapping_list.length == 1) {
 
                         window.location = "#!/page1/"+self.mapping_list[0];
-                    }
 
+                    } else if ($scope.check == 1) {
+                            window.location = $scope.check_url;   
+                        }
+                       else {
+                            self.mapping_list;   
+                        } 
                     }
             });
 
