@@ -3557,6 +3557,10 @@
                 self.sub_packet = result.data.result.sub_packet;
                 self.sub_project = result.data.result.sub_project;
 
+                self.voice_location = result.data.result.location;
+                self.voice_skill = result.data.result.skill;
+                self.voice_disposition = result.data.result.disposition;
+
                 var pro_cen_nam = $state.params.selpro;                                                                                           
                 self.call_back = [];
 
@@ -3697,6 +3701,7 @@
                             self.main_day_type = result.data.result.type;
                             self.day_type = result.data.result.type;
                             self.active_filters(self.day_type, '');
+                            self.apply_class();
                             if (self.is_voice_flag) {
                                 $('#emp_widget').hide();
                                 $('#volume_table').hide();
@@ -3712,7 +3717,7 @@
                                 $(self.LocationFilter.options).remove();
                                 $(self.SkillFilter.options).remove();
                                 $(self.DispositionFilter.options).remove();
-                                if(self.voice_filters.Location.length) {
+                                if (self.voice_filters.Location.length) {
                                     $(self.LocationFilter).parent().show();
                                     angular.forEach(self.voice_filters.Location, function(location_value) {
                                         self.LocationFilter.options[self.LocationFilter.options.length] = new Option(location_value, location_value);
@@ -3720,7 +3725,7 @@
                                 } else {
                                     $(self.LocationFilter).parent().hide();
                                 }
-                                if(self.voice_filters.Skill.length) {
+                                if((self.voice_filters.Skill.length)) {
                                     $(self.SkillFilter).parent().show();
                                     angular.forEach(self.voice_filters.Skill, function(skill_value) {
                                         self.SkillFilter.options[self.SkillFilter.options.length] = new Option(skill_value, skill_value);
@@ -3728,7 +3733,7 @@
                                 } else {
                                     $(self.SkillFilter).parent().hide();
                                 }
-                                if (self.voice_filters.Disposition.length) {
+                                if ((self.voice_filters.Disposition.length)) {
                                     $(self.DispositionFilter).parent().show();
                                     angular.forEach(self.voice_filters.Disposition, function(disposition_value) {
                                         self.DispositionFilter.options[self.DispositionFilter.options.length] = new Option(disposition_value, disposition_value);
@@ -3742,9 +3747,16 @@
                                 var type = '';
                                 self.voice_filter = '?&project='+callback[3]+'&center='+callback[2]+'&from='+ self.start+'&to='+ self.end + '&type=';
                                 //self.voice_filter = '?&project='+callback[3]+'&center='+callback[2]+'&from='+ callback[0]+'&to='+ callback[1] + '&type=';
-                                self.locationValue = 'All';
-                                self.skillValue = 'All';
-                                self.dispositionValue = 'All';
+                                if ((self.voice_location != '') && (self.voice_skill != '') && (self.voice_disposition != '')) {
+                                    self.locationValue = self.voice_location;
+                                    self.skillValue = self.voice_skill;
+                                    self.dispositionValue = self.voice_disposition;
+                                    
+                                } else {
+                                    self.locationValue = 'All';
+                                    self.skillValue = 'All';
+                                    self.dispositionValue = 'All';
+                                }
                                 self.voiceFilterType = 'location';
                                 if(self.is_voice_flag) {
                                     self.ajaxVoiceFilter = function(type, key) {
@@ -3858,20 +3870,35 @@
                                             })
                                         }
                                     }
-                                    self.LocationFilter.onchange = function () {
-                                        self.locationValue = self.LocationFilter.value;
-                                        voice_filter_calls();
+                                    if (self.voice_location != '') {
+                                        self.location_value = $('#Location').val(self.voice_location);
                                         self.ajaxVoiceFilter(type, '');
+                                    } else {
+                                        self.LocationFilter.onchange = function () {
+                                            self.locationValue = self.LocationFilter.value;
+                                            voice_filter_calls();
+                                            self.ajaxVoiceFilter(type, '');
+                                        }
                                     }
-                                    self.SkillFilter.onchange = function () {
-                                        self.skillValue = self.SkillFilter.value;
-                                        voice_filter_calls();
+                                    if (self.voice_skill != '') {
+                                        self.skill_value = $('#Skill').val(self.voice_skill);
                                         self.ajaxVoiceFilter(type, '');
+                                    } else {
+                                        self.SkillFilter.onchange = function () {
+                                            self.skillValue = self.SkillFilter.value;
+                                            voice_filter_calls();
+                                            self.ajaxVoiceFilter(type, '');
+                                        }
                                     }
-                                    self.DispositionFilter.onchange = function () {
-                                        self.dispositionValue = self.DispositionFilter.value;
-                                        voice_filter_calls();
+                                    if (self.voice_disposition != '') {
+                                        self.disposition_value = $('#Disposition').val(self.voice_disposition);
                                         self.ajaxVoiceFilter(type, '');
+                                    } else {
+                                        self.DispositionFilter.onchange = function () {
+                                            self.dispositionValue = self.DispositionFilter.value;
+                                            voice_filter_calls();
+                                            self.ajaxVoiceFilter(type, '');
+                                        }
                                     }
                                     voice_filter_calls = function () {
                                         angular.forEach(self.filter_list, function(type) {
@@ -3887,7 +3914,6 @@
                         }
 
                     var packet_url = '/api/get_packet_details/?&project='+callback[3]+'&center='+callback[2]+'&from='+callback[0]+'&to='+callback[1]+'&voice_project_type='+self.voiceProjectType;
-                    //var packet_url = '/api/get_packet_details/?&project='+callback[3]+'&center='+callback[2]+'&from='+self.start+'&to='+self.end+'&voice_project_type='+self.voiceProjectType;
 
                     self.call_back = callback;
                     $http.get(packet_url).then(function(result){
@@ -3988,7 +4014,6 @@
                     self.call_back = [];
                     self.call_back.push(from);
                     self.call_back.push(to);                                                                                                                       var pro_cen_nam = $state.params.selpro;                                                                                                        self.location = pro_cen_nam.split('-')[0].replace(' ','') + ' - '
-                    //self.project = pro_cen_nam.split('-')[1].replace(' ','') + ' - '
                     var project_check = pro_cen_nam.split('-')[1].replace(' ','');
                     var project_val = project_check.search('&');
                     if (project_val != -1) {
@@ -4020,7 +4045,6 @@
                     self.call_back = [];
                     self.call_back.push(from);
                     self.call_back.push(to);                                                                                                                       var pro_cen_nam = $state.params.selpro;                                                                                                        self.location = pro_cen_nam.split('-')[0].replace(' ','') + ' - '
-                    //self.project = pro_cen_nam.split('-')[1].replace(' ','') + ' - '
                     var project_check = pro_cen_nam.split('-')[1].replace(' ','');
                     var project_val = project_check.search('&');
                     if (project_val != -1) {
@@ -4053,7 +4077,6 @@
                     self.call_back = [];
                     self.call_back.push(from);
                     self.call_back.push(to);                                                                                                                       var pro_cen_nam = $state.params.selpro;                                                                                                        self.location = pro_cen_nam.split('-')[0].replace(' ','') + ' - '
-                    //self.project = pro_cen_nam.split('-')[1].replace(' ','') + ' - '
                     var project_check = pro_cen_nam.split('-')[1].replace(' ','');
                     var project_val = project_check.search('&');
                     if (project_val != -1) {
@@ -4091,7 +4114,6 @@
                     self.call_back = [];
                     self.call_back.push(from);
                     self.call_back.push(to);                                                                                                                       var pro_cen_nam = $state.params.selpro;                                                                                                        self.location = pro_cen_nam.split('-')[0].replace(' ','') + ' - '
-                    //self.project = pro_cen_nam.split('-')[1].replace(' ','') + ' - '
                     var project_check = pro_cen_nam.split('-')[1].replace(' ','');
                     var project_val = project_check.search('&');
                     if (project_val != -1) {
@@ -4122,7 +4144,6 @@
                     self.call_back = [];
                     self.call_back.push(from);
                     self.call_back.push(to);                                                                                                                               var pro_cen_nam = $state.params.selpro;                                                                                                                self.location = pro_cen_nam.split('-')[0].replace(' ','') + ' - '
-                    //self.project = pro_cen_nam.split('-')[1].replace(' ','') + ' - '
                     var project_check = pro_cen_nam.split('-')[1].replace(' ','');
                     var project_val = project_check.search('&');
                     if (project_val != -1) {
@@ -4155,7 +4176,6 @@
                         self.call_back.push(from);
                         self.call_back.push(to);
                         var pro_cen_nam = $state.params.selpro;                                                                                                        self.location = pro_cen_nam.split('-')[0].replace(' ','') + ' - '
-                        //self.project = pro_cen_nam.split('-')[1].replace(' ','') + ' - '
                         var project_check = pro_cen_nam.split('-')[1].replace(' ','');
                         var project_val = project_check.search('&');
                         if (project_val != -1) {
@@ -4200,7 +4220,6 @@
                     self.call_back.push(to);
                     var pro_cen_nam = $state.params.selpro;
                     self.location = pro_cen_nam.split('-')[0].replace(' ','') + ' - '
-                    //self.project = pro_cen_nam.split('-')[1].replace(' ','') + ' - '
                     var project_check = pro_cen_nam.split('-')[1].replace(' ','');
                     var project_val = project_check.search('&');
                     if (project_val != -1) {
@@ -4674,7 +4693,6 @@
                     self.useful_layout.push(first_row,second_row);
 
                     self.location = pro_cen_nam.split('-')[0].replace(' ','') + ' - '
-                    //self.project = pro_cen_nam.split('-')[1].replace(' ','') + ' - '
                     self.project = pro_cen_nam.split('-')[1].replace(' ','')
                     var from_to_data = from_to + 'from=' + self.lastDate + '&to=' + self.firstDate + '&project=' + self.project
                               + '&center=' + self.location  + '&type=' + self.day_type;
