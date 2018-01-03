@@ -378,7 +378,7 @@ def hour_parameters(cur_location, cur_skill, cur_dispo, prj_type):
     return {'location' : location}, {'skill' : skill}, {'disposition' : dispo}, table_name
 
 
-def week_calculation(prj_id, center, dates, location, disposition, skill, term):
+def week_calculation(prj_id, center, dates, location, skill, disposition, term):
     week_names = []
     data_week_dt = {}
     week_num, data_week_num = 0, 0
@@ -393,7 +393,7 @@ def week_calculation(prj_id, center, dates, location, disposition, skill, term):
             data_values = skill_data(prj_id, center, date, location, skill, disposition)
         elif term == 'disposition':
             data_values = disposition_data(prj_id, center, date, location, skill, disposition)
-        elif term == 'call_status':
+        elif term == 'total_calls':
             data_values = call_status_data(prj_id, center, date, location, skill, disposition)
         elif term == 'outbound_disposition':
             data_values = outbnd_disposition_data(prj_id, center, date, location, skill, disposition)
@@ -404,7 +404,7 @@ def week_calculation(prj_id, center, dates, location, disposition, skill, term):
     final_data = prod_volume_week(week_names, data_week_dt, {})
     return final_data
 
-def month_calculation(prj_id, center, dates, location, disposition, skill, term):    
+def month_calculation(prj_id, center, dates, location, skill, disposition, term):    
     month_names = []
     month_dict = {}
     for month_na,month_va in zip(dates['month_names'],dates['month_dates']):
@@ -417,7 +417,7 @@ def month_calculation(prj_id, center, dates, location, disposition, skill, term)
                 data_values = skill_data(prj_id, center, month_dates, location, skill, disposition)
             elif term == 'disposition':
                 data_values = disposition_data(prj_id, center, month_dates, location, skill, disposition)
-            elif term == 'call_status':
+            elif term == 'total_calls':
                 data_values = call_status_data(prj_id, center, month_dates, location, skill, disposition)
             elif term == 'outbound_disposition':
                 data_values = outbnd_disposition_data(prj_id, center, month_dates, location, skill, disposition)
@@ -448,6 +448,12 @@ def week_calculation_days(prj_id, center, dates, location, disposition, skill, t
             data_values = occupancy_data(prj_id, center, date, location, skill, disposition)
         elif term == 'agent_productivity_data':
             data_values = prod_data(prj_id, center, date, location, skill, disposition)
+        elif term == 'outbnd_utilization':
+            data_values = outbnd_utilization_data(prj_id, center, date, location, skill, disposition)
+        elif term == 'outbnd_occupancy':
+            data_values = outbound_occupancy_data(prj_id, center, date, location, skill, disposition)
+        elif term == 'outbound_productivity':
+            data_values = outbound_productivity_data(prj_id, center, date, location, skill, disposition)
         data_week_dt[data_week_name] = data_values
         data_week_num = data_week_num + 1
     final_data = prod_volume_week_util_headcount(week_names, data_week_dt, {})
@@ -472,46 +478,16 @@ def month_calculation_days(prj_id, center, dates, location, disposition, skill, 
             data_values = occupancy_data(prj_id, center, month_dates, location, skill, disposition)
         elif term == 'agent_productivity_data':
             data_values = prod_data(prj_id, center, month_dates, location, skill, disposition)
+        elif term == 'outbnd_utilization':
+            data_values = outbnd_utilization_data(prj_id, center, month_dates, location, skill, disposition)
+        elif term == 'outbnd_occupancy':
+            data_values = outbound_occupancy_data(prj_id, center, month_dates, location, skill, disposition)
+        elif term == 'outbound_productivity':
+            data_values = outbound_productivity_data(prj_id, center, month_dates, location, skill, disposition)
         month_dict[month_name] = data_values
     final_data = prod_volume_week_util_headcount(month_names, month_dict, {})
     return final_data
 
-def outbound_week_calculation(prj_id, center, dates, disposition, term):
-    week_names = []
-    data_week_dt = {}
-    week_num, data_week_num = 0, 0
-    for date in dates:
-        week_name = str('week' + str(week_num))
-        week_names.append(week_name)
-        week_num = week_num + 1 
-        data_week_name = str('week' + str(data_week_num))
-        if term == 'outbnd_utilization':
-            data_values = outbnd_utilization_data(prj_id, center, date, disposition)
-        elif term == 'outbnd_occupancy':
-            data_values = outbound_occupancy_data(prj_id, center, date, disposition)
-        elif term == 'outbound_productivity':
-            data_values = outbound_productivity_data(prj_id, center, date, disposition)
-        data_week_dt[data_week_name] = data_values
-        data_week_num = data_week_num + 1
-    final_data = prod_volume_week_util_headcount(week_names, data_week_dt, {})
-    return final_data     
-
-def outbound_month_calculation(prj_id, center, dates, disposition, term):
-    month_names = []
-    month_dict = {}
-    for month_na,month_va in zip(dates['month_names'],dates['month_dates']):
-        month_name = month_na
-        month_dates = month_va
-        month_names.append(month_name)
-        if term == 'outbnd_utilization':
-            data_values = outbnd_utilization_data(prj_id, center, month_dates, disposition)
-        elif term == 'outbnd_occupancy':
-            data_values = outbound_occupancy_data(prj_id, center, month_dates, disposition)
-        elif term == 'outbound_productivity':
-            data_values = outbound_productivity_data(prj_id, center, month_dates, disposition)
-        month_dict[month_name] = data_values
-    final_data = prod_volume_week_util_headcount(month_names, month_dict, {})
-    return final_data
 
 def date_function(dates, date_type):
     dates_list = []
@@ -523,6 +499,7 @@ def date_function(dates, date_type):
             month_dates = month_va
             dates_list.append(month_dates[0] + ' to ' + month_dates[-1])
     return dates_list
+
 
 def graph_format(week_data):
     return [{'name': item, 'data': week_data[item]} for item in week_data]

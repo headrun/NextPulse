@@ -216,17 +216,17 @@ def get_packet_details(request):
     for dispo in disposition_names:
         dispo_list.append(dispo)
     if location_list:
-        location_list.append('ALL')
+        location_list.append('All')
         location_list.sort()
     else:
         location_list = ''
     if skill_list:
-        skill_list.append('ALL')
+        skill_list.append('All')
         skill_list.sort()
     else:
         skill_list = ''
     if dispo_list:
-        dispo_list.append('ALL')
+        dispo_list.append('All')
         dispo_list.sort()
     else:
         dispo_list = ''

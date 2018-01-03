@@ -582,7 +582,7 @@ def outbnd_utilization_data(project, center, dates, location, disposition, skill
         final_dict = {}
     return final_dict
 
-def inbnd_utilization_data(project, center, dates, location, disposition, skill):
+def inbnd_utilization_data(project, center, dates, location, skill, disposition):
     final_dict = {}
     utiliti_list = []
     if location == 'All' and skill == 'All' and disposition == 'All':
@@ -732,7 +732,7 @@ def outbound_productivity_data(project, center, dates, location, disposition, sk
         final_dict = {}
     return final_dict
 
-def inbound_productivity_data(project, center, dates, location, disposition, skill):
+def inbound_productivity_data(project, center, dates, location, skill, disposition):
     final_dict = {}
     prod_list = []
     if location == 'All' and skill == 'All' and disposition == 'All':

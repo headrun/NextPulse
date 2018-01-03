@@ -384,6 +384,9 @@ def common_user_data(request, projects_list, role, widgets_list, dates, user_sta
     result_dict['lay'] = widgets_list
     result_dict['role'] = role
     result_dict['user_status'] = user_status
+    result_dict['location'] = request.GET.get('location', '')
+    result_dict['skill'] = request.GET.get('skill', '')
+    result_dict['disposition'] = request.GET.get('disposition', '')
     
     return result_dict
 
