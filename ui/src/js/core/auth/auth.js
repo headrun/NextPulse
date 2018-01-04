@@ -8,9 +8,8 @@
     function ($q, $http, Session) {
 
       var deferredStatus = null;
-
+        
       this.login = function (credentials) {
-
         deferredStatus = null;
 
         return $http.post(endPoint + "/login/", credentials)

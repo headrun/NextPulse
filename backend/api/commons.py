@@ -1,5 +1,6 @@
 
 import datetime
+import datetime as dt
 import calendar
 from api.models import *
 from api.basics import *
@@ -30,7 +31,6 @@ def data_dict(variable):
     type = variable.get('type','')
     if type == '':
         type = 'day'
-    
     is_clicked = variable.get('is_clicked','NA')
     if type == 'day':
         if 'yes' not in is_clicked:
@@ -39,8 +39,19 @@ def data_dict(variable):
                 type = 'week'
             if date_count > 60:
                 type = 'month'
+            if date_count == 1:
+                type = 'hour'
         dwm_dict['day']= date_list
         main_data_dict['dwm_dict'] = dwm_dict
+    
+    if type == 'hour':
+        hours_data = []
+        data = [(i, dt.time(i).strftime('%I %p')) for i in range(24)]
+        for i in data:
+            hours_data.append(i[0])
+        dwm_dict['hour'] = hours_data
+    main_data_dict['dates'] = date_list
+    main_data_dict['dwm_dict'] = dwm_dict
 
     if type == 'week':
         months_dict = {}
@@ -117,7 +128,7 @@ def data_dict(variable):
             if employe_dates.has_key('days'):
                 employe_dates['days'] = employe_dates['days']+months_dict[month_na]
             else:
-                employe_dates['days']=months_dict[month_na]
+                employe_dates['days']= months_dict[month_na]
         dwm_dict['month'] = {'month_names':month_names_list, 'month_dates':month_list}
         main_data_dict['dwm_dict'] = dwm_dict
     main_data_dict['type'] = type
@@ -126,10 +137,19 @@ def data_dict(variable):
 def get_packet_details(request):
     """It will generate all the list of packets, projects and sub packets for the project"""
     main_data_dict = data_dict(request.GET)
-    dates = [main_data_dict['dwm_dict']['day'][:-1][0], main_data_dict['dwm_dict']['day'][-1:][0]]
+    #import pdb;pdb.set_trace()
+    if main_data_dict['type'] == 'hour':
+        dates = main_data_dict['dwm_dict']['day']
+    else:
+        dates = [main_data_dict['dwm_dict']['day'][:-1][0], main_data_dict['dwm_dict']['day'][-1:][0]]
     final_dict = {}
-    raw_master_set = RawTable.objects.filter(project=main_data_dict['pro_cen_mapping'][0][0], center=main_data_dict['pro_cen_mapping'][1][0], 
-                                             date__range=dates)
+    if main_data_dict['type'] == 'hour':
+        raw_master_set = RawTable.objects.filter(\
+                         project=main_data_dict['pro_cen_mapping'][0][0], center=main_data_dict['pro_cen_mapping'][1][0], date=dates[0])
+    else:
+        raw_master_set = RawTable.objects.filter(\
+                         project=main_data_dict['pro_cen_mapping'][0][0], center=main_data_dict['pro_cen_mapping'][1][0], \
+                         date__range=dates)
     sub_pro_level = filter(None, raw_master_set.values_list('sub_project',flat=True).distinct())
     sub_project_level = [i for i in sub_pro_level]
     if sub_project_level:
@@ -148,6 +168,68 @@ def get_packet_details(request):
         sub_packet_level.append('all')
     else:
         sub_packet_level = ''
+    prj_type = request.GET.get('voice_project_type', '')
+    if main_data_dict['type'] == 'hour':
+        inbound_hourly_master_set = InboundDaily.objects.filter(\
+                                    project=main_data_dict['pro_cen_mapping'][0][0], center=main_data_dict['pro_cen_mapping'][1][0],\
+                                    date = dates[0])
+        outbound_hourly_master_set = OutboundDaily.objects.filter(\
+                                     project=main_data_dict['pro_cen_mapping'][0][0], center=main_data_dict['pro_cen_mapping'][1][0],\
+                                     date = dates[0])
+    else:
+        inbound_hourly_master_set = InboundDaily.objects.filter(\
+                                    project=main_data_dict['pro_cen_mapping'][0][0], center=main_data_dict['pro_cen_mapping'][1][0],\
+                                    date__range = dates)
+        outbound_hourly_master_set = OutboundDaily.objects.filter(\
+                                     project=main_data_dict['pro_cen_mapping'][0][0], center=main_data_dict['pro_cen_mapping'][1][0],\
+                                     date__range = dates)
+    if prj_type == 'inbound' or prj_type == '':
+        location_names = filter(None, inbound_hourly_master_set.values_list('location',flat=True).distinct())
+    elif prj_type == 'outbound':
+        location_names = ''
+    else:
+        location_names = ''
+    location_list, skill_list, dispo_list = [], [], []
+    for location in location_names:
+        location_list.append(location)
+    if prj_type == 'inbound' or prj_type == '':
+        skill_names = filter(None, inbound_hourly_master_set.values_list('skill',flat=True).distinct())
+    elif prj_type == 'outbound':
+        skill_names = ''
+    else:
+        skill_names = ''
+    for skill in skill_names:
+        skill_list.append(skill)
+    if prj_type == 'inbound' or prj_type == '':
+        disposition_names = filter(None, inbound_hourly_master_set.values_list('disposition',flat=True).distinct())
+    elif prj_type == 'outbound':
+        disposition_names = filter(None, outbound_hourly_master_set.values_list('disposition',flat=True).distinct())
+    else:
+        disposition_names = ''
+    is_voice = Project.objects.filter(\
+                                   id=main_data_dict['pro_cen_mapping'][0][0], center=main_data_dict['pro_cen_mapping'][1][0])\
+                                   .values_list('is_voice', flat=True).distinct()
+    if is_voice:
+        is_voice = is_voice[0]
+    else:
+        is_voice = ''
+    for dispo in disposition_names:
+        dispo_list.append(dispo)
+    if location_list:
+        location_list.append('All')
+        location_list.sort()
+    else:
+        location_list = ''
+    if skill_list:
+        skill_list.append('All')
+        skill_list.sort()
+    else:
+        skill_list = ''
+    if dispo_list:
+        dispo_list.append('All')
+        dispo_list.sort()
+    else:
+        dispo_list = ''
     final_details = {}
     final_details['sub_project'] = 0
     final_details['work_packet'] = 0
@@ -163,6 +245,11 @@ def get_packet_details(request):
     final_dict['sub_project_level'] = sub_project_level
     final_dict['work_packet_level'] = work_packet_level
     final_dict['sub_packet_level'] = sub_packet_level
+    final_dict['location'] = location_list
+    final_dict['skill'] = skill_list
+    final_dict['disposition'] = dispo_list
+    final_dict['is_voice'] = is_voice
+    final_dict['type'] = main_data_dict['type']
     big_dict = {}
     if final_details['sub_project']:
         if final_details['work_packet']:
@@ -170,10 +257,12 @@ def get_packet_details(request):
             big_dict = {}
             total = {}
             for i in first:
-                list_val = RawTable.objects.filter(project=prj_id, sub_project=i[0], date__range=dates).values_list('work_packet').distinct()
+                list_val = RawTable.objects.filter(project=prj_id, sub_project=i[0], date__range=dates)\
+                                                  .values_list('work_packet').distinct()
                 for j in list_val:
                     total[j[0]] = []
-                    sub_pac_data = RawTable.objects.filter(project=prj_id, sub_project=i[0], work_packet=j[0], date__range=dates).values_list('sub_packet').distinct()
+                    sub_pac_data = RawTable.objects.filter(project=prj_id, sub_project=i[0], work_packet=j[0], date__range=dates)\
+                                                          .values_list('sub_packet').distinct()
                     for l in sub_pac_data:
                         total[j[0]].append(l[0])
                 big_dict[i[0]] = total
@@ -184,7 +273,8 @@ def get_packet_details(request):
             big_dict = {}
             total = {}
             for i in first:
-                list_val = RawTable.objects.filter(project=prj_id, work_packet=i[0], date__range=dates).values_list('sub_packet').distinct()
+                list_val = RawTable.objects.filter(project=prj_id, work_packet=i[0], date__range=dates).\
+                                                   values_list('sub_packet').distinct()
                 for j in list_val:
                     total[j[0]] = []
                 big_dict[i[0]] = total

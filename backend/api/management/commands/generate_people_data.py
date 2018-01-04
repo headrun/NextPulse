@@ -32,17 +32,15 @@ class Command(BaseCommand):
             else:
                 months_dict[month] = [str(date)]
         final_project_data = []
-        #proje_cent = Project.objects.values_list('name',flat=True)
-        #not_req = ["3i VAPP", "Bridgei2i", "E4U", "indix", "Nextgen", "IBM Sri Lanka P2P", "Quarto","Tally", "Sulekha", "Webtrade", "Walmart Chittor", "Future Energie Tech", "3iKYC", "Bigbasket"]
-        #proje_cent = filter(lambda x: x not in not_req, list(proje_cent))
-        proje_cent = ['Probe','NTT DATA Services TP','NTT DATA Services Coding','Federal Bank','Ujjivan','Gooru','Walmart Salem', 'Walmart Chittor','Mobius','IBM','IBM South East Asia','IBM Pakistan','IBM Africa','IBM DCIW Arabia','IBM Quality Control','IBM India and Sri Lanka','IBM NA and EU','IBM Arabia','IBM DCIW','IBM Latin America','IBM Sri Lanka P2P']
+        proje_cent = ['Probe','NTT DATA Services TP','NTT DATA Services Coding','Federal Bank','Ujjivan','Gooru','Walmart Salem',\
+                      'Walmart Chittor','Mobius','IBM','IBM South East Asia','IBM Pakistan','IBM Africa','IBM DCIW Arabia',\
+                      'IBM Quality Control','IBM India and Sri Lanka','IBM NA and EU','IBM Arabia','IBM DCIW','IBM Latin America',\
+                      'IBM Sri Lanka P2P']
 
         for month_name,month_dates in months_dict.iteritems():
             tat_met_sal, tat_not_met_sal = [], []
             tat_met_chi, tat_not_met_chi = [], []
             dates_list = month_dates
-            #proje_cent = ['Walmart Chittor', 'Mobius']
-            #proje_cent = ['Probe','NTT DATA Services TP','NTT DATA Services Coding','Federal Bank','Ujjivan','Gooru','Walmart Salem','IBM','IBM South East Asia','IBM Pakistan','IBM Africa','IBM DCIW Arabia','IBM Quality Control','IBM India and Sri Lanka','IBM NA and EU','IBM Arabia','IBM DCIW','IBM Latin America','IBM Sri Lanka P2P', 'Walmart Chittor', 'Mobius']
             for pro_cen in proje_cent:
                 values = Project.objects.filter(name=pro_cen).values_list('id','center_id')
                 prj_id = values[0][0]
@@ -63,12 +61,12 @@ class Command(BaseCommand):
                     volume_list = []
                 final_productivity_dict = {}
                 new_date_list, tat_values = [] , []
-                #productivity, tat_data = {}, {}
                 tat_data = {}
                 fte_data, prod_utili = [], []
                 operational_data, targ_list = [], []
                 for date_va in dates_list:
-                    total_done_value = RawTable.objects.filter(project=prj_id, center=center_id, date=date_va).aggregate(Max('per_day'))
+                    total_done_value = RawTable.objects.filter(project=prj_id, center=center_id, date=date_va)\
+                                        .aggregate(Max('per_day'))
                     if total_done_value['per_day__max']>0:
                         new_date_list.append(date_va)
                         for vol_type in volume_list:    
@@ -79,12 +77,14 @@ class Command(BaseCommand):
                                 final_work_packet = final_work_packet
 
                            #generation of fte and operational headcount data
-                        #prod_vals = RawTable.objects.filter(project=prj_id, center=center_id, date=date_va).aggregate(Sum('per_day'))
-                        headcount_details = Headcount.objects.filter(project=prj_id, center=center_id, date=date_va).aggregate(Sum('billable_hc'),Sum('buffer_agents'),Sum('qc_or_qa'),Sum('teamlead'),Sum('trainees_and_trainers'))
-                        #pro_da = prod_vals['per_day__sum']
+                        headcount_details = Headcount.objects.filter(\
+                                            project=prj_id, center=center_id, date=date_va)\
+                                            .aggregate(Sum('billable_hc'),Sum('buffer_agents'),Sum('qc_or_qa'),\
+                                            Sum('teamlead'),Sum('trainees_and_trainers'))
                         if headcount_details['billable_hc__sum'] != None:
                             utilization_numerator = headcount_details['billable_hc__sum']
-                            fte_utilization = headcount_details['billable_hc__sum'] + headcount_details['buffer_agents__sum'] + headcount_details['qc_or_qa__sum'] + headcount_details['teamlead__sum']
+                            fte_utilization = headcount_details['billable_hc__sum'] + headcount_details['buffer_agents__sum']\
+                                              + headcount_details['qc_or_qa__sum'] + headcount_details['teamlead__sum']
                             fte_value = (float(utilization_numerator)/float(fte_utilization))*100
                             fte_utili_value = float('%.2f' % round(fte_value,2))
                             operational_utilization = fte_utilization + headcount_details['trainees_and_trainers__sum']
@@ -97,9 +97,6 @@ class Command(BaseCommand):
                             operational_data.append(0)
 
                 #calculation for productivity value
-                #volumes = RawTable.objects.filter(project=prj_id, center=center_id, date__range = [dates_list[0],dates_list[-1]]).aggregate(Sum('per_day'))
-                #volumes = volumes['per_day__sum']
-                #bill_age = Headcount.objects.filter(project=prj_id, center=center_id, date__range = [dates_list[0],dates_list[-1]]).aggregate(Sum('billable_agents'))
                 tat = TatTable.objects.filter(project=prj_id, center=center_id, date__range = [dates_list[0],dates_list[-1]])
                 met_cnt = tat.aggregate(Sum('met_count'))
                 not_met_cnt = tat.aggregate(Sum('non_met_count'))

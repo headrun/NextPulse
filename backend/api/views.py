@@ -53,6 +53,8 @@ from api.query_generations import *
 from api.redis_operations import *
 from api.uploads import *
 from api.weekly_graph import *
+from api.voice_widgets import *
+#From api.location import *
 #from api.basic import *
 
 

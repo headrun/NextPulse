@@ -33,8 +33,10 @@ class Command(BaseCommand):
                 months_dict[month] = [str(date)]
         for month_name,month_dates in months_dict.iteritems():
             dates_list = month_dates
-            proje_cent = ['Probe','NTT DATA Services TP','NTT DATA Services Coding','Federal Bank','Ujjivan','Gooru','Walmart Salem','IBM','IBM South East Asia','IBM Pakistan','IBM Africa','IBM DCIW Arabia','IBM Quality Control','IBM India and Sri Lanka','IBM NA and EU','IBM Arabia','IBM DCIW','IBM Latin America','IBM Sri Lanka P2P', 'Walmart Chittor', 'Mobius']
-	    #proje_cent = ['Probe', 'NTT DATA Services TP', 'NTT DATA Services Coding', 'Federal Bank', 'Ujjivan', 'Gooru', 'Walmart Salem', 'Walmart Chittor' ,'Mobius']	
+            proje_cent = ['Probe','NTT DATA Services TP','NTT DATA Services Coding','Federal Bank','Ujjivan','Gooru',\
+                          'Walmart Salem','IBM','IBM South East Asia','IBM Pakistan','IBM Africa','IBM DCIW Arabia',\
+                          'IBM Quality Control','IBM India and Sri Lanka','IBM NA and EU','IBM Arabia','IBM DCIW',\
+                          'IBM Latin America','IBM Sri Lanka P2P', 'Walmart Chittor', 'Mobius']
             ext_audit_sal, ext_audit_chi, int_audit_sal, int_audit_chi = [], [], [], []
             ext_err_sal, ext_err_chi, int_err_sal, int_err_chi = [], [], [], []
             for pro_cen in proje_cent:

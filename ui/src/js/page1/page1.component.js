@@ -1,3 +1,4 @@
+
 ;(function (angular) {
   "use strict";
 
@@ -32,6 +33,7 @@
              var drop_down_link = '/api/dropdown_data/';
              var landing_pro = $state.params.selpro;
              self.pro_landing_url = 'api/project/?name='+landing_pro;
+             var voice_filter_calls;
 
              self.project_live = ''
              self.center_live = ''
@@ -143,6 +145,13 @@
                     }            
             }               
 
+            self.checkScroll = function() {
+                if($('.scroll').scrollTop() == 0) {
+                    $('.fa-arrow-circle-o-up').addClass('hide');
+                } else {
+                    $('.fa-arrow-circle-o-up').removeClass('hide');
+                }
+            }
  
              $('#annotation_button').click(function(){
 
@@ -168,10 +177,175 @@
 
                 callback.push.apply(callback, [self.start, self.end, self.center_live, self.project_live])
                 self.apply_class();
-                self.main_widget_function(callback, '');
+                if(self.is_voice_flag) {
+                    self.voiceTypeFilter(self.voiceProjectType, 1);
+                } else {
+                    var dateEntered = document.getElementById('select').value;
+                    dateEntered = dateEntered.replace(' to ','to');
+                    var from = dateEntered.split('to')[0].replace(' ','');
+                    var to = dateEntered.split('to')[1].replace(' ','');
+                    callback.push.apply(callback, [from, to, self.center_live, self.project_live]);
+                    var packet_url = '/api/get_packet_details/?&project='+callback[3]+'&center='+callback[2]+'&from='+self.start+'&to='+self.end+'&voice_project_type=';
+                    $http.get(packet_url).then(function(result) {
+                        self.global_packet_values = result.data.result.fin;
+                        self.drop_list = [];
+                        self.top_employee_details =  result.data.result.top_five_employee_details;
+                        self.top_five = result.data.result.only_top_five;
+                        self.volume_graphs = result.data.result.volumes_graphs_details;
+                        self.drop_list =  result.data.result.drop_value;
+                        if ( self.is_voice_flag == false) {
+                            self.sub_pro_sel = document.getElementById("0");
+                            self.wor_pac_sel = document.getElementById("1");
+                            self.sub_pac_sel = document.getElementById("2");
+                            $(self.sub_pro_sel.options).remove();
+                            self.sub_pro_sel.options[self.sub_pro_sel.options.length] = new Option('All', 'All');
+                            for (var sub_pro in self.drop_list) {
+                                self.sub_pro_sel.options[self.sub_pro_sel.options.length] = new Option(sub_pro, sub_pro);
+                            }
+                        }
+                        self.checkScroll();
+                    })
+                    self.main_widget_function(callback, '');
+                }
+                //self.main_widget_function(callback, '');
                 $('.widget17b').addClass('widget-data-hide');
 
                });
+
+            //Voice Type User
+            self.filter_list = ['location', 'skill', 'disposition', 'call_status', 'cate_dispo_inbound', 'outbound_dispo_cate', 'outbound_disposition', 'outbnd_dispo_common', 'inbnd_utilization', 'outbnd_utilization', 'inbnd_occupancy', 'outbnd_occupancy', 'inbound_productivity', 'outbound_productivity', 'utilization', 'occupancy', 'agent_productivity_data', 'agent_required'];
+            self.chartType = ['bar', 'stacked', 'pie', 'line'];
+            self.voice_widget_function = function(result, voiceFilterType, widgetA, widgetB) {
+                var chartOptions, chartSeries, chartType;
+                if(voiceFilterType == self.filter_list[0]) {
+                    chartOptions = self.chartOptions47;
+                    chartSeries = result.result[self.filter_list[0]];
+                    chartType = self.chartType[0];
+                } else if (voiceFilterType == self.filter_list[1]) {
+                    chartOptions = self.chartOptions48;
+                    chartSeries = result.result[self.filter_list[1]];
+                    chartType = self.chartType[0];
+                } else if (voiceFilterType == self.filter_list[2]) {
+                    chartOptions = self.chartOptions49;
+                    chartSeries = result.result[self.filter_list[2]];
+                    chartType = self.chartType[0];
+                } else if (voiceFilterType == self.filter_list[3]) {
+                    chartOptions = self.chartOptions50;
+                    chartSeries = result.result[self.filter_list[3]];
+                    chartType = self.chartType[1];
+                } else if (voiceFilterType == self.filter_list[4]) {
+                    chartOptions = self.chartOptions51;
+                    chartSeries = result.result[self.filter_list[4]];
+                    chartType = self.chartType[2];
+                } else if (voiceFilterType == self.filter_list[5]) {
+                    chartOptions = self.chartOptions52;
+                    chartSeries = result.result[self.filter_list[5]];
+                    chartType = self.chartType[2];
+                } else if (voiceFilterType == self.filter_list[6]) {
+                    chartOptions = self.chartOptions53;
+                    chartSeries = result.result[self.filter_list[6]];
+                    chartType = self.chartType[0];
+                } else if (voiceFilterType == self.filter_list[7]) {
+                    chartOptions = self.chartOptions54;
+                    chartSeries = result.result[self.filter_list[7]];
+                    chartType = self.chartType[0];
+                } else if (voiceFilterType == self.filter_list[8]) {
+                    chartOptions = self.chartOptions55;
+                    chartSeries = result.result[self.filter_list[8]];
+                    chartType = self.chartType[0];
+                } else if (voiceFilterType == self.filter_list[9]) {
+                    chartOptions = self.chartOptions56;
+                    chartSeries = result.result[self.filter_list[9]];
+                    chartType = self.chartType[0];
+                } else if (voiceFilterType == self.filter_list[10]) {
+                    chartOptions = self.chartOptions57;
+                    chartSeries = result.result[self.filter_list[10]];
+                    chartType = self.chartType[0];
+                } else if (voiceFilterType == self.filter_list[11]) {
+                    chartOptions = self.chartOptions58;
+                    chartSeries = result.result[self.filter_list[11]];
+                    chartType = self.chartType[0];
+                } else if (voiceFilterType == self.filter_list[12]) {
+                    chartOptions = self.chartOptions59;
+                    chartSeries = result.result[self.filter_list[12]];
+                    chartType = self.chartType[0];
+                } else if (voiceFilterType == self.filter_list[13]) {
+                    chartOptions = self.chartOptions60;
+                    chartSeries = result.result[self.filter_list[13]];
+                    chartType = self.chartType[0];
+                } else if (voiceFilterType == self.filter_list[14]) {
+                    chartOptions = self.chartOptions61;
+                    chartSeries = result.result[self.filter_list[14]];
+                    chartType = self.chartType[0];
+                } else if (voiceFilterType == self.filter_list[15]) {
+                    chartOptions = self.chartOptions62;
+                    chartSeries = result.result[self.filter_list[15]];
+                    chartType = self.chartType[0];
+                } else if (voiceFilterType == self.filter_list[16]) {
+                    chartOptions = self.chartOptions63;
+                    chartSeries = result.result[self.filter_list[16]];
+                    chartType = self.chartType[0];
+                } else if (voiceFilterType == self.filter_list[17]) {
+                    chartOptions = self.chartOptions64;
+                    chartSeries = result.result[self.filter_list[17]];
+                    chartType = self.chartType[0];
+                }
+                switch (chartType) {
+                    case self.chartType[1]:
+                        angular.extend(chartOptions, {
+                            xAxis: {
+                                categories: result.result.date,
+                            },
+                            plotOptions: {
+                                column: {
+                                    stacking: 'normal',
+                                    dataLabels: {
+                                        enabled: true,
+                                        color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'black'
+                                    }
+                                }
+                            },
+                            series: chartSeries
+                        })
+                        break;
+                    case self.chartType[2]:
+                        angular.extend(chartOptions, {
+                            series: [{
+                                name: '',
+                                colorByPoint: true,
+                                data: chartSeries
+                            }]
+                        })
+                        break;
+                    default:
+                        //Bar
+                        angular.extend(chartOptions, {
+                            xAxis: {
+                                categories: result.result.date,
+                            },
+                            plotOptions: {
+                                series: {
+                                  dataLabels: {
+                                    enabled: true,
+                                    formatter: function () {
+                                        return Highcharts.numberFormat(this.y, null, null, ",");
+                                    }
+                                  },
+                                  allowPointSelect: true,
+                                  cursor: 'pointer',
+                                }
+                            },
+                            series: chartSeries
+                        })
+                }
+                $(widgetA).removeClass('widget-loader-show');
+                $(widgetB).removeClass('widget-data-hide');
+            }
+
+             self.highlightTypes = function (button_type, widgetName) {
+                $(widgetName + ' .' + button_type + '2').addClass('active btn-success');
+                $(widgetName + ' .' + button_type + '2').siblings().removeClass('active btn-success');
+             }
 
              self.main_widget_function = function(callback, packet) {
                     
@@ -182,6 +356,14 @@
                     $('#emp_widget').hide();
 
                     $('#volume_table').hide();
+
+                    if (self.user_status === 'Invalid User') {
+                        swal({
+                            title: 'Your Not Authorised for ' + self.project_live,
+                            showConfirmButton: false
+                        });
+                        window.location = window.location.origin;
+                    }
                    
                     self.data_to_show = '?&project='+callback[3]+'&center='+callback[2]+'&from='+ callback[0]+'&to='+ callback[1]+packet+'&type=';
                     self.static_widget_data = '&project='+callback[3]+'&center='+callback[2]
@@ -204,6 +386,11 @@
                     }
 
                     self.ajax_for_role();
+
+                    var dateEntered = document.getElementById('select').value;
+                    dateEntered = dateEntered.replace(' to ','to');
+                    var from = dateEntered.split('to')[0].replace(' ','');
+                    var to = dateEntered.split('to')[1].replace(' ','');
 
                     self.annot_perm = function() {
 
@@ -235,9 +422,10 @@
 
                         self.type = type;
                         
-                        var allo_and_comp = '/api/alloc_and_compl/'+self.data_to_show + type + final_work;
+                        var allo_and_comp = '/api/alloc_and_compl/'+self.data_to_show + type + final_work+'&chart_name=17&chart_name=13';
 
                         return $http({method:"GET", url: allo_and_comp}).success(function(result){
+                           var is_annotation = result.result.is_annotation; 
                            if ((name == "self.chartOptions17") || (name == "")) {
                                 $('.widget-17a').removeClass('widget-loader-show');
                                 $('.widget-17b').removeClass('widget-data-hide');
@@ -337,34 +525,36 @@
                                     },   
                                     series: data_list_bar,
                                     onComplete: function(chart){
-                                    var series = null;
-                                    var chart_data = chart.series;
+                                    if (is_annotation) {
+                                        var series = null;
+                                        var chart_data = chart.series;
 
-                                    for(var i in chart_data){
-                                        series = chart_data[i];
-                                        (function(series){
-                                          $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
+                                        for(var i in chart_data){
+                                            series = chart_data[i];
+                                            (function(series){
+                                            $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
 					  self.type+'&chart_name=17&proj_name='+self.project_live+'&cen_name='+
 					  self.center_live}).success(function(annotations){ 
-                               annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
-                               $.each(annotations, function(j, annotation){
+                                annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
+                                $.each(annotations, function(j, annotation){
 
-                                 var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
+                                var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
 
-                                 point = point[0];
+                                point = point[0];
 
-                                 if(annotation.epoch){
+                                if(annotation.epoch){
                                    var a = new Annotation("17", $(self.chartOptions17.chart.renderTo),
                                         chart, point, annotation);
 
                                    console.log(a);
-                                   }
+                                }
                                })
                                         });
                                         }(series));
                                     }
                                     self.annot_perm();
                                     }
+                                  }
                                 })
                             }
 
@@ -431,36 +621,37 @@
                                     },
                                     series: data_list_line,
                                     onComplete: function(chart){
-                                    var series = null;
-                                    var chart_data = chart.series;
+                                    if (is_annotation) {
+                                        var series = null;
+                                        var chart_data = chart.series;
 
-                                    for(var i in chart_data){
-                                        series = chart_data[i];
-                                        (function(series){
-                                          $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
-					  self.type+'&chart_name=13&proj_name='+self.project_live+'&cen_name='+
-				          self.center_live}).success(function(annotations){
-                               annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
-                               $.each(annotations, function(j, annotation){
+                                        for(var i in chart_data){
+                                            series = chart_data[i];
+                                            (function(series){
+                                            $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
+					                self.type+'&chart_name=13&proj_name='+self.project_live+'&cen_name='+
+				                    self.center_live}).success(function(annotations){
+                                    annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
+                                    $.each(annotations, function(j, annotation){
 
-                                 var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
+                                    var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
 
-                                 point = point[0];
+                                    point = point[0];
 
-                                 if(annotation.epoch){
-                                   var a = new Annotation("13", $(self.chartOptions18.chart.renderTo),
-                                        chart, point, annotation);
+                                    if(annotation.epoch){
+                                        var a = new Annotation("13", $(self.chartOptions18.chart.renderTo),
+                                            chart, point, annotation);
 
-                                   console.log(a);
+                                    console.log(a);
                                    }
-                               })
+                                })
 
                                         });
                                         }(series));
                                     }
                                     self.annot_perm();
                                     }
-
+                                  }
                                 });
                            }
                         })
@@ -481,7 +672,7 @@
             
                         self.type = type;
 
-                        var utill_all = '/api/utilisation_all/'+self.data_to_show + type + final_work;
+                        var utill_all = '/api/utilisation_all/'+self.data_to_show + type + final_work+'&chart_name=20&chart_name=19&chart_nam=9';
 
                         return $http({method:"GET", url: utill_all}).success(function(result){
 
@@ -489,6 +680,7 @@
                             var utili_opera_data = result.result.utilization_operational_details;
                             var utili_fte_data = result.result.utilization_fte_details;
                             var overall_utili_data = result.result.original_utilization_graph;
+                            var is_annotation = result.result.is_annotation;
 
                             angular.extend(self.chartOptions25.yAxis,{
                                min:result.result.min_utilization_operational_details,
@@ -567,6 +759,7 @@
                                     },
                                     series: utili_opera_data,
                                     onComplete: function(chart){
+                                    if (is_annotation) {
                                     var series = null;
                                     var chart_data = chart.series;
 
@@ -596,7 +789,7 @@
                                     }
                                     self.annot_perm();
                                     }
-
+                                   } 
                                 });
                             
                                 $('.widget-20a').removeClass('widget-loader-show');
@@ -665,6 +858,7 @@
 
                                     series: utili_fte_data,
                                     onComplete: function(chart){
+                                    if (is_annotation) {
                                     var series = null;
                                     var chart_data = chart.series;
 
@@ -694,6 +888,7 @@
                                     }
                                     self.annot_perm();
                                     }
+                                  }  
                                 });
                                 $('.widget-19a').removeClass('widget-loader-show');
                                 $('.widget-19b').removeClass('widget-data-hide');
@@ -757,6 +952,7 @@
 
                                     series: overall_utili_data,
                                     onComplete: function(chart){
+                                    if (is_annotation) {
                                     var series = null;
                                     var chart_data = chart.series;
        
@@ -786,7 +982,7 @@
                                     }
                                     self.annot_perm();
                                     }
-
+                                  }
                                 });
                                $('.widget-9a').removeClass('widget-loader-show');
                                $('.widget-9b').removeClass('widget-data-hide');
@@ -806,12 +1002,13 @@
 
                         self.type = type;
 
-                        var productivity = '/api/productivity/'+self.data_to_show + type + final_work;
+                        var productivity = '/api/productivity/'+self.data_to_show + type + final_work + '&chart_name=14';
 
                         return $http({method:"GET", url: productivity}).success(function(result){
 
                             var date_list = result.result.date;
                             var productivity = result.result.original_productivity_graph;
+                            var is_annotation = result.result.is_annotation;                            
 
                             if (self.list_object.productivity_trends != undefined) {
 
@@ -871,6 +1068,7 @@
 
                                 series: productivity,
                                     onComplete: function(chart){
+                                    if (is_annotation) {
                                     var series = null;
                                     var chart_data = chart.series;
 
@@ -900,6 +1098,7 @@
                                     }
                                     self.annot_perm();
                                     }
+                                }
                             });
                             $('.widget-14a').removeClass('widget-loader-show');
                             $('.widget-14b').removeClass('widget-data-hide');
@@ -918,12 +1117,13 @@
  
                         self.type = type;
 
-                        var prod_avg = '/api/prod_avg_perday/'+self.data_to_show + type + final_work;
+                        var prod_avg = '/api/prod_avg_perday/'+self.data_to_show + type + final_work + '&chart_name=33';
 
                         return $http({method:"GET", url: prod_avg}).success(function(result){
 
                            var date_list = result.result.date;
-                           var prod_avg_data = result.result.production_avg_details
+                           var prod_avg_data = result.result.production_avg_details;
+                           var is_annotation = result.result.is_annotation; 
 
                             if (self.list_object.production_avg_perday != undefined) {
 
@@ -981,6 +1181,7 @@
 				    },
                                 series: prod_avg_data,
                                 onComplete: function(chart){
+                                if (is_annotation) {
                                 var series = null;
                                 var chart_data = chart.series;
        
@@ -1010,7 +1211,7 @@
                                 }
                                 self.annot_perm();
                                 }
-
+                              }  
                             });
                             $('.widget-33a').removeClass('widget-loader-show');
                             $('.widget-33b').removeClass('widget-data-hide');
@@ -1029,11 +1230,12 @@
 
                         self.type = type;
 
-                        var tat_data = '/api/tat_data/'+ self.data_to_show + type + final_work;
+                        var tat_data = '/api/tat_data/'+ self.data_to_show + type + final_work + '&chart_name=26';
 
                         $http({method:"GET", url: tat_data}).success(function(result){
                            var date_list = result.result.date;
-                           var tat_values = result.result.tat_graph_details
+                           var tat_values = result.result.tat_graph_details;
+                           var is_annotation = result.result.is_annotation; 
                             
                            if (self.list_object.tat_graph != undefined) {
 
@@ -1091,6 +1293,7 @@
                     },
                                 series: tat_values,
                     onComplete: function(chart){
+                    if (is_annotation) {
                     var series = null;
                     var chart_data = chart.series;
 
@@ -1118,7 +1321,7 @@
                 }
                 self.annot_perm();
                 }
-
+                }
                             });
                             $('.widget-26a').removeClass('widget-loader-show');
                             $('.widget-26b').removeClass('widget-data-hide');
@@ -1137,13 +1340,14 @@
 
                         self.type = type;
 
-                        var mont_volume = '/api/monthly_volume/'+self.data_to_show + type + final_work;
+                        var mont_volume = '/api/monthly_volume/'+self.data_to_show + type + final_work + '&chart_name=21';
 
                         return $http({method:"GET", url: mont_volume}).success(function(result){
 
                             var date_list  = result.result.date;
 
-                            var monthly_volume = result.result.monthly_volume_graph_details
+                            var monthly_volume = result.result.monthly_volume_graph_details;
+                            var is_annotation = result.result.is_annotation;
 
                             if (self.list_object.monthly_volume_widget != undefined) {
                             
@@ -1201,6 +1405,7 @@
                                     },
                                 series: monthly_volume,
                                 onComplete: function(chart){
+                                if (is_annotation) {
                                 var series = null;
                                 var chart_data = chart.series;
        
@@ -1230,6 +1435,7 @@
                                 }
                                 self.annot_perm();
                                 }
+                              }  
                             });
                             $('.widget-21a').removeClass('widget-loader-show');
                             $('.widget-21b').removeClass('widget-data-hide');
@@ -1252,7 +1458,7 @@
 
                         self.type = type;
 
-                        var fte_graphs = '/api/fte_graphs/'+self.data_to_show + type + final_work;
+                        var fte_graphs = '/api/fte_graphs/'+self.data_to_show + type + final_work + '&chart_name=11&chart_name=12';
 
                         return $http({method:"GET", url: fte_graphs}).success(function(result){
     
@@ -1281,6 +1487,7 @@
                             var date_list = result.result.date;
                             var work_packet_fte = result.result.fte_calc_data.work_packet_fte;
                             var total_fte = result.result.fte_calc_data.total_fte;
+                            var is_annotation = result.result.is_annotation;
                             var date_range = $('#select').val().split('to');
                             
                             if ((name == "self.chartOptions16") || (name == "")) {
@@ -1341,6 +1548,7 @@
                                     },
                                     series: work_packet_fte,
                                     onComplete: function(chart){
+                                    if (is_annotation) {
                                     var series = null;
                                     var chart_data = chart.series;
 
@@ -1370,7 +1578,7 @@
                                     }
                                     self.annot_perm();
                                     }
-
+                                  }  
                                 });
                                 $('.widget-11a').removeClass('widget-loader-show');
                                 $('.widget-11b').removeClass('widget-data-hide');
@@ -1486,7 +1694,7 @@
 
                         self.type = type;
 
-                        var main_prod = '/api/main_prod/'+self.data_to_show + type + final_work;
+                        var main_prod = '/api/main_prod/'+self.data_to_show + type + final_work + '&chart_name=1&chart_name=6';
 
                         return $http({method:"GET", url: main_prod}).success(function(result){
             
@@ -1514,6 +1722,7 @@
                             }
                             var date_list = result.result.data.date;
                             var main_prod_data = result.result.productivity_data;
+                            var is_annotation = result.result.is_annotation;
                             
                             if ((name == "self.chartOptions10") || (name == "")) {
                                                                 
@@ -1575,6 +1784,7 @@
                                     },
                                     series: main_prod_data,
                                     onComplete: function(chart){
+                                    if (is_annotation) {
                                     var series = null;
                                     var chart_data = chart.series;
 
@@ -1604,6 +1814,7 @@
                                     }
                                     self.annot_perm();
                                     }
+                                  }
                                 });
                                 $('.widget-6a').removeClass('widget-loader-show');
                                 $('.widget-6b').removeClass('widget-data-hide');
@@ -1671,6 +1882,7 @@
 
                                     series: main_prod_data,
                                     onComplete: function(chart){
+                                    if (is_annotation) {
                                     var series = null;
                                     var chart_data = chart.series;
 
@@ -1700,7 +1912,7 @@
                                     }
                                     self.annot_perm();
                                     }
-
+                                  }  
                                 });     
                                 $('.widget-1a').removeClass('widget-loader-show');
                                 $('.widget-1b').removeClass('widget-data-hide');
@@ -1709,7 +1921,7 @@
                     }
     	
 	       	self.category_error = function(cate_error){
-                       return $http({method:"GET", url: cate_error}).success(function(result){
+                       return $http({method:"GET", url: cate_error }).success(function(result){
 
                             angular.extend(self.chartOptions5,{
 
@@ -1738,8 +1950,8 @@
 
 		self.pareto_category_error = function(pareto_cate_error){
 
-                       return $http({method:"GET", url: pareto_cate_error}).success(function(result){
-                            
+                       return $http({method:"GET", url: pareto_cate_error + '&chart_name=24&chart_name=25' }).success(function(result){
+                            var is_annotation = result.result.is_annotation;
                             if (self.list_object.error_category_internal_pareto_analysis != undefined) {
 
                                 if (self.list_object.error_category_internal_pareto_analysis.display_value === true) {
@@ -1800,6 +2012,7 @@
 	
                                series: result.result.Internal_Error_Category.category_pareto,
                                     onComplete: function(chart){
+                                    if (is_annotation) {
                                     var series = null;
                                     var chart_data = chart.series;
 
@@ -1829,7 +2042,7 @@
                                     }
                                     self.annot_perm();
                                     }
- 
+                                }
                             });
                             $('.widget-24a').removeClass('widget-loader-show');
                             $('.widget-24b').removeClass('widget-data-hide');
@@ -1893,6 +2106,7 @@
                                 },                            
                                series: result.result.External_Error_Category.category_pareto,
                                     onComplete: function(chart){
+                                    if (is_annotation) {
                                     var series = null;
                                     var chart_data = chart.series;
 
@@ -1922,7 +2136,7 @@
                                     }
                                     self.annot_perm();
                                     }
-
+                                 }   
                             });
                             $('.widget-25a').removeClass('widget-loader-show');
                             $('.widget-25b').removeClass('widget-data-hide');
@@ -1930,8 +2144,8 @@
 		   }
 		  
 		self.agent_category_error = function(agent_cate_error){
-                       return $http({method:"GET", url: agent_cate_error}).success(function(result){
-                            
+                       return $http({method:"GET", url: agent_cate_error + '&chart_name=22&chart_name=23' }).success(function(result){
+                            var is_annotation = result.result.is_annotation;
                             if (self.list_object.agent_wise_pareto_graph_data != undefined) {
 
                                 if (self.list_object.agent_wise_pareto_graph_data.display_value === true) {
@@ -1992,6 +2206,7 @@
                                 },
                                series: result.result.Pareto_data.agent_pareto_data,
                                     onComplete: function(chart){
+                                    if (is_annotation) {
                                     var series = null;
                                     var chart_data = chart.series;
 
@@ -2021,7 +2236,7 @@
                                     }
                                     self.annot_perm();
                                     }
-
+                                }
                             });
                             $('.widget-22a').removeClass('widget-loader-show');
                             $('.widget-22b').removeClass('widget-data-hide');
@@ -2086,6 +2301,7 @@
 
                                series: result.result.External_Pareto_data.agent_pareto_data,
                                     onComplete: function(chart){
+                                    if (is_annotation) {
                                     var series = null;
                                     var chart_data = chart.series;
 
@@ -2114,6 +2330,7 @@
                                     }
                                     self.annot_perm();
                                     }
+                                }
                             });
                             $('.widget-23a').removeClass('widget-loader-show');
                             $('.widget-23b').removeClass('widget-data-hide');
@@ -2134,10 +2351,11 @@
 
                         var pre_scan = '/api/pre_scan_exce/'+self.data_to_show + type + final_work;
 
-                        return $http({method:"GET", url: pre_scan}).success(function(result){
+                        return $http({method:"GET", url: pre_scan + '&chart_name=35' }).success(function(result){
 
                             var date_list  = result.result.date;
                             var pre_scan_details = result.result.pre_scan_exception_data;
+                            var is_annotation = result.result.is_annotation;
                 
                             if (self.list_object.pre_scan_exception_chart != undefined) {
                         
@@ -2198,6 +2416,7 @@
                                 },
                                series: pre_scan_details,
                                 onComplete: function(chart){
+                                if (is_annotation) {
                                 var series = null;
                                 var chart_data = chart.series;
 
@@ -2226,7 +2445,7 @@
                                 }
                                 self.annot_perm();
                                 }
-
+                              }  
                             });
                             $('.widget-35a').removeClass('widget-loader-show');
                             $('.widget-35b').removeClass('widget-data-hide');
@@ -2244,12 +2463,13 @@
 
                         self.type = type;
 
-                        var nw_exce = '/api/nw_exce/'+self.data_to_show + type + final_work;
+                        var nw_exce = '/api/nw_exce/'+self.data_to_show + type + final_work + '&chart_name=37';
 
                         return $http({method:"GET", url: nw_exce}).success(function(result){
                                                                     
                             var date_list  = result.result.date;
                             var nw_details = result.result.nw_exception_details;
+                            var is_annotation = result.result.is_annotation;
 
                             if (self.list_object.nw_exception_chart != undefined) {
 
@@ -2311,6 +2531,7 @@
 
                                series: nw_details,
                                 onComplete: function(chart){
+                                if (is_annotation) {
                                 var series = null;
                                 var chart_data = chart.series;
 
@@ -2339,7 +2560,7 @@
                                 }
                                 self.annot_perm();
                                 }
-
+                              }  
                             });
                             $('.widget-37a').removeClass('widget-loader-show');
                             $('.widget-37b').removeClass('widget-data-hide');
@@ -2358,12 +2579,13 @@
 
                         self.type = type;
 
-                        var overall_exce = '/api/overall_exce/'+self.data_to_show + type + final_work;
+                        var overall_exce = '/api/overall_exce/'+self.data_to_show + type + final_work + '&chart_name=36';
 
                         return $http({method:"GET", url: overall_exce}).success(function(result){
                                                                     
                             var date_list  = result.result.date;
                             var overall_details = result.result.overall_exception_details;
+                            var is_annotation = result.result.is_annotation;
 
                             if (self.list_object.overall_exception_chart != undefined) {
                                 
@@ -2426,6 +2648,7 @@
 
                                series: overall_details,
                                 onComplete: function(chart){
+                                if (is_annotation) {
                                 var series = null;
                                 var chart_data = chart.series;
 
@@ -2454,7 +2677,7 @@
                                 }
                                 self.annot_perm();
                                 }
-
+                              }
                             });
                             $('.widget-36a').removeClass('widget-loader-show');
                             $('.widget-36b').removeClass('widget-data-hide');
@@ -2473,12 +2696,13 @@
 
                         self.type = type;
 
-                        var upload_acc = '/api/upload_acc/'+self.data_to_show + type + final_work;
+                        var upload_acc = '/api/upload_acc/'+self.data_to_show + type + final_work + '&chart_name=34';
 
                         return $http({method:"GET", url: upload_acc}).success(function(result){
 
                             var date_list  = result.result.upload_target_data.date;
                             var upload_target_data = result.result.upload_target_data.data;
+                            var is_annotation = result.result.is_annotation;
 
                             if (self.list_object.target_upload_graph != undefined) {
 
@@ -2542,6 +2766,7 @@
 
                                series: upload_target_data,
                                 onComplete: function(chart){
+                                if (is_annotation) {
                                 var series = null;
                                 var chart_data = chart.series;
 
@@ -2570,7 +2795,7 @@
                                 }
                                 self.annot_perm();
                                 }
-
+                              }
                             });
                             $('.widget-34a').removeClass('widget-loader-show');
                             $('.widget-34b').removeClass('widget-data-hide');
@@ -2579,7 +2804,8 @@
                 
 			self.error_field_graph = function(err_field_graph){
 
-                       return $http({method:"GET", url: err_field_graph}).success(function(result){
+                       return $http({method:"GET", url: err_field_graph + '&chart_name=38&chart_name=39'}).success(function(result){
+                            var is_annotation = result.result.is_annotation;
                            angular.extend(self.chartOptions43.yAxis,{
                                 min:result.result.inter_min_value,
                                 max:result.result.inter_max_value
@@ -2643,6 +2869,7 @@
                                    data: result.result.internal_field_accuracy_graph
                                }],
                                 onComplete: function(chart){
+                                if (is_annotation) {
                                 var series = null;
                                 var chart_data = chart.series;
 
@@ -2671,7 +2898,7 @@
                                 }
                                 self.annot_perm();
                                 }
-
+                              }  
                            });
                             $('.widget-38a').removeClass('widget-loader-show');
                             $('.widget-38b').removeClass('widget-data-hide');
@@ -2740,6 +2967,7 @@
                                    data: result.result.external_field_accuracy_graph
                                }],
                                 onComplete: function(chart){
+                                if (is_annotation) {
                                 var series = null;
                                 var chart_data = chart.series;
 
@@ -2768,7 +2996,7 @@
                                 }
                                 self.annot_perm();
                                 }
-
+                              }
                            });
                            $('.widget-39a').removeClass('widget-loader-show');
                            $('.widget-39b').removeClass('widget-data-hide');
@@ -2776,8 +3004,8 @@
 			}
 
 			self.error_bar_graph = function(error_bar_graph){
-	                       return $http({method:"GET", url: error_bar_graph}).success(function(result){
-
+	                       return $http({method:"GET", url: error_bar_graph + '&chart_name=2&chart_name=3'}).success(function(result){
+                            var is_annotation = result.result.is_annotation;
                             if (self.list_object.internal_error_accuracy != undefined) {
 
                                 if (self.list_object.internal_error_accuracy.display_value === true) {
@@ -2843,6 +3071,7 @@
                                    data: result.result.internal_accuracy_graph
                                }],
                                 onComplete: function(chart){
+                                if (is_annotation){
                                 var series = null;
                                 var chart_data = chart.series;
 
@@ -2871,7 +3100,7 @@
                                 }
                                 self.annot_perm();
                                 }
-
+                              }   
                            });
                            $('.widget-2a').removeClass('widget-loader-show');
                            $('.widget-2b').removeClass('widget-data-hide');
@@ -2942,6 +3171,7 @@
                                    data: result.result.external_accuracy_graph
                                }],
                                 onComplete: function(chart){
+                                if (is_annotation) {
                                 var series = null;
                                 var chart_data = chart.series;
 
@@ -2971,7 +3201,7 @@
                                 }
                                 self.annot_perm();
                                 }
-
+                              }  
                            });
                            $('.widget-3a').removeClass('widget-loader-show');
                            $('.widget-3b').removeClass('widget-data-hide');
@@ -2994,13 +3224,14 @@
 
                         self.type = type;
 
-                        var from_to = '/api/from_to/'+self.data_to_show + type + final_work;
+                        var from_to = '/api/from_to/'+self.data_to_show + type + final_work + '&chart_name=7&chart_name=8';
 
                         return $http({method:"GET", url: from_to}).success(function(result){
 
                             var date_list = result.result.date;
                             var external_error_timeline = result.result.external_time_line;
                             var internal_error_timeline = result.result.internal_time_line;
+                            var is_annotation = result.result.is_annotation;
 
                             if ((name == "self.chartOptions9_2") || (name == "")) {
                             
@@ -3067,6 +3298,7 @@
                                     },
                                     series: external_error_timeline,
                                     onComplete: function(chart){
+                                    if (is_annotation) {
                                     var series = null;
                                     var chart_data = chart.series;
                                     for(var i in chart_data){
@@ -3092,6 +3324,7 @@
                                     }
                                     self.annot_perm();
                                     }
+                                  }
                                 });
 				}
                                 $('.widget-7a').removeClass('widget-loader-show');
@@ -3163,6 +3396,7 @@
 
                                     series: internal_error_timeline,
                                     onComplete: function(chart){
+                                    if (is_annotation) {
                                     var series = null;
                                     var chart_data = chart.series;
 
@@ -3192,7 +3426,7 @@
                                     }
                                     self.annot_perm();
                                     }
-
+                                  }  
                                 });
                                 $('.widget-8a').removeClass('widget-loader-show');
                                 $('.widget-8b').removeClass('widget-data-hide');
@@ -3285,43 +3519,56 @@
 
                 });
 		}
+            if (self.is_voice_flag == false) {
+                $q.all([self.allo_and_comp(undefined, undefined, undefined), self.utill_all(undefined, undefined, undefined),
+                    self.productivity(undefined, undefined), self.prod_avg(undefined, undefined)]).then(function(){
 
-        $q.all([self.allo_and_comp(undefined, undefined, undefined), self.utill_all(undefined, undefined, undefined),
-       self.productivity(undefined, undefined), self.prod_avg(undefined, undefined)]).then(function(){
+                $q.all([self.pareto_category_error(pareto_cate_error) ,self.agent_category_error(agent_cate_error), 
+                    self.main_prod(undefined, undefined, undefined), self.category_error(cate_error)]).then(function(){
 
-   $q.all([self.pareto_category_error(pareto_cate_error) ,self.agent_category_error(agent_cate_error), 
-           self.main_prod(undefined, undefined, undefined), self.category_error(cate_error)]).then(function(){
+                $q.all([self.from_to(undefined, undefined, undefined) ,self.error_bar_graph(error_bar_graph),
+                    self.pre_scan(undefined, undefined), self.nw_exce(undefined, undefined)]).then(function(){
 
-       $q.all([self.from_to(undefined, undefined, undefined) ,self.error_bar_graph(error_bar_graph),
-               self.pre_scan(undefined, undefined), self.nw_exce(undefined, undefined)]).then(function(){
-
-           $q.all([self.overall_exce(undefined, undefined), self.upload_acc(undefined, undefined),
+                $q.all([self.overall_exce(undefined, undefined), self.upload_acc(undefined, undefined),
                    self.mont_volume(undefined, undefined), self.fte_graphs(undefined, undefined, undefined)]).then(function(){
 
-              $q.all([self.error_field_graph(err_field_graph), self.tat_data(undefined, undefined),
-              self.static_data_call(static_ajax)]).then(function(){                                                               
+                $q.all([self.error_field_graph(err_field_graph), self.tat_data(undefined, undefined),
+                    self.static_data_call(static_ajax)]).then(function(){                                                               
                     self.annot_perm();                                                                                                    
-               });                                        
+                   });                                        
 
-           });
+                });
 
-       });
+                });
 
-   });
+                });
 
-});
-
+                });
             }
+        }
 
              self.packet_data = $http.get(self.pro_landing_url).then(function(result){
 
                 self.list_object = result.data.result.lay[0];
                 self.layout_list = result.data.result.lay[1].layout;
+                self.user_status = result.data.result.user_status;
+
+                self.work_packet = result.data.result.work_packet;
+                self.sub_packet = result.data.result.sub_packet;
+                self.sub_project = result.data.result.sub_project;
+
+                self.voice_location = result.data.result.location;
+                self.voice_skill = result.data.result.skill;
+                self.voice_disposition = result.data.result.disposition;
+
                 var pro_cen_nam = $state.params.selpro;                                                                                           
                 self.call_back = [];
 
                 self.first = result.data.result.dates.from_date;                                                                                       
                 self.last = result.data.result.dates.to_date;
+
+                self.start = self.first;
+                self.end = self.last;
 
                 self.call_back.push(self.first);
                 self.call_back.push(self.last);
@@ -3370,8 +3617,26 @@
                     'self.chartOptions43':self.chartOptions43,
                     'self.chartOptions44':self.chartOptions44,
                     'self.chartOptions45':self.chartOptions45,
-                    'self.chartOptions46':self.chartOptions46
-                    };
+                    'self.chartOptions46':self.chartOptions46,
+                    "self.chartOptions47":self.chartOptions47,
+                    "self.chartOptions48":self.chartOptions48,
+                    "self.chartOptions49":self.chartOptions49,
+                    "self.chartOptions50":self.chartOptions50,
+                    "self.chartOptions51":self.chartOptions51,
+                    "self.chartOptions52":self.chartOptions52,
+                    "self.chartOptions53":self.chartOptions53,
+                    "self.chartOptions54":self.chartOptions54,
+                    "self.chartOptions55":self.chartOptions55,
+                    "self.chartOptions56":self.chartOptions56,
+                    "self.chartOptions57":self.chartOptions57,
+                    "self.chartOptions58":self.chartOptions58,
+                    "self.chartOptions59":self.chartOptions59,
+                    "self.chartOptions60":self.chartOptions60,
+                    "self.chartOptions61":self.chartOptions61,
+                    "self.chartOptions62":self.chartOptions62,
+                    "self.chartOptions63":self.chartOptions63,
+                    'self.chartOptions64':self.chartOptions64
+                  };
 
 
                 self.final_layout_list = [];
@@ -3384,8 +3649,15 @@
                 }
 
                 self.location = pro_cen_nam.split('-')[0].replace(' ','') + ' - '
-                self.project = pro_cen_nam.split('-')[1].replace(' ','') + ' - '
-                
+                //self.project = pro_cen_nam.split('-')[1].replace(' ','') + ' - '
+                var project_check = pro_cen_nam.split('-')[1].replace(' ','');
+                var project_val = project_check.search('&');
+                if (project_val != -1) {
+                    self.project = pro_cen_nam.split('-')[1].split('&')[0].replace(' ','');
+                }
+                else {
+                    self.project = pro_cen_nam.split('-')[1].replace(' ','');
+                }
                 self.call_back.push(self.location);
                 self.call_back.push(self.project);
              
@@ -3394,7 +3666,255 @@
            }).then(function(callback){
                     var final_work =  '&sub_project=' + self.drop_sub_proj + '&sub_packet=' + self.drop_sub_pack + '&work_packet=' +
                                                                 self.drop_work_pack;
-                    var packet_url = '/api/get_packet_details/?&project='+callback[3]+'&center='+callback[2]+'&from='+callback[0]+'&to='+callback[1];
+                    self.voiceTypeFilter = function(key, make_ajax) {
+                        if (key != '') {
+                            self.voiceProjectType = key; 
+                        }
+                        var dateEntered = document.getElementById('select').value;
+                        dateEntered = dateEntered.replace(' to ','to');
+                        var from = dateEntered.split('to')[0].replace(' ','');
+                        var to = dateEntered.split('to')[1].replace(' ','');
+                        callback.push.apply(callback, [from, to, self.center_live, self.project_live]);
+                        if(key == 'inbound') {
+                            $('.inbound').addClass('active btn-success');
+                            $('.inbound').siblings().removeClass('active btn-success');
+                        } else if (key == 'outbound') {
+                            $('.outbound').addClass('active btn-success');
+                            $('.outbound').siblings().removeClass('active btn-success');
+                        }
+                        if(make_ajax) {
+                            var packet_url = '/api/get_packet_details/?&project='+callback[3]+'&center='+callback[2]+'&from='+self.start+'&to='+self.end+'&voice_project_type='+key;
+                            //var packet_url = '/api/get_packet_details/?&project='+callback[3]+'&center='+callback[2]+'&from='+callback[0]+'&to='+callback[1]+'&voice_project_type='+key;
+                            $http.get(packet_url).then(function(result) {
+                                self.chartProcess(result);
+                                self.checkScroll();
+                            }) 
+                        }
+                    }
+
+                        self.chartProcess = function(result) {
+                            $('#dropdown_title').html($(".brand_style").text().replace(" - DASHBOARD",''));
+                            self.fin_sub_project = result.data.result.fin.sub_project;
+                            self.fin_sub_packet = result.data.result.fin.sub_packet;
+                            self.fin_work_packet = result.data.result.fin.work_packet;
+                            self.is_voice_flag = result.data.result.is_voice;
+                            self.main_day_type = result.data.result.type;
+                            self.day_type = result.data.result.type;
+                            self.active_filters(self.day_type, '');
+                            self.apply_class();
+                            if (self.is_voice_flag) {
+                                $('#emp_widget').hide();
+                                $('#volume_table').hide();
+                                self.voiceProjectList = result.data.result.voice_project_types;
+                                self.voiceProjectList = ['inbound', 'outbound'];
+                                angular.element(document.querySelector('#voice_filter_div')).removeClass('hide');
+                                self.voice_filters.Location = result.data.result['location'];
+                                self.voice_filters.Skill = result.data.result['skill'];
+                                self.voice_filters.Disposition = result.data.result['disposition'];
+                                self.LocationFilter = document.getElementById("Location");
+                                self.SkillFilter = document.getElementById("Skill");
+                                self.DispositionFilter = document.getElementById("Disposition");
+                                $(self.LocationFilter.options).remove();
+                                $(self.SkillFilter.options).remove();
+                                $(self.DispositionFilter.options).remove();
+                                if (self.voice_filters.Location.length) {
+                                    $(self.LocationFilter).parent().show();
+                                    angular.forEach(self.voice_filters.Location, function(location_value) {
+                                        self.LocationFilter.options[self.LocationFilter.options.length] = new Option(location_value, location_value);
+                                    });
+                                } else {
+                                    $(self.LocationFilter).parent().hide();
+                                }
+                                if((self.voice_filters.Skill.length)) {
+                                    $(self.SkillFilter).parent().show();
+                                    angular.forEach(self.voice_filters.Skill, function(skill_value) {
+                                        self.SkillFilter.options[self.SkillFilter.options.length] = new Option(skill_value, skill_value);
+                                    });
+                                } else {
+                                    $(self.SkillFilter).parent().hide();
+                                }
+                                if ((self.voice_filters.Disposition.length)) {
+                                    $(self.DispositionFilter).parent().show();
+                                    angular.forEach(self.voice_filters.Disposition, function(disposition_value) {
+                                        self.DispositionFilter.options[self.DispositionFilter.options.length] = new Option(disposition_value, disposition_value);
+                                    });
+                                } else {
+                                    $(self.DispositionFilter).parent().hide();
+                                }
+                                if(!(self.fin_sub_project || self.fin_sub_packet || self.fin_work_packet )) {
+                                    self.packet_hierarchy_list = [];
+                                }
+                                var type = '';
+                                self.voice_filter = '?&project='+callback[3]+'&center='+callback[2]+'&from='+ self.start+'&to='+ self.end + '&type=';
+                                //self.voice_filter = '?&project='+callback[3]+'&center='+callback[2]+'&from='+ callback[0]+'&to='+ callback[1] + '&type=';
+                                if ((self.voice_location != '') && (self.voice_skill != '') && (self.voice_disposition != '')) {
+                                    self.locationValue = self.voice_location;
+                                    self.skillValue = self.voice_skill;
+                                    self.dispositionValue = self.voice_disposition;
+                                    
+                                } else {
+                                    self.locationValue = 'All';
+                                    self.skillValue = 'All';
+                                    self.dispositionValue = 'All';
+                                }
+                                self.voiceFilterType = 'location';
+                                if(self.is_voice_flag) {
+                                    self.ajaxVoiceFilter = function(type, key) {
+                                        var voice_filter_ajax = '/api/'+ type + self.voice_filter + self.day_type + '&location=' + self.locationValue + '&skill=' + self.skillValue + '&disposition=' + self.dispositionValue + '&project_type=' + self.voiceProjectType;
+                                        var day_type = self.day_type;
+                                        if (self.day_type == '') {
+                                            var voice_filter_ajax = '/api/'+ type + self.voice_filter + self.main_day_type + '&location=' + self.locationValue + '&skill=' + self.skillValue + '&disposition=' + self.dispositionValue + '&project_type=' + self.voiceProjectType;
+                                            var day_type = self.main_day_type;
+                                        }
+                                        //For Single Widget Type Change
+                                        if (key != '') {
+                                            var voice_filter_ajax = '/api/'+ type + self.voice_filter + key + '&location=' + self.locationValue + '&skill=' + self.skillValue + '&disposition=' + self.dispositionValue + '&project_type=' + self.voiceProjectType;
+                                            var day_type = key;
+                                        }
+                                        var widgetA, widgetB, type_check;
+                                        if(type == self.filter_list[0]) {
+                                            widgetA = '.widget-42a';
+                                            widgetB = '.widget-42b';
+                                            type_check = 'inbound';
+                                        } else if (type == self.filter_list[1]) {
+                                            widgetA = '.widget-43a';
+                                            widgetB = '.widget-43b';
+                                            type_check = 'inbound';
+                                        } else if (type == self.filter_list[2]) {
+                                            widgetA = '.widget-44a';
+                                            widgetB = '.widget-44b';
+                                            type_check = 'inbound';
+                                        } else if (type == self.filter_list[3]) {
+                                            widgetA = '.widget-45a';
+                                            widgetB = '.widget-45b';
+                                            type_check = 'inbound';
+                                        } else if (type == self.filter_list[4]) {
+                                            widgetA = '.widget-46a';
+                                            widgetB = '.widget-46b';
+                                            type_check = 'inbound';
+                                        } else if (type == self.filter_list[5]) {
+                                            widgetA = '.widget-47a';
+                                            widgetB = '.widget-47b';
+                                            type_check = 'outbound';
+                                        } else if (type == self.filter_list[6]) {
+                                            widgetA = '.widget-48a';
+                                            widgetB = '.widget-48b';
+                                            type_check = 'outbound';
+                                        } else if (type == self.filter_list[7]) {
+                                            widgetA = '.widget-49a';
+                                            widgetB = '.widget-49b';
+                                            type_check = 'outbound';
+                                        } else if (type == self.filter_list[8]) {
+                                            widgetA = '.widget-50a';
+                                            widgetB = '.widget-50b';
+                                            type_check = 'inbound';
+                                        } else if (type == self.filter_list[9]) {
+                                            widgetA = '.widget-51a';
+                                            widgetB = '.widget-51b';
+                                            type_check = 'outbound';
+                                        } else if (type == self.filter_list[10]) {
+                                            widgetA = '.widget-52a';
+                                            widgetB = '.widget-52b';
+                                            type_check = 'inbound';
+                                        } else if (type == self.filter_list[11]) {
+                                            widgetA = '.widget-53a';
+                                            widgetB = '.widget-53b';
+                                            type_check = 'outbound';
+                                        } else if (type == self.filter_list[12]) {
+                                            widgetA = '.widget-54a';
+                                            widgetB = '.widget-54b';
+                                            type_check = 'inbound';
+                                        } else if (type == self.filter_list[13]) {
+                                            widgetA = '.widget-55a';
+                                            widgetB = '.widget-55b';
+                                            type_check = 'outbound';
+                                        } else if (type == self.filter_list[14]) {
+                                            widgetA = '.widget-56a';
+                                            widgetB = '.widget-56b';
+                                            type_check = 'inbound';
+                                        } else if (type == self.filter_list[15]) {
+                                            widgetA = '.widget-57a';
+                                            widgetB = '.widget-57b';
+                                            type_check = 'inbound';
+                                        } else if (type == self.filter_list[16]) {
+                                            widgetA = '.widget-58a';
+                                            widgetB = '.widget-58b';
+                                            type_check = 'inbound';
+                                        } else if (type == self.filter_list[17]) {
+                                            widgetA = '.widget-59a';
+                                            widgetB = '.widget-59b';
+                                            type_check = 'inbound';
+                                        }
+
+                                        if (self.voiceProjectType == 'inbound') {
+                                            if(type_check == 'outbound') {
+                                                $(widgetA).parent().hide();
+                                            } else {
+                                                $(widgetA).parent().show();    
+                                            }
+                                        }
+                                        if (self.voiceProjectType == 'outbound') {
+                                            if(type_check == 'inbound') {
+                                                $(widgetA).parent().hide();
+                                            } else {
+                                                $(widgetA).parent().show();
+                                            }
+                                        }
+                                        $(widgetA).addClass('widget-loader-show');
+                                        $(widgetB).addClass('widget-data-hide');
+                                        if (self.voiceProjectType == type_check) {
+                                            $http({ method: "GET", url: voice_filter_ajax }).success(function(result) {
+                                                self.voice_widget_function(result, type, widgetA, widgetB);
+                                                self.highlightTypes(day_type, widgetB);
+                                                self.voiceTypeFilter(self.voiceProjectType, 0);
+                                            })
+                                        }
+                                    }
+                                    if (self.voice_location != '') {
+                                        self.location_value = $('#Location').val(self.voice_location);
+                                        self.ajaxVoiceFilter(type, '');
+                                    } else {
+                                        self.LocationFilter.onchange = function () {
+                                            self.locationValue = self.LocationFilter.value;
+                                            voice_filter_calls();
+                                            self.ajaxVoiceFilter(type, '');
+                                        }
+                                    }
+                                    if (self.voice_skill != '') {
+                                        self.skill_value = $('#Skill').val(self.voice_skill);
+                                        self.ajaxVoiceFilter(type, '');
+                                    } else {
+                                        self.SkillFilter.onchange = function () {
+                                            self.skillValue = self.SkillFilter.value;
+                                            voice_filter_calls();
+                                            self.ajaxVoiceFilter(type, '');
+                                        }
+                                    }
+                                    if (self.voice_disposition != '') {
+                                        self.disposition_value = $('#Disposition').val(self.voice_disposition);
+                                        self.ajaxVoiceFilter(type, '');
+                                    } else {
+                                        self.DispositionFilter.onchange = function () {
+                                            self.dispositionValue = self.DispositionFilter.value;
+                                            voice_filter_calls();
+                                            self.ajaxVoiceFilter(type, '');
+                                        }
+                                    }
+                                    voice_filter_calls = function () {
+                                        angular.forEach(self.filter_list, function(type) {
+                                            self.ajaxVoiceFilter(type, '');
+                                        });
+                                    }
+                                    voice_filter_calls();
+                                }
+                            } else {
+                                angular.element(document.querySelector('#voice_filter_div')).addClass('hide');
+                            }
+                            self.hideLoading();
+                        }
+
+                    var packet_url = '/api/get_packet_details/?&project='+callback[3]+'&center='+callback[2]+'&from='+callback[0]+'&to='+callback[1]+'&voice_project_type='+self.voiceProjectType;
+
                     self.call_back = callback;
                     $http.get(packet_url).then(function(result){
                         $('#dropdown_title').html($(".brand_style").text().replace(" - DASHBOARD",''));
@@ -3411,7 +3931,8 @@
                         self.sub_pro_sel = document.getElementById("0");
                         self.wor_pac_sel = document.getElementById("1");
                         self.sub_pac_sel = document.getElementById("2");
-                    
+
+                        self.chartProcess(result);
                         $("#0, #1, #2").unbind("change");
 
                             if (result.data.result.fin.sub_project) {
@@ -3439,39 +3960,41 @@
                         for (var sub_pro in self.drop_list) {
                             self.sub_pro_sel.options[self.sub_pro_sel.options.length] = new Option(sub_pro, sub_pro);
                         }
-                        self.sub_pro_sel.onchange = function () {
-                            self.wor_pac_sel.length = 1;
-                            self.sub_pac_sel.length = 1;
-                            if (this.selectedIndex < 1) {
+                        if ( self.is_voice_flag == false) {
+                            self.sub_pro_sel.onchange = function () {
+                                self.wor_pac_sel.length = 1;
+                                self.sub_pac_sel.length = 1;
+                                if (this.selectedIndex < 1) {
+                                    self.wor_pac_sel.options[0].text = "All"
+                                    self.sub_pac_sel.options[0].text = "All"
+                                    return;
+                                }
                                 self.wor_pac_sel.options[0].text = "All"
+                                for (var wor_pac in self.drop_list[this.value]) {
+                                    self.wor_pac_sel.options[self.wor_pac_sel.options.length] = new Option(wor_pac, wor_pac);
+                                }
+                                if (self.wor_pac_sel.options.length==2) {
+                                    self.wor_pac_sel.onchange();
+                                }
+                            }
+                            self.sub_pro_sel.onchange();
+                            self.wor_pac_sel.onchange = function () {
+                                self.sub_pac_sel.length = 1;
+                                if (this.selectedIndex < 1) {
+                                    self.sub_pac_sel.options[0].text = "All"
+                                    return;
+                                }
                                 self.sub_pac_sel.options[0].text = "All"
-                                return;
-                            }
-                            self.wor_pac_sel.options[0].text = "All"
-                            for (var wor_pac in self.drop_list[this.value]) {
-                                self.wor_pac_sel.options[self.wor_pac_sel.options.length] = new Option(wor_pac, wor_pac);
-                            }
-                            if (self.wor_pac_sel.options.length==2) {
-                                self.wor_pac_sel.onchange();
-                            }
+                                var sub_pac = self.drop_list[self.sub_pro_sel.value][this.value];
+                                for (var i = 0; i < sub_pac.length; i++) {
+                                    self.sub_pac_sel.options[self.sub_pac_sel.options.length] = new Option(sub_pac[i], sub_pac[i]);
+                                }
+                                if (self.sub_pac_sel.options.length==2) {
+                                    self.sub_pac_sel.selectedIndex=1;
+                                    self.sub_pac_sel.onchange();
+                                }
+                                }
                         }
-                        self.sub_pro_sel.onchange();
-                        self.wor_pac_sel.onchange = function () {
-                            self.sub_pac_sel.length = 1;
-                            if (this.selectedIndex < 1) {
-                                self.sub_pac_sel.options[0].text = "All"
-                                return;
-                            }
-                            self.sub_pac_sel.options[0].text = "All"
-                            var sub_pac = self.drop_list[self.sub_pro_sel.value][this.value];
-                            for (var i = 0; i < sub_pac.length; i++) {
-                                self.sub_pac_sel.options[self.sub_pac_sel.options.length] = new Option(sub_pac[i], sub_pac[i]);
-                            }
-                            if (self.sub_pac_sel.options.length==2) {
-                                self.sub_pac_sel.selectedIndex=1;
-                                self.sub_pac_sel.onchange();
-                            }
-                            }
                 self.drop_work_pack = 'All';
                 self.drop_sub_proj = 'All';
                 self.drop_sub_pack = 'All';
@@ -3491,7 +4014,14 @@
                     self.call_back = [];
                     self.call_back.push(from);
                     self.call_back.push(to);                                                                                                                       var pro_cen_nam = $state.params.selpro;                                                                                                        self.location = pro_cen_nam.split('-')[0].replace(' ','') + ' - '
-                    self.project = pro_cen_nam.split('-')[1].replace(' ','') + ' - '
+                    var project_check = pro_cen_nam.split('-')[1].replace(' ','');
+                    var project_val = project_check.search('&');
+                    if (project_val != -1) {
+                        self.project = pro_cen_nam.split('-')[1].split('&')[0].replace(' ','');    
+                    }               
+                    else {
+                        self.project = pro_cen_nam.split('-')[1].replace(' ','');    
+                    }
                     self.call_back.push(self.location);
                     self.call_back.push(self.project);
                     var final_work =  '&sub_project=' + self.drop_sub_proj + '&sub_packet=' + self.drop_sub_pack + '&work_packet=' +
@@ -3515,7 +4045,14 @@
                     self.call_back = [];
                     self.call_back.push(from);
                     self.call_back.push(to);                                                                                                                       var pro_cen_nam = $state.params.selpro;                                                                                                        self.location = pro_cen_nam.split('-')[0].replace(' ','') + ' - '
-                    self.project = pro_cen_nam.split('-')[1].replace(' ','') + ' - '
+                    var project_check = pro_cen_nam.split('-')[1].replace(' ','');
+                    var project_val = project_check.search('&');
+                    if (project_val != -1) {
+                        self.project = pro_cen_nam.split('-')[1].split('&')[0].replace(' ','');    
+                    }
+                    else {
+                        self.project = pro_cen_nam.split('-')[1].replace(' ','');    
+                    }
                     self.call_back.push(self.location);
                     self.call_back.push(self.project);
 
@@ -3540,7 +4077,14 @@
                     self.call_back = [];
                     self.call_back.push(from);
                     self.call_back.push(to);                                                                                                                       var pro_cen_nam = $state.params.selpro;                                                                                                        self.location = pro_cen_nam.split('-')[0].replace(' ','') + ' - '
-                    self.project = pro_cen_nam.split('-')[1].replace(' ','') + ' - '
+                    var project_check = pro_cen_nam.split('-')[1].replace(' ','');
+                    var project_val = project_check.search('&');
+                    if (project_val != -1) {
+                        self.project = pro_cen_nam.split('-')[1].split('&')[0].replace(' ','');    
+                    }
+                    else {
+                         self.project = pro_cen_nam.split('-')[1].replace(' ','');    
+                    }
                     self.call_back.push(self.location);
                     self.call_back.push(self.project);
 
@@ -3570,7 +4114,14 @@
                     self.call_back = [];
                     self.call_back.push(from);
                     self.call_back.push(to);                                                                                                                       var pro_cen_nam = $state.params.selpro;                                                                                                        self.location = pro_cen_nam.split('-')[0].replace(' ','') + ' - '
-                    self.project = pro_cen_nam.split('-')[1].replace(' ','') + ' - '
+                    var project_check = pro_cen_nam.split('-')[1].replace(' ','');
+                    var project_val = project_check.search('&');
+                    if (project_val != -1) {
+                        self.project = pro_cen_nam.split('-')[1].split('&')[0].replace(' ','');    
+                    }
+                    else {
+                         self.project = pro_cen_nam.split('-')[1].replace(' ','');    
+                    }
                     self.call_back.push(self.location);
                     self.call_back.push(self.project);
 
@@ -3593,7 +4144,14 @@
                     self.call_back = [];
                     self.call_back.push(from);
                     self.call_back.push(to);                                                                                                                               var pro_cen_nam = $state.params.selpro;                                                                                                                self.location = pro_cen_nam.split('-')[0].replace(' ','') + ' - '
-                    self.project = pro_cen_nam.split('-')[1].replace(' ','') + ' - '
+                    var project_check = pro_cen_nam.split('-')[1].replace(' ','');
+                    var project_val = project_check.search('&');
+                    if (project_val != -1) {
+                        self.project = pro_cen_nam.split('-')[1].split('&')[0].replace(' ','');    
+                    }
+                    else {
+                         self.project = pro_cen_nam.split('-')[1].replace(' ','');    
+                    }
                     self.call_back.push(self.location);
                     self.call_back.push(self.project);
 
@@ -3618,7 +4176,14 @@
                         self.call_back.push(from);
                         self.call_back.push(to);
                         var pro_cen_nam = $state.params.selpro;                                                                                                        self.location = pro_cen_nam.split('-')[0].replace(' ','') + ' - '
-                        self.project = pro_cen_nam.split('-')[1].replace(' ','') + ' - '
+                        var project_check = pro_cen_nam.split('-')[1].replace(' ','');
+                        var project_val = project_check.search('&');
+                        if (project_val != -1) {
+                            self.project = pro_cen_nam.split('-')[1].split('&')[0].replace(' ','');    
+                        }
+                        else {
+                             self.project = pro_cen_nam.split('-')[1].replace(' ','');    
+                        }
                         self.call_back.push(self.location);
                         self.call_back.push(self.project);
 
@@ -3630,20 +4195,63 @@
                 }
                 }
                 if (result.data.result.fin.sub_packet) {
-                $('#1').on('change', function(){
+                    $('#1').on('change', function(){
 
-                });
+                    });
                 }
                 else {
-                self.drop_sub_pack = 'undefined';
+                    self.drop_sub_pack = 'undefined';
                 }
              }
-                    })
-                    return callback;
-           }).then(function(callback){
-                    var final_work = '';
-                    self.main_widget_function(callback, final_work);
-                    return callback;
+                    
+                if((self.work_packet != '') || (self.sub_packet != '') || (self.sub_project != '')) {
+                    self.apply_class();
+                    self.add_loader();
+                    self.drop_sub_proj = self.sub_project;
+                    self.drop_work_pack = self.work_packet;
+                    self.drop_sub_pack = self.sub_packet;
+                    var dateEntered = document.getElementById('select').value
+                    dateEntered = dateEntered.replace(' to ','to');
+                    var from = dateEntered.split('to')[0].replace(' ','');
+                    var to = dateEntered.split('to')[1].replace(' ','');
+                    var placeholder = ''
+                    self.call_back = [];
+                    self.call_back.push(from);
+                    self.call_back.push(to);
+                    var pro_cen_nam = $state.params.selpro;
+                    self.location = pro_cen_nam.split('-')[0].replace(' ','') + ' - '
+                    var project_check = pro_cen_nam.split('-')[1].replace(' ','');
+                    var project_val = project_check.search('&');
+                    if (project_val != -1) {
+                        self.project = pro_cen_nam.split('-')[1].split('&')[0].replace(' ','');
+                    }
+                    else {
+                        self.project = pro_cen_nam.split('-')[1].replace(' ','');
+                    }
+                    self.call_back.push(self.location);
+                    self.call_back.push(self.project);
+
+                    var final_work =  '&sub_project=' + self.drop_sub_proj + '&sub_packet=' + self.drop_sub_pack + '&work_packet=' +
+                                                self.drop_work_pack;
+
+                       self.main_widget_function(self.call_back, final_work);
+                       if ((self.drop_sub_proj == 'undefined') || (self.drop_sub_proj == '')) {
+                            $('#0').val(self.drop_work_pack);
+                            $('#1').val(self.drop_sub_pack);
+                       } else if ((self.drop_sub_pack == 'undefined') || (self.drop_sub_pack == '')) {
+                            $('#0').val(self.drop_sub_proj);
+                            $('#1').val(self.drop_work_pack);
+                       } else {
+                            $('#0').val(self.drop_sub_proj);
+                            $('#1').val(self.drop_work_pack);
+                            $('#2').val(self.drop_sub_pack);
+                       }
+                }           
+                else {
+                    self.main_widget_function(self.call_back, '');
+                }
+             })
+             return callback;
 
             }).then(function(callback){
 
@@ -3678,7 +4286,25 @@
                     "self.chartOptions39":self.chartOptions39,
                     "self.chartOptions43":self.chartOptions43,
                     "self.chartOptions44":self.chartOptions44,
-                    "self.chartOptions31":self.chartOptions31
+                    "self.chartOptions31":self.chartOptions31,
+                    "self.chartOptions47":self.chartOptions47,
+                    "self.chartOptions48":self.chartOptions48,
+                    "self.chartOptions49":self.chartOptions49,
+                    "self.chartOptions50":self.chartOptions50,
+                    "self.chartOptions51":self.chartOptions51,
+                    "self.chartOptions52":self.chartOptions52,
+                    "self.chartOptions53":self.chartOptions53,
+                    "self.chartOptions54":self.chartOptions54,
+                    "self.chartOptions55":self.chartOptions55,
+                    "self.chartOptions56":self.chartOptions56,
+                    "self.chartOptions57":self.chartOptions57,
+                    "self.chartOptions58":self.chartOptions58,
+                    "self.chartOptions59":self.chartOptions59,
+                    "self.chartOptions60":self.chartOptions60,
+                    "self.chartOptions61":self.chartOptions61,
+                    "self.chartOptions62":self.chartOptions62,
+                    "self.chartOptions63":self.chartOptions63,
+                    "self.chartOptions64":self.chartOptions64
                 }
 
                 self.render_data = obj[all_data];
@@ -3791,9 +4417,17 @@
                     $('.widget-34b').addClass('widget-data-hide');
                     self.upload_acc(final_work, key);
                 }
+                var chart_type_map = {};
+                chart_type_map = { 'chartOptions47' : self.filter_list[0], 'chartOptions48' : self.filter_list[1] , 'chartOptions49' : self.filter_list[2], 'chartOptions50' : self.filter_list[3], 'chartOptions51' : self.filter_list[4], 'chartOptions52' : self.filter_list[5], 'chartOptions53' : self.filter_list[6], 'chartOptions54' : self.filter_list[7], 'chartOptions55' : self.filter_list[8], 'chartOptions56' : self.filter_list[9], 'chartOptions57' : self.filter_list[10], 'chartOptions58' : self.filter_list[11], 'chartOptions59': self.filter_list[12], 'chartOptions60': self.filter_list[13], 'chartOptions61': self.filter_list[14], 'chartOptions62': self.filter_list[15], 'chartOptions63': self.filter_list[16], 'chartOptions64': self.filter_list[17] };
+                if( self.is_voice_flag ) {
+                    if (name == 'chartOptions47' || name == 'chartOptions48' || name == 'chartOptions49' || name == 'chartOptions50' || name == 'chartOptions51' || name == 'chartOptions52' || name == 'chartOptions53' || name == 'chartOptions54' || name == 'chartOptions55' || name == 'chartOptions56' || name == 'chartOptions57' || name == 'chartOptions58' || name == 'chartOptions59' || name == 'chartOptions60' || name == 'chartOptions61' || name == 'chartOptions62' || name == 'chartOptions63' || name == 'chartOptions64') {
+                            self.ajaxVoiceFilter(chart_type_map[name], key);
+                        }
+                    }
              }                    
 
              self.active_filters = function(key,button_clicked){
+                self.button_clicked = button_clicked;
                 var some = '' 
                 if (key == 'day') { some = 'Day';}
                 if (key == 'week') { some = 'Week';}
@@ -3816,83 +4450,91 @@
 
                 var final_work =  '&sub_project=' + self.drop_sub_proj + '&sub_packet=' + self.drop_sub_pack + '&work_packet=' + self.drop_work_pack + '&is_clicked=' + self.button_clicked;
 
-                $('.widget-17a').addClass('widget-loader-show');    
-                $('.widget-17b').addClass('widget-data-hide');
-                $('.widget-13a').addClass('widget-loader-show');        
-                $('.widget-13b').addClass('widget-data-hide');
+                if (self.button_clicked) {
+                   if(self.is_voice_flag) {
+                        self.day_type = key;
+                        voice_filter_calls();
+                    } else {
+                
+                        $('.widget-17a').addClass('widget-loader-show');    
+                        $('.widget-17b').addClass('widget-data-hide');
+                        $('.widget-13a').addClass('widget-loader-show');        
+                        $('.widget-13b').addClass('widget-data-hide');
 
-                self.allo_and_comp(final_work, key);
+                        self.allo_and_comp(final_work, key);
 
-                $('.widget-20a').addClass('widget-loader-show');    
-                $('.widget-20b').addClass('widget-data-hide');
-                $('.widget-19a').addClass('widget-loader-show');    
-                $('.widget-19b').addClass('widget-data-hide');
-                $('.widget-9a').addClass('widget-loader-show');    
-                $('.widget-9b').addClass('widget-data-hide');
+                        $('.widget-20a').addClass('widget-loader-show');    
+                        $('.widget-20b').addClass('widget-data-hide');
+                        $('.widget-19a').addClass('widget-loader-show');    
+                        $('.widget-19b').addClass('widget-data-hide');
+                        $('.widget-9a').addClass('widget-loader-show');    
+                        $('.widget-9b').addClass('widget-data-hide');
 
-                self.utill_all(final_work, key);
+                        self.utill_all(final_work, key);
 
-                $('.widget-14a').addClass('widget-loader-show');     
-                $('.widget-14b').addClass('widget-data-hide');
+                        $('.widget-14a').addClass('widget-loader-show');     
+                        $('.widget-14b').addClass('widget-data-hide');
 
-                self.productivity(final_work, key);
+                        self.productivity(final_work, key);
 
-                $('.widget-33a').addClass('widget-loader-show');   
-                $('.widget-33b').addClass('widget-data-hide');
+                        $('.widget-33a').addClass('widget-loader-show');   
+                        $('.widget-33b').addClass('widget-data-hide');
 
-                self.prod_avg(final_work, key);
+                        self.prod_avg(final_work, key);
 
-                $('.widget-26a').addClass('widget-loader-show');
-                $('.widget-26b').addClass('widget-data-hide');
+                        $('.widget-26a').addClass('widget-loader-show');
+                        $('.widget-26b').addClass('widget-data-hide');
 
-                self.tat_data(final_work, key);
+                        self.tat_data(final_work, key);
 
 
-                $('.widget-21a').addClass('widget-loader-show');     
-                $('.widget-21b').addClass('widget-data-hide');
+                        $('.widget-21a').addClass('widget-loader-show');     
+                        $('.widget-21b').addClass('widget-data-hide');
 
-                self.mont_volume(final_work, key);
+                        self.mont_volume(final_work, key);
 
-                $('.widget-11a').addClass('widget-loader-show');    
-                $('.widget-11b').addClass('widget-data-hide');
-                $('.widget-12a').addClass('widget-loader-show');   
-                $('.widget-12b').addClass('widget-data-hide');
+                        $('.widget-11a').addClass('widget-loader-show');    
+                        $('.widget-11b').addClass('widget-data-hide');
+                        $('.widget-12a').addClass('widget-loader-show');   
+                        $('.widget-12b').addClass('widget-data-hide');
 
-                self.fte_graphs(final_work, key);
- 
-                $('.widget-6a').addClass('widget-loader-show');   
-                $('.widget-6b').addClass('widget-data-hide');
-                $('.widget-1a').addClass('widget-loader-show');   
-                $('.widget-1b').addClass('widget-data-hide');
+                        self.fte_graphs(final_work, key);
+         
+                        $('.widget-6a').addClass('widget-loader-show');   
+                        $('.widget-6b').addClass('widget-data-hide');
+                        $('.widget-1a').addClass('widget-loader-show');   
+                        $('.widget-1b').addClass('widget-data-hide');
 
-                self.main_prod(final_work, key);
+                        self.main_prod(final_work, key);
 
-                $('.widget-8a').addClass('widget-loader-show');    
-                $('.widget-8b').addClass('widget-data-hide');
-                $('.widget-7a').addClass('widget-loader-show');   
-                $('.widget-7b').addClass('widget-data-hide');
+                        $('.widget-8a').addClass('widget-loader-show');    
+                        $('.widget-8b').addClass('widget-data-hide');
+                        $('.widget-7a').addClass('widget-loader-show');   
+                        $('.widget-7b').addClass('widget-data-hide');
 
-		self.from_to(final_work, key)
+                        self.from_to(final_work, key)
 
-                $('.widget-35a').addClass('widget-loader-show');    
-                $('.widget-35b').addClass('widget-data-hide');
+                        $('.widget-35a').addClass('widget-loader-show');    
+                        $('.widget-35b').addClass('widget-data-hide');
 
-                self.pre_scan(final_work, key);
+                        self.pre_scan(final_work, key);
 
-                $('.widget-37a').addClass('widget-loader-show');   
-                $('.widget-37b').addClass('widget-data-hide');
+                        $('.widget-37a').addClass('widget-loader-show');   
+                        $('.widget-37b').addClass('widget-data-hide');
 
-                self.nw_exce(final_work, key);
+                        self.nw_exce(final_work, key);
 
-                $('.widget-36a').addClass('widget-loader-show');   
-                $('.widget-36b').addClass('widget-data-hide');
+                        $('.widget-36a').addClass('widget-loader-show');   
+                        $('.widget-36b').addClass('widget-data-hide');
 
-                self.overall_exce(final_work, key);
+                        self.overall_exce(final_work, key);
 
-                $('.widget-34a').addClass('widget-loader-show');   
-                $('.widget-34b').addClass('widget-data-hide');
+                        $('.widget-34a').addClass('widget-loader-show');   
+                        $('.widget-34b').addClass('widget-data-hide');
 
-                self.upload_acc(final_work, key);
+                        self.upload_acc(final_work, key);
+                    }
+                }  
              }  
             })
                                 
@@ -3906,7 +4548,7 @@
                     if (newVal) {
                         $scope.radioModel = 'Day';
                         self.location = newVal.split(' - ')[0] + ' - ';
-                        self.project = newVal.split(' - ')[1] + ' - ';
+                        self.project = newVal.split(' - ')[1];
                         $('#0').show();
                         $('#1').show();
                         $('#2').show();
@@ -3993,7 +4635,25 @@
                     'self.chartOptions43':self.chartOptions43,
                     'self.chartOptions44':self.chartOptions44,
                     'self.chartOptions45':self.chartOptions45,
-                    'self.chartOptions46':self.chartOptions46
+                    'self.chartOptions46':self.chartOptions46,
+                    'self.chartOptions47':self.chartOptions47,
+                    'self.chartOptions48':self.chartOptions48,
+                    'self.chartOptions49':self.chartOptions49,
+                    'self.chartOptions50':self.chartOptions50,
+                    'self.chartOptions51':self.chartOptions51,
+                    'self.chartOptions52':self.chartOptions52,
+                    "self.chartOptions53":self.chartOptions53,
+                    "self.chartOptions54":self.chartOptions54,
+                    "self.chartOptions55":self.chartOptions55,
+                    "self.chartOptions56":self.chartOptions56,
+                    "self.chartOptions57":self.chartOptions57,
+                    "self.chartOptions58":self.chartOptions58,
+                    "self.chartOptions59":self.chartOptions59,
+                    "self.chartOptions60":self.chartOptions60,
+                    "self.chartOptions61":self.chartOptions61,
+                    "self.chartOptions62":self.chartOptions62,
+                    "self.chartOptions63":self.chartOptions63,
+                    "self.chartOptions64":self.chartOptions64
 
                     };
                     var final_layout_list = [];
@@ -4033,7 +4693,7 @@
                     self.useful_layout.push(first_row,second_row);
 
                     self.location = pro_cen_nam.split('-')[0].replace(' ','') + ' - '
-                    self.project = pro_cen_nam.split('-')[1].replace(' ','') + ' - '
+                    self.project = pro_cen_nam.split('-')[1].replace(' ','')
                     var from_to_data = from_to + 'from=' + self.lastDate + '&to=' + self.firstDate + '&project=' + self.project
                               + '&center=' + self.location  + '&type=' + self.day_type;
                 }
@@ -4528,6 +5188,583 @@
                         }
                     },
                 };
+
+        self.chartOptions47 = {
+            chart: {
+                type: 'column',
+                backgroundColor: "transparent"
+             },   
+            title: {
+                text: ''
+            },   
+            subtitle: {
+                text: ''
+            },   
+            yAxis: {
+                gridLineColor: 'a2a2a2',
+                min: 0,
+                title: {
+                    text: ''
+                }
+            },   
+            tooltip: {
+                valueSuffix: '',
+
+                formatter: function () { 
+                             return "<small>" + this.x + "</small><br/>" +
+                                    "<b>" + this.series.name + "</b> : " + Highcharts.numberFormat(this.y, null, null, ",");
+                           }
+               },   
+            plotOptions:{
+                series:{
+                    allowPointSelect: true,
+                    cursor: 'pointer',
+                point: {
+                    events:{
+                    }
+                }
+                }
+            }
+            };
+
+            self.chartOptions48 = {
+                chart: {
+                    type: 'column',
+                    backgroundColor: "transparent"
+                 },
+                title: {
+                    text: ''
+                },
+                subtitle: {
+                    text: ''
+                },
+                yAxis: {
+                    gridLineColor: 'a2a2a2',
+                    min: 0,
+                    title: {
+                        text: ''
+                    }
+                },
+                tooltip: {
+                    valueSuffix: '',
+
+                    formatter: function () {
+                                 return "<small>" + this.x + "</small><br/>" +
+                                        "<b>" + this.series.name + "</b> : " + Highcharts.numberFormat(this.y, null, null, ",");
+                               }
+                   },
+                plotOptions:{
+                    series:{
+                        allowPointSelect: true,
+                        cursor: 'pointer',
+                    point: {
+                        events:{
+                        }
+                    }
+                    }
+                }
+            };
+
+            self.chartOptions50 = {
+                chart: {
+                    type: 'column',
+                    backgroundColor: "transparent"
+                },
+                title: {
+                    text: ''
+                 },
+                subtitle: {
+                    text: ''
+                },
+                yAxis: {
+                    gridLineColor: 'a2a2a2',
+                    min: 0,
+                    reversedStacks: false,
+                    title: {
+                        text: ''
+                    },
+                    stackLabels: {
+                        enabled: true,
+                            style: {
+                                fontWeight: 'bold',
+                                color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray'
+                            }
+                    }
+
+                },
+                tooltip: {
+                    valueSuffix: '',
+                    /*formatter: function () {
+                             return "<small>" + this.x + "</small><br/>" +
+                                    "<b>" + this.series.name + "</b> : " + Highcharts.numberFormat(this.y, null, null, ",");
+                           }*/
+                    headerFormat: '<b>{point.x}</b><br/>',
+                    //pointFormat: '{series.name}: {point.y}<br/>Total: {point.stackTotal}'
+                  pointFormat: '<span style="color:{series.color}">{series.name}</span>: <b>{point.y}</b> ({point.percentage:.0f}%)<br/>',
+                  shared: true
+               },
+                plotOptions:{
+                    column: {
+                        stacking: 'percent',
+                        dataLabels: {
+                            enabled: true,
+                            color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'white'
+                        }
+                    }
+                }
+            };
+
+            self.chartOptions49 = {
+                chart: {
+                    type: 'column',
+                    backgroundColor: "transparent"
+                },   
+                title: {
+                    text: ''
+                 },   
+                subtitle: {
+                    text: ''
+                },   
+                yAxis: {
+                    gridLineColor: 'a2a2a2',
+                    min: 0,
+                    title: {
+                        text: ''
+                    }
+                },   
+                tooltip: {
+                    valueSuffix: '',
+                    formatter: function () { 
+                             return "<small>" + this.x + "</small><br/>" +
+                                    "<b>" + this.series.name + "</b> : " + Highcharts.numberFormat(this.y, null, null, ",");
+                           }
+               },   
+                plotOptions: {
+                    column: {
+                        stacking: 'normal',
+                        dataLabels: {
+                            enabled: true,
+                            color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'white'
+                        }
+                    }
+                }
+            };
+    
+            self.chartOptions51 = {
+                chart: {
+                    backgroundColor: "transparent",
+                    plotBackgroundColor: null,
+                    plotBorderWidth: null,
+                    plotShadow: false,
+                    type: 'pie'
+                  },
+                title: {
+                    text: ''
+                  },
+                tooltip: {
+                    pointFormat: '<b>{point.y}</b>'
+                  },
+                plotOptions: {
+                    pie: {
+                        allowPointSelect: true,
+                        point: {
+                           events:{
+                           }
+                        },
+                        cursor: 'pointer',
+                        dataLabels: {
+                            enabled: true,
+                            format: '<b>{point.name}</b>: {point.y} ',
+                            style: {
+                                color:(Highcharts.theme && Highcharts.theme.background2) || '#696969'
+                               }
+                            }
+                        }
+                 },
+            };
+
+            self.chartOptions52 = {
+                chart: {
+                    backgroundColor: "transparent",
+                    plotBackgroundColor: null,
+                    plotBorderWidth: null,
+                    plotShadow: false,
+                    type: 'pie'
+                  },
+                title: {
+                    text: ''
+                  },
+                tooltip: {
+                    pointFormat: '<b>{point.y}</b>'
+                  },
+                plotOptions: {
+                    pie: {
+                        allowPointSelect: true,
+                        point: {
+                           events:{
+                           }
+                        },
+                        cursor: 'pointer',
+                        dataLabels: {
+                            enabled: true,
+                            format: '<b>{point.name}</b>: {point.y} ',
+                            style: {
+                                color:(Highcharts.theme && Highcharts.theme.background2) || '#696969'
+                               }
+                            }
+                        }
+                    },
+            };
+
+            self.chartOptions53 = {
+                chart: {
+                type: 'column',
+                backgroundColor: "transparent"
+             },    
+            title: {
+                text: ''
+            },
+            subtitle: {
+                text: ''
+            },     
+            yAxis: {
+                gridLineColor: 'a2a2a2',
+                min: 0,
+                title: {
+                    text: ''
+                }
+            },
+            tooltip: {
+                valueSuffix: '',
+
+                formatter: function () {
+                             return "<small>" + this.x + "</small><br/>" +
+                                    "<b>" + this.series.name + "</b> : " + Highcharts.numberFormat(this.y, null, null, ",");
+                           }
+               },  
+            plotOptions:{
+                series:{
+                    allowPointSelect: true,
+                    cursor: 'pointer',
+                point: {   
+                    events:{
+                    }
+                }
+                }
+            }
+            };
+
+
+            self.chartOptions54 = {
+                chart: {
+                type: 'column',
+                backgroundColor: "transparent"
+             },
+            title: {
+                text: ''
+            },
+            subtitle: {
+                text: ''
+            },
+            yAxis: {
+                gridLineColor: 'a2a2a2',
+                min: 0,
+                title: {
+                    text: ''
+                }
+            },
+            tooltip: {
+                valueSuffix: '',
+
+                formatter: function () {
+                             return "<small>" + this.x + "</small><br/>" +
+                                    "<b>" + this.series.name + "</b> : " + Highcharts.numberFormat(this.y, null, null, ",");
+                           }
+               },
+            plotOptions:{
+                series:{
+                    allowPointSelect: true,
+                    cursor: 'pointer',
+                point: {
+                    events:{
+                    }
+                }
+                }
+            }
+            };
+
+            self.chartOptions55 = {
+                chart : {
+                 backgroundColor: "transparent"
+                },
+                               yAxis: {
+                gridLineColor: 'a2a2a2',
+                min: 0,
+                title: {
+                 text: '',
+                 align: 'high'
+                },
+                labels: {
+                 overflow: 'justify'
+                }
+               },
+               tooltip: {
+                valueSuffix: ''
+               },
+               credits: {
+                enabled: false
+               },
+            };
+
+
+            self.chartOptions56 = {
+                chart : {
+                 backgroundColor: "transparent"
+                },  
+                               yAxis: {
+                gridLineColor: 'a2a2a2',
+                min: 0,
+                title: {
+                 text: '',
+                 align: 'high'
+                },
+                labels: { 
+                 overflow: 'justify'
+                }
+               },
+               tooltip: {
+                valueSuffix: ''
+               },
+               credits: {
+                enabled: false
+               },
+            };
+
+            self.chartOptions57 = {
+                chart : {
+                 backgroundColor: "transparent"
+                },
+                               yAxis: {
+                gridLineColor: 'a2a2a2',
+                min: 0,
+                title: {
+                 text: '',
+                 align: 'high'
+                },
+                labels: {
+                 overflow: 'justify'
+                }
+               },
+               tooltip: {
+                valueSuffix: ''
+               },
+               credits: {
+                enabled: false
+               },
+            };
+
+            self.chartOptions58 = {
+                chart : {
+                 backgroundColor: "transparent"
+                },
+                               yAxis: {
+                gridLineColor: 'a2a2a2',
+                min: 0,
+                title: {
+                 text: '',
+                 align: 'high'
+                },
+                labels: {
+                 overflow: 'justify'
+                }
+               },
+               tooltip: {
+                valueSuffix: ''
+               },
+               credits: {
+                enabled: false
+               },
+            };
+
+
+            self.chartOptions59 = {
+                chart : {
+                 backgroundColor: "transparent"
+                },
+                               yAxis: {
+                gridLineColor: 'a2a2a2',
+                min: 0,
+                title: {
+                 text: '',
+                 align: 'high'
+                },
+                labels: {
+                 overflow: 'justify'
+                }
+               },
+               tooltip: {
+                valueSuffix: ''
+               },
+               credits: {
+                enabled: false
+               },
+            };
+
+            self.chartOptions60 = {
+                chart : {
+                 backgroundColor: "transparent"
+                },
+                               yAxis: {
+                gridLineColor: 'a2a2a2',
+                min: 0,
+                title: {
+                 text: '',
+                 align: 'high'
+                },
+                labels: {
+                 overflow: 'justify'
+                }
+               },
+               tooltip: {
+                valueSuffix: ''
+               },
+               credits: {
+                enabled: false
+               },
+            };
+
+            self.chartOptions61 = {
+                chart : {
+                 backgroundColor: "transparent"
+                },
+                               yAxis: {
+                gridLineColor: 'a2a2a2',
+                min: 0,
+                title: {
+                 text: '',
+                 align: 'high'
+                },
+                labels: {
+                 overflow: 'justify'
+                }
+               },
+               tooltip: {
+                valueSuffix: ''
+               },
+               credits: {
+                enabled: false
+               },
+            };
+
+            self.chartOptions62 = {
+                chart : {
+                 backgroundColor: "transparent"
+                },
+                               yAxis: {
+                gridLineColor: 'a2a2a2',
+                min: 0,
+                title: {
+                 text: '',
+                 align: 'high'
+                },
+                labels: {
+                 overflow: 'justify'
+                }
+               },
+               tooltip: {
+                valueSuffix: ''
+               },
+               credits: {
+                enabled: false
+               },
+            };
+
+
+            self.chartOptions63 = {
+                chart : {
+                 backgroundColor: "transparent"
+                },
+                               yAxis: {
+                gridLineColor: 'a2a2a2',
+                min: 0,
+                title: {
+                 text: '',
+                 align: 'high'
+                },
+                labels: {
+                 overflow: 'justify'
+                }
+               },
+               tooltip: {
+                valueSuffix: ''
+               },
+               credits: {
+                enabled: false
+               },
+            };
+
+self.chartOptions64 = {
+                chart: {
+            zoomType: 'xy',
+            backgroundColor: "transparent",
+        },
+        xAxis: [{
+            crosshair: true,
+            color:'a2a2a2',
+        }],
+        yAxis: [{
+            gridLineWidth: 0,
+            minorGridLineWidth: 0,
+            gridLineColor: 'a2a2a2',
+            labels: {
+                color: 'a2a2a2',
+                format: '{value}',
+            },
+            title: {
+                text: 'Logged in',
+                color:'a2a2a2',
+            },
+            opposite: true
+        }, { // Secondary yAxis
+            gridLineWidth: 0,
+            minorGridLineWidth: 0,
+            title: {
+                text: 'Calls',
+                color:'a2a2a2',
+            },
+            labels: {
+                color: 'a2a2a2',
+                format: '{value} ',
+            },
+        }, { // Teritary yAxis
+            gridLineWidth: 0,
+            minorGridLineWidth: 0,
+            title: {
+                text: 'Required',
+                color:'a2a2a2',
+            },
+            labels: {
+                color: 'a2a2a2',
+                format: '{value} ',
+            },
+            plotLines: [{
+                color: '#1919ff',
+                dashStyle: 'shortdash',
+                width: 3,
+                zIndex: 10
+            }],
+            opposite: true        
+        
+        }],
+        tooltip: {
+            shared: true
+        },
+        legend: {
+               itemStyle: {
+                    'color' : '#717171',
+               }
+        },
+    }
 
             self.chartOptions5 = {
                 chart: {
@@ -5434,6 +6671,17 @@
             self.lastDate;
             self.start;
             self.end;
+            self.voice_filters = {};
+            self.voice_filters['Location'] = [];
+            self.voice_filters['Skill'] = [];
+            self.voice_filters['Disposition'] = [];
+            self.voiceProjectType = 'inbound';
+            self.voiceProjectList = [];
+            self.voiceTypeFilter;
+            self.is_voice_flag = false;
+            self.locationValue;
+            self.skillValue;
+            self.dispositionValue;
             }],
 
             "bindings": {

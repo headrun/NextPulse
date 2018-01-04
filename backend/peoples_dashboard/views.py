@@ -49,7 +49,9 @@ def get_individual_target(request):
     data = {'status': 1, 'result' : "some bug is there"}
     core_key = request.GET.get('core_key', 'Gooru_Salem_June')
     try:
-        data['result'] = get_target(core_key)
+        #data['result'] = get_target(core_key)
+         data['headers'], _remove_headers = get_headers(core_key)
+         data['result'] = get_target(core_key, _remove_headers)
     except:
         data['status'] = 0
 
