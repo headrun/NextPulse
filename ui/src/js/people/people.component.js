@@ -241,10 +241,10 @@
 
                   $('.widget-content').addClass('widget-loader-show');
                   $('.widget-body').addClass('widget-data-hide');
-                  vm.date_mapping = {'August': '2017-08-01',
-                                     'July': '2017-07-01',
-                                     'June': '2017-06-01',
-                                     'May': '2017-05-01'
+                  vm.date_mapping = {'December': '2017-12-01',
+                                     'November': '2017-11-01',
+                                     'October': '2017-10-01',
+                                     'September': '2017-09-01'
                                     };
 
                   vm.start_date = vm.date_mapping[vm.month_to_display];
