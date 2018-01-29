@@ -34,20 +34,21 @@ class Command(BaseCommand):
         yesterday_date = datetime.datetime.now() - datetime.timedelta(days=1)
         for project in projects_list:
             max_date = RawTable.objects.filter(project=project.id).aggregate(Max('created_at'))
-            center = Center.objects.filter(project=project.id).values_list('name', flat=True)
-            center = center[0]
-            tls = TeamLead.objects.filter(project=project).values_list('name', flat=True)[:1]
-            customers = Customer.objects.filter(project=project).values_list('name', flat=True)
-            name = center+'-'+project.name
-            dashboard_url = "http://stats.headrun.com/#!/page1/"+center+"%20-%20"+project.name
-            result = generate_targets_data(project)
-            for tl in tls:
-                tl_id = User.objects.filter(id=tl)
-                tl_email = tl_id[0].email
-                _text1 = "Dear %s, <p>Below is a snapshot of  'Target'  and  'Actual'  values of SLA/KPI.</p>"\
+            if yesterday_date.date() == max_date['created_at__max'].date():
+                center = Center.objects.filter(project=project.id).values_list('name', flat=True)
+                center = center[0]
+                tls = TeamLead.objects.filter(project=project).values_list('name', flat=True)[:1]
+                customers = Customer.objects.filter(project=project).values_list('name', flat=True)
+                name = center+'-'+project.name
+                dashboard_url = "http://stats.headrun.com/#!/page1/"+center+"%20-%20"+project.name
+                result = generate_targets_data(project)
+                for tl in tls:
+                    tl_id = User.objects.filter(id=tl)
+                    tl_email = tl_id[0].email
+                    _text1 = "Dear %s, <p>Below is a snapshot of  'Target'  and  'Actual'  values of SLA/KPI.</p>"\
                         % (tl_id[0].first_name)
 
-                mail_body = "<html>\
+                    mail_body = "<html>\
                                 <head>\
                                     <style>\
                                         table {\
@@ -77,35 +78,35 @@ class Command(BaseCommand):
                                     </style>\
                                 </head>\
                                 <body>\
-                                <table align='center'>"
-                headers = "<tr>\
+                                <table align='center' border='1'>"
+                    headers = "<tr>\
                                 <th>Name</th>\
                                 <th>Target</th>\
                                 <th>Actual</th>\
                              </tr>"
-                first_row = "<tr>\
+                    first_row = "<tr>\
                                 <td>Production</td>\
                                 <td>%s</td>\
                                 <td><font color=%s>%s</font></td>\
                             </tr>" % (result['prod_target'], result['prod_color'], result['prod_actual'])
-                second_row = "<tr>\
+                    second_row = "<tr>\
                                 <td>Internal Accuracy</td>\
                                 <td>%s</td>\
                                 <td><font color=%s>%s</font></td>\
                              </tr>" % (result['internal_target'], result['internal_color'], result['internal_actual'])
-                third_row = "<tr>\
+                    third_row = "<tr>\
                                 <td>External Accuracy</td>\
                                 <td>%s</td>\
                                 <td><font color=%s>%s</font></td>\
                             </tr>\
                         </table>" % (result['external_target'], result['external_color'], result['external_actual'])
 
-                _text2 = "<p> For further details on metrics and graphs click on NextPulse link  %s"\
+                    _text2 = "<p> For further details on metrics and graphs click on NextPulse link  %s"\
                          "<br>\
                          <p>Thanks and Regards</p>\
                          <p>NextPulse Team-NextWealth Entrepreneurs Pvt Ltd</p>" % dashboard_url
 
-                logo = "<table class=NormalTable border=0 cellspacing=0 cellpadding=0>\
+                    logo = "<table class=NormalTable border=0 cellspacing=0 cellpadding=0>\
                             <tbody>\
                                 <tr>\
                                     <td width=450 style=width:337.5px; padding: 0px 0px 0px 0px;>\
@@ -205,7 +206,7 @@ class Command(BaseCommand):
                                                                                     <td width=7% style=width:7.0%;padding:0in 0in 0in 0in>\
                                                                                         <p class=MsoNoraml>\
                                                                                             <span>\
-                                                                                                <img width=9 height=18 style=width:.125in;height:.2083in src=http://stats.headrun.com/images/location.png>\
+                                                                                                <img width=9 height=18 style=width:.125in;height:.2083in src=http://stats.headrun.com/images/location_new.jpg>\
                                                                                                 <u></u>\
                                                                                                 <u></u>\
                                                                                             </span>\
@@ -240,7 +241,7 @@ class Command(BaseCommand):
                                                                                     <td width=7% style=width:7.0%;padding:0in 0in 0in 0in>\
                                                                                         <p class=MsoNoraml>\
                                                                                             <span>\
-                                                                                                <img width=9 height=18 style=width:.125in;height:.2083in src=http://stats.headrun.com/images/office.png>\
+                                                                                                <img width=9 height=18 style=width:.125in;height:.2083in src=http://stats.headrun.com/images/office_new.jpg>\
                                                                                                 <u></u>\
                                                                                                 <u></u>\
                                                                                             </span>\
@@ -377,7 +378,7 @@ class Command(BaseCommand):
                         </body>\
                        </html>"
 
-                urls = "<div class=row>\
+                    urls = "<div class=row>\
                             <span>\
                                 <a href=%s>\
                                     <img id=fb_icon, src=http://stats.headrun.com/images/facebook.png\
@@ -400,9 +401,9 @@ class Command(BaseCommand):
                        </body>\
                        </html>" %("www.facebook.com/NextWealth/", "twitter.com/NextWealth", \
                             "https://www.linkedin.com/company-beta/3512470/?pathWildcard=3512470")
-                mail_body = _text1 + mail_body + headers + first_row + second_row + third_row + _text2 + logo
-                #to = [tl_email, "kannan.sundar@nextwealth.in", "poornima.mitta@nextwealth.in", "rishi@headrun.com"]
-                to = [tl_email]
-                msg = EmailMessage("NextPulse KPI/SLA Report", mail_body, 'nextpulse@nextwealth.in', to)
-                msg.content_subtype = "html"
-                msg.send()
+                    mail_body = _text1 + mail_body + headers + first_row + second_row + third_row + _text2 + logo
+                    #to = [tl_email, "kannan.sundar@nextwealth.in", "poornima.mitta@nextwealth.in", "rishi@headrun.com"]
+                    to = [tl_email]
+                    msg = EmailMessage("NextPulse KPI/SLA Report", mail_body, 'nextpulse@nextwealth.in', to)
+                    msg.content_subtype = "html"
+                    msg.send()
