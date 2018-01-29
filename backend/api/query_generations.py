@@ -547,6 +547,7 @@ def target_table_query_insertion(customer_data,prj_obj,center_obj,teamleader_obj
                                           from_date=customer_data['from_date'],
                                          to_date=customer_data['to_date'],
                                          target_type=customer_data['target_type'],
+                                         target_method=customer_data['target_method'],
                                          center=center_obj).values('target','fte_target','target_value')
 
     try:
@@ -570,6 +571,7 @@ def target_table_query_insertion(customer_data,prj_obj,center_obj,teamleader_obj
                            to_date=customer_data['to_date'],
                            target_value = target_value,
                            target_type =customer_data['target_type'],
+                           target_method=customer_data['target_method'], 
                            target=target,fte_target=fte_target,center=center_obj)
         if new_can:
             try:
