@@ -421,7 +421,7 @@
                         }
 
                         self.type = type;
-                        
+
                         var allo_and_comp = '/api/alloc_and_compl/'+self.data_to_show + type + final_work+'&chart_name=17&chart_name=13';
 
                         return $http({method:"GET", url: allo_and_comp}).success(function(result){
