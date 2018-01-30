@@ -21,6 +21,7 @@ class Agent(models.Model):
 
 class InboundDaily(models.Model):
     date            = models.DateField(null=True, db_index=True)
+    #call_date       = models.DateField(null=True, db_index=True)
     agent           = models.ForeignKey(Agent, related_name = 'inbound_daily_agents')
     hours_worked    = models.IntegerField(default=0)
     total_calls     = models.IntegerField(db_index=True)
@@ -44,12 +45,11 @@ class InboundHourlyCall(models.Model):
     call_id             = models.CharField(max_length=32, primary_key=True)
     inbound_daily_calls = models.ForeignKey(InboundDaily, blank=True, null=True, related_name='daily_calls')
     campaign            = models.CharField(max_length=255, blank=True)
-    #skill              = models.ForeignKey(Skill, related_name='inbound_skills')
     skill               = models.CharField(max_length=255, db_index=True)
-    #location           = models.ForeignKey(Center, related_name='inbound_centers')
     location            = models.CharField(max_length=255, blank=False, db_index=True)
     caller_no           = models.CharField(max_length=50, blank=False)
-    date                = models.DateField(db_index=True)
+    date                = models.DateField(db_index=True, null=True)
+    #call_date           = models.DateField(db_index=True, null=True)
     start_time          = models.DateTimeField(db_index=True)
     time_to_answer      = models.IntegerField(blank=True)
     end_time            = models.DateTimeField()
@@ -80,7 +80,8 @@ class InboundHourlyCallAuthoring(models.Model):
     skill           = models.CharField(max_length=255, blank=False)
     location        = models.CharField(max_length=255, blank=False)
     caller_no       = models.CharField(max_length=255, blank=False)
-    date            = models.CharField(max_length=255, blank=False)
+    date            = models.CharField(max_length=255, blank=True)
+    #call_date       = models.CharField(max_length=255, blank=True)
     start_time      = models.CharField(max_length=255, blank=False)
     time_to_answer  = models.CharField(max_length=255, blank=False)
     end_time        = models.CharField(max_length=255, blank=False)
@@ -147,7 +148,8 @@ class DispositionTransferCall(models.Model):
 
 
 class OutboundDaily(models.Model):
-    date            = models.DateField(db_index=True)
+    date            = models.DateField(db_index=True, null=True)
+    #call_date       = models.DateField(db_index=True, null=True)
     agent           = models.ForeignKey(Agent, related_name = 'outbound_daily_agents')
     hours_worked    = models.IntegerField(default=0)
     total_calls     = models.IntegerField(db_index=True)
@@ -171,7 +173,8 @@ class OutboundHourlyCall(models.Model):
     call_type            = models.CharField(max_length=32,  choices=CALL_TYPE_OPTIONS)
     agent                = models.ForeignKey(Agent, related_name='outbound_agents')
     called_no            = models.CharField(max_length=50, blank=False)
-    date                 = models.DateField(db_index=True)
+    date                 = models.DateField(db_index=True, null=True)
+    #call_date            = models.DateField(db_index=True, null=True)
     start_time           = models.DateTimeField(db_index=True)
     end_time             = models.DateTimeField()
     talk_time            = models.IntegerField(default=0)
@@ -180,7 +183,6 @@ class OutboundHourlyCall(models.Model):
     wrapup_duration      = models.IntegerField(default=0)
     handling_time        = models.IntegerField(default=0)
     call_flow            = models.CharField(max_length=255, blank=False)
-    #agent               = models.CharField(max_length=255, blank=True)
     disposition          = models.CharField(max_length=255, blank=True)
     dial_status          = models.CharField(max_length=255, blank=True)
     customer_dial_status = models.CharField(max_length=255, blank=True)
@@ -201,7 +203,8 @@ class OutboundHourlyCallAuthoring(models.Model):
     campaign             = models.CharField(max_length=255, blank=False)
     call_type            = models.CharField(max_length=255, blank=False)
     called_no            = models.CharField(max_length=255, blank=False)
-    date                 = models.CharField(max_length=255, blank=False)
+    date                 = models.CharField(max_length=255, blank=True)
+    #call_date            = models.CharField(max_length=255, blank=True)
     start_time           = models.CharField(max_length=255, blank=False)
     end_time             = models.CharField(max_length=255, blank=False)
     talk_time            = models.CharField(max_length=255, blank=False)
@@ -228,6 +231,7 @@ class OutboundHourlyCallAuthoring(models.Model):
 
 class InboundDailyAuthoring(models.Model):
     date            = models.CharField(max_length=255, blank=True)
+    #call_date       = models.CharField(max_length=255, blank=True)
     agent           = models.CharField(max_length=255, blank=True)
     hours_worked    = models.CharField(max_length=255, blank=True)    
     calls           = models.CharField(max_length=255, blank=True)
@@ -249,6 +253,7 @@ class InboundDailyAuthoring(models.Model):
 
 class OutboundDailyAuthoring(models.Model):
     date            = models.CharField(max_length=255, blank=True)
+    #call_date       = models.CharField(max_length=255, blank=True)
     agent           = models.CharField(max_length=255, blank=True)
     hours_worked    = models.CharField(max_length=255, blank=True)     
     calls           = models.CharField(max_length=255, blank=True)
@@ -268,6 +273,7 @@ class OutboundDailyAuthoring(models.Model):
 
 class AgentPerformanceAuthoring(models.Model):
     date            = models.CharField(max_length=255, blank=True)
+    #call_date       = models.CharField(max_length=255, blank=True)
     agent           = models.CharField(max_length=255, blank=True)
     call_type       = models.CharField(max_length=255, blank=True)
     total_calls     = models.CharField(max_length=255, blank=True)
@@ -286,7 +292,8 @@ class AgentPerformanceAuthoring(models.Model):
 
 
 class AgentPerformance(models.Model):
-    date            = models.DateField(db_index=True)
+    date            = models.DateField(db_index=True, null=True)
+    #call_date       = models.DateField(db_index=True, null=True)
     agent           = models.ForeignKey(Agent, related_name = 'agent_performance_agents')
     call_type       = models.CharField(max_length=255, db_index=True)
     total_calls     = models.IntegerField(default=0, db_index=True)
