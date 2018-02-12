@@ -503,6 +503,85 @@ def error_types_sum(error_list):
     return new_final_dict
 
 
+def get_query_parameters(level_structure_key, prj_id, center_obj, date_list):
+
+    _dict = {}
+    packet_1 = level_structure_key.get('sub_project', '') 
+    packet_2 = level_structure_key.get('work_packet', '') 
+    packet_3  = level_structure_key.get('sub_packet', '') 
+    if (packet_1 != '' and packet_2 != '' and packet_3 != '') or (packet_1 != ''):
+        if (packet_1 == 'All' and packet_2 == 'All' and packet_3 == 'All') or (packet_1 == 'All'):
+            _dict.update({'project': prj_id, 'center': center_obj, 'date__range': [date_list[0], date_list[-1]]})
+        elif packet_1 != 'All' and packet_2 == 'All' and packet_3 == 'All':
+            _dict.update({'project': prj_id, 'center': center_obj, 'date__range': [date_list[0], date_list[-1]], 'sub_project': packet_1})
+        elif packet_1 != 'All' and packet_2 != 'All' and packet_3 == 'All':
+            _dict.update({'project': prj_id, 'center': center_obj, 'date__range': [date_list[0], date_list[-1]], 'sub_project': packet_1,\
+                'work_packet': packet_2})
+        elif packet_1 != 'All' and packet_2 != 'All' and packet_3 == 'All':
+            _dict.update({'project': prj_id, 'center': center_obj, 'date__range': [date_list[0], date_list[-1]], 'sub_project': packet_1,\
+                'work_packet': packet_2, 'sub_packet': packet_3})
+
+    elif packet_1 == '' and packet_2 != '' and packet_3 != '': 
+        if packet_2 == 'All' and packet_3 == 'All':
+            _dict.update({'project': prj_id, 'center': center_obj, 'date__range': [date_list[0], date_list[-1]]})
+        elif packet_2 != 'All' and packet_3 == 'All':
+            _dict.update({'project': prj_id, 'center': center_obj, 'date__range': [date_list[0], date_list[-1]], 'work_packet': packet_2})
+        elif packet_2 != 'All' and packet_3 != 'All':
+            _dict.update({'project': prj_id, 'center': center_obj, 'date__range': [date_list[0], date_list[-1]], 'work_packet': packet_2,\
+                'sub_packet': packet_3})
+
+    elif packet_1 == '' and packet_2 != '' and packet_3 == '': 
+        if packet_2 == 'All':
+            _dict.update({'project': prj_id, 'center': center_obj, 'date__range': [date_list[0], date_list[-1]]})
+        elif packet_2 != 'All':
+            _dict.update({'project': prj_id, 'center': center_obj, 'date__range': [date_list[0], date_list[-1]],\
+                'work_packet': packet_2})
+
+    return _dict
+
+
+def getting_required_params(level_structure_key, prj_id, center_obj, date_list):
+    
+    query_dict = {}
+    packet_1 = level_structure_key.get('sub_project', '')
+    packet_2 = level_structure_key.get('work_packet', '')
+    packet_3  = level_structure_key.get('sub_packet', '')
+    if (packet_1 != '' and packet_2 != '' and packet_3 != '') or (packet_1 != ''):
+        if (packet_1 == 'All' and packet_2 == 'All' and packet_3 == 'All') or (packet_1 == 'All'):
+            query_dict.update({'project': prj_id, 'center': center_obj, 'date__range': [date_list[0], date_list[-1]]})
+            field = 'sub_project'
+        elif packet_1 != 'All' and packet_2 == 'All' and packet_3 == 'All':
+            query_dict.update({'project': prj_id, 'center': center_obj, 'date__range': [date_list[0], date_list[-1]], 'sub_project': packet_1})
+            field = 'work_packet'
+        elif packet_1 != 'All' and packet_2 != 'All' and packet_3 == 'All':
+            query_dict.update({'project': prj_id, 'center': center_obj, 'date__range': [date_list[0], date_list[-1]], 'sub_project': packet_1,\
+            'work_packet': packet_2})
+            field = 'sub_packet'
+        elif packet_1 != 'All' and packet_2 != 'All' and packet_3 != 'All':
+            query_dict.update({'project': prj_id, 'center': center_obj, 'date__range': [date_list[0], date_list[-1]], 'sub_project': packet_1,\
+            'work_packet': packet_2, 'sub_packet': packet_3})
+            field = 'sub_packet'
+        
+    elif packet_1 == '' and packet_2 != '' and packet_3 != '':
+        if packet_2 == 'All' and packet_3 == 'All':
+            query_dict.update({'project': prj_id, 'center': center_obj, 'date__range': [date_list[0], date_list[-1]]})
+            field = 'work_packet'
+        elif packet_2 != 'All' and packet_3 == 'All':
+            query_dict.update({'project': prj_id, 'center': center_obj, 'date__range': [date_list[0], date_list[-1]], 'work_packet': packet_2})
+            field = 'sub_packet'
+        elif packet_2 != 'All' and packet_3 != 'All':
+            query_dict.update({'project': prj_id, 'center': center_obj, 'date__range': [date_list[0], date_list[-1]], 'work_packet': packet_2,\
+            'sub_packet': packet_3})
+            field = 'sub_packet'
+
+    elif packet_1 == '' and packet_2 != '' and packet_3 == '':
+        if packet_2 == 'All':
+            query_dict.update({'project': prj_id, 'center': center_obj, 'date__range': [date_list[0], date_list[-1]]})
+            field = 'work_packet'
+
+    return query_dict, field
+
+    
 def Error_checking(employee_data,error_match=False):
     employee_data['status'] = 'mis_match'
     if employee_data.has_key('individual_errors') or employee_data.has_key('sub_errors'):

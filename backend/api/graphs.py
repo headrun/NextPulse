@@ -388,7 +388,7 @@ def tat_data(request):
     return json_HttpResponse(final_dict)
 
 
-def main_prod(request):
+"""def main_prod(request):
     final_dict = {}
     data_date = []
     week_names = []
@@ -469,7 +469,7 @@ def main_prod(request):
         final_dict['data']['date'] = data_date
     final_dict['type'] = main_data_dict['type']
     final_dict['is_annotation'] = annotation_check(request)
-    return json_HttpResponse(final_dict)
+    return json_HttpResponse(final_dict)"""
 
 
 def volume_graph_data(date_list,prj_id,center_obj,level_structure_key):

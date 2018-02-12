@@ -1720,7 +1720,7 @@
                                     $('.month').siblings().removeClass('active btn-success');
                                 }
                             }
-                            var date_list = result.result.data.date;
+                            var date_list = result.result.date;
                             var main_prod_data = result.result.productivity_data;
                             var is_annotation = result.result.is_annotation;
                             
@@ -1968,7 +1968,7 @@
     
                             angular.extend(self.chartOptions29, {
                                 xAxis: {
-                                    categories: result.result.Internal_Error_Category.category_name,
+                                    categories: result.result.internal_error_category.category_name,
                                 title: {
                                     text: '',
                                  }
@@ -2010,7 +2010,7 @@
                                     }
                                 },
 	
-                               series: result.result.Internal_Error_Category.category_pareto,
+                               series: result.result.internal_error_category.category_pareto,
                                     onComplete: function(chart){
                                     if (is_annotation) {
                                     var series = null;
@@ -2060,9 +2060,10 @@
                             else {
                                 var value = false;
                             }
+
                             angular.extend(self.chartOptions30, {
                                 xAxis: {
-                                    categories: result.result.External_Error_Category.category_name,
+                                    categories: result.result.external_error_category.category_name,
                                 title: {
                                     text: '',
                                  }
@@ -2104,7 +2105,7 @@
                                         }
                                     }
                                 },                            
-                               series: result.result.External_Error_Category.category_pareto,
+                               series: result.result.external_error_category.category_pareto,
                                     onComplete: function(chart){
                                     if (is_annotation) {
                                     var series = null;
@@ -2162,7 +2163,7 @@
     
                             angular.extend(self.chartOptions27, {
                                 xAxis: {
-                                    categories: result.result.Pareto_data.emp_names,
+                                    categories: result.result.pareto_data.category_name,
                                 title: {
                                     text: '',
                                  }
@@ -2204,7 +2205,7 @@
                                         }
                                     }
                                 },
-                               series: result.result.Pareto_data.agent_pareto_data,
+                               series: result.result.pareto_data.category_pareto,
                                     onComplete: function(chart){
                                     if (is_annotation) {
                                     var series = null;
@@ -2257,7 +2258,7 @@
 
                             angular.extend(self.chartOptions28, {
                                 xAxis: {
-                                    categories: result.result.External_Pareto_data.emp_names,
+                                    categories: result.result.external_pareto_data.category_name,
                                 title: {
                                     text: '',
                                  }
@@ -2299,7 +2300,7 @@
                                     }
                                 },
 
-                               series: result.result.External_Pareto_data.agent_pareto_data,
+                               series: result.result.external_pareto_data.category_pareto,
                                     onComplete: function(chart){
                                     if (is_annotation) {
                                     var series = null;

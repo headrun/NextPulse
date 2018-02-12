@@ -7,9 +7,10 @@ from api.models import *
 from api.query_generations import query_set_generation
 from api.basics import *
 from api.utils import *
+from api.graph_error import internal_extrnal_error_types
 from common.utils import getHttpResponse as json_HttpResponse
 
-def agent_pareto_data_generation(request,date_list,prj_id,center_obj,level_structure_key):
+"""def agent_pareto_data_generation(request,date_list,prj_id,center_obj,level_structure_key):
     #prj_name = Project.objects.filter(id=prj_id).values_list('name', flat=True)
     #center_name = Center.objects.filter(id=center_obj).values_list('name', flat=True)
     query_set = query_set_generation(prj_id, center_obj, level_structure_key, date_list)
@@ -201,9 +202,10 @@ def agent_external_pareto_data_generation(request,date_list,prj_id,center_obj,le
     result_dict = {}
     result_dict['emp_names'] = final_emps[:10]
     result_dict ['agent_pareto_data'] = final_data
-    return result_dict
+    return result_dict"""
 
-def sample_pareto_analysis(request,date_list,prj_id,center_obj,level_structure_key,err_type):
+
+def sample_pareto_analysis(date_list,prj_id,center_obj,level_structure_key,err_type):
     #from api.graph_error import error_types_sum
     #from api.graphs_mod import worktrack_internal_external_workpackets_list
     #prj_name = Project.objects.filter(id=prj_id).values_list('name', flat=True)
@@ -326,6 +328,56 @@ def sample_pareto_analysis(request,date_list,prj_id,center_obj,level_structure_k
     return result
 
 
+"""def field_pareto_analysis(date_list,project,center,level_structure_key,error_type):
+
+    data = internal_extrnal_error_types(date_list,project,center,level_structure_key,error_type)
+    result = generate_pareto_calculations(data)
+    return result"""
+
+
+"""def generate_pareto_calculations(data):
+
+    "common function for calculating agent and field pareto data"
+
+    accuracy_dict, final_pareto_data = {}, {}
+    accuracy_list, error_list, data_values = [], [], []
+    final_pareto_data['Error Count'] = {}
+    final_pareto_data['Error Count']['Error Count'] = []
+    final_pareto_data['Cumulative %'] = {}
+    final_pareto_data['Cumulative %']['Cumulative %'] = []
+    error_sum = sum(data.values())
+    count = 0
+    new_dict, result = {}, {}
+    for key, value in sorted(data.iteritems(), key=lambda (k, v): (-v, k)):
+        err_list = []
+        count = count + value
+        err_list.append(key)
+        err_list.append(count)
+        data_values.append(value)
+        error_list.append(err_list)
+    new_dict.update(error_list)
+    final_pareto_data['Error Count']['Error Count'] = data_values[:10]
+    
+    accuracy_dict = {}    
+    for key, value in new_dict.iteritems():
+        if error_sum > 0:
+            accuracy = (float(float(value) / float(error_sum))) * 100
+            accuracy_perc = float('%.2f' % round(accuracy, 2))
+            accuracy_dict[key] = accuracy_perc
+        else:
+            accuracy_dict[key] = 100
+    
+    error_accuracy, final_list, type_accuracy = [], [], []
+    for key, value in sorted(accuracy_dict.iteritems(), key=lambda (k, v): (v, k)):
+        final_list.append(key)
+        type_accuracy.append(value)
+    final_pareto_data['Cumulative %']['Cumulative %'] = type_accuracy[:10]
+    final_data = pareto_graph_data(final_pareto_data)
+    
+    result['category_name'] = final_list[:10]
+    result['category_pareto'] = final_data
+    return result
+
 def pareto_graph_data(pareto_dict):
     final_list = []
     for key,value in pareto_dict.iteritems():
@@ -337,5 +389,5 @@ def pareto_graph_data(pareto_dict):
                 single_dict['type']='spline'
                 single_dict['yAxis'] = 1
             final_list.append(single_dict)
-    return final_list
+    return final_list"""
 
