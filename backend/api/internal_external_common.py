@@ -9,6 +9,23 @@ from api.query_generations import *
 from django.db.models import Max
 from common.utils import getHttpResponse as json_HttpResponse
 
+
+def accuracy_field_bar_graphs(request,date_list,prj_id,center_obj,level_structure_key,error_type):
+    
+    if error_type == 'Internal':
+        table_name = Internalerrors
+    if error_type == 'External':
+        table_name = Externalerrors
+
+    filter_params, _term = getting_required_params(level_structure_key, prj_id, center_obj, date_list)
+    query_values = table_name.objects.filter(**filter_params)
+    packets = query_values.values_list(_term, flat=True).distinct()
+    error_data = query_values.values_list(_term).annotate(total=Sum('total_errors'), audit=Sum('audited_errors'))
+    rawtable = RawTable.objects.filter(**filter_params)
+    raw_packets = rawtable.values_list(_term).annotate(prod=Sum('per_day'))
+
+
+
 def internal_external_graphs_common(request,date_list,prj_id,center_obj,level_structure_key,err_type):
     #prj_name = Project.objects.filter(id=prj_id).values_list('name', flat=True)
     #center_name = Center.objects.filter(id=center_obj).values_list('name', flat=True)
@@ -357,6 +374,7 @@ def internal_external_graphs_common(request,date_list,prj_id,center_obj,level_st
         result['external_field_accuracy_graph'] = error_accuracy
     return result
 
+
 def internal_extrnal_graphs_same_formula(date_list,prj_id,center_obj,level_structure_key,err_type):
     #from api.graphs_mod import worktrack_internal_external_workpackets_list
     #prj_name = Project.objects.filter(id=prj_id).values_list('name', flat=True)
@@ -563,5 +581,37 @@ def internal_extrnal_graphs(date_list,prj_id,center_obj,level_structure_key):
     final_external_data = internal_extrnal_graphs_same_formula(date_list, prj_id, center_obj,level_structure_key,err_type='External')
     final_internal_data.update(final_external_data)
     return final_internal_data
+
+
+def accuracy_bar_graphs(date_list,prj_id,center_obj,level_structure_key,error_type,_term):
+
+    _dict = {}
+
+    if error_type == 'Internal':
+        table_name = Internalerrors
+    if error_type == 'External':
+        table_name = Externalerrors
+
+    filter_params, _term = getting_required_params(level_structure_key, prj_id, center_obj, date_list)
+    query_values = table_name.objects.filter(**filter_params)
+    packets = query_values.values_list(_term, flat=True).distinct()
+    error_data = query_values.values_list(_term).annotate(total=Sum('total_errors'), audit=Sum('audited_errors'))
+    rawtable = RawTable.objects.filter(**filter_params) 
+    raw_packets = rawtable.values_list(_term).annotate(prod=Sum('per_day'))
+
+    for data in error_data:
+        if data[1] > 0:
+            value = (float(data[2])/float(data[1])) * 100
+            accuracy = 100-float('%.2f' % round(value, 2))
+        elif data[1] == 0:
+            for prod_val in raw_packets:
+                if data[0] == prod_val[0]:
+                    value = (float(data[2])/float(prod_val[1])) * 100
+                    accuracy = 100-float('%.2f' % round(value, 2))
+        else:
+            accuracy = 100
+        _dict[data[0]] = accuracy
+    return _dict
+
 
 

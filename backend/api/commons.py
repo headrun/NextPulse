@@ -96,7 +96,7 @@ def data_dict(variable):
                 employe_dates['days'] = week
         
         main_data_dict['dwm_dict'] = dwm_dict
-    
+
     if type == 'month':
         months_dict = {}
         month_list = [[]]
@@ -118,6 +118,7 @@ def data_dict(variable):
                 month_list.append([str(date)])
         if month_list[0] == []:
             del month_list[0]
+
     if type == 'month':
         employe_dates = {}
         new_month_dict = {}

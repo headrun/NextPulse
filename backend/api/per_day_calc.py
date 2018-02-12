@@ -28,7 +28,6 @@ def generate_day_week_month_format(request, result_name, function_name):
 
     level_structure_key = get_level_structure_key(work_packet, sub_project, sub_packet, pro_center)
 
-
     if main_data_dict['dwm_dict'].has_key('day') and main_data_dict['type'] == 'day':
         date_list = main_data_dict['dates']
         done_value = RawTable.objects.filter(\
@@ -61,7 +60,7 @@ def generate_day_week_month_format(request, result_name, function_name):
 def prod_avg_perday(request):
 
     result_name = 'production_avg_details'
-    function_name = production_avg_perday
+    function_name = production_avg_perday_week_month
     result = generate_day_week_month_format(request, result_name, function_name)
     return result
 
