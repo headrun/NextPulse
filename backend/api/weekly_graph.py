@@ -13,6 +13,7 @@ from api.internal_external_common import internal_extrnal_graphs
 from api.graph_settings import graph_data_alignment_color
 from common.utils import getHttpResponse as json_HttpResponse
 
+
 def volume_graph_data_week_month(date_list,prj_id,center_obj,level_structure_key):
     conn = redis.Redis(host="localhost", port=6379, db=0)
     result, volumes_dict, date_values = {}, {}, {}

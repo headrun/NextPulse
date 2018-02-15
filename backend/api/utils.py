@@ -5,6 +5,7 @@ from django.apps import apps
 from django.db.models import Sum
 from django.db.models import Max
 from collections import OrderedDict
+from api.basics import *
 from common.utils import getHttpResponse as json_HttpResponse
 
 def error_timeline_min_max(min_max_dict):
@@ -117,38 +118,6 @@ def graph_data_alignment_other(volumes_data, work_packets, name_key):
             productivity_series_list[work_packets[0]] = prod_main_dict
         return productivity_series_list
 
-def tat_graph(date_list, prj_id, center,level_structure_key):
-    new_dict = {}
-    final_data,final_notmet_data = [],[]
-    data_list, tat_val_list = [],[]
-    total_done_value = RawTable.objects.filter(project=prj_id, center=center, date__range=[date_list[0], date_list[-1]]).values('date').annotate(total=Sum('per_day'))
-    values = OrderedDict(zip(map(lambda p: str(p['date']), total_done_value), map(lambda p: str(p['total']), total_done_value)))
-    for date_key, total_val in values.iteritems():
-    #for date_va in date_list:
-        #total_done_value = RawTable.objects.filter(project=prj_id, center=center, date=date_va).aggregate(Max('per_day'))
-        #if total_done_value['per_day__max'] > 0:
-        if total_val > 0:
-            #data_list.append(str(date_va))
-            data_list.append(date_key)
-            count = 0
-            #tat_da = TatTable.objects.filter(project = prj_id,center= center,date=date_va)
-            tat_da = TatTable.objects.filter(project = prj_id,center= center,date=date_key)
-            tat_met_value = tat_da.aggregate(Sum('met_count'))
-            tat_not_met_value = tat_da.aggregate(Sum('non_met_count'))
-            met_val = tat_met_value['met_count__sum']
-            not_met_val = tat_not_met_value['non_met_count__sum']
-            if met_val:
-                tat_acc = (met_val/(met_val + not_met_val)) * 100
-            else:
-                tat_acc = 0
-            tat_val_list.append(tat_acc)
-            if sum(tat_val_list):
-                tat_val_list = tat_val_list
-            else:
-                tat_val_list = []
-    new_dict['tat_graph_details'] = tat_val_list
-    #new_dict['date'] = data_list
-    return new_dict
 
 def workpackets_list(level_structure_key,table_model_name,query_set):
     table_model = apps.get_model('api', 'Headcount')
@@ -227,7 +196,7 @@ def worktrack_internal_external_workpackets_list(level_structure_key,table_model
     return volume_list
 
 
-def modified_utilization_calculations(center,prj_id,date_list,level_structure_key):
+"""def modified_utilization_calculations(center,prj_id,date_list,level_structure_key):
     final_utilization_result = {}
     final_utilization_result['FTE Utilization'] = {}
     final_utilization_result['FTE Utilization']['FTE Utilization'] = []
@@ -284,7 +253,7 @@ def modified_utilization_calculations(center,prj_id,date_list,level_structure_ke
                 else:
                     overall_util_value = 0
                 final_utilization_result['Overall Utilization']['Overall Utilization'].append(overall_util_value)
-    return final_utilization_result 
+    return final_utilization_result """
 
 
 def pareto_data_generation(vol_error_values,internal_time_line):
@@ -305,6 +274,7 @@ def pareto_data_generation(vol_error_values,internal_time_line):
 
 
 def volume_status_week(week_names,productivity_list,final_productivity):
+
     final_productivity =  OrderedDict()
     for final_key, final_value in productivity_list.iteritems():
         for week_key, week_value in final_value.iteritems():
@@ -352,6 +322,8 @@ def received_volume_week(week_names,productivity_list,final_productivity):
                     values['Completed'] = sum(values['Completed'])
                     productivity_data.update(values)
                     del productivity_data['Opening']
+                    del productivity_data['Non Workable Count']
+                    del productivity_data['Closing balance']
                     for vol_key,vol_values in productivity_data.iteritems():
                         if final_productivity.has_key(vol_key):
                             final_productivity[vol_key].append(vol_values)
@@ -366,6 +338,8 @@ def received_volume_week(week_names,productivity_list,final_productivity):
                 final_productivity[vol_key].append(0)
     if final_productivity.has_key('Opening'):
         del final_productivity['Opening']
+        del final_productivity['Non Workable Count']
+        del final_productivity['Closing balance']
     else:
         final_productivity = final_productivity
     return final_productivity

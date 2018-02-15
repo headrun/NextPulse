@@ -83,7 +83,6 @@ def agent_cate_error(request):
     name = 'pareto_charts'
     term = 'agent'
     function_name = agent_pareto_analysis
-    #import pdb;pdb.set_trace()
     result = error_charts(request, name, function_name, internal_name, external_name, term)
     return json_HttpResponse(result)
 

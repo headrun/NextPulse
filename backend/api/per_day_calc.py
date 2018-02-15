@@ -38,18 +38,27 @@ def generate_day_week_month_format(request, result_name, function_name):
             if total_val > 0:
                 new_date_list.append(date_va)
         data = function_name(date_list, prj_id, center, level_structure_key)
-        final_dict[result_name] = graph_data_alignment_color(data, 'data', level_structure_key, prj_id, center)
+        if function_name == pre_scan_exception_data:
+            final_dict[result_name] = data
+        else:
+            final_dict[result_name] = graph_data_alignment_color(data, 'data', level_structure_key, prj_id, center)
         final_dict['date'] = new_date_list
 
     elif main_data_dict['dwm_dict'].has_key('week') and main_data_dict['type'] == 'week':
         dates_list = main_data_dict['dwm_dict']['week']
         week_data = week_calculations(dates_list, prj_id, center, level_structure_key, function_name)
-        final_dict[result_name] = graph_data_alignment_color(week_data, 'data', level_structure_key, prj_id, center)
+        if function_name == pre_scan_exception_data:
+            final_dict[result_name] = [week_data]
+        else:
+            final_dict[result_name] = graph_data_alignment_color(week_data, 'data', level_structure_key, prj_id, center)
         final_dict['date'] = date_function(dates_list, _type)
     else:
         dates_list = main_data_dict['dwm_dict']['month']
         month_data = month_calculations(dates_list, prj_id, center, level_structure_key, function_name)
-        final_dict[result_name] = graph_data_alignment_color(month_data, 'data', level_structure_key, prj_id, center)
+        if function_name == pre_scan_exception_data:
+            final_dict[result_name] = [month_data]
+        else:
+            final_dict[result_name] = graph_data_alignment_color(month_data, 'data', level_structure_key, prj_id, center)
         final_dict['date'] = date_function(dates_list, _type)
 
     final_dict['type'] = main_data_dict['type']
@@ -73,6 +82,38 @@ def main_prod(request):
     return result
 
 
+def tat_data(request):
+
+    result_name = 'tat_graph_details'
+    function_name = tat_graph
+    result = generate_day_week_month_format(request, result_name, function_name)
+    return result
+
+
+def overall_exce(request):
+
+    result_name = 'overall_exception_details'
+    function_name = overall_exception_data
+    result = generate_day_week_month_format(request, result_name, function_name)
+    return result
+
+
+def nw_exce(request):
+
+    result_name = 'nw_exception_details'
+    function_name = nw_exception_data
+    result = generate_day_week_month_format(request, result_name, function_name)
+    return result
+
+
+def pre_scan_exce(request):
+
+    result_name = 'pre_scan_exception_data'
+    function_name = pre_scan_exception_data
+    result = generate_day_week_month_format(request, result_name, function_name)
+    return result
+
+
 def week_calculations(dates, project, center, level_structure_key, function_name):
     
     week_dict = {}
@@ -84,8 +125,12 @@ def week_calculations(dates, project, center, level_structure_key, function_name
         week_num = week_num + 1
         data = function_name(date, project, center, level_structure_key)
         week_dict[week_name] = data
-    if function_name != product_total_graph:
+    if function_name in [production_avg_perday_week_month,overall_exception_data,nw_exception_data]:
         result = prod_volume_week_util(project, week_names, week_dict, {}, 'week')
+    elif function_name == tat_graph:
+        result = prod_volume_week_util_headcount(week_names, week_dict, {})
+    elif function_name == pre_scan_exception_data:
+        result = prod_volume_prescan_week_util(week_names,week_dict, {})
     else:
        result = prod_volume_week(week_names, week_dict, {}) 
     return result  
@@ -101,8 +146,12 @@ def month_calculations(dates, project, center, level_structure_key, function_nam
         month_names.append(month_name)
         data = function_name(month_dates, project, center, level_structure_key)
         month_dict[month_name] = data
-    if function_name != product_total_graph:
+    if function_name in [production_avg_perday_week_month,overall_exception_data,nw_exception_data]:
         result = prod_volume_week_util(project, month_names, month_dict, {}, 'month')
+    elif function_name == tat_graph:
+        result = prod_volume_week_util_headcount(month_names, month_dict, {})
+    elif function_name == pre_scan_exception_data:
+        result = prod_volume_prescan_week_util(month_names, month_dict, {})
     else:
         result = prod_volume_week(month_names, month_dict, {})
     return result
@@ -153,6 +202,7 @@ def product_total_graph(date_list,prj_id,center_obj,level_structure_key):
     result = production_avg_perday_week_month(date_list,prj_id,center_obj,level_structure_key)
 
     return result
+
 
 def common_function_dict(date_list, values):
     _dict = {}
