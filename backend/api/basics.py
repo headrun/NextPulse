@@ -93,6 +93,7 @@ def get_cell_data(open_sheet, row_idx, col_idx):
 
 def get_level_structure_key(work_packet, sub_project, sub_packet, pro_cen_mapping):
     """It will generate level structure key with existing packet, project, and sub packey types"""
+
     level_structure_key ={}
     if (work_packet) and (work_packet !='undefined'): level_structure_key['work_packet']= work_packet
     if (sub_project) and (sub_project !='undefined'): level_structure_key['sub_project'] = sub_project
@@ -196,6 +197,7 @@ def user_data(request):
         manager_dict[center_id]= str(center_id)
     return json_HttpResponse(manager_dict)
 
+
 def num_of_days(to_date,from_date):
     date_list=[]
     no_of_days = to_date - from_date
@@ -208,24 +210,22 @@ def num_of_days(to_date,from_date):
 def from_too(request):
     return json_HttpResponse('Cool')
 
+
 def upload_target_data(date_list, prj_id, center):
     result_data = []
     final_result = {}
     final_data = []
-    total_done_value = RawTable.objects.filter(project=prj_id, center=center, date__range=[date_list[0], date_list[-1]])\
-                        .values('date').annotate(total=Sum('per_day'))
-    values = OrderedDict(zip(map(lambda p: str(p['date']), total_done_value), map(lambda p: str(p['total']), total_done_value)))
-    for date_key, total_val in values.iteritems():
-        if total_val > 0:
-            upload_query = UploadDataTable.objects.filter(project=prj_id,center=center,date=date_key)
-            target = upload_query.aggregate(Sum('target'))
-            upload = upload_query.aggregate(Sum('upload'))
-            if target['target__sum'] > 0 and upload['upload__sum'] > 0:
-                percentage = (float(upload['upload__sum'])/float(target['target__sum'])) * 100
-                final_percentage = (float('%.2f' % round(percentage, 2)))
-            else:
-                final_percentage = 0
-            final_data.append(final_percentage)
+    dates = generate_dates(date_list, prj_id, center)
+    for date in dates:
+        upload_query = UploadDataTable.objects.filter(project=prj_id,center=center,date=date)
+        target = upload_query.aggregate(Sum('target'))
+        upload = upload_query.aggregate(Sum('upload'))
+        if target['target__sum'] > 0 and upload['upload__sum'] > 0:
+            percentage = (float(upload['upload__sum'])/float(target['target__sum'])) * 100
+            final_percentage = (float('%.2f' % round(percentage, 2)))
+        else:
+            final_percentage = 0
+        final_data.append(final_percentage)
     final_result['data'] = final_data
     return final_result
 
@@ -501,7 +501,6 @@ def get_query_parameters(level_structure_key, prj_id, center_obj, date_list):
     packet_2 = level_structure_key.get('work_packet', '') 
     packet_3  = level_structure_key.get('sub_packet', '')
 
-    #import pdb;pdb.set_trace()
     if (packet_1 != '' and packet_2 != '' and packet_3 != '') or (packet_1 != ''):
         if (packet_1 == 'All' and packet_2 == 'All' and packet_3 == 'All') or (packet_1 == 'All'):
             _dict.update({'project': prj_id, 'center': center_obj, 'date__range': [date_list[0], date_list[-1]]})
@@ -539,7 +538,7 @@ def getting_required_params(level_structure_key, prj_id, center_obj, date_list):
     packet_1 = level_structure_key.get('sub_project', '')
     packet_2 = level_structure_key.get('work_packet', '')
     packet_3  = level_structure_key.get('sub_packet', '')
-
+    field = ''
     if (packet_1 != '' and packet_2 != '' and packet_3 != '') or (packet_1 != ''):
         if (packet_1 == 'All' and packet_2 == 'All' and packet_3 == 'All') or (packet_1 == 'All'):
             query_dict.update({'project': prj_id, 'center': center_obj, 'date__range': [date_list[0], date_list[-1]]})
@@ -584,13 +583,11 @@ def getting_required_params(level_structure_key, prj_id, center_obj, date_list):
 def generate_dates(date_list, prj_id, center):
 
     dates = []
-    total_done_value = RawTable.objects.filter(\
+    date_values = RawTable.objects.filter(\
                        project=prj_id, center=center, date__range=[date_list[0], date_list[-1]]).\
-                       values('date').annotate(total=Sum('per_day'))
-    values = OrderedDict(zip(map(lambda p: str(p['date']), total_done_value), map(lambda p: str(p['total']), total_done_value)))
-    for date, value in values.iteritems():
-        if value > 0:
-            dates.append(date)
+                       values_list('date',flat=True).distinct() 
+    for date in date_values:
+        dates.append(str(date))
     return dates
 
 

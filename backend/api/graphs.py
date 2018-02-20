@@ -34,13 +34,7 @@ def generate_day_type_formats_multiple(request, result_name, function_name, sub_
 
     if main_data_dict['dwm_dict'].has_key('day') and main_data_dict['type'] == 'day':
         date_list = main_data_dict['dates']
-        done_value = RawTable.objects.filter(\
-                     project=prj_id, center=center, date__range=[date_list[0], date_list[-1]])\
-                     .values('date').annotate(total=Sum('per_day'))
-        values = OrderedDict(zip(map(lambda p: str(p['date']), done_value), map(lambda p: str(p['total']), done_value)))
-        for date_va, total_val in values.iteritems():
-            if total_val > 0:
-                new_date_list.append(date_va)
+        new_date_list = generate_dates(date_list, prj_id, center)
         if function_name == headcount_widgets:
             data = function_name(center, prj_id, date_list, level_structure_key)
             final_dict['utilization_fte_details'] =  graph_data_alignment_color(data['FTE Utilization'],'data',\
@@ -324,66 +318,6 @@ def fte_graphs(request):
     return json_HttpResponse(result_dict)
  
 
-"""def tat_data(request):
-    final_dict = {}
-    data_date, new_date_list = [], []
-    week_names = []
-    week_num = 0
-    tat_graph_dt = {}
-    month_names = []
-    main_data_dict = data_dict(request.GET)
-    if main_data_dict['dwm_dict'].has_key('day') and main_data_dict['type'] == 'day':
-        main_dates_list = [ main_data_dict['dwm_dict']['day']]
-    elif main_data_dict['dwm_dict'].has_key('week') and main_data_dict['type'] == 'week':
-        main_dates_list = main_data_dict['dwm_dict']['week']
-    elif main_data_dict['dwm_dict'].has_key('month') and main_data_dict['type'] == 'month':
-        main_dates_list = main_data_dict['dwm_dict']['month']['month_dates']
-    prj_id = main_data_dict['pro_cen_mapping'][0][0]
-    center = main_data_dict['pro_cen_mapping'][1][0]
-    if main_data_dict['dwm_dict'].has_key('day') and main_data_dict['type'] == 'day':
-        for sing_list in main_dates_list:
-            total_done_value = RawTable.objects.filter(project=prj_id, center=center, date__range=[sing_list[0], sing_list[-1]]).values('date').annotate(total=Sum('per_day'))
-            values = OrderedDict(zip(map(lambda p: str(p['date']), total_done_value), map(lambda p: str(p['total']), total_done_value)))
-            #for date_va in sing_list:
-            for date_va, total_val in values.iteritems():
-                #total_done_value = RawTable.objects.filter(project=prj_id,center=center,date=date_va).aggregate(Max('per_day'))
-                #if total_done_value['per_day__max'] > 0:
-                if total_val > 0:
-                    new_date_list.append(date_va)
-            level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], main_data_dict['sub_packet'],main_data_dict['pro_cen_mapping'])
-            tat_graph_details = tat_graph(sing_list, main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0], level_structure_key)
-            #final_dict['date'] = tat_graph_details['date']
-            final_dict['tat_graph_details'] = graph_data_alignment_color(tat_graph_details,'data', level_structure_key,main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0])
-            final_dict['date'] = new_date_list
-    elif main_data_dict['dwm_dict'].has_key('week') and main_data_dict['type'] == 'week':
-        for sing_list in main_dates_list:
-            data_date.append(sing_list[0] + ' to ' + sing_list[-1])
-            week_name = str('week' + str(week_num))
-            week_names.append(week_name)
-            week_num = week_num + 1
-            level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], main_data_dict['sub_packet'],main_data_dict['pro_cen_mapping'])
-            tat_graph_details = tat_graph(sing_list, main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0], level_structure_key)  
-            tat_graph_dt[week_name] = tat_graph_details
-        final_tat_details = prod_volume_week_util_headcount(week_names,tat_graph_dt, {})
-        final_dict['tat_graph_details'] = graph_data_alignment_color(final_tat_details, 'data',level_structure_key, prj_id, center)
-        final_dict['date'] = data_date
-    else:
-        for month_na,month_va in zip(main_data_dict['dwm_dict']['month']['month_names'],main_data_dict['dwm_dict']['month']['month_dates']):
-            month_name = month_na
-            month_dates = month_va
-            data_date.append(month_dates[0] + ' to ' + month_dates[-1])
-            month_names.append(month_name)
-            level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], main_data_dict['sub_packet'],main_data_dict['pro_cen_mapping'])
-            tat_graph_details = tat_graph(month_dates,prj_id,center,level_structure_key)
-            tat_graph_dt[month_name] = tat_graph_details
-        final_tat_details = prod_volume_week_util_headcount(month_names, tat_graph_dt, {})
-        final_dict['tat_graph_details'] = graph_data_alignment_color(final_tat_details,'data',level_structure_key, prj_id, center)
-        final_dict['date'] = data_date
-    final_dict['type'] = main_data_dict['type']
-    final_dict['is_annotation'] = annotation_check(request)
-    return json_HttpResponse(final_dict)"""
-
-
 def work_track_data(date_list,prj_id,center_obj,level_structure_key):
 
     _dict = OrderedDict()
@@ -457,103 +391,6 @@ def headcount_widgets(center_obj,prj_id,date_list,level_structure_key):
         final_utilization_result['Overall Utilization']['Overall Utilization'].append(overall_util_value)
 
     return final_utilization_result
-
-
-"""def volume_graph_data(date_list,prj_id,center_obj,level_structure_key):
-    conn = redis.Redis(host="localhost", port=6379, db=0)
-    result, volumes_dict, date_values = {}, {}, {}
-    new_date_list = []
-    #prj_name = Project.objects.filter(id=prj_id).values_list('name',flat=True)
-    #center_name = Center.objects.filter(id=center_obj).values_list('name', flat=True)
-    project = Project.objects.filter(id=prj_id)
-    prj_name = project[0].name
-    center_name = project[0].center.name
-    query_set = query_set_generation(prj_id,center_obj,level_structure_key,date_list)
-    volume_list = worktrack_internal_external_workpackets_list(level_structure_key,'Worktrack',query_set)
-    total_done_value = RawTable.objects.filter(project=prj_id, center=center_obj, date__range=[date_list[0], date_list[-1]]).values('date').annotate(total=Sum('per_day'))
-    values = OrderedDict(zip(map(lambda p: str(p['date']), total_done_value), map(lambda p: str(p['total']), total_done_value)))
-    #for date_va in date_list:
-    for date_key, total_val in values.iteritems():
-        #total_done_value = RawTable.objects.filter(project=prj_id, center=center_obj, date=date_va).aggregate(Max('per_day'))
-        #if total_done_value['per_day__max'] > 0:
-        if total_val > 0:
-            count =0
-            new_date_list.append(date_key)
-            for vol_type in volume_list:
-                final_work_packet = level_hierarchy_key(level_structure_key,vol_type)
-                if not final_work_packet:
-                    final_work_packet = level_hierarchy_key(volume_list[count],vol_type)
-                count = count+1
-                #date_pattern = '{0}_{1}_{2}_{3}_worktrack'.format(prj_name[0], str(center_name[0]), str(final_work_packet), date_va)
-                date_pattern = '{0}_{1}_{2}_{3}_worktrack'.format(prj_name, center_name, str(final_work_packet), date_key)
-                key_list = conn.keys(pattern=date_pattern)
-                if not key_list:
-                    if date_values.has_key(final_work_packet):
-                        date_values[final_work_packet]['opening'].append(0)
-                        date_values[final_work_packet]['received'].append(0)
-                        date_values[final_work_packet]['completed'].append(0)
-                        date_values[final_work_packet]['non_workable_count'].append(0)
-                        date_values[final_work_packet]['closing_balance'].append(0)
-                    else:
-                        date_values[final_work_packet] = {}
-                        date_values[final_work_packet]['opening']= [0]
-                        date_values[final_work_packet]['received']= [0]
-                        date_values[final_work_packet]['completed'] = [0]
-                        date_values[final_work_packet]['non_workable_count'] = [0]
-                        date_values[final_work_packet]['closing_balance']= [0]
-
-                for cur_key in key_list:
-                    var = conn.hgetall(cur_key)
-                    for key,value in var.iteritems():
-                        if (value == 'None') or (value == ''):
-                            value = 0
-                        if not date_values.has_key(final_work_packet):
-                            date_values[final_work_packet] = {}
-                        if date_values.has_key(final_work_packet):
-                            if date_values[final_work_packet].has_key(key):
-                                date_values[final_work_packet][key].append(int(value))
-                            else:
-                                date_values[final_work_packet][key]=[int(value)]
-
-                    volumes_dict['data'] = date_values
-                    volumes_dict['date'] = date_list
-                    result['data'] = volumes_dict
-
-    if result.has_key('data'):
-        opening,received,nwc,closing_bal,completed = [],[],[],[],[]
-        for vol_key in result['data']['data'].keys():
-            for volume_key,vol_values in result['data']['data'][vol_key].iteritems():
-                if volume_key == 'opening':
-                    opening.append(vol_values)
-                elif volume_key == 'received':
-                    received.append(vol_values)
-                elif volume_key == 'completed':
-                    completed.append(vol_values)
-                elif volume_key == 'closing_balance':
-                    closing_bal.append(vol_values)
-                elif volume_key == 'non_workable_count':
-                    nwc.append(vol_values)
-
-        worktrack_volumes = OrderedDict()
-        worktrack_volumes['Opening'] = [sum(i) for i in zip(*opening)]
-        worktrack_volumes['Received'] = [sum(i) for i in zip(*received)]
-        worktrack_volumes['Non Workable Count'] = [sum(i) for i in zip(*nwc)]
-        worktrack_volumes['Completed'] = [sum(i) for i in zip(*completed)]
-        worktrack_volumes['Closing balance'] = [sum(i) for i in zip(*closing_bal)]
-        worktrack_timeline = OrderedDict()
-        day_opening =[worktrack_volumes['Opening'], worktrack_volumes['Received']]
-        worktrack_timeline['Opening'] = [sum(i) for i in zip(*day_opening)]
-        worktrack_timeline['Completed'] = worktrack_volumes['Completed']
-        final_volume_graph = {}
-        final_volume_graph['bar_data']  = worktrack_volumes
-        final_volume_graph['line_data'] = worktrack_timeline
-        final_volume_graph['date'] = new_date_list
-        return final_volume_graph
-    else:
-        final_volume_graph ={}
-        final_volume_graph['bar_data'] = {}
-        final_volume_graph['line_data'] = {}
-        return final_volume_graph"""
 
 
 def volumes_graphs_data_table(date_list,prj_id,center,level_structure_key):

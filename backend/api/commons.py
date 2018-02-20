@@ -135,10 +135,11 @@ def data_dict(variable):
     main_data_dict['type'] = type
     return main_data_dict 
 
+
 def get_packet_details(request):
     """It will generate all the list of packets, projects and sub packets for the project"""
+
     main_data_dict = data_dict(request.GET)
-    #import pdb;pdb.set_trace()
     if main_data_dict['type'] == 'hour':
         dates = main_data_dict['dwm_dict']['day']
     else:
