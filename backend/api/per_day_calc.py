@@ -10,6 +10,7 @@ from collections import OrderedDict
 from api.query_generations import query_set_generation
 from api.graph_settings import graph_data_alignment_color
 from api.voice_widgets import date_function
+from api.monthly_graph import *
 from common.utils import getHttpResponse as json_HttpResponse
 
 
@@ -40,24 +41,40 @@ def generate_day_week_month_format(request, result_name, function_name):
 
     elif main_data_dict['dwm_dict'].has_key('week') and main_data_dict['type'] == 'week':
         dates_list = main_data_dict['dwm_dict']['week']
-        week_data = week_calculations(dates_list, prj_id, center, level_structure_key, function_name)
-        if function_name == pre_scan_exception_data:
-            final_dict[result_name] = [week_data]
-        else:
-            final_dict[result_name] = graph_data_alignment_color(week_data, 'data', level_structure_key, prj_id, center)
+        if function_name == volume_cumulative_data:
+            volume_week = week_monthly_calulations(dates_list, prj_id, center, level_structure_key, function_name)
+            final_dict[result_name] = graph_data_alignment_color(volume_week, 'data', level_structure_key, prj_id, center, 'monthly_volume')
+        else:    
+            week_data = week_calculations(dates_list, prj_id, center, level_structure_key, function_name)
+            if function_name == pre_scan_exception_data:
+                final_dict[result_name] = [week_data]
+            else:
+                final_dict[result_name] = graph_data_alignment_color(week_data, 'data', level_structure_key, prj_id, center)
         final_dict['date'] = date_function(dates_list, _type)
     else:
         dates_list = main_data_dict['dwm_dict']['month']
-        month_data = month_calculations(dates_list, prj_id, center, level_structure_key, function_name)
-        if function_name == pre_scan_exception_data:
-            final_dict[result_name] = [month_data]
+        if function_name == volume_cumulative_data:
+            volume_month = month_monthly_calculations(dates_list, prj_id, center, level_structure_key, function_name)
+            final_dict[result_name] = graph_data_alignment_color(volume_month, 'data', level_structure_key, prj_id, center, 'monthly_volume')
         else:
-            final_dict[result_name] = graph_data_alignment_color(month_data, 'data', level_structure_key, prj_id, center)
+            month_data = month_calculations(dates_list, prj_id, center, level_structure_key, function_name)
+            if function_name == pre_scan_exception_data:
+                final_dict[result_name] = [month_data]
+            else:
+                final_dict[result_name] = graph_data_alignment_color(month_data, 'data', level_structure_key, prj_id, center)
         final_dict['date'] = date_function(dates_list, _type)
 
     final_dict['type'] = main_data_dict['type']
     final_dict['is_annotation'] = annotation_check(request)  
     return json_HttpResponse(final_dict)
+
+
+def monthly_volume(request):
+
+    result_name = 'monthly_volume_graph_details'
+    function_name = volume_cumulative_data
+    result = generate_day_week_month_format(request, result_name, function_name)
+    return result
 
 
 def prod_avg_perday(request):
@@ -217,4 +234,53 @@ def common_function_dict(date_list, values):
                 _dict[key] = [0]
     return _dict
 
+
+def week_monthly_calulations(dates, project, center, level_structure_key, function_name):
+
+    monthly_vol_data = {}
+    monthly_vol_data['total_workdone'] = []
+    monthly_vol_data['total_target'] = []
+    week_names = []
+    week_num = 0 
+    for date in dates:
+        week_name = str('week' + str(week_num))
+        week_names.append(week_name)
+        week_num = week_num + 1 
+        data = function_name(date, project, center, level_structure_key)
+        for vol_cumulative_key,vol_cumulative_value in data.iteritems():
+            if len(vol_cumulative_value) > 0:
+                monthly_vol_data[vol_cumulative_key].append(vol_cumulative_value[-1])
+            else:
+                monthly_vol_data[vol_cumulative_key].append(0)
+    monthly_work_done = monthly_vol_data['total_workdone'].count(0)
+    monthly_total_target = monthly_vol_data['total_target'].count(0)
+    if monthly_work_done == len(monthly_vol_data['total_workdone']) and monthly_total_target == len(monthly_vol_data['total_target']) :
+        monthly_vol_data = {}
+    final_montly_vol_data = previous_sum(monthly_vol_data)
+    return final_montly_vol_data
+
+
+def month_monthly_calculations(dates, project, center, level_structure_key, function_name):
+
+    monthly_vol_data = {}
+    month_names = []
+    month_dict = {}
+    monthly_vol_data['total_workdone'] = []
+    monthly_vol_data['total_target'] = []
+    for month_na,month_va in zip(dates['month_names'],dates['month_dates']):
+        month_name = month_na
+        month_dates = month_va
+        month_names.append(month_name)
+        monthly_volume_graph_details = volume_cumulative_data(month_dates, project, center, level_structure_key)
+        for vol_cumulative_key,vol_cumulative_value in monthly_volume_graph_details.iteritems():
+            if len(vol_cumulative_value) > 0:
+                monthly_vol_data[vol_cumulative_key].append(vol_cumulative_value[-1])
+            else:
+                monthly_vol_data[vol_cumulative_key].append(0)
+    monthly_work_done = monthly_vol_data['total_workdone'].count(0)
+    monthly_total_target = monthly_vol_data['total_target'].count(0)
+    if monthly_work_done == len(monthly_vol_data['total_workdone']) and monthly_total_target == len(monthly_vol_data['total_target']) :
+        monthly_vol_data = {}
+    final_montly_vol_data = previous_sum(monthly_vol_data)
+    return final_montly_vol_data
 

@@ -11,7 +11,7 @@ from api.graph_settings import graph_data_alignment_color
 from common.utils import getHttpResponse as json_HttpResponse
 
 
-def Monthly_Volume_graph(prj_id,center,date_list,level_structure_key):
+def volume_cumulative_data(date_list, prj_id, center, level_structure_key):
 
     date_values, dct = {}, {}
     emp_dict, _dict = {}, {}
@@ -127,7 +127,6 @@ def get_target_query_format(level_structure_key, prj_id, center, date_list):
     pro_query, pro_data = {}, {}
     _term = ''
     _type = Targets.objects.filter(project=prj_id, center=center).values_list('target_type',flat=True).distinct()
-
     if 'FTE Target' in _type:
         query['from_date__lte'] = date_list[0]
         query['to_date__gte'] = date_list[-1]
@@ -421,75 +420,4 @@ def get_target_query_format(level_structure_key, prj_id, center, date_list):
     #new_dict['date'] = new_date_list
     return new_dict"""
 
-def monthly_volume(request):
-    final_dict = {}
-    data_date, new_date_list = [], []
-    week_names = []
-    week_num = 0
-    month_names = []
-    monthly_vol_data = {}
-    monthly_vol_data['total_workdone'] = []
-    monthly_vol_data['total_target'] = []
-    main_data_dict = data_dict(request.GET)
-    if main_data_dict['dwm_dict'].has_key('day') and main_data_dict['type'] == 'day':
-        main_dates_list = [ main_data_dict['dwm_dict']['day']]
-    elif main_data_dict['dwm_dict'].has_key('week') and main_data_dict['type'] == 'week':
-        main_dates_list = main_data_dict['dwm_dict']['week']
-    elif main_data_dict['dwm_dict'].has_key('month') and main_data_dict['type'] == 'month':
-        main_dates_list = main_data_dict['dwm_dict']['month']['month_dates']
-    prj_id = main_data_dict['pro_cen_mapping'][0][0]
-    center = main_data_dict['pro_cen_mapping'][1][0]
-    if main_data_dict['dwm_dict'].has_key('day') and main_data_dict['type'] == 'day':
-        for sing_list in main_dates_list:
-            total_done_value = RawTable.objects.filter(project=prj_id, center=center, date__range=[sing_list[0], sing_list[-1]]).values('date').annotate(total=Sum('per_day'))
-            values = OrderedDict(zip(map(lambda p: str(p['date']), total_done_value), map(lambda p: str(p['total']), total_done_value)))
-            for date_va, total_val in values.iteritems():
-                if total_val > 0:
-                    new_date_list.append(date_va)
-            level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], main_data_dict['sub_packet'],main_data_dict['pro_cen_mapping'])
-            monthly_volume_graph_details = Monthly_Volume_graph(main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0],sing_list,level_structure_key)
-            final_dict['monthly_volume_graph_details'] = graph_data_alignment_color(monthly_volume_graph_details, 'data',level_structure_key,main_data_dict['pro_cen_mapping'][0][0], main_data_dict['pro_cen_mapping'][1][0],'monthly_volume') 
-            final_dict['date'] = new_date_list
-    elif main_data_dict['dwm_dict'].has_key('week') and main_data_dict['type'] == 'week':
-        for sing_list in main_dates_list:
-            data_date.append(sing_list[0] + ' to ' + sing_list[-1])
-            week_name = str('week' + str(week_num))
-            week_names.append(week_name)
-            week_num = week_num + 1
-            level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], main_data_dict['sub_packet'],main_data_dict['pro_cen_mapping'])
-            monthly_volume_graph_details = Monthly_Volume_graph(main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0],sing_list,level_structure_key)
-            for vol_cumulative_key,vol_cumulative_value in monthly_volume_graph_details.iteritems():
-                if len(vol_cumulative_value) > 0:
-                    monthly_vol_data[vol_cumulative_key].append(vol_cumulative_value[-1])
-                else:
-                    monthly_vol_data[vol_cumulative_key].append(0)
-        monthly_work_done = monthly_vol_data['total_workdone'].count(0)
-        monthly_total_target = monthly_vol_data['total_target'].count(0)
-        if monthly_work_done == len(monthly_vol_data['total_workdone']) and monthly_total_target == len(monthly_vol_data['total_target']) :
-            monthly_vol_data = {}
-        final_montly_vol_data = previous_sum(monthly_vol_data)
-        final_dict['monthly_volume_graph_details'] = graph_data_alignment_color(final_montly_vol_data, 'data', level_structure_key,prj_id, center,'monthly_volume')
-        final_dict['date'] = data_date
-    else:
-        for month_na,month_va in zip(main_data_dict['dwm_dict']['month']['month_names'],main_data_dict['dwm_dict']['month']['month_dates']):
-            month_name = month_na
-            month_dates = month_va
-            data_date.append(month_dates[0] + ' to ' + month_dates[-1])
-            month_names.append(month_name)
-            level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], main_data_dict['sub_packet'],main_data_dict['pro_cen_mapping'])
-            monthly_volume_graph_details = Monthly_Volume_graph(prj_id, center, month_dates,level_structure_key)
-            for vol_cumulative_key, vol_cumulative_value in monthly_volume_graph_details.iteritems():
-                if len(vol_cumulative_value) > 0:
-                    monthly_vol_data[vol_cumulative_key].append(vol_cumulative_value[-1])
-                else:
-                    monthly_vol_data[vol_cumulative_key].append(0)
-        monthly_work_done = monthly_vol_data['total_workdone'].count(0)
-        monthly_total_target = monthly_vol_data['total_target'].count(0)
-        if monthly_work_done == len(monthly_vol_data['total_workdone']) and monthly_total_target == len(monthly_vol_data['total_target']):
-            monthly_vol_data = {}
-        final_montly_vol_data = previous_sum(monthly_vol_data)
-        final_dict['monthly_volume_graph_details'] = graph_data_alignment_color(final_montly_vol_data, 'data',level_structure_key, prj_id, center,'monthly_volume')    
-        final_dict['date'] = data_date
-    final_dict['type'] = main_data_dict['type']
-    final_dict['is_annotation'] = annotation_check(request)
-    return json_HttpResponse(final_dict)
+
