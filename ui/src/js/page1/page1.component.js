@@ -422,6 +422,8 @@
 
                         self.type = type;
 
+                        if ((self.work_list.length == 1) || (type == 'week') || (type == 'month')) {
+
                         var allo_and_comp = '/api/alloc_and_compl/'+self.data_to_show + type + final_work+'&chart_name=17&chart_name=13';
 
                         return $http({method:"GET", url: allo_and_comp}).success(function(result){
@@ -655,6 +657,7 @@
                                 });
                            }
                         })
+                      }
                     }
 
                     self.utill_all = function(final_work, type,name) {
@@ -671,6 +674,8 @@
                         }
             
                         self.type = type;
+
+                        if ((self.utili_list.length == 1) || (type == 'week') || (type == 'month')) {
 
                         var utill_all = '/api/utilisation_all/'+self.data_to_show + type + final_work+'&chart_name=20&chart_name=19&chart_nam=9';
 
@@ -988,6 +993,7 @@
                                $('.widget-9b').removeClass('widget-data-hide');
                             }
                         })
+                      }  
                     }
                     
                     self.productivity = function(final_work, type) {
@@ -1458,6 +1464,8 @@
 
                         self.type = type;
 
+                        if ((self.fte_list.length == 1) || (type == 'week') || (type == 'month')) {
+
                         var fte_graphs = '/api/fte_graphs/'+self.data_to_show + type + final_work + '&chart_name=11&chart_name=12';
 
                         return $http({method:"GET", url: fte_graphs}).success(function(result){
@@ -1676,6 +1684,7 @@
                                 $('.widget-12b').removeClass('widget-data-hide');
                           }
                        })
+                      }
                     }
                 
                     self.main_prod = function(final_work, type, name) {
@@ -1693,6 +1702,8 @@
                         }
 
                         self.type = type;
+
+                        if ((self.prod_list.length == 1) || (type == 'week') || (type == 'month')) {
 
                         var main_prod = '/api/main_prod/'+self.data_to_show + type + final_work + '&chart_name=1&chart_name=6';
 
@@ -1918,9 +1929,12 @@
                                 $('.widget-1b').removeClass('widget-data-hide');
                            }  
                         })
+                      }  
                     }
     	
 	       	self.category_error = function(cate_error){
+
+                       if (self.cate_pie.length == 1) {
                        return $http({method:"GET", url: cate_error }).success(function(result){
 
                             angular.extend(self.chartOptions5,{
@@ -1946,9 +1960,12 @@
                             $('.widget-5a').removeClass('widget-loader-show');
                             $('.widget-5b').removeClass('widget-data-hide');
                        })
+                }
 		}
 
 		self.pareto_category_error = function(pareto_cate_error){
+
+                       if (self.cate_pareto.length == 1) {
 
                        return $http({method:"GET", url: pareto_cate_error + '&chart_name=24&chart_name=25' }).success(function(result){
                             var is_annotation = result.result.is_annotation;
@@ -2142,9 +2159,12 @@
                             $('.widget-25a').removeClass('widget-loader-show');
                             $('.widget-25b').removeClass('widget-data-hide');
                        })
+                 }
 		   }
 		  
 		self.agent_category_error = function(agent_cate_error){
+                        
+                       if (self.agent_pareto.length == 1) {
                        return $http({method:"GET", url: agent_cate_error + '&chart_name=22&chart_name=23' }).success(function(result){
                             var is_annotation = result.result.is_annotation;
                             if (self.list_object.agent_wise_pareto_graph_data != undefined) {
@@ -2336,6 +2356,7 @@
                             $('.widget-23a').removeClass('widget-loader-show');
                             $('.widget-23b').removeClass('widget-data-hide');
                        }) 
+                }
 		 }
 
                 
@@ -2805,6 +2826,8 @@
                 
 			self.error_field_graph = function(err_field_graph){
 
+                       if (self.err_field.length == 1) {
+
                        return $http({method:"GET", url: err_field_graph + '&chart_name=38&chart_name=39'}).success(function(result){
                             var is_annotation = result.result.is_annotation;
                            angular.extend(self.chartOptions43.yAxis,{
@@ -3002,9 +3025,12 @@
                            $('.widget-39a').removeClass('widget-loader-show');
                            $('.widget-39b').removeClass('widget-data-hide');
                        })
+                 }
 			}
 
 			self.error_bar_graph = function(error_bar_graph){
+                            
+                           if (self.bar_acc.length == 1) {
 	                       return $http({method:"GET", url: error_bar_graph + '&chart_name=2&chart_name=3'}).success(function(result){
                             var is_annotation = result.result.is_annotation;
                             if (self.list_object.internal_error_accuracy != undefined) {
@@ -3207,6 +3233,7 @@
                            $('.widget-3a').removeClass('widget-loader-show');
                            $('.widget-3b').removeClass('widget-data-hide');
                        })
+                 }
 			}
 
                     self.from_to = function(final_work, type, name) {
@@ -3224,6 +3251,8 @@
                         }
 
                         self.type = type;
+
+                        if ((self.acc_timeline.length == 1) || (type == 'week') || (type == 'month')) {
 
                         var from_to = '/api/from_to/'+self.data_to_show + type + final_work + '&chart_name=7&chart_name=8';
 
@@ -3434,10 +3463,15 @@
                             }
 
                          })
+                        }
                        }
                 self.hideLoading();
-                var static_ajax = static_data + self.static_widget_data;
+
+        var static_ajax = static_data + self.static_widget_data;
 		self.static_data_call = function(static_ajax){
+
+                if (self.stacti_list.length == 1) {
+                
                 $http({method:"GET", url:static_ajax}).success(function(result){
 
                     angular.extend(self.chartOptions32, {
@@ -3519,9 +3553,134 @@
                     $('.widget-32b').removeClass('widget-data-hide');
 
                 });
+            }
 		}
+            self.work_list = [];
+            self.stacti_list = [];
+            self.prod_list = [];
+            self.bar_acc = [];
+            self.cate_pie = [];
+            self.cate_pareto = [];
+            self.agent_pareto = [];
+            self.fte_list = [];
+            self.err_field = [];
+            self.acc_timeline = [];
+            self.utili_list = [];
             if (self.is_voice_flag == false) {
-                $q.all([self.allo_and_comp(undefined, undefined, undefined), self.utill_all(undefined, undefined, undefined),
+                var sort_array = [];
+                var final_array = []; 
+                for (var key in self.list_object) {
+                     sort_array.push({key:key,value:self.list_object[key].widget_priority});
+                }
+               sort_array.sort(function(x,y){return x.value - y.value});
+                var values_array = [];
+                sort_array.forEach( function (eachObj){
+                    for (var key in eachObj) {
+                        values_array.push(eachObj.key);
+                    }
+                });
+ 
+                 var names = values_array;
+                 var uniqueNames = [];
+                 $.each(names, function(i, el){
+                     if($.inArray(el, uniqueNames) === -1) uniqueNames.push(el);
+                 }); 
+
+                $.each(uniqueNames, function (key, val) {
+                    if ((val == 'productivity_chart') || (val == 'productivity_bar_graph')) {
+                         self.prod_list.push('production')
+                         self.main_prod(undefined, undefined, undefined)
+                    } else if ((val == 'volume_bar_graph') || (val == 'volume_productivity_graph')) {
+                         self.work_list.push('work_track')
+                         self.allo_and_comp(undefined, undefined, undefined)
+                    } else if ((val == 'fte_utilization') || (val == 'operational_utilization') || (val == 'utilisation_wrt_work_packet')) {
+                         self.utili_list.push('utilisation')
+                         self.utill_all(undefined, undefined, undefined)
+                    } else if ((val == 'sum_total_fte') || (val == 'total_fte')) {
+                         self.fte_list.push('fte_graphs')
+                         self.fte_graphs(undefined, undefined, undefined)
+                    } else if ((val == 'internal_error_accuracy_pie') || (val == 'external_error_accuracy_pie')) {
+                         self.cate_pie.push('cate_pie')
+                         self.category_error(cate_error)
+                    } else if ((val == 'error_category_internal_pareto_analysis') || (val == 'error_category_external_pareto_analysis')) {
+                         self.cate_pareto.push('cate_pareto')
+                         self.pareto_category_error(pareto_cate_error)
+                    } else if ((val == 'agent_wise_pareto_graph_data') || (val == 'agent_wise_external_pareto_analysis')) {
+                         self.agent_pareto.push('agent_pareto')
+                         self.agent_category_error(agent_cate_error)
+                    } else if ((val == 'external_accuracy_timeline') || (val == 'internal_accuracy_timeline')) {
+                         self.acc_timeline.push('accuracy_timeline')
+                         self.from_to(undefined, undefined, undefined)
+                    } else if ((val == 'external_error_accuracy') || (val == 'internal_error_accuracy')) {
+                         self.bar_acc.push('bar_accuracy')
+                         self.error_bar_graph(error_bar_graph)
+                    } else if (val == 'productivity_trends') {
+                         self.productivity(undefined, undefined)
+                    } else if (val == 'monthly_volume_widget') {
+                         self.mont_volume(undefined, undefined)
+                    } else if (val == 'production_avg_perday') {
+                         self.prod_avg(undefined, undefined)
+                    } else if (val == 'target_upload_graph') {
+                         self.upload_acc(undefined, undefined)
+                    } else if (val == 'pre_scan_exception_chart') {
+                         self.pre_scan(undefined, undefined)
+                    } else if (val == 'nw_exception_chart') {
+                         self.nw_exce(undefined, undefined)
+                    } else if (val == 'overall_exception_chart') {
+                         self.overall_exce(undefined, undefined)
+                    } else if (val == 'tat_graph') {
+                         self.tat_data(undefined, undefined)
+                    } else if ((val == 'Static_Daily_Production_Trend') || (val == 'Static_Weekly_Production_Trend') || (val == 'Static_Monthly_Production_Trend') || (val == 'Static_Daily_Production_Bar') || (val == 'Static_Weekly_Production_Bar') || (val == 'Static_Monthly_Production_Bar')) {
+                         self.stacti_list.push('static')
+                         self.static_data_call(static_ajax)
+                 } else if ((val == 'internal_field_accuracy_graph') || (val == 'external_field_accuracy_graph')) {
+                          self.err_field.push('field_accuracy')
+                          self.error_field_graph(err_field_graph)
+                    }
+                });
+                /*$q.all([self.main_prod(undefined, undefined, undefined),self.allo_and_comp(undefined, undefined, undefined),
+                    self.error_bar_graph(error_bar_graph),self.category_error(cate_error)]).then(function(){
+
+                    $q.all([self.pareto_category_error(pareto_cate_error),self.mont_volume(undefined, undefined),
+                        self.agent_category_error(agent_cate_error),self.error_field_graph(err_field_graph)]).then(function(){
+
+                        $q.all([self.prod_avg(undefined, undefined),self.pre_scan(undefined, undefined),
+                            self.nw_exce(undefined, undefined),self.overall_exce(undefined, undefined)]).then(function(){
+
+                            $q.all([self.static_data_call(static_ajax),self.utill_all(undefined, undefined, undefined),
+                                self.tat_data(undefined, undefined)]).then(function(){
+                                self.annot_perm();
+                            });  
+                        });  
+                    });      
+                });*/
+
+                /*$q.all([self.main_prod(undefined, undefined, undefined),self.allo_and_comp(undefined, undefined, undefined),
+                    self.error_bar_graph(error_bar_graph),self.category_error(cate_error),
+                    self.pareto_category_error(pareto_cate_error),self.mont_volume(undefined, undefined),
+                    self.agent_category_error(agent_cate_error),self.error_field_graph(err_field_graph),
+                    self.prod_avg(undefined, undefined),self.pre_scan(undefined, undefined),
+                    self.nw_exce(undefined, undefined),self.overall_exce(undefined, undefined),
+                    self.static_data_call(static_ajax),self.utill_all(undefined, undefined, undefined),
+                    self.tat_data(undefined, undefined)]).then(function(){
+                        self.annot_perm();
+                    });*/
+
+                /*$q.all([self.main_prod(undefined, undefined, undefined),self.allo_and_comp(undefined, undefined, undefined),
+                    self.error_bar_graph(error_bar_graph),self.category_error(cate_error)])
+                    self.pareto_category_error(pareto_cate_error),self.mont_volume(undefined, undefined),
+                    self.agent_category_error(agent_cate_error),self.error_field_graph(err_field_graph).then(function(){
+                    $q.all([self.prod_avg(undefined, undefined),self.pre_scan(undefined, undefined),
+                        self.nw_exce(undefined, undefined),self.overall_exce(undefined, undefined),
+                        self.static_data_call(static_ajax),self.utill_all(undefined, undefined, undefined),
+                        self.tat_data(undefined, undefined)]).then(function(){
+                            self.annot_perm();
+                        });
+                    });*/
+      
+          
+        
+                /*$q.all([self.allo_and_comp(undefined, undefined, undefined), self.utill_all(undefined, undefined, undefined),
                     self.productivity(undefined, undefined), self.prod_avg(undefined, undefined)]).then(function(){
 
                 $q.all([self.pareto_category_error(pareto_cate_error) ,self.agent_category_error(agent_cate_error), 
@@ -3544,7 +3703,33 @@
 
                 });
 
-                });
+                });*/
+                /*$q.all([
+                self.allo_and_comp(undefined, undefined, undefined),
+                self.utill_all(undefined, undefined, undefined),
+                self.productivity(undefined, undefined),
+                self.prod_avg(undefined, undefined),
+                self.pareto_category_error(pareto_cate_error),
+                self.agent_category_error(agent_cate_error),
+                self.main_prod(undefined, undefined, undefined),
+                self.category_error(cate_error),
+                self.from_to(undefined, undefined, undefined),
+                self.error_bar_graph(error_bar_graph),
+                self.pre_scan(undefined, undefined),
+                self.nw_exce(undefined, undefined),
+                self.overall_exce(undefined, undefined),
+                self.upload_acc(undefined, undefined),
+                self.mont_volume(undefined, undefined),
+                self.fte_graphs(undefined, undefined, undefined),
+                self.error_field_graph(err_field_graph),
+                self.tat_data(undefined, undefined),
+                self.static_data_call(static_ajax)
+                ]).then(function(){
+
+                    self.annot_perm(); 
+                })*/
+
+
             }
         }
 
