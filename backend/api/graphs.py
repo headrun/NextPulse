@@ -115,8 +115,9 @@ def week_calculations_multi(dates,project,center,level_structure_key,function_na
         else:
             data = function_name(date, project, center, level_structure_key)
             week_dict[week_name] = data[sub_name1]
+            week_dict_1[week_name] = data[sub_name1]
             result = volume_status_week(week_names, week_dict, final_dict)
-            result_1 = received_volume_week(week_names, week_dict, final_dict_1)
+            result_1 = received_volume_week(week_names, week_dict_1, final_dict_1)
             result_2 = ''
     return result, result_1, result_2
 
