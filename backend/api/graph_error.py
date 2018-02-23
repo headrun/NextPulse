@@ -28,8 +28,10 @@ def error_charts(request, name, function_name, internal_name, external_name, ter
     _internal_data = function_name(date_list, project, center, level_structure_key, "Internal",term)
     _external_data = function_name(date_list, project, center, level_structure_key, "External",term)
     if name == 'field_bar':
-        final_dict[internal_name] = graph_data_alignment_color(_internal_data[internal_name],'y',level_structure_key,project,center,internal_name)
-        final_dict[external_name] = graph_data_alignment_color(_external_data[external_name],'y',level_structure_key,project,center,external_name)
+        final_dict[internal_name] = graph_data_alignment_color(_internal_data[internal_name],'y',\
+                                    level_structure_key,project,center,internal_name)
+        final_dict[external_name] = graph_data_alignment_color(_external_data[external_name],'y',\
+                                    level_structure_key,project,center,external_name)
     elif name != 'pareto_charts':
         final_dict[internal_name] = graph_data_alignment_color(_internal_data,'y',level_structure_key,project,center,'')
         final_dict[external_name] = graph_data_alignment_color(_external_data,'y',level_structure_key,project,center,'')        
@@ -207,12 +209,15 @@ def internal_extrnal_error_types(date_list,prj_id,center_obj,level_structure_key
         param2 = 'sub_error_count'
 
     params = get_query_parameters(level_structure_key, prj_id, center_obj, date_list)
-    
-    error_query = table_name.objects.filter(**params).values(param1, param2)
+    if term == 'agent':
+        error_query = table_name.objects.filter(**params).filter(total_errors__gt=0).values(param1, param2)
+    else:
+        error_query = table_name.objects.filter(**params).values(param1, param2)
     if term == '' or term == 'sub_error':
         values = different_error_type(error_query)
     elif term == 'agent':
         values = agent_errors(error_query)
+
     for key, value in values.iteritems():
         if key != 'no_data':
             if final_dict.has_key(key):
