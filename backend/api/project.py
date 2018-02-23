@@ -31,35 +31,25 @@ def project(request):
         for item in team_lead_obj:
             center.append(item[0])
             prj_id.append(item[1])
-        """
-        team_lead_obj = TeamLead.objects.filter(name_id=request.user.id)
-        center = team_lead_obj.values_list('center', flat=True)
-        prj_id = team_lead_obj.values_list('project', flat=True)
-        """
+
     if 'customer' in user_group:
         select_list = []
         details = {}      
         customer_objs = Customer.objects.filter(name_id=request.user.id)
         center_list = customer_objs.values_list('center', flat = True)
         project_list = customer_objs.values_list('project', flat =True)
-        #center_list = Customer.objects.filter(name_id=request.user.id).values_list('center')
-        #project_list = Customer.objects.filter(name_id=request.user.id).values_list('project')
         if (len(center_list) & len(project_list)) == 1:
             select_list.append('none')
         if len(center_list) < 2:  
-            #center_name = str(Center.objects.filter(id=center_list[0][0])[0])
             center_name = str(Center.objects.filter(id=center_list[0])[0])
             for project in project_list:
-                #project_name = str(Project.objects.filter(id=project[0])[0])
                 project_name = str(Project.objects.filter(id=project)[0])
                 vari = center_name + ' - ' + project_name
                 select_list.append(vari)
         elif len(center_list) >= 2:
             for center in center_list:
-                #center_name = str(Center.objects.filter(id=center[0])[0])
                 center_name = str(Center.objects.filter(id=center)[0])
                 for project in project_list:
-                    #project_name = str(Project.objects.filter(id=project[0])[0])
                     project_name = str(Project.objects.filter(id=project)[0])
                     select_list.append(center_name + ' - ' + project_name) 
         details['list'] = select_list
@@ -86,9 +76,7 @@ def project(request):
         elif center_list.count() >= 2:
             for center in center_list:
                 center_query = Center.objects.filter(id=center)
-                #center_name = str(Center.objects.filter(id=center)[0])
                 center_name = str(center_query[0])
-                #center_id = Center.objects.filter(id=center)[0].id
                 center_id = center_query[0].id
                 project_list = Project.objects.filter(center_id=center_id)
                 for project in project_list:
@@ -118,8 +106,6 @@ def project(request):
                 center_query = Center.objects.filter(id=center)
                 center_name = str(center_query[0])
                 center_id = center_query[0].id
-                #center_name = str(Center.objects.filter(id=center)[0])
-                #center_id = Center.objects.filter(id=center)[0].id
                 project_list = Project.objects.filter(center_id=center_id)
                 for project in project_list:
                     project_name = str(project)
