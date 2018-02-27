@@ -1520,6 +1520,9 @@
                                     },
                                     plotOptions: {
                                         series: {
+                                            label: {
+                                                connectorAllowed: true
+                                            },
                                         dataLabels: {
                                             enabled: value,
                                             valueDecimals: 2
@@ -4860,7 +4863,8 @@
 
             self.chartOptions = {
                 chart : {
-                 backgroundColor: "transparent"
+                 backgroundColor: "transparent",
+                 reflow: false
                 },
                 lang: {
 			       thousandsSep: ','
@@ -4891,7 +4895,8 @@
       
            self.chartOptions39 = {
                 chart : {
-                 backgroundColor: "transparent"
+                 backgroundColor: "transparent",
+                 reflow: false
                 },
                 yAxis: {
                     gridLineColor: 'a2a2a2',
@@ -4914,7 +4919,8 @@
 
            self.chartOptions40 = {
                 chart : {
-                 backgroundColor: "transparent"
+                 backgroundColor: "transparent",
+                 reflow: false
                 },
                 yAxis: {
                     gridLineColor: 'a2a2a2',
@@ -4938,7 +4944,8 @@
 
            self.chartOptions41 = {
                 chart : {
-                 backgroundColor: "transparent"
+                 backgroundColor: "transparent",
+                 reflow: false
                 },
                 yAxis: {
                     gridLineColor: 'a2a2a2',
@@ -4962,7 +4969,8 @@
 
             self.chartOptions42 = {
                 chart : {
-                 backgroundColor: "transparent"
+                 backgroundColor: "transparent",
+                 reflow: false
                 },
                 yAxis: {
                     gridLineColor: 'a2a2a2',
@@ -4986,7 +4994,8 @@
 
            self.chartOptions38 = {
                 chart : {
-                 backgroundColor: "transparent"
+                 backgroundColor: "transparent",
+                 reflow: false
                 },
                 lang: {
                    thousandsSeparator: ','
@@ -5019,7 +5028,8 @@
             self.chartOptions10 = {
             chart: {
                 type: 'column',
-                backgroundColor: "transparent"
+                backgroundColor: "transparent",
+                reflow: false
              },
             yAxis: {
                 gridLineColor: 'a2a2a2',
@@ -5040,7 +5050,8 @@
 
             self.chartOptions9 = {
                 chart : {
-                 backgroundColor: "transparent"
+                 backgroundColor: "transparent",
+                 reflow: false
                 },
                                yAxis: {
                 gridLineColor: 'a2a2a2',
@@ -5064,7 +5075,8 @@
 
             self.chartOptions9_2 = {
                 chart : {
-                 backgroundColor: "transparent"
+                 backgroundColor: "transparent",
+                 reflow: false
                 },
                                yAxis: {
                 gridLineColor: 'a2a2a2',
@@ -5089,7 +5101,8 @@
             self.chartOptions4 = {
             chart: {
                 type: 'column',
-                backgroundColor: "transparent"
+                backgroundColor: "transparent",
+                reflow: false
              },
             title: {
                 text: ''
@@ -5133,7 +5146,8 @@
             self.chartOptions43 = {
             chart: {
                 type: 'column',
-                backgroundColor: "transparent"
+                backgroundColor: "transparent",
+                reflow: false
              },
             title: {
                 text: ''
@@ -5177,7 +5191,8 @@
             self.chartOptions44 = {
             chart: {
                 type: 'column',
-                backgroundColor: "transparent"
+                backgroundColor: "transparent",
+                reflow: false
              },
             title: {
                 text: ''
@@ -5224,7 +5239,8 @@
                     plotBackgroundColor: null,
                     plotBorderWidth: null,
                     plotShadow: false,
-                    type: 'pie'
+                    type: 'pie',
+                    reflow: false
                   },
                 title: {
                     text: ''
@@ -5257,7 +5273,8 @@
                     plotBackgroundColor: null,
                     plotBorderWidth: null,
                     plotShadow: false,
-                    type: 'pie'
+                    type: 'pie',
+                    reflow: false
                   },
                 title: {
                     text: ''
@@ -5287,7 +5304,8 @@
         self.chartOptions47 = {
             chart: {
                 type: 'column',
-                backgroundColor: "transparent"
+                backgroundColor: "transparent",
+                reflow: false
              },   
             title: {
                 text: ''
@@ -5325,7 +5343,8 @@
             self.chartOptions48 = {
                 chart: {
                     type: 'column',
-                    backgroundColor: "transparent"
+                    backgroundColor: "transparent",
+                    reflow: false
                  },
                 title: {
                     text: ''
@@ -5363,7 +5382,8 @@
             self.chartOptions50 = {
                 chart: {
                     type: 'column',
-                    backgroundColor: "transparent"
+                    backgroundColor: "transparent",
+                    reflow: false
                 },
                 title: {
                     text: ''
@@ -5412,7 +5432,8 @@
             self.chartOptions49 = {
                 chart: {
                     type: 'column',
-                    backgroundColor: "transparent"
+                    backgroundColor: "transparent",
+                    reflow: false
                 },   
                 title: {
                     text: ''
@@ -5451,7 +5472,8 @@
                     plotBackgroundColor: null,
                     plotBorderWidth: null,
                     plotShadow: false,
-                    type: 'pie'
+                    type: 'pie',
+                    reflow: false
                   },
                 title: {
                     text: ''
@@ -5484,7 +5506,8 @@
                     plotBackgroundColor: null,
                     plotBorderWidth: null,
                     plotShadow: false,
-                    type: 'pie'
+                    type: 'pie',
+                    reflow: false
                   },
                 title: {
                     text: ''
@@ -5514,7 +5537,8 @@
             self.chartOptions53 = {
                 chart: {
                 type: 'column',
-                backgroundColor: "transparent"
+                backgroundColor: "transparent",
+                reflow: false
              },    
             title: {
                 text: ''
@@ -5553,7 +5577,8 @@
             self.chartOptions54 = {
                 chart: {
                 type: 'column',
-                backgroundColor: "transparent"
+                backgroundColor: "transparent",
+                reflow: false
              },
             title: {
                 text: ''
@@ -5590,7 +5615,8 @@
 
             self.chartOptions55 = {
                 chart : {
-                 backgroundColor: "transparent"
+                 backgroundColor: "transparent",
+                 reflow: false
                 },
                                yAxis: {
                 gridLineColor: 'a2a2a2',
@@ -5614,7 +5640,8 @@
 
             self.chartOptions56 = {
                 chart : {
-                 backgroundColor: "transparent"
+                 backgroundColor: "transparent",
+                 reflow: false
                 },  
                                yAxis: {
                 gridLineColor: 'a2a2a2',
@@ -5637,7 +5664,8 @@
 
             self.chartOptions57 = {
                 chart : {
-                 backgroundColor: "transparent"
+                 backgroundColor: "transparent",
+                 reflow: false
                 },
                                yAxis: {
                 gridLineColor: 'a2a2a2',
@@ -5660,7 +5688,8 @@
 
             self.chartOptions58 = {
                 chart : {
-                 backgroundColor: "transparent"
+                 backgroundColor: "transparent",
+                 reflow: false
                 },
                                yAxis: {
                 gridLineColor: 'a2a2a2',
@@ -5684,7 +5713,8 @@
 
             self.chartOptions59 = {
                 chart : {
-                 backgroundColor: "transparent"
+                 backgroundColor: "transparent",
+                 reflow: false
                 },
                                yAxis: {
                 gridLineColor: 'a2a2a2',
@@ -5707,7 +5737,8 @@
 
             self.chartOptions60 = {
                 chart : {
-                 backgroundColor: "transparent"
+                 backgroundColor: "transparent",
+                 reflow: false
                 },
                                yAxis: {
                 gridLineColor: 'a2a2a2',
@@ -5730,7 +5761,8 @@
 
             self.chartOptions61 = {
                 chart : {
-                 backgroundColor: "transparent"
+                 backgroundColor: "transparent",
+                 reflow: false
                 },
                                yAxis: {
                 gridLineColor: 'a2a2a2',
@@ -5753,7 +5785,8 @@
 
             self.chartOptions62 = {
                 chart : {
-                 backgroundColor: "transparent"
+                 backgroundColor: "transparent",
+                 reflow: false
                 },
                                yAxis: {
                 gridLineColor: 'a2a2a2',
@@ -5777,7 +5810,8 @@
 
             self.chartOptions63 = {
                 chart : {
-                 backgroundColor: "transparent"
+                 backgroundColor: "transparent",
+                 reflow: false
                 },
                                yAxis: {
                 gridLineColor: 'a2a2a2',
@@ -5802,6 +5836,7 @@ self.chartOptions64 = {
                 chart: {
             zoomType: 'xy',
             backgroundColor: "transparent",
+            reflow: false
         },
         xAxis: [{
             crosshair: true,
@@ -5867,7 +5902,8 @@ self.chartOptions64 = {
                     plotBackgroundColor: null,
                     plotBorderWidth: null,
                     plotShadow: false,
-                    type: 'pie'
+                    type: 'pie',
+                    reflow: false
                   },
                 title: {
                     text: ''
@@ -5900,7 +5936,8 @@ self.chartOptions64 = {
                     plotBackgroundColor: null,
                     plotBorderWidth: null,
                     plotShadow: false,
-                    type: 'pie'
+                    type: 'pie',
+                    reflow: false
                   },
                 title: {
                     text: ''
@@ -5933,7 +5970,8 @@ self.chartOptions64 = {
                     plotBackgroundColor: null,
                     plotBorderWidth: null,
                     plotShadow: false,
-                    type: 'pie'
+                    type: 'pie',
+                    reflow: false
                   },
                 title: {
                     text: ''
@@ -5962,7 +6000,8 @@ self.chartOptions64 = {
             self.chartOptions6 = {
             chart: {
                 type: 'column',
-                backgroundColor: "transparent"
+                backgroundColor: "transparent",
+                reflow: false
              },
             title: {
                 text: ''
@@ -6004,7 +6043,8 @@ self.chartOptions64 = {
             };
             self.chartOptions15 = {
                 chart : {
-                 backgroundColor: "transparent"
+                 backgroundColor: "transparent",
+                 reflow: false
                 },
                                yAxis: {
                 gridLineColor: 'a2a2a2',
@@ -6027,7 +6067,8 @@ self.chartOptions64 = {
 
             self.chartOptions24 = {
                 chart : {
-                 backgroundColor: "transparent"
+                 backgroundColor: "transparent",
+                 reflow: false
                 },
                                yAxis: {
                 gridLineColor: 'a2a2a2',
@@ -6050,7 +6091,8 @@ self.chartOptions64 = {
 
             self.chartOptions26 = {
                 chart : {
-                 backgroundColor: "transparent"
+                 backgroundColor: "transparent",
+                 reflow: false
                 },
                 yAxis: {
                     gridLineColor: 'a2a2a2',
@@ -6079,6 +6121,7 @@ self.chartOptions64 = {
             chart: {
             zoomType: 'xy',
             backgroundColor: "transparent",
+            reflow: false
         },
         xAxis: [{
             crosshair: true,
@@ -6130,6 +6173,7 @@ self.chartOptions64 = {
             chart: {
             zoomType: 'xy',
             backgroundColor: "transparent",
+            reflow: false
         },
         xAxis: [{
 
@@ -6182,6 +6226,7 @@ self.chartOptions64 = {
             chart: {
             zoomType: 'xy',
             backgroundColor: "transparent",
+            reflow: false
         },
         xAxis: [{
             crosshair: true,
@@ -6231,7 +6276,8 @@ self.chartOptions64 = {
 
         self.chartOptions31 = {
                 chart : {
-                 backgroundColor: "transparent"
+                 backgroundColor: "transparent",
+                 reflow: false
                 },
                                yAxis: {
                 gridLineColor: 'a2a2a2',
@@ -6256,6 +6302,7 @@ self.chartOptions64 = {
             chart: {
             zoomType: 'xy',
             backgroundColor: "transparent",
+            reflow: false
         },
         xAxis: [{
             crosshair: true,
@@ -6305,7 +6352,8 @@ self.chartOptions64 = {
 
             self.chartOptions25 = {
                 chart : {
-                 backgroundColor: "transparent"
+                 backgroundColor: "transparent",
+                 reflow: false
                 },
                                yAxis: {
                 gridLineColor: 'a2a2a2',
@@ -6329,7 +6377,8 @@ self.chartOptions64 = {
 
             self.chartOptions16 = {
                 chart : {
-                 backgroundColor: "transparent"
+                 backgroundColor: "transparent",
+                 reflow: false
                 },
                                yAxis: {
                 gridLineColor: 'a2a2a2',
@@ -6339,7 +6388,7 @@ self.chartOptions64 = {
                  align: 'high'
                 },
                 labels: {
-                 overflow: 'justify'
+                 overflow: 'justify',
                 }
                },
                tooltip: {
@@ -6351,7 +6400,8 @@ self.chartOptions64 = {
             };
             self.chartOptions16_2 = {
                 chart : {
-                 backgroundColor: "transparent"
+                 backgroundColor: "transparent",
+                 reflow: false,
                 },
                                yAxis: {
                 gridLineColor: 'a2a2a2',
@@ -6361,7 +6411,7 @@ self.chartOptions64 = {
                  align: 'high'
                 },
                 labels: {
-                 overflow: 'justify'
+                 overflow: 'justify',
                 }
                },
                tooltip: {
@@ -6382,7 +6432,8 @@ self.chartOptions64 = {
             self.chartOptions17 = {
             chart: {
                 type: 'column',
-                backgroundColor: "transparent"
+                backgroundColor: "transparent",
+                reflow: false
              },
             title: {
                 text: ''
@@ -6419,7 +6470,8 @@ self.chartOptions64 = {
 
             self.chartOptions18 = {
                 chart : {
-                 backgroundColor: "transparent"
+                 backgroundColor: "transparent",
+                 reflow: false
                 },
                                yAxis: {
                 gridLineColor: 'a2a2a2',
@@ -6447,7 +6499,8 @@ self.chartOptions64 = {
 
             self.chartOptions19 = {
                 chart : {
-                 backgroundColor: "transparent"
+                 backgroundColor: "transparent",
+                 reflow: false
                 },
                                yAxis: {
                 gridLineColor: 'a2a2a2',
@@ -6473,6 +6526,7 @@ self.chartOptions64 = {
                 chart: {
             zoomType: 'xy',
             backgroundColor: "transparent",
+            reflow: false
         },
         xAxis: [{
             crosshair: true,
@@ -6517,6 +6571,7 @@ self.chartOptions64 = {
                 chart: {
             zoomType: 'xy',
             backgroundColor: "transparent",
+            reflow: false
         },
         xAxis: [{
             crosshair: true,
@@ -6559,7 +6614,8 @@ self.chartOptions64 = {
 
    self.chartOptions32 = {
                 chart : {
-                 backgroundColor: "transparent"
+                 backgroundColor: "transparent",
+                 reflow: false
                 },
                 lang: {
                    thousandsSeparator: ','
@@ -6589,7 +6645,8 @@ self.chartOptions64 = {
 
     self.chartOptions33 = {
                 chart : {
-                 backgroundColor: "transparent"
+                 backgroundColor: "transparent",
+                 reflow: false
                 },
                 lang: {
                    thousandsSeparator: ','
@@ -6621,7 +6678,8 @@ self.chartOptions64 = {
 
     self.chartOptions34 = {
                 chart : {
-                 backgroundColor: "transparent"
+                 backgroundColor: "transparent",
+                 reflow: false
                 },
                 lang: {
                    thousandsSeparator: ','
@@ -6654,7 +6712,8 @@ self.chartOptions64 = {
     self.chartOptions35 = {
             chart: {
                 type: 'column',
-                backgroundColor: "transparent"
+                backgroundColor: "transparent",
+                reflow: false
              },
             title: {
                 text: ''
@@ -6684,7 +6743,8 @@ self.chartOptions64 = {
     self.chartOptions36 = {
             chart: {
                 type: 'column',
-                backgroundColor: "transparent"
+                backgroundColor: "transparent",
+                reflow: false
              },
             title: {
                 text: ''
@@ -6714,7 +6774,8 @@ self.chartOptions64 = {
     self.chartOptions37 = {
             chart: {
                 type: 'column',
-                backgroundColor: "transparent"
+                backgroundColor: "transparent",
+                reflow: false
              },
             title: {
                 text: ''
