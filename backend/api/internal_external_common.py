@@ -689,16 +689,16 @@ def accuracy_bar_graphs(date_list,prj_id,center_obj,level_structure_key,error_ty
 
     filter_params, _term = getting_required_params(level_structure_key, prj_id, center_obj, date_list)
     query_values = table_name.objects.filter(**filter_params)
-    packets = query_values.values_list(_term, flat=True).distinct()
     error_data = query_values.values_list(_term).annotate(total=Sum('total_errors'), audit=Sum('audited_errors'))
     rawtable = RawTable.objects.filter(**filter_params) 
     raw_packets = rawtable.values_list(_term).annotate(prod=Sum('per_day'))
-
+    packets = [data[0] for data in raw_packets]
+    packets = set(packets)
     for data in error_data:
         if data[1] > 0:
             value = (float(data[2])/float(data[1])) * 100
             accuracy = 100-float('%.2f' % round(value, 2))
-        elif data[1] == 0:
+        elif data[1] == 0 and data[0] in packets:
             for prod_val in raw_packets:
                 if data[0] == prod_val[0]:
                     value = (float(data[2])/float(prod_val[1])) * 100
