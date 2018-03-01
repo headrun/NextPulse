@@ -180,26 +180,25 @@ def production_avg_perday(date_list,prj_id,center_obj,level_structure_key):
     for key in packets:
        result_dict.update({key:[]})
     for i, val in enumerate(data_values):
-        if i:
-            date,packet,done = val
-            if i < len(data_values)-1:
-                nxt_date, nxt_packet, nxt_done = data_values[i+1]
-                dct.update({packet:done})
-                if nxt_date != date:
-                    for packet in packets:
-                        dict_val = result_dict[packet]
-                        dict_val.append(dct.setdefault(packet,0))
-                        result_dict.update({packet:dict_val})
-                    dct = {}
-            else:
-                p_date, p_packet, p_done = data_values[i-1]
-                if p_date != date:
-                    dct = {}
-                dct.update({packet:done})
+        date,packet,done = val
+        if i < len(data_values)-1:
+            nxt_date, nxt_packet, nxt_done = data_values[i+1]
+            dct.update({packet:done})
+            if nxt_date != date:
                 for packet in packets:
                     dict_val = result_dict[packet]
                     dict_val.append(dct.setdefault(packet,0))
                     result_dict.update({packet:dict_val})
+                dct = {}
+        else:
+            p_date, p_packet, p_done = data_values[i-1]
+            if p_date != date:
+                dct = {}
+            dct.update({packet:done})
+            for packet in packets:
+                dict_val = result_dict[packet]
+                dict_val.append(dct.setdefault(packet,0))
+                result_dict.update({packet:dict_val})
     return result_dict
 
 

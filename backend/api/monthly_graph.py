@@ -39,36 +39,35 @@ def volume_cumulative_data(date_list, prj_id, center, level_structure_key):
        date_values.update({key:[]})
        emp_dict.update({key:[]}) 
     for i, val in enumerate(data_values):
-        if i:
-            date,packet,done,emp_count = val
-            if i < len(data_values)-1:
-                nxt_date, nxt_packet, nxt_done, nxt_count = data_values[i+1]
-                dct.update({packet:emp_count})
-                _dict.update({packet:done}) 
-                if nxt_date != date:
-                    for packet in packets:
-                        dict_val = date_values[packet]
-                        emp_val = emp_dict[packet]
-                        dict_val.append(dct.setdefault(packet,0))
-                        emp_val.append(_dict.setdefault(packet,0)) 
-                        date_values.update({packet:dict_val})
-                        emp_dict.update({packet:emp_val}) 
-                    dct = {}
-                    _dict = {}
-            else:
-                p_date, p_packet, p_done, p_count = data_values[i-1]
-                if p_date != date:
-                    dct = {}
-                    _dict = {}
-                dct.update({packet:emp_count})
-                _dict.update({packet:done}) 
+        date,packet,done,emp_count = val
+        if i < len(data_values)-1:
+            nxt_date, nxt_packet, nxt_done, nxt_count = data_values[i+1]
+            dct.update({packet:emp_count})
+            _dict.update({packet:done}) 
+            if nxt_date != date:
                 for packet in packets:
                     dict_val = date_values[packet]
                     emp_val = emp_dict[packet]
                     dict_val.append(dct.setdefault(packet,0))
-                    emp_val.append(_dict.setdefault(packet,0))
+                    emp_val.append(_dict.setdefault(packet,0)) 
                     date_values.update({packet:dict_val})
-                    emp_dict.update({packet:emp_val})
+                    emp_dict.update({packet:emp_val}) 
+                dct = {}
+                _dict = {}
+        else:
+            p_date, p_packet, p_done, p_count = data_values[i-1]
+            if p_date != date:
+                dct = {}
+                _dict = {}
+            dct.update({packet:emp_count})
+            _dict.update({packet:done}) 
+            for packet in packets:
+                dict_val = date_values[packet]
+                emp_val = emp_dict[packet]
+                dict_val.append(dct.setdefault(packet,0))
+                emp_val.append(_dict.setdefault(packet,0))
+                date_values.update({packet:dict_val})
+                emp_dict.update({packet:emp_val})
 
     import collections
     if _type == 'FTE Target':
