@@ -1013,7 +1013,7 @@
                         return $http({method:"GET", url: productivity}).success(function(result){
 
                             var date_list = result.result.date;
-                            var productivity = result.result.original_productivity_graph;
+                            var productivity = result.result.productivity;
                             var is_annotation = result.result.is_annotation;                            
 
                             if (self.list_object.productivity_trends != undefined) {
@@ -1493,8 +1493,8 @@
                                 }
                             }
                             var date_list = result.result.date;
-                            var work_packet_fte = result.result.fte_calc_data.work_packet_fte;
-                            var total_fte = result.result.fte_calc_data.total_fte;
+                            var work_packet_fte = result.result.fte_calc_data.fte_scope;
+                            var total_fte = result.result.fte_calc_data.fte_trend;
                             var is_annotation = result.result.is_annotation;
                             var date_range = $('#select').val().split('to');
                             
@@ -3262,8 +3262,8 @@
                         return $http({method:"GET", url: from_to}).success(function(result){
 
                             var date_list = result.result.date;
-                            var external_error_timeline = result.result.external_time_line;
-                            var internal_error_timeline = result.result.internal_time_line;
+                            var external_error_timeline = result.result.external_accuracy_timeline;
+                            var internal_error_timeline = result.result.internal_accuracy_timeline;
                             var is_annotation = result.result.is_annotation;
 
                             if ((name == "self.chartOptions9_2") || (name == "")) {
