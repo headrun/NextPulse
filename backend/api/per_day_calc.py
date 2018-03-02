@@ -93,6 +93,17 @@ def main_prod(request):
     return result
 
 
+def productivity(request):
+
+    result_name = 'productivity'
+
+    function_name = productivity_day
+
+    result = generate_day_week_month_format(request, result_name, function_name)
+
+    return result
+
+
 def tat_data(request):
 
     result_name = 'tat_graph_details'
@@ -136,7 +147,7 @@ def week_calculations(dates, project, center, level_structure_key, function_name
         week_num = week_num + 1
         data = function_name(date, project, center, level_structure_key)
         week_dict[week_name] = data
-    if function_name in [production_avg_perday,overall_exception_data,nw_exception_data]:
+    if function_name in [production_avg_perday,overall_exception_data,nw_exception_data,productivity_day]:
         result = prod_volume_week_util(project, week_names, week_dict, {}, 'week')
     elif function_name == tat_graph:
         result = prod_volume_week_util_headcount(week_names, week_dict, {})
@@ -157,7 +168,7 @@ def month_calculations(dates, project, center, level_structure_key, function_nam
         month_names.append(month_name)
         data = function_name(month_dates, project, center, level_structure_key)
         month_dict[month_name] = data
-    if function_name in [production_avg_perday,overall_exception_data,nw_exception_data]:
+    if function_name in [production_avg_perday,overall_exception_data,nw_exception_data,productivity_day]:
         result = prod_volume_week_util(project, month_names, month_dict, {}, 'month')
     elif function_name == tat_graph:
         result = prod_volume_week_util_headcount(month_names, month_dict, {})

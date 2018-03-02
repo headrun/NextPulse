@@ -209,6 +209,452 @@ def get_target_query_format(level_structure_key, prj_id, center, date_list):
     return targets, raw_query, _type
 
 
+def productivity_day(date_list, prj_id, center_obj, level_structure_key):
+
+    packet_names = Headcount.objects.filter(project=prj_id, center=center_obj, date__range=[date_list[0],date_list[-1]]).values('sub_project', 'work_packet', 'sub_packet').distinct()
+    count  = 0;
+    for i in packet_names:
+        if all(value == '' for value in i.values()):
+            count = count + 1;
+
+    filter_params, _term = getting_required_params(level_structure_key, prj_id, center_obj, date_list)
+    data_dict = {};
+    status = 0
+
+    if level_structure_key.get('sub_project','') == 'All':
+        status = 1
+
+    elif level_structure_key.get('sub_project','') == '' and level_structure_key.get('work_packet','') == 'All':
+        status = 1
+
+    if status and count:
+        query_values = RawTable.objects.filter(**filter_params)
+        data_values = query_values.values_list('date').annotate(total=Sum('per_day'))
+        headcount = Headcount.objects.filter(**filter_params).values_list('date').annotate(head_c=Sum('billable_agents'))
+        value_lst = []
+
+        for data_v in data_values:
+            for head_v in headcount:
+                if data_v[0] == head_v[0]:
+                    if head_v[1] > 0:
+                        val = float('%.2f' % round(float(data_v[1])/float(head_v[1]),2))
+                    else:
+                        val = 0
+                    value_lst.append(val)
+                else:
+                    pass
+        data_dict['Total Productivity'] = value_lst
+
+    else:
+        if packet_names:
+            dates_pack = RawTable.objects.filter(project=prj_id, center=center_obj,date__range=[date_list[0],date_list[-1]]).values_list('date', flat=True).distinct()
+            if _term == 'sub_project':
+                raw_query = RawTable.objects.filter(**filter_params)
+                raw_value = raw_query.values('date',_term,'work_packet','sub_packet').annotate(total=Sum('per_day'))
+                packet_details = raw_query.values_list(_term, flat=True).distinct()
+                headcount = Headcount.objects.filter(**filter_params).values('date',_term,'work_packet','sub_packet').annotate(head_c=Sum('billable_agents'))
+            elif _term == 'work_packet':
+                raw_query = RawTable.objects.filter(**filter_params)
+                raw_value = raw_query.values('date','sub_project',_term,'sub_packet').annotate(total=Sum('per_day'))
+                packet_details = raw_query.values_list(_term, flat=True).distinct()                
+                headcount = Headcount.objects.filter(**filter_params).values('date','sub_project',_term,'sub_packet').annotate(head_c=Sum('billable_agents'))
+            elif _term == 'sub_packet':
+                raw_query = RawTable.objects.filter(**filter_params)
+                raw_value = raw_query.values('date','sub_project','work_packet','sub_packet').annotate(total=Sum('per_day'))
+                packet_details = raw_query.values_list(_term, flat=True).distinct()
+                headcount = Headcount.objects.filter(**filter_params).values('date','sub_project','work_packet','sub_packet').annotate(head_c=Sum('billable_agents'))
+            else:
+                raw_query = RawTable.objects.filter(**filter_params)
+                raw_value = raw_query.values('date','sub_project','work_packet','sub_packet').annotate(total=Sum('per_day'))
+                packet_details = raw_query.values_list(_term, flat=True).distinct()
+                headcount = Headcount.objects.filter(**filter_params).values('date','sub_project','work_packet','sub_packet').annotate(head_c=Sum('billable_agents'))
+
+            if (packet_names[0]['sub_project'] == '' and packet_names[0]['work_packet'] != '' and packet_names[0]['sub_packet'] == ''):
+                prod_trend = []
+                for data_v in raw_value:
+                    for head_v in headcount:
+                        if (data_v['date'] == head_v['date']):
+                            if (head_v['sub_project'] == '' and head_v['sub_packet'] == ''):
+                                if (data_v['work_packet'].lower() == head_v['work_packet'].lower()):
+                                    if head_v['head_c'] > 0:
+                                        pack = data_v['work_packet'].lower()
+                                        pack = pack.title()
+                                        prod_trend.append({'date': data_v['date'] , 'work_packet': pack, 'result': float(data_v['total']/head_v['head_c']) })
+                                    else:
+                                        prod_trend.append({'date': data_v['date'] , 'work_packet': pack, 'result': 0 })
+
+                for check_date in dates_pack:
+                    packet_list = []
+                    content_list = []
+                    for index in prod_trend:
+                        if check_date == index['date']:
+                            if ( _term != 'sub_project' and  _term != 'sub_packet'):
+                                packet_list.append(index[_term])
+                                content_list.append(index['result'])
+
+                    if len(packet_list) > 0:
+                        packet_list = sorted(list(set(packet_list)))
+                        packet_list = map(str, packet_list)
+                        for pack in packet_details:
+                            pack = pack.lower()
+                            pack = pack.title()
+                            if str(pack) not in packet_list:
+                                if _term == 'work_packet':
+                                    prod_trend.append({"date": check_date, _term:pack, "result":0})
+
+                    if not len(content_list) > 0:
+                        for pack in packet_details:
+                            pack = pack.lower()
+                            pack = pack.title()
+                            if _term == 'work_packet':
+                                prod_trend.append({"date": check_date, _term:pack, "result":0})
+
+                if _term == 'work_packet':
+                    tmp_obj = {}
+                    for tmp in prod_trend:
+                        if tmp_obj.has_key(str(tmp['date'])):
+                            if tmp_obj[str(tmp['date'])].has_key(tmp['work_packet']):
+                                tmp_obj[str(tmp['date'])][tmp['work_packet']] = tmp_obj[str(tmp['date'])][tmp['work_packet']] + tmp['result']
+                            else:
+                                tmp_obj[str(tmp['date'])].update({tmp['work_packet'] : tmp['result']})
+                        else:
+                            tmp_obj[str(tmp['date'])] = {tmp['work_packet'] : tmp['result']}
+
+                    fte_trend_data, data_dict = tmp_obj_handling(tmp_obj, "sub-project")
+
+            elif(packet_names[0]['sub_project'] != '' and packet_names[0]['work_packet'] == '' and packet_names[0]['sub_packet'] == ''):
+                prod_trend = []
+                for data_v in raw_value:
+                    for head_v in headcount:
+                        if (data_v['date'] == head_v['date']):
+                            if (data_v['sub_project'] == head_v['sub_project']):
+                                if head_v['head_c'] > 0:
+                                    prod_trend.append({'date': data_v['date'] , 'sub_project': data_v['sub_project'], 'result': float(data_v['total']/head_v['head_c']) })
+                                else:
+                                    prod_trend.append({'date': data_v['date'] , 'sub_project': data_v['sub_project'], 'result': 0 })
+
+                for check_date in dates_pack:
+                    packet_list = []
+                    content_list = []
+                    for index in prod_trend:
+                        if check_date == index['date']:
+                            if ( _term != 'work_packet' and  _term != 'sub_packet'):
+                                packet_list.append(index[_term])
+                                content_list.append(index['result'])
+
+                    if len(packet_list) > 0:
+                        packet_list = sorted(list(set(packet_list)))
+                        packet_list = map(str, packet_list)
+                        for pack in packet_details:
+                            if str(pack) not in packet_list:
+                                if _term == 'sub_project':
+                                    prod_trend.append({"date": check_date, _term:pack, "result":0})
+
+                    if not len(content_list) > 0:
+                        for pack in packet_details:
+                            if _term == 'sub_project':
+                                prod_trend.append({"date": check_date, _term:pack, "result":0})
+
+                if _term == 'sub_project':
+                    tmp_obj = {}
+                    for tmp in prod_trend:
+                        if tmp_obj.has_key(str(tmp['date'])):
+                            if tmp_obj[str(tmp['date'])].has_key(tmp['sub_project']):
+                                tmp_obj[str(tmp['date'])][tmp['sub_project']] = tmp_obj[str(tmp['date'])][tmp['sub_project']] + tmp['result']
+                            else:
+                                tmp_obj[str(tmp['date'])].update({tmp['sub_project'] : tmp['result']})
+                        else:
+                            tmp_obj[str(tmp['date'])] = {tmp['sub_project'] : tmp['result']}
+
+                    fte_trend_data, data_dict = tmp_obj_handling(tmp_obj, "sub-project")
+
+            elif(packet_names[0]['sub_project'] != '' and packet_names[0]['work_packet'] != '' and packet_names[0]['sub_packet'] ==''):
+                prod_trend = []
+                for data_v in raw_value:
+                    for head_v in headcount:
+                        if (data_v['date'] == head_v['date']):
+                            if ((data_v['sub_project'] == head_v['sub_project']) and data_v['work_packet'] == head_v['work_packet']):
+                                if head_v['head_c'] > 0:
+                                    prod_trend.append({'date': data_v['date'] , 'sub_project': data_v['sub_project'], 'work_packet': data_v['work_packet'], 'result': float(data_v['total']/head_v['head_c']) })
+                                else:
+                                    prod_trend.append({'date': data_v['date'] , 'sub_project': data_v['sub_project'], 'work_packet': data_v['work_packet'], 'result': 0 })
+
+                for check_date in dates_pack:
+                    packet_list = []
+                    content_list = []
+                    for index in prod_trend:
+                        if check_date == index['date']:
+                            if _term != 'sub_packet':
+                                packet_list.append(index[_term])
+                                content_list.append(index['result'])
+
+                    if len(packet_list) > 0:
+                        packet_list = sorted(list(set(packet_list)))
+                        packet_list = map(str, packet_list)
+                        for pack in packet_details:
+                            if str(pack) not in packet_list:
+                                if _term == 'sub_project':
+                                    prod_trend.append({"date": check_date, _term:pack,'work_packet':'' , "result":0})
+                                elif _term == 'work_packet':
+                                    prod_trend.append({"date": check_date,"sub_project":filter_params['sub_project'], _term:pack, "result":0})
+                    if not len(content_list) > 0:
+                        for pack in packet_details:
+                            if _term  == 'sub_project':
+                                prod_trend.append({"date": check_date, _term:pack, 'work_packet': '', "result":0 })
+                            elif _term == 'work_packet':
+                                prod_trend.append({"date":check_date, "sub_project":filter_params['sub_project'], _term:pack, "result":0})
+
+                if _term == 'sub_project':
+                    tmp_obj = {}
+                    for tmp in prod_trend:
+                        if tmp_obj.has_key(str(tmp['date'])):
+                            if tmp_obj[str(tmp['date'])].has_key(tmp['sub_project']):
+                                tmp_obj[str(tmp['date'])][tmp['sub_project']] = tmp_obj[str(tmp['date'])][tmp['sub_project']] + tmp['result']
+                            else:
+                                tmp_obj[str(tmp['date'])].update({tmp['sub_project'] : tmp['result']})
+                        else:
+                            tmp_obj[str(tmp['date'])] = {tmp['sub_project'] : tmp['result']}
+                    fte_trend_data, data_dict = tmp_obj_handling(tmp_obj, "sub-project")
+
+                elif _term == 'work_packet':
+                    tmp_obj = {}
+                    for tmp in prod_trend:
+                        if tmp_obj.has_key(str(tmp['date'])):
+                            if tmp_obj[str(tmp['date'])].has_key(tmp['sub_project']+'_'+tmp['work_packet']):
+                                tmp_obj[str(tmp['date'])][tmp['sub_project']+'_'+tmp['work_packet']] = tmp_obj[str(tmp['date'])][tmp['sub_project']+'_'+tmp['work_packet']] + tmp['result']
+                            else:
+                                tmp_obj[str(tmp['date'])].update({tmp['sub_project']+'_'+tmp['work_packet'] : tmp['result']})
+                        else:
+                            tmp_obj[str(tmp['date'])] = {tmp['sub_project']+'_'+tmp['work_packet'] : tmp['result']}
+                    fte_trend_data, data_dict = tmp_obj_handling(tmp_obj, "sub-packet__work-packet")
+
+            elif(packet_names[0]['sub_project'] != '' and packet_names[0]['work_packet'] != '' and packet_names[0]['sub_packet'] != '' ):
+                prod_trend = []
+                for data_v in raw_value:
+                    for head_v in headcount:
+                        if (data_v['date'] == head_v['date']):
+                            if ((data_v['sub_project'] == head_v['sub_project']) and data_v['work_packet'] == head_v['work_packet'] and data_v['sub_packet'] == head_v['sub_packet']):
+                                if head_v['head_c'] > 0:
+                                    prod_trend.append({'date': data_v['date'] , 'sub_project': data_v['sub_project'], 'work_packet': data_v['work_packet'], 'sub_packet': data_v['sub_packet'],'result': float(data_v['total']/head_v['head_c']) })
+                                else:
+                                    prod_trend.append({'date': data_v['date'] , 'sub_project': data_v['sub_project'], 'work_packet': data_v['work_packet'], 'sub_packet': data_v['sub_packet'],'result': 0 })
+
+                for check_date in dates_pack:
+                    packet_list = []
+                    content_list = []
+                    for index in prod_trend:
+                        if check_date == index['date']:
+                            packet_list.append(index[_term])
+                            content_list.append(index['result'])
+
+                    if len(packet_list) > 0:
+                        packet_list = sorted(list(set(packet_list)))
+                        packet_list = map(str, packet_list)
+                        for pack in packet_details:
+                            if str(pack) not in packet_list:
+                                if _term == 'sub_project':
+                                    prod_trend.append({"date": check_date, _term:pack,'work_packet':'' ,'sub_packet': '', "result":0})
+                                elif _term == 'work_packet':
+                                    prod_trend.append({"date": check_date,"sub_project":filter_params['sub_project'], _term:pack, 'sub_packet': '', "result":0})
+                                elif _term == 'sub_packet':
+                                    prod_trend.append({"date": check_date,"sub_project":filter_params['sub_project'], _term:pack, 'work_packet': filter_params['work_packet'], "result":0})
+
+                    if not len(content_list) > 0:
+                        for pack in packet_details:
+                            if _term  == 'sub_project':
+                                prod_trend.append({"date": check_date, _term:pack, 'work_packet': '','sub_packet': '', "result":0 })
+                            elif _term == 'work_packet':
+                                prod_trend.append({"date":check_date, "sub_project":filter_params['sub_project'], _term:pack, 'sub_packet': '', "result":0})
+                            elif _term == 'sub_packet':
+                                prod_trend.append({"date":check_date, "sub_project":filter_params['sub_project'], _term:pack, 'work_packet': filter_params['work_packet'], "result":0})
+                            else:
+                                prod_trend.append({"date":check_date, "sub_project":filter_params['sub_project'], 'work_packet': filter_params['work_packet'], 'sub_packet': filter_params['sub_packet'],"result":0})
+
+                if _term == 'sub_project':
+                    tmp_obj = {}
+                    for tmp in prod_trend:
+                        if tmp_obj.has_key(str(tmp['date'])):
+                            if tmp_obj[str(tmp['date'])].has_key(tmp['sub_project']):
+                                tmp_obj[str(tmp['date'])][tmp['sub_project']] = tmp_obj[str(tmp['date'])][tmp['sub_project']] + tmp['result']
+                            else:
+                                tmp_obj[str(tmp['date'])].update({tmp['sub_project'] : tmp['result']})
+                        else:
+                            tmp_obj[str(tmp['date'])] = {tmp['sub_project'] : tmp['result']}
+                    fte_trend_data, data_dict = tmp_obj_handling(tmp_obj, "sub-project")
+
+                elif _term == 'work_packet':
+                    tmp_obj = {}
+                    for tmp in prod_trend:
+                        if tmp_obj.has_key(str(tmp['date'])):
+                            if tmp_obj[str(tmp['date'])].has_key(tmp['sub_project']+'_'+tmp['work_packet']):
+                                tmp_obj[str(tmp['date'])][tmp['sub_project']+'_'+tmp['work_packet']] = tmp_obj[str(tmp['date'])][tmp['sub_project']+'_'+tmp['work_packet']] + tmp['result']
+                            else:
+                                tmp_obj[str(tmp['date'])].update({tmp['sub_project']+'_'+tmp['work_packet'] : tmp['result']})
+                        else:
+                            tmp_obj[str(tmp['date'])] = {tmp['sub_project']+'_'+tmp['work_packet'] : tmp['result']}
+                    fte_trend_data, data_dict = tmp_obj_handling(tmp_obj, "sub-packet__work-packet")
+
+                else:
+                    tmp_obj = {}
+                    for tmp in prod_trend:
+                        if tmp_obj.has_key(str(tmp['date'])):
+                            if tmp_obj[str(tmp['date'])].has_key(tmp['sub_project']+"_"+tmp['work_packet']+"_"+tmp['sub_packet']):
+                                tmp_obj[str(tmp['date'])][tmp['sub_project']+"_"+tmp['work_packet']+"_"+tmp['sub_packet'] ]= tmp_obj[str(tmp['date'])][tmp['sub_project']+"_"+tmp['work_packet']+"_"+tmp['sub_packet']] + tmp['result']
+                            else:
+                                tmp_obj[str(tmp['date'])].update({tmp['sub_project']+"_"+tmp['work_packet']+"_"+tmp['sub_packet'] : tmp['result']})
+                        else:
+                            tmp_obj[str(tmp['date'])] = {tmp['sub_project']+"_"+tmp['work_packet']+"_"+tmp['sub_packet'] : tmp['result']}
+                    fte_trend_data, data_dict = tmp_obj_handling(tmp_obj, "sub-project__work-packet__sub-packet")
+
+            elif (packet_names[0]['sub_project'] == '' and packet_names[0]['work_packet'] != '' and packet_names[0]['sub_packet'] != ''):
+                prod_trend = []
+                for data_v in raw_value:
+                    for head_v in headcount:
+                        if (data_v['date'] == head_v['date']):
+                            if ((data_v['work_packet'] == head_v['work_packet']) and data_v['sub_packet'] == head_v['sub_packet']):
+                                if head_v['head_c'] > 0:
+                                    prod_trend.append({'date': data_v['date'] , 'work_packet': data_v['work_packet'],'sub_packet': data_v['sub_packet'], 'result': float(data_v['total']/head_v['head_c']) })
+                                else:
+                                    prod_trend.append({'date': data_v['date'] ,  'work_packet': data_v['work_packet'], 'sub_packet': data_v['sub_packet'], 'result': 0 })
+                for check_date in dates_pack:
+                    packet_list = []
+                    content_list = []
+                    for index in prod_trend:
+                        if check_date == index['date']:
+                            if _term != 'sub_project':
+                                packet_list.append(index[_term])
+                                content_list.append(index['result'])
+
+                    if len(packet_list) > 0:
+                        packet_list = sorted(list(set(packet_list)))
+                        packet_list = map(str, packet_list)
+                        for pack in packet_details:
+                            if str(pack) not in packet_list:
+                                if _term == 'work_packet':
+                                    prod_trend.append({"date": check_date, _term:pack,'sub_packet':'' , "result":0})
+                                elif _term == 'sub_packet':
+                                    prod_trend.append({"date": check_date,"work_packet":filter_params['work_packet'], _term:pack, "result":0})
+
+                    if not len(content_list) > 0:
+                        for pack in packet_details:
+                            if _term == 'work_packet':
+                                prod_trend.append({"date": check_date, _term:pack,'sub_packet':'' , "result":0})
+                            elif _term == 'sub_packet':
+                                prod_trend.append({"date": check_date,"work_packet":filter_params['work_packet'], _term:pack, "result":0})
+                            else:
+                                prod_trend.append({"date": check_date,"work_packet":filter_params['work_packet'], 'sub_packet': filter_params['sub_packet'], "result":0})
+
+                if _term == 'work_packet':
+                    tmp_obj = {}
+                    for tmp in prod_trend:
+                       if tmp_obj.has_key(str(tmp['date'])):
+                           if tmp_obj[str(tmp['date'])].has_key(tmp['work_packet']):
+                               tmp_obj[str(tmp['date'])][tmp['work_packet']] = tmp_obj[str(tmp['date'])][tmp['work_packet']] + tmp['result']
+                           else:
+                               tmp_obj[str(tmp['date'])].update({tmp['work_packet'] : tmp['result']})
+                       else:
+                           tmp_obj[str(tmp['date'])] = {tmp['work_packet'] : tmp['result']}
+
+                    fte_trend_data, data_dict = tmp_obj_handling(tmp_obj, "sub-project")
+
+                elif _term == 'sub_packet':
+                    tmp_obj = {}
+                    for tmp in prod_trend:
+                        if tmp_obj.has_key(str(tmp['date'])):
+                            if tmp_obj[str(tmp['date'])].has_key(tmp['work_packet']+'_'+tmp['sub_packet']):
+                                tmp_obj[str(tmp['date'])][tmp['work_packet']+'_'+tmp['sub_packet']] = tmp_obj[str(tmp['date'])][tmp['work_packet']+'_'+tmp['sub_packet']] + tmp['result']
+                            else:
+                                tmp_obj[str(tmp['date'])].update({tmp['work_packet']+'_'+tmp['sub_packet'] : tmp['result']})
+                        else:
+                            tmp_obj[str(tmp['date'])] = {tmp['work_packet']+'_'+tmp['sub_packet'] : tmp['result']}
+                    fte_trend_data, data_dict = tmp_obj_handling(tmp_obj, "sub-packet__work-packet")
+
+        else:
+            data_dict = {}
+
+    final_dict = {}
+
+    final_dict = data_dict
+
+    return final_dict
+
+
+def tmp_obj_handling(tmp_obj, packet_level):
+        
+    import collections
+    
+    data_dict = {}
+    if packet_level == "sub-project":
+        ordi = collections.OrderedDict(tmp_obj)
+        tmp_obj = sorted(ordi.items(), key=lambda x: x)
+        fte_trend_data = []
+        for tk in tmp_obj:
+            val = 0
+            for k, v in tk[1].iteritems():
+                v = float('%.2f' % round(v, 2))
+                if not data_dict.has_key(k):
+                    data_dict[k] = [v]
+                else:
+                    data_dict[k].append(v)
+                val += v
+            val = float('%.2f' % round(val, 2))
+            fte_trend_data.append(val)
+
+    elif packet_level == "work-packet__sub-packet":
+        ordi = collections.OrderedDict(tmp_obj)
+        tmp_obj = sorted(ordi.items(), key=lambda x: x)
+        for tk in tmp_obj:
+            val = 0
+            for k, v in tk[1].iteritems():
+                v = float('%.2f' % round(v, 2))
+                key = k.split("_")
+                if not data_dict.has_key(key[0]):
+                    data_dict[key[0]] = [v]
+                else:
+                    data_dict[key[0]].append(v)
+                val += v
+            val = float('%.2f' % round(val, 2))
+            fte_trend_data.append(val)
+
+    elif packet_level == "sub-packet__work-packet":
+        ordi = collections.OrderedDict(tmp_obj)
+        tmp_obj = sorted(ordi.items(), key=lambda x: x)
+        fte_trend_data = []
+        for tk in tmp_obj:
+            val = 0
+            for k, v in tk[1].iteritems():
+                key = k.split('_')
+                v = float('%.2f' % round(v, 2))
+                if not data_dict.has_key(key[1]):
+                    data_dict[key[1]] = [v]
+                else:
+                    data_dict[key[1]].append(v)
+                val += v
+            val = float('%.2f' % round(val, 2))
+            fte_trend_data.append(val)
+
+    elif packet_level == "sub-project__work-packet__sub-packet":
+        ordi = collections.OrderedDict(tmp_obj)
+        tmp_obj = sorted(ordi.items(), key=lambda x: x)
+        fte_trend_data = []
+        for tk in tmp_obj:
+            val = 0
+            for k, v in tk[1].iteritems():
+                key = k.split('_')
+                v = float('%.2f' % round(v, 2))
+                if not data_dict.has_key(key[2]):
+                    data_dict[key[2]] = [v]
+                else:
+                    data_dict[key[2]].append(v)
+                val += v
+            val = float('%.2f' % round(val, 2))
+            fte_trend_data.append(val)
+
+    return fte_trend_data, data_dict
+
+
+
+
 """def Monthly_Volume_graph(prj_id,center,date_list, level_structure_key):
     from datetime import datetime
     startTime = datetime.now()

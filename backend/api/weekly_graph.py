@@ -106,202 +106,350 @@ def volume_graph_data_week_month(date_list,prj_id,center_obj,level_structure_key
         return final_volume_graph        
 
 
+def from_to(request):
+
+    internal_name = "internal_accuracy_timeline"
+    external_name = "external_accuracy_timeline"
+    name = 'line'
+    term = ''
+    function_name = accuracy_line_graphs
+    result = error_line_charts(request, name, function_name, internal_name, external_name, term)
+
+    return json_HttpResponse(result)
 
 
-def day_week_month(request, dwm_dict, prj_id, center, work_packets, level_structure_key):
-    if dwm_dict.has_key('day'):
-        final_dict = {}
-        final_details = {}
-        error_graphs_data = internal_extrnal_graphs(dwm_dict['day'], prj_id, center,level_structure_key)
-        if len(error_graphs_data['internal_time_line']) > 0:
-            internal_time_line = {}
-            for er_key, er_value in error_graphs_data['internal_time_line']['internal_time_line'].iteritems():
-                packet_errors = []
-                for err_value in er_value:
-                    if err_value == "NA":
-                        packet_errors.append(0)
+def error_line_charts(request, name, function_name, internal_name, external_name, term):
+
+    final_dict = {}
+    date_list, data_date, date_arr = [], [], []
+    internal_time_line, external_time_line = {}, {}
+    week_num = 0
+    week_names = []
+    main_data_dict = data_dict(request.GET)
+    work_packet = main_data_dict['work_packet']
+    sub_project = main_data_dict['sub_project']
+    sub_packet = main_data_dict['sub_packet']
+    project_center = main_data_dict['pro_cen_mapping']
+    project = main_data_dict['pro_cen_mapping'][0][0]
+    center = main_data_dict['pro_cen_mapping'][1][0]
+
+    if main_data_dict['dwm_dict'].has_key('day') and main_data_dict['type'] == 'day':
+        main_dates_list = [ main_data_dict['dwm_dict']['day']]
+    elif main_data_dict['dwm_dict'].has_key('week') and main_data_dict['type'] == 'week':
+        main_dates_list = main_data_dict['dwm_dict']['week']
+    elif main_data_dict['dwm_dict'].has_key('month') and main_data_dict['type'] == 'month':
+        main_dates_list = main_data_dict['dwm_dict']['month']['month_dates']
+
+    prj_id = main_data_dict['pro_cen_mapping'][0][0]
+    center = main_data_dict['pro_cen_mapping'][1][0]
+
+    if main_data_dict['dwm_dict'].has_key('day') and main_data_dict['type'] == 'day':
+        for sing_list in main_dates_list:
+            level_structure_key = get_level_structure_key(work_packet, sub_project, sub_packet, project_center)
+            _internal_data = function_name(sing_list, project, center, level_structure_key, "Internal",term)
+            _external_data = function_name(sing_list, project, center, level_structure_key, "External",term)
+            date_list = _internal_data['date']
+
+            if len(_internal_data['internal_accuracy_timeline']) > 0:
+                internal_time_line = {}
+                for er_key, er_value in _internal_data['internal_accuracy_timeline'].iteritems():
+                    packet_errors = []
+                    for err_value in er_value:
+                        if err_value == "NA":
+                            packet_errors.append(0)
+                        else:
+                            packet_errors.append(err_value)
+                    internal_time_line[er_key] = packet_errors
+            if len(_external_data['internal_accuracy_timeline']) > 0:
+                external_time_line = {}
+                for er_key, er_value in _external_data['internal_accuracy_timeline'].iteritems():
+                    packet_errors = []
+                    for err_value in er_value:
+                        if err_value == "NA":
+                            packet_errors.append(0)
+                        else:
+                            packet_errors.append(err_value)
+                    external_time_line[er_key] = packet_errors
+        final_dict[internal_name] = graph_data_alignment_color(internal_time_line, 'data',level_structure_key, prj_id, center,'internal_accuracy_timeline')
+        final_dict[external_name] = graph_data_alignment_color(external_time_line, 'data',level_structure_key, prj_id, center,'external_accuracy_timeline')
+        int_error_timeline_min_max = error_timeline_min_max(internal_time_line)
+        final_dict['min_internal_time_line'] = int_error_timeline_min_max['min_value']
+        final_dict['max_internal_time_line'] = int_error_timeline_min_max['max_value']
+        ext_error_timeline_min_max = error_timeline_min_max(external_time_line)
+        final_dict['min_external_time_line'] = ext_error_timeline_min_max['min_value']
+        final_dict['max_external_time_line'] = ext_error_timeline_min_max['max_value']
+        final_dict['date'] = date_list
+
+    elif main_data_dict['dwm_dict'].has_key('week') and main_data_dict['type'] == 'week':
+        internal_week_num , week_num = 0, 0
+        for sing_list in main_dates_list:
+            data_date.append(sing_list[0] + ' to ' + sing_list[-1])
+            week_name = str('week' + str(week_num))
+            week_names.append(week_name)
+            week_num = week_num + 1
+            level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], main_data_dict['sub_packet'],main_data_dict['pro_cen_mapping'])
+            _internal_data = accuracy_line_week_month(sing_list, project, center, level_structure_key, "Internal",term)
+            _external_data = accuracy_line_week_month(sing_list, project, center, level_structure_key, "External",term)
+            if len(_internal_data) > 0:
+                internal_week_name = str('week' + str(internal_week_num))
+                internal_accuracy_packets = {}
+                intr_accuracy_perc = _internal_data
+                for in_acc_key,in_acc_value in intr_accuracy_perc.iteritems():
+                    if internal_accuracy_packets.has_key(in_acc_key):
+                        internal_accuracy_packets[in_acc_key].append(in_acc_value)
                     else:
-                        packet_errors.append(err_value)
-                internal_time_line[er_key] = packet_errors
-            final_dict['internal_time_line'] = graph_data_alignment_color(internal_time_line, 'data',level_structure_key, prj_id, center,'internal_accuracy_timeline')
-            int_error_timeline_min_max = error_timeline_min_max(internal_time_line)
-            final_dict['min_internal_time_line'] = int_error_timeline_min_max['min_value']
-            final_dict['max_internal_time_line'] = int_error_timeline_min_max['max_value']
-        if len(error_graphs_data['external_time_line']) > 0:
-            for er_key, er_value in error_graphs_data['external_time_line']['external_time_line'].iteritems():
-                packet_errors = []
-                for err_value in er_value:
-                    if err_value == "NA":
-                        packet_errors.append(0)
+                        internal_accuracy_packets[in_acc_key] = in_acc_value
+                internal_time_line[internal_week_name] = internal_accuracy_packets
+                internal_week_num = internal_week_num + 1
+
+            if len(_external_data) > 0:
+                external_week_name = str('week' + str(internal_week_num))
+                external_accuracy_packets = {}
+                extr_accuracy_perc = _internal_data
+                for in_acc_key,in_acc_value in extr_accuracy_perc.iteritems():
+                    if external_accuracy_packets.has_key(in_acc_key):
+                        external_accuracy_packets[in_acc_key].append(in_acc_value)
                     else:
-                        packet_errors.append(err_value)
-                error_graphs_data['external_time_line']['external_time_line'][er_key] = packet_errors
-            final_dict['external_time_line'] = graph_data_alignment_color(error_graphs_data['external_time_line']['external_time_line'], 'data', level_structure_key, prj_id,center,'external_accuracy_timeline')
-            ext_error_timeline_min_max = error_timeline_min_max(
-                error_graphs_data['external_time_line']['external_time_line'])
-            final_dict['min_external_time_line'] = ext_error_timeline_min_max['min_value']
-            final_dict['max_external_time_line'] = ext_error_timeline_min_max['max_value']
-        all_external_error_accuracy = {}
-        all_internal_error_accuracy = {}
+                        external_accuracy_packets[in_acc_key] = in_acc_value
+                external_time_line[internal_week_name] = external_accuracy_packets
+                external_week_num = internal_week_num + 1
 
-        dates = [dwm_dict['day'][0], dwm_dict['day'][-1:][0]]
+        final_internal_accuracy_timeline = errors_week_calcuations(week_names, internal_time_line, {})
+        final_external_accuracy_timeline = errors_week_calcuations(week_names, external_time_line, {})
+        final_dict[internal_name] = graph_data_alignment_color(final_internal_accuracy_timeline, 'data',level_structure_key, prj_id, center,'internal_accuracy_timeline')
+        final_dict[external_name] = graph_data_alignment_color(final_external_accuracy_timeline, 'data',level_structure_key, prj_id, center,'external_accuracy_timeline')
+        int_error_timeline_min_max = error_timeline_min_max(final_internal_accuracy_timeline)
+        final_dict['min_internal_time_line'] = int_error_timeline_min_max['min_value']
+        final_dict['max_internal_time_line'] = int_error_timeline_min_max['max_value']
+        ext_error_timeline_min_max = error_timeline_min_max(final_external_accuracy_timeline)
+        final_dict['min_external_time_line'] = ext_error_timeline_min_max['min_value']
+        final_dict['max_external_time_line'] = ext_error_timeline_min_max['max_value']
 
-        ext_min_value, ext_max_value = 0, 0
-        if error_graphs_data.has_key('extr_err_accuracy'):
-            ext_value_range = error_graphs_data['extr_err_accuracy']['extr_err_perc']
-            if len(ext_value_range) > 0:
-                if ext_value_range != '' and min(ext_value_range) > 0:
-                    ext_min_value = int(round(min(ext_value_range) - 2))
-                    ext_max_value = int(round(max(ext_value_range) + 2))
-                else:
-                    ext_min_value = int(round(min(ext_value_range)))
-                    ext_max_value = int(round(max(ext_value_range) + 2))
-            final_dict['ext_min_value'] = ext_min_value
-            final_dict['ext_max_value'] = ext_max_value
-        new_date_list = []
-        for date_va in dwm_dict['day']:
-            total_done_value = RawTable.objects.filter(project=prj_id,center=center,date=date_va).aggregate(Max('per_day'))
-            if total_done_value['per_day__max'] > 0:
-                new_date_list.append(date_va)
-        final_dict['date'] = new_date_list
-        return final_dict
-
-    if dwm_dict.has_key('month'):
-        result_dict, final_result_dict, final_internal_accuracy_timeline = {}, {}, {}
-        internal_accuracy_timeline, final_external_accuracy_timeline, external_accuracy_timeline = {}, {}, {}
+        final_dict['date'] = data_date
+    else:
+        final_result_dict, final_internal_accuracy_timeline, final_external_accuracy_timeline = {}, {} ,{}
+        internal_accuracy_timeline,  external_accuracy_timeline = {},{}
         month_names, data_date = [], []
-        all_internal_error_accuracy, all_external_error_accuracy = {}, {}
-        for month_na,month_va in zip(dwm_dict['month']['month_names'],dwm_dict['month']['month_dates']):
+        for month_na,month_va in zip(main_data_dict['dwm_dict']['month']['month_names'],main_data_dict['dwm_dict']['month']['month_dates']):
             month_name = month_na
             month_dates = month_va
             data_date.append(month_dates[0] + ' to ' + month_dates[-1])
             month_names.append(month_name)
-            error_graphs_data = internal_extrnal_graphs(month_dates, prj_id, center,level_structure_key)
-            if len(error_graphs_data['internal_time_line']) > 0:
+            level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], main_data_dict['sub_packet'],main_data_dict['pro_cen_mapping'])
+            _internal_data = accuracy_line_week_month(month_dates, project, center, level_structure_key, "Internal",term)
+            _external_data = accuracy_line_week_month(month_dates, project, center, level_structure_key, "External",term)
+            if len(_internal_data) > 0:
                 internal_accuracy_packets = {}
-                #internal_accuracy_timeline[month_name] = error_graphs_data['internal_time_line']['internal_time_line']
-                intr_accuracy_perc = error_graphs_data['internal_accuracy_graph']
+                intr_accuracy_perc = _internal_data
                 for in_acc_key,in_acc_value in intr_accuracy_perc.iteritems():
                     if internal_accuracy_packets.has_key(in_acc_key):
                         internal_accuracy_packets[in_acc_key].append(in_acc_value)
                     else:
                         internal_accuracy_packets[in_acc_key] = in_acc_value
                 internal_accuracy_timeline[month_name] = internal_accuracy_packets
-            if len(error_graphs_data['external_time_line']) > 0: 
+
+            if len(_external_data) > 0:
                 external_accuracy_packets = {}
-
-                """if error_graphs_data.has_key('external_accuracy_graph'):
-                    extr_accuracy_perc = error_graphs_data['external_accuracy_graph']
-                else:
-                    extr_accuracy_perc = error_graphs_data['extr_err_accuracy']['packets_percntage'] """
-
-                extr_accuracy_perc = error_graphs_data['external_accuracy_graph']
-                for ex_acc_key,ex_acc_value in extr_accuracy_perc.iteritems():
-                    if external_accuracy_packets.has_key(ex_acc_key):
-                        if isinstance(ex_acc_value,list):
-                            external_accuracy_packets[ex_acc_key].append(ex_acc_value[0])
-                        else:
-                            external_accuracy_packets[ex_acc_key].append(ex_acc_value)
+                extr_accuracy_perc = _external_data
+                for in_acc_key,in_acc_value in extr_accuracy_perc.iteritems():
+                    if external_accuracy_packets.has_key(in_acc_key):
+                        external_accuracy_packets[in_acc_key].append(in_acc_value)
                     else:
-                        if isinstance(ex_acc_value,list):
-                            external_accuracy_packets[ex_acc_key] = ex_acc_value
-                        else:
-                            external_accuracy_packets[ex_acc_key] = [ex_acc_value]
+                        external_accuracy_packets[in_acc_key] = in_acc_value
                 external_accuracy_timeline[month_name] = external_accuracy_packets
 
-            """if error_graphs_data.has_key('extr_err_accuracy'):
-                for vol_key, vol_values in error_graphs_data['extr_err_accuracy']['packets_percntage'].iteritems():
-                    if all_external_error_accuracy.has_key(vol_key):
-                        all_external_error_accuracy[vol_key].append(vol_values[0])
-                    else:
-                        all_external_error_accuracy[vol_key] = vol_values"""
-
-        dates = [dwm_dict['month']['month_dates'][0][0], dwm_dict['month']['month_dates'][-1:][0][-1:][0]]
-
-        final_internal_accuracy_timeline = errors_week_calcuations(month_names, internal_accuracy_timeline,final_internal_accuracy_timeline)
-        final_external_accuracy_timeline = errors_week_calcuations(month_names, external_accuracy_timeline,final_external_accuracy_timeline)
-        result_dict['internal_time_line'] = graph_data_alignment_color(final_internal_accuracy_timeline, 'data',level_structure_key, prj_id, center,'internal_accuracy_timeline')        
+        final_internal_accuracy_timeline = errors_week_calcuations(month_names, internal_accuracy_timeline, {})
+        final_external_accuracy_timeline = errors_week_calcuations(month_names, external_accuracy_timeline, {})
+        final_dict[internal_name] = graph_data_alignment_color(final_internal_accuracy_timeline, 'data',level_structure_key, prj_id, center,'internal_accuracy_timeline')
+        final_dict[external_name] = graph_data_alignment_color(final_external_accuracy_timeline, 'data',level_structure_key, prj_id, center,'external_accuracy_timeline')
         int_error_timeline_min_max = error_timeline_min_max(final_internal_accuracy_timeline)
-        result_dict['min_internal_time_line'] = int_error_timeline_min_max['min_value']
-        result_dict['max_internal_time_line'] = int_error_timeline_min_max['max_value']
-        result_dict['external_time_line'] = graph_data_alignment_color(final_external_accuracy_timeline, 'data',level_structure_key, prj_id, center,'external_accuracy_timeline')
-
+        final_dict['min_internal_time_line'] = int_error_timeline_min_max['min_value']
+        final_dict['max_internal_time_line'] = int_error_timeline_min_max['max_value']
         ext_error_timeline_min_max = error_timeline_min_max(final_external_accuracy_timeline)
-        result_dict['min_external_time_line'] = ext_error_timeline_min_max['min_value']
-        result_dict['max_external_time_line'] = ext_error_timeline_min_max['max_value']
-        result_dict['date'] = data_date
-        return result_dict
+        final_dict['min_external_time_line'] = ext_error_timeline_min_max['min_value']
+        final_dict['max_external_time_line'] = ext_error_timeline_min_max['max_value']
 
-    if dwm_dict.has_key('week'):
-        final_result_dict, result_dict, final_internal_accuracy_timeline = {}, {}, {}
-        internal_accuracy_timeline, final_external_accuracy_timeline, external_accuracy_timeline = {}, {}, {}
-        all_internal_error_accuracy, all_external_error_accuracy = {}, {}
-        data_date, week_names = [], []
-        internal_week_num, external_week_num, week_num = 0, 0, 0
-        for week in dwm_dict['week']:
-            data_date.append(week[0] + ' to ' + week[-1])
-            week_name = str('week' + str(week_num))
-            week_names.append(week_name)
-            week_num = week_num + 1
-            error_graphs_data = internal_extrnal_graphs(week, prj_id, center,level_structure_key)
-            if len(error_graphs_data['internal_time_line']) > 0:
-                internal_week_name = str('week' + str(internal_week_num))
-                internal_accuracy_packets = {}
-                intr_accuracy_perc = error_graphs_data['internal_accuracy_graph']
-                for in_acc_key,in_acc_value in intr_accuracy_perc.iteritems():
-                    if internal_accuracy_packets.has_key(in_acc_key):
-                        internal_accuracy_packets[in_acc_key].append(in_acc_value)
-                    else:
-                        internal_accuracy_packets[in_acc_key] = in_acc_value
-                internal_accuracy_timeline[internal_week_name] = internal_accuracy_packets
-                internal_week_num = internal_week_num + 1
+        final_dict['date'] = data_date
+    return final_dict
 
-            if len(error_graphs_data['external_time_line']) > 0:
-                external_week_name = str('week' + str(external_week_num))
-                #external_accuracy_timeline[external_week_name] = error_graphs_data['external_time_line']['external_time_line']
-                external_accuracy_packets = {}
 
-                """if error_graphs_data.has_key('external_accuracy_graph'):
-                    extr_accuracy_perc = error_graphs_data['external_accuracy_graph']
+def accuracy_line_graphs(date_list,prj_id,center_obj,level_structure_key,error_type,_term):
+
+    final_dict , data_dict = {} , {}
+    dat_list = []
+
+    if error_type == 'Internal':
+        table_name = Internalerrors
+
+    if error_type == 'External':
+        table_name = Externalerrors
+
+    filter_params, _term = getting_required_params(level_structure_key, prj_id, center_obj, date_list)
+    query_values = table_name.objects.filter(**filter_params)
+    packet = query_values.values_list(_term, flat=True).distinct()
+    packet = list(packet)
+
+    if len(packet) > 0:
+        if packet[0] == '':
+            if level_structure_key.has_key('work_packet') and level_structure_key.has_key('sub_project'):
+                if level_structure_key['work_packet'] != 'All':
+                    packet[0] = str(level_structure_key['work_packet'])
+            elif level_structure_key.has_key('work_packet'):
+                if level_structure_key['work_packet'] != 'All':
+                    packet[0] = str(level_structure_key['work_packet'])
+    packets = map(str, packet)
+    error_data = query_values.values_list('date', _term).annotate(total=Sum('total_errors'), audit=Sum('audited_errors'))
+    rawtable = RawTable.objects.filter(**filter_params)
+    raw_packets = rawtable.values_list('date', _term).annotate(prod=Sum('per_day'))
+    date_pack = rawtable.values_list('date', flat=True).distinct()
+
+    for date in date_pack:
+        packet_list = []
+        dat_list.append(str(date))
+        data_list = []
+        for data in error_data:
+            accuracy = 0
+            if str(date) == str(data[0]):
+                if data[2] > 0:
+                    value = (float(data[3])/float(data[2])) * 100
+                    accuracy = 100 - float('%.2f' % round(value, 2))
+
+                elif data[2] == 0:
+                    for prod_val in raw_packets:
+                        if data[0] == prod_val[0] and data[1] == prod_val[1]:
+                            value = float((data[3])/float(prod_val[2]))
+                            accuracy = 100 - float('%.2f' % round(value,2))
                 else:
-                    extr_accuracy_perc = error_graphs_data['extr_err_accuracy']['packets_percntage']"""
-                
-                extr_accuracy_perc = error_graphs_data['external_accuracy_graph']
-                for ex_acc_key,ex_acc_value in extr_accuracy_perc.iteritems():
-                    if external_accuracy_packets.has_key(ex_acc_key):
-                        if isinstance(ex_acc_value,list):
-                            external_accuracy_packets[ex_acc_key].append(ex_acc_value[0])
+                    accuracy = 100
+                if data[1] == '':
+                    pack = data[1]
+                    if (level_structure_key.has_key('work_packet') and level_structure_key.has_key('sub_project')):
+                        if level_structure_key['work_packet'] != 'All':
+                            pack = str(level_structure_key['work_packet'])
+                    elif level_structure_key.has_key('work_packet'):
+                        if level_structure_key['work_packet'] != 'All':
+                            pack = str(level_structure_key['work_packet'])
+                    elif (level_structure_key.has_key('work_packet') and level_structure_key.has_key('sub_packet')):
+                        if (level_structure_key['work_packet'] != 'All' and level_structure_key['sub_packet'] != 'All'):
+                            pack = str(level_structure_key['sub_packet'])
                         else:
-                            external_accuracy_packets[ex_acc_key].append(ex_acc_value)
-                    else:
-                        if isinstance(ex_acc_value,list):
-                            external_accuracy_packets[ex_acc_key] = ex_acc_value
-                        else:
-                            external_accuracy_packets[ex_acc_key] = [ex_acc_value]
-                external_accuracy_timeline[external_week_name] = external_accuracy_packets
-                external_week_num = external_week_num + 1
+                            pack = str(level_structure_key['work_packet'])
+                else:
+                    pack = data[1]
+                if not data_dict.has_key(pack):
+                    data_dict[pack] = [accuracy]
+                else:
+                    data_dict[pack].append(accuracy)
+                packet_list.append(pack)
+                data_list.append(accuracy)
 
-            """if error_graphs_data.has_key('extr_err_accuracy'):
-                for vol_key, vol_values in error_graphs_data['extr_err_accuracy']['packets_percntage'].iteritems():
-                    if all_external_error_accuracy.has_key(vol_key):
-                        all_external_error_accuracy[vol_key].append(vol_values[0])
+        if len(packet_list) > 0:
+            packet_list = sorted(list(set(packet_list)))
+            packet_list = map(str, packet_list)
+            for pack in packets:
+                if str(pack) not in packet_list:
+                    if not data_dict.has_key(pack):
+                        data_dict[pack] = [0]
                     else:
-                        all_external_error_accuracy[vol_key] = vol_values"""
+                        data_dict[pack].append(0)
+        if not len(data_list) > 0:
+            for pack in packets:
+                if not data_dict.has_key(pack):
+                    data_dict[pack] = [0]
+                else:
+                    data_dict[pack].append(0)
 
-        dates = [dwm_dict['week'][0][0], dwm_dict['week'][-1:][0][-1:][0]]    
-        final_internal_accuracy_timeline = errors_week_calcuations(week_names, internal_accuracy_timeline,final_internal_accuracy_timeline)
-        final_external_accuracy_timeline = errors_week_calcuations(week_names, external_accuracy_timeline,final_external_accuracy_timeline)
-        result_dict['internal_time_line'] = graph_data_alignment_color(final_internal_accuracy_timeline, 'data',level_structure_key, prj_id, center,'internal_accuracy_timeline')
-        int_error_timeline_min_max = error_timeline_min_max(final_internal_accuracy_timeline)
-        result_dict['min_internal_time_line'] = int_error_timeline_min_max['min_value']
-        result_dict['max_internal_time_line'] = int_error_timeline_min_max['max_value']
-        result_dict['external_time_line'] = graph_data_alignment_color(final_external_accuracy_timeline, 'data',
-                                                                       level_structure_key, prj_id, center,'external_accuracy_timeline')
-        ext_error_timeline_min_max = error_timeline_min_max(final_external_accuracy_timeline)
-        result_dict['min_external_time_line'] = ext_error_timeline_min_max['min_value']
-        result_dict['max_external_time_line'] = ext_error_timeline_min_max['max_value']
-        result_dict['date'] = data_date
-        return result_dict
+    final_dict['internal_accuracy_timeline'] = data_dict
+    final_dict['date'] = dat_list
+
+    return final_dict
+
+
+def accuracy_line_week_month(date_list,prj_id,center_obj,level_structure_key,error_type,_term):
+
+    _dict = {}
+    if error_type == 'Internal':
+        table_name = Internalerrors
+    if error_type == 'External':
+        table_name = Externalerrors
+
+    filter_params, _term = getting_required_params(level_structure_key, prj_id, center_obj, date_list)
+    query_values = table_name.objects.filter(**filter_params)
+    packets = query_values.values_list(_term, flat=True).distinct()
+    error_data = query_values.values_list(_term).annotate(total=Sum('total_errors'), audit=Sum('audited_errors'))
+    rawtable = RawTable.objects.filter(**filter_params)
+    raw_packets = rawtable.values_list(_term).annotate(prod=Sum('per_day'))
+
+    for data in error_data:
+        accuracy = 0
+        if data[1] > 0:
+            value = (float(data[2])/float(data[1])) * 100
+            accuracy = 100-float('%.2f' % round(value, 2))
+        elif data[1] == 0:
+            for prod_val in raw_packets:
+                if data[0] == prod_val[0]:
+                    value = (float(data[2])/float(prod_val[1])) * 100
+                    accuracy = 100-float('%.2f' % round(value, 2))
+        else:
+            accuracy = 100
+        if data[0] == '':
+            pack = data[0]
+            if (level_structure_key.has_key('work_packet') and level_structure_key.has_key('sub_project')):
+                if level_structure_key['work_packet'] != 'All':
+                    pack = str(level_structure_key['work_packet'])
+            elif level_structure_key.has_key('work_packet'):
+                if level_structure_key['work_packet'] != 'All':
+                    pack = str(level_structure_key['work_packet'])
+            elif (level_structure_key.has_key('work_packet') and level_structure_key.has_key('sub_packet')):
+                if (level_structure_key['work_packet'] != 'All' and level_structure_key['sub_packet'] != 'All'):
+                    pack = str(level_structure_key['sub_packet'])
+                else:
+                    pack = str(level_structure_key['work_packet'])
+        else:
+            pack = data[0]
+        _dict[pack] = accuracy
+
+    return _dict
+
+
+def errors_week_calcuations(week_names,internal_accuracy_timeline,final_internal_accuracy_timeline):
+    for prodct_key, prodct_value in internal_accuracy_timeline.iteritems():
+        for vol_key, vol_values in prodct_value.iteritems():
+            error_pers = []
+            if vol_values != 'NA':
+                error_pers.append(vol_values)
+            else:
+                error_pers.append(0)
+
+            if len(error_pers) > 0:
+                int_errors = float(sum(error_pers)) / len(error_pers)
+                int_errors = float('%.2f' % round(int_errors, 2))
+            else:
+                int_errors = 0
+            internal_accuracy_timeline[prodct_key][vol_key] = int_errors
+
+    for final_key, final_value in internal_accuracy_timeline.iteritems():
+        for week_key, week_value in final_value.iteritems():
+            if week_key not in final_internal_accuracy_timeline.keys():
+                final_internal_accuracy_timeline[week_key] = []
+
+    for prod_week_num in week_names:
+        if internal_accuracy_timeline.has_key(prod_week_num):
+            if len(internal_accuracy_timeline[prod_week_num]) > 0:
+                for vol_key, vol_values in internal_accuracy_timeline[prod_week_num].iteritems():
+                    if final_internal_accuracy_timeline.has_key(vol_key):
+                        final_internal_accuracy_timeline[vol_key].append(vol_values)
+                    else:
+                        final_internal_accuracy_timeline[vol_key] = [vol_values]
+
+                for prod_key, prod_values in final_internal_accuracy_timeline.iteritems():
+                    if prod_key not in internal_accuracy_timeline[prod_week_num].keys():
+                        final_internal_accuracy_timeline[prod_key].append(0)
+            else:
+                for vol_key, vol_values in final_internal_accuracy_timeline.iteritems():
+                    final_internal_accuracy_timeline[vol_key].append(0)
+
+    return final_internal_accuracy_timeline
 
 
 def adding_min_max(high_chart_key,values_dict):
@@ -311,134 +459,4 @@ def adding_min_max(high_chart_key,values_dict):
     result['max_' + high_chart_key] = min_max_values['max_value']
     return result
 
-
-def from_to(request):
-    from_date = datetime.datetime.strptime(request.GET['from'],'%Y-%m-%d').date()
-    to_date = datetime.datetime.strptime(request.GET['to'],'%Y-%m-%d').date()
-    type = request.GET['type']
-    #type='day'
-    try:
-        work_packet = request.GET.get('work_packet')
-        if ' and ' in work_packet:
-            work_packet = work_packet.replace(' and ', ' & ')
-    except:
-        work_packet = []
-    try:
-        sub_project = request.GET.get('sub_project')
-    except:
-        sub_project = ''
-    try:
-        sub_packet = request.GET.get('sub_packet')
-    except:
-        sub_packet = ''
-    
-    try:
-        is_clicked = request.GET.get('is_clicked','NA')
-    except:
-        is_clicked = 'NA'
-    project = request.GET['project'].split('-')[0].strip()
-    center_id = request.GET['center'].split('-')[0].strip()
-    center = Center.objects.filter(name=center_id).values_list('id', flat=True)
-    prj_id = Project.objects.filter(name=project).values_list('id', flat=True)
-    date_list, month_list, month_names_list = [], [], []
-    if type == 'day':
-        date_list=num_of_days(to_date,from_date)
-        if 'yes' not in is_clicked:
-            if len(date_list) > 15:
-                type = 'week'
-            if len(date_list) > 60:
-                type = 'month'
-    if type == 'month':
-        months_dict = {}
-        month_list = [[]]
-        month_names_list = []
-        month_count = 0
-        days = (to_date - from_date).days
-        days = days+1
-        for i in xrange(0, days):
-            date = from_date + datetime.timedelta(i)
-            month = date.strftime("%B")
-            if month not in month_names_list:
-                month_names_list.append(month)
-            if month in months_dict:
-                months_dict[month].append(str(date))
-                month_list[month_count].append(str(date))
-            else:
-                months_dict[month] = [str(date)]
-                month_count = month_count + 1
-                month_list.append([str(date)])
-        if month_list[0] == []:
-            del month_list[0]
-
-    if type == 'week':
-        months_dict = {}
-        weeks_data = []
-        days = (to_date - from_date).days
-        days = days+1
-        for i in xrange(0, days):
-            date = from_date + datetime.timedelta(i)
-            weeks_data.append(str(date))
-        weeks, weekdays, week_list = [], [], []
-        fro_mon = datetime.datetime.strptime(weeks_data[0],'%Y-%m-%d').date()
-        to_mon = datetime.datetime.strptime(weeks_data[-1],'%Y-%m-%d').date()
-        no_of_days = to_mon - fro_mon
-        num_days = int(re.findall('\d+', str(no_of_days))[0]) + 1
-        start = 1
-        end = 7 - fro_mon.weekday()
-        while start <= num_days:
-            weeks.append({'start': start, 'end': end})
-            sdate = fro_mon + datetime.timedelta(start - 1) 
-            edate = fro_mon + datetime.timedelta(end - 1) 
-            weekdays.append({'start': sdate, 'end': edate})
-            start = end + 1
-            end = end + 7
-            if end > num_days:
-                end = num_days
-        if weekdays[-1]['end'] > to_mon :
-            weekdays[-1]['end'] = to_mon
-        for w_days in weekdays:
-            date_list = num_of_days(w_days['end'],w_days['start'])
-            week_list.append(date_list)
-    dwm_dict= {}
-    employe_dates = {}
-    if type == 'day':
-        dwm_dict['day']= date_list
-        employe_dates['days'] = date_list
-    if type == 'month':
-        new_month_dict = {}
-        months = ['January', 'February', 'March', 'April', 'May', 'June', 'July','August', 'September', 'October', 'November', 'December']
-        k = OrderedDict(sorted(months_dict.items(), key=lambda x: months.index(x[0])))
-        for month_na in tuple(k):
-            new_month_dict[month_na] = {}
-            if employe_dates.has_key('days'):
-                employe_dates['days'] = employe_dates['days']+months_dict[month_na]
-            else:
-                employe_dates['days']=months_dict[month_na]
-        dwm_dict['month'] = {'month_names':month_names_list, 'month_dates':month_list}
-
-    if type == 'week':
-        dwm_dict['week'] = week_list
-        for week in week_list:
-            if week and  employe_dates.has_key('days'):
-                employe_dates['days'] = employe_dates['days']+week
-            else:
-                employe_dates['days'] = week
-
-
-    resul_data = {}
-    main_data_dict = data_dict(request.GET)
-    level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], main_data_dict['sub_packet'], main_data_dict['pro_cen_mapping'])
-    final_result_dict = day_week_month(request,dwm_dict,prj_id,center,work_packet,level_structure_key)
-    ###volumes_graphs_details = volumes_graphs_data(date_list,prj_id,center,level_structure_key)
-    #volumes_graphs_details = volumes_graphs_data_table(employe_dates['days'],prj_id,center,level_structure_key)
-
-    final_dict = {}      
-    #final_result_dict['volumes_graphs_details'] = volumes_graphs_details
-    #internal_sub_error_types = internal_extrnal_sub_error_types(request, employe_dates['days'], prj_id, center, level_structure_key,"Internal")
-    #external_sub_error_types = internal_extrnal_sub_error_types(request, employe_dates['days'], prj_id, center,level_structure_key, "External")
-    #final_result_dict['internal_sub_error_types'] = graph_data_alignment_color(internal_sub_error_types,'y',level_structure_key,prj_id,center,'')
-    #final_result_dict['external_sub_error_types'] = graph_data_alignment_color(external_sub_error_types,'y',level_structure_key,prj_id,center,'')
-    final_result_dict['days_type'] = type
-    final_result_dict['is_annotation'] = annotation_check(request)
-    return json_HttpResponse(final_result_dict)
 

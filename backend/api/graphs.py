@@ -8,8 +8,8 @@ from collections import OrderedDict
 from api.utils import *
 from api.basics import *
 from api.query_generations import query_set_generation
-from api.fte_related import fte_calculation
-from api.production import main_productivity_data
+from api.fte_related import *
+#from api.production import main_productivity_data
 from api.weekly_graph import *
 from api.graph_settings import *
 from api.voice_widgets import date_function
@@ -93,6 +93,18 @@ def generate_day_type_formats_multiple(request, result_name, function_name, sub_
     return json_HttpResponse(final_dict)
 
 
+def fte_graphs(request):
+
+    function_name = fte_trend_scope
+    result_name = "fte_calc_data"
+    sub_name1 = 'fte_scope'
+    sub_name2 = 'fte_trend'
+    config_name = 'sum_total_fte'
+    config_name_1 = 'total_fte'
+    result = generate_day_type_formats_multiple(request,result_name,function_name,sub_name1,sub_name2,config_name,config_name_1)
+
+    return result
+
 
 def week_calculations_multi(dates,project,center,level_structure_key,function_name,sub_name1,sub_name2):
 
@@ -100,6 +112,7 @@ def week_calculations_multi(dates,project,center,level_structure_key,function_na
     final_dict, final_dict_1 = {}, {}
     week_names = []
     week_num = 0
+    week_or_month = 'week'
     for date in dates:
         week_name = str('week' + str(week_num))
         week_names.append(week_name)
@@ -116,9 +129,14 @@ def week_calculations_multi(dates,project,center,level_structure_key,function_na
             data = function_name(date, project, center, level_structure_key)
             week_dict[week_name] = data[sub_name1]
             week_dict_1[week_name] = data[sub_name1]
-            result = volume_status_week(week_names, week_dict, final_dict)
-            result_1 = received_volume_week(week_names, week_dict_1, final_dict_1)
-            result_2 = ''
+            if function_name == fte_trend_scope:
+                result = prod_volume_week_util(project, week_names, week_dict, {}, week_or_month)
+                result_1 = prod_volume_week_util(project ,week_names ,week_dict_1, {}, week_or_month)
+                result_2 = ''
+            else:
+                result = volume_status_week(week_names, week_dict, final_dict)
+                result_1 = received_volume_week(week_names, week_dict_1, final_dict_1)
+                result_2 = ''
     return result, result_1, result_2
 
 
@@ -127,6 +145,7 @@ def month_calculations_multi(dates,project,center,level_structure_key,function_n
     month_names = []
     month_dict, month_dict_1, month_dict_2 = {}, {}, {}
     final_dict, final_dict_1 = {}, {}
+    week_or_month = 'month'
     for month_na,month_va in zip(dates['month_names'],dates['month_dates']):
         month_name = month_na
         month_dates = month_va
@@ -143,9 +162,14 @@ def month_calculations_multi(dates,project,center,level_structure_key,function_n
             data = function_name(month_dates, project, center, level_structure_key)
             month_dict[month_name] = data[sub_name1]
             month_dict_1[month_name] = data[sub_name2]
-            result = volume_status_week(month_names, month_dict, final_dict)
-            result_1 = received_volume_week(month_names, month_dict, final_dict_1)
-            result_2 = ''
+            if function_name == fte_trend_scope:
+                result = prod_volume_week_util(project, month_names, month_dict, {}, week_or_month)
+                result_1 = prod_volume_week_util(project, month_names, month_dict_1, {}, week_or_month)
+                result_2 = ''
+            else:
+                result = volume_status_week(month_names, month_dict, final_dict)
+                result_1 = received_volume_week(month_names, month_dict, final_dict_1)
+                result_2 = ''
     return result, result_1, result_2
 
 
@@ -182,142 +206,6 @@ def adding_min_max(high_chart_key,final_dict):
     result['max_' + high_chart_key] = min_max_values['max_value']
     return result
 
-
-def productivity(request):
-    final_dict = {}
-    productivity_week_num = 0
-    main_productivity_timeline = {}
-    data_date, new_date_list = [], []
-    week_names = []
-    week_num = 0
-    month_names = []
-    main_data_dict = data_dict(request.GET)
-    if main_data_dict['dwm_dict'].has_key('day') and main_data_dict['type'] == 'day':
-        main_dates_list = [ main_data_dict['dwm_dict']['day']]
-    elif main_data_dict['dwm_dict'].has_key('week') and main_data_dict['type'] == 'week':
-        main_dates_list = main_data_dict['dwm_dict']['week']
-    elif main_data_dict['dwm_dict'].has_key('month') and main_data_dict['type'] == 'month':
-        main_dates_list = main_data_dict['dwm_dict']['month']['month_dates']
-    prj_id = main_data_dict['pro_cen_mapping'][0][0]
-    center = main_data_dict['pro_cen_mapping'][1][0]
-    if main_data_dict['dwm_dict'].has_key('day') and main_data_dict['type'] == 'day':
-        for sing_list in main_dates_list:
-            total_done_value = RawTable.objects.filter(project=prj_id, center=center, date__range=[sing_list[0], sing_list[-1]]).values('date').annotate(total=Sum('per_day'))
-            values = OrderedDict(zip(map(lambda p: str(p['date']), total_done_value), map(lambda p: str(p['total']), total_done_value)))
-            for date_va, total_val in values.iteritems():
-            #for date_va in sing_list:
-                #total_done_value = RawTable.objects.filter(project=prj_id,center=center,date=date_va).aggregate(Max('per_day'))
-                #if total_done_value['per_day__max'] > 0:
-                if total_val > 0:
-                    new_date_list.append(date_va)
-            level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], main_data_dict['sub_packet'],main_data_dict['pro_cen_mapping'])
-            productivity_utilization_data = main_productivity_data(main_data_dict['pro_cen_mapping'][1][0],main_data_dict['pro_cen_mapping'][0][0],                                         sing_list, level_structure_key)
-            #final_dict['date'] = productivity_utilization_data['date']
-            final_dict['original_productivity_graph'] = graph_data_alignment_color(productivity_utilization_data['productivity'], 'data',level_structure_key,main_data_dict['pro_cen_mapping'][0][0], main_data_dict['pro_cen_mapping'][1][0],'productivity_trends')
-            final_dict['date'] = new_date_list
-    elif main_data_dict['dwm_dict'].has_key('week') and main_data_dict['type'] == 'week':
-        for sing_list in main_dates_list:
-            data_date.append(sing_list[0] + ' to ' + sing_list[-1])
-            week_name = str('week' + str(week_num))
-            week_names.append(week_name)
-            week_num = week_num + 1
-            level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], main_data_dict['sub_packet'],main_data_dict['pro_cen_mapping'])
-            productivity_utilization_data = main_productivity_data(main_data_dict['pro_cen_mapping'][1][0],main_data_dict['pro_cen_mapping'][0][0],                                         sing_list, level_structure_key)
-            productivity_week_name = str('week' + str(productivity_week_num))
-            main_productivity_timeline[productivity_week_name] = productivity_utilization_data['productivity']
-            productivity_week_num = productivity_week_num + 1
-        final_main_productivity_timeline = prod_volume_week_util(prj_id,week_names, main_productivity_timeline, {},'week')
-        final_dict['original_productivity_graph'] = graph_data_alignment_color(final_main_productivity_timeline,'data', level_structure_key, prj_id,center,'productivity_trends')
-        final_dict['date'] = data_date
-    else:
-        for month_na,month_va in zip(main_data_dict['dwm_dict']['month']['month_names'],main_data_dict['dwm_dict']['month']['month_dates']):
-            month_name = month_na
-            month_dates = month_va
-            data_date.append(month_dates[0] + ' to ' + month_dates[-1])
-            month_names.append(month_name)
-            level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], main_data_dict['sub_packet'],main_data_dict['pro_cen_mapping'])
-            productivity_utilization_data = main_productivity_data(center, prj_id, month_dates, level_structure_key)
-            main_productivity_timeline[month_name] = productivity_utilization_data['productivity']
-        final_main_productivity_timeline = prod_volume_week_util(prj_id,month_names, main_productivity_timeline, {},'month')
-        final_dict['original_productivity_graph'] = graph_data_alignment_color(final_main_productivity_timeline,'data', level_structure_key, prj_id,center,'productivity_trends')
-        final_dict['date'] = data_date
-    final_dict['type'] = main_data_dict['type']
-    final_dict['is_annotation'] = annotation_check(request)
-    return json_HttpResponse(final_dict)
-
-def fte_graphs(request):
-    final_dict = {}
-    result_dict = {}
-    total_fte_list = {}
-    wp_fte_list = {}
-    fte_week_num = 0
-    data_date, new_date_list = [], []
-    week_names, month_names = [] , []
-    week_num = 0
-    main_data_dict = data_dict(request.GET)
-
-    if main_data_dict['dwm_dict'].has_key('day') and main_data_dict['type'] == 'day':
-        main_dates_list = [ main_data_dict['dwm_dict']['day']]
-    elif main_data_dict['dwm_dict'].has_key('week') and main_data_dict['type'] == 'week':
-        main_dates_list = main_data_dict['dwm_dict']['week']
-    elif main_data_dict['dwm_dict'].has_key('month') and main_data_dict['type'] == 'month':
-        main_dates_list = main_data_dict['dwm_dict']['month']['month_dates']
-    prj_id = main_data_dict['pro_cen_mapping'][0][0]
-    center = main_data_dict['pro_cen_mapping'][1][0]
-    #result_dict['type'] = main_data_dict['type']
-    result_dict['is_annotation'] = annotation_check(request)
-    if main_data_dict['dwm_dict'].has_key('day') and main_data_dict['type'] == 'day':
-        for sing_list in main_dates_list:
-            total_done_value = RawTable.objects.filter(project=prj_id, center=center, date__range=[sing_list[0], sing_list[-1]]).values('date').annotate(total=Sum('per_day'))
-            values = OrderedDict(zip(map(lambda p: str(p['date']), total_done_value), map(lambda p: str(p['total']), total_done_value)))
-            for date_va, total_val in values.iteritems():
-            #for date_va in sing_list:
-                #total_done_value = RawTable.objects.filter(project=prj_id,center=center,date=date_va).aggregate(Max('per_day'))
-                #if total_done_value['per_day__max'] > 0:
-                if total_val > 0:
-                    new_date_list.append(date_va)
-            level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], main_data_dict['sub_packet'],main_data_dict['pro_cen_mapping'])
-            fte_graph_data = fte_calculation(request, main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0],sing_list, level_structure_key)
-            result_dict['fte_calc_data'] = {} 
-            result_dict['fte_calc_data']['total_fte'] = graph_data_alignment_color(fte_graph_data['total_fte'], 'data',level_structure_key, main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0],'sum_total_fte')
-            result_dict['fte_calc_data']['work_packet_fte'] = graph_data_alignment_color(fte_graph_data['work_packet_fte'],'data', level_structure_key,main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0])
-            result_dict['date'] = new_date_list
-    elif main_data_dict['dwm_dict'].has_key('week') and main_data_dict['type'] == 'week':
-        for sing_list in main_dates_list:
-            data_date.append(sing_list[0] + ' to ' + sing_list[-1])
-            week_name = str('week' + str(week_num))
-            week_names.append(week_name)
-            week_num = week_num + 1
-            level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], main_data_dict['sub_packet'],main_data_dict['pro_cen_mapping'])
-            fte_graph_data = fte_calculation(request, main_data_dict['pro_cen_mapping'][0][0],main_data_dict['pro_cen_mapping'][1][0],sing_list, level_structure_key)
-            fte_week_name = str('week' + str(fte_week_num))
-            total_fte_list[fte_week_name] = fte_graph_data['total_fte']
-            wp_fte_list[fte_week_name] = fte_graph_data['work_packet_fte']
-            fte_week_num = fte_week_num + 1
-            final_total_fte_calc = prod_volume_week_util(prj_id,week_names, total_fte_list, {},'week')
-            final_total_wp_fte_calc = prod_volume_week_util(prj_id,week_names, wp_fte_list, {},'week')
-            result_dict['fte_calc_data'] = {}
-            result_dict['fte_calc_data']['total_fte'] = graph_data_alignment_color(final_total_fte_calc, 'data',level_structure_key, prj_id, center,'sum_total_fte')
-            result_dict['fte_calc_data']['work_packet_fte'] = graph_data_alignment_color(final_total_wp_fte_calc, 'data',level_structure_key, prj_id,center,'total_fte')
-            result_dict['date'] = data_date
-    else:
-        for month_na,month_va in zip(main_data_dict['dwm_dict']['month']['month_names'],main_data_dict['dwm_dict']['month']['month_dates']):
-            month_name = month_na
-            month_dates = month_va
-            data_date.append(month_dates[0] + ' to ' + month_dates[-1])
-            month_names.append(month_name)
-            level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], main_data_dict['sub_packet'],main_data_dict['pro_cen_mapping'])
-            fte_graph_data = fte_calculation(request, prj_id, center, month_dates, level_structure_key)
-            total_fte_list[month_name] = fte_graph_data['total_fte']
-            wp_fte_list[month_name] = fte_graph_data['work_packet_fte']
-        final_total_fte_calc = prod_volume_week_util(prj_id,month_names, total_fte_list, {},'month')
-        final_total_wp_fte_calc = prod_volume_week_util(prj_id,month_names, wp_fte_list, {},'month')
-        result_dict['fte_calc_data'] = {}
-        result_dict['fte_calc_data']['total_fte'] = graph_data_alignment_color(final_total_fte_calc, 'data',level_structure_key, prj_id, center,'sum_total_fte')
-        result_dict['fte_calc_data']['work_packet_fte'] = graph_data_alignment_color(final_total_wp_fte_calc, 'data',level_structure_key, prj_id,center,'total_fte')
-        result_dict['date'] = data_date
-    return json_HttpResponse(result_dict)
- 
 
 def work_track_data(date_list,prj_id,center_obj,level_structure_key):
 
