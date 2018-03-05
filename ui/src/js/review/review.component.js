@@ -66,6 +66,7 @@
 		 if (result.data.result.is_team_lead == false){
                     $('#fileuploader').hide();
 			        $('.add-review').hide();
+                    $('#file-size').hide();
                     self.is_lead=false;
 		  }
 
@@ -189,6 +190,7 @@
                     self.all_review_url = 'api/get_top_reviews/?timeline=past';
                     $('#past-meet').hide();
                     $('#ong-meet').show();
+                    $('#file-size').hide();
                     self.past_reviews = true;
                     //$('.fa-pencil-square-o').hide();
                 }
@@ -210,6 +212,7 @@
                      $('.fa-trash').show();
                      $('.fa-plus-circle').hide();
                      $('.fa-pencil-square-o').hide();
+                     $('#file-size').hide();
                  }
                  else {
                     $('.fa-plus-circle').show();    
@@ -228,6 +231,7 @@
                      $('.fa-trash').hide();
                      $('.fa-plus-circle').hide();
                      $('.fa-pencil-square-o').hide();
+                     $('#file-size').hide();
                  }   
                  else {
                     $('.fa-plus-circle').show();    

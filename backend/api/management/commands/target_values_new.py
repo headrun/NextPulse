@@ -34,7 +34,10 @@ class Command(BaseCommand):
         for month_name,month_dates in months_dict.iteritems():
             targets_sal, actuals_sal, targets_chi, actuals_chi, ppl_sal, ppl_chi = [], [], [], [], [], []
             dates_list = month_dates
-            proje_cent = ['Probe','NTT DATA Services TP','NTT DATA Services Coding','Federal Bank','Ujjivan','Gooru','Walmart Salem','IBM','IBM South East Asia','IBM Pakistan','IBM Africa','IBM DCIW Arabia','IBM Quality Control','IBM India and Sri Lanka','IBM NA and EU','IBM Arabia','IBM DCIW','IBM Latin America','IBM Sri Lanka P2P', 'Walmart Chittor', 'Mobius']
+            proje_cent = ['Probe','NTT DATA Services TP','NTT DATA Services Coding','Federal Bank','Ujjivan','Gooru','Walmart Salem',\
+                          'IBM','IBM South East Asia','IBM Pakistan','IBM Africa','IBM DCIW Arabia','IBM Quality Control',\
+                          'IBM India and Sri Lanka','IBM NA and EU','IBM Arabia','IBM DCIW','IBM Latin America','IBM Sri Lanka P2P',\
+                          'Walmart Chittor', 'Mobius']
             for pro_cen in proje_cent:
                 values = Project.objects.filter(name=pro_cen).values_list('id','center_id')
                 prj_id = values[0][0]
@@ -43,9 +46,13 @@ class Command(BaseCommand):
                 conn = redis.Redis(host="localhost", port=6379, db=0)
                 center_name = Center.objects.filter(project=prj_id).values_list('name',flat=True)[0]
                 final_productivity_list,final_actual_val,final_target_val, final_bill_ppl = [], [], [], []
-                billable_hc = Headcount.objects.filter(project=prj_id, center=center_id, date__range=[dates_list[0],dates_list[-1]]).aggregate(Sum('billable_agents'))
-                tars = Targets.objects.filter(project=prj_id, center=center_id,from_date__gte=dates_list[0],to_date__lte=dates_list[-1]) 
-                tars_1 = Targets.objects.filter(project=prj_id, center=center_id,from_date__lte=dates_list[0],to_date__gte=dates_list[-1])
+                billable_hc = Headcount.objects.filter(\
+                                          project=prj_id, center=center_id, date__range=[dates_list[0],dates_list[-1]])\
+                                          .aggregate(Sum('billable_agents'))
+                tars = Targets.objects.filter(\
+                               project=prj_id, center=center_id,from_date__gte=dates_list[0],to_date__lte=dates_list[-1]) 
+                tars_1 = Targets.objects.filter(\
+                               project=prj_id, center=center_id,from_date__lte=dates_list[0],to_date__gte=dates_list[-1])
                 if tars:
                     tar_packs = tars.values('sub_project','work_packet','sub_packet').distinct()
                 else:
@@ -61,49 +68,73 @@ class Command(BaseCommand):
                     targets_vals, actual_vals, billable_vals = {}, {}, {}
                     if pac['work_packet'] != '' and pac['sub_project'] == '':
                         work_pack = pac['work_packet']
-                        billable_count = Headcount.objects.filter(project=prj_id, center=center_id, date__range=[dates_list[0],dates_list[-1]],work_packet = work_pack).aggregate(Sum('billable_agents'))
+                        billable_count = Headcount.objects.filter(\
+                                                      project=prj_id, center=center_id, date__range=[dates_list[0],dates_list[-1]],\
+                                                      work_packet = work_pack).aggregate(Sum('billable_agents'))
                         packet = work_pack
                     elif  pac['work_packet'] != '' and pac['sub_project'] != '':
                         work_pack = pac['work_packet']
                         sub_proj = pac['sub_project']
-                        billable_count = Headcount.objects.filter(project=prj_id, center=center_id, date__range=[dates_list[0],dates_list[-1]],work_packet = work_pack,sub_project = sub_proj).aggregate(Sum('billable_agents'))
+                        billable_count = Headcount.objects.filter(\
+                                                  project=prj_id, center=center_id, date__range=[dates_list[0],dates_list[-1]],\
+                                                  work_packet = work_pack,sub_project = sub_proj).aggregate(Sum('billable_agents'))
                         packet = sub_proj+'-'+work_pack
                     elif pac['work_packet'] == '' and pac['sub_project'] != '':
                         sub_proj = pac['sub_project']
-                        billable_count = Headcount.objects.filter(project=prj_id, center=center_id, date__range=[dates_list[0],dates_list[-1]],sub_project = sub_proj).aggregate(Sum('billable_agents'))
+                        billable_count = Headcount.objects.filter(\
+                                                  project=prj_id, center=center_id, date__range=[dates_list[0],dates_list[-1]],\
+                                                  sub_project = sub_proj).aggregate(Sum('billable_agents'))
                         packet = sub_proj
                     for date_va in dates_list:
                         if pac['work_packet'] != '' and pac['sub_project'] == '':
-                            total_done_value = RawTable.objects.filter(project=prj_id, center=center_id, date=date_va, work_packet=work_pack).aggregate(Sum('per_day'))
+                            total_done_value = RawTable.objects.filter(\
+                                                       project=prj_id, center=center_id, date=date_va, work_packet=work_pack)\
+                                                       .aggregate(Sum('per_day'))
                         elif pac['work_packet'] != '' and pac['sub_project'] != '':
-                            total_done_value = RawTable.objects.filter(project=prj_id, center=center_id, date=date_va, sub_project=sub_proj,work_packet=work_pack).aggregate(Sum('per_day'))
+                            total_done_value = RawTable.objects.filter(\
+                                                       project=prj_id, center=center_id, date=date_va, sub_project=sub_proj,\
+                                                       work_packet=work_pack).aggregate(Sum('per_day'))
                         elif pac['work_packet'] == '' and pac['sub_project'] != '':
-                            total_done_value = RawTable.objects.filter(project=prj_id, center=center_id, date=date_va, sub_project=sub_proj).aggregate(Sum('per_day'))
+                            total_done_value = RawTable.objects.filter(\
+                                                       project=prj_id, center=center_id, date=date_va, sub_project=sub_proj)\
+                                                       .aggregate(Sum('per_day'))
                         #import pdb;pdb.set_trace()
                         if total_done_value['per_day__sum']>0:
                             if pac['work_packet'] != '' and pac['sub_project'] == '':
-                                pack_tar = Targets.objects.filter(project=prj_id, center=center_id,from_date__lte=date_va,to_date__gte=date_va,work_packet=work_pack)
+                                pack_tar = Targets.objects.filter(\
+                                                  project=prj_id, center=center_id,from_date__lte=date_va,to_date__gte=date_va,\
+                                                  work_packet=work_pack)
                                 tar_va =  pack_tar.filter(target_type='FTE Target').values_list('target_value',flat=True).distinct()
                                 tar_vals = sum(tar_va)
                                 to_tar_va = pack_tar.filter(target_type='Target').values_list('target_value',flat=True).distinct()
                                 to_tar_vals = sum(to_tar_va)
-                                billable = Headcount.objects.filter(project=prj_id, center=center_id, date=date_va, work_packet=work_pack).aggregate(Sum('billable_agents'))
+                                billable = Headcount.objects.filter(\
+                                                    project=prj_id, center=center_id, date=date_va, work_packet=work_pack)\
+                                                    .aggregate(Sum('billable_agents'))
                                 #packet = work_pack
                             elif pac['work_packet'] != '' and pac['sub_project'] != '':
-                                pack_tar = Targets.objects.filter(project=prj_id, center=center_id,from_date__lte=date_va,to_date__gte=date_va,work_packet=work_pack, sub_project = sub_proj)
+                                pack_tar = Targets.objects.filter(\
+                                                   project=prj_id, center=center_id,from_date__lte=date_va,to_date__gte=date_va,\
+                                                   work_packet=work_pack, sub_project = sub_proj)
                                 tar_va =  pack_tar.filter(target_type='FTE Target').values_list('target_value',flat=True).distinct()
                                 tar_vals = sum(tar_va)
                                 to_tar_va = pack_tar.filter(target_type='Target').values_list('target_value',flat=True).distinct()
                                 to_tar_vals = sum(to_tar_va)
-                                billable = Headcount.objects.filter(project=prj_id, center=center_id, date=date_va, sub_project = sub_proj,work_packet=work_pack).aggregate(Sum('billable_agents'))
+                                billable = Headcount.objects.filter(\
+                                                    project=prj_id, center=center_id, date=date_va, sub_project = sub_proj,\
+                                                    work_packet=work_pack).aggregate(Sum('billable_agents'))
                                 #packet = sub_proj+'-'+work_pack
                             elif pac['work_packet'] == '' and pac['sub_project'] != '':
-                                pack_tar = Targets.objects.filter(project=prj_id, center=center_id,from_date__lte=date_va,to_date__gte=date_va,sub_project = sub_proj)
+                                pack_tar = Targets.objects.filter(\
+                                                  project=prj_id, center=center_id,from_date__lte=date_va,to_date__gte=date_va,\
+                                                  sub_project = sub_proj)
                                 tar_va =  pack_tar.filter(target_type='FTE Target').values_list('target_value',flat=True).distinct()
                                 tar_vals = sum(tar_va)
                                 to_tar_va = pack_tar.filter(target_type='Target').values_list('target_value',flat=True).distinct()
                                 to_tar_vals = sum(to_tar_va)
-                                billable = Headcount.objects.filter(project=prj_id, center=center_id, date=date_va, sub_project = sub_proj).aggregate(Sum('billable_agents'))
+                                billable = Headcount.objects.filter(\
+                                                    project=prj_id, center=center_id, date=date_va, sub_project = sub_proj)\
+                                                    .aggregate(Sum('billable_agents'))
                                 #packet = sub_proj
                             if tar_vals:
                                 if billable['billable_agents__sum'] != None:
@@ -156,9 +187,9 @@ class Command(BaseCommand):
                     else:
                         pac_billable_ppl = 0
 
-		    final_actual_val.append(pac_act_vals)
+		            final_actual_val.append(pac_act_vals)
                     #final_actual_val.append(pac_act_vals)
-	            final_target_val.append(pac_tar_vals)		
+	                final_target_val.append(pac_tar_vals)		
                     if sum(final_target_val):
                         #final_actual_val.append(pac_act_vals)
                         #final_target_val.append(pac_tar_vals)

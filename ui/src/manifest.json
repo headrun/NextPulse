@@ -6,6 +6,11 @@
   "theme_color": "#61B329",
   "icons": [
     {
+      "src": "images/nextwealth32.png",
+      "sizes": "32X32",
+      "type": "image/png"
+    },
+    {
       "src": "images/nextwealth128.png",
       "sizes": "128X128",
       "type": "image/png"
@@ -29,7 +34,27 @@
       "src": "images/nextwealth256.png",
       "sizes": "256X256",
       "type": "image/png"
+    },
+    {
+      "src": "images/nextwealth500.png",
+      "sizes": "500X500",
+      "type": "image/png"
+    },
+    {
+      "src": "images/nextwealth550.png",
+      "sizes": "550X550",
+      "type": "image/png"
+    },
+    {
+      "src": "images/nextwealth700.png",
+      "sizes": "700X700",
+      "type": "image/png"
+    },
+    {
+      "src": "images/nextwealth1280.png",
+      "sizes": "1280X1280",
+      "type": "image/png"
     }
-  ],
+  ],    
   "start_url": "index.html"
 }

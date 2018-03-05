@@ -438,5 +438,6 @@ def from_to(request):
     #final_result_dict['internal_sub_error_types'] = graph_data_alignment_color(internal_sub_error_types,'y',level_structure_key,prj_id,center,'')
     #final_result_dict['external_sub_error_types'] = graph_data_alignment_color(external_sub_error_types,'y',level_structure_key,prj_id,center,'')
     final_result_dict['days_type'] = type
+    final_result_dict['is_annotation'] = annotation_check(request)
     return json_HttpResponse(final_result_dict)
 

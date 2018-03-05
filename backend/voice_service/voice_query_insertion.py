@@ -1,25 +1,33 @@
+
 import datetime
+
 from api.models import *
 from common.utils import getHttpResponse as json_HttpResponse
-
-def inbound_hourly_query_insertion(customer_data, prj_obj, center_obj,teamleader_obj_name):
-    inbnd_hourly_date = customer_data['call_date']    
-
-    return inbnd_hourly_date
+from voice_service.models import * 
 
 
-def outbound_hourly_query_insertion(customer_data, prj_obj, center_obj,teamleader_obj_name):
-    outbnd_hourly_date = customer_data['call_date']
+def data_bulk_insertion(table_name, data_dict):
+    """Saving the data in inbound hourly table
+    """
 
-    return outbnd_hourly_date
+    dates = []
+    db_objs = []
+    # creating model objects 
+    for key, value in data_dict.iteritems():
+    	obj = table_name(**value)
+    	db_objs.append(obj)
+    	dates.append(obj.date)
+        
+    table_name.objects.bulk_create(db_objs, batch_size=1500)
 
-def inbound_daily_query_insertion(customer_data, prj_obj, center_obj,teamleader_obj_name):
-    inbnd_daily_date = customer_data['call_date']
+    return dates
+
+def save_transfers(table_name, data_list):
+	"""Saving transfers
+    """
     
-    return inbnd_daily_date
+	for item in data_list:
+		table_name.objects.create(call=InboundHourlyCall.objects.get(call_id=item[0]), transfers=item[1])
+	return 'success'
 
-def outbound_daily_query_insertion(customer_data, prj_obj, center_obj,teamleader_obj_name):
-    outbnd_daily_date = customer_data['call_date']
 
-    return outbnd_daily_date
- 

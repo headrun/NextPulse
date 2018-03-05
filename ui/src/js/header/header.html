@@ -237,6 +237,7 @@ dashboard div.dashboard-content {
     #home {
         font-size: 25px;
         color: #308014;
+        background: #f6f6f6;
     }
     #admin_but {
         color: #308014;
@@ -252,14 +253,16 @@ dashboard div.dashboard-content {
         color: #308014;
         border: none;
         font-weight: 400;
-        margin-top: -23px;
+        margin-top: -10px;
         font-size: 15px;
+        margin-bottom: 2px;
     }
     .title {
         display: none;
     }
     .role {
         margin-top: -28px;
+        margin-left: -9px;
     }
     .user-data {
         font-size: 16px;
@@ -281,12 +284,39 @@ dashboard div.dashboard-content {
     }
     #select_dropdown {
         color: #308014;
-        margin-top: -23px;
+        margin-top: -15px;
+        margin-left: -9px;
     }
     .navbar-default .navbar-nav>.active>a,
     .navbar-default .navbar-nav>.active>a:focus,
     .navbar-default .navbar-nav>.active>a:hover {
         background: none;
+    }
+    #rev-but {
+       background-color: #f5f5f5;
+       color: black;
+       border-color: #f5f5f5;
+       margin-top: -22px;
+       margin-left: -8px;     
+    }
+    .fa-users {
+        margin-top : 0px !important;
+        margin-left : 5px;
+    }
+    .video-sym, #people {
+        background : #f6f6f6 !important;
+    }
+    abbr[title] {
+        border-bottom: 1px dotted #f7f7f7 !important;    
+    }
+    .fa-video-camera {
+        margin-top : 0px !important;
+        margin-left : -4px;
+    }
+    #update {
+        float : left;
+        margin-top: -7px;
+        margin-left: -12px;
     }
   }
 
@@ -297,150 +327,153 @@ dashboard div.dashboard-content {
     color: #2a2a2a;
     font-weight: bold;
     background: white;	 	
+}
+.fa-users {
+    margin-top: 16px;
+}
+.fa-video-camera {
+    font-size:20px;
+    margin-top: 10px;
+    color: black;
+}
+.fa-calendar-check-o {
+    font-size:20px;
+    margin-top: -2px;
+    margin-right: 13px;
+}
+.video-sym {
+    background : white;
 }     
 </style>
 <nav class="navbar navbar-default">
-  <div class="container-fluid">
-    <div class="navbar-header">
-      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <a class="navbar-brand" href="http://nextwealth.in" id="nextwealth" target="_blank"><img class="logo" src="/img/nextwealth.png" alt="Nexwealth_Logo"></a>
-    </div>
-    <div class="collapse navbar-collapse" id="myNavbar">
-      <ul class="nav navbar-nav">
-        <li><abbr title="Click to View Dashboard"><a href="http://nextpulse.nextwealth.in/#!/landing"><span class="glyphicon glyphicon-home" id="home" aria-hidden="true"></span></a></abbr>
-        </li>
-        <li><a ><p class="title"><font color="#0EBFE9">Next</font><font color="#308014">Pulse</font></p></a></li>
-      </ul>
-      <ul class="nav navbar-nav navbar-right menu">
-	    <li>
-            <abbr title="Reviews">
-              <a href="/#!/review" id="rev-but" class="btn btn-info" role="button"><i class="fa fa-calendar-check-o" aria-hidden="true" 
-                 style="font-size:20px;margin-top: -2px;margin-right: 13px;"></i></a></abbr>
-        </li>
-        <li>
-           <abbr title="People's Dashboard"><a href="/#!/people" id="people"><i class="fa fa-users" aria-hidden="true" 
-                 style="margin-top:16px;"></i></a></abbr>
-       </li>
-       <li>
-       <abbr title="Video"><a class="btn" role="button" data-toggle="modal" data-target="#videoPop" style = "background:white;">
-           <i class="fa fa-video-camera" aria-hidden="true" style="font-size:20px;margin-top: 10px;color: black;"></i></a></abbr>
-
-<div class="modal fade" id="videoPop" role="dialog">
-    <div class="modal-dialog" style="width:65%;">
-
-      <!-- Modal content-->
-      <div class="modal-content" id="myModal">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal">&times;</button>
-          <h4 class="modal-title">NextPulse Video</h4>
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="http://nextwealth.in" id="nextwealth" target="_blank"><img class="logo" src="/img/nextwealth.png" alt="Nexwealth_Logo">
+            </a>        
         </div>
-        <div class="modal-body">
-          <video class="center" style= "width:100%;" controlslist="nodownload" controls>
-            <source src="nextpulse.webm" type="video/webm">
-            <source src="nextpulse.mp4" type="video/mp4">
-            <source src="nextpulse.ogv" type="video/ogv">
-            Your browser does not support the video tag.
-          </video>
-        </div>
-        <div class="modal-footer" style="border-top:none;">
-          <!--<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>-->
-        </div>
-      </div>
-
-    </div>
-</div>
-
-
-       </li>
-        <li class="dropdown active span8" id="drpdown_btn">
-            <a class="dropdown-toggle" id="select_dropdown" data-toggle="dropdown">
-                <span id="dropdown_title">{{$ctrl.select_option}}</span><span class="caret"></span>
-            </a>
-            <ul ID="divNewNotifications" class="dropdown-menu">
-                <li>
-                    <a href="" class="dropdown_items" ng-repeat="item in $ctrl.mapping_list"
-                                                      ng-click="$ctrl.change_href(item)">
-                       {{item.split(' - ')[1]}}</a>
+        <div class="collapse navbar-collapse" id="myNavbar">
+            <ul class="nav navbar-nav">
+                <li><abbr title="Click to View Dashboard"><a href="http://nextpulse.nextwealth.in/#!/landing">
+                    <span class="glyphicon glyphicon-home" id="home" aria-hidden="true"></span></a></abbr>
                 </li>
+                <li><a><p class="title"><font color="#0EBFE9">Next</font><font color="#308014">Pulse</font></p></a></li>
             </ul>
-        </li>
-        <!--<li>
-            <abbr title="People"><a href="/#!/people" id="people"><i class="fa fa-users" aria-hidden="true" style="margin-top:16px;"></i></a></abbr>
-        </li>-->
-        <li>
-            <a href="/admin/api" id="admin_but" class="btn btn-info" role="button" target="_blank">Admin</a>
-        </li>
-        <li>
-            <div id="fileupload" class="upload">
-                <span>Upload</span>
-                <!--<span><h6>*Max size limit 10Mb</h6></span>-->
-            </div>
-        </li>
-        <li class="dropdown user role">
-             <a href="" class="dropdown-toggle" data-toggle="dropdown">
-                 <b><span class="user-data" id="login-user">
+            <ul class="nav navbar-nav navbar-right menu">
+                <li>
+                    <abbr title="Reviews">
+                        <a href="/#!/review" id="rev-but" class="btn btn-info" role="button"><i class="fa fa-calendar-check-o" aria-hidden="true"></i></a>
+                    </abbr>
+                </li>
+                <li>
+                    <abbr title="People's Dashboard"><a href="/#!/people" id="people"><i class="fa fa-users" aria-hidden="true"></i></a>
+                    </abbr>
+                </li>
+                <li>
+                    <abbr title="Video"><a class="btn video-sym" role="button" data-toggle="modal" data-target="#videoPop">
+                        <i class="fa fa-video-camera" aria-hidden="true"></i></a>
+                    </abbr>
+                    <div class="modal fade" id="videoPop" role="dialog">
+                        <div class="modal-dialog" style="width:65%;">
+                            <div class="modal-content" id="myModal">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                    <h4 class="modal-title">NextPulse Video</h4>
+                                </div>
+                                <div class="modal-body">
+                                    <video class="center" style= "width:100%;" controlslist="nodownload" controls>
+                                        <source src="nextpulse.webm" type="video/webm">
+                                        <source src="nextpulse.mp4" type="video/mp4">
+                                        <source src="nextpulse.ogv" type="video/ogv">
+                                        Your browser does not support the video tag.
+                                    </video>
+                                </div>
+                                <div class="modal-footer" style="border-top:none;">
+                                    <!--<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>-->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                <li class="dropdown active span8" id="drpdown_btn">
+                    <a class="dropdown-toggle" id="select_dropdown" data-toggle="dropdown">
+                        <span id="dropdown_title">{{$ctrl.select_option}}</span><span class="caret"></span>
+                    </a>
+                    <ul ID="divNewNotifications" class="dropdown-menu">
+                        <li>
+                            <a href="" class="dropdown_items" ng-repeat="item in $ctrl.mapping_list"
+                                    ng-click="$ctrl.change_href(item)">{{item.split(' - ')[1]}}
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <!--<li>
+                    <a href="/admin/api" id="admin_but" class="btn btn-info" role="button" target="_blank">Admin</a>
+                </li>-->
+                <li>
+                    <div id="fileupload" class="upload">
+                        <span>Upload</span>
+                    </div>
+                </li>
+                <li class="dropdown user role">
+                    <a href="" class="dropdown-toggle" data-toggle="dropdown">
+                        <b><span class="user-data" id="login-user">
                         <i class="fa fa-user name"></i>{{ $ctrl.user.userName }}
                         <i class="fa fa-angle-down"></i>
-                   </span>
-                 </b>
-                 <br>
-                 <span class="role-data">{{ $ctrl.user.role }}</span>
-             </a>
-
-             <ul class="dropdown-menu sym-log user-logout">
-                 <li>
-                   <a type="button" class="btn" id="update" data-toggle="modal" data-target="#passModal"><i class="fa fa-key"></i>Update Password</a>
-                 </li>
-                <li>
-                    <logout></logout>
-                 </li> 
-             </ul>
-
-<div class="modal fade" id="passModal" role="dialog">
-    <div class="modal-dialog">
-      <!-- Modal content-->
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal">&times;</button>
-          <h4 class="modal-title">Update Password</h4>
-        </div>
-        <div class="modal-body">
-          <div class="container">
-                <form>
-                  <div class="form-group">
-                    <label>New Password :</label>
-                    <input type="password" class="form-control" style="width:25%;" ng-model="$ctrl.new_password"/>
-                  </div>
-                  <div class="form-group">
-                    <label>Confirm Password :</label>
-                    <input type="password" class="form-control" style="width:25%;" ng-model="$ctrl.new_again"/>
-                  </div>
-                  <button class="btn btn-primary btn-sm" ng-click="$ctrl.password($ctrl.new_password, $ctrl.new_again)">
-                    Submit
-                  </button>
-                  <p ng-if="$ctrl.pass_status" class="msg"> Password changed sucessfully </p>
-                  <p ng-if="$ctrl.pass_error" class="msg"> Passwords doesn't match</p>
-                </form>
-               </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        </div>
-     </div>
-  </div>
-</div>
-
-          </li>
-      </ul>
+                        </span></b>
+                        <br>
+                        <span class="role-data">{{ $ctrl.user.role }}</span>
+                    </a>
+                    <ul class="dropdown-menu sym-log user-logout">
+                        <li>
+                            <a type="button" class="btn" id="update" data-toggle="modal" data-target="#passModal"><i class="fa fa-key"></i>Update Password</a>
+                        </li>
+                        <li>
+                            <logout></logout>
+                        </li>
+                    </ul>
+                    <div class="modal fade" id="passModal" role="dialog">
+                        <div class="modal-dialog">
+                            <!-- Modal content-->
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                    <h4 class="modal-title">Update Password</h4>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="container">
+                                        <form>
+                                            <div class="form-group">
+                                                <label>New Password :</label>
+                                                <input type="password" class="form-control" style="width:25%;" ng-model="$ctrl.new_password"/>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Confirm Password :</label>
+                                                <input type="password" class="form-control" style="width:25%;" ng-model="$ctrl.new_again"/>
+                                            </div>
+                                            <button class="btn btn-primary btn-sm" ng-click="$ctrl.password($ctrl.new_password, $ctrl.new_again)">
+                                                Submit
+                                            </button>
+                                            <p ng-if="$ctrl.pass_status" class="msg"> Password changed sucessfully </p>
+                                            <p ng-if="$ctrl.pass_error" class="msg"> Passwords doesn't match</p>
+                                        </form>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>      
     </div>
-  </div>
-</nav>    
-
-
+</nav>
 <script>
     $(function () {
        $("#fileupload").uploadFile({

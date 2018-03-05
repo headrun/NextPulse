@@ -46,4 +46,23 @@ urlpatterns = [
     url(r'^err_field_graph',apiviews.err_field_graph),
     url(r'^tat_data',apiviews.tat_data),
     url(r'^get_packet_details', apiviews.get_packet_details),
+    url(r'^location', apiviews.location),
+    url(r'^skill', apiviews.skill),
+    url(r'^disposition', apiviews.disposition),
+    url(r'^call_status', apiviews.call_status),
+    #url(r'^disposition_cate', apiviews.disposition_cate)
+    url(r'^cate_dispo_inbound', apiviews.cate_dispo_inbound),
+    url(r'^outbound_dispo_cate', apiviews.outbound_dispo_cate),
+    url(r'^outbound_disposition', apiviews.outbound_disposition),
+    url(r'^outbnd_dispo_common', apiviews.outbnd_dispo_common),
+    url(r'^outbnd_utilization', apiviews.outbnd_utilization),
+    url(r'^inbnd_utilization', apiviews.inbnd_utilization),
+    url(r'^outbnd_occupancy', apiviews.outbnd_occupancy),
+    url(r'^inbnd_occupancy', apiviews.inbnd_occupancy),
+    url(r'^outbound_productivity', apiviews.outbound_productivity),
+    url(r'^inbound_productivity', apiviews.inbound_productivity),
+    url(r'^utilization', apiviews.utilization),
+    url(r'^occupancy', apiviews.occupancy),
+    url(r'^agent_productivity_data', apiviews.agent_productivity_data),
+    url(r'^agent_required', apiviews.agent_required)
 ]

@@ -185,7 +185,6 @@ def get_headers(core_key):
 
 
 def get_headers_productivity(core_key):
-
     headers1 = ['Project', 'No of Mandays', 'Actual Volume', 'Productivity']
     headers2 = ['Packet Type', 'No of Mandays', 'Actual Volume', 'Productivity', 'data']
     conn = redis.Redis(host="localhost", port=6379, db=0)

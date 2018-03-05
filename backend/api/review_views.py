@@ -253,13 +253,19 @@ def get_related_user(request):
     tl_objs = TeamLead.objects.filter(name = user_id)
     tl = ""
     project = ""
-    result_data = {'name_list' : [], 'id_list' : []}
+
     if not tl_objs:
         return json_HttpResponse('User is not TeamLead')
     tl_obj = tl_objs[0]
-    project = tl_obj.project
-    center = tl_obj.center
+    project = tl_obj.project.id
+    center = tl_obj.center.id
 
+    result_data = get_all_related_user(project, center, tl_obj)
+    return json_HttpResponse(result_data)
+
+
+def get_all_related_user(project, center, tl_obj=''):
+    result_data = {'name_list' : [], 'id_list' : []}
     nxtwlth_managers = Nextwealthmanager.objects.all()
     if nxtwlth_managers:
         for nxtwlth_manager in nxtwlth_managers:
@@ -267,28 +273,31 @@ def get_related_user(request):
             result_data['name_list'].append(_name)
             result_data['id_list'].append(nxtwlth_manager.name.id)
 
-    tls = TeamLead.objects.filter(project = project, center = center).exclude(id = tl_obj.id)
+    if tl_obj:
+        tls = TeamLead.objects.filter(project__id = project, center__id = center).exclude(id = tl_obj.id)
+    else:
+        tls = TeamLead.objects.filter(project__id = project, center__id = center)
+
     if tls:
         for tl in tls:
             _name = tl.name.first_name + " " + tl.name.last_name
             result_data['name_list'].append(_name)
             result_data['id_list'].append(tl.name.id)
 
-    customers = Customer.objects.filter(project = project, center = center)
+    customers = Customer.objects.filter(project__id = project, center__id = center)
     if customers:
         for customer in customers:
             _name = customer.name.first_name + " " + customer.name.last_name
             result_data['name_list'].append(_name)
             result_data['id_list'].append(customer.name.id)
 
-    centermanagers = Centermanager.objects.filter(center = center)
+    centermanagers = Centermanager.objects.filter(center__id = center)
     if centermanagers:
         for centermanager in centermanagers:
             _name = centermanager.name.first_name + " " + centermanager.name.last_name
             result_data['name_list'].append(_name)
             result_data['id_list'].append(centermanager.name.id)
-
-    return json_HttpResponse(result_data)
+    return result_data
 
 
 def saving_members(request):
