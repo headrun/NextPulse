@@ -112,10 +112,6 @@ class AgentTransferCall(models.Model):
     transfers  = models.TextField(null=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True)
     updated_at = models.DateTimeField(auto_now=True, null=True)
-    """
-    class Meta:
-        index_together = (('call', 'from_agent', 'to_agent'), )
-    """
 
 
 class SkillTransferCall(models.Model):
@@ -123,10 +119,6 @@ class SkillTransferCall(models.Model):
     transfers  = models.TextField(null=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True)
     updated_at = models.DateTimeField(auto_now=True, null=True)
-    """
-    class Meta:
-        index_together = (('call', 'from_skill', 'to_skill'), )
-    """
 
 
 class LocationTransferCall(models.Model):
@@ -134,10 +126,6 @@ class LocationTransferCall(models.Model):
     transfers  = models.TextField(null=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True)
     updated_at = models.DateTimeField(auto_now=True,null=True)
-    """
-    class Meta:
-        index_together = (('call', 'from_location', 'to_location'), )
-    """
 
 
 class DispositionTransferCall(models.Model):
