@@ -106,7 +106,7 @@ class HeadcountAuthoringAdmin(admin.ModelAdmin):
 admin.site.register(HeadcountAuthoring,HeadcountAuthoringAdmin)
 
 class TargetsAdmin(admin.ModelAdmin):
-    list_display = ['work_packet','sub_project','sub_packet','from_date','to_date','target_type','target_value']
+    list_display = ['work_packet','sub_project','sub_packet','from_date','to_date','target_type','target_value','target_method']
     list_filter = ['project','work_packet','sub_packet']
 admin.site.register(Targets,TargetsAdmin)
 

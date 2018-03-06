@@ -93,6 +93,7 @@ def get_cell_data(open_sheet, row_idx, col_idx):
 
 def get_level_structure_key(work_packet, sub_project, sub_packet, pro_cen_mapping):
     """It will generate level structure key with existing packet, project, and sub packey types"""
+
     level_structure_key ={}
     if (work_packet) and (work_packet !='undefined'): level_structure_key['work_packet']= work_packet
     if (sub_project) and (sub_project !='undefined'): level_structure_key['sub_project'] = sub_project
@@ -196,6 +197,7 @@ def user_data(request):
         manager_dict[center_id]= str(center_id)
     return json_HttpResponse(manager_dict)
 
+
 def num_of_days(to_date,from_date):
     date_list=[]
     no_of_days = to_date - from_date
@@ -208,24 +210,22 @@ def num_of_days(to_date,from_date):
 def from_too(request):
     return json_HttpResponse('Cool')
 
+
 def upload_target_data(date_list, prj_id, center):
     result_data = []
     final_result = {}
     final_data = []
-    total_done_value = RawTable.objects.filter(project=prj_id, center=center, date__range=[date_list[0], date_list[-1]])\
-                        .values('date').annotate(total=Sum('per_day'))
-    values = OrderedDict(zip(map(lambda p: str(p['date']), total_done_value), map(lambda p: str(p['total']), total_done_value)))
-    for date_key, total_val in values.iteritems():
-        if total_val > 0:
-            upload_query = UploadDataTable.objects.filter(project=prj_id,center=center,date=date_key)
-            target = upload_query.aggregate(Sum('target'))
-            upload = upload_query.aggregate(Sum('upload'))
-            if target['target__sum'] > 0 and upload['upload__sum'] > 0:
-                percentage = (float(upload['upload__sum'])/float(target['target__sum'])) * 100
-                final_percentage = (float('%.2f' % round(percentage, 2)))
-            else:
-                final_percentage = 0
-            final_data.append(final_percentage)
+    dates = generate_dates(date_list, prj_id, center)
+    for date in dates:
+        upload_query = UploadDataTable.objects.filter(project=prj_id,center=center,date=date)
+        target = upload_query.aggregate(Sum('target'))
+        upload = upload_query.aggregate(Sum('upload'))
+        if target['target__sum'] > 0 and upload['upload__sum'] > 0:
+            percentage = (float(upload['upload__sum'])/float(target['target__sum'])) * 100
+            final_percentage = (float('%.2f' % round(percentage, 2)))
+        else:
+            final_percentage = 0
+        final_data.append(final_percentage)
     final_result['data'] = final_data
     return final_result
 
@@ -351,82 +351,73 @@ def error_insert(request):
     pass
 
 
-def pre_scan_exception_data(date_list, prj_id, center):
+def pre_scan_exception_data(date_list, prj_id, center, level_structure_key):
+
     result_data_value = []
     final_result_dict = {}
     final_result_data, new_date_list = [], []
-    total_done_value = RawTable.objects.filter(project=prj_id, center=center, date__range=[date_list[0], date_list[-1]])\
-    .values('date').annotate(total=Sum('per_day'))
-    values = OrderedDict(zip(map(lambda p: str(p['date']), total_done_value), map(lambda p: str(p['total']), total_done_value)))
-    for date_key, total_val in values.iteritems():
-        if total_val > 0:
-            new_date_list.append(date_key)
-            final_packet_value = RawTable.objects.filter(project=prj_id,center=center,date=date_key,work_packet='Scanning')\
-                                 .aggregate(Sum('per_day'))
-            error_count = Incomingerror.objects.filter(project=prj_id,center=center,date=date_key,work_packet='Scanning')\
-                            .aggregate(Sum('error_values'))
-            if error_count['error_values__sum'] > 0 and final_packet_value['per_day__sum'] > 0:
-                percentage = (float(error_count['error_values__sum'])\
-                             /float(error_count['error_values__sum'] + final_packet_value['per_day__sum'])) * 100
-                final_percentage_va = (float('%.2f' % round(percentage, 2)))
-            else:
-                final_percentage_va = 0
-            final_result_data.append(final_percentage_va)
+    dates = generate_dates(date_list, prj_id, center)
+    for date in dates:
+        final_packet_value = RawTable.objects.filter(project=prj_id,center=center,date=date,work_packet='Scanning')\
+                             .aggregate(Sum('per_day'))
+        error_count = Incomingerror.objects.filter(project=prj_id,center=center,date=date,work_packet='Scanning')\
+                        .aggregate(Sum('error_values'))
+        if error_count['error_values__sum'] > 0 and final_packet_value['per_day__sum'] > 0:
+            percentage = (float(error_count['error_values__sum'])\
+                         /float(error_count['error_values__sum'] + final_packet_value['per_day__sum'])) * 100
+            final_percentage_va = (float('%.2f' % round(percentage, 2)))
+        else:
+            final_percentage_va = 0
+        final_result_data.append(final_percentage_va)
     final_result_dict['data'] = final_result_data
     result_data_value.append(final_result_dict)
     return result_data_value
 
 
 def overall_exception_data(date_list, prj_id, center,level_structure_key):
+
     result = {} 
     new_date_list = []
-    total_done_value = RawTable.objects.filter(project=prj_id, center=center, date__range=[date_list[0], date_list[-1]])\
-                       .values('date').annotate(total=Sum('per_day'))
-    values = OrderedDict(zip(map(lambda p: str(p['date']), total_done_value), map(lambda p: str(p['total']), total_done_value)))
-    for date_key, total_val in values.iteritems():
-        if total_val > 0:
-            new_date_list.append(date_key)
-            packets = ['Data Entry', 'KYC Check']
-            for packet in packets:
-                work_done = RawTable.objects.filter(project=prj_id, center=center, date=date_key,work_packet = packet)\
-                            .aggregate(Sum('per_day'))
-                error_value = Incomingerror.objects.filter(\
-                                project=prj_id,center=center,date=date_key,work_packet=packet,sub_packet='Overall Exception')\
-                                .aggregate(Sum('error_values'))
-                if work_done['per_day__sum'] > 0 and error_value['error_values__sum'] > 0:
-                    percentage = float(error_value['error_values__sum'])/float(work_done['per_day__sum'])*100
-                    percentage = (float('%.2f' % round(percentage, 2)))
-                else:
-                    percentage = 0
-                if result.has_key(packet):
-                    result[packet].append(percentage)
-                else:
-                    result[packet] = [percentage]
+    dates = generate_dates(date_list, prj_id, center)
+    for date in dates:
+        packets = ['Data Entry', 'KYC Check']
+        for packet in packets:
+            work_done = RawTable.objects.filter(project=prj_id, center=center, date=date,work_packet = packet)\
+                        .aggregate(Sum('per_day'))
+            error_value = Incomingerror.objects.filter(\
+                            project=prj_id,center=center,date=date,work_packet=packet,sub_packet='Overall Exception')\
+                            .aggregate(Sum('error_values'))
+            if work_done['per_day__sum'] > 0 and error_value['error_values__sum'] > 0:
+                percentage = float(error_value['error_values__sum'])/float(work_done['per_day__sum'])*100
+                percentage = (float('%.2f' % round(percentage, 2)))
+            else:
+                percentage = 0
+            if result.has_key(packet):
+                result[packet].append(percentage)
+            else:
+                result[packet] = [percentage]
     return result
 
 
 def nw_exception_data(date_list, prj_id, center,level_structure_key):
+
     result = {}
     new_date_list = []
-    total_done_value = RawTable.objects.filter(project=prj_id, center=center, date__range=[date_list[0], date_list[-1]])\
-                        .values('date').annotate(total=Sum('per_day'))
-    values = OrderedDict(zip(map(lambda p: str(p['date']), total_done_value), map(lambda p: str(p['total']), total_done_value)))
-    for date_key, total_val in values.iteritems():
-        if total_val > 0:
-            new_date_list.append(date_key)
-            packets = ['Data Entry', 'KYC Check']
-            for packet in packets:
-                error_value = Incomingerror.objects.filter(\
-                              project=prj_id, center=center, work_packet=packet,sub_packet='NW Exception', date=date_key)\
-                              .aggregate(Sum('error_values'))
-                if error_value['error_values__sum'] > 0: 
-                    value = float(error_value['error_values__sum'])
-                else:
-                    value = 0
-                if result.has_key(packet):
-                    result[packet].append(value)
-                else:
-                    result[packet] = [value]
+    dates = generate_dates(date_list, prj_id, center)
+    packets = ['Data Entry', 'KYC Check']
+    for date in dates:
+        for packet in packets:
+            error_value = Incomingerror.objects.filter(\
+                          project=prj_id, center=center, work_packet=packet,sub_packet='NW Exception', date=date)\
+                          .aggregate(Sum('error_values'))
+            if error_value['error_values__sum'] > 0: 
+                value = float(error_value['error_values__sum'])
+            else:
+                value = 0
+            if result.has_key(packet):
+                result[packet].append(value)
+            else:
+                result[packet] = [value]
     return result
 
 
@@ -501,6 +492,126 @@ def error_types_sum(error_list):
             new_final_dict[er_key] = final_error_dict[er_key]
 
     return new_final_dict
+
+
+def get_query_parameters(level_structure_key, prj_id, center_obj, date_list):
+
+    _dict = {}
+    packet_1 = level_structure_key.get('sub_project', '') 
+    packet_2 = level_structure_key.get('work_packet', '') 
+    packet_3  = level_structure_key.get('sub_packet', '')
+
+    if (packet_1 != '' and packet_2 != '' and packet_3 != '') or (packet_1 != ''):
+        if (packet_1 == 'All' and packet_2 == 'All' and packet_3 == 'All') or (packet_1 == 'All'):
+            _dict.update({'project': prj_id, 'center': center_obj, 'date__range': [date_list[0], date_list[-1]]})
+        elif packet_1 != 'All' and packet_2 == 'All' and packet_3 == 'All':
+            _dict.update({'project': prj_id, 'center': center_obj, 'date__range': [date_list[0], date_list[-1]], 'sub_project': packet_1})
+        elif packet_1 != 'All' and packet_2 != 'All' and packet_3 == 'All':
+            _dict.update({'project': prj_id, 'center': center_obj, 'date__range': [date_list[0], date_list[-1]], 'sub_project': packet_1,\
+                'work_packet': packet_2})
+        elif packet_1 != 'All' and packet_2 != 'All' and packet_3 != 'All':
+            _dict.update({'project': prj_id, 'center': center_obj, 'date__range': [date_list[0], date_list[-1]], 'sub_project': packet_1,\
+                'work_packet': packet_2, 'sub_packet': packet_3})
+
+    elif packet_1 == '' and packet_2 != '' and packet_3 != '': 
+        if packet_2 == 'All' and packet_3 == 'All':
+            _dict.update({'project': prj_id, 'center': center_obj, 'date__range': [date_list[0], date_list[-1]]})
+        elif packet_2 != 'All' and packet_3 == 'All':
+            _dict.update({'project': prj_id, 'center': center_obj, 'date__range': [date_list[0], date_list[-1]], 'work_packet': packet_2})
+        elif packet_2 != 'All' and packet_3 != 'All':
+            _dict.update({'project': prj_id, 'center': center_obj, 'date__range': [date_list[0], date_list[-1]], 'work_packet': packet_2,\
+                'sub_packet': packet_3})
+
+    elif packet_1 == '' and packet_2 != '' and packet_3 == '': 
+        if packet_2 == 'All':
+            _dict.update({'project': prj_id, 'center': center_obj, 'date__range': [date_list[0], date_list[-1]]})
+        elif packet_2 != 'All':
+            _dict.update({'project': prj_id, 'center': center_obj, 'date__range': [date_list[0], date_list[-1]],\
+                'work_packet': packet_2})
+
+    return _dict
+
+
+def getting_required_params(level_structure_key, prj_id, center_obj, date_list):
+    
+    query_dict = {}
+    packet_1 = level_structure_key.get('sub_project', '')
+    packet_2 = level_structure_key.get('work_packet', '')
+    packet_3  = level_structure_key.get('sub_packet', '')
+    field = ''
+    if (packet_1 != '' and packet_2 != '' and packet_3 != '') or (packet_1 != ''):
+        if (packet_1 == 'All' and packet_2 == 'All' and packet_3 == 'All') or (packet_1 == 'All'):
+            query_dict.update({'project': prj_id, 'center': center_obj, 'date__range': [date_list[0], date_list[-1]]})
+            field = 'sub_project'
+        elif packet_1 != 'All' and packet_2 == 'All' and packet_3 == 'All':
+            query_dict.update({'project': prj_id, 'center': center_obj, 'date__range': [date_list[0], date_list[-1]],\
+            'sub_project': packet_1})
+            field = 'work_packet'
+        elif packet_1 != 'All' and packet_2 != 'All' and packet_3 == 'All':
+            query_dict.update({'project': prj_id, 'center': center_obj, 'date__range': [date_list[0], date_list[-1]],\
+            'sub_project': packet_1,'work_packet': packet_2})
+            field = 'sub_packet'
+        elif packet_1 != 'All' and packet_2 != 'All' and packet_3 != 'All':
+            query_dict.update({'project': prj_id, 'center': center_obj, 'date__range': [date_list[0], date_list[-1]],\
+            'sub_project': packet_1,'work_packet': packet_2, 'sub_packet': packet_3})
+            field = 'sub_packet'
+        
+    elif packet_1 == '' and packet_2 != '' and packet_3 != '':
+        if packet_2 == 'All' and packet_3 == 'All':
+            query_dict.update({'project': prj_id, 'center': center_obj, 'date__range': [date_list[0], date_list[-1]]})
+            field = 'work_packet'
+        elif packet_2 != 'All' and packet_3 == 'All':
+            query_dict.update({'project': prj_id, 'center': center_obj, 'date__range': [date_list[0], date_list[-1]],\
+            'work_packet': packet_2})
+            field = 'sub_packet'
+        elif packet_2 != 'All' and packet_3 != 'All':
+            query_dict.update({'project': prj_id, 'center': center_obj, 'date__range': [date_list[0], date_list[-1]],\
+            'work_packet': packet_2,'sub_packet': packet_3})
+            field = 'sub_packet'
+
+    elif packet_1 == '' and packet_2 != '' and packet_3 == '':
+        if packet_2 == 'All':
+            query_dict.update({'project': prj_id, 'center': center_obj, 'date__range': [date_list[0], date_list[-1]]})
+            field = 'work_packet'
+        elif packet_2 != 'All':
+            query_dict.update({'project': prj_id, 'center': center_obj, 'date__range': [date_list[0], date_list[-1]],\
+            'work_packet': packet_2})
+            field = 'work_packet'
+    return query_dict, field
+
+    
+def generate_dates(date_list, prj_id, center):
+
+    dates = []
+    date_values = RawTable.objects.filter(\
+                       project=prj_id, center=center, date__range=[date_list[0], date_list[-1]]).\
+                       values_list('date',flat=True).distinct() 
+    for date in date_values:
+        dates.append(str(date))
+    return dates
+
+
+def tat_graph(date_list, prj_id, center,level_structure_key):
+    new_dict = {}
+    data_list, tat_val_list = [],[]
+    dates = generate_dates(date_list, prj_id, center)
+    for date_va in dates:
+        tat_da = TatTable.objects.filter(project = prj_id,center= center,date=date_va)
+        tat_met_value = tat_da.aggregate(Sum('met_count'))
+        tat_not_met_value = tat_da.aggregate(Sum('non_met_count'))
+        met_val = tat_met_value['met_count__sum']
+        not_met_val = tat_not_met_value['non_met_count__sum']
+        if met_val:
+            tat_acc = (met_val/(met_val + not_met_val)) * 100
+        else:
+            tat_acc = 0
+        tat_val_list.append(tat_acc)
+        if sum(tat_val_list):
+            tat_val_list = tat_val_list
+        else:
+            tat_val_list = []
+    new_dict['tat_graph_details'] = tat_val_list
+    return new_dict
 
 
 def Error_checking(employee_data,error_match=False):

@@ -9,8 +9,6 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
 
 
-        #reports = Log.objects.filter(date__gt=datetime.today(),date__lt=(datetime.today()+timedelta(days=2)))
-        #for report in reports:
         from django.core import mail
         from django.core.mail import send_mail, BadHeaderError
         from django.core.mail import EmailMessage
@@ -23,16 +21,10 @@ class Command(BaseCommand):
         details = []
         mail_data = ''
 
-        #check_date = datetime.datetime.now() - datetime.timedelta(days=20)
-        #check_date =datetime.datetime.now() 
-
-
         for customer in customers:
             cust_data = User.objects.filter(id=customer.name_id)[0]
             cust_data_last_login = cust_data.last_login
-            #current_date = datetime.datetime.now() - datetime.timedelta(days=45)
             if cust_data.last_login !=None:
-                #if current_date.date() > cust_data_last_login.date():
                 check_date = datetime.datetime.now().date() - cust_data_last_login.date()
                 final_date = check_date.days
                 mes = 'Last login ' + str(final_date) + ' days ago'
@@ -46,13 +38,10 @@ class Command(BaseCommand):
         for one in details:
             mail_data += "<h4>"+one['customer']+"</h4>"+"<ul>"+"<li>"+one['last_login_on']+"</li>"+"<li>"+one['message']+"</li></ul>"
 
-        """msg = EmailMessage("Customer last login details" , mail_data, 'nextpulse@nextwealth.in', \
-            ['asifa@headrun.net', 'yeswanth@headrun.com'])"""
 
-	to = ['yeswanth@headrun.com','asifa@headrun.net','yatish@headrun.com','rishi@headrun.com', \
-            'kannan.sundar@nextwealth.in','poornima.mitta@nextwealth.in','sankar.k@mnxw.org', 'abhishek@headrun.com']
+	to = ['asifa@headrun.net','yatish@headrun.com','rishi@headrun.com', \
+            'kannan.sundar@nextwealth.in','poornima.mitta@nextwealth.in','sankar.k@mnxw.org']
 
-	#to = ['abhishek@headrun.com']
         msg = EmailMessage("Next Pulse : Customer last login details" , mail_data, 'nextpulse@nextwealth.in', to) 
 
         msg.content_subtype = "html"

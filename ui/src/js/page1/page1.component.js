@@ -421,7 +421,9 @@
                         }
 
                         self.type = type;
-                        
+
+                        if ((self.work_list.length == 1) || (type == 'week') || (type == 'month')) {
+
                         var allo_and_comp = '/api/alloc_and_compl/'+self.data_to_show + type + final_work+'&chart_name=17&chart_name=13';
 
                         return $http({method:"GET", url: allo_and_comp}).success(function(result){
@@ -655,6 +657,7 @@
                                 });
                            }
                         })
+                      }
                     }
 
                     self.utill_all = function(final_work, type,name) {
@@ -671,6 +674,8 @@
                         }
             
                         self.type = type;
+
+                        if ((self.utili_list.length == 1) || (type == 'week') || (type == 'month')) {
 
                         var utill_all = '/api/utilisation_all/'+self.data_to_show + type + final_work+'&chart_name=20&chart_name=19&chart_nam=9';
 
@@ -988,6 +993,7 @@
                                $('.widget-9b').removeClass('widget-data-hide');
                             }
                         })
+                      }  
                     }
                     
                     self.productivity = function(final_work, type) {
@@ -1007,7 +1013,7 @@
                         return $http({method:"GET", url: productivity}).success(function(result){
 
                             var date_list = result.result.date;
-                            var productivity = result.result.original_productivity_graph;
+                            var productivity = result.result.productivity;
                             var is_annotation = result.result.is_annotation;                            
 
                             if (self.list_object.productivity_trends != undefined) {
@@ -1458,6 +1464,8 @@
 
                         self.type = type;
 
+                        if ((self.fte_list.length == 1) || (type == 'week') || (type == 'month')) {
+
                         var fte_graphs = '/api/fte_graphs/'+self.data_to_show + type + final_work + '&chart_name=11&chart_name=12';
 
                         return $http({method:"GET", url: fte_graphs}).success(function(result){
@@ -1485,8 +1493,8 @@
                                 }
                             }
                             var date_list = result.result.date;
-                            var work_packet_fte = result.result.fte_calc_data.work_packet_fte;
-                            var total_fte = result.result.fte_calc_data.total_fte;
+                            var work_packet_fte = result.result.fte_calc_data.fte_scope;
+                            var total_fte = result.result.fte_calc_data.fte_trend;
                             var is_annotation = result.result.is_annotation;
                             var date_range = $('#select').val().split('to');
                             
@@ -1512,6 +1520,9 @@
                                     },
                                     plotOptions: {
                                         series: {
+                                            label: {
+                                                connectorAllowed: true
+                                            },
                                         dataLabels: {
                                             enabled: value,
                                             valueDecimals: 2
@@ -1676,6 +1687,7 @@
                                 $('.widget-12b').removeClass('widget-data-hide');
                           }
                        })
+                      }
                     }
                 
                     self.main_prod = function(final_work, type, name) {
@@ -1693,6 +1705,8 @@
                         }
 
                         self.type = type;
+
+                        if ((self.prod_list.length == 1) || (type == 'week') || (type == 'month')) {
 
                         var main_prod = '/api/main_prod/'+self.data_to_show + type + final_work + '&chart_name=1&chart_name=6';
 
@@ -1720,7 +1734,7 @@
                                     $('.month').siblings().removeClass('active btn-success');
                                 }
                             }
-                            var date_list = result.result.data.date;
+                            var date_list = result.result.date;
                             var main_prod_data = result.result.productivity_data;
                             var is_annotation = result.result.is_annotation;
                             
@@ -1918,9 +1932,12 @@
                                 $('.widget-1b').removeClass('widget-data-hide');
                            }  
                         })
+                      }  
                     }
     	
 	       	self.category_error = function(cate_error){
+
+                       if (self.cate_pie.length == 1) {
                        return $http({method:"GET", url: cate_error }).success(function(result){
 
                             angular.extend(self.chartOptions5,{
@@ -1946,9 +1963,12 @@
                             $('.widget-5a').removeClass('widget-loader-show');
                             $('.widget-5b').removeClass('widget-data-hide');
                        })
+                }
 		}
 
 		self.pareto_category_error = function(pareto_cate_error){
+
+                       if (self.cate_pareto.length == 1) {
 
                        return $http({method:"GET", url: pareto_cate_error + '&chart_name=24&chart_name=25' }).success(function(result){
                             var is_annotation = result.result.is_annotation;
@@ -1968,7 +1988,7 @@
     
                             angular.extend(self.chartOptions29, {
                                 xAxis: {
-                                    categories: result.result.Internal_Error_Category.category_name,
+                                    categories: result.result.internal_error_category.category_name,
                                 title: {
                                     text: '',
                                  }
@@ -2010,7 +2030,7 @@
                                     }
                                 },
 	
-                               series: result.result.Internal_Error_Category.category_pareto,
+                               series: result.result.internal_error_category.category_pareto,
                                     onComplete: function(chart){
                                     if (is_annotation) {
                                     var series = null;
@@ -2060,9 +2080,10 @@
                             else {
                                 var value = false;
                             }
+
                             angular.extend(self.chartOptions30, {
                                 xAxis: {
-                                    categories: result.result.External_Error_Category.category_name,
+                                    categories: result.result.external_error_category.category_name,
                                 title: {
                                     text: '',
                                  }
@@ -2104,7 +2125,7 @@
                                         }
                                     }
                                 },                            
-                               series: result.result.External_Error_Category.category_pareto,
+                               series: result.result.external_error_category.category_pareto,
                                     onComplete: function(chart){
                                     if (is_annotation) {
                                     var series = null;
@@ -2141,9 +2162,12 @@
                             $('.widget-25a').removeClass('widget-loader-show');
                             $('.widget-25b').removeClass('widget-data-hide');
                        })
+                 }
 		   }
 		  
 		self.agent_category_error = function(agent_cate_error){
+                        
+                       if (self.agent_pareto.length == 1) {
                        return $http({method:"GET", url: agent_cate_error + '&chart_name=22&chart_name=23' }).success(function(result){
                             var is_annotation = result.result.is_annotation;
                             if (self.list_object.agent_wise_pareto_graph_data != undefined) {
@@ -2162,7 +2186,7 @@
     
                             angular.extend(self.chartOptions27, {
                                 xAxis: {
-                                    categories: result.result.Pareto_data.emp_names,
+                                    categories: result.result.pareto_data.category_name,
                                 title: {
                                     text: '',
                                  }
@@ -2204,7 +2228,7 @@
                                         }
                                     }
                                 },
-                               series: result.result.Pareto_data.agent_pareto_data,
+                               series: result.result.pareto_data.category_pareto,
                                     onComplete: function(chart){
                                     if (is_annotation) {
                                     var series = null;
@@ -2257,7 +2281,7 @@
 
                             angular.extend(self.chartOptions28, {
                                 xAxis: {
-                                    categories: result.result.External_Pareto_data.emp_names,
+                                    categories: result.result.external_pareto_data.category_name,
                                 title: {
                                     text: '',
                                  }
@@ -2299,7 +2323,7 @@
                                     }
                                 },
 
-                               series: result.result.External_Pareto_data.agent_pareto_data,
+                               series: result.result.external_pareto_data.category_pareto,
                                     onComplete: function(chart){
                                     if (is_annotation) {
                                     var series = null;
@@ -2335,6 +2359,7 @@
                             $('.widget-23a').removeClass('widget-loader-show');
                             $('.widget-23b').removeClass('widget-data-hide');
                        }) 
+                }
 		 }
 
                 
@@ -2804,6 +2829,8 @@
                 
 			self.error_field_graph = function(err_field_graph){
 
+                       if (self.err_field.length == 1) {
+
                        return $http({method:"GET", url: err_field_graph + '&chart_name=38&chart_name=39'}).success(function(result){
                             var is_annotation = result.result.is_annotation;
                            angular.extend(self.chartOptions43.yAxis,{
@@ -3001,9 +3028,12 @@
                            $('.widget-39a').removeClass('widget-loader-show');
                            $('.widget-39b').removeClass('widget-data-hide');
                        })
+                 }
 			}
 
 			self.error_bar_graph = function(error_bar_graph){
+                            
+                           if (self.bar_acc.length == 1) {
 	                       return $http({method:"GET", url: error_bar_graph + '&chart_name=2&chart_name=3'}).success(function(result){
                             var is_annotation = result.result.is_annotation;
                             if (self.list_object.internal_error_accuracy != undefined) {
@@ -3206,6 +3236,7 @@
                            $('.widget-3a').removeClass('widget-loader-show');
                            $('.widget-3b').removeClass('widget-data-hide');
                        })
+                 }
 			}
 
                     self.from_to = function(final_work, type, name) {
@@ -3224,13 +3255,15 @@
 
                         self.type = type;
 
+                        if ((self.acc_timeline.length == 1) || (type == 'week') || (type == 'month')) {
+
                         var from_to = '/api/from_to/'+self.data_to_show + type + final_work + '&chart_name=7&chart_name=8';
 
                         return $http({method:"GET", url: from_to}).success(function(result){
 
                             var date_list = result.result.date;
-                            var external_error_timeline = result.result.external_time_line;
-                            var internal_error_timeline = result.result.internal_time_line;
+                            var external_error_timeline = result.result.external_accuracy_timeline;
+                            var internal_error_timeline = result.result.internal_accuracy_timeline;
                             var is_annotation = result.result.is_annotation;
 
                             if ((name == "self.chartOptions9_2") || (name == "")) {
@@ -3433,10 +3466,15 @@
                             }
 
                          })
+                        }
                        }
                 self.hideLoading();
-                var static_ajax = static_data + self.static_widget_data;
+
+        var static_ajax = static_data + self.static_widget_data;
 		self.static_data_call = function(static_ajax){
+
+                if (self.stacti_list.length == 1) {
+                
                 $http({method:"GET", url:static_ajax}).success(function(result){
 
                     angular.extend(self.chartOptions32, {
@@ -3518,32 +3556,92 @@
                     $('.widget-32b').removeClass('widget-data-hide');
 
                 });
+            }
 		}
+            self.work_list = [];
+            self.stacti_list = [];
+            self.prod_list = [];
+            self.bar_acc = [];
+            self.cate_pie = [];
+            self.cate_pareto = [];
+            self.agent_pareto = [];
+            self.fte_list = [];
+            self.err_field = [];
+            self.acc_timeline = [];
+            self.utili_list = [];
             if (self.is_voice_flag == false) {
-                $q.all([self.allo_and_comp(undefined, undefined, undefined), self.utill_all(undefined, undefined, undefined),
-                    self.productivity(undefined, undefined), self.prod_avg(undefined, undefined)]).then(function(){
+                var sort_array = [];
+                var final_array = []; 
+                for (var key in self.list_object) {
+                     sort_array.push({key:key,value:self.list_object[key].widget_priority});
+                }
+               sort_array.sort(function(x,y){return x.value - y.value});
+                var values_array = [];
+                sort_array.forEach( function (eachObj){
+                    for (var key in eachObj) {
+                        values_array.push(eachObj.key);
+                    }
+                });
+ 
+                 var names = values_array;
+                 var uniqueNames = [];
+                 $.each(names, function(i, el){
+                     if($.inArray(el, uniqueNames) === -1) uniqueNames.push(el);
+                 }); 
 
-                $q.all([self.pareto_category_error(pareto_cate_error) ,self.agent_category_error(agent_cate_error), 
-                    self.main_prod(undefined, undefined, undefined), self.category_error(cate_error)]).then(function(){
-
-                $q.all([self.from_to(undefined, undefined, undefined) ,self.error_bar_graph(error_bar_graph),
-                    self.pre_scan(undefined, undefined), self.nw_exce(undefined, undefined)]).then(function(){
-
-                $q.all([self.overall_exce(undefined, undefined), self.upload_acc(undefined, undefined),
-                   self.mont_volume(undefined, undefined), self.fte_graphs(undefined, undefined, undefined)]).then(function(){
-
-                $q.all([self.error_field_graph(err_field_graph), self.tat_data(undefined, undefined),
-                    self.static_data_call(static_ajax)]).then(function(){                                                               
-                    self.annot_perm();                                                                                                    
-                   });                                        
-
+                $.each(uniqueNames, function (key, val) {
+                    if ((val == 'productivity_chart') || (val == 'productivity_bar_graph')) {
+                         self.prod_list.push('production')
+                         self.main_prod(undefined, undefined, undefined)
+                    } else if ((val == 'volume_bar_graph') || (val == 'volume_productivity_graph')) {
+                         self.work_list.push('work_track')
+                         self.allo_and_comp(undefined, undefined, undefined)
+                    } else if ((val == 'fte_utilization') || (val == 'operational_utilization') || (val == 'utilisation_wrt_work_packet')) {
+                         self.utili_list.push('utilisation')
+                         self.utill_all(undefined, undefined, undefined)
+                    } else if ((val == 'sum_total_fte') || (val == 'total_fte')) {
+                         self.fte_list.push('fte_graphs')
+                         self.fte_graphs(undefined, undefined, undefined)
+                    } else if ((val == 'internal_error_accuracy_pie') || (val == 'external_error_accuracy_pie')) {
+                         self.cate_pie.push('cate_pie')
+                         self.category_error(cate_error)
+                    } else if ((val == 'error_category_internal_pareto_analysis') || (val == 'error_category_external_pareto_analysis')) {
+                         self.cate_pareto.push('cate_pareto')
+                         self.pareto_category_error(pareto_cate_error)
+                    } else if ((val == 'agent_wise_pareto_graph_data') || (val == 'agent_wise_external_pareto_analysis')) {
+                         self.agent_pareto.push('agent_pareto')
+                         self.agent_category_error(agent_cate_error)
+                    } else if ((val == 'external_accuracy_timeline') || (val == 'internal_accuracy_timeline')) {
+                         self.acc_timeline.push('accuracy_timeline')
+                         self.from_to(undefined, undefined, undefined)
+                    } else if ((val == 'external_error_accuracy') || (val == 'internal_error_accuracy')) {
+                         self.bar_acc.push('bar_accuracy')
+                         self.error_bar_graph(error_bar_graph)
+                    } else if (val == 'productivity_trends') {
+                         self.productivity(undefined, undefined)
+                    } else if (val == 'monthly_volume_widget') {
+                         self.mont_volume(undefined, undefined)
+                    } else if (val == 'production_avg_perday') {
+                         self.prod_avg(undefined, undefined)
+                    } else if (val == 'target_upload_graph') {
+                         self.upload_acc(undefined, undefined)
+                    } else if (val == 'pre_scan_exception_chart') {
+                         self.pre_scan(undefined, undefined)
+                    } else if (val == 'nw_exception_chart') {
+                         self.nw_exce(undefined, undefined)
+                    } else if (val == 'overall_exception_chart') {
+                         self.overall_exce(undefined, undefined)
+                    } else if (val == 'tat_graph') {
+                         self.tat_data(undefined, undefined)
+                    } else if ((val == 'Static_Daily_Production_Trend') || (val == 'Static_Weekly_Production_Trend') || (val == 'Static_Monthly_Production_Trend') || (val == 'Static_Daily_Production_Bar') || (val == 'Static_Weekly_Production_Bar') || (val == 'Static_Monthly_Production_Bar')) {
+                         self.stacti_list.push('static')
+                         self.static_data_call(static_ajax)
+                 } else if ((val == 'internal_field_accuracy_graph') || (val == 'external_field_accuracy_graph')) {
+                          self.err_field.push('field_accuracy')
+                          self.error_field_graph(err_field_graph)
+                    }
                 });
 
-                });
-
-                });
-
-                });
             }
         }
 
@@ -4765,7 +4863,8 @@
 
             self.chartOptions = {
                 chart : {
-                 backgroundColor: "transparent"
+                 backgroundColor: "transparent",
+                 reflow: false
                 },
                 lang: {
 			       thousandsSep: ','
@@ -4796,7 +4895,8 @@
       
            self.chartOptions39 = {
                 chart : {
-                 backgroundColor: "transparent"
+                 backgroundColor: "transparent",
+                 reflow: false
                 },
                 yAxis: {
                     gridLineColor: 'a2a2a2',
@@ -4819,7 +4919,8 @@
 
            self.chartOptions40 = {
                 chart : {
-                 backgroundColor: "transparent"
+                 backgroundColor: "transparent",
+                 reflow: false
                 },
                 yAxis: {
                     gridLineColor: 'a2a2a2',
@@ -4843,7 +4944,8 @@
 
            self.chartOptions41 = {
                 chart : {
-                 backgroundColor: "transparent"
+                 backgroundColor: "transparent",
+                 reflow: false
                 },
                 yAxis: {
                     gridLineColor: 'a2a2a2',
@@ -4867,7 +4969,8 @@
 
             self.chartOptions42 = {
                 chart : {
-                 backgroundColor: "transparent"
+                 backgroundColor: "transparent",
+                 reflow: false
                 },
                 yAxis: {
                     gridLineColor: 'a2a2a2',
@@ -4891,7 +4994,8 @@
 
            self.chartOptions38 = {
                 chart : {
-                 backgroundColor: "transparent"
+                 backgroundColor: "transparent",
+                 reflow: false
                 },
                 lang: {
                    thousandsSeparator: ','
@@ -4924,7 +5028,8 @@
             self.chartOptions10 = {
             chart: {
                 type: 'column',
-                backgroundColor: "transparent"
+                backgroundColor: "transparent",
+                reflow: false
              },
             yAxis: {
                 gridLineColor: 'a2a2a2',
@@ -4945,7 +5050,8 @@
 
             self.chartOptions9 = {
                 chart : {
-                 backgroundColor: "transparent"
+                 backgroundColor: "transparent",
+                 reflow: false
                 },
                                yAxis: {
                 gridLineColor: 'a2a2a2',
@@ -4969,7 +5075,8 @@
 
             self.chartOptions9_2 = {
                 chart : {
-                 backgroundColor: "transparent"
+                 backgroundColor: "transparent",
+                 reflow: false
                 },
                                yAxis: {
                 gridLineColor: 'a2a2a2',
@@ -4994,7 +5101,8 @@
             self.chartOptions4 = {
             chart: {
                 type: 'column',
-                backgroundColor: "transparent"
+                backgroundColor: "transparent",
+                reflow: false
              },
             title: {
                 text: ''
@@ -5038,7 +5146,8 @@
             self.chartOptions43 = {
             chart: {
                 type: 'column',
-                backgroundColor: "transparent"
+                backgroundColor: "transparent",
+                reflow: false
              },
             title: {
                 text: ''
@@ -5082,7 +5191,8 @@
             self.chartOptions44 = {
             chart: {
                 type: 'column',
-                backgroundColor: "transparent"
+                backgroundColor: "transparent",
+                reflow: false
              },
             title: {
                 text: ''
@@ -5129,7 +5239,8 @@
                     plotBackgroundColor: null,
                     plotBorderWidth: null,
                     plotShadow: false,
-                    type: 'pie'
+                    type: 'pie',
+                    reflow: false
                   },
                 title: {
                     text: ''
@@ -5162,7 +5273,8 @@
                     plotBackgroundColor: null,
                     plotBorderWidth: null,
                     plotShadow: false,
-                    type: 'pie'
+                    type: 'pie',
+                    reflow: false
                   },
                 title: {
                     text: ''
@@ -5192,7 +5304,8 @@
         self.chartOptions47 = {
             chart: {
                 type: 'column',
-                backgroundColor: "transparent"
+                backgroundColor: "transparent",
+                reflow: false
              },   
             title: {
                 text: ''
@@ -5230,7 +5343,8 @@
             self.chartOptions48 = {
                 chart: {
                     type: 'column',
-                    backgroundColor: "transparent"
+                    backgroundColor: "transparent",
+                    reflow: false
                  },
                 title: {
                     text: ''
@@ -5268,7 +5382,8 @@
             self.chartOptions50 = {
                 chart: {
                     type: 'column',
-                    backgroundColor: "transparent"
+                    backgroundColor: "transparent",
+                    reflow: false
                 },
                 title: {
                     text: ''
@@ -5317,7 +5432,8 @@
             self.chartOptions49 = {
                 chart: {
                     type: 'column',
-                    backgroundColor: "transparent"
+                    backgroundColor: "transparent",
+                    reflow: false
                 },   
                 title: {
                     text: ''
@@ -5356,7 +5472,8 @@
                     plotBackgroundColor: null,
                     plotBorderWidth: null,
                     plotShadow: false,
-                    type: 'pie'
+                    type: 'pie',
+                    reflow: false
                   },
                 title: {
                     text: ''
@@ -5389,7 +5506,8 @@
                     plotBackgroundColor: null,
                     plotBorderWidth: null,
                     plotShadow: false,
-                    type: 'pie'
+                    type: 'pie',
+                    reflow: false
                   },
                 title: {
                     text: ''
@@ -5419,7 +5537,8 @@
             self.chartOptions53 = {
                 chart: {
                 type: 'column',
-                backgroundColor: "transparent"
+                backgroundColor: "transparent",
+                reflow: false
              },    
             title: {
                 text: ''
@@ -5458,7 +5577,8 @@
             self.chartOptions54 = {
                 chart: {
                 type: 'column',
-                backgroundColor: "transparent"
+                backgroundColor: "transparent",
+                reflow: false
              },
             title: {
                 text: ''
@@ -5495,7 +5615,8 @@
 
             self.chartOptions55 = {
                 chart : {
-                 backgroundColor: "transparent"
+                 backgroundColor: "transparent",
+                 reflow: false
                 },
                                yAxis: {
                 gridLineColor: 'a2a2a2',
@@ -5519,7 +5640,8 @@
 
             self.chartOptions56 = {
                 chart : {
-                 backgroundColor: "transparent"
+                 backgroundColor: "transparent",
+                 reflow: false
                 },  
                                yAxis: {
                 gridLineColor: 'a2a2a2',
@@ -5542,7 +5664,8 @@
 
             self.chartOptions57 = {
                 chart : {
-                 backgroundColor: "transparent"
+                 backgroundColor: "transparent",
+                 reflow: false
                 },
                                yAxis: {
                 gridLineColor: 'a2a2a2',
@@ -5565,7 +5688,8 @@
 
             self.chartOptions58 = {
                 chart : {
-                 backgroundColor: "transparent"
+                 backgroundColor: "transparent",
+                 reflow: false
                 },
                                yAxis: {
                 gridLineColor: 'a2a2a2',
@@ -5589,7 +5713,8 @@
 
             self.chartOptions59 = {
                 chart : {
-                 backgroundColor: "transparent"
+                 backgroundColor: "transparent",
+                 reflow: false
                 },
                                yAxis: {
                 gridLineColor: 'a2a2a2',
@@ -5612,7 +5737,8 @@
 
             self.chartOptions60 = {
                 chart : {
-                 backgroundColor: "transparent"
+                 backgroundColor: "transparent",
+                 reflow: false
                 },
                                yAxis: {
                 gridLineColor: 'a2a2a2',
@@ -5635,7 +5761,8 @@
 
             self.chartOptions61 = {
                 chart : {
-                 backgroundColor: "transparent"
+                 backgroundColor: "transparent",
+                 reflow: false
                 },
                                yAxis: {
                 gridLineColor: 'a2a2a2',
@@ -5658,7 +5785,8 @@
 
             self.chartOptions62 = {
                 chart : {
-                 backgroundColor: "transparent"
+                 backgroundColor: "transparent",
+                 reflow: false
                 },
                                yAxis: {
                 gridLineColor: 'a2a2a2',
@@ -5682,7 +5810,8 @@
 
             self.chartOptions63 = {
                 chart : {
-                 backgroundColor: "transparent"
+                 backgroundColor: "transparent",
+                 reflow: false
                 },
                                yAxis: {
                 gridLineColor: 'a2a2a2',
@@ -5707,6 +5836,7 @@ self.chartOptions64 = {
                 chart: {
             zoomType: 'xy',
             backgroundColor: "transparent",
+            reflow: false
         },
         xAxis: [{
             crosshair: true,
@@ -5772,7 +5902,8 @@ self.chartOptions64 = {
                     plotBackgroundColor: null,
                     plotBorderWidth: null,
                     plotShadow: false,
-                    type: 'pie'
+                    type: 'pie',
+                    reflow: false
                   },
                 title: {
                     text: ''
@@ -5805,7 +5936,8 @@ self.chartOptions64 = {
                     plotBackgroundColor: null,
                     plotBorderWidth: null,
                     plotShadow: false,
-                    type: 'pie'
+                    type: 'pie',
+                    reflow: false
                   },
                 title: {
                     text: ''
@@ -5838,7 +5970,8 @@ self.chartOptions64 = {
                     plotBackgroundColor: null,
                     plotBorderWidth: null,
                     plotShadow: false,
-                    type: 'pie'
+                    type: 'pie',
+                    reflow: false
                   },
                 title: {
                     text: ''
@@ -5867,7 +6000,8 @@ self.chartOptions64 = {
             self.chartOptions6 = {
             chart: {
                 type: 'column',
-                backgroundColor: "transparent"
+                backgroundColor: "transparent",
+                reflow: false
              },
             title: {
                 text: ''
@@ -5909,7 +6043,8 @@ self.chartOptions64 = {
             };
             self.chartOptions15 = {
                 chart : {
-                 backgroundColor: "transparent"
+                 backgroundColor: "transparent",
+                 reflow: false
                 },
                                yAxis: {
                 gridLineColor: 'a2a2a2',
@@ -5932,7 +6067,8 @@ self.chartOptions64 = {
 
             self.chartOptions24 = {
                 chart : {
-                 backgroundColor: "transparent"
+                 backgroundColor: "transparent",
+                 reflow: false
                 },
                                yAxis: {
                 gridLineColor: 'a2a2a2',
@@ -5955,7 +6091,8 @@ self.chartOptions64 = {
 
             self.chartOptions26 = {
                 chart : {
-                 backgroundColor: "transparent"
+                 backgroundColor: "transparent",
+                 reflow: false
                 },
                 yAxis: {
                     gridLineColor: 'a2a2a2',
@@ -5984,6 +6121,7 @@ self.chartOptions64 = {
             chart: {
             zoomType: 'xy',
             backgroundColor: "transparent",
+            reflow: false
         },
         xAxis: [{
             crosshair: true,
@@ -6035,6 +6173,7 @@ self.chartOptions64 = {
             chart: {
             zoomType: 'xy',
             backgroundColor: "transparent",
+            reflow: false
         },
         xAxis: [{
 
@@ -6087,6 +6226,7 @@ self.chartOptions64 = {
             chart: {
             zoomType: 'xy',
             backgroundColor: "transparent",
+            reflow: false
         },
         xAxis: [{
             crosshair: true,
@@ -6136,7 +6276,8 @@ self.chartOptions64 = {
 
         self.chartOptions31 = {
                 chart : {
-                 backgroundColor: "transparent"
+                 backgroundColor: "transparent",
+                 reflow: false
                 },
                                yAxis: {
                 gridLineColor: 'a2a2a2',
@@ -6161,6 +6302,7 @@ self.chartOptions64 = {
             chart: {
             zoomType: 'xy',
             backgroundColor: "transparent",
+            reflow: false
         },
         xAxis: [{
             crosshair: true,
@@ -6210,7 +6352,8 @@ self.chartOptions64 = {
 
             self.chartOptions25 = {
                 chart : {
-                 backgroundColor: "transparent"
+                 backgroundColor: "transparent",
+                 reflow: false
                 },
                                yAxis: {
                 gridLineColor: 'a2a2a2',
@@ -6234,7 +6377,8 @@ self.chartOptions64 = {
 
             self.chartOptions16 = {
                 chart : {
-                 backgroundColor: "transparent"
+                 backgroundColor: "transparent",
+                 reflow: false
                 },
                                yAxis: {
                 gridLineColor: 'a2a2a2',
@@ -6244,7 +6388,7 @@ self.chartOptions64 = {
                  align: 'high'
                 },
                 labels: {
-                 overflow: 'justify'
+                 overflow: 'justify',
                 }
                },
                tooltip: {
@@ -6256,7 +6400,8 @@ self.chartOptions64 = {
             };
             self.chartOptions16_2 = {
                 chart : {
-                 backgroundColor: "transparent"
+                 backgroundColor: "transparent",
+                 reflow: false,
                 },
                                yAxis: {
                 gridLineColor: 'a2a2a2',
@@ -6266,7 +6411,7 @@ self.chartOptions64 = {
                  align: 'high'
                 },
                 labels: {
-                 overflow: 'justify'
+                 overflow: 'justify',
                 }
                },
                tooltip: {
@@ -6287,7 +6432,8 @@ self.chartOptions64 = {
             self.chartOptions17 = {
             chart: {
                 type: 'column',
-                backgroundColor: "transparent"
+                backgroundColor: "transparent",
+                reflow: false
              },
             title: {
                 text: ''
@@ -6324,7 +6470,8 @@ self.chartOptions64 = {
 
             self.chartOptions18 = {
                 chart : {
-                 backgroundColor: "transparent"
+                 backgroundColor: "transparent",
+                 reflow: false
                 },
                                yAxis: {
                 gridLineColor: 'a2a2a2',
@@ -6352,7 +6499,8 @@ self.chartOptions64 = {
 
             self.chartOptions19 = {
                 chart : {
-                 backgroundColor: "transparent"
+                 backgroundColor: "transparent",
+                 reflow: false
                 },
                                yAxis: {
                 gridLineColor: 'a2a2a2',
@@ -6378,6 +6526,7 @@ self.chartOptions64 = {
                 chart: {
             zoomType: 'xy',
             backgroundColor: "transparent",
+            reflow: false
         },
         xAxis: [{
             crosshair: true,
@@ -6422,6 +6571,7 @@ self.chartOptions64 = {
                 chart: {
             zoomType: 'xy',
             backgroundColor: "transparent",
+            reflow: false
         },
         xAxis: [{
             crosshair: true,
@@ -6464,7 +6614,8 @@ self.chartOptions64 = {
 
    self.chartOptions32 = {
                 chart : {
-                 backgroundColor: "transparent"
+                 backgroundColor: "transparent",
+                 reflow: false
                 },
                 lang: {
                    thousandsSeparator: ','
@@ -6494,7 +6645,8 @@ self.chartOptions64 = {
 
     self.chartOptions33 = {
                 chart : {
-                 backgroundColor: "transparent"
+                 backgroundColor: "transparent",
+                 reflow: false
                 },
                 lang: {
                    thousandsSeparator: ','
@@ -6526,7 +6678,8 @@ self.chartOptions64 = {
 
     self.chartOptions34 = {
                 chart : {
-                 backgroundColor: "transparent"
+                 backgroundColor: "transparent",
+                 reflow: false
                 },
                 lang: {
                    thousandsSeparator: ','
@@ -6559,7 +6712,8 @@ self.chartOptions64 = {
     self.chartOptions35 = {
             chart: {
                 type: 'column',
-                backgroundColor: "transparent"
+                backgroundColor: "transparent",
+                reflow: false
              },
             title: {
                 text: ''
@@ -6589,7 +6743,8 @@ self.chartOptions64 = {
     self.chartOptions36 = {
             chart: {
                 type: 'column',
-                backgroundColor: "transparent"
+                backgroundColor: "transparent",
+                reflow: false
              },
             title: {
                 text: ''
@@ -6619,7 +6774,8 @@ self.chartOptions64 = {
     self.chartOptions37 = {
             chart: {
                 type: 'column',
-                backgroundColor: "transparent"
+                backgroundColor: "transparent",
+                reflow: false
              },
             title: {
                 text: ''

@@ -94,7 +94,7 @@ def graph_data_alignment_color(volumes_data,name_key,level_structure_key,prj_id,
     return productivity_series_list
 
 
-def product_total_graph(date_list,prj_id,center_obj,level_structure_key):
+"""def product_total_graph(date_list,prj_id,center_obj,level_structure_key):
     ratings = defaultdict(list)
     conn = redis.Redis(host="localhost", port=6379, db=0)
     result, volumes_dict, date_values = {}, {}, {}
@@ -207,5 +207,5 @@ def product_total_graph(date_list,prj_id,center_obj,level_structure_key):
     volume_bar_data['volume_new_data']=volume_list_data
     volume_bar_data['volume_values'] = volume_keys_data
     result['volumes_data'] = volume_bar_data
-    return result
+    return result"""
 

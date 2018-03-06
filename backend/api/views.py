@@ -38,7 +38,7 @@ from api.basics import *
 from api.utils import *
 from api.chart import *
 from api.commons import *
-from api.exce import *
+#from api.exce import *
 from api.fte_related import *
 from api.graph_error import *
 from api.graph_settings import *

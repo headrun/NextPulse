@@ -16,7 +16,7 @@ def project(request):
         project_vals = Project.objects.filter(name=multi_project).values_list('id','center_id')
         _project, _center = project_vals[0][0], project_vals[0][1]
     except:
-        _project, _center = '', ''
+        _project, _center = '', '' 
 
     user_group = request.user.groups.values_list('name', flat=True)[0]
     user_group_id = Group.objects.filter(name=user_group).values_list('id', flat=True)
@@ -31,35 +31,25 @@ def project(request):
         for item in team_lead_obj:
             center.append(item[0])
             prj_id.append(item[1])
-        """
-        team_lead_obj = TeamLead.objects.filter(name_id=request.user.id)
-        center = team_lead_obj.values_list('center', flat=True)
-        prj_id = team_lead_obj.values_list('project', flat=True)
-        """
+
     if 'customer' in user_group:
         select_list = []
         details = {}      
         customer_objs = Customer.objects.filter(name_id=request.user.id)
         center_list = customer_objs.values_list('center', flat = True)
         project_list = customer_objs.values_list('project', flat =True)
-        #center_list = Customer.objects.filter(name_id=request.user.id).values_list('center')
-        #project_list = Customer.objects.filter(name_id=request.user.id).values_list('project')
         if (len(center_list) & len(project_list)) == 1:
             select_list.append('none')
         if len(center_list) < 2:  
-            #center_name = str(Center.objects.filter(id=center_list[0][0])[0])
             center_name = str(Center.objects.filter(id=center_list[0])[0])
             for project in project_list:
-                #project_name = str(Project.objects.filter(id=project[0])[0])
                 project_name = str(Project.objects.filter(id=project)[0])
                 vari = center_name + ' - ' + project_name
                 select_list.append(vari)
         elif len(center_list) >= 2:
             for center in center_list:
-                #center_name = str(Center.objects.filter(id=center[0])[0])
                 center_name = str(Center.objects.filter(id=center)[0])
                 for project in project_list:
-                    #project_name = str(Project.objects.filter(id=project[0])[0])
                     project_name = str(Project.objects.filter(id=project)[0])
                     select_list.append(center_name + ' - ' + project_name) 
         details['list'] = select_list
@@ -86,9 +76,7 @@ def project(request):
         elif center_list.count() >= 2:
             for center in center_list:
                 center_query = Center.objects.filter(id=center)
-                #center_name = str(Center.objects.filter(id=center)[0])
                 center_name = str(center_query[0])
-                #center_id = Center.objects.filter(id=center)[0].id
                 center_id = center_query[0].id
                 project_list = Project.objects.filter(center_id=center_id)
                 for project in project_list:
@@ -118,8 +106,6 @@ def project(request):
                 center_query = Center.objects.filter(id=center)
                 center_name = str(center_query[0])
                 center_id = center_query[0].id
-                #center_name = str(Center.objects.filter(id=center)[0])
-                #center_id = Center.objects.filter(id=center)[0].id
                 project_list = Project.objects.filter(center_id=center_id)
                 for project in project_list:
                     project_name = str(project)
@@ -219,13 +205,13 @@ def project(request):
         user_status = get_permitted_user(_project, _center, user)
         role = 'team_lead'
         final_values = common_user_data(request, select_list, role, layout_list, new_dates, user_status)
-        _type       = request.GET.get('link_type', '') 
-        first_date  = request.GET.get('from', '') 
-        last_date   = request.GET.get('to', '') 
-        if _type == 'dashboard':
-            parameters = multi_center+'%20-%20'+multi_project+'&from='+first_date+'&to='+last_date
-            redirectional_url = 'http://stats.headrun.com/#!/page1/'+parameters
-            return redirect(redirectional_url)
+        #_type       = request.GET.get('link_type', '') 
+        #first_date  = request.GET.get('from', '') 
+        #last_date   = request.GET.get('to', '') 
+        #if _type == 'dashboard':
+            #parameters = multi_center+'%20-%20'+multi_project+'&from='+first_date+'&to='+last_date
+            #redirectional_url = 'http://stats.headrun.com/#!/page1/'+parameters
+            #return redirect(redirectional_url)
         return json_HttpResponse(final_values)
 
     if 'center_manager' in user_group:
@@ -250,13 +236,13 @@ def project(request):
         user = request.user.id 
         user_status = get_permitted_user(_project, _center, user)
         final_values = common_user_data(request, select_list, role, layout_list, new_dates, user_status)
-        _type       = request.GET.get('link_type', '') 
-        first_date  = request.GET.get('from', '') 
-        last_date   = request.GET.get('to', '') 
-        if _type == 'dashboard':
-            parameters = multi_center+'%20-%20'+multi_project+'&from='+first_date+'&to='+last_date
-            redirectional_url = 'http://stats.headrun.com/#!/page1/'+parameters
-            return redirect(redirectional_url)
+        #_type       = request.GET.get('link_type', '') 
+        #first_date  = request.GET.get('from', '') 
+        #last_date   = request.GET.get('to', '') 
+        #if _type == 'dashboard':
+            #parameters = multi_center+'%20-%20'+multi_project+'&from='+first_date+'&to='+last_date
+            #redirectional_url = 'http://stats.headrun.com/#!/page1/'+parameters
+            #return redirect(redirectional_url)
         return json_HttpResponse(final_values)
 
     if 'nextwealth_manager' in user_group:
@@ -305,17 +291,17 @@ def project(request):
         user_status = get_permitted_user(_project, _center, user)
         role = 'nextwealth_manager'
         final_values = common_user_data(request, select_list, role, layout_list, new_dates, user_status)
-        _type       = request.GET.get('link_type', '')
-        first_date  = request.GET.get('from', '')
-        last_date   = request.GET.get('to', '')
-        sub_project = request.GET.get('sub_project', '')
-        sub_packet  = request.GET.get('sub_packet', '')
-        work_packet = request.GET.get('work_packet', '')
-        if _type == 'dashboard':
-            parameters = multi_center+'%20-%20'+multi_project+'&from='+first_date+'&to='+last_date
-            packet_params = '&sub_project='+sub_project+'&sub_packet='+sub_packet+'&work_packet='+work_packet
-            redirectional_url = 'http://stats.headrun.com/#!/page1/'+parameters+packet_params
-            return redirect(redirectional_url)
+        #_type       = request.GET.get('link_type', '')
+        #first_date  = request.GET.get('from', '')
+        #last_date   = request.GET.get('to', '')
+        #sub_project = request.GET.get('sub_project', '')
+        #sub_packet  = request.GET.get('sub_packet', '')
+        #work_packet = request.GET.get('work_packet', '')
+        #if _type == 'dashboard':
+            #parameters = multi_center+'%20-%20'+multi_project+'&from='+first_date+'&to='+last_date
+            #packet_params = '&sub_project='+sub_project+'&sub_packet='+sub_packet+'&work_packet='+work_packet
+            #redirectional_url = 'http://stats.headrun.com/#!/page1/'+parameters+packet_params
+            #return redirect(redirectional_url)
         return json_HttpResponse(final_values)
 
     if 'customer' in user_group:
@@ -352,13 +338,13 @@ def project(request):
         user_status = get_permitted_user(_project, _center, user)
         role = 'customer'
         final_values = common_user_data(request, select_list, role, layout_list, new_dates, user_status)
-        _type       = request.GET.get('link_type', '') 
-        first_date  = request.GET.get('from', '') 
-        last_date   = request.GET.get('to', '') 
-        if _type == 'dashboard':
-            parameters = multi_center+'%20-%20'+multi_project+'&from='+first_date+'&to='+last_date
-            redirectional_url = 'http://stats.headrun.com/#!/page1/'+parameters
-            return redirect(redirectional_url)
+        #_type       = request.GET.get('link_type', '') 
+        #first_date  = request.GET.get('from', '') 
+        #last_date   = request.GET.get('to', '') 
+        #if _type == 'dashboard':
+            #parameters = multi_center+'%20-%20'+multi_project+'&from='+first_date+'&to='+last_date
+            #redirectional_url = 'http://stats.headrun.com/#!/page1/'+parameters
+            #return redirect(redirectional_url)
         return json_HttpResponse(final_values)
 
 
