@@ -191,6 +191,7 @@ def fte_trend_scope(date_list, prj_id, center, level_structure_key):
                 work_done = raw_query.values('date',_packet,'sub_packet').annotate(w_d=Sum('per_day'))
                 target_query = Targets.objects.filter(**target_params).values('from_date','to_date',_packet,'sub_packet').annotate(target=Sum('target_value'))                
                 packet_details = raw_query.values_list(_packet, flat=True).distinct()
+                captured_date = []
                 for check_date in dates:
                     for index in work_done:
                         if str(check_date) == str(index['date']):

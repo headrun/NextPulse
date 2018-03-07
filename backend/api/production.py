@@ -34,7 +34,8 @@ def static_production_data(request):
     to_date = datetime.date.today() - timedelta(1)
     from_dates = to_date - timedelta(6)
     days_list = num_of_days(to_date, from_dates)
-    final_data = production_avg_perday_week_month(days_list, project_id, center_id, level_structure_key)
+    final_data = production_avg_perday(days_list,project_id,center_id,level_structure_key)
+    #final_data = production_avg_perday_week_month(days_list, project_id, center_id, level_structure_key)
     dates_list = get_dates(days_list, project_id, center_id)
     result['data'] = graph_data_alignment_color(final_data, 'data',level_structure_key, project_id, center_id)
     result['date'] = dates_list
@@ -99,7 +100,8 @@ def static_production_data(request):
     week_num = 0
     productivity_list, final_production = {}, {}
     for week in week_list:
-        data = production_avg_perday_week_month(week, project_id, center_id, level_structure_key)
+        data = production_avg_perday(week,project_id,center_id,level_structure_key)
+        #data = production_avg_perday_week_month(week, project_id, center_id, level_structure_key)
         data_date.append(week[0] + ' to ' + week[-1])
         week_name = str('week' + str(week_num))
         week_names.append(week_name)
@@ -148,7 +150,8 @@ def static_production_data(request):
         month_dates = month_va
         data_date.append(month_dates[0] + ' to ' + month_dates[-1])
         month_names.append(month_name)
-        data = production_avg_perday_week_month(month_dates, project_id, center_id, level_structure_key)
+        #data = production_avg_perday_week_month(month_dates, project_id, center_id, level_structure_key)
+        data = production_avg_perday(month_dates,project_id,center_id,level_structure_key)
         production_list[month_name] = data
     final_data = prod_volume_week(month_names, production_list, final_month_productivity)
     result['month_productivity_data'] = {}
