@@ -3505,26 +3505,26 @@
 
                     angular.extend(self.chartOptions34, {
                         xAxis: {
-                            categories: result.result.data.date,
+                            categories: result.result.date,
                         title: {
                             text: '',
                          }
                        },
 
-                       series: result.result.data.data
+                       series: result.result.data
                     });
                     $('.widget-29a').removeClass('widget-loader-show');
                     $('.widget-29b').removeClass('widget-data-hide');
 
                     angular.extend(self.chartOptions35, {
                         xAxis: {
-                            categories: result.result.data.date,
+                            categories: result.result.date,
                         title: {
                             text: '',
                          }
                        },
 
-                       series: result.result.data.data
+                       series: result.result.data
                     });
                     $('.widget-30a').removeClass('widget-loader-show');
                     $('.widget-30b').removeClass('widget-data-hide');
