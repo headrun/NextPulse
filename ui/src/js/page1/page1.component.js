@@ -422,7 +422,7 @@
 
                         self.type = type;
 
-                        if ((self.work_list.length == 1) || (type == 'week') || (type == 'month')) {
+                        if ((self.work_list.length == 1) || (type == 'week') || (type == 'month') || (self.button_clicked == "day_yes")) {
 
                         var allo_and_comp = '/api/alloc_and_compl/'+self.data_to_show + type + final_work+'&chart_name=17&chart_name=13';
 
@@ -675,7 +675,7 @@
             
                         self.type = type;
 
-                        if ((self.utili_list.length == 1) || (type == 'week') || (type == 'month')) {
+                        if ((self.utili_list.length == 1) || (type == 'week') || (type == 'month') || (self.button_clicked == "day_yes")) {
 
                         var utill_all = '/api/utilisation_all/'+self.data_to_show + type + final_work+'&chart_name=20&chart_name=19&chart_nam=9';
 
@@ -1464,7 +1464,7 @@
 
                         self.type = type;
 
-                        if ((self.fte_list.length == 1) || (type == 'week') || (type == 'month')) {
+                        if ((self.fte_list.length == 1) || (type == 'week') || (type == 'month') || (self.button_clicked == "day_yes")) {
 
                         var fte_graphs = '/api/fte_graphs/'+self.data_to_show + type + final_work + '&chart_name=11&chart_name=12';
 
@@ -1706,7 +1706,7 @@
 
                         self.type = type;
 
-                        if ((self.prod_list.length == 1) || (type == 'week') || (type == 'month')) {
+                        if ((self.prod_list.length == 1) || (type == 'week') || (type == 'month') || (self.button_clicked == "day_yes")) {
 
                         var main_prod = '/api/main_prod/'+self.data_to_show + type + final_work + '&chart_name=1&chart_name=6';
 
@@ -3255,7 +3255,7 @@
 
                         self.type = type;
 
-                        if ((self.acc_timeline.length == 1) || (type == 'week') || (type == 'month')) {
+                        if ((self.acc_timeline.length == 1) || (type == 'week') || (type == 'month') || (self.button_clicked == "day_yes")) {
 
                         var from_to = '/api/from_to/'+self.data_to_show + type + final_work + '&chart_name=7&chart_name=8';
 
