@@ -7,6 +7,7 @@ from api.utils import *
 from api.commons import data_dict
 from django.db.models import Max
 from collections import OrderedDict
+from itertools import chain
 from datetime import timedelta
 from api.query_generations import query_set_generation
 from api.internal_external_common import internal_extrnal_graphs
@@ -119,7 +120,6 @@ def from_to(request):
 
 
 def error_line_charts(request, name, function_name, internal_name, external_name, term):
-
     final_dict = {}
     date_list, data_date, date_arr = [], [], []
     internal_time_line, external_time_line = {}, {}
@@ -132,24 +132,19 @@ def error_line_charts(request, name, function_name, internal_name, external_name
     project_center = main_data_dict['pro_cen_mapping']
     project = main_data_dict['pro_cen_mapping'][0][0]
     center = main_data_dict['pro_cen_mapping'][1][0]
-
     if main_data_dict['dwm_dict'].has_key('day') and main_data_dict['type'] == 'day':
         main_dates_list = [ main_data_dict['dwm_dict']['day']]
     elif main_data_dict['dwm_dict'].has_key('week') and main_data_dict['type'] == 'week':
         main_dates_list = main_data_dict['dwm_dict']['week']
     elif main_data_dict['dwm_dict'].has_key('month') and main_data_dict['type'] == 'month':
-        main_dates_list = main_data_dict['dwm_dict']['month']['month_dates']
-
-    prj_id = main_data_dict['pro_cen_mapping'][0][0]
-    center = main_data_dict['pro_cen_mapping'][1][0]
-
+        main_dates_list = main_data_dict['dwm_dict']['month']['month_dates']    
+    
     if main_data_dict['dwm_dict'].has_key('day') and main_data_dict['type'] == 'day':
         for sing_list in main_dates_list:
             level_structure_key = get_level_structure_key(work_packet, sub_project, sub_packet, project_center)
             _internal_data = function_name(sing_list, project, center, level_structure_key, "Internal",term)
             _external_data = function_name(sing_list, project, center, level_structure_key, "External",term)
             date_list = _internal_data['date']
-
             if len(_internal_data['internal_accuracy_timeline']) > 0:
                 internal_time_line = {}
                 for er_key, er_value in _internal_data['internal_accuracy_timeline'].iteritems():
@@ -170,8 +165,8 @@ def error_line_charts(request, name, function_name, internal_name, external_name
                         else:
                             packet_errors.append(err_value)
                     external_time_line[er_key] = packet_errors
-        final_dict[internal_name] = graph_data_alignment_color(internal_time_line, 'data',level_structure_key, prj_id, center,'internal_accuracy_timeline')
-        final_dict[external_name] = graph_data_alignment_color(external_time_line, 'data',level_structure_key, prj_id, center,'external_accuracy_timeline')
+        final_dict[internal_name] = graph_data_alignment_color(internal_time_line, 'data',level_structure_key, project, center,'internal_accuracy_timeline')
+        final_dict[external_name] = graph_data_alignment_color(external_time_line, 'data',level_structure_key, project, center,'external_accuracy_timeline')
         int_error_timeline_min_max = error_timeline_min_max(internal_time_line)
         final_dict['min_internal_time_line'] = int_error_timeline_min_max['min_value']
         final_dict['max_internal_time_line'] = int_error_timeline_min_max['max_value']
@@ -181,7 +176,7 @@ def error_line_charts(request, name, function_name, internal_name, external_name
         final_dict['date'] = date_list
 
     elif main_data_dict['dwm_dict'].has_key('week') and main_data_dict['type'] == 'week':
-        internal_week_num,external_week_num, week_num = 0, 0, 0
+        internal_week_num ,external_week_num, week_num = 0, 0, 0
         combined_list = list(chain.from_iterable(main_dates_list))
         for sing_list in main_dates_list:
             data_date.append(sing_list[0] + ' to ' + sing_list[-1])
@@ -202,30 +197,28 @@ def error_line_charts(request, name, function_name, internal_name, external_name
                         internal_accuracy_packets[in_acc_key] = in_acc_value
                 internal_time_line[internal_week_name] = internal_accuracy_packets
                 internal_week_num = internal_week_num + 1
-
             if len(_external_data) > 0:
                 external_week_name = str('week' + str(external_week_num))
                 external_accuracy_packets = {}
-                extr_accuracy_perc = _internal_data
+                extr_accuracy_perc = _external_data
                 for in_acc_key,in_acc_value in extr_accuracy_perc.iteritems():
                     if external_accuracy_packets.has_key(in_acc_key):
                         external_accuracy_packets[in_acc_key].append(in_acc_value)
                     else:
                         external_accuracy_packets[in_acc_key] = in_acc_value
-                external_time_line[external_week_num] = external_accuracy_packets
+                external_time_line[external_week_name] = external_accuracy_packets
                 external_week_num = external_week_num + 1
 
         final_internal_accuracy_timeline = errors_week_calcuations(week_names, internal_time_line, {})
         final_external_accuracy_timeline = errors_week_calcuations(week_names, external_time_line, {})
-        final_dict[internal_name] = graph_data_alignment_color(final_internal_accuracy_timeline, 'data',level_structure_key, prj_id, center,'internal_accuracy_timeline')
-        final_dict[external_name] = graph_data_alignment_color(final_external_accuracy_timeline, 'data',level_structure_key, prj_id, center,'external_accuracy_timeline')
+        final_dict[internal_name] = graph_data_alignment_color(final_internal_accuracy_timeline, 'data',level_structure_key, project, center,'internal_accuracy_timeline')
+        final_dict[external_name] = graph_data_alignment_color(final_external_accuracy_timeline, 'data',level_structure_key, project, center,'external_accuracy_timeline')
         int_error_timeline_min_max = error_timeline_min_max(final_internal_accuracy_timeline)
         final_dict['min_internal_time_line'] = int_error_timeline_min_max['min_value']
         final_dict['max_internal_time_line'] = int_error_timeline_min_max['max_value']
         ext_error_timeline_min_max = error_timeline_min_max(final_external_accuracy_timeline)
         final_dict['min_external_time_line'] = ext_error_timeline_min_max['min_value']
         final_dict['max_external_time_line'] = ext_error_timeline_min_max['max_value']
-
         final_dict['date'] = data_date
     else:
         final_result_dict, final_internal_accuracy_timeline, final_external_accuracy_timeline = {}, {} ,{}
@@ -250,7 +243,6 @@ def error_line_charts(request, name, function_name, internal_name, external_name
                     else:
                         internal_accuracy_packets[in_acc_key] = in_acc_value
                 internal_accuracy_timeline[month_name] = internal_accuracy_packets
-
             if len(_external_data) > 0:
                 external_accuracy_packets = {}
                 extr_accuracy_perc = _external_data
@@ -260,18 +252,16 @@ def error_line_charts(request, name, function_name, internal_name, external_name
                     else:
                         external_accuracy_packets[in_acc_key] = in_acc_value
                 external_accuracy_timeline[month_name] = external_accuracy_packets
-
         final_internal_accuracy_timeline = errors_week_calcuations(month_names, internal_accuracy_timeline, {})
         final_external_accuracy_timeline = errors_week_calcuations(month_names, external_accuracy_timeline, {})
-        final_dict[internal_name] = graph_data_alignment_color(final_internal_accuracy_timeline, 'data',level_structure_key, prj_id, center,'internal_accuracy_timeline')
-        final_dict[external_name] = graph_data_alignment_color(final_external_accuracy_timeline, 'data',level_structure_key, prj_id, center,'external_accuracy_timeline')
+        final_dict[internal_name] = graph_data_alignment_color(final_internal_accuracy_timeline, 'data',level_structure_key, project, center,'internal_accuracy_timeline')
+        final_dict[external_name] = graph_data_alignment_color(final_external_accuracy_timeline, 'data',level_structure_key, project, center,'external_accuracy_timeline')
         int_error_timeline_min_max = error_timeline_min_max(final_internal_accuracy_timeline)
         final_dict['min_internal_time_line'] = int_error_timeline_min_max['min_value']
         final_dict['max_internal_time_line'] = int_error_timeline_min_max['max_value']
         ext_error_timeline_min_max = error_timeline_min_max(final_external_accuracy_timeline)
         final_dict['min_external_time_line'] = ext_error_timeline_min_max['min_value']
         final_dict['max_external_time_line'] = ext_error_timeline_min_max['max_value']
-
         final_dict['date'] = data_date
     return final_dict
 
@@ -371,10 +361,8 @@ def accuracy_line_graphs(date_list,prj_id,center_obj,level_structure_key,error_t
 def accuracy_line_week_month(date_list,prj_id,center_obj,level_structure_key,error_type,_term, combined_list):
 
     _dict = {}
-
     if error_type == 'Internal':
         table_name = Internalerrors
-
     if error_type == 'External':
         table_name = Externalerrors
 
