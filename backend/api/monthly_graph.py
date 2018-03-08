@@ -35,39 +35,27 @@ def volume_cumulative_data(date_list, prj_id, center, level_structure_key):
                 else:
                     _targets_list[target[2]] = [target[3]]
 
-    for key in packets:
-       date_values.update({key:[]})
-       emp_dict.update({key:[]}) 
-    for i, val in enumerate(data_values):
-        date,packet,done,emp_count = val
-        if i < len(data_values)-1:
-            nxt_date, nxt_packet, nxt_done, nxt_count = data_values[i+1]
-            dct.update({packet:emp_count})
-            _dict.update({packet:done}) 
-            if nxt_date != date:
-                for packet in packets:
-                    dict_val = date_values[packet]
-                    emp_val = emp_dict[packet]
-                    dict_val.append(dct.setdefault(packet,0))
-                    emp_val.append(_dict.setdefault(packet,0)) 
-                    date_values.update({packet:dict_val})
-                    emp_dict.update({packet:emp_val}) 
-                dct = {}
-                _dict = {}
-        else:
-            p_date, p_packet, p_done, p_count = data_values[i-1]
-            if p_date != date:
-                dct = {}
-                _dict = {}
-            dct.update({packet:emp_count})
-            _dict.update({packet:done}) 
-            for packet in packets:
-                dict_val = date_values[packet]
-                emp_val = emp_dict[packet]
-                dict_val.append(dct.setdefault(packet,0))
-                emp_val.append(_dict.setdefault(packet,0))
-                date_values.update({packet:dict_val})
-                emp_dict.update({packet:emp_val})
+    for date in dates:
+        _dict_packets = []
+        for value in data_values:
+            if str(date) == str(value[0]):
+                if date_values.has_key(value[1]):
+                    date_values[value[1]].append(value[3])
+                    emp_dict[value[1]].append(value[2])
+                else:
+                    date_values[value[1]] = [value[3]]
+                    emp_dict[value[1]] = [value[2]]
+                _dict_packets.append(value[1])
+
+        for pack in packets:
+            if pack not in _dict_packets:
+                if date_values.has_key(pack):
+                    date_values[pack].append(0)
+                    emp_dict[pack].append(0)
+                else:
+                    date_values[pack] = [0]
+                    emp_dict[pack] = [0]
+
 
     import collections
     if _type == 'FTE Target':

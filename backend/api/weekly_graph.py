@@ -181,15 +181,16 @@ def error_line_charts(request, name, function_name, internal_name, external_name
         final_dict['date'] = date_list
 
     elif main_data_dict['dwm_dict'].has_key('week') and main_data_dict['type'] == 'week':
-        internal_week_num , week_num = 0, 0
+        internal_week_num,external_week_num, week_num = 0, 0, 0
+        combined_list = list(chain.from_iterable(main_dates_list))
         for sing_list in main_dates_list:
             data_date.append(sing_list[0] + ' to ' + sing_list[-1])
             week_name = str('week' + str(week_num))
             week_names.append(week_name)
             week_num = week_num + 1
             level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], main_data_dict['sub_packet'],main_data_dict['pro_cen_mapping'])
-            _internal_data = accuracy_line_week_month(sing_list, project, center, level_structure_key, "Internal",term)
-            _external_data = accuracy_line_week_month(sing_list, project, center, level_structure_key, "External",term)
+            _internal_data = accuracy_line_week_month(sing_list, project, center, level_structure_key, "Internal",term, combined_list)
+            _external_data = accuracy_line_week_month(sing_list, project, center, level_structure_key, "External",term, combined_list)
             if len(_internal_data) > 0:
                 internal_week_name = str('week' + str(internal_week_num))
                 internal_accuracy_packets = {}
@@ -203,7 +204,7 @@ def error_line_charts(request, name, function_name, internal_name, external_name
                 internal_week_num = internal_week_num + 1
 
             if len(_external_data) > 0:
-                external_week_name = str('week' + str(internal_week_num))
+                external_week_name = str('week' + str(external_week_num))
                 external_accuracy_packets = {}
                 extr_accuracy_perc = _internal_data
                 for in_acc_key,in_acc_value in extr_accuracy_perc.iteritems():
@@ -211,8 +212,8 @@ def error_line_charts(request, name, function_name, internal_name, external_name
                         external_accuracy_packets[in_acc_key].append(in_acc_value)
                     else:
                         external_accuracy_packets[in_acc_key] = in_acc_value
-                external_time_line[internal_week_name] = external_accuracy_packets
-                external_week_num = internal_week_num + 1
+                external_time_line[external_week_num] = external_accuracy_packets
+                external_week_num = external_week_num + 1
 
         final_internal_accuracy_timeline = errors_week_calcuations(week_names, internal_time_line, {})
         final_external_accuracy_timeline = errors_week_calcuations(week_names, external_time_line, {})
@@ -230,14 +231,16 @@ def error_line_charts(request, name, function_name, internal_name, external_name
         final_result_dict, final_internal_accuracy_timeline, final_external_accuracy_timeline = {}, {} ,{}
         internal_accuracy_timeline,  external_accuracy_timeline = {},{}
         month_names, data_date = [], []
+        main_date_list = main_data_dict['dwm_dict']['month']['month_dates']
+        combined_list = list(chain.from_iterable(main_date_list))
         for month_na,month_va in zip(main_data_dict['dwm_dict']['month']['month_names'],main_data_dict['dwm_dict']['month']['month_dates']):
             month_name = month_na
             month_dates = month_va
             data_date.append(month_dates[0] + ' to ' + month_dates[-1])
             month_names.append(month_name)
             level_structure_key = get_level_structure_key(main_data_dict['work_packet'], main_data_dict['sub_project'], main_data_dict['sub_packet'],main_data_dict['pro_cen_mapping'])
-            _internal_data = accuracy_line_week_month(month_dates, project, center, level_structure_key, "Internal",term)
-            _external_data = accuracy_line_week_month(month_dates, project, center, level_structure_key, "External",term)
+            _internal_data = accuracy_line_week_month(month_dates, project, center, level_structure_key, "Internal",term, combined_list)
+            _external_data = accuracy_line_week_month(month_dates, project, center, level_structure_key, "External",term, combined_list)
             if len(_internal_data) > 0:
                 internal_accuracy_packets = {}
                 intr_accuracy_perc = _internal_data
@@ -365,11 +368,13 @@ def accuracy_line_graphs(date_list,prj_id,center_obj,level_structure_key,error_t
     return final_dict
 
 
-def accuracy_line_week_month(date_list,prj_id,center_obj,level_structure_key,error_type,_term):
+def accuracy_line_week_month(date_list,prj_id,center_obj,level_structure_key,error_type,_term, combined_list):
 
     _dict = {}
+
     if error_type == 'Internal':
         table_name = Internalerrors
+
     if error_type == 'External':
         table_name = Externalerrors
 
@@ -379,36 +384,39 @@ def accuracy_line_week_month(date_list,prj_id,center_obj,level_structure_key,err
     error_data = query_values.values_list(_term).annotate(total=Sum('total_errors'), audit=Sum('audited_errors'))
     rawtable = RawTable.objects.filter(**filter_params)
     raw_packets = rawtable.values_list(_term).annotate(prod=Sum('per_day'))
-
-    for data in error_data:
-        accuracy = 0
-        if data[1] > 0:
-            value = (float(data[2])/float(data[1])) * 100
-            accuracy = 100-float('%.2f' % round(value, 2))
-        elif data[1] == 0:
-            for prod_val in raw_packets:
-                if data[0] == prod_val[0]:
-                    value = (float(data[2])/float(prod_val[1])) * 100
-                    accuracy = 100-float('%.2f' % round(value, 2))
-        else:
-            accuracy = 100
-        if data[0] == '':
-            pack = data[0]
-            if (level_structure_key.has_key('work_packet') and level_structure_key.has_key('sub_project')):
-                if level_structure_key['work_packet'] != 'All':
-                    pack = str(level_structure_key['work_packet'])
-            elif level_structure_key.has_key('work_packet'):
-                if level_structure_key['work_packet'] != 'All':
-                    pack = str(level_structure_key['work_packet'])
-            elif (level_structure_key.has_key('work_packet') and level_structure_key.has_key('sub_packet')):
-                if (level_structure_key['work_packet'] != 'All' and level_structure_key['sub_packet'] != 'All'):
-                    pack = str(level_structure_key['sub_packet'])
-                else:
-                    pack = str(level_structure_key['work_packet'])
-        else:
-            pack = data[0]
-        _dict[pack] = accuracy
-
+    complete_pack = table_name.objects.filter(project=prj_id, center=center_obj, date__range=[combined_list[0],combined_list[-1]]).values_list(_term, flat=True).distinct()
+    if error_data:
+        for data in error_data:
+            accuracy = 0
+            if data[1] > 0:
+                value = (float(data[2])/float(data[1])) * 100
+                accuracy = 100-float('%.2f' % round(value, 2))
+            elif data[1] == 0:
+                for prod_val in raw_packets:
+                    if data[0] == prod_val[0]:
+                        value = (float(data[2])/float(prod_val[1])) * 100
+                        accuracy = 100-float('%.2f' % round(value, 2))
+            else:
+                accuracy = 100
+            if data[0] == '':
+                pack = data[0]
+                if (level_structure_key.has_key('work_packet') and level_structure_key.has_key('sub_project')):
+                    if level_structure_key['work_packet'] != 'All':
+                        pack = str(level_structure_key['work_packet'])
+                elif level_structure_key.has_key('work_packet'):
+                    if level_structure_key['work_packet'] != 'All':
+                        pack = str(level_structure_key['work_packet'])
+                elif (level_structure_key.has_key('work_packet') and level_structure_key.has_key('sub_packet')):
+                    if (level_structure_key['work_packet'] != 'All' and level_structure_key['sub_packet'] != 'All'):
+                        pack = str(level_structure_key['sub_packet'])
+                    else:
+                        pack = str(level_structure_key['work_packet'])
+            else:
+                pack = data[0]
+            _dict[pack] = accuracy
+    else:
+        for packets in complete_pack:
+            _dict[packets] = 0
     return _dict
 
 

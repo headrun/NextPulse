@@ -186,30 +186,25 @@ def production_avg_perday(date_list,prj_id,center_obj,level_structure_key):
     filter_params, _term = getting_required_params(level_structure_key, prj_id, center_obj, date_list)
     query_values = RawTable.objects.filter(**filter_params)
     data_values = query_values.values_list('date',_term).annotate(total=Sum('per_day'))
-    packets = [data[1] for data in data_values]
-    packets = set(packets)
-    for key in packets:
-       result_dict.update({key:[]})
-    for i, val in enumerate(data_values):
-        date,packet,done = val
-        if i < len(data_values)-1:
-            nxt_date, nxt_packet, nxt_done = data_values[i+1]
-            dct.update({packet:done})
-            if nxt_date != date:
-                for packet in packets:
-                    dict_val = result_dict[packet]
-                    dict_val.append(dct.setdefault(packet,0))
-                    result_dict.update({packet:dict_val})
-                dct = {}
-        else:
-            p_date, p_packet, p_done = data_values[i-1]
-            if p_date != date:
-                dct = {}
-            dct.update({packet:done})
-            for packet in packets:
-                dict_val = result_dict[packet]
-                dict_val.append(dct.setdefault(packet,0))
-                result_dict.update({packet:dict_val})
+    packets = query_values.values_list(_term,flat=True).distinct()
+    dates = query_values.values_list('date',flat=True).distinct()
+    for date in dates:
+        _dict_packets = []
+        for value in data_values:
+            if str(date) == str(value[0]):
+                if result_dict.has_key(value[1]):
+                    result_dict[value[1]].append(value[2])
+                else:
+                    result_dict[value[1]] = [value[2]]
+                _dict_packets.append(value[1])
+                
+        for pack in packets:
+            if pack not in _dict_packets:
+                if result_dict.has_key(pack):
+                    result_dict[pack].append(0)
+                else:
+                    result_dict[pack] = [0]
+
     return result_dict
 
 
