@@ -116,82 +116,74 @@ def get_target_query_format(level_structure_key, prj_id, center, date_list):
     _term = ''
     _type = Targets.objects.filter(project=prj_id, center=center).values_list('target_type',flat=True).distinct()
     if 'FTE Target' in _type:
-        query['from_date__lte'] = date_list[0]
-        query['to_date__gte'] = date_list[-1]
-        query['target_type'] = 'FTE Target'
-        pro_query['from_date__lte'] = date_list[0]
-        pro_query['to_date__gte'] = date_list[-1]
-        pro_query['target_type'] = 'FTE Target'
+        query.update({'from_date__lte':date_list[0],'to_date__gte':date_list[-1],'target_type':'FTE Target',\
+                        'project':prj_id,'center':center})
+        pro_query.update({'from_date__gte':date_list[0],'to_date__lte':date_list[-1],'target_type':'FTE Target',\
+                        'project':prj_id,'center':center})
         _type = 'FTE Target'
     else:
-        query['from_date__gte'] = date_list[0]
-        query['to_date__lte'] = date_list[-1]
-        query['target_type'] = 'Target'
-        pro_query['from_date__gte'] = date_list[0]
-        pro_query['to_date__lte'] = date_list[-1]
-        pro_query['target_type'] = 'Target'
+        query.update({'from_date__gte':date_list[0],'to_date__lte':date_list[-1],'target_type':'Target',\
+                        'project':prj_id,'center':center})
+        pro_query.update({'from_date__lte':date_list[0],'to_date__gte':date_list[-1],'target_type':'Target',\
+                            'project':prj_id,'center':center})
         _type = 'Target'
-    query['project'] = prj_id
-    query['center'] = center
-    pro_query['project'] = prj_id
-    pro_query['center'] = center
-    raw_data['project'] = prj_id
-    raw_data['center'] = center
-    raw_data['date__range'] = [date_list[0], date_list[-1]]
-    pro_data['project'] = prj_id
-    pro_data['center'] = center
-    pro_data['date__range'] = [date_list[0], date_list[-1]]
+    raw_data.update({'project':prj_id,'center':center,'date__range':[date_list[0], date_list[-1]]})
+    pro_data.update({'project':prj_id,'center':center,'date__range':[date_list[0],date_list[-1]]})
     sub_packet = level_structure_key.get('sub_packet', '')
-
     target_query = Targets.objects.filter(**pro_query)
     packet_1 = target_query.values_list('sub_project', flat=True).distinct()
     packet_2 = target_query.values_list('work_packet', flat=True).distinct()
     packet_3 = target_query.values_list('sub_packet', flat=True).distinct()
-
     if level_structure_key.has_key('sub_project'):
         if level_structure_key['sub_project'] == 'All':
             _term = 'sub_project'
         elif level_structure_key['sub_project'] != 'All' and level_structure_key['work_packet'] == 'All':
-            query['sub_project'] = level_structure_key['sub_project']
-            raw_data['sub_project'] = level_structure_key['sub_project']
+            query.update({'sub_project':level_structure_key['sub_project']})
+            pro_query.update({'sub_project':level_structure_key['sub_project']})
+            raw_data.update({'sub_project':level_structure_key['sub_project']})
             _term = 'sub_project'
         elif level_structure_key['sub_project'] != 'All' and level_structure_key['work_packet'] != 'All' and \
                 level_structure_key['sub_packet'] == 'All':
-            query['sub_project'] = level_structure_key['sub_project']
-            query['work_packet'] = level_structure_key['work_packet']
-            raw_data['sub_project'] = level_structure_key['sub_project']
-            raw_data['work_packet'] = level_structure_key['work_packet']
+            query.update({'sub_project':level_structure_key['sub_project'],'work_packet':level_structure_key['work_packet']})
+            pro_query.update({'sub_project':level_structure_key['sub_project'],'work_packet':level_structure_key['work_packet']})
+            raw_data.update({'sub_project':level_structure_key['sub_project'],'work_packet':level_structure_key['work_packet']})
             _term = 'work_packet'
         elif level_structure_key['sub_project'] != 'All' and level_structure_key['work_packet'] != 'All' and\
                 level_structure_key['sub_packet'] != 'All':
-            query['sub_project'] = level_structure_key['sub_project']
-            query['work_packet'] = level_structure_key['work_packet']
-            query['sub_packet'] = level_structure_key['sub_packet']
-            raw_data['sub_project'] = level_structure_key['sub_project']
-            raw_data['work_packet'] = level_structure_key['work_packet']
-            raw_data['sub_packet'] = level_structure_key['sub_packet']
+            query.update({'sub_project':level_structure_key['sub_project'],'work_packet':level_structure_key['work_packet'],\
+                        'sub_packet':level_structure_key['sub_packet']})
+            pro_query.update({'sub_project':level_structure_key['sub_project'],'work_packet':level_structure_key['work_packet'],\
+                        'sub_packet':level_structure_key['sub_packet']})
+            raw_data.update({'sub_project':level_structure_key['sub_project'],'work_packet':level_structure_key['work_packet'],\
+                            'sub_packet':level_structure_key['sub_packet']})
             _term = 'sub_packet'
     elif level_structure_key.has_key('work_packet'):
         if level_structure_key['work_packet'] == 'All':
             _term = 'work_packet'
         elif level_structure_key['work_packet'] != 'All' and sub_packet == 'All':
-            query['work_packet'] = level_structure_key['work_packet']
-            raw_data['work_packet'] = level_structure_key['work_packet']
+            query.update({'work_packet':level_structure_key['work_packet']})
+            pro_query.update({'work_packet':level_structure_key['work_packet']})
+            raw_data.update({'work_packet':level_structure_key['work_packet']})
             _term = 'work_packet'
         elif level_structure_key['work_packet'] != 'All' and level_structure_key.has_key('sub_packet'):
             if level_structure_key['sub_packet'] != 'All':
-                query['work_packet'] = level_structure_key['work_packet']
-                query['sub_packet'] = level_structure_key['sub_packet']
-                raw_data['work_packet'] = level_structure_key['work_packet']
-                raw_data['sub_packet'] = level_structure_key['sub_packet']
+                query.update({'work_packet':level_structure_key['work_packet'],'sub_packet':level_structure_key['sub_packet']})
+                pro_query.update({'work_packet':level_structure_key['work_packet'],'sub_packet':level_structure_key['sub_packet']})
+                raw_data.update({'work_packet':level_structure_key['work_packet'],'sub_packet':level_structure_key['sub_packet']})
                 _term = 'sub_packet'
         elif level_structure_key['work_packet'] != 'All':
-            query['work_packet'] = level_structure_key['work_packet']
-            raw_data['work_packet'] = level_structure_key['work_packet']
+            query.update({'work_packet':level_structure_key['work_packet']})
+            pro_query.update({'work_packet':level_structure_key['work_packet']})
+            raw_data.update({'work_packet':level_structure_key['work_packet']})
             _term = 'work_packet'
-
+    
     targets = Targets.objects.filter(**query).values_list('from_date','to_date',_term).\
               annotate(target=Sum('target_value'))
+    if targets:
+        targets = targets
+    else:
+        targets = Targets.objects.filter(**pro_query).values_list('from_date','to_date',_term).\
+                    annotate(target=Sum('target_value'))
     raw_query = RawTable.objects.filter(**raw_data).values_list('date',_term).annotate(total=Sum('per_day'),count=Count('employee_id'))
    
     return targets, raw_query, _type
