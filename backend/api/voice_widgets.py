@@ -38,8 +38,10 @@ def generate_data_common_for_all(request, field_name, function_name):
     if data_values['dwm_dict'].has_key('hour') and data_values['type'] == 'hour':
         dates = data_values['dates']
         location, skill, disposition, table_name = hour_parameters(location, skill, disposition, table_type)
-        project = {'project': [project_id]}
+        project = {'project': project_id}
         dates = {'date': dates}
+        if result_name == 'call_status':
+            field_name = 'status'
         result = get_hourly_sum(project, dates, table_name, location, skill, disposition, field_name)
     elif data_values['dwm_dict'].has_key('day') and data_values['type'] == 'day':
         dates = data_values['dwm_dict']['day']
@@ -226,7 +228,8 @@ def get_cate_disposition_data(request, result_name):
     main_dict = data_dict(request.GET)
     project_id = main_dict['pro_cen_mapping'][0][0]
     center_id = main_dict['pro_cen_mapping'][1][0]
-    project = {'project' : [project_id]}
+    project = {'project' : project_id}
+
     location, skill, disposition, table_name = hour_parameters(location, skill, disposition, prj_type)
     if main_dict['dwm_dict'].has_key('hour') and main_dict['type'] == 'hour':
         date = main_dict['dates']
@@ -319,7 +322,7 @@ def agent_required(request):
     prj_id = main_dict['pro_cen_mapping'][0][0]
     center = main_dict['pro_cen_mapping'][1][0]
     location, skill, disposition, table_name = hour_parameters(curr_loc, skill_val, dispo_val, prj_type)
-    project = {'project' : [prj_id]}
+    project = {'project' : prj_id}
     if main_dict['dwm_dict'].has_key('hour') and main_dict['type'] == 'hour':
         date = main_dict['dates']
     elif main_dict['dwm_dict'].has_key('day') and main_dict['type'] == 'day':
@@ -367,11 +370,11 @@ def hour_parameters(cur_location, cur_skill, cur_dispo, prj_type):
     dispo = []
     table_name = InboundHourlyCall
     if not cur_location == 'All':
-        location = []
+        location = cur_location
     if not cur_skill == 'All':
-        skill = []
+        skill = cur_skill
     if not cur_dispo == 'All':
-        dispo = []
+        dispo = cur_dispo
     if prj_type != 'inbound':
         table_name = OutboundHourlyCall
 
