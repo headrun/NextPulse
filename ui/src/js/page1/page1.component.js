@@ -3476,7 +3476,6 @@
                 if (self.stacti_list.length == 1) {
                 
                 $http({method:"GET", url:static_ajax}).success(function(result){
-
                     angular.extend(self.chartOptions32, {
                         xAxis: {
                             categories: result.result.month_productivity_data.date,

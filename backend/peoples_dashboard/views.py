@@ -7,9 +7,6 @@ import json
 from src import *
 
 
-
-
-
 # views section
 
 def get_sla_data(request):
