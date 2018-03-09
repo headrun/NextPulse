@@ -54,11 +54,16 @@ def get_dash_data(projects=PROJECTS, tab=SLA):
             #_project, center = project.split("-")
             #row_data = {'project': _project, 'center': center, 'month': month}
             for pro in tab:
-                #import pdb;pdb.set_trace()
                 core_key = _project +"_"+ center + "_" + month
                 _key = core_key + "_" + pro
                 _key1 = pro + "_" + m_key
+                date_key1 = _project +"_"+center+"_"+month+"_"+month+"_start_date"
+                date_key2 = _project +"_"+center+"_"+month+"_"+month+"_end_date"
+                start_date = m_key+"_start_date"   
+                end_date = m_key+"_end_date"     
                 row_data.update({_key1 : conn.hgetall(_key).get(pro, 0)})
+                row_data.update({start_date : conn.hgetall(date_key1).get(month+"_start_date")})
+                row_data.update({end_date : conn.hgetall(date_key2).get(month+"_end_date")})
                 #row_data.update({_key : 0})
 
                 if pro == 'productivity':

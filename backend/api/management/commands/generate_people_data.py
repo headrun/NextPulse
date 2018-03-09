@@ -136,6 +136,8 @@ class Command(BaseCommand):
                     final_productivity_dict['attrition'] = attrition
                     final_productivity_dict['center_absenteeism'] = absent
                     final_productivity_dict['center_attrition'] = attrition
+                    final_productivity_dict[month_name+'_'+'start_date'] = dates_list[0]
+                    final_productivity_dict[month_name+'_'+'end_date'] = dates_list[-1]
                     final_productivity_list.append(final_productivity_dict)
                 else:
                     attrition = 'NA'
@@ -150,6 +152,8 @@ class Command(BaseCommand):
                     final_productivity_dict['attrition'] = attrition
                     final_productivity_dict['center_absenteeism'] = absent
                     final_productivity_dict['center_attrition'] = attrition
+                    final_productivity_dict[month_name+'_'+'start_date'] = dates_list[0]
+                    final_productivity_dict[month_name+'_'+'end_date'] = dates_list[-1]
                 if center_name == 'Salem' and prj_name != 'IBM':
                     #tat center data
                     tat_met_sal.append(met_cnt)
@@ -174,6 +178,14 @@ class Command(BaseCommand):
                     if key == 'tat':
                         redis_key = '{0}_{1}_{2}_tat'.format(prj_name,center_name,month_name)
                         value_dict['tat'] = str(tat_final_value)
+                        data_dict[redis_key] = value_dict
+                    if key == month_name+'_'+'start_date':
+                        redis_key = prj_name+'_'+center_name+'_'+month_name+'_'+month_name+'_'+'start_date'
+                        value_dict[month_name+'_'+'start_date'] = str(dates_list[0])
+                        data_dict[redis_key] = value_dict
+                    if key == month_name+'_'+'end_date':
+                        redis_key = prj_name+'_'+center_name+'_'+month_name+'_'+month_name+'_'+'end_date'
+                        value_dict[month_name+'_'+'end_date'] = str(dates_list[-1])
                         data_dict[redis_key] = value_dict
                     if key == 'fte_utilisation':
                         redis_key = '{0}_{1}_{2}_fte_utilisation'.format(prj_name,center_name,month_name)

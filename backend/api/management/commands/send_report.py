@@ -9,8 +9,6 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
 
 
-        #reports = Log.objects.filter(date__gt=datetime.today(),date__lt=(datetime.today()+timedelta(days=2)))
-        #for report in reports:
         from django.core import mail
         from django.core.mail import send_mail, BadHeaderError
         from django.core.mail import EmailMessage
@@ -51,10 +49,9 @@ class Command(BaseCommand):
             mail_data += "<h4>"+one['project']+"</h4>"+"<ul>"+"<li>"+one['last_updated_on']+"</li>"+"<li>"+one['message']+"</li></ul>"
 
 
-	to = ['yeswanth@headrun.com','asifa@headrun.net','yatish@headrun.com', 'rishi@headrun.com', \
-            'kannan.sundar@nextwealth.in','poornima.mitta@nextwealth.in', 'sankar.k@mnxw.org', 'abhishek@headrun.com']
+	to = ['asifa@headrun.net','yatish@headrun.com', 'rishi@headrun.com', \
+            'kannan.sundar@nextwealth.in','poornima.mitta@nextwealth.in', 'sankar.k@mnxw.org']
 
-	#to = ['abhishek@headrun.com']
         msg = EmailMessage("Next Pulse : Sheet upload status" , mail_data, 'nextpulse@nextwealth.in', to)
     
         msg.content_subtype = "html"

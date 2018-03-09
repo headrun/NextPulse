@@ -15,14 +15,10 @@ from common.utils import getHttpResponse as json_HttpResponse
 
 def upload_new(request):
     teamleader_obj_name = TeamLead.objects.filter(name_id=request.user.id)[0]
-    #teamleader_obj = TeamLead.objects.filter(name_id=request.user.id).values_list('project_id','center_id')[0]
     teamleader_obj = (teamleader_obj_name.project_id, teamleader_obj_name.center_id)
-    #prj_obj = Project.objects.filter(id=teamleader_obj[0])[0]
     prj_obj = teamleader_obj_name.project
     prj_name= prj_obj.name
-    #center_obj = Center.objects.filter(id=teamleader_obj[1])[0]
     center_obj = teamleader_obj_name.center
-    #prj_id = Project.objects.filter(name=prj_obj).values_list('id',flat=True)[0]
     prj_id = prj_obj.id
     fname = request.FILES['myfile']
     var = fname.name.split('.')[-1].lower()
@@ -59,10 +55,10 @@ def upload_new(request):
                     ignorablable_fields = map_value.split('#<>#')
                 else:
                     raw_table_mapping[map_key]= map_value.lower()
-                if '#<>#' in map_value:
+                """if '#<>#' in map_value:
                         required_filed = map_value.split('#<>#')
                         if len(required_filed) >= 2 and required_filed != '':
-                            other_fileds.append(required_filed[1])
+                            other_fileds.append(required_filed[1])"""
                 if map_key == 'date':
                     authoring_dates['raw_table_date'] = map_value.lower()
 
@@ -74,10 +70,10 @@ def upload_new(request):
                 intrnl_error_check = map_value 
             if map_value != '' and map_key not in mapping_ignores:
                 internal_error_mapping[map_key]= map_value.lower()
-                if '#<>#' in map_value:
+                """if '#<>#' in map_value:
                     required_filed = map_value.split('#<>#')
                     if len(required_filed) >= 2 and required_filed != '':
-                        other_fileds.append(required_filed[1])
+                        other_fileds.append(required_filed[1])"""
                 if map_key == 'date':
                     authoring_dates['intr_error_date'] = map_value.lower()
 
@@ -89,10 +85,10 @@ def upload_new(request):
                 extrnl_error_check = map_value
             if map_value != '' and map_key not in mapping_ignores:
                 external_error_mapping[map_key]= map_value.lower()
-                if '#<>#' in map_value:
+                """if '#<>#' in map_value:
                     required_filed = map_value.split('#<>#')
                     if len(required_filed) >= 2 and required_filed != '':
-                        other_fileds.append(required_filed[1])
+                        other_fileds.append(required_filed[1])"""
                 if map_key == 'date':
                     authoring_dates['extr_error_date'] = map_value.lower()
 
@@ -102,9 +98,9 @@ def upload_new(request):
                 sheet_names['worktrack_sheet'] = map_value
             if map_value != '' and map_key not in mapping_ignores:
                 worktrack_mapping[map_key]= map_value.lower()
-                if '#<>#' in map_value:
+                """if '#<>#' in map_value:
                     required_filed = map_value.split('#<>#')
-                    other_fileds.append(required_filed[1])
+                    other_fileds.append(required_filed[1])"""
                 if map_key == 'date':
                     authoring_dates['worktrack_date'] = map_value.lower()
 
@@ -114,9 +110,9 @@ def upload_new(request):
                 sheet_names['headcount_sheet'] = map_value
             if map_value != '' and map_key not in mapping_ignores:
                 headcount_mapping[map_key] = map_value.lower()
-                if '#<>#' in map_value:
+                """if '#<>#' in map_value:
                     required_filed = map_value.split('#<>#')
-                    other_fileds.append(required_filed[1])
+                    other_fileds.append(required_filed[1])"""
                 if map_key == 'date':
                     authoring_dates['headcount_date'] = map_value.lower()
 
@@ -126,9 +122,9 @@ def upload_new(request):
                 sheet_names['target_sheet'] = map_value
             if map_value != '' and map_key not in mapping_ignores:
                 target_mapping[map_key] = map_value.lower()
-                if '#<>#' in map_value:
+                """if '#<>#' in map_value:
                     required_filed = map_value.split('#<>#')
-                    other_fileds.append(required_filed[1])
+                    other_fileds.append(required_filed[1])"""
                 if map_key in ['from_date','to_date']:
                     if map_key == 'from_date':
                         authoring_dates['target_from_date'] = map_value.lower()
@@ -141,9 +137,9 @@ def upload_new(request):
                 sheet_names['tat_sheet'] = map_value
             if map_value != '' and map_key not in mapping_ignores:
                 tat_mapping[map_key] = map_value.lower()
-                if '#<>#' in map_value:
+                """if '#<>#' in map_value:
                     required_filed = map_value.split('#<>#')
-                    other_fileds.append(required_filed[1])
+                    other_fileds.append(required_filed[1])"""
                 if map_key == 'received_date':
                     authoring_dates['tat_date'] = map_value.lower()
 
@@ -153,9 +149,9 @@ def upload_new(request):
                 sheet_names['upload_sheet'] = map_value
             if map_value != '' and map_key not in mapping_ignores:
                 upload_mapping[map_key] = map_value.lower()
-                if '#<>#' in map_value:
+                """if '#<>#' in map_value:
                     required_filed = map_value.split('#<>#')
-                    other_fileds.append(required_filed[1])
+                    other_fileds.append(required_filed[1])"""
                 if map_key == 'date':
                     authoring_dates['upload_date'] = map_value.lower()
         incoming_error_map_query = Authoring_mapping(prj_obj,center_obj,'IncomingerrorAuthoring')
@@ -164,9 +160,9 @@ def upload_new(request):
                 sheet_names['incoming_error_sheet'] = map_value
             if map_value != '' and map_key not in mapping_ignores:
                 incoming_error_mapping[map_key] = map_value.lower()
-                if '#<>#' in map_value:
+                """if '#<>#' in map_value:
                     required_filed = map_value.split('#<>#')
-                    other_fileds.append(required_filed[1])
+                    other_fileds.append(required_filed[1])"""
                 if map_key == 'date':
                     authoring_dates['incoming_error_date'] = map_value.lower()
         other_fileds = filter(None, other_fileds)
@@ -202,19 +198,6 @@ def upload_new(request):
                         raw_table_dataset[str(customer_data[date_name])]={}
                     local_raw_data = {}
                     for raw_key,raw_value in raw_table_mapping.iteritems():
-                        """if '#<>#' in raw_value:
-                            checking_values=raw_value.split('#<>#')
-                            if customer_data.has_key(checking_values[0].lower()):
-                                if customer_data[checking_values[0].lower()] in ignorablable_fields:
-                                    local_raw_data[raw_key] = 'not_applicable'
-                                else:
-                                    if (checking_values[1] == '') and (customer_data[checking_values[0]] not in other_fileds):
-                                        local_raw_data[raw_key] = customer_data[checking_values[2].lower()]
-                                    elif customer_data[checking_values[0].lower()] == checking_values[1]:
-                                        local_raw_data[raw_key] = customer_data[checking_values[2].lower()]
-                                    else:
-                                        local_raw_data[raw_key] = 'not_applicable'  """
-                        #elif ('#<>#' not in raw_value) and (raw_value in customer_data.keys()):
                         local_raw_data[raw_key] = customer_data[raw_value]
 
                     emp_key = '{0}_{1}_{2}_{3}'.format(local_raw_data.get('sub_project', 'NA'),
@@ -392,15 +375,6 @@ def upload_new(request):
                         work_track_dataset[str(customer_data[date_name])] = {}
                     local_worktrack_data = {}
                     for raw_key, raw_value in worktrack_mapping.iteritems():
-                        """if '#<>#' in raw_value:
-                            checking_values = raw_value.split('#<>#')
-                            if customer_data.has_key(checking_values[0].lower()):
-                                if customer_data[checking_values[0].lower()].lower() == checking_values[1].lower():
-                                    local_worktrack_data[raw_key] = customer_data[checking_values[2].lower()]
-                                else:
-                                    local_worktrack_data[raw_key] = 'not_applicable' """
-
-                        #elif ('#<>#' not in raw_value) and (raw_value in customer_data.keys()):
                         local_worktrack_data[raw_key] = customer_data[raw_value]
 
                     emp_key = '{0}_{1}_{2}_{3}'.format(local_worktrack_data.get('sub_project', 'NA'),
@@ -451,15 +425,6 @@ def upload_new(request):
                         headcount_dataset[str(customer_data[date_name])] = {}
                     local_headcount_data = {}
                     for raw_key, raw_value in headcount_mapping.iteritems():
-                        """if '#<>#' in raw_value:
-                            checking_values = raw_value.split('#<>#')
-                            if customer_data.has_key(checking_values[0].lower()):
-                                if customer_data[checking_values[0].lower()].lower() == checking_values[1].lower():
-                                    local_headcount_data[raw_key] = customer_data[checking_values[2].lower()]
-                                else:
-                                    local_headcount_data[raw_key] = 'not_applicable' """
-
-                        #elif ('#<>#' not in raw_value) and (raw_value in customer_data.keys()):
                         local_headcount_data[raw_key] = customer_data[raw_value]
 
                     emp_key = '{0}_{1}_{2}_{3}'.format(local_headcount_data.get('sub_project', 'NA'),
@@ -495,15 +460,6 @@ def upload_new(request):
                         target_dataset[str(customer_data[date_name])] = {}
                     local_target_data = {}
                     for raw_key, raw_value in target_mapping.iteritems():
-                        """if '#<>#' in raw_value:
-                            checking_values = raw_value.split('#<>#')
-                            if customer_data.has_key(checking_values[0].lower()):
-                                if customer_data[checking_values[0].lower()].lower() == checking_values[1].lower():
-                                    local_target_data[raw_key] = customer_data[checking_values[2].lower()]
-                                else:
-                                    local_target_data[raw_key] = 'not_applicable' """
-
-                        #elif ('#<>#' not in raw_value) and (raw_value in customer_data.keys()):
                         if ('#<>#' not in raw_value) and (raw_value in customer_data.keys()):
                             local_target_data[raw_key] = customer_data[raw_value]
 
@@ -541,15 +497,7 @@ def upload_new(request):
                         tats_table_dataset[str(customer_data[date_name])] = {}
                     local_tat_data = {}
                     for raw_key, raw_value in tat_mapping.iteritems():
-                        """if '#<>#' in raw_value:
-                            checking_values = raw_value.split('#<>#')
-                            if customer_data.has_key(checking_values[0].lower()):
-                                if customer_data[checking_values[0].lower()].lower() == checking_values[1].lower():
-                                    local_tat_data[raw_key] = customer_data[checking_values[2].lower()]
-                                else:
-                                    local_tat_data[raw_key] = 'not_applicable' """
 
-                        #elif ('#<>#' not in raw_value) and (raw_value in customer_data.keys()):
                         local_tat_data[raw_key] = customer_data[raw_value]
 
                     emp_key = '{0}_{1}_{2}_{3}'.format(local_tat_data.get('sub_project', 'NA'),
@@ -585,14 +533,6 @@ def upload_new(request):
                         incoming_error_dataset[str(customer_data[date_name])] = {}
                     local_incoming_error_data = {}
                     for raw_key, raw_value in incoming_error_mapping.iteritems():
-                        """if '#<>#' in raw_value:
-                            checking_values = raw_value.split('#<>#')
-                            if customer_data.has_key(checking_values[0].lower()):
-                                if customer_data[checking_values[0].lower()].lower() == checking_values[1].lower():
-                                    local_incoming_error_data[raw_key] = customer_data[checking_values[2].lower()]
-                                else:
-                                    local_incoming_error_data[raw_key] = 'not_applicable' """
-                        #elif ('#<>#' not in raw_value) and (raw_value in customer_data.keys()):
                         local_incoming_error_data[raw_key] = customer_data[raw_value]
                     emp_key = '{0}_{1}_{2}_{3}'.format(local_incoming_error_data.get('sub_project', 'NA'),
                                                        local_incoming_error_data.get('work_packet', 'NA'),
@@ -628,14 +568,6 @@ def upload_new(request):
                         upload_table_dataset[str(customer_data[date_name])] = {}
                         local_upload_data = {}
                         for raw_key, raw_value in upload_mapping.iteritems():
-                            """if '#<>#' in raw_value:
-                                checking_values = raw_value.split('#<>#')
-                                if customer_data.has_key(checking_values[0].lower()):
-                                    if customer_data[checking_values[0].lower()].lower() == checking_values[1].lower():
-                                        local_upload_data[raw_key] = customer_data[checking_values[2].lower()]
-                                    else:
-                                        local_upload_data[raw_key] = 'not_applicable' """
-                            #elif ('#<>#' not in raw_value) and (raw_value in customer_data.keys()):
                             local_upload_data[raw_key] = customer_data[raw_value]
                         emp_key = '{0}_{1}_{2}_{3}'.format(local_upload_data.get('sub_project', 'NA'),
                                                            local_upload_data.get('work_packet', 'NA'),

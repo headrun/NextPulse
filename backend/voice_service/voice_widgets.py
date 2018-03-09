@@ -11,7 +11,10 @@ def create_filters(filter_params):
     for item in filter_params:
         for key, value in item.iteritems():
             if value:
-                _key = '%s__in' %key
+                if key == 'date':
+                    _key = '%s__in' %key
+                else:
+                    _key = key
                 filter_dict.update({_key:value})
 
     return filter_dict 
@@ -22,17 +25,18 @@ def get_hourly_sum(project, dates, table_name, location={}, skill={}, dispositio
     """
 
     _dict = {}
-    if term == 'outbound_disposition':
+    if term == 'disposition' and table_name == OutboundHourlyCall:
         _term = 'disposition'
+        term = 'outbound_disposition'
     elif term == 'outbnd_dispo_common':
         _term = 'disposition'
-    elif term == 'call_status':
+    elif term == 'status':
         _term = 'status'
+        term = 'call_status'
     else:
         _term = term
-    print [location, skill, disposition, project, dates]
     filter_param = create_filters([location, skill, disposition, project, dates])
-
+    
     _date = []
     data_set = table_name.objects.filter(**filter_param).values_list('start_time', _term, 'date')\
                 .order_by(_term)
@@ -88,7 +92,6 @@ def actual_required_hourly(project, dates, table_name, location={}, skill={}, di
     result_dict = {}
     filter_param = create_filters([location, skill, disposition, project, dates])
     data_sets = table_name.objects.filter(**filter_param).values()
-
     for data_set in data_sets:
         _dict = {}
         for time in xrange(0, 24):

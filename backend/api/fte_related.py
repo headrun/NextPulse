@@ -10,326 +10,307 @@ from api.query_generations import query_set_generation
 from api.graph_settings import graph_data_alignment_color
 from common.utils import getHttpResponse as json_HttpResponse
 
-def fte_calculation_sub_project_work_packet(result,level_structure_key):
-    final_fte ={}
-    count = 0
-    if result.has_key('data'):
-        new_date_list = result['new_date_list']
-        wp_subpackets = result['wp_subpackets']
-        for date_va in new_date_list:
-            for wp_key_new, wp_name in wp_subpackets.iteritems():
-                local_sum = 0
-                for sub_packet in wp_name:
-                    new_level_structu_key = {}
-                    if level_structure_key.has_key('sub_project'):
-                        new_level_structu_key['sub_project'] = level_structure_key['sub_project']
-                    new_level_structu_key['work_packet'] = wp_key_new
-                    new_level_structu_key['sub_packet'] = sub_packet
-                    new_level_structu_key['from_date__lte'] = date_va
-                    new_level_structu_key['to_date__gte'] = date_va
-                    final_work_packet = level_hierarchy_key(level_structure_key, new_level_structu_key)
-                    if result['data']['data'].has_key(final_work_packet):
-                        if len(result['data']['data'][final_work_packet]) >= count:
-                            try:
-                                local_sum = local_sum + result['data']['data'][final_work_packet][count]
-                            except:
-                                local_sum = local_sum
+
+def fte_trend_scope(date_list, prj_id, center, level_structure_key):
+
+    final_dict,data_dict,packet_dict = {}, {}, {}
+    req_dict, packet_dict = {}, {}
+    date_arr,trend_list = [],  []
+    Fte_arr = []
+    fte_trend_data = []
+    if (prj_id == 2 or prj_id == 3):
+        filter_params, _packet = getting_required_params(level_structure_key, prj_id, center, date_list)
+        raw_params = filter_params
+        raw_query = RawTable.objects.filter(**filter_params)
+        dates = RawTable.objects.filter(project=prj_id, center=center, date__range=[date_list[0], date_list[-1]]).values_list('date', flat=True).distinct()
+        target_params = filter_params
+        target_params.pop('date__range', None)
+        target_params['from_date__lte'] = date_list[0]
+        target_params['to_date__gte'] = date_list[-1]
+        target_params['target_type'] = 'FTE Target'
+
+        if level_structure_key.has_key('sub_project'):
+            if _packet == 'sub_project':
+                work_done = raw_query.values('date',_packet,'work_packet','sub_packet').annotate(w_d=Sum('per_day'))
+                target_query = Targets.objects.filter(**target_params).values('from_date','to_date',_packet,'work_packet','sub_packet').annotate(target=Sum('target_value'))
+                packet_details = raw_query.values_list(_packet, flat=True).distinct()
+                captured_date = []
+                for check_date in dates:
+                    for index in work_done:
+                        if str(check_date) == str(index['date']):
+                            captured_date.append(index['date'])
+
+                for missdate in list(set(dates)-set(captured_date)):
+                    for pack in packet_details:
+                        Fte_arr.append({"date":str(missdate),"sub_project":pack ,"work_packet":'' ,"sub_packet": '',"result": 0 })
+
+            elif _packet == 'work_packet':
+                work_done = raw_query.values('date','sub_project',_packet,'sub_packet').annotate(w_d=Sum('per_day'))
+                target_query = Targets.objects.filter(**target_params).values('from_date','to_date','sub_project',_packet,'sub_packet').annotate(target=Sum('target_value'))                    
+                packet_details = raw_query.values_list(_packet, flat=True).distinct()
+                captured_date = []
+                for check_date in dates:
+                    for index in work_done:
+                        if str(check_date) == str(index['date']):
+                            captured_date.append(index['date'])
+
+                for missdate in list(set(dates)-set(captured_date)):
+                    for pack in packet_details:
+                        Fte_arr.append({"date":str(missdate),"sub_project":filter_params['sub_project'],"work_packet":pack ,"sub_packet": '',"result": 0 })
+            else:
+                work_done = raw_query.values('date','sub_project','work_packet',_packet).annotate(w_d=Sum('per_day'))
+                target_query = Targets.objects.filter(**target_params).values('from_date','to_date','sub_project','work_packet',_packet).annotate(target=Sum('target_value'))
+                packet_details = raw_query.values_list(_packet, flat=True).distinct()
+                captured_date = []
+                for check_date in dates:
+                    for index in work_done:
+                        if str(check_date) == str(index['date']):
+                            captured_date.append(index['date'])
+
+                for missdate in list(set(dates)-set(captured_date)):
+                    if filter_params.has_key('sub_packet'):
+                        Fte_arr.append({"date":str(missdate),"sub_project":filter_params['sub_project'],"work_packet":filter_params['work_packet'],"sub_packet":filter_params['sub_packet'],"result": 0 })
+
+            packet_list = [];
+            for r_data in work_done:
+                for tar in target_query:
+                    if (tar['from_date'] <= r_data['date'] <= tar['to_date']):
+                        if ((r_data['work_packet'] == tar['work_packet']) and (r_data['sub_packet'] == tar['sub_packet']) and (r_data['sub_project'] == tar['sub_project'])):
+                            Fte_arr.append({"date":str(r_data['date']),"sub_project":r_data['sub_project'],"work_packet":r_data['work_packet'],"sub_packet":r_data['sub_packet'],"result": (float(r_data['w_d'])/float(tar['target'])) })        #print Fte_arr
+
+            seen = set()
+            Fte_arr_new = []
+            for dup in Fte_arr:
+                t = tuple(dup.items())
+                if t not in seen:
+                    seen.add(t)
+                    Fte_arr_new.append(dup)
+
+            Fte_a = []
+            for check_date in dates:
+                packet_list = []
+                for index in Fte_arr_new:
+                    if str(check_date) == index['date']:
+                        packet_list.append(index[_packet])
+                if len(packet_list) > 0:
+                    packet_list = sorted(list(set(packet_list)))
+                    packet_list = map(str, packet_list)
+                    for pack in packet_details:
+                        if str(pack) not in packet_list:
+                            if _packet == 'sub_project':
+                                Fte_arr_new.append({"date": check_date, _packet:pack,'work_packet':'' ,"sub_packet":'', "result":0})
+                            elif _packet == 'work_packet':
+                                Fte_arr_new.append({"date": check_date,"sub_project":'', _packet:pack,'sub_packet':'', "result":0})
+                            else:
+                                Fte_arr_new.append({"date": check_date,"sub_project":'', _packet:pack,'work_packet':'', "result":0})
+
+            if _packet == 'sub_project':
+                tmp_obj = {}
+                for tmp in Fte_arr_new:
+                    if tmp_obj.has_key(str(tmp['date'])):
+                        if tmp_obj[str(tmp['date'])].has_key(tmp['sub_project']):
+                            tmp_obj[str(tmp['date'])][tmp['sub_project']] = tmp_obj[str(tmp['date'])][tmp['sub_project']] + tmp['result']
                         else:
-                            local_sum = local_sum
+                            tmp_obj[str(tmp['date'])].update({tmp['sub_project'] : tmp['result']})
                     else:
-                        local_sum = local_sum
-                if level_structure_key.get('work_packet', '') != 'All':
-                    if final_fte.has_key(final_work_packet):
-                        final_fte_sum = float('%.2f' % round(local_sum, 2))
-                        final_fte[final_work_packet].append(final_fte_sum)
-                    else:
-                        final_fte_sum = float('%.2f' % round(local_sum, 2))
-                        final_fte[final_work_packet] = [final_fte_sum]
-                if level_structure_key.get('work_packet', '') == 'All':
-                    if level_structure_key.has_key('sub_project'):
-                        new_level_structu_key['sub_project'] = level_structure_key['sub_project']
-                    new_level_structu_key['work_packet'] = wp_key_new
-                    wp_final_work_packet = level_hierarchy_key(level_structure_key, new_level_structu_key)
-                    if final_fte.has_key(wp_final_work_packet):
-                        final_fte_sum = float('%.2f' % round(local_sum, 2))
-                        final_fte[wp_final_work_packet].append(final_fte_sum)
-                    else:
-                        final_fte_sum = float('%.2f' % round(local_sum, 2))
-                        final_fte[wp_final_work_packet] = [final_fte_sum]
-            count = count + 1            
-        return final_fte
+                        tmp_obj[str(tmp['date'])] = {tmp['sub_project'] : tmp['result']}
 
-
-def fte_calculation_sub_project_sub_packet(prj_id,center_obj,work_packet_query,level_structure_key,date_list):
-    packets_target, wp_subpackets = {}, {}
-    new_date_list = []
-    conn = redis.Redis(host="localhost", port=6379, db=0)
-    project = Project.objects.filter(id=prj_id)
-    prj_name = project[0].name
-    center_name = project[0].center.name
-    distinct_wp = Targets.objects.filter(**work_packet_query).values_list('work_packet', flat=True).distinct()
-    new_work_packet_query = work_packet_query
-    for wrk_pkt in distinct_wp:
-        work_packet_query['work_packet'] = wrk_pkt
-        work_packet_query['target_type'] = 'FTE Target'
-        distinct_sub_pkt = Targets.objects.filter(**work_packet_query).values_list('sub_packet', flat=True).distinct()
-        wp_subpackets[wrk_pkt] = distinct_sub_pkt
-    raw_query_set = {}
-    raw_query_set['project'] = prj_id
-    raw_query_set['center'] = center_obj
-    date_values, volumes_dict, result = {}, {}, {}
-    total_done_value = RawTable.objects.filter(project=prj_id, center=center_obj, date__range=[date_list[0], date_list[-1]])\
-                       .values('date').annotate(total=Sum('per_day'))
-    values = OrderedDict(zip(map(lambda p: str(p['date']), total_done_value), map(lambda p: str(p['total']), total_done_value)))
-    for date_key, total_val in values.iteritems():
-        new_work_packet_query['from_date__lte'] = date_key
-        new_work_packet_query['to_date__gte'] = date_key
-        if new_work_packet_query.has_key('work_packet'):
-            del new_work_packet_query['work_packet']
-        work_packets = Targets.objects.filter(**new_work_packet_query)\
-                        .values('sub_project', 'work_packet', 'sub_packet','target_value').distinct()
-        for wp_dict in work_packets:
-            packets_target[wp_dict['sub_packet']] = int(wp_dict['target_value'])
-        if total_val > 0:
-            new_date_list.append(date_key)
-            for wp_key, wp_name in wp_subpackets.iteritems():
-                for sub_packet in wp_name:
-                    new_level_structu_key = {}
-                    if level_structure_key.has_key('sub_project'):
-                        new_level_structu_key['sub_project'] = level_structure_key['sub_project']
-                    new_level_structu_key['work_packet'] = wp_key
-                    new_level_structu_key['sub_packet'] = sub_packet
-                    new_level_structu_key['from_date__lte'] = date_key
-                    new_level_structu_key['to_date__gte'] = date_key
-                    final_work_packet = level_hierarchy_key(level_structure_key, new_level_structu_key)
-                    date_pattern = '{0}_{1}_{2}_{3}'.format(prj_name, center_name, str(final_work_packet), date_key)
-                    key_list = conn.keys(pattern=date_pattern)
-                    packets_values = Targets.objects.filter(**new_level_structu_key)\
-                                     .values('sub_project', 'work_packet', 'sub_packet','target_value').distinct()
-                    if not key_list:
-                        if date_values.has_key(final_work_packet):
-                            date_values[final_work_packet].append(0)
+                ordi = collections.OrderedDict(tmp_obj)
+                tmp_obj = sorted(ordi.items(), key=lambda x: x)
+                fte_trend_data = []
+                for tk in tmp_obj:
+                    date_arr.append(tk[0])
+                    val = 0
+                    for k, v in tk[1].iteritems():
+                        v = float('%.2f' % round(v, 2))
+                        if not data_dict.has_key(k):
+                            data_dict[k] = [v]
                         else:
-                            date_values[final_work_packet] = [0]
-                    for cur_key in key_list:
-                        var = conn.hgetall(cur_key)
-                        for key, value in var.iteritems():
-                            if value == 'None':
-                                value = 0
-                            if date_values.has_key(key):
-                                if packets_values:
-                                    try:
-                                        fte_sum = float(value) / packets_target[sub_packet]
-                                    except:
-                                        fte_sum = 0
-                                else:
-                                    fte_sum = 0
-                                date_values[key].append(fte_sum)
-                            else:
-                                if packets_target.has_key(sub_packet)>0:
-                                    if packets_target[sub_packet]>0:
-                                        fte_sum = float(value) / packets_target[sub_packet]
-                                        date_values[key] = [fte_sum]
-                        volumes_dict['data'] = date_values
-                        volumes_dict['date'] = date_list
-                        result['data'] = volumes_dict
-    result['wp_subpackets'] = wp_subpackets
-    result['new_date_list'] = new_date_list
-    return result
+                            data_dict[k].append(v)
+                        val += v
+                    val = float('%.2f' % round(val, 2))
+                    fte_trend_data.append(val)
 
-def fte_calculation(request,prj_id,center_obj,date_list,level_structure_key):
-    query_set = {}
-    query_set['project'] = prj_id
-    query_set['center'] = center_obj
-    project = Project.objects.filter(id=prj_id)
-    prj_name = project[0].name
-    center_name = project[0].center.name
-    work_packet_query =  query_set_generation(prj_id,center_obj,level_structure_key,[])
-    work_packet_query['target_type'] = 'FTE Target'
-    work_packets = Targets.objects.filter(**work_packet_query).values('sub_project','work_packet','sub_packet','target_value').distinct()
-    sub_packet_query = query_set_generation(prj_id,center_obj,level_structure_key,[])
-    sub_packet_query['target_type'] = 'FTE Target'
-    sub_packets = filter(None,Targets.objects.filter(**sub_packet_query).values_list('sub_packet',flat=True).distinct())
-    conn = redis.Redis(host="localhost", port=6379, db=0)
-    new_date_list = []
-    status = 0
-    if len(sub_packets) == 0:
-        work_packets = Targets.objects.filter(**work_packet_query)\
-                       .values('sub_project', 'work_packet', 'sub_packet','target_value').distinct()
-        date_values, volumes_dict, result = {}, {}, {}
-        total_done_value = RawTable.objects.filter(project=prj_id, center=center_obj, date__range=[date_list[0], date_list[-1]])\
-                             .values('date').annotate(total=Sum('per_day'))
-        values = OrderedDict(zip(map(lambda p: str(p['date']), total_done_value), map(lambda p: str(p['total']), total_done_value)))
-        for date_key, total_val in values.iteritems():
-            if total_val > 0:
-                new_date_list.append(date_key)
-                for wp_packet in work_packets:
-                    final_work_packet = level_hierarchy_key(level_structure_key, wp_packet)
-                    date_pattern = '{0}_{1}_{2}_{3}'.format(prj_name, center_name, str(final_work_packet), date_key)
-                    key_list = conn.keys(pattern=date_pattern)
-                    if wp_packet['target_value'] >0:
-                        if not key_list:
-                            if date_values.has_key(final_work_packet):
-                                date_values[final_work_packet].append(0)
-                            else:
-                                date_values[final_work_packet] = [0]
-                        var = [conn.hgetall(cur_key) for cur_key in key_list]
-                        for one in var:
-                            main = one.items()[0]
-                            key = main[0]
-                            value = main[1]
-                            if value == 'None':
-                                value = 0
-                            if date_values.has_key(key):
-                                fte_sum = float(value) / int(wp_packet['target_value'])
-                                date_values[key].append(fte_sum)
-                            else:
-                                fte_sum = float(value) / int(wp_packet['target_value'])
-                                date_values[key] = [fte_sum]
-                        volumes_dict['data'] = date_values
-                        volumes_dict['date'] = date_list
-                        result['data'] = volumes_dict
-    else:
-        if level_structure_key.get('sub_project','')=='All':
-            sub_projects = filter(None, Targets.objects.filter(**sub_packet_query).values_list('sub_project',flat=True).distinct())
-            final_fte = {}
-            for sub_project in sub_projects:
-                sub_project_query = {}
-                sub_project_query['project'] = prj_id
-                sub_project_query['center'] = center_obj
-                sub_project_query['sub_project'] = sub_project
-                sub_project_query['target_type'] = 'FTE Target'
-                new_level_structu_key = {}
-                new_level_structu_key['sub_project'] = sub_project
-                new_level_structu_key['work_packet'] = 'All'
-                new_level_structu_key['sub_packet'] = 'All'
-                result = fte_calculation_sub_project_sub_packet(prj_id, center_obj, sub_project_query, new_level_structu_key,date_list)
-                sub_packet_data = fte_calculation_sub_project_work_packet(result, new_level_structu_key)
-                if sub_packet_data :
-                    wp_total_data = fte_wp_total(sub_packet_data)
-                    if len(wp_total_data['wp_fte']) > 0:
-                        final_fte[sub_project] = wp_total_data['wp_fte']
-        else:
-            result = fte_calculation_sub_project_sub_packet(prj_id,center_obj,work_packet_query,level_structure_key,date_list)
-
-    count = 0
-    if (len(sub_packets) == 0) :
-        final_fte = {}
-        if result.has_key('data'):
-            final_fte= result['data']['data']
-            for wp_key, wp_value in final_fte.iteritems():
-                final_fte[wp_key] = [float('%.2f' % round(wp_values, 2)) for wp_values in wp_value]
-    else :
-        type = request.GET['type']
-        if level_structure_key.get('sub_project', '') != 'All':
-            final_fte = {}
-            if result.has_key('data'):
-                new_date_list = result['new_date_list']
-                wp_subpackets = result['wp_subpackets']
-                for date_va in new_date_list:
-                    for wp_key_new, wp_name in wp_subpackets.iteritems():
-                        local_sum = 0
-                        for sub_packet in wp_name:
-                            if level_structure_key.has_key('sub_project'):
-                                if (level_structure_key.get('sub_project','All')!= 'All') and \
-                                    (level_structure_key.get('work_packet','All')!='All') and \
-                                    (level_structure_key.get('sub_packet','All')=='All'):
-                                    local_sum = 0
-                            new_level_structu_key = {}
-                            if level_structure_key.has_key('sub_project'):
-                                new_level_structu_key['sub_project']=level_structure_key['sub_project']
-                            new_level_structu_key['work_packet'] = wp_key_new
-                            new_level_structu_key['sub_packet'] = sub_packet
-                            final_work_packet = level_hierarchy_key(level_structure_key, new_level_structu_key)
-                            if type == 'day':
-                                if result['data']['data'].has_key(final_work_packet):
-                                    try:
-                                        local_sum = local_sum + result['data']['data'][final_work_packet][count]
-                                    except:
-                                        local_sum = 0
-                                else:
-                                    local_sum = local_sum
-                            if type == 'week' or type == 'month':
-                                if result['data']['data'].has_key(final_work_packet):
-                                    if 0.0 in result['data']['data'][final_work_packet]:
-                                       values = collections.Counter(result['data']['data'][final_work_packet])
-                                       count_value = values[0.0]
-                                    else:
-                                        count_value = 0
-                                    count_num = len(result['data']['data'][final_work_packet]) - count_value
-                                    try:
-                                        local_sum = local_sum + sum(result['data']['data'][final_work_packet])/count_num
-                                    except:
-                                        local_sum = local_sum + 0
-                                else:
-                                    local_sum = local_sum
-                            if level_structure_key.get('work_packet','') != 'All' :
-                                if final_fte.has_key(final_work_packet):
-                                    final_fte_sum = float('%.2f' % round(local_sum, 2))
-                                    final_fte[final_work_packet].append(final_fte_sum)
-                                else:
-                                    final_fte_sum = float('%.2f' % round(local_sum, 2))
-                                    final_fte[final_work_packet] = [final_fte_sum]
-                        if level_structure_key.get('work_packet','') == 'All' :
-                            new_wp_level_structu_key = {}
-                            if level_structure_key.has_key('sub_project'):
-                                new_wp_level_structu_key['sub_project']=level_structure_key['sub_project']
-                            new_wp_level_structu_key['work_packet'] = wp_key_new
-                            wp_final_work_packet = level_hierarchy_key(level_structure_key, new_wp_level_structu_key)
-                            if final_fte.has_key(wp_final_work_packet):
-                                final_fte_sum = float('%.2f' % round(local_sum, 2))
-                                final_fte[wp_final_work_packet].append(final_fte_sum)
-                            else:
-                                final_fte_sum = float('%.2f' % round(local_sum, 2))
-                                final_fte[wp_final_work_packet] = [final_fte_sum]
-                    count =count+1
-    type = request.GET['type']
-    if request.GET['project'].split(' - ')[0] == 'NTT DATA Services TP':
-        if type == "day":
-            work_packet_fte = {}
-            work_packet_fte['total_fte'] = {}
-            work_packet_fte['total_fte'] = [sum(i) for i in zip(*final_fte.values())]
-            work_packet_fte['total_fte'] = [round(wp_values, 2) for wp_values in work_packet_fte['total_fte']]
-            fte_high_charts = {}
-            fte_high_charts['total_fte'] = work_packet_fte
-            fte_high_charts['work_packet_fte'] = graph_data_alignment_color(final_fte, 'data', level_structure_key, prj_id, center_obj,'')
-            fte_high_charts['work_packet_fte'] = final_fte
-            fte_high_charts['date'] = new_date_list
-        if type == "week" or type == "month":
-            work_packet_fte = {}
-            packet_fte = {}
-            for key,value in final_fte.iteritems():
-                count = 0
-                if final_fte.has_key(key):
-                    if 0.0 in value:
-                        count = collections.Counter(value)
-                        count_value = count[0.0]
+            elif _packet == 'work_packet':
+                tmp_obj = {}
+                for tmp in Fte_arr_new:
+                    if tmp_obj.has_key(str(tmp['date'])):
+                        if tmp_obj[str(tmp['date'])].has_key(tmp['sub_project']+'_'+tmp['work_packet']):
+                            tmp_obj[str(tmp['date'])][tmp['sub_project']+'_'+tmp['work_packet']] = tmp_obj[str(tmp['date'])][tmp['sub_project']+'_'+tmp['work_packet']] + tmp['result']
+                        else:
+                            tmp_obj[str(tmp['date'])].update({tmp['sub_project']+'_'+tmp['work_packet'] : tmp['result']})
                     else:
-                        count_value = 0
-                count_num = len(value) - count_value
-                if count_num == 0:
-                    fte_sum = 0
-                else:
-                    fte_sum = sum(value)/count_num
-                packet_fte[key] = float('%.2f' % round(fte_sum, 2))
-            fte_high_charts = {}
-            fte_high_charts['total_fte'] = {}
-            fte_high_charts['work_packet_fte'] = {}
-            packet_fte_values = float('%.2f' % round(sum(packet_fte.values()), 2))
-            final_fte_values = sum(packet_fte.values())
-            fte_high_charts['total_fte']['total_fte'] = [float('%.2f' % round(final_fte_values, 2))]
-            fte_high_charts['work_packet_fte'] = graph_data_alignment_color(final_fte, 'data', level_structure_key, prj_id, center_obj,'')
-            fte_high_charts['work_packet_fte'] = final_fte
-            fte_high_charts['date'] = new_date_list
-        return fte_high_charts
-    else:
-        work_packet_fte = {}
-        work_packet_fte['total_fte'] = {}
-        work_packet_fte['total_fte'] = [sum(i) for i in zip(*final_fte.values())]
-        work_packet_fte['total_fte'] = [round(wp_values, 2) for wp_values in work_packet_fte['total_fte']]
-        fte_high_charts = {}
-        fte_high_charts['total_fte'] = work_packet_fte
-        fte_high_charts['work_packet_fte'] = graph_data_alignment_color(final_fte, 'data', level_structure_key, prj_id, center_obj,'')
-        fte_high_charts['work_packet_fte'] = final_fte
-        fte_high_charts['date'] = new_date_list
-        return fte_high_charts
+                        tmp_obj[str(tmp['date'])] = {tmp['sub_project']+'_'+tmp['work_packet'] : tmp['result']}
+
+                ordi = collections.OrderedDict(tmp_obj)
+                tmp_obj = sorted(ordi.items(), key=lambda x: x)
+                fte_trend_data = []
+                for tk in tmp_obj:
+                    date_arr.append(tk[0])
+                    val = 0
+                    for k, v in tk[1].iteritems():
+                        v = float('%.2f' % round(v, 2))
+                        key = k.split('_')
+                        if not data_dict.has_key(key[1]):
+                            data_dict[key[1]] = [v]
+                        else:
+                            data_dict[key[1]].append(v)
+                        val += v
+                    val = float('%.2f' % round(val, 2))
+                    fte_trend_data.append(val)
+            else:
+                tmp_obj = {}
+                for tmp in Fte_arr_new:
+                    if tmp_obj.has_key(str(tmp['date'])):
+                        if tmp_obj[str(tmp['date'])].has_key(tmp['sub_project']+"_"+tmp['work_packet']+"_"+tmp['sub_packet']):
+                            tmp_obj[str(tmp['date'])][tmp['sub_project']+"_"+tmp['work_packet']+"_"+tmp['sub_packet'] ]= tmp_obj[str(tmp['date'])][tmp['sub_project']+"_"+tmp['work_packet']+"_"+tmp['sub_packet']] + tmp['result']
+                        else:
+                            tmp_obj[str(tmp['date'])].update({tmp['sub_project']+"_"+tmp['work_packet']+"_"+tmp['sub_packet'] : tmp['result']})
+                    else:
+                        tmp_obj[str(tmp['date'])] = {tmp['sub_project']+"_"+tmp['work_packet']+"_"+tmp['sub_packet'] : tmp['result']}
+
+                ordi = collections.OrderedDict(tmp_obj)
+                tmp_obj = sorted(ordi.items(), key=lambda x: x)
+                fte_trend_data = []
+                for tk in tmp_obj:
+                    date_arr.append(tk[0])
+                    val = 0
+                    for k, v in tk[1].iteritems():
+                        key = k.split('_')
+                        v = float('%.2f' % round(v, 2))
+                        if not data_dict.has_key(key[2]):
+                            data_dict[key[2]] = [v]
+                        else:
+                            data_dict[key[2]].append(v)
+                        val += v
+                    val = float('%.2f' % round(val, 2))
+                    fte_trend_data.append(val)
+
+        elif level_structure_key.has_key('work_packet'):
+            if _packet == 'work_packet':
+                work_done = raw_query.values('date',_packet,'sub_packet').annotate(w_d=Sum('per_day'))
+                target_query = Targets.objects.filter(**target_params).values('from_date','to_date',_packet,'sub_packet').annotate(target=Sum('target_value'))                
+                packet_details = raw_query.values_list(_packet, flat=True).distinct()
+                captured_date = []
+                for check_date in dates:
+                    for index in work_done:
+                        if str(check_date) == str(index['date']):
+                            captured_date.append(index['date'])
+                for missdate in list(set(dates)-set(captured_date)):
+                    for pack in packet_details:
+                        Fte_arr.append({"date":str(missdate),"sub_project":filter_params['sub_project'],"work_packet":pack ,"sub_packet": '',"result": 0 })
+            else:
+                work_done = raw_query.values('date','work_packet',_packet).annotate(w_d=Sum('per_day'))
+                target_query = Targets.objects.filter(**target_params).values('from_date','to_date','work_packet',_packet).annotate(target=Sum('target_value'))
+                packet_details = raw_query.values_list(_packet, flat=True).distinct()
+                captured_date = []
+                for check_date in dates:
+                    for index in work_done:
+                        if str(check_date) == str(index['date']):
+                            captured_date.append(index['date'])
+
+                for missdate in list(set(dates)-set(captured_date)):
+                    if filter_params.has_key('sub_packet'):
+                        Fte_arr.append({"date":str(missdate),"work_packet":filter_params['work_packet'],"sub_packet":filter_params['sub_packet'],"result": 0 })
+            packet_list = [];
+            for r_data in work_done:
+                for tar in target_query:
+                    if (tar['from_date'] <= r_data['date'] <= tar['to_date']):
+                        if tar['sub_packet']:
+                            if ((r_data['work_packet'] == tar['work_packet']) and (r_data['sub_packet'] == tar['sub_packet'])):
+                                Fte_arr.append({"date":str(r_data['date']),"work_packet":r_data['work_packet'],"sub_packet":r_data['sub_packet'],"result": (float(r_data['w_d'])/float(tar['target'])) })
+                            else:
+                                pass
+                        else:
+                            if ((r_data['work_packet'] == tar['work_packet'])):
+                                Fte_arr.append({"date":str(r_data['date']),"work_packet":r_data['work_packet'],"sub_packet": '', "result": (float(r_data['w_d'])/float(tar['target'])) })
+                            else:
+                                pass
+            seen = set()
+            Fte_arr_new = []
+            for dup in Fte_arr:
+                t = tuple(dup.items())
+                if t not in seen:
+                    seen.add(t)
+                    Fte_arr_new.append(dup)
+            Fte_a = []
+            for check_date in dates:
+                packet_list = []
+                for index in Fte_arr_new:
+                    if str(check_date) == index['date']:
+                        packet_list.append(index['work_packet'])
+
+                if len(packet_list) > 0:
+                    packet_list = sorted(list(set(packet_list)))
+                    packet_list = map(str, packet_list)
+                    for pack in packet_details:
+                        if str(pack) not in packet_list:
+                            if _packet == 'work_packet':
+                                Fte_arr_new.append({"date": check_date, _packet:pack,'sub_packet':'', "result":0})
+                            else:
+                                Fte_arr_new.append({"date": check_date, _packet:pack,'work_packet':'', "result":0})
+
+            if _packet == 'work_packet':
+                tmp_obj = {}
+                for tmp in Fte_arr_new:
+                    if tmp_obj.has_key(str(tmp['date'])):
+                        if tmp_obj[str(tmp['date'])].has_key(tmp['work_packet']+"_"+tmp['sub_packet']):
+                            tmp_obj[str(tmp['date'])][tmp['work_packet']+"_"+tmp['sub_packet']] = tmp_obj[str(tmp['date'])][tmp['work_packet']+"_"+tmp['sub_packet']] + tmp['result']
+                        else:
+                            tmp_obj[str(tmp['date'])].update({tmp['work_packet']+"_"+tmp['sub_packet'] : tmp['result']})
+                    else:
+                        tmp_obj[str(tmp['date'])] = {tmp['work_packet']+"_"+tmp['sub_packet'] : tmp['result']}
+
+                ordi = collections.OrderedDict(tmp_obj)
+                tmp_obj = sorted(ordi.items(), key=lambda x: x)
+                for tk in tmp_obj:
+                    date_arr.append(tk[0])
+                    val = 0
+                    for k, v in tk[1].iteritems():
+                        v = float('%.2f' % round(v, 2))
+                        key = k.split("_")
+                        if not data_dict.has_key(key[0]):
+                            data_dict[key[0]] = [v]
+                        else:
+                            data_dict[key[0]].append(v)
+                        val += v
+                    val = float('%.2f' % round(val, 2))
+                    fte_trend_data.append(val)
+            else:
+                tmp_obj = {}
+                for tmp in Fte_arr_new:
+                    if tmp_obj.has_key(str(tmp['date'])):
+                        if tmp_obj[str(tmp['date'])].has_key(tmp['work_packet']+"_"+tmp['sub_packet']):
+                            tmp_obj[str(tmp['date'])][tmp['work_packet']+"_"+tmp['sub_packet'] ]= tmp_obj[str(tmp['date'])][tmp['work_packet']+"_"+tmp['sub_packet']] + tmp['result']
+                        else:
+                            tmp_obj[str(tmp['date'])].update({tmp['work_packet']+"_"+tmp['sub_packet'] : tmp['result']})
+                    else:
+                        tmp_obj[str(tmp['date'])] = {tmp['work_packet']+"_"+tmp['sub_packet'] : tmp['result']}
+
+                ordi = collections.OrderedDict(tmp_obj)
+                tmp_obj = sorted(ordi.items(), key=lambda x: x)
+                fte_trend_data = []
+                for tk in tmp_obj:
+                    date_arr.append(tk[0])
+                    val = 0
+                    for k, v in tk[1].iteritems():
+                        key = k.split('_')
+                        v = float('%.2f' % round(v, 2))
+                        if not data_dict.has_key(key[1]):
+                            data_dict[key[1]] = [v]
+                        else:
+                            data_dict[key[1]].append(v)
+                        val += v
+                    val = float('%.2f' % round(val, 2))
+                    fte_trend_data.append(val)
+
+    date_comp = (list(set(date_arr)))
+    final_dict['fte_scope'] = data_dict
+    req_dict['total_fte'] = fte_trend_data
+    final_dict['fte_trend'] = req_dict
+    final_dict['date'] = date_comp
+
+    return final_dict
+
+
+

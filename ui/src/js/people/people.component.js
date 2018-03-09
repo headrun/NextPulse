@@ -27,7 +27,7 @@
                       if (vm.chart_name == 'Target Achieved') {
 
                         var main_data = result.result.productivity_data;
-                        var date_list = result.result.data.date;      
+                        var date_list = result.result.date;      
                       }
                       
                       if (vm.chart_name == 'Internal Accuracy') {
@@ -241,21 +241,22 @@
 
                   $('.widget-content').addClass('widget-loader-show');
                   $('.widget-body').addClass('widget-data-hide');
-                  vm.date_mapping = {'October': '2017-10-01',
-				     'September': '2017-09-01',
-				     'August': '2017-08-01',
-                                    };
+                 
+                  var _month_1 = data.Month1;
+                  var _month_2 = data.Month2;
+                  var _month_3 = data.Month3;
 
-                  vm.start_date = vm.date_mapping[vm.month_to_display];
-
-                  var date_obj = new Date(vm.start_date);
-                  var firstDay = new Date(date_obj.getFullYear(), date_obj.getMonth(), 1);
-                  var lastDay = new Date(date_obj.getFullYear(), date_obj.getMonth() + 1, 0);
-
-                  vm.end_date = '';
-                  vm.end_date += lastDay.getFullYear() +'-';
-                  vm.end_date += lastDay.getMonth()+1+'-';
-                  vm.end_date += lastDay.getDate();
+                  if (vm.month_to_display == _month_1) {
+                      vm.start_date = data.Month1_start_date;
+                      vm.end_date = data.Month1_end_date;  
+                  } else if (vm.month_to_display == _month_2) {
+                      vm.start_date = data.Month2_start_date;
+                      vm.end_date = data.Month2_end_date;
+                  } else if (vm.month_to_display == _month_3) {
+                      vm.start_date = data.Month3_start_date;
+                      vm.end_date = data.Month3_end_date;  
+                  }
+                                         
                   vm.chart_name = name;
                   vm.day_type = function(type) {
                     
