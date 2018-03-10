@@ -262,11 +262,13 @@ def get_packet_details(request):
                 list_val = RawTable.objects.filter(project=prj_id, sub_project=i[0], date__range=dates)\
                                                   .values_list('work_packet').distinct()
                 for j in list_val:
-                    total[j[0]] = []
-                    sub_pac_data = RawTable.objects.filter(project=prj_id, sub_project=i[0], work_packet=j[0], date__range=dates)\
+                    if j[0] != "":
+                        total[j[0]] = []
+                        sub_pac_data = RawTable.objects.filter(project=prj_id, sub_project=i[0], work_packet=j[0], date__range=dates)\
                                                           .values_list('sub_packet').distinct()
-                    for l in sub_pac_data:
-                        total[j[0]].append(l[0])
+                        for l in sub_pac_data:
+                            if l[0] != "":
+                                total[j[0]].append(l[0])
                 big_dict[i[0]] = total
                 total = {}
     elif final_details['work_packet']:
