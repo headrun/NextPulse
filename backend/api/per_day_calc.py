@@ -43,7 +43,8 @@ def generate_day_week_month_format(request, result_name, function_name):
         dates_list = main_data_dict['dwm_dict']['week']
         if function_name == volume_cumulative_data:
             volume_week = week_monthly_calulations(dates_list, prj_id, center, level_structure_key, function_name)
-            final_dict[result_name] = graph_data_alignment_color(volume_week, 'data', level_structure_key, prj_id, center, 'monthly_volume')
+            final_dict[result_name] = graph_data_alignment_color(volume_week, 'data', level_structure_key, \
+                                        prj_id, center, 'monthly_volume')
         else:    
             week_data = week_calculations(dates_list, prj_id, center, level_structure_key, function_name)
             if function_name == pre_scan_exception_data:
@@ -55,7 +56,8 @@ def generate_day_week_month_format(request, result_name, function_name):
         dates_list = main_data_dict['dwm_dict']['month']
         if function_name == volume_cumulative_data:
             volume_month = month_monthly_calculations(dates_list, prj_id, center, level_structure_key, function_name)
-            final_dict[result_name] = graph_data_alignment_color(volume_month, 'data', level_structure_key, prj_id, center, 'monthly_volume')
+            final_dict[result_name] = graph_data_alignment_color(volume_month, 'data', level_structure_key, \
+                                        prj_id, center, 'monthly_volume')
         else:
             month_data = month_calculations(dates_list, prj_id, center, level_structure_key, function_name)
             if function_name == pre_scan_exception_data:
