@@ -22,14 +22,8 @@ from functools import wraps
 
 from collections import OrderedDict
 
-#from ARS.custom_decorators import login_required
-#from ARS.models import *
-#from Reports.models import *
-
-#from Utils.utils import *
 import xlsxwriter
 from datetime import date, timedelta
-#from ARS.views.base import init_logger
 import datetime as DT
 from django.conf import settings
 

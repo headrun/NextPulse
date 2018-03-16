@@ -330,23 +330,6 @@ def min_max_value_data(int_value_range):
     main_max_dict ['max_value'] = int_max_value
     return main_max_dict
 
-
-def min_max_num(int_value_range):
-    main_max_dict = {}
-    if len(int_value_range) > 0:
-        if (min(int_value_range.values()) > 0):
-            int_min_value = int(round(min(int_value_range.values()) - 2))
-            int_max_value = int(round(max(int_value_range.values()) + 2))
-        else:
-            int_min_value = int(round(min(int_value_range.values())))
-            int_max_value = int(round(max(int_value_range.values()) + 2))
-    else:
-        int_min_value, int_max_value = 0, 0
-    main_max_dict ['min_value'] = int_min_value
-    main_max_dict ['max_value'] = int_max_value
-    return main_max_dict
-
-
 def error_insert(request):
     pass
 
@@ -589,29 +572,6 @@ def generate_dates(date_list, prj_id, center):
     for date in date_values:
         dates.append(str(date))
     return dates
-
-
-def tat_graph(date_list, prj_id, center,level_structure_key):
-    new_dict = {}
-    data_list, tat_val_list = [],[]
-    dates = generate_dates(date_list, prj_id, center)
-    for date_va in dates:
-        tat_da = TatTable.objects.filter(project = prj_id,center= center,date=date_va)
-        tat_met_value = tat_da.aggregate(Sum('met_count'))
-        tat_not_met_value = tat_da.aggregate(Sum('non_met_count'))
-        met_val = tat_met_value['met_count__sum']
-        not_met_val = tat_not_met_value['non_met_count__sum']
-        if met_val:
-            tat_acc = (met_val/(met_val + not_met_val)) * 100
-        else:
-            tat_acc = 0
-        tat_val_list.append(tat_acc)
-        if sum(tat_val_list):
-            tat_val_list = tat_val_list
-        else:
-            tat_val_list = []
-    new_dict['tat_graph_details'] = tat_val_list
-    return new_dict
 
 
 def Error_checking(employee_data,error_match=False):
