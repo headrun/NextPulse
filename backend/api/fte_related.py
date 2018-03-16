@@ -1,9 +1,7 @@
-#from collections import OrderedDict
 import datetime
 import redis
 from api.models import *
 from api.basics import *
-#from collections import OrderedDict
 import collections
 from django.db.models import Max, Sum
 from api.query_generations import query_set_generation
@@ -76,7 +74,7 @@ def fte_trend_scope(date_list, prj_id, center, level_structure_key):
                 for tar in target_query:
                     if (tar['from_date'] <= r_data['date'] <= tar['to_date']):
                         if ((r_data['work_packet'] == tar['work_packet']) and (r_data['sub_packet'] == tar['sub_packet']) and (r_data['sub_project'] == tar['sub_project'])):
-                            Fte_arr.append({"date":str(r_data['date']),"sub_project":r_data['sub_project'],"work_packet":r_data['work_packet'],"sub_packet":r_data['sub_packet'],"result": (float(r_data['w_d'])/float(tar['target'])) })        #print Fte_arr
+                            Fte_arr.append({"date":str(r_data['date']),"sub_project":r_data['sub_project'],"work_packet":r_data['work_packet'],"sub_packet":r_data['sub_packet'],"result": (float(r_data['w_d'])/float(tar['target'])) })
 
             seen = set()
             Fte_arr_new = []

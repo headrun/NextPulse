@@ -97,7 +97,6 @@ def update_annotation(request):
     epoch = request.POST.get("epoch")
     annotation_id = request.POST.get("id")
     series = request.POST.get('series_name')
-    #import pdb;pdb.set_trace()
     text = request.POST.get("text")
     widget_id = request.POST.get('widget_id','')
     key_to = request.POST.get('key', '')

@@ -30,8 +30,14 @@ def upload_new(request):
         except:
             return json_HttpResponse("Invalid File")
         excel_sheet_names = open_book.sheet_names()        
-        file_sheet_names = Authoringtable.objects.filter(project=prj_obj,center=center_obj).values_list('sheet_name',flat=True).distinct()
-        sheet_names, raw_table_mapping, internal_error_mapping, external_error_mapping, worktrack_mapping, headcount_mapping, target_mapping, tat_mapping, upload_mapping, incoming_error_mapping, authoring_dates = {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
+        file_sheet_names = Authoringtable.objects.filter(project=prj_obj,center=center_obj).\
+                            values_list('sheet_name',flat=True).distinct()
+
+        sheet_names, raw_table_mapping, internal_error_mapping = {}, {}, {}
+        external_error_mapping, worktrack_mapping, headcount_mapping = {}, {}, {}
+        target_mapping, tat_mapping, upload_mapping, incoming_error_mapping, authoring_dates = {}, {}, {}, {}, {}
+        aht_individual_mapping, aht_team_mapping = {}, {}
+
         ignorablable_fields, other_fileds = [], []
         #for sub_project_check functionality
         #sub_project_boolean_check = Project.objects.filter(id=prj_id).values_list('sub_project_check',flat=True)[0]
@@ -47,6 +53,7 @@ def upload_new(request):
         
         mapping_ignores = ['project_id','center_id','_state','sheet_name','id','total_errors_require']
         raw_table_map_query = Authoring_mapping(prj_obj,center_obj,'RawtableAuthoring')
+        #import pdb;pdb.set_trace()
         for map_key,map_value in raw_table_map_query.iteritems():
             if map_key == 'sheet_name':
                 sheet_names['raw_table_sheet'] = map_value
@@ -55,10 +62,6 @@ def upload_new(request):
                     ignorablable_fields = map_value.split('#<>#')
                 else:
                     raw_table_mapping[map_key]= map_value.lower()
-                """if '#<>#' in map_value:
-                        required_filed = map_value.split('#<>#')
-                        if len(required_filed) >= 2 and required_filed != '':
-                            other_fileds.append(required_filed[1])"""
                 if map_key == 'date':
                     authoring_dates['raw_table_date'] = map_value.lower()
 
@@ -70,10 +73,6 @@ def upload_new(request):
                 intrnl_error_check = map_value 
             if map_value != '' and map_key not in mapping_ignores:
                 internal_error_mapping[map_key]= map_value.lower()
-                """if '#<>#' in map_value:
-                    required_filed = map_value.split('#<>#')
-                    if len(required_filed) >= 2 and required_filed != '':
-                        other_fileds.append(required_filed[1])"""
                 if map_key == 'date':
                     authoring_dates['intr_error_date'] = map_value.lower()
 
@@ -85,10 +84,6 @@ def upload_new(request):
                 extrnl_error_check = map_value
             if map_value != '' and map_key not in mapping_ignores:
                 external_error_mapping[map_key]= map_value.lower()
-                """if '#<>#' in map_value:
-                    required_filed = map_value.split('#<>#')
-                    if len(required_filed) >= 2 and required_filed != '':
-                        other_fileds.append(required_filed[1])"""
                 if map_key == 'date':
                     authoring_dates['extr_error_date'] = map_value.lower()
 
@@ -98,9 +93,6 @@ def upload_new(request):
                 sheet_names['worktrack_sheet'] = map_value
             if map_value != '' and map_key not in mapping_ignores:
                 worktrack_mapping[map_key]= map_value.lower()
-                """if '#<>#' in map_value:
-                    required_filed = map_value.split('#<>#')
-                    other_fileds.append(required_filed[1])"""
                 if map_key == 'date':
                     authoring_dates['worktrack_date'] = map_value.lower()
 
@@ -110,9 +102,6 @@ def upload_new(request):
                 sheet_names['headcount_sheet'] = map_value
             if map_value != '' and map_key not in mapping_ignores:
                 headcount_mapping[map_key] = map_value.lower()
-                """if '#<>#' in map_value:
-                    required_filed = map_value.split('#<>#')
-                    other_fileds.append(required_filed[1])"""
                 if map_key == 'date':
                     authoring_dates['headcount_date'] = map_value.lower()
 
@@ -122,9 +111,6 @@ def upload_new(request):
                 sheet_names['target_sheet'] = map_value
             if map_value != '' and map_key not in mapping_ignores:
                 target_mapping[map_key] = map_value.lower()
-                """if '#<>#' in map_value:
-                    required_filed = map_value.split('#<>#')
-                    other_fileds.append(required_filed[1])"""
                 if map_key in ['from_date','to_date']:
                     if map_key == 'from_date':
                         authoring_dates['target_from_date'] = map_value.lower()
@@ -137,10 +123,7 @@ def upload_new(request):
                 sheet_names['tat_sheet'] = map_value
             if map_value != '' and map_key not in mapping_ignores:
                 tat_mapping[map_key] = map_value.lower()
-                """if '#<>#' in map_value:
-                    required_filed = map_value.split('#<>#')
-                    other_fileds.append(required_filed[1])"""
-                if map_key == 'received_date':
+                if map_key == 'date':
                     authoring_dates['tat_date'] = map_value.lower()
 
         upload_map_query = Authoring_mapping(prj_obj,center_obj,'UploadAuthoring')
@@ -149,22 +132,36 @@ def upload_new(request):
                 sheet_names['upload_sheet'] = map_value
             if map_value != '' and map_key not in mapping_ignores:
                 upload_mapping[map_key] = map_value.lower()
-                """if '#<>#' in map_value:
-                    required_filed = map_value.split('#<>#')
-                    other_fileds.append(required_filed[1])"""
                 if map_key == 'date':
                     authoring_dates['upload_date'] = map_value.lower()
+
         incoming_error_map_query = Authoring_mapping(prj_obj,center_obj,'IncomingerrorAuthoring')
         for map_key, map_value in incoming_error_map_query.iteritems():
             if map_key == 'sheet_name':
                 sheet_names['incoming_error_sheet'] = map_value
             if map_value != '' and map_key not in mapping_ignores:
                 incoming_error_mapping[map_key] = map_value.lower()
-                """if '#<>#' in map_value:
-                    required_filed = map_value.split('#<>#')
-                    other_fileds.append(required_filed[1])"""
                 if map_key == 'date':
                     authoring_dates['incoming_error_date'] = map_value.lower()
+
+        aht_individual_map_query = Authoring_mapping(prj_obj,center_obj,'AHTIndividualAuthoring')
+        for map_key, map_value in aht_individual_map_query.iteritems():
+            if map_key == 'sheet_name':
+                sheet_names['aht_individual_sheet'] = map_value
+            if map_value != '' and map_key not in mapping_ignores:
+                aht_individual_mapping[map_key] = map_value.lower()
+                if map_key == 'date':
+                    authoring_dates['aht_individual_date'] = map_value.lower()
+
+        aht_team_map_query = Authoring_mapping(prj_obj,center_obj,'AHTTeamAuthoring')
+        for map_key, map_value in aht_team_map_query.iteritems():
+            if map_key == 'sheet_name':
+                sheet_names['aht_team_sheet'] = map_value
+            if map_value != '' and map_key not in mapping_ignores:
+                aht_team_mapping[map_key] = map_value.lower()
+                if map_key == 'date':
+                    authoring_dates['aht_team_date'] = map_value.lower()
+
         other_fileds = filter(None, other_fileds)
         file_sheet_names = sheet_names.values()
         sheet_index_dict = {}
@@ -174,6 +171,7 @@ def upload_new(request):
         db_check = str(Project.objects.filter(name=prj_obj,center=center_obj).values_list('project_db_handling',flat=True))
         raw_table_dataset, internal_error_dataset, external_error_dataset, work_track_dataset,headcount_dataset = {}, {}, {}, {},{}
         target_dataset, tats_table_dataset, upload_table_dataset, incoming_error_dataset = {}, {}, {}, {}
+        aht_individual_dataset, aht_team_dataset = {}, {}
 
         for key,value in sheet_index_dict.iteritems():
             one_sheet_data, mapping_table = {}, {}
@@ -596,7 +594,72 @@ def upload_new(request):
                                 else:
                                     upload_table_dataset[str(customer_data[date_name])][emp_key] = local_upload_data
 
-        #sub_prj_check = Project.objects.filter(id=prj_id).values_list('sub_project_check',flat=True)[0]
+                if key == sheet_names.get('aht_individual_sheet', ''):
+                    date_name = authoring_dates['aht_individual_date']
+                    if not aht_individual_dataset.has_key(customer_data[date_name]):
+                        aht_individual_dataset[str(customer_data[date_name])] = {}
+                    local_aht_individual_data = {}
+                    for raw_key, raw_value in aht_individual_mapping.iteritems():
+                        local_aht_individual_data[raw_key] = customer_data[raw_value]
+                    emp_key = '{0}_{1}_{2}_{3}'.format(local_aht_individual_data.get('sub_project', 'NA'),
+                                                       local_aht_individual_data.get('work_packet', 'NA'),
+                                                       local_aht_individual_data.get('sub_packet', 'NA'),
+                                                       local_aht_individual_data.get('emp_name', 'NA'))
+                    if aht_individual_dataset.has_key(customer_data[date_name]):
+                        if aht_individual_dataset[str(customer_data[date_name])].has_key(emp_key):
+                            for key, value in local_aht_individual_data.iteritems():
+                                if key not in aht_individual_dataset[str(customer_data[date_name])][emp_key].keys():
+                                    aht_individual_dataset[str(customer_data[date_name])][emp_key][key] = value
+                                else:
+                                    if key == 'AHT':
+                                        try:
+                                            value = float(value)
+                                        except:
+                                            value = 0
+                                        try:
+                                            dataset_value = float([str(customer_data[date_name])][emp_key][key])
+                                        except:
+                                            dataset_value = 0
+                                        if db_check == 'aggregate':
+                                            aht_individual_dataset[str(customer_data[date_name])][emp_key][key] = value + dataset_value
+                                        elif db_check == 'update':
+                                            aht_individual_dataset[str(customer_data[date_name])][emp_key][key] = value + dataset_value
+                        else: 
+                            aht_individual_dataset[str(customer_data[date_name])][emp_key] = local_aht_individual_data                               
+                if key == sheet_names.get('aht_team_sheet', ''):
+                    date_name = authoring_dates['aht_team_date']
+                    if not aht_team_dataset.has_key(customer_data[date_name]):
+                        aht_team_dataset[str(customer_data[date_name])] = {}
+                    local_aht_team_data = {}
+                    for raw_key, raw_value in aht_team_mapping.iteritems():
+                        local_aht_team_data[raw_key] = customer_data[raw_value]
+                    emp_key = '{0}_{1}_{2}_{3}'.format(local_aht_team_data.get('sub_project', 'NA'),
+                                                       local_aht_team_data.get('work_packet', 'NA'),
+                                                       local_aht_team_data.get('sub_packet', 'NA'),
+                                                       local_aht_team_data.get('emp_name', 'NA'))
+                    if aht_team_dataset.has_key(customer_data[date_name]):
+                        if aht_team_dataset[str(customer_data[date_name])].has_key(emp_key):
+                            for key, value in local_aht_team_data.iteritems():
+                                if key not in aht_team_dataset[str(customer_data[date_name])][emp_key].keys():
+                                    aht_team_dataset[str(customer_data[date_name])][emp_key][key] = value
+                                else:
+                                    if key == 'AHT':
+                                        try:
+                                            value = float(value)
+                                        except:
+                                            value = 0
+                                        try:
+                                            dataset_value = float([str(customer_data[date_name])][emp_key][key])
+                                        except:
+                                            dataset_value = 0
+                                        if db_check == 'aggregate':
+                                            aht_team_dataset[str(customer_data[date_name])][emp_key][key] = value + dataset_value
+                                        elif db_check == 'update':
+                                            aht_team_dataset[str(customer_data[date_name])][emp_key][key] = value + dataset_value
+                        else:
+                            aht_team_dataset[str(customer_data[date_name])][emp_key] = local_aht_team_data
+
+        #sub_prj_check = Project.objects.filter(id=prj_id).values_list('sub_project_check',flat=True)[0]    
         sub_prj_check = prj_obj.sub_project_check
         #teamleader_obj = TeamLead.objects.filter(name_id=request.user.id).values_list('project_id','center_id')[0]
 
@@ -684,6 +747,14 @@ def upload_new(request):
         for date_key, date_value in incoming_error_dataset.iteritems():
             for emp_key, emp_value in date_value.iteritems():
                 externalerror_insert = incoming_error_query_insertion(emp_value, prj_obj, center_obj, teamleader_obj_name,db_check)
+
+        for key, value in aht_individual_dataset.iteritems():
+            for emp_key, emp_value in value.iteritems():
+                aht_data_insert = aht_individual_query_insertion(emp_value, prj_obj, center_obj, teamleader_obj_name,db_check)
+
+        for key, value in aht_team_dataset.iteritems():
+            for emp_key, emp_value in value.iteritems():
+                aht_team_data_insert = aht_team_query_insertion(emp_value, prj_obj, center_obj, teamleader_obj_name,db_check)
 
         for date_key,date_value in raw_table_dataset.iteritems():
             for emp_key,emp_value in date_value.iteritems():
