@@ -11,7 +11,7 @@ class InboundHourlyCallAuthoringAdmin(admin.ModelAdmin):
 admin.site.register(InboundHourlyCallAuthoring, InboundHourlyCallAuthoringAdmin)
 
 class InboundHourlyCallAdmin(admin.ModelAdmin):
-    list_display = ['call_id', 'skill', 'location', 'caller_no', 'agent', 'status']
+    list_display = ['skill', 'location', 'caller_no', 'agent', 'status']
     list_filter  = ['skill', 'location']
 admin.site.register(InboundHourlyCall, InboundHourlyCallAdmin)
 

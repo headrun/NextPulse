@@ -241,7 +241,7 @@
 
                   $('.widget-content').addClass('widget-loader-show');
                   $('.widget-body').addClass('widget-data-hide');
-
+                 
                   var _month_1 = data.Month1;
                   var _month_2 = data.Month2;
                   var _month_3 = data.Month3;
@@ -256,7 +256,7 @@
                       vm.start_date = data.Month3_start_date;
                       vm.end_date = data.Month3_end_date;  
                   }
-
+                                         
                   vm.chart_name = name;
                   vm.day_type = function(type) {
                     

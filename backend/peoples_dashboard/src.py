@@ -20,7 +20,7 @@ PROJECTS = ["Probe-Salem", "NTT DATA Services TP-Salem", "NTT DATA Services Codi
 
 MONTHS = ["April", "May"]
 
-SLA = ['productivity', 'prod_utili', "external_accuracy", 'internal_accuracy', 'tat']
+SLA = ['productivity', "external_accuracy", 'prod_utili', 'internal_accuracy', 'tat']
 
 PEOPLES = ["buffer","billable", "qc_or_qa", "team_lead", "other_support","total","fte_utilisation", "operational_utilization", "absenteeism", "attrition"]
 #PEOPLES = ["absentisim"]             TARGETS
@@ -82,7 +82,8 @@ def get_dash_data(projects=PROJECTS, tab=SLA):
                             pass
                     if t > 0:
                         DEFAULT_TARGET['prod_utili'] = "%.2f" % (sum(_target_list)/ t)
-                _target_objs = ColorCoding.objects.filter(project__id =_id, widget__config_name = WIDGET_SYNC.get(pro, ""), month = month)
+                #_target_objs = ColorCoding.objects.filter(project__id =_id, widget__config_name = WIDGET_SYNC.get(pro, ""), month = month)
+		_target_objs = []
                 if not _target_objs:
                     _target = DEFAULT_TARGET.get(pro, 0)
                 else:
