@@ -27,7 +27,6 @@ import redis
 from xlrd import open_workbook
 from xlwt import Workbook, easyxf, XFStyle
 
-from forms import *
 from models import *
 from src import *
 
@@ -38,14 +37,12 @@ from api.basics import *
 from api.utils import *
 from api.chart import *
 from api.commons import *
-#from api.exce import *
 from api.fte_related import *
 from api.graph_error import *
 from api.graph_settings import *
 from api.graphs import *
 from api.internal_external_common import *
 from api.monthly_graph import *
-from api.pareto import *
 from api.per_day_calc import *
 from api.production import *
 from api.project import *
@@ -54,6 +51,7 @@ from api.redis_operations import *
 from api.uploads import *
 from api.weekly_graph import *
 from api.voice_widgets import *
+from api.aht_graph import *
 #From api.location import *
 #from api.basic import *
 

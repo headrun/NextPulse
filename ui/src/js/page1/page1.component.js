@@ -1257,6 +1257,12 @@
                                 
                                 var value = false
                            } 
+
+                           angular.extend(self.chartOptions31.yAxis,{
+                               min:result.result.min_max.min_value,
+                               max:result.result.min_max.max_value
+                           });  
+
                            angular.extend(self.chartOptions31, {
                                 xAxis: {
                                     categories: date_list,
@@ -1332,6 +1338,115 @@
                             $('.widget-26a').removeClass('widget-loader-show');
                             $('.widget-26b').removeClass('widget-data-hide');
                        })
+                    }
+
+
+                    self.aht_data = function(final_work, type) {
+
+                        if (type == undefined) {
+                            type = 'day'
+                        }
+
+                        if (final_work == undefined) {
+                            final_work = '' 
+                        }
+
+                        self.type = type;
+
+                        var aht_data = '/api/aht_team_data/'+ self.data_to_show + type + final_work + '&chart_name=60';
+
+                        $http({method:"GET", url: aht_data}).success(function(result){
+                           var date_list = result.result.date;
+                           var aht_data = result.result.aht_team_data;
+                           var is_annotation = result.result.is_annotation; 
+     
+                           if (self.list_object.aht_team_grpah != undefined) {
+
+                                if (self.list_object.aht_team_grpah.display_value === true) {
+     
+                                    var value = true 
+                                }
+                                else {
+                                    var value = false
+                                }
+                           }
+                           else {
+     
+                                var value = false
+                           }
+
+                           angular.extend(self.chartOptions65.yAxis,{
+                               min:result.result.min_max.min_value,
+                               max:result.result.min_max.max_value
+                           });     
+
+                           angular.extend(self.chartOptions65, {
+                                xAxis: {
+                                    categories: date_list,
+                                },
+                                plotOptions: {
+                                  series: {
+                                    dataLabels: {
+                                      enabled: value,
+                                    },
+                                  allowPointSelect: true,
+                                  cursor: 'pointer',
+                                  point: {
+                                    events:{
+                                      contextmenu: function() {
+                                        if (self.role_for_perm == 'customer') {
+                                          console.log('he is customer');
+                                        }
+                                        else {
+                                          if (self.data_to_show.split('&').length == 6) {
+                                            var sub_proj = '';
+                                            var work_pack = '';
+                                            var sub_pack = '';
+                                          }
+                                          else {
+                                            var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
+                                            var work_pack = self.data_to_show.split('&')[6].split('=')[1];
+                                            var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
+                                          }
+                                          var str = '60<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
+                                            this['project_live'] = self.project_live;
+                                            this['center_live'] = self.center_live;
+                                          return new Annotation(str, $(self.chartOptions65.chart.renderTo),this.series.chart, this);
+                                        }
+                                      }
+                                    }
+                                  }
+                                  }
+                                },
+                                series: aht_data,
+                                onComplete: function(chart){
+                                  if (is_annotation) {
+                                    var series = null;
+                                    var chart_data = chart.series;
+                                    for(var i in chart_data){
+                                      series = chart_data[i];
+                                      (function(series){
+                                        $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+self.type+'&chart_name=60&proj_name='+self.project_live+'&cen_name='+self.center_live}).success(function(annotations){
+                                          annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
+                                          $.each(annotations, function(j, annotation){
+                                            var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
+                                            point = point[0];
+                                            if(annotation.epoch){
+                                              var a = new Annotation("60", $(self.chartOptions65.chart.renderTo.innerHTML),
+                                                      chart, point, annotation);
+                                              console.log(a);
+                                            }
+                                          })
+                                        });
+                                      }(series));
+                                    }
+                                    self.annot_perm();
+                                  }
+                                }
+                            });
+                            $('.widget-60a').removeClass('widget-loader-show');
+                            $('.widget-60b').removeClass('widget-data-hide');
+                        })
                     }
 
                     self.mont_volume = function(final_work, type) {
@@ -2834,8 +2949,8 @@
                        return $http({method:"GET", url: err_field_graph + '&chart_name=38&chart_name=39'}).success(function(result){
                             var is_annotation = result.result.is_annotation;
                            angular.extend(self.chartOptions43.yAxis,{
-                                min:result.result.inter_min_value,
-                                max:result.result.inter_max_value
+                                min:result.result.internal_min_max.min_value,
+                                max:result.result.internal_min_max.max_value
                             });
 
                             if (self.list_object.internal_field_accuracy_graph != undefined) {
@@ -2931,8 +3046,8 @@
                             $('.widget-38b').removeClass('widget-data-hide');
 
                            angular.extend(self.chartOptions44.yAxis,{
-                                min:result.result.exter_min_value,
-                                max:result.result.exter_max_value
+                                min:result.result.external_min_max.min_value,
+                                max:result.result.external_min_max.max_value
                             });
 
                             if (self.list_object.external_field_accuracy_graph != undefined) {
@@ -3051,8 +3166,8 @@
                             }
 
                            angular.extend(self.chartOptions4.yAxis,{
-                                min:result.result.int_min_value,
-                                max:result.result.int_max_value
+                                min:result.result.internal_min_max.min_value,
+                                max:result.result.internal_min_max.max_value
                             });
                            angular.extend(self.chartOptions4,{
                                 plotOptions: {
@@ -3136,8 +3251,8 @@
                            $('.widget-2b').removeClass('widget-data-hide');
 
                            angular.extend(self.chartOptions6.yAxis,{
-                                min:result.result.ext_min_value,
-                                max:result.result.ext_max_value
+                                min:result.result.external_min_max.min_value,
+                                max:result.result.external_min_max.max_value
                             });
 
                             if (self.list_object.external_error_accuracy != undefined) {
@@ -3630,7 +3745,9 @@
                          self.nw_exce(undefined, undefined)
                     } else if (val == 'overall_exception_chart') {
                          self.overall_exce(undefined, undefined)
-                    } else if (val == 'tat_graph') {
+                    } else if (val == 'aht_team_grpah') {
+                         self.aht_data(undefined, undefined)
+                    }else if (val == 'tat_graph') {
                          self.tat_data(undefined, undefined)
                     } else if ((val == 'Static_Daily_Production_Trend') || (val == 'Static_Weekly_Production_Trend') || (val == 'Static_Monthly_Production_Trend') || (val == 'Static_Daily_Production_Bar') || (val == 'Static_Weekly_Production_Bar') || (val == 'Static_Monthly_Production_Bar')) {
                          self.stacti_list.push('static')
@@ -3732,7 +3849,8 @@
                     "self.chartOptions61":self.chartOptions61,
                     "self.chartOptions62":self.chartOptions62,
                     "self.chartOptions63":self.chartOptions63,
-                    'self.chartOptions64':self.chartOptions64
+                    'self.chartOptions64':self.chartOptions64,
+                    'self.chartOptions65':self.chartOptions65
                   };
 
 
@@ -4401,7 +4519,8 @@
                     "self.chartOptions61":self.chartOptions61,
                     "self.chartOptions62":self.chartOptions62,
                     "self.chartOptions63":self.chartOptions63,
-                    "self.chartOptions64":self.chartOptions64
+                    "self.chartOptions64":self.chartOptions64,
+                    'self.chartOptions65':self.chartOptions65
                 }
 
                 self.render_data = obj[all_data];
@@ -4459,6 +4578,7 @@
                     $('.widget-21b').addClass('widget-data-hide');
                     self.mont_volume(final_work, key);
                 }
+                
                 if ((name == 'chartOptions16') || (name == 'chartOptions16_2')) {
                     if (name == 'chartOptions16') {
                         $('.widget-11a').addClass('widget-loader-show');
@@ -4513,6 +4633,11 @@
                     $('.widget-34a').addClass('widget-loader-show');
                     $('.widget-34b').addClass('widget-data-hide');
                     self.upload_acc(final_work, key);
+                }
+                if (name == 'chartOptions65') {
+                    $('.widget-60a').addClass('widget-loader-show');
+                    $('.widget-60b').addClass('widget-data-hide');
+                    self.aht_data(final_work, key);
                 }
                 var chart_type_map = {};
                 chart_type_map = { 'chartOptions47' : self.filter_list[0], 'chartOptions48' : self.filter_list[1] , 'chartOptions49' : self.filter_list[2], 'chartOptions50' : self.filter_list[3], 'chartOptions51' : self.filter_list[4], 'chartOptions52' : self.filter_list[5], 'chartOptions53' : self.filter_list[6], 'chartOptions54' : self.filter_list[7], 'chartOptions55' : self.filter_list[8], 'chartOptions56' : self.filter_list[9], 'chartOptions57' : self.filter_list[10], 'chartOptions58' : self.filter_list[11], 'chartOptions59': self.filter_list[12], 'chartOptions60': self.filter_list[13], 'chartOptions61': self.filter_list[14], 'chartOptions62': self.filter_list[15], 'chartOptions63': self.filter_list[16], 'chartOptions64': self.filter_list[17] };
@@ -4584,7 +4709,12 @@
 
                         self.tat_data(final_work, key);
 
-
+                        
+                        $('.widget-60a').addClass('widget-loader-show');
+                        $('.widget-60b').addClass('widget-data-hide');
+                    
+                        self.aht_data(final_work, key);
+            
                         $('.widget-21a').addClass('widget-loader-show');     
                         $('.widget-21b').addClass('widget-data-hide');
 
@@ -4750,8 +4880,8 @@
                     "self.chartOptions61":self.chartOptions61,
                     "self.chartOptions62":self.chartOptions62,
                     "self.chartOptions63":self.chartOptions63,
-                    "self.chartOptions64":self.chartOptions64
-
+                    "self.chartOptions64":self.chartOptions64,
+                    'self.chartOptions65':self.chartOptions65,
                     };
                     var final_layout_list = [];
                     for (var single in self.layout_list){
@@ -6800,6 +6930,34 @@ self.chartOptions64 = {
                 }
             }
          };
+
+        self.chartOptions65 = {
+            chart : {
+                backgroundColor: "transparent",
+                reflow: false
+            },
+            lang: {
+               thousandsSep: ','
+            },
+            yAxis: {
+                gridLineColor: 'a2a2a2',
+                min: 0,
+                title: {
+                    text: '',
+                    align: 'high'
+                },
+                labels: {
+                    overflow: 'justify'
+                }   
+           },
+           tooltip: {
+               valueSuffix: '',
+           },
+           credits: {
+               enabled: false
+           },
+        };
+
 
     Highcharts.Pointer.prototype.onContainerMouseDown = function (e) {
             e = this.normalize(e);
