@@ -5,7 +5,6 @@ from api.models import *
 from api.commons import data_dict
 from api.basics import *
 from django.db.models import Max
-from api.utils import worktrack_internal_external_workpackets_list
 from api.graph_settings import graph_data_alignment_color
 from api.internal_external_common import *
 from common.utils import getHttpResponse as json_HttpResponse
