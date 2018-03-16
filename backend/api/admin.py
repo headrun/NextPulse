@@ -6,10 +6,10 @@ class ProjectAdmin(admin.ModelAdmin):
     list_display = ['name']
 admin.site.register(Project,ProjectAdmin)
 
-#admin.site.register(Annotation)
 class AnnotationAdmin(admin.ModelAdmin):
     list_display = ['project','created_by','dt_created']
 admin.site.register(Annotation,AnnotationAdmin)
+
 class CenterAdmin(admin.ModelAdmin):
     list_display = ['name']
 admin.site.register(Center,CenterAdmin)
@@ -21,12 +21,11 @@ admin.site.register(TeamLead,TeamleadAdmin)
 
 class CustomerAdmin(admin.ModelAdmin):
     list_display = ['name']
-    #list_filter = ['project']
 admin.site.register(Customer,CustomerAdmin)
 
 class HeadcountAdmin(admin.ModelAdmin):
     list_display = ['project','work_packet','sub_packet','date']
-    list_filter = ['project','center','work_packet','sub_packet']
+    list_filter = ['project','center']
 admin.site.register(Headcount,HeadcountAdmin)
 
 class CentermanagerAdmin(admin.ModelAdmin):
@@ -36,28 +35,19 @@ admin.site.register(Centermanager,CentermanagerAdmin)
 
 class NextwealthmanagerAdmin(admin.ModelAdmin):
     list_display = ['name']
-    
 admin.site.register(Nextwealthmanager,NextwealthmanagerAdmin)
 
 class RawtableAdmin(admin.ModelAdmin):
     list_display = ['work_packet','sub_project','sub_packet','per_day','employee_id','norm','date','created_at','modified_at']
-    list_filter = ('work_packet', 'date','project','center','sub_packet')
+    list_filter = ('project','center','sub_project')
 admin.site.register(RawTable,RawtableAdmin)
 
 class WidgetsAdmin(admin.ModelAdmin):
     list_display = ['config_name','name','api','opt','id_num','day_type_widget','priority']
 admin.site.register(Widgets,WidgetsAdmin)
 
-'''
-class Widget_MappingAdmin(admin.ModelAdmin):
-    list_display = ['widget_name','user_name','widget_priority','is_display','is_drilldown']
-    list_filter = ['user_name']
-admin.site.register(Widget_Mapping,Widget_MappingAdmin)
-'''
-
 class Widgets_groupAdmin(admin.ModelAdmin):
     list_display = ['User_Group','widget_name','widget_priority','is_display','is_drilldown','display_value','project','col']
-    #list_display = ['User_Group','widget_name','widget_priority','is_display','is_drilldown','project','col']
     list_filter = ['User_Group','project']
 admin.site.register(Widgets_group,Widgets_groupAdmin)
 
@@ -67,10 +57,9 @@ class RawtableAuthoringAdmin(admin.ModelAdmin):
     list_display_links = ('work_packet',)
 admin.site.register(RawtableAuthoring,RawtableAuthoringAdmin)
 
-
 class InternalerrorsAdmin(admin.ModelAdmin):
     list_display = ['work_packet','sub_project','sub_packet','audited_errors','total_errors','date','employee_id']
-    list_filter = ('sub_project','work_packet','sub_packet','project','center')
+    list_filter = ('sub_project','project','center')
     list_display_links = ('work_packet',)
 admin.site.register(Internalerrors,InternalerrorsAdmin)
 
@@ -80,20 +69,17 @@ class InternalerrorsAuthoringAdmin(admin.ModelAdmin):
     list_display_links = ('work_packet',)
 admin.site.register(InternalerrorsAuthoring,InternalerrorsAuthoringAdmin)
 
-
 class ExternalerrorsAdmin(admin.ModelAdmin):
     list_display = ['sub_project','work_packet','sub_packet','audited_errors','total_errors','date','employee_id']
-    list_filter = ('sub_project','work_packet','sub_packet','project','center')
+    list_filter = ('sub_project','project','center')
     list_display_links = ('work_packet',)
 admin.site.register(Externalerrors,ExternalerrorsAdmin)
 
 class ExternalerrorsAuthoringAdmin(admin.ModelAdmin):
-    #list_display = ['work_packet', 'sub_project', 'sub_packet', 'audited_errors', 'total_errors', 'date', 'employee_id','project', 'center', 'sheet_name']
     list_display = ['sub_project','work_packet','sub_packet','employee_id','audited_errors','total_errors','date','project','center','sheet_name']
     list_filter = ('project',)
     list_display_links = ('work_packet',)
 admin.site.register(ExternalerrorsAuthoring,ExternalerrorsAuthoringAdmin)
-
 
 class AuthoringtableAdmin(admin.ModelAdmin):
     list_display = ['sheet_name','table_schema','sheet_field','project','center','table_type']
@@ -106,10 +92,9 @@ class HeadcountAuthoringAdmin(admin.ModelAdmin):
 admin.site.register(HeadcountAuthoring,HeadcountAuthoringAdmin)
 
 class TargetsAdmin(admin.ModelAdmin):
-    list_display = ['work_packet','sub_project','sub_packet','from_date','to_date','target_type','target_value','target_method']
-    list_filter = ['project','work_packet','sub_packet']
+    list_display = ['work_packet','sub_project','sub_packet','from_date','to_date','target_type','target_value']
+    list_filter = ['project','sub_project']
 admin.site.register(Targets,TargetsAdmin)
-
 
 class TargetsAuthoringAdmin(admin.ModelAdmin):
     list_display = ['work_packet','sub_project','sub_packet','project']
@@ -118,7 +103,7 @@ admin.site.register(TargetsAuthoring,TargetsAuthoringAdmin)
 
 class WorktrackAdmin(admin.ModelAdmin):
     list_display = ['work_packet', 'opening', 'received', 'completed','date', 'sub_packet']
-    list_filter = ['project','work_packet','sub_packet']
+    list_filter = ['project']
 admin.site.register(Worktrack,WorktrackAdmin)
 
 class WorktrackAuthoringAdmin(admin.ModelAdmin):
@@ -133,9 +118,29 @@ admin.site.register(TatAuthoring,TatAuthoringAdmin)
 
 class TatTableAdmin(admin.ModelAdmin):
     list_display = ['work_packet','sub_project','tat_status','project','date']
-    list_filter = ['project','date']
+    list_filter = ['project']
     list_display_links = ('project',)
 admin.site.register(TatTable,TatTableAdmin)
+
+class AHTIndividualAuthoringAdmin(admin.ModelAdmin):
+    list_display = ['project','center','date','emp_name','work_packet','AHT']
+    list_filter = ['project']
+admin.site.register(AHTIndividualAuthoring,AHTIndividualAuthoringAdmin)
+
+class AHTIndividualAdmin(admin.ModelAdmin):
+    list_display = ['project','center','date','emp_name','work_packet','AHT']
+    list_filter = ['project']
+admin.site.register(AHTIndividual,AHTIndividualAdmin)
+
+class AHTTeamAuthoringAdmin(admin.ModelAdmin):
+    list_display = ['project','center','date','work_packet','AHT']
+    list_filter = ['project']
+admin.site.register(AHTTeamAuthoring,AHTTeamAuthoringAdmin)
+
+class AHTTeamAdmin(admin.ModelAdmin):
+    list_display = ['project','center','date','work_packet','AHT']
+    list_filter = ['project']
+admin.site.register(AHTTeam,AHTTeamAdmin)
 
 class Alias_WidgetAdmin(admin.ModelAdmin):
     list_display = ['project','alias_widget_name']
@@ -143,7 +148,6 @@ class Alias_WidgetAdmin(admin.ModelAdmin):
 admin.site.register(Alias_Widget,Alias_WidgetAdmin)
 
 class Alias_packetsAdmin(admin.ModelAdmin):
-    #list_display = ['alias_name','widget','existed_name']
     list_display = ['widget','existed_name','alias_name']
     list_filter = ['alias_name']
 admin.site.register(Alias_packets,Alias_packetsAdmin)
@@ -158,12 +162,12 @@ admin.site.register(UploadDataTable,UploadDataTableAdmin)
 
 class IncomingerrorAuthoringAdmin(admin.ModelAdmin):
     list_display = ['project','center','work_packet','sub_packet','error_values']
-    list_filter = ['project','work_packet','sub_packet']
+    list_filter = ['project']
 admin.site.register(IncomingerrorAuthoring,IncomingerrorAuthoringAdmin)
 
 class IncomingerrorAdmin(admin.ModelAdmin):
     list_display = ['project','center','work_packet','sub_packet','error_values','date']
-    list_filter = ['project','work_packet','sub_packet']
+    list_filter = ['project']
 admin.site.register(Incomingerror,IncomingerrorAdmin)
 
 class ReviewAdmin(admin.ModelAdmin):
@@ -175,14 +179,6 @@ class ReviewMembersAdmin(admin.ModelAdmin):
     list_display = ['review', 'member']
     list_filter = ['review', 'member']
 admin.site.register(ReviewMembers, ReviewMembersAdmin)
-"""
-class ReviewFilesAdmin(admin.ModelAdmin):
-    list_display = ['file_name', 'review__review_name', 'updation_date']
-    list_filter =  ['file_name', 'review__review_name', 'updation_date']
-admin.site.register(ReviewFiles, ReviewFilesAdmin)
-"""
-
-
 
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
