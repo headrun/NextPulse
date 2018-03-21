@@ -121,6 +121,8 @@
                     $('.widget-38b').addClass('widget-data-hide');
                     $('.widget-39a').addClass('widget-loader-show');
                     $('.widget-39b').addClass('widget-data-hide');
+                    $('.widget-60a').addClass('widget-loader-show');
+                    $('.widget-60b').addClass('widget-data-hide');
                }
 
              self.apply_class = function(){
