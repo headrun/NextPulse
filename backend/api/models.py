@@ -812,7 +812,7 @@ class HRMAttendance(models.Model):
     A30 = models.CharField(max_length = 5, null = False)
     A31 = models.CharField(max_length = 5, null = False)
     month = models.CharField(max_length = 20, null = False)
-    #time_stamp = models.DateTimeField(auto_now_add = True, null=False)
+    time_stamp = models.DateTimeField(auto_now_add = True, null=False)
 
     class Meta:
         db_table = u'hrm_attendance'
