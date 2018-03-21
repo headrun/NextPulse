@@ -10,21 +10,24 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.9/ref/settings/
 """
 
-import os
+import ConfigParser, os
+from ConfigParser import RawConfigParser
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PROJECT_DIR  = os.path.dirname(__file__)
-
+config = ConfigParser.RawConfigParser()
+config.read('/var/www/Nextpulse_old/NextPulse/backend/backend/config.ini')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '&p0sb&45-3*7w521zzfcm++e5uih#9*^e-5f2xv%w(fch726st'
+SECRET_KEY = config.get('SECRETS','SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config.get('DEBUG','DEBUG')
 
 ALLOWED_HOSTS = []
 
@@ -85,15 +88,15 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
+        'ENGINE': config.get('DB','DATABASE_ENGINE'),
         'OPTIONS': {
            #'init_command': 'SET storage_engine=INNODB,character_set_connection=utf8,collation_connection=utf8_unicode_ci',
            'charset' : 'utf8',
         },
-        'NAME': 'nextpulse',
-        'USER': 'root',
-        'PASSWORD': 'Mbch@He@drn232017Mar',
-        'HOST': 'localhost',
+        'NAME': config.get('DB','DATABASE_NAME'),
+        'USER': config.get('DB','DATABASE_USER'),
+        'PASSWORD': config.get('DB','DATABASE_PASSWORD'),
+        'HOST': config.get('DB','DATABASE_HOST'),
     }
 }
 

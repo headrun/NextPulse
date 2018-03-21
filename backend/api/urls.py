@@ -64,5 +64,6 @@ urlpatterns = [
     url(r'^utilization', apiviews.utilization),
     url(r'^occupancy', apiviews.occupancy),
     url(r'^agent_productivity_data', apiviews.agent_productivity_data),
-    url(r'^agent_required', apiviews.agent_required)
+    url(r'^agent_required', apiviews.agent_required),
+    url(r'^aht_team_data', apiviews.aht_team_data),
 ]

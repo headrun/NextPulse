@@ -5,8 +5,6 @@ from api.models import *
 from api.commons import data_dict
 from api.basics import *
 from django.db.models import Max
-from api.utils import worktrack_internal_external_workpackets_list
-from api.query_generations import query_set_generation
 from api.graph_settings import graph_data_alignment_color
 from api.internal_external_common import *
 from common.utils import getHttpResponse as json_HttpResponse
@@ -32,15 +30,35 @@ def error_charts(request, name, function_name, internal_name, external_name, ter
                                     level_structure_key,project,center,internal_name)
         final_dict[external_name] = graph_data_alignment_color(_external_data[external_name],'y',\
                                     level_structure_key,project,center,external_name)
+        final_dict['internal_min_max'] = min_max_bar_graph(_internal_data[internal_name])
+        final_dict['external_min_max'] = min_max_bar_graph(_external_data[external_name])
     elif name != 'pareto_charts':
         final_dict[internal_name] = graph_data_alignment_color(_internal_data,'y',level_structure_key,project,center,'')
-        final_dict[external_name] = graph_data_alignment_color(_external_data,'y',level_structure_key,project,center,'')        
+        final_dict[external_name] = graph_data_alignment_color(_external_data,'y',level_structure_key,project,center,'')
+        final_dict['internal_min_max'] = min_max_bar_graph(_internal_data)
+        final_dict['external_min_max'] = min_max_bar_graph(_external_data)
     elif name == 'pareto_charts':
         final_dict[internal_name] = _internal_data
         final_dict[external_name] = _external_data
 
     final_dict['is_annotation'] = annotation_check(request)
     return final_dict
+
+
+def min_max_bar_graph(int_value_range):
+    min_max_dict = {}
+    if len(int_value_range) > 0:
+        if (min(int_value_range.values()) > 0): 
+            min_value = round(min(int_value_range.values()) - 2)
+            max_value = round(max(int_value_range.values()) + 2)
+        else:
+            min_value = round(min(int_value_range.values()))
+            max_value = round(max(int_value_range.values()))
+    else:
+        min_value, max_value = 0, 0
+    min_max_dict['min_value'] = min_value
+    min_max_dict['max_value'] = max_value
+    return min_max_dict
 
 
 def err_field_graph(request):

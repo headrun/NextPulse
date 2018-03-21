@@ -3,103 +3,6 @@ import datetime
 from api.models import *
 from common.utils import getHttpResponse as json_HttpResponse
 
-def tat_table_query_generations(pro_id,cen_id,date,main_work_packet,level_structure_key):
-    tat_table_query_set = {}
-    tat_table_query_set['project'] = pro_id
-    tat_table_query_set['center'] = cen_id
-    tat_table_query_set['date'] = date
-    if '_' in main_work_packet:
-        packets_list = main_work_packet.split('_')
-        if len(packets_list) == 3:
-            tat_table_query_set['sub_project'] = packets_list[0]
-            tat_table_query_set['work_packet'] = packets_list[1]
-            tat_table_query_set['sub_packet'] = packets_list[2]
-        elif len(packets_list) == 2:
-            if level_structure_key.has_key('sub_project'):
-                tat_table_query_set['sub_project'] = packets_list[0]
-                tat_table_query_set['work_packet'] = packets_list[1]
-            else:
-                tat_table_query_set['work_packet'] = packets_list[0]
-                tat_table_query_set['sub_packet'] = packets_list[1]
-
-        else:
-            tat_table_query_set['work_packet'] = packets_list[0]
-    else:
-        if level_structure_key.has_key('sub_project'):
-            tat_table_query_set['sub_project'] = main_work_packet
-        else:
-            tat_table_query_set['work_packet'] = main_work_packet
-    return tat_table_query_set
-
-
-def rawtable_query_generations(pro_id,cen_id,date,main_work_packet,level_structure_key):
-    rawtable_query_set = {}
-    rawtable_query_set['project'] = pro_id
-    rawtable_query_set['center'] = cen_id
-    rawtable_query_set['date'] = date
-    if '_' in main_work_packet:
-        packets_list = main_work_packet.split('_')
-        if len(packets_list) == 3:
-            rawtable_query_set['sub_project'] = packets_list[0]
-            rawtable_query_set['work_packet'] = packets_list[1]
-            rawtable_query_set['sub_packet'] = packets_list[2]
-        elif len(packets_list) == 2:
-            if level_structure_key.has_key('sub_project'):
-                rawtable_query_set['sub_project'] = packets_list[0]
-                rawtable_query_set['work_packet'] = packets_list[1]
-            else:
-                rawtable_query_set['work_packet'] = packets_list[0]
-                rawtable_query_set['sub_packet'] = packets_list[1]
-
-        else:
-            rawtable_query_set['work_packet'] = packets_list[0]
-    else:
-        if level_structure_key.has_key('sub_project'):
-            rawtable_query_set['sub_project'] = main_work_packet
-        else:
-            rawtable_query_set['work_packet'] = main_work_packet
-    return rawtable_query_set
-
-
-def target_query_generations(pro_id,cen_id,date,main_work_packet,level_structure_key):
-    target_query_set = {}
-    target_query_set['project'] = pro_id
-    target_query_set['center'] = cen_id
-    prj_name = Project.objects.filter(id=pro_id, center=cen_id).values_list('name',flat=True).distinct()[0]
-    if isinstance(date, list):
-        target_query_set['from_date__lte']=[date[0], date[-1]]
-        target_query_set['to_date__gte'] = [date[0], date[-1]]
-    else:
-        target_query_set['from_date__lte'] = date
-        target_query_set['to_date__gte'] = date
-    packets = Targets.objects.filter(**target_query_set).values('sub_project','work_packet','sub_packet').distinct()[0]
-    if '_' in main_work_packet and ((packets['work_packet'] != '') and (packets['sub_project'] != '') and (packets['sub_packet'] !='')):
-        packets_list = main_work_packet.split('_')
-        target_query_set['sub_project'] = packets_list[0]
-        target_query_set['work_packet'] = packets_list[1]
-        target_query_set['sub_packet'] = packets_list[2]
-    elif '_' in main_work_packet and ((packets['work_packet'] != '') and (packets['sub_project'] != '')):
-        packets_list = main_work_packet.split('_')
-        target_query_set['sub_project'] = packets_list[0]
-        target_query_set['work_packet'] = packets_list[1]
-    elif '_' in main_work_packet and ((packets['work_packet'] != '') and (packets['sub_packet'] != '')):
-        packets_list = main_work_packet.split('_')
-        target_query_set['work_packet'] = packets_list[0]
-        target_query_set['sub_packet'] = packets_list[1]
-    elif packets['work_packet'] != '':
-        target_query_set['work_packet'] = main_work_packet
-    elif packets['sub_project'] != '':
-        target_query_set['sub_project'] = packets['sub_project']
-    elif packets['sub_project'] == '' and packets['work_packet'] == '' and packets['sub_packet'] == '':
-        target_query_set['work_packet'] = ''
-    else:
-        if level_structure_key.has_key('sub_project'):
-            target_query_set['sub_project'] = main_work_packet
-        else:
-            target_query_set['work_packet'] = main_work_packet
-    return target_query_set
-
-
 def accuracy_query_generations(pro_id,cen_id,date,main_work_packet):
     accuracy_query_set = {}
     accuracy_query_set['project'] = pro_id
@@ -199,7 +102,6 @@ def worktrack_query_insertion(customer_data, prj_obj, center_obj,teamleader_obj_
             except:
 		        pass
     else:
-        #if len(check_query) > 0:
         if db_check == 'aggregate':
             opening = opening + int(check_query[0]['opening'])
             received = received + int(check_query[0]['received'])
@@ -275,7 +177,6 @@ def headcount_query_insertion(customer_data, prj_obj, center_obj,teamleader_obj_
             except:
 		        pass
     else:    
-        #if len(check_query) > 0:
         if db_check == 'aggregate':
             billable_hc = billable_hc + float(check_query[0]['billable_hc'])
             billable_agents = billable_agents + float(check_query[0]['billable_agents'])
@@ -298,11 +199,11 @@ def headcount_query_insertion(customer_data, prj_obj, center_obj,teamleader_obj_
 
 
 def tat_query_insertion(customer_data, prj_obj, center_obj,teamleader_obj_name, db_check):
-    tat_date_list = customer_data['received_date']
+    tat_date_list = customer_data['date']
     check_query = TatTable.objects.filter(project=prj_obj, sub_project=customer_data.get('sub_project', ''),
                                           work_packet=customer_data['work_packet'],
                                           sub_packet=customer_data.get('sub_packet', ''),
-                                          date=customer_data['received_date'],
+                                          date=customer_data['date'],
                                           center=center_obj).values('total_received','met_count','non_met_count','tat_status')
 
     try:
@@ -325,7 +226,7 @@ def tat_query_insertion(customer_data, prj_obj, center_obj,teamleader_obj_name, 
     if len(check_query) == 0:
         new_can = TatTable(sub_project=customer_data.get('sub_project', ''),
                             work_packet=customer_data['work_packet'],
-                            sub_packet=customer_data.get('sub_packet', ''), date=customer_data['received_date'],
+                            sub_packet=customer_data.get('sub_packet', ''), date=customer_data['date'],
                             total_received=total_received,
                             met_count = met_count,
                             non_met_count = non_met_count,
@@ -336,7 +237,6 @@ def tat_query_insertion(customer_data, prj_obj, center_obj,teamleader_obj_name, 
             new_can.save()
 
     else:
-        #if len(check_query) > 0:
         if db_check == 'aggregate':
             total_received = total_received + int(check_query[0]['total_received'])
             met_count = met_count + int(check_query[0]['met_count'])
@@ -373,7 +273,6 @@ def upload_query_insertion(customer_data, prj_obj, center_obj,teamleader_obj_nam
         if new_can:
             new_can.save()
     else:
-        #if len(check_query) > 0:
         if db_check == 'aggregate':
             target = target + int(check_query[0]['target'])
             upload = upload + int(check_query[0]['upload'])
@@ -384,14 +283,67 @@ def upload_query_insertion(customer_data, prj_obj, center_obj,teamleader_obj_nam
                                                                                        upload = upload,)
     return upload_date_list
 
+
+def aht_individual_query_insertion(customer_data, prj_obj, center_obj, teamleader_obj_name, db_check):
+    aht_date_list = customer_data['date']
+    check_query = AHTIndividual.objects.filter(project=prj_obj, sub_project=customer_data.get('sub_project', ''),
+                                               work_packet = customer_data.get('work_packet',''),
+                                               sub_packet = customer_data.get('sub_packet',''),
+                                               emp_name = customer_data.get('emp_name', ''),
+                                               date = customer_data['date'],center=center_obj).values('AHT')
+    try:
+        aht = float(customer_data['AHT'])
+    except:
+        aht = 0
+    if len(check_query) == 0:
+        new_can = AHTIndividual(sub_project=customer_data.get('sub_project', ''), work_packet=customer_data.get('work_packet',''),
+                                sub_packet=customer_data.get('sub_packet', ''), 
+                                emp_name = customer_data.get('emp_name', ''), date=customer_data['date'],
+                                AHT = aht, project= prj_obj, center = center_obj)
+        if new_can:
+            new_can.save()
+    else:
+        if db_check == 'aggregate':
+            aht = aht + float(check_query[0]['AHT'])
+            new_can_agr = AHTIndividual.objects.filter(id=float(check_query[0]['id'])).update(AHT = aht)
+        if db_check == 'update':
+            new_can_upd = AHTIndividual.objects.filter(id=float(check_query[0]['id'])).update(AHT = aht)
+    return aht_date_list
+
+
+def aht_team_query_insertion(customer_data, prj_obj, center_obj, teamleader_obj_name, db_check):
+    aht_team_date = customer_data['date']
+    check_query = AHTTeam.objects.filter(project = prj_obj, sub_project = customer_data.get('sub_project', ''),
+                                         work_packet = customer_data.get('work_packet',''), 
+                                         sub_packet = customer_data.get('sub_packet',''),
+                                         date = customer_data['date'], center=center_obj).values('AHT')
+    try:
+        aht = float(customer_data['AHT'])
+    except:
+        aht = 0
+    if len(check_query) == 0:
+        new_can = AHTTeam(sub_project=customer_data.get('sub_project', ''), work_packet=customer_data.get('work_packet',''),
+                          sub_packet=customer_data.get('sub_packet',''), date=customer_data['date'],
+                          AHT=aht, project=prj_obj, center=center_obj)
+        if new_can:
+            new_can.save()
+    else:
+        if db_check == 'aggregate':
+            aht = aht + float(check_query[0]['AHT'])
+            new_can_agr = AHTTeam.objects.filter(id=float(check_query[0]['id'])).update(AHT = aht)
+        elif db_check == 'update':
+            new_can_upd = AHTTeam.objects.filter(id=float(check_query[0]['id'])).update(AHT = aht)
+    return aht_team_date
+
+
 def incoming_error_query_insertion(customer_data, prj_obj, center_obj,teamleader_obj_name, db_check):
+
     incoming_date_list = customer_data['date']
     check_query = Incomingerror.objects.filter(project=prj_obj, sub_project=customer_data.get('sub_project', ''),
                                                work_packet=customer_data['work_packet'],
                                                sub_packet=customer_data.get('sub_packet', ''),
                                                date=customer_data['date'],
                                                center=center_obj).values('error_values')
-
     try:
         error_values = int(float(customer_data['error_values']))
     except:
@@ -407,12 +359,11 @@ def incoming_error_query_insertion(customer_data, prj_obj, center_obj,teamleader
         if new_can:
             new_can.save()
     else:
-        #if len(check_query) > 0:
         if db_check == 'aggregate':
             error_values = error_values + int(check_query[0]['error_values'])
-            new_can_agr = Incomingerror.objects.filter(id=int(check_query[0]['id'])).update(error_values = error_values,)
+            new_can_agr = Incomingerror.objects.filter(id=int(check_query[0]['id'])).update(error_values = error_values)
         elif db_check == 'update':
-            new_can_upd = Incomingerror.objects.filter(id=int(check_query[0]['id'])).update(error_values = error_values,)
+            new_can_upd = Incomingerror.objects.filter(id=int(check_query[0]['id'])).update(error_values = error_values)
     return incoming_date_list
 
 
