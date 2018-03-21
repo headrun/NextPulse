@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 from django.contrib.auth.models import User
 from django.db import models
 from django.contrib.auth.models import Group
+from datetime import datetime
 
 
 class Center(models.Model):
@@ -769,6 +770,7 @@ class HRMMovementTracker(models.Model):
     teamdata = models.CharField(max_length = 3, null = False)
     risedfrom = models.CharField(max_length = 150, null = False)
     approvedby = models.CharField(max_length = 150, null = False)
+    time_stamp = models.DateTimeField(auto_now_add = True, null=False)
 
     class Meta:
         db_table = u'hrm_movement_tracker'
@@ -810,6 +812,7 @@ class HRMAttendance(models.Model):
     A30 = models.CharField(max_length = 5, null = False)
     A31 = models.CharField(max_length = 5, null = False)
     month = models.CharField(max_length = 20, null = False)
+    time_stamp = models.DateTimeField(auto_now_add = True, null=False)
 
     class Meta:
         db_table = u'hrm_attendance'
@@ -820,6 +823,7 @@ class HRMEmployeeProcess(models.Model):
     team = models.CharField(max_length = 50, null = False)
     start_date = models.DateField(null = False)
     end_date = models.DateField(null = False)
+    time_stamp = models.DateTimeField(auto_now_add  = True, null = False)
 
     class Meta:
         db_table = u'hrm_employee_process'
@@ -829,6 +833,7 @@ class HRMEmployeeReportingPerson(models.Model):
     empid = models.CharField(max_length = 12, primary_key=True)
     name = models.CharField(max_length = 150, null = False)
     reporting_person = models.CharField(max_length = 12, null = False)
+    time_stamp = models.DateTimeField(auto_now_add = True, null=False)
 
     class Meta:
         db_table = u'hrm_employee_reportingperson'
@@ -846,7 +851,8 @@ class HRMEmployeeResignation(models.Model):
     idcard = models.CharField(max_length = 10, null = False)
     resion =  models.CharField(max_length = 1000, null = False)
     status =  models.CharField(max_length = 5, null = False)
-    rdate =  models.CharField(max_length = 50, null = False)
+    #rdate =  models.CharField(max_length = 50, null = False)
+    rdate = models.DateTimeField(auto_now_add = True, null=False)
 
     class Meta:
         db_table = u'hrm_employee_resignation'
