@@ -24,6 +24,45 @@
     <link rel="manifest" href="/manifest.json">
     <link rel="icon" href="images/mini_image.png">
     <!--<link rel="icon" href="data:;base64,iVBORw0KGgo=">-->
+
+    <script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async=""></script>
+    
+      <script>
+        var OneSignal = window.OneSignal || [];
+        OneSignal.push(["init", {
+          appId: "d0d6000e-27ee-459b-be52-d65ed4b3d025",
+          autoRegister: false,
+          notifyButton: {
+            enable: true /* Set to false to hide */
+          },
+          httpPermissionRequest: {
+            enable: true
+          },
+          displayPredicate: function() {
+            return OneSignal.isPushNotificationsEnabled()
+                .then(function(isPushEnabled) {
+                    /* The user is subscribed, so we want to return "false" to hide the Subscription Bell */
+                    return !isPushEnabled;
+                });
+         },
+         promptOptions: {
+            /* actionMessage limited to 90 characters */
+            actionMessage: "We'd like to show you notifications for the latest news and updates.",
+            /* acceptButtonText limited to 15 characters */
+            acceptButtonText: "ALLOW",
+            /* cancelButtonText limited to 15 characters */
+            cancelButtonText: "NO THANKS"
+         }
+        }]);
+        OneSignal.push(function() {
+        //OneSignal.showHttpPrompt();
+        //OneSignal.registerForPushNotifications();
+        OneSignal.getUserId().then(function(userId) {
+            console.log("OneSignal User ID:", userId);
+        });
+    });
+      </script>
+
   </head>
 
   <body>
@@ -37,6 +76,7 @@
     </div>
 
     <!-- Vendor Scripts -->
+    <!--<script src="/main.js"></script>-->
     <script src="/libs/jquery/dist/jquery.min.js"></script>
     <script src="/libs/datatables/media/js/jquery.dataTables.min.js"></script><!--angulardatatables-->
     <script src="/libs/moment.min.js"></script>
@@ -155,6 +195,6 @@
       ga('create', 'UA-100323266-1', 'auto');
       ga('send', 'pageview');
 
-    </script>
+    </script>    
   </body>
 </html>
