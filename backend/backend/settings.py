@@ -18,8 +18,9 @@ from ConfigParser import RawConfigParser
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PROJECT_DIR  = os.path.dirname(__file__)
 config = ConfigParser.RawConfigParser()
-config.read('/var/www/Nextpulse_old/NextPulse/backend/backend/config.ini')
 
+#config.read('/home/headrun/nextWealth/NextPulse/backend/backend/config.ini')
+config.read(os.path.dirname(os.path.abspath(__file__))+'/config.ini')
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
 

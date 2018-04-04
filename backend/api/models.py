@@ -857,3 +857,10 @@ class HRMEmployeeResignation(models.Model):
     class Meta:
         db_table = u'hrm_employee_resignation'
 
+
+class OneSignal(models.Model):
+    device_id = models.CharField(max_length = 125, null=False)
+    user = models.ForeignKey(User, null=False)
+
+    class Meta:
+        db_table = u'onesignal_deviceid'
