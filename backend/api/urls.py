@@ -66,4 +66,5 @@ urlpatterns = [
     url(r'^agent_productivity_data', apiviews.agent_productivity_data),
     url(r'^agent_required', apiviews.agent_required),
     url(r'^aht_team_data', apiviews.aht_team_data),
+    url(r'^notification', apiviews.send_push_notification),
 ]
