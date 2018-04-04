@@ -212,36 +212,37 @@ def month_calculations(dates, project, center, level_structure_key, function_nam
 def production_avg_perday(date_list,prj_id,center_obj,level_structure_key):
 
     result_dict, dct = {}, {}
-    
     filter_params, _term = getting_required_params(level_structure_key, prj_id, center_obj, date_list)
-    query_values = RawTable.objects.filter(**filter_params)
-    pacs = query_values.values_list(_term,flat=True).distinct()
-    if _term == 'sub_packet' and pacs:
-        if pacs[0] == "":
-            _term = 'work_packet'
-    data_values = query_values.values_list('date',_term).annotate(total=Sum('per_day'))
-    packets = query_values.values_list(_term,flat=True).distinct()
-    dates = RawTable.objects.filter(project=prj_id,center=center_obj,date__range=[date_list[0],date_list[-1]]).\
-            values_list('date',flat=True).distinct()
+    if _term and filter_params:
+        query_values = RawTable.objects.filter(**filter_params)
+        pacs = query_values.values_list(_term,flat=True).distinct()
+    
+        if _term == 'sub_packet' and pacs:
+            if pacs[0] == "":
+                _term = 'work_packet'
+        data_values = query_values.values_list('date',_term).annotate(total=Sum('per_day'))
+        packets = query_values.values_list(_term,flat=True).distinct()
+        dates = RawTable.objects.filter(project=prj_id,center=center_obj,date__range=[date_list[0],date_list[-1]]).\
+                values_list('date',flat=True).distinct()
 
-    for date in dates:
-        _dict_packets = []
-        for value in data_values:
-            if str(date) == str(value[0]):
-                if value[1] != "":
-                    if result_dict.has_key(value[1]):
-                        result_dict[value[1]].append(value[2])
-                    else:
-                        result_dict[value[1]] = [value[2]]
-                    _dict_packets.append(value[1])
-                
-        for pack in packets:
-            if pack not in _dict_packets:
-                if pack != "":
-                    if result_dict.has_key(pack):
-                        result_dict[pack].append(0)
-                    else:
-                        result_dict[pack] = [0]
+        for date in dates:
+            _dict_packets = []
+            for value in data_values:
+                if str(date) == str(value[0]):
+                    if value[1] != "":
+                        if result_dict.has_key(value[1]):
+                            result_dict[value[1]].append(value[2])
+                        else:
+                            result_dict[value[1]] = [value[2]]
+                        _dict_packets.append(value[1])
+                    
+            for pack in packets:
+                if pack not in _dict_packets:
+                    if pack != "":
+                        if result_dict.has_key(pack):
+                            result_dict[pack].append(0)
+                        else:
+                            result_dict[pack] = [0]
 
     return result_dict
 
