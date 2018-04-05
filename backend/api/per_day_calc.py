@@ -26,13 +26,13 @@ def generate_day_week_month_format(request, result_name, function_name):
     sub_packet = main_data_dict['sub_packet']
     pro_center = main_data_dict['pro_cen_mapping']
     _type = main_data_dict['type']
-
+    main_dates = main_data_dict['dates']
     level_structure_key = get_level_structure_key(work_packet, sub_project, sub_packet, pro_center)
 
     if main_data_dict['dwm_dict'].has_key('day') and main_data_dict['type'] == 'day':
         date_list = main_data_dict['dates']
         new_date_list = generate_dates(date_list, prj_id, center) 
-        data = function_name(date_list, prj_id, center, level_structure_key)
+        data = function_name(date_list, prj_id, center, level_structure_key, main_dates, request)
         if function_name == pre_scan_exception_data:
             final_dict[result_name] = data
         else:
@@ -42,11 +42,11 @@ def generate_day_week_month_format(request, result_name, function_name):
     elif main_data_dict['dwm_dict'].has_key('week') and main_data_dict['type'] == 'week':
         dates_list = main_data_dict['dwm_dict']['week']
         if function_name == volume_cumulative_data:
-            volume_week = week_monthly_calulations(dates_list, prj_id, center, level_structure_key, function_name)
+            volume_week = week_monthly_calulations(dates_list, prj_id, center, level_structure_key, function_name,main_dates,request)
             final_dict[result_name] = graph_data_alignment_color(volume_week, 'data', level_structure_key, \
                                         prj_id, center, 'monthly_volume')
-        else:    
-            week_data = week_calculations(dates_list, prj_id, center, level_structure_key, function_name)
+        else:
+            week_data = week_calculations(dates_list, prj_id, center, level_structure_key, function_name, main_dates,request)
             if function_name == pre_scan_exception_data:
                 final_dict[result_name] = [week_data]
             else:
@@ -56,11 +56,11 @@ def generate_day_week_month_format(request, result_name, function_name):
     else:
         dates_list = main_data_dict['dwm_dict']['month']
         if function_name == volume_cumulative_data:
-            volume_month = month_monthly_calculations(dates_list, prj_id, center, level_structure_key, function_name)
+            volume_month = month_monthly_calculations(dates_list, prj_id, center, level_structure_key, function_name,main_dates,request)
             final_dict[result_name] = graph_data_alignment_color(volume_month, 'data', level_structure_key, \
                                         prj_id, center, 'monthly_volume')
         else:
-            month_data = month_calculations(dates_list, prj_id, center, level_structure_key, function_name)
+            month_data = month_calculations(dates_list, prj_id, center, level_structure_key, function_name, main_dates,request)
             if function_name == pre_scan_exception_data:
                 final_dict[result_name] = [month_data]
             else:
@@ -166,7 +166,7 @@ def min_max_num(int_value_range, widget_name):
     return min_max_dict
 
 
-def week_calculations(dates, project, center, level_structure_key, function_name):
+def week_calculations(dates, project, center, level_structure_key, function_name, main_dates,request):
     
     week_dict = {}
     week_names = []
@@ -175,7 +175,7 @@ def week_calculations(dates, project, center, level_structure_key, function_name
         week_name = str('week' + str(week_num))
         week_names.append(week_name)
         week_num = week_num + 1
-        data = function_name(date, project, center, level_structure_key)
+        data = function_name(date, project, center, level_structure_key,main_dates,request)
         week_dict[week_name] = data
     if function_name in [production_avg_perday,overall_exception_data,nw_exception_data,productivity_day]:
         result = prod_volume_week_util(project, week_names, week_dict, {}, 'week')
@@ -188,7 +188,7 @@ def week_calculations(dates, project, center, level_structure_key, function_name
     return result  
 
 
-def month_calculations(dates, project, center, level_structure_key, function_name):
+def month_calculations(dates, project, center, level_structure_key, function_name, main_dates,request):
 
     month_names = []
     month_dict = {}
@@ -196,7 +196,7 @@ def month_calculations(dates, project, center, level_structure_key, function_nam
         month_name = month_na
         month_dates = month_va
         month_names.append(month_name)
-        data = function_name(month_dates, project, center, level_structure_key)
+        data = function_name(month_dates, project, center, level_structure_key, main_dates, request)
         month_dict[month_name] = data
     if function_name in [production_avg_perday,overall_exception_data,nw_exception_data,productivity_day]:
         result = prod_volume_week_util(project, month_names, month_dict, {}, 'month')
@@ -209,7 +209,7 @@ def month_calculations(dates, project, center, level_structure_key, function_nam
     return result
         
 
-def production_avg_perday(date_list,prj_id,center_obj,level_structure_key):
+def production_avg_perday(date_list,prj_id,center_obj,level_structure_key, main_dates, request):
 
     result_dict, dct = {}, {}
     filter_params, _term = getting_required_params(level_structure_key, prj_id, center_obj, date_list)
@@ -247,14 +247,14 @@ def production_avg_perday(date_list,prj_id,center_obj,level_structure_key):
     return result_dict
 
 
-def product_total_graph(date_list,prj_id,center_obj,level_structure_key):
+def product_total_graph(date_list,prj_id,center_obj,level_structure_key, main_dates, request):
 
-    result = production_avg_perday(date_list,prj_id,center_obj,level_structure_key)
+    result = production_avg_perday(date_list,prj_id,center_obj,level_structure_key,main_dates, request)
 
     return result
 
 
-def week_monthly_calulations(dates, project, center, level_structure_key, function_name):
+def week_monthly_calulations(dates, project, center, level_structure_key, function_name,main_dates,request):
 
     monthly_vol_data = {}
     monthly_vol_data['total_workdone'] = []
@@ -265,7 +265,7 @@ def week_monthly_calulations(dates, project, center, level_structure_key, functi
         week_name = str('week' + str(week_num))
         week_names.append(week_name)
         week_num = week_num + 1 
-        data = function_name(date, project, center, level_structure_key)
+        data = function_name(date, project, center, level_structure_key,main_dates,request)
         for vol_cumulative_key,vol_cumulative_value in data.iteritems():
             if len(vol_cumulative_value) > 0:
                 monthly_vol_data[vol_cumulative_key].append(vol_cumulative_value[-1])
@@ -279,7 +279,7 @@ def week_monthly_calulations(dates, project, center, level_structure_key, functi
     return final_montly_vol_data
 
 
-def month_monthly_calculations(dates, project, center, level_structure_key, function_name):
+def month_monthly_calculations(dates, project, center, level_structure_key, function_name,main_dates,request):
 
     monthly_vol_data = {}
     month_names = []
@@ -290,7 +290,7 @@ def month_monthly_calculations(dates, project, center, level_structure_key, func
         month_name = month_na
         month_dates = month_va
         month_names.append(month_name)
-        monthly_volume_graph_details = volume_cumulative_data(month_dates, project, center, level_structure_key)
+        monthly_volume_graph_details = volume_cumulative_data(month_dates, project, center, level_structure_key,main_dates,request)
         for vol_cumulative_key,vol_cumulative_value in monthly_volume_graph_details.iteritems():
             if len(vol_cumulative_value) > 0:
                 monthly_vol_data[vol_cumulative_key].append(vol_cumulative_value[-1])
