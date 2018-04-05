@@ -227,21 +227,22 @@ def internal_extrnal_error_types(date_list,prj_id,center_obj,level_structure_key
         param2 = 'sub_error_count'
 
     params = get_query_parameters(level_structure_key, prj_id, center_obj, date_list)
-    if term == 'agent':
-        error_query = table_name.objects.filter(**params).filter(total_errors__gt=0).values(param1, param2)
-    else:
-        error_query = table_name.objects.filter(**params).values(param1, param2)
-    if term == '' or term == 'sub_error':
-        values = different_error_type(error_query)
-    elif term == 'agent':
-        values = agent_errors(error_query)
+    if params:
+        if term == 'agent':
+            error_query = table_name.objects.filter(**params).filter(total_errors__gt=0).values(param1, param2)
+        else:
+            error_query = table_name.objects.filter(**params).values(param1, param2)
+        if term == '' or term == 'sub_error':
+            values = different_error_type(error_query)
+        elif term == 'agent':
+            values = agent_errors(error_query)
 
-    for key, value in values.iteritems():
-        if key != 'no_data':
-            if final_dict.has_key(key):
-                final_dict[key].append(value)
-            else:
-                final_dict[key] = value
+        for key, value in values.iteritems():
+            if key != 'no_data':
+                if final_dict.has_key(key):
+                    final_dict[key].append(value)
+                else:
+                    final_dict[key] = value
     return final_dict
 
 

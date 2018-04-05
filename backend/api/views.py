@@ -52,6 +52,7 @@ from api.uploads import *
 from api.weekly_graph import *
 from api.voice_widgets import *
 from api.aht_graph import *
+from api.send_push_data import *
 #From api.location import *
 #from api.basic import *
 
