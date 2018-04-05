@@ -11,7 +11,7 @@ from api.graph_settings import graph_data_alignment_color
 from common.utils import getHttpResponse as json_HttpResponse
 
 
-def volume_cumulative_data(date_list, prj_id, center, level_structure_key):
+def volume_cumulative_data(date_list, prj_id, center, level_structure_key,main_dates,request):
 
     date_values, dct = {}, {}
     emp_dict, _dict = {}, {}
@@ -189,7 +189,7 @@ def get_target_query_format(level_structure_key, prj_id, center, date_list):
     return targets, raw_query, _type
 
 
-def productivity_day(date_list, prj_id, center_obj, level_structure_key):
+def productivity_day(date_list, prj_id, center_obj, level_structure_key, main_dates,request):
 
     packet_names = Headcount.objects.filter(project=prj_id, center=center_obj, date__range=[date_list[0],date_list[-1]]).values('sub_project', 'work_packet', 'sub_packet').distinct()
     count  = 0;

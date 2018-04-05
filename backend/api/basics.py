@@ -334,7 +334,7 @@ def error_insert(request):
     pass
 
 
-def pre_scan_exception_data(date_list, prj_id, center, level_structure_key):
+def pre_scan_exception_data(date_list, prj_id, center, level_structure_key, main_dates,request):
 
     result_data_value = []
     final_result_dict = {}
@@ -357,7 +357,7 @@ def pre_scan_exception_data(date_list, prj_id, center, level_structure_key):
     return result_data_value
 
 
-def overall_exception_data(date_list, prj_id, center,level_structure_key):
+def overall_exception_data(date_list, prj_id, center,level_structure_key, main_dates,request):
 
     result = {} 
     new_date_list = []
@@ -382,7 +382,7 @@ def overall_exception_data(date_list, prj_id, center,level_structure_key):
     return result
 
 
-def nw_exception_data(date_list, prj_id, center,level_structure_key):
+def nw_exception_data(date_list, prj_id, center,level_structure_key, main_dates,request):
 
     result = {}
     new_date_list = []
