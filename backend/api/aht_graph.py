@@ -31,13 +31,13 @@ def aht_team_calculations(date_list, project, center, level_structure_key):
                     else:
                         result[data[1]] = [round(data[2], 2)]
                     packets_list.append(data[1])
-        
+            
             for packet in packets:
                 if packet not in packets_list:
-                    if result.has_key(data[1]):
-                        result[data[1]].append(0)
+                    if result.has_key(packet):
+                        result[packet].append(0)
                     else:
-                        result[data[1]] = [0]
+                        result[packet] = [0]
 
     return result
     
