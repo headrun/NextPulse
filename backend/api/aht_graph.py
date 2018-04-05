@@ -46,10 +46,9 @@ def aht_team_target_data(date_list,project,center,_term,dates,packets,main_dates
 
     result = {}
     target_line = []
-    #import pdb;pdb.set_trace()
     if _term == 'work_packet':
         packet = request.GET.get('work_packet', '')
-        if packet:
+        if packet != '' and packet != 'All':
             main_packets = AHTTeam.objects.filter(project=project,date__range=[main_dates[0], main_dates[-1]],work_packet=packet).\
                 values_list(_term,flat=True).distinct()
         else:
@@ -59,7 +58,7 @@ def aht_team_target_data(date_list,project,center,_term,dates,packets,main_dates
         packet = request.GET.get('sub_packet')
         main_packets = AHTTeam.objects.filter(project=project,date__range=[main_dates[0], main_dates[-1]],sub_packet=packet).\
                 values_list(_term,flat=True).distinct()
-    #import pdb;pdb.set_trace()
+    
     if len(main_packets) == 1:
         target_query = Targets.objects.filter(project=project,center=center,from_date__lte=date_list[0],\
                        to_date__gte=date_list[-1],target_type='AHT').\
