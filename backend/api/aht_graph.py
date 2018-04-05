@@ -9,7 +9,7 @@ from api.graph_settings import graph_data_alignment_color
 from common.utils import getHttpResponse as json_HttpResponse
 
 
-def aht_team_calculations(date_list, project, center, level_structure_key):
+def aht_team_calculations(date_list, project, center, level_structure_key, main_dates, request):
     
     result = {}
     
@@ -20,7 +20,7 @@ def aht_team_calculations(date_list, project, center, level_structure_key):
         packets = query_data.values_list(_term,flat=True).distinct() 
         raw_dates = RawTable.objects.filter(project=project, center=center, date__range=[date_list[0],date_list[-1]]).\
                     values_list('date', flat=True).distinct()
-        result = aht_team_target_data(date_list,project,center,_term,raw_dates,packets)
+        result = aht_team_target_data(date_list,project,center,_term,raw_dates,packets,main_dates,request)
 
         for date in raw_dates:
             packets_list = []
@@ -42,13 +42,33 @@ def aht_team_calculations(date_list, project, center, level_structure_key):
     return result
     
 
-def aht_team_target_data(date_list,project,center,_term,dates,packets):
+def aht_team_target_data(date_list,project,center,_term,dates,packets,main_dates,request):
 
     result = {}
     target_line = []
-    if len(packets) == 1:
+    #import pdb;pdb.set_trace()
+    if _term == 'work_packet':
+        packet = request.GET.get('work_packet', '')
+        if packet:
+            main_packets = AHTTeam.objects.filter(project=project,date__range=[main_dates[0], main_dates[-1]],work_packet=packet).\
+                values_list(_term,flat=True).distinct()
+        else:
+            main_packets = AHTTeam.objects.filter(project=project,date__range=[main_dates[0], main_dates[-1]]).\
+                values_list(_term,flat=True).distinct()
+    elif _term == 'sub_packet':
+        packet = request.GET.get('sub_packet')
+        main_packets = AHTTeam.objects.filter(project=project,date__range=[main_dates[0], main_dates[-1]],sub_packet=packet).\
+                values_list(_term,flat=True).distinct()
+    #import pdb;pdb.set_trace()
+    if len(main_packets) == 1:
         target_query = Targets.objects.filter(project=project,center=center,from_date__lte=date_list[0],\
                        to_date__gte=date_list[-1],target_type='AHT').\
+                        values_list('from_date','to_date','target_value',_term)
+        if target_query:
+            target_query = target_query
+        else:
+            target_query = Targets.objects.filter(project=project,center=center,from_date__gte=date_list[0],\
+                       to_date__lte=date_list[-1],target_type='AHT').\
                         values_list('from_date','to_date','target_value',_term)
         for date in dates:
             for target in target_query:
@@ -58,7 +78,7 @@ def aht_team_target_data(date_list,project,center,_term,dates,packets):
     return result
 
 
-def tat_graph(date_list, project, center, level_structure_key):
+def tat_graph(date_list, project, center, level_structure_key, main_dates, request):
 
     result = {}
     
