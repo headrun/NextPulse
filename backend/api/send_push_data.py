@@ -66,19 +66,23 @@ def get_user_id(request):
 
 def send_push_notification(request):
 
-    values, device_id = get_user_id(request)
-    header = {"Content-Type": "application/json; charset=utf-8",
-              "Authorization": "Basic MWNhMjliMjAtNzAxMy00N2Y4LWIxYTUtYzdjNjQzMDkzOTZk"}
+    user_group = request.user.groups.values_list('name', flat=True)[0]
+    if user_group in ['team_lead', 'customer']:
+        values, device_id = get_user_id(request)
+        header = {"Content-Type": "application/json; charset=utf-8",
+                  "Authorization": "Basic MWNhMjliMjAtNzAxMy00N2Y4LWIxYTUtYzdjNjQzMDkzOTZk"}
 
-    payload = {"app_id": "d0d6000e-27ee-459b-be52-d65ed4b3d025",
-               "include_player_ids": [device_id],
-               #"included_segments": ["All"],
-               "contents": {"en": values['Production details']}}
-        
-    url = "https://onesignal.com/api/v1/notifications"
-    opener = urllib2.build_opener(urllib2.HTTPHandler)
-    request = urllib2.Request(url, data=json.dumps(payload))
-    request.add_header("Content-Type", "application/json; charset=utf-8") #Header, Value
-    request.add_header("Authorization", "Basic MWNhMjliMjAtNzAxMy00N2Y4LWIxYTUtYzdjNjQzMDkzOTZk")                                        
-    print opener.open(request)
+        payload = {"app_id": "d0d6000e-27ee-459b-be52-d65ed4b3d025",
+                   "include_player_ids": [device_id],
+                   #"included_segments": ["All"],
+                   "contents": {"en": values['Production details']}}
+            
+        url = "https://onesignal.com/api/v1/notifications"
+        opener = urllib2.build_opener(urllib2.HTTPHandler)
+        request = urllib2.Request(url, data=json.dumps(payload))
+        request.add_header("Content-Type", "application/json; charset=utf-8") #Header, Value
+        request.add_header("Authorization", "Basic MWNhMjliMjAtNzAxMy00N2Y4LWIxYTUtYzdjNjQzMDkzOTZk")                                        
+        print opener.open(request)
+    else:
+        payload = {}
     return json_HttpResponse(payload)
