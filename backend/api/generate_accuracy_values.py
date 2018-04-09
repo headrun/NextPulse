@@ -3,7 +3,7 @@ import datetime
 
 from django.db.models import Sum,Max
 
-from api.models import RawTable, Internalerrors, Externalerrors, Targets
+from api.models import *
 
 
 def generate_targets_data(project):
@@ -36,7 +36,16 @@ def generate_targets_data(project):
     'external_color': external_data['color']})
     result.update({'prod_target': prod_target_value, 'prod_actual': production_value,\
     'prod_color': color})
-
+    aht_check = AHTTeam.objects.filter(project=project,date=last_date).aggregate(Sum('AHT'))
+    tat_check = TatTable.objects.filter(project=project,date=last_date)
+    met_cnt = tat_check.aggregate(Sum('met_count'))
+    not_met = tat_check.aggregate(Sum('non_met_count'))
+    if aht_check != None:
+        aht_data = generate_aht_data(project,last_date,aht_check)
+        result.update({'aht_target':aht_data['target'],'aht':aht_data['aht'],'aht_color':aht_data['color']})
+    elif met_cnt['met_count__sum'] != None:
+        tat_data = generate_tat_data(project,met_cnt,not_met,last_date)
+        result.update({'tat_target':tat_data['target'],'tat':tat_data['tat'],'tat_color':tat_data['color']})
     return result
 
 
@@ -88,7 +97,62 @@ def generate_internal_and_external_values(project,table_name,date,production,tar
     return result
 
 
-def generate_mail_table_format(result):
+def generate_aht_data(project,date,aht_value):
+
+    result = {}
+    aht_value = aht_value['AHT__sum']
+    target_value = Targets.objects.filter(project=project,from_date__lte=date,to_date__gte=date,\
+                    target_type='AHT').aggregate(Sum('target_value'))
+    target_value = target_value['target_value__sum']
+    if target_value > aht_value:
+        result['target'] = target_value
+        result['aht'] = aht_value
+        result['color'] = 'Red'
+    elif target_value < aht_value:
+        result['target'] = target_value
+        result['aht'] = aht_value
+        result['color'] = 'black'
+    elif target_value == None:
+        result['target'] = target_value
+        result['aht'] = aht_value
+        result['color'] = 'black'
+    return result
+
+
+def generate_tat_data(project,met_cnt,not_met,date):
+
+    result = {}
+    target_value = Targets.objects.filter(project=project,from_date__lte=date,to_date__gte=date,\
+                    target_type='TAT').aggregate(Sum('target_value'))
+    met_val = met_cnt['met_count__sum']
+    not_met_val = not_met['non_met_count__sum']
+    value = (float(met_val) /float(not_met_val))*100
+    value = float('%.2f' % round(value, 2))
+    target = target_value['target_value__sum']
+    if target > value:
+        target = target
+        tat_val = value
+        color = 'Red'
+    elif target < value:
+        target = target
+        tat_val = value
+        color = 'black'
+    elif target == None:
+        target = 'No data'
+        tat_val = value
+        color = 'black'
+
+    result['tat'] = tat_val
+    result['target'] = target
+    result['color'] = color
+    return result
+
+
+def generate_mail_table_format(result, project, date):
+
+    aht_data = AHTTeam.objects.filter(project=project,date=date).values('AHT').count()
+
+    tat_data = TatTable.objects.filter(project=project,date=date).values('met_count').count()
 
     mail_body = "<html>\
                     <head>\
@@ -142,10 +206,43 @@ def generate_mail_table_format(result):
                     <td><font color=%s>%s</font></td>\
                 </tr>\
                 </table>" % (result['external_target'], result['external_color'], result['external_actual'])
+
+    if aht_data and tat_data:
+        fourth_row = "<tr>\
+                        <td>AHT</td>\
+                        <td>%s</td>\
+                        <td><font color=%s>%s</font></td>\
+                    </tr>" % (result['aht_target'], result['aht_color'], result['aht'])
+        fifth_row = "<tr>\
+                        <td>TAT</td>\
+                        <td>%s</td>\
+                        <td><font color=%s>%s</font></td>\
+                    </tr>\
+                    </table>" % (result['tat_target'], result['tat_color'], result['tat'])
+    elif aht_data:
+        sixth_row = "<tr>\
+                        <td>AHT</td>\
+                        <td>%s</td>\
+                        <td><font color=%s>%s</font></td>\
+                    </tr>\
+                    </table>" % (result['aht_target'], result['aht_color'], result['aht'])
+    elif tat_data:
+        seventh_row = "<tr>\
+                        <td>TAT</td>\
+                        <td>%s</td>\
+                        <td><font color=%s>%s</font></td>\
+                    </tr>\
+                    </table>" % (result['tat_target'], result['tat_color'], result['tat'])
     body =  "</body>\
              </html>"
-                    
-    _text = mail_body + headers + first_row + second_row + third_row + body
+    if aht_data and tat_data:
+        _text = mail_body + headers + first_row + second_row + third_row + fourth_row + fifth_row + body
+    elif aht_data:
+        _text = mail_body + headers + first_row + second_row + third_row + sixth_row + body
+    elif tat_data:
+        _text = mail_body + headers + first_row + second_row + third_row + seventh_row + body
+    else:            
+        _text = mail_body + headers + first_row + second_row + third_row + body
     return _text
 
 
