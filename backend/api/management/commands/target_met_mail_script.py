@@ -32,8 +32,8 @@ class Command(BaseCommand):
         prv_date = datetime.datetime.now() - datetime.timedelta(days=1)
 
         for manager in managers:
-            projects = Project.objects.filter(user=manager.id).values_list('id', flat=True)
-            user_data = User.objects.filter(id=manager.id)
+            projects = Project.objects.filter(user=manager.name_id).values_list('id', flat=True)
+            user_data = User.objects.filter(id=manager.name_id)
             user_email = user_data[0].email
             user_name = user_data[0].first_name
             _text1 = "Dear %s, <p>Below is a snapshot of  'Target'  and  'Actual'  values of SLA/KPI.</p>"\
@@ -54,6 +54,6 @@ class Command(BaseCommand):
                 mail_logos = generate_logos_format(dashboard_url)
                 mail_body = _text1 + mail_data + mail_logos
                 to = [user_email]
-                msg = EmailMessage("NextPulse", mail_body, 'nextpulse@nextwealth.in', to)
+                msg = EmailMessage("NextPulse KPI/SLA Report", mail_body, 'nextpulse@nextwealth.in', to)
                 msg.content_subtype = "html"
                 msg.send()

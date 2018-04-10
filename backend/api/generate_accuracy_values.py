@@ -43,7 +43,7 @@ def generate_targets_data(project):
     if aht_check != None:
         aht_data = generate_aht_data(project,last_date,aht_check)
         result.update({'aht_target':aht_data['target'],'aht':aht_data['aht'],'aht_color':aht_data['color']})
-    elif met_cnt['met_count__sum'] != None:
+    if met_cnt['met_count__sum'] != None:
         tat_data = generate_tat_data(project,met_cnt,not_met,last_date)
         result.update({'tat_target':tat_data['target'],'tat':tat_data['tat'],'tat_color':tat_data['color']})
     return result
@@ -126,7 +126,7 @@ def generate_tat_data(project,met_cnt,not_met,date):
                     target_type='TAT').aggregate(Sum('target_value'))
     met_val = met_cnt['met_count__sum']
     not_met_val = not_met['non_met_count__sum']
-    value = (float(met_val) /float(not_met_val))*100
+    value = (float(met_val) /float(met_val + not_met_val))*100
     value = float('%.2f' % round(value, 2))
     target = target_value['target_value__sum']
     if target > value:
@@ -149,6 +149,8 @@ def generate_tat_data(project,met_cnt,not_met,date):
 
 
 def generate_mail_table_format(result, project, date):
+
+    date = date['date__max']
 
     aht_data = AHTTeam.objects.filter(project=project,date=date).values('AHT').count()
 
@@ -204,8 +206,7 @@ def generate_mail_table_format(result, project, date):
                     <td>External Accuracy</td>\
                     <td>%s</td>\
                     <td><font color=%s>%s</font></td>\
-                </tr>\
-                </table>" % (result['external_target'], result['external_color'], result['external_actual'])
+                </tr>" % (result['external_target'], result['external_color'], result['external_actual'])
 
     if aht_data and tat_data:
         fourth_row = "<tr>\
