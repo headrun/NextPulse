@@ -91,16 +91,16 @@ def send_push_notification(request):
     if user_group in ['team_lead', 'customer']:
         values, device_id = get_user_id(request)
         data_1 = values['project'] + "\n" + values['date'] + "\n"
-        if ('prod_actual' in values) and ('int_acc' not in values) and (ext_acc not in values):
-            metric = 'Production' + "\n" + "Target = " + str(values['prod_target']) + "  Actual = " + str(values['prod_actual'])
+        if ('prod_actual' in values) and ('int_acc' not in values) and ('ext_acc' not in values):
+            metric = 'Production' + ": " + "Target = " + str(values['prod_target']) + ",  Actual = " + str(values['prod_actual'])
         elif 'int_acc' and 'ext_acc' in values:
-            metric_1 = 'Internal Accuracy' + ", " + "Target = " + str(values['int_target']) + "  Actual = " + str(values['int_acc']) + "\n"
-            metric_2 = 'External Accuracy' + ", " + "Target = " + str(values['ext_target']) + "  Actual = " + str(values['ext_acc'])
+            metric_1 = 'Internal Accuracy' + ": " + "Target = " + str(values['int_target']) + ",  Actual = " + str(values['int_acc']) + "\n"
+            metric_2 = 'External Accuracy' + ": " + "Target = " + str(values['ext_target']) + ",  Actual = " + str(values['ext_acc'])
             metric = metric_1 + metric_2
         elif 'int_acc' in values:
-            metric = 'Internal Accuracy' + "\n" + "Target = " + str(values['int_target']) + "  Actual = " + str(values['int_acc'])
+            metric = 'Internal Accuracy' + ": " + "Target = " + str(values['int_target']) + "  Actual = " + str(values['int_acc'])
         elif 'ext_acc' in values:
-            metric = 'External Accuracy' + "\n" + "Target = " + str(values['ext_target']) + "  Actual = " + str(values['ext_acc'])
+            metric = 'External Accuracy' + ": " + "Target = " + str(values['ext_target']) + "  Actual = " + str(values['ext_acc'])
         data = data_1 + metric
         header = {"Content-Type": "application/json; charset=utf-8",
                   "Authorization": "Basic MWNhMjliMjAtNzAxMy00N2Y4LWIxYTUtYzdjNjQzMDkzOTZk"}
