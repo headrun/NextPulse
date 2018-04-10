@@ -24,6 +24,8 @@ class Project(models.Model):
     sub_project_check = models.BooleanField(default=None)
     is_voice = models.BooleanField(default = False)
     display_value = models.BooleanField(default = False)
+    user = models.ManyToManyField(User,null=True)
+
     class Meta:
         db_table = u'project'
         index_together = (('name', 'center',), ('name', 'sub_project_check', 'center'),)
