@@ -114,7 +114,7 @@ def send_push_notification(request):
         opener = urllib2.build_opener(urllib2.HTTPHandler)
         request = urllib2.Request(url, data=json.dumps(payload))
         request.add_header("Content-Type", "application/json; charset=utf-8") #Header, Value
-        request.add_header("Authorization", "Basic NDc2MDUwN2YtYjk4Zi00NDM4LWFlZmEtNmQ4NjA3NDhhZTFm")                                        
+        request.add_header("Authorization", "Basic NDc2MDUwN2YtYjk4Zi00NDM4LWFlZmEtNmQ4NjA3NDhhZTFm")                                                                               
         print opener.open(request)
     else:
         payload = {}
