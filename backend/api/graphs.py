@@ -212,29 +212,30 @@ def work_track_data(date_list,prj_id,center_obj,level_structure_key):
     volume_graph_data = {}
 
     filter_params = get_query_parameters(level_structure_key, prj_id, center_obj, date_list)
-    track_query = Worktrack.objects.filter(**filter_params)
-    query_data = track_query.values_list('date').annotate(open_val=Sum('opening'), \
-                 receive=Sum('received'), hold=Sum('non_workable_count'), done=Sum('completed'), \
-                 balance=Sum('closing_balance'))
-    for value in query_data:
-        if _dict.has_key('Opening'):
-            _dict['Opening'].append(value[4])
-            _dict['Received'].append(value[1])
-            _dict['Non Workable Count'].append(value[3])
-            _dict['Completed'].append(value[2])
-            _dict['Closing balance'].append(value[5])
-            line_dict['Received'].append(value[4]+value[1])
-            line_dict['Completed'].append(value[2])
-        else:
-            _dict['Opening'] = [value[4]]
-            _dict['Received'] = [value[1]]
-            _dict['Non Workable Count'] = [value[3]]
-            _dict['Completed'] = [value[2]]
-            _dict['Closing balance'] = [value[5]]
-            line_dict['Received'] = [value[4]+value[1]]
-            line_dict['Completed'] = [value[2]]
-    volume_graph_data['bar_data'] = _dict
-    volume_graph_data['line_data'] = line_dict
+    if filter_params:
+        track_query = Worktrack.objects.filter(**filter_params)
+        query_data = track_query.values_list('date').annotate(open_val=Sum('opening'), \
+                     receive=Sum('received'), hold=Sum('non_workable_count'), done=Sum('completed'), \
+                     balance=Sum('closing_balance'))
+        for value in query_data:
+            if _dict.has_key('Opening'):
+                _dict['Opening'].append(value[4])
+                _dict['Received'].append(value[1])
+                _dict['Non Workable Count'].append(value[3])
+                _dict['Completed'].append(value[2])
+                _dict['Closing balance'].append(value[5])
+                line_dict['Received'].append(value[4]+value[1])
+                line_dict['Completed'].append(value[2])
+            else:
+                _dict['Opening'] = [value[4]]
+                _dict['Received'] = [value[1]]
+                _dict['Non Workable Count'] = [value[3]]
+                _dict['Completed'] = [value[2]]
+                _dict['Closing balance'] = [value[5]]
+                line_dict['Received'] = [value[4]+value[1]]
+                line_dict['Completed'] = [value[2]]
+        volume_graph_data['bar_data'] = _dict
+        volume_graph_data['line_data'] = line_dict
     return volume_graph_data
 
 
@@ -249,33 +250,34 @@ def headcount_widgets(center_obj,prj_id,date_list,level_structure_key):
     final_utilization_result['Overall Utilization']['Overall Utilization'] = []
 
     filter_params = get_query_parameters(level_structure_key, prj_id, center_obj, date_list)
-    query_values = Headcount.objects.filter(**filter_params).values_list('date').\
-                   annotate(bill_hc=Sum('billable_hc'),bill_age=Sum('billable_agents'),\
-                   buff_age=Sum('buffer_agents'),qc=Sum('qc_or_qa'),tl=Sum('teamlead'),\
-                   trainees=Sum('trainees_and_trainers'),manager=Sum('managers'),mis=Sum('mis'))
-    for value in query_values:
-        util_numerator = value[7]
-        fte_denominator = value[7] + value[8] + value[4] + value[5]
-        operational_denominator = fte_denominator + value[3]
-        overall_util_denominator = operational_denominator + value[1] + value[6]
-        if fte_denominator > 0: 
-            fte_value = (float(float(util_numerator) / float(fte_denominator))) * 100
-            fte_value = float('%.2f' % round(fte_value, 2))
-        else:
-            fte_value = 0
-        if operational_denominator > 0:
-            operational_value = (float(float(util_numerator) / float(operational_denominator))) * 100
-            operational_value = float('%.2f' % round(operational_value, 2))
-        else:
-            operational_value = 0
-        if overall_util_denominator > 0:
-            overall_util_value = (float(float(util_numerator) / float(overall_util_denominator))) * 100
-            overall_util_value = float('%.2f' % round(overall_util_value, 2))
-        else:
-            overall_util_value = 0
-        final_utilization_result['FTE Utilization']['FTE Utilization'].append(fte_value)
-        final_utilization_result['Operational Utilization']['Operational Utilization'].append(operational_value)
-        final_utilization_result['Overall Utilization']['Overall Utilization'].append(overall_util_value)
+    if filter_params:
+        query_values = Headcount.objects.filter(**filter_params).values_list('date').\
+                       annotate(bill_hc=Sum('billable_hc'),bill_age=Sum('billable_agents'),\
+                       buff_age=Sum('buffer_agents'),qc=Sum('qc_or_qa'),tl=Sum('teamlead'),\
+                       trainees=Sum('trainees_and_trainers'),manager=Sum('managers'),mis=Sum('mis'))
+        for value in query_values:
+            util_numerator = value[7]
+            fte_denominator = value[7] + value[8] + value[4] + value[5]
+            operational_denominator = fte_denominator + value[3]
+            overall_util_denominator = operational_denominator + value[1] + value[6]
+            if fte_denominator > 0: 
+                fte_value = (float(float(util_numerator) / float(fte_denominator))) * 100
+                fte_value = float('%.2f' % round(fte_value, 2))
+            else:
+                fte_value = 0
+            if operational_denominator > 0:
+                operational_value = (float(float(util_numerator) / float(operational_denominator))) * 100
+                operational_value = float('%.2f' % round(operational_value, 2))
+            else:
+                operational_value = 0
+            if overall_util_denominator > 0:
+                overall_util_value = (float(float(util_numerator) / float(overall_util_denominator))) * 100
+                overall_util_value = float('%.2f' % round(overall_util_value, 2))
+            else:
+                overall_util_value = 0
+            final_utilization_result['FTE Utilization']['FTE Utilization'].append(fte_value)
+            final_utilization_result['Operational Utilization']['Operational Utilization'].append(operational_value)
+            final_utilization_result['Overall Utilization']['Overall Utilization'].append(overall_util_value)
 
     return final_utilization_result
 
