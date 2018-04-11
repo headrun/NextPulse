@@ -103,9 +103,9 @@ def send_push_notification(request):
             metric = 'External Accuracy' + ": " + "Target = " + str(values['ext_target']) + "  Actual = " + str(values['ext_acc'])
         data = data_1 + metric
         header = {"Content-Type": "application/json; charset=utf-8",
-                  "Authorization": "Basic ZmY4OTRiNTgtOTU2MS00NGQwLWJmZTMtMzkzNTAwZDBjYWNj"}
+                  "Authorization": "Basic NDc2MDUwN2YtYjk4Zi00NDM4LWFlZmEtNmQ4NjA3NDhhZTFm"}
 
-        payload = {"app_id": "ee77f4b2-7803-4161-ab9a-8ee3ea03a0b4",
+        payload = {"app_id": "110eec68-f4b0-44d2-a876-aca05bc87845",
                    "include_player_ids": [device_id],
                    #"included_segments": ["All"],
                    "contents": {"en": data}}
@@ -114,7 +114,7 @@ def send_push_notification(request):
         opener = urllib2.build_opener(urllib2.HTTPHandler)
         request = urllib2.Request(url, data=json.dumps(payload))
         request.add_header("Content-Type", "application/json; charset=utf-8") #Header, Value
-        request.add_header("Authorization", "Basic ZmY4OTRiNTgtOTU2MS00NGQwLWJmZTMtMzkzNTAwZDBjYWNj")                                        
+        request.add_header("Authorization", "Basic NDc2MDUwN2YtYjk4Zi00NDM4LWFlZmEtNmQ4NjA3NDhhZTFm")                                                                               
         print opener.open(request)
     else:
         payload = {}
