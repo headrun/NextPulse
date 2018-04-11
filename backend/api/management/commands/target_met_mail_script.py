@@ -43,7 +43,7 @@ class Command(BaseCommand):
             for project in projects:
                 max_date = RawTable.objects.filter(project=project).aggregate(Max('created_at'))
                 date = RawTable.objects.filter(project=project).aggregate(Max('date'))
-                if str(max_date['created_at__max'].date()) != str(prv_date.date()):
+                if str(max_date['created_at__max'].date()) == str(prv_date.date()):
                     prj_count.append(project)
                     result = generate_targets_data(project)
                     name = Project.objects.filter(id=project).values_list('name',flat=True).distinct()
