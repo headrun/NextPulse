@@ -5,7 +5,7 @@ from django.apps import apps
 from voice_service.models import *
 from api.models import *
 from voice_service.voice_query_insertion import *
-from voice_service.constrants import *
+#from voice_service.constrants import *
 from voice_service.voice_widgets import *
 from api.voice_widgets import *
 from django.db.models import Count as count
