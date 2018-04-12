@@ -99,6 +99,9 @@
             data["widget_id"] = graph_name.split('<##>')[0];
             data["project_live"] = point.project_live;
             data["center_live"] = point.center_live;
+            data["start_date"] = point.start_date;
+            data["end_date"] = point.end_date;
+            console.log("start_date", "end_date");
         }
 
         if((point.barX) & (point.pointWidth < 55)){

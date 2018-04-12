@@ -656,6 +656,7 @@ def validate_sheet(open_sheet, request, SOH_XL_HEADERS, SOH_XL_MAN_HEADERS):
     return sheet_headers
 
 def annotation_check(request):
+    
     is_annotation = False
     series_name = request.GET.get('series_name', '')
     chart_ids = request.GET.getlist('chart_name', '')

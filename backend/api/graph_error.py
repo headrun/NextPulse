@@ -40,7 +40,6 @@ def error_charts(request, name, function_name, internal_name, external_name, ter
     elif name == 'pareto_charts':
         final_dict[internal_name] = _internal_data
         final_dict[external_name] = _external_data
-
     final_dict['is_annotation'] = annotation_check(request)
     return final_dict
 

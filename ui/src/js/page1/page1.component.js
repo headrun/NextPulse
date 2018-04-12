@@ -354,6 +354,7 @@
                     self.center_live = callback[2];
 
                     self.project_live = callback[3];
+                    self.date_range = $('#select').val().split('to');
 
                     $('#emp_widget').hide();
 
@@ -396,15 +397,18 @@
 
                     self.annot_perm = function() {
 
-                        if (self.role_for_perm == 'customer') {
+                        if (self.role_for_perm === "customer") {
 
                           $('.annotation-popover').find('p').attr('contenteditable', 'false');
                           $('.popover-title').hide();
+                          //$('.icon-action-group').hide()
+                          console.log('function customer')
                         }
                         else {
 
                           $('.annotation-popover').find('p').attr('contenteditable', 'true');
                           $('.popover-title').show();
+                          //$('.icon-action-group').show()
                         }
                     }
 
@@ -520,6 +524,8 @@
                                             	    var str = '17<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                                             	    this['project_live'] = self.project_live;
                                                     this['center_live'] = self.center_live;
+                                                    this['start_date'] = self.date_range[0];
+                                                    this['end_date'] = self.date_range[1];
                                                     return new Annotation(str, $(self.chartOptions17.chart.renderTo),this.series.chart, this);
                                                     }
                                                   }
@@ -538,7 +544,7 @@
                                             (function(series){
                                             $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
 					  self.type+'&chart_name=17&proj_name='+self.project_live+'&cen_name='+
-					  self.center_live}).success(function(annotations){ 
+					  self.center_live+'&start_date='+self.date_range[0]+'&end_date='+self.date_range[1]}).success(function(annotations){ 
                                 annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                                 $.each(annotations, function(j, annotation){
 
@@ -551,12 +557,12 @@
                                         chart, point, annotation);
 
                                    console.log(a);
+                                   self.annot_perm();
                                 }
                                })
                                         });
                                         }(series));
                                     }
-                                    self.annot_perm();
                                     }
                                   }
                                 })
@@ -616,6 +622,8 @@
                                             	    var str = '13<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                                                     this['project_live'] = self.project_live;
                                                     this['center_live'] = self.center_live;
+                                                    this['start_date'] = self.date_range[0];
+                                                    this['end_date'] = self.date_range[1];
                                                     return new Annotation(str, $(self.chartOptions18.chart.renderTo),this.series.chart, this);
                                                     }
                                                   }
@@ -634,7 +642,7 @@
                                             (function(series){
                                             $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
 					                self.type+'&chart_name=13&proj_name='+self.project_live+'&cen_name='+
-				                    self.center_live}).success(function(annotations){
+				                    self.center_live+'&start_date='+self.date_range[0]+'&end_date='+self.date_range[1]}).success(function(annotations){
                                     annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                                     $.each(annotations, function(j, annotation){
 
@@ -647,13 +655,13 @@
                                             chart, point, annotation);
 
                                     console.log(a);
+                                    self.annot_perm();
                                    }
                                 })
 
                                         });
                                         }(series));
                                     }
-                                    self.annot_perm();
                                     }
                                   }
                                 });
@@ -757,6 +765,8 @@
                                                     var str = '20<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                                                     this['project_live'] = self.project_live;
                                                     this['center_live'] = self.center_live;
+                                                    this['start_date'] = self.date_range[0];
+                                                    this['end_date'] = self.date_range[1];
                                                     return new Annotation(str, $(self.chartOptions25.chart.renderTo),this.series.chart, this);
                                                     }
                                                   }
@@ -775,7 +785,7 @@
                                         (function(series){
                                           $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
 					  self.type+'&chart_name=20&proj_name='+self.project_live+'&cen_name='+
-					  self.center_live}).success(function(annotations){ 
+					  self.center_live+'&start_date='+self.date_range[0]+'&end_date='+self.date_range[1]}).success(function(annotations){ 
                                annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                                $.each(annotations, function(j, annotation){
 
@@ -788,13 +798,13 @@
                                         chart, point, annotation);
 
                                    console.log(a);
+                                   self.annot_perm();
                                    }
                                })
 
                                         });
                                         }(series));
                                     }
-                                    self.annot_perm();
                                     }
                                    } 
                                 });
@@ -855,6 +865,8 @@
                                            	    var str = '19<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                                                     this['project_live'] = self.project_live;
                                                     this['center_live'] = self.center_live;
+                                                    this['start_date'] = self.date_range[0];
+                                                    this['end_date'] = self.date_range[1];
                                                     return new Annotation(str, $(self.chartOptions24.chart.renderTo),this.series.chart, this);
                                                     }
                                                    }
@@ -874,7 +886,7 @@
                                         (function(series){
                                           $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
 					  self.type+'&chart_name=19&proj_name='+self.project_live+'&cen_name='+
-			                  self.center_live}).success(function(annotations){
+			                  self.center_live+'&start_date='+self.date_range[0]+'&end_date='+self.date_range[1]}).success(function(annotations){
                                annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                                $.each(annotations, function(j, annotation){
 
@@ -887,13 +899,13 @@
                                         chart, point, annotation);
 
                                    console.log(a);
+                                   self.annot_perm();
                                    }
                                })
 
                                         });
                                         }(series));
                                     }
-                                    self.annot_perm();
                                     }
                                   }  
                                 });
@@ -947,8 +959,10 @@
                                              var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
                                            }
                                                  var str = '9<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
-                                                                     this['project_live'] = self.project_live;
-                                                                     this['center_live'] = self.center_live;
+                                                                    this['project_live'] = self.project_live;
+                                                                    this['center_live'] = self.center_live;
+                                                                    this['start_date'] = self.date_range[0];
+                                                                    this['end_date'] = self.date_range[1];
                                              return new Annotation(str, $(self.chartOptions15.chart.renderTo),this.series.chart, this);
                                              }
                                             }
@@ -968,7 +982,7 @@
                                         (function(series){
                                           $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
 					  self.type+'&chart_name=9&proj_name='+self.project_live+'&cen_name='+
-					  self.center_live}).success(function(annotations){
+					  self.center_live+'&start_date='+self.date_range[0]+'&end_date='+self.date_range[1]}).success(function(annotations){
                                annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                                $.each(annotations, function(j, annotation){
        
@@ -980,14 +994,14 @@
                                    var a = new Annotation("9", $(self.chartOptions15.chart.renderTo),
                                         chart, point, annotation);
        
-                                   console.log(a);   
+                                   console.log(a);
+                                   self.annot_perm();   
                                    }
                                })
        
                                         });
                                         }(series));
                                     }
-                                    self.annot_perm();
                                     }
                                   }
                                 });
@@ -1066,6 +1080,8 @@
                                                     var str = '14<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                                                     this['project_live'] = self.project_live;
                                                     this['center_live'] = self.center_live;
+                                                    this['start_date'] = self.date_range[0];
+                                                    this['end_date'] = self.date_range[1];
                                                     return new Annotation(str, $(self.chartOptions19.chart.renderTo),this.series.chart, this);
                                                     }
                                                   }
@@ -1085,7 +1101,7 @@
                                         (function(series){
                                           $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
 					  self.type+'&chart_name=14&proj_name='+self.project_live+'&cen_name='+
-					  self.center_live}).success(function(annotations){ 
+					  self.center_live+'&start_date='+self.date_range[0]+'&end_date='+self.date_range[1]}).success(function(annotations){ 
                                annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                                $.each(annotations, function(j, annotation){
 
@@ -1098,13 +1114,13 @@
                                         chart, point, annotation);
 
                                    console.log(a);
+                                   self.annot_perm();
                                    }
                                })   
 
                                         });
                                         }(series));
                                     }
-                                    self.annot_perm();
                                     }
                                 }
                             });
@@ -1180,6 +1196,8 @@
 				                var str = '33<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                                                 this['project_live'] = self.project_live;
                                                 this['center_live'] = self.center_live;
+                                                this['start_date'] = self.date_range[0];
+                                                this['end_date'] = self.date_range[1];
 					      return new Annotation(str, $(self.chartOptions38.chart.renderTo),this.series.chart, this);
 						    }
                           }
@@ -1198,7 +1216,7 @@
                                     (function(series){
                                       $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
 				      self.type+'&chart_name=33&proj_name='+self.project_live+'&cen_name='+
-				      self.center_live}).success(function(annotations){
+				      self.center_live+'&start_date='+self.date_range[0]+'&end_date='+self.date_range[1]}).success(function(annotations){
                            annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                            $.each(annotations, function(j, annotation){
        
@@ -1211,13 +1229,13 @@
                                     chart, point, annotation);
 
                                console.log(a);
+                               self.annot_perm();
                                }
                            })
 
                                     });
                                     }(series));
                                 }
-                                self.annot_perm();
                                 }
                               }  
                             });
@@ -1286,26 +1304,28 @@
                          else {
 
                           if (self.data_to_show.split('&').length == 6) {
-                        var sub_proj = '';
-                        var work_pack = '';
-                        var sub_pack = '';
+                                var sub_proj = '';
+                                var work_pack = '';
+                                var sub_pack = '';
                           }
                           else {
-                            var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
-                        var work_pack = self.data_to_show.split('&')[6].split('=')[1];
-                        var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
+                                var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
+                                var work_pack = self.data_to_show.split('&')[6].split('=')[1];
+                                var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
                           }
-                      var str = '26<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
-                                                this['project_live'] = self.project_live;
-                                                this['center_live'] = self.center_live;
-                          return new Annotation(str, $(self.chartOptions31.chart.renderTo),this.series.chart, this);
+                            var str = '26<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
+                                        this['project_live'] = self.project_live;
+                                        this['center_live'] = self.center_live;
+                                        this['start_date'] = self.date_range[0];
+                                        this['end_date'] = self.date_range[1];
+                            return new Annotation(str, $(self.chartOptions31.chart.renderTo),this.series.chart, this);
                             }
                           }  
                         }
                         }
                     }
                     },
-                                series: tat_values,
+                    series: tat_values,
                     onComplete: function(chart){
                     if (is_annotation) {
                     var series = null;
@@ -1314,7 +1334,8 @@
                     for(var i in chart_data){
                    series = chart_data[i];
                        (function(series){
-                      $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+self.type+'&chart_name=26&proj_name='+self.project_live+'&cen_name='+self.center_live}).success(function(annotations){
+                      $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+self.type+'&chart_name=26&proj_name='+self.project_live+'&cen_name='+
+                        self.center_live+'&start_date='+self.date_range[0]+'&end_date='+self.date_range[1]}).success(function(annotations){
                annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                $.each(annotations, function(j, annotation){
 
@@ -1327,13 +1348,13 @@
                 chart, point, annotation);
 
                console.log(a);
+               self.annot_perm();
                }
                })  
 
                 });
                 }(series));
                 }
-                self.annot_perm();
                 }
                 }
                             });
@@ -1413,6 +1434,8 @@
                                           var str = '60<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                                             this['project_live'] = self.project_live;
                                             this['center_live'] = self.center_live;
+                                            this['start_date'] = self.date_range[0];
+                                            this['end_date'] = self.date_range[1];
                                           return new Annotation(str, $(self.chartOptions65.chart.renderTo),this.series.chart, this);
                                         }
                                       }
@@ -1428,7 +1451,8 @@
                                     for(var i in chart_data){
                                       series = chart_data[i];
                                       (function(series){
-                                        $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+self.type+'&chart_name=60&proj_name='+self.project_live+'&cen_name='+self.center_live}).success(function(annotations){
+                                        $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+self.type+'&chart_name=60&proj_name='+self.project_live+'&cen_name='+
+                                            self.center_live+'&start_date='+self.date_range[0]+'&end_date='+self.date_range[1]}).success(function(annotations){
                                           annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                                           $.each(annotations, function(j, annotation){
                                             var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
@@ -1437,12 +1461,12 @@
                                               var a = new Annotation("60", $(self.chartOptions65.chart.renderTo.innerHTML),
                                                       chart, point, annotation);
                                               console.log(a);
+                                              self.annot_perm();
                                             }
                                           })
                                         });
                                       }(series));
                                     }
-                                    self.annot_perm();
                                   }
                                 }
                             });
@@ -1519,6 +1543,8 @@
                                                     var str = '21<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                                                     this['project_live'] = self.project_live;
                                                     this['center_live'] = self.center_live;
+                                                    this['start_date'] = self.date_range[0];
+                                                    this['end_date'] = self.date_range[1];
                                                     return new Annotation(str, $(self.chartOptions26.chart.renderTo),this.series.chart, this);
                                                     }
                                                   }
@@ -1537,7 +1563,7 @@
                                     (function(series){
                                       $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
 				      self.type+'&chart_name=21&proj_name='+self.project_live+'&cen_name='+
-			              self.center_live}).success(function(annotations){
+			              self.center_live+'&start_date='+self.date_range[0]+'&end_date='+self.date_range[1]}).success(function(annotations){
                            annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                            $.each(annotations, function(j, annotation){
        
@@ -1550,13 +1576,13 @@
                                     chart, point, annotation);
        
                                console.log(a);
+                               self.annot_perm();
                                }
                            })
        
                                     });
                                     }(series));
                                 }
-                                self.annot_perm();
                                 }
                               }  
                             });
@@ -1613,7 +1639,7 @@
                             var work_packet_fte = result.result.fte_calc_data.fte_scope;
                             var total_fte = result.result.fte_calc_data.fte_trend;
                             var is_annotation = result.result.is_annotation;
-                            var date_range = $('#select').val().split('to');
+                            //var date_range = $('#select').val().split('to');
                             
                             if ((name == "self.chartOptions16") || (name == "")) {
 
@@ -1667,6 +1693,8 @@
                                                     var str = '11<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                                                     this['project_live'] = self.project_live;
                                                     this['center_live'] = self.center_live;
+                                                    this['start_date'] = self.date_range[0];
+                                                    this['end_date'] = self.date_range[1];
                                                     return new Annotation(str, $(self.chartOptions16.chart.renderTo),this.series.chart, this);
                                                     }
                                                   }
@@ -1685,7 +1713,7 @@
                                         (function(series){
                                           $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
 					  self.type+'&chart_name=11&proj_name='+self.project_live+'&cen_name='+
-					  self.center_live+'&start_date='+date_range[0]+'&end_date='+date_range[1]}).success(function(annotations){
+					  self.center_live+'&start_date='+self.date_range[0]+'&end_date='+self.date_range[1]}).success(function(annotations){
                                annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                                $.each(annotations, function(j, annotation){
 
@@ -1698,13 +1726,13 @@
                                         chart, point, annotation);
 
                                    console.log(a);
+                                   self.annot_perm();
                                    }
                                })
 
                                         });
                                         }(series));
                                     }
-                                    self.annot_perm();
                                     }
                                   }  
                                 });
@@ -1762,6 +1790,8 @@
                                                     var str = '12<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                                                     this['project_live'] = self.project_live;
                                                     this['center_live'] = self.center_live;
+                                                    this['start_date'] = self.date_range[0];
+                                                    this['end_date'] = self.date_range[1];
                                                     return new Annotation(str, $(self.chartOptions16_2.chart.renderTo),this.series.chart, this);
                                                     }
                                                   }  
@@ -1779,7 +1809,7 @@
                                         (function(series){
                                           $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
                                           self.type+'&chart_name=12&proj_name='+self.project_live+'&cen_name='+
-					  self.center_live}).success(function(annotations){ 
+					  self.center_live+'&start_date='+self.date_range[0]+'&end_date='+self.date_range[1]}).success(function(annotations){ 
                                annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                                $.each(annotations, function(j, annotation){
 
@@ -1789,15 +1819,18 @@
                                  if(annotation.epoch){
                                    var a = new Annotation("12", $(self.chartOptions16_2.chart.renderTo),
                                         chart, point, annotation);
+                                   if(annotation.text == 'undefined') {
+                                    $('.arrow').hide();
+                                   }
 
-                                   console.log(a);   
+                                   console.log(a);
+                                   self.annot_perm();  
                                    }
                                })
 
                                         });
                                         }(series));
                                     }
-                                    self.annot_perm();
                                     }
                                 });
                                 $('.widget-12a').removeClass('widget-loader-show');
@@ -1906,6 +1939,8 @@
                                                     var str = '6<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                                                     this['project_live'] = self.project_live;
                                                     this['center_live'] = self.center_live;
+                                                    this['start_date'] = self.date_range[0];
+                                                    this['end_date'] = self.date_range[1];
                                                     return new Annotation(str, $(self.chartOptions10.chart.renderTo),this.series.chart, this);
                                                     }
                                                   }
@@ -1924,7 +1959,7 @@
                                         (function(series){
                                           $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
 					  self.type+'&chart_name=6&proj_name='+self.project_live+'&cen_name='+
-					  self.center_live}).success(function(annotations){
+					  self.center_live+'&start_date='+self.date_range[0]+'&end_date='+self.date_range[1]}).success(function(annotations){
                                annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                                $.each(annotations, function(j, annotation){
 
@@ -1937,13 +1972,13 @@
                                         chart, point, annotation);
 
                                    console.log(a);
+                                   self.annot_perm();
                                    }
                                })
 
                                         });
                                         }(series));
                                     }
-                                    self.annot_perm();
                                     }
                                   }
                                 });
@@ -2000,10 +2035,11 @@
 						     var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
 						   }
 					     	     var str = '1<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
-                                                     this['project_live'] = self.project_live;
-                                                     this['center_live'] = self.center_live;
-
-						     return new Annotation(str, $(self.chartOptions.chart.renderTo),this.series.chart, this);
+                                            this['project_live'] = self.project_live;
+                                            this['center_live'] = self.center_live;
+                                            this['start_date'] = self.date_range[0];
+                                            this['end_date'] = self.date_range[1];
+						          return new Annotation(str, $(self.chartOptions.chart.renderTo),this.series.chart, this);
 						     }
                            } 
 						 }
@@ -2022,7 +2058,7 @@
                                         (function(series){
                                           $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
 					  self.type+'&chart_name=1&proj_name='+self.project_live+'&cen_name='+
-					  self.center_live}).success(function(annotations){  
+					  self.center_live+'&start_date='+self.date_range[0]+'&end_date='+self.date_range[1]}).success(function(annotations){  
                                annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                                $.each(annotations, function(j, annotation){
 
@@ -2035,13 +2071,13 @@
                                         chart, point, annotation);
 
                                    console.log(a);
+                                   self.annot_perm();
                                    }
                                })
 
                                         });
                                         }(series));
                                     }
-                                    self.annot_perm();
                                     }
                                   }  
                                 });     
@@ -2139,6 +2175,8 @@
                                                 var str = '24<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                                                 this['project_live'] = self.project_live;
                                                 this['center_live'] = self.center_live;
+                                                this['start_date'] = self.date_range[0];
+                                                this['end_date'] = self.date_range[1];
                                                 return new Annotation(str, $(self.chartOptions29.chart.renderTo),this.series.chart, this);
                                                 }
                                             }
@@ -2158,7 +2196,7 @@
                                         (function(series){
                                           $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
 				          self.type+'&chart_name=24&proj_name='+self.project_live+'&cen_name='+
-					  self.center_live}).success(function(annotations){ 
+					  self.center_live+'&start_date='+self.date_range[0]+'&end_date='+self.date_range[1]}).success(function(annotations){ 
                                annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                                $.each(annotations, function(j, annotation){
 
@@ -2171,13 +2209,13 @@
                                         chart, point, annotation);
 
                                    console.log(a);
+                                   self.annot_perm();
                                    }
                                })
 
                                         });
                                         }(series));
                                     }
-                                    self.annot_perm();
                                     }
                                 }
                             });
@@ -2253,7 +2291,7 @@
                                         (function(series){
                                           $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
 					  self.type+'&chart_name=25&proj_name='+self.project_live+'&cen_name='+
-					  self.center_live}).success(function(annotations){ 
+					  self.center_live+'&start_date='+self.date_range[0]+'&end_date='+self.date_range[1]}).success(function(annotations){ 
                                annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                                $.each(annotations, function(j, annotation){
 
@@ -2266,13 +2304,13 @@
                                         chart, point, annotation);
 
                                    console.log(a);
+                                   self.annot_perm();
                                    }
                                })
 
                                         });
                                         }(series));
                                     }
-                                    self.annot_perm();
                                     }
                                  }   
                             });
@@ -2338,6 +2376,8 @@
                                                 var str = '22<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                                                 this['project_live'] = self.project_live;
                                                 this['center_live'] = self.center_live;
+                                                this['start_date'] = self.date_range[0];
+                                                this['end_date'] = self.date_range[1];
                                                 return new Annotation(str, $(self.chartOptions27.chart.renderTo),this.series.chart, this);
                                                 }
                                               }
@@ -2356,7 +2396,7 @@
                                         (function(series){
                                           $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
 				          self.type+'&chart_name=22&proj_name='+self.project_live+'&cen_name='+
-				          self.center_live}).success(function(annotations){ 
+				          self.center_live+'&start_date='+self.date_range[0]+'&end_date='+self.date_range[1]}).success(function(annotations){ 
                                annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                                $.each(annotations, function(j, annotation){
 
@@ -2369,13 +2409,13 @@
                                         chart, point, annotation);
 
                                    console.log(a);
+                                   self.annot_perm();
                                    }
                                })
 
                                         });
                                         }(series));
                                     }
-                                    self.annot_perm();
                                     }
                                 }
                             });
@@ -2432,6 +2472,8 @@
                                                 var str = '23<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                                                 this['project_live'] = self.project_live;
                                                 this['center_live'] = self.center_live;
+                                                this['start_date'] = self.date_range[0];
+                                                this['end_date'] = self.date_range[1];
                                                 return new Annotation(str, $(self.chartOptions28.chart.renderTo),this.series.chart, this);
                                                 }
                                               }
@@ -2451,7 +2493,7 @@
                                         (function(series){
                                           $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
 					  self.type+'&chart_name=23&proj_name='+self.project_live+'&cen_name='+
-					  self.center_live}).success(function(annotations){ 
+					  self.center_live+'&start_date='+self.date_range[0]+'&end_date='+self.date_range[1]}).success(function(annotations){ 
                                annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                                $.each(annotations, function(j, annotation){
 
@@ -2464,12 +2506,12 @@
                                         chart, point, annotation);
 
                                    console.log(a);
+                                   self.annot_perm();
                                    }
                                })
                                         });
                                         }(series));
                                     }
-                                    self.annot_perm();
                                     }
                                 }
                             });
@@ -2549,6 +2591,8 @@
                                                 var str = '35<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                                                 this['project_live'] = self.project_live;
                                                 this['center_live'] = self.center_live;
+                                                this['start_date'] = self.date_range[0];
+                                                this['end_date'] = self.date_range[1];
                                                 return new Annotation(str, $(self.chartOptions40.chart.renderTo),this.series.chart, this);
                                                 }
                                               }
@@ -2567,7 +2611,7 @@
                                     (function(series){
                                       $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
 			              self.type+'&chart_name=35&proj_name='+self.project_live+'&cen_name='+
-				      self.center_live}).success(function(annotations){
+				      self.center_live+'&start_date='+self.date_range[0]+'&end_date='+self.date_range[1]}).success(function(annotations){
                            annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                            $.each(annotations, function(j, annotation){
 
@@ -2580,12 +2624,12 @@
                                     chart, point, annotation);
 
                                console.log(a);
+                               self.annot_perm();
                                }
                            })
                                     });
                                     }(series));
                                 }
-                                self.annot_perm();
                                 }
                               }  
                             });
@@ -2663,6 +2707,8 @@
                                         	var str = '37<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                                                 this['project_live'] = self.project_live;
                                                 this['center_live'] = self.center_live;
+                                                this['start_date'] = self.date_range[0];
+                                                this['end_date'] = self.date_range[1];
                                                 return new Annotation(str, $(self.chartOptions42.chart.renderTo),this.series.chart, this);
                                                 }
                                               }  
@@ -2682,7 +2728,7 @@
                                     (function(series){
                                       $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
 				      self.type+'&chart_name=37&proj_name='+self.project_live+'&cen_name='+
-				      self.center_live}).success(function(annotations){ 
+				      self.center_live+'&start_date='+self.date_range[0]+'&end_date='+self.date_range[1]}).success(function(annotations){ 
                            annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                            $.each(annotations, function(j, annotation){
 
@@ -2695,12 +2741,12 @@
                                     chart, point, annotation);
 
                                console.log(a);
+                               self.annot_perm();
                                }
                            })
                                     });
                                     }(series));
                                 }
-                                self.annot_perm();
                                 }
                               }  
                             });
@@ -2780,6 +2826,8 @@
                                         	var str = '36<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                                                 this['project_live'] = self.project_live;
                                                 this['center_live'] = self.center_live;
+                                                this['start_date'] = self.date_range[0];
+                                                this['end_date'] = self.date_range[1];
                                                 return new Annotation(str, $(self.chartOptions41.chart.renderTo),this.series.chart, this);
                                                 }
                                               }
@@ -2799,7 +2847,7 @@
                                     (function(series){
                                       $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
 				      self.type+'&chart_name=36&proj_name='+self.project_live+'&cen_name='+
-				      self.center_live}).success(function(annotations){ 
+				      self.center_live+'&start_date='+self.date_range[0]+'&end_date='+self.date_range[1]}).success(function(annotations){ 
                            annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                            $.each(annotations, function(j, annotation){
 
@@ -2812,12 +2860,12 @@
                                     chart, point, annotation);
 
                                console.log(a);
+                               self.annot_perm();
                                }
                            })
                                     });
                                     }(series));
                                 }
-                                self.annot_perm();
                                 }
                               }
                             });
@@ -2898,6 +2946,8 @@
                                                 var str = '34<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                                                 this['project_live'] = self.project_live;
                                                 this['center_live'] = self.center_live;
+                                                this['start_date'] = self.date_range[0];
+                                                this['end_date'] = self.date_range[1];
                                                 return new Annotation(str, $(self.chartOptions39.chart.renderTo),this.series.chart, this);
                                                 }
                                               }  
@@ -2917,7 +2967,7 @@
                                     (function(series){
                                       $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
 				      self.type+'&chart_name=34&proj_name='+self.project_live+'&cen_name='+
-				      self.center_live}).success(function(annotations){ 
+				      self.center_live+'&start_date='+self.date_range[0]+'&end_date='+self.date_range[1]}).success(function(annotations){ 
                            annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                            $.each(annotations, function(j, annotation){
 
@@ -2930,12 +2980,12 @@
                                     chart, point, annotation);
 
                                console.log(a);
+                               self.annot_perm();
                                }
                            })
                                     });
                                     }(series));
                                 }
-                                self.annot_perm();
                                 }
                               }
                             });
@@ -2999,6 +3049,8 @@
                                                 var str = '38<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                                                 this['project_live'] = self.project_live;
                                                 this['center_live'] = self.center_live;
+                                                this['start_date'] = self.date_range[0];
+                                                this['end_date'] = self.date_range[1];
                                                 return new Annotation(str, $(self.chartOptions43.chart.renderTo),this.series.chart, this);
                                                 }
                                             }
@@ -3022,7 +3074,7 @@
                                     (function(series){
                                       $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
 				      self.type+'&chart_name=38&proj_name='+self.project_live+'&cen_name='+
-				      self.center_live}).success(function(annotations){  
+				      self.center_live+'&start_date='+self.date_range[0]+'&end_date='+self.date_range[1]}).success(function(annotations){  
                            annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                            $.each(annotations, function(j, annotation){
 
@@ -3035,12 +3087,12 @@
                                     chart, point, annotation);
 
                                console.log(a);
+                               self.annot_perm();
                                }
                            })   
                                     });
                                     }(series));
                                 }
-                                self.annot_perm();
                                 }
                               }  
                            });
@@ -3097,6 +3149,8 @@
                                                 var str = '39<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                                                 this['project_live'] = self.project_live;
                                                 this['center_live'] = self.center_live;
+                                                this['start_date'] = self.date_range[0];
+                                                this['end_date'] = self.date_range[1];
                                                 return new Annotation(str, $(self.chartOptions44.chart.renderTo),this.series.chart, this);
                                                 }
                                             }
@@ -3120,7 +3174,7 @@
                                     (function(series){
                                       $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
 				      self.type+'&chart_name=39&proj_name='+self.project_live+'&cen_name='+
-				      self.center_live}).success(function(annotations){  
+				      self.center_live+'&start_date='+self.date_range[0]+'&end_date='+self.date_range[1]}).success(function(annotations){  
                            annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                            $.each(annotations, function(j, annotation){
 
@@ -3133,12 +3187,12 @@
                                     chart, point, annotation);
 
                                console.log(a);
+                               self.annot_perm();
                                }
                            })   
                                     });
                                     }(series));
                                 }
-                                self.annot_perm();
                                 }
                               }
                            });
@@ -3203,6 +3257,8 @@
                                                 var str = '2<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                                                 this['project_live'] = self.project_live;
                                                 this['center_live'] = self.center_live;
+                                                this['start_date'] = self.date_range[0];
+                                                this['end_date'] = self.date_range[1];
                                                 return new Annotation(str, $(self.chartOptions4.chart.renderTo),this.series.chart, this);
                                                 }
                                               }
@@ -3227,7 +3283,7 @@
                                     (function(series){
                                       $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
 				      self.type+'&chart_name=2&proj_name='+self.project_live+'&cen_name='+
-				      self.center_live}).success(function(annotations){  
+				      self.center_live+'&start_date='+self.date_range[0]+'&end_date='+self.date_range[1]}).success(function(annotations){  
                            annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                            $.each(annotations, function(j, annotation){
 
@@ -3240,12 +3296,12 @@
                                     chart, point, annotation);
 
                                console.log(a);
+                               self.annot_perm();
                                }
                            })
                                     });
                                     }(series));
                                 }
-                                self.annot_perm();
                                 }
                               }   
                            });
@@ -3303,6 +3359,8 @@
                                                 var str = '3<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                                                 this['project_live'] = self.project_live;
                                                 this['center_live'] = self.center_live;
+                                                this['start_date'] = self.date_range[0];
+                                                this['end_date'] = self.date_range[1];
                                                 return new Annotation(str, $(self.chartOptions6.chart.renderTo),this.series.chart, this);
                                                 }
                                               }
@@ -3327,7 +3385,7 @@
                                     (function(series){
                                       $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
 				      self.type+'&chart_name=3&proj_name='+self.project_live+'&cen_name='+
-				      self.center_live}).success(function(annotations){  
+				      self.center_live+'&start_date='+self.date_range[0]+'&end_date='+self.date_range[1]}).success(function(annotations){  
                            annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                            $.each(annotations, function(j, annotation){
 
@@ -3340,13 +3398,13 @@
                                     chart, point, annotation);
 
                                console.log(a);
+                               self.annot_perm();
                                }
                            })
 
                                     });
                                     }(series));
                                 }
-                                self.annot_perm();
                                 }
                               }  
                            });
@@ -3439,6 +3497,8 @@
                                                     var str = '7<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                                                     this['project_live'] = self.project_live;
                                                     this['center_live'] = self.center_live;
+                                                    this['start_date'] = self.date_range[0];
+                                                    this['end_date'] = self.date_range[1];
                                                     return new Annotation(str, $(self.chartOptions9_2.chart.renderTo),this.series.chart, this);
                                                     }
                                                   }  
@@ -3454,9 +3514,8 @@
                                     for(var i in chart_data){
                                         series = chart_data[i];
                                         (function(series){
-                                          $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
-					  self.type+'&chart_name=7&proj_name='+self.project_live+'&cen_name='+
-					  self.center_live}).success(function(annotations){
+                                          $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+self.type+'&chart_name=7&proj_name='+self.project_live+'&cen_name='+
+					                       self.center_live+'&start_date='+self.date_range[0]+'&end_date='+self.date_range[1]}).success(function(annotations){
                                annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                                $.each(annotations, function(j, annotation){
 
@@ -3467,12 +3526,12 @@
                                         chart, point, annotation);
 
                                    console.log(a);
+                                   self.annot_perm();
                                    }
                                })
                                         });
                                         }(series));
                                     }
-                                    self.annot_perm();
                                     }
                                   }
                                 });
@@ -3536,6 +3595,8 @@
                                                     var str = '8<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                                                     this['project_live'] = self.project_live;
                                                     this['center_live'] = self.center_live;
+                                                    this['start_date'] = self.date_range[0];
+                                                    this['end_date'] = self.date_range[1];
                                                     return new Annotation(str, $(self.chartOptions9.chart.renderTo),this.series.chart, this);
                                                     }
                                                   }
@@ -3553,9 +3614,8 @@
                                     for(var i in chart_data){
                                         series = chart_data[i];
                                         (function(series){
-                                          $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
-					  self.type+'&chart_name=8&proj_name='+self.project_live+'&cen_name='+
-					  self.center_live}).success(function(annotations){  
+                                          $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+self.type+'&chart_name=8&proj_name='+self.project_live+'&cen_name='+
+					                       self.center_live+'&start_date='+self.date_range[0]+'&end_date='+self.date_range[1]}).success(function(annotations){  
                                annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                                $.each(annotations, function(j, annotation){
 
@@ -3568,13 +3628,13 @@
                                         chart, point, annotation);
 
                                    console.log(a);
+                                   self.annot_perm();
                                    }
                                })
 
                                         });
                                         }(series));
                                     }
-                                    self.annot_perm();
                                     }
                                   }  
                                 });
