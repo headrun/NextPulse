@@ -172,6 +172,7 @@ def error_line_charts(request, name, function_name, internal_name, external_name
             final_dict['min_external_time_line'] = ext_error_timeline_min_max['min_value']
             final_dict['max_external_time_line'] = ext_error_timeline_min_max['max_value']
             final_dict['date'] = data_date
+    final_dict['is_annotation'] = annotation_check(request)
     return final_dict
 
 

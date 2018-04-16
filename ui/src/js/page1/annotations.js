@@ -99,24 +99,27 @@
             data["widget_id"] = graph_name.split('<##>')[0];
             data["project_live"] = point.project_live;
             data["center_live"] = point.center_live;
+            data["start_date"] = point.start_date;
+            data["end_date"] = point.end_date;
+            data["chart_type"] = point.chart_type;
+            console.log(point.start_date, point.end_date);
         }
 
-        if((point.barX) & (point.pointWidth < 55)){
-
+        if (point.barX) {
             var instance = chart.renderer.image('/img/marker.png',
-                                                point.barX + point.plotX - 10,
-                                                point.plotY - chart.plotTop -30,
+                                                point.barX+(point.pointWidth/2) + chart.plotLeft - 10,
+                                                point.plotY - 10,
                                                 20,
                                                 24)
                                          .attr({
                                                 "zIndex": 10,
                                                 "class": "annotation-marker",
                                                 "id": "annotation-" + data.id
-                                              });
+                                              }); 
         }
         else {
                if (point) {
-               var instance = chart.renderer.image('/img/marker.png',
+                    var instance = chart.renderer.image('/img/marker.png',
                                             point.plotX + chart.plotLeft - 10,
                                             point.plotY + chart.plotTop -30,
                                             20,
@@ -128,7 +131,7 @@
                                           });
            }
             else {
-                           var instance = chart.renderer.image('/img/marker.png',
+                    var instance = chart.renderer.image('/img/marker.png',
                                             chart.plotLeft - 10,
                                             chart.plotTop -30,
                                             20,
@@ -140,7 +143,7 @@
                                           });
             }
         }
-
+        
         if($("body").hasClass("hide-annotations")){
 
             instance.attr({"style": "display:none"});
