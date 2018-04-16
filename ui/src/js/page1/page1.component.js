@@ -354,7 +354,8 @@
                     self.center_live = callback[2];
 
                     self.project_live = callback[3];
-                    self.date_range = $('#select').val().split('to');
+                    self.start_date = callback[0];
+                    self.end_date = callback[1];
 
                     $('#emp_widget').hide();
 
@@ -402,7 +403,6 @@
                           $('.annotation-popover').find('p').attr('contenteditable', 'false');
                           $('.popover-title').hide();
                           //$('.icon-action-group').hide()
-                          console.log('function customer')
                         }
                         else {
 
@@ -524,8 +524,8 @@
                                                     var str = '17<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                                                     this['project_live'] = self.project_live;
                                                     this['center_live'] = self.center_live;
-                                                    this['start_date'] = self.date_range[0];
-                                                    this['end_date'] = self.date_range[1];
+                                                    this['start_date'] = self.start_date;
+                                                    this['end_date'] = self.end_date;
                                                     return new Annotation(str, $(self.chartOptions17.chart.renderTo),this.series.chart, this);
                                                     }
                                                   }
@@ -544,7 +544,7 @@
                                             (function(series){
                                             $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
                       self.type+'&chart_name=17&proj_name='+self.project_live+'&cen_name='+
-                      self.center_live+'&start_date='+self.date_range[0]+'&end_date='+self.date_range[1]}).success(function(annotations){ 
+                      self.center_live+'&start_date='+self.start_date+'&end_date='+self.end_date}).success(function(annotations){ 
                                 annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                                 $.each(annotations, function(j, annotation){
 
@@ -622,8 +622,8 @@
                                                     var str = '13<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                                                     this['project_live'] = self.project_live;
                                                     this['center_live'] = self.center_live;
-                                                    this['start_date'] = self.date_range[0];
-                                                    this['end_date'] = self.date_range[1];
+                                                    this['start_date'] = self.start_date;
+                                                    this['end_date'] = self.end_date;
                                                     return new Annotation(str, $(self.chartOptions18.chart.renderTo),this.series.chart, this);
                                                     }
                                                   }
@@ -642,7 +642,7 @@
                                             (function(series){
                                             $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
                                     self.type+'&chart_name=13&proj_name='+self.project_live+'&cen_name='+
-                                    self.center_live+'&start_date='+self.date_range[0]+'&end_date='+self.date_range[1]}).success(function(annotations){
+                                    self.center_live+'&start_date='+self.start_date+'&end_date='+self.end_date}).success(function(annotations){
                                     annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                                     $.each(annotations, function(j, annotation){
 
@@ -765,8 +765,8 @@
                                                     var str = '20<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                                                     this['project_live'] = self.project_live;
                                                     this['center_live'] = self.center_live;
-                                                    this['start_date'] = self.date_range[0];
-                                                    this['end_date'] = self.date_range[1];
+                                                    this['start_date'] = self.start_date;
+                                                    this['end_date'] = self.end_date;
                                                     return new Annotation(str, $(self.chartOptions25.chart.renderTo),this.series.chart, this);
                                                     }
                                                   }
@@ -785,7 +785,7 @@
                                         (function(series){
                                           $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
                       self.type+'&chart_name=20&proj_name='+self.project_live+'&cen_name='+
-                      self.center_live+'&start_date='+self.date_range[0]+'&end_date='+self.date_range[1]}).success(function(annotations){ 
+                      self.center_live+'&start_date='+self.start_date+'&end_date='+self.end_date}).success(function(annotations){ 
                                annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                                $.each(annotations, function(j, annotation){
 
@@ -865,8 +865,8 @@
                                                 var str = '19<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                                                     this['project_live'] = self.project_live;
                                                     this['center_live'] = self.center_live;
-                                                    this['start_date'] = self.date_range[0];
-                                                    this['end_date'] = self.date_range[1];
+                                                    this['start_date'] = self.start_date;
+                                                    this['end_date'] = self.end_date;
                                                     return new Annotation(str, $(self.chartOptions24.chart.renderTo),this.series.chart, this);
                                                     }
                                                    }
@@ -886,7 +886,7 @@
                                         (function(series){
                                           $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
                       self.type+'&chart_name=19&proj_name='+self.project_live+'&cen_name='+
-                              self.center_live+'&start_date='+self.date_range[0]+'&end_date='+self.date_range[1]}).success(function(annotations){
+                              self.center_live+'&start_date='+self.start_date+'&end_date='+self.end_date}).success(function(annotations){
                                annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                                $.each(annotations, function(j, annotation){
 
@@ -961,8 +961,8 @@
                                                  var str = '9<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                                                                     this['project_live'] = self.project_live;
                                                                     this['center_live'] = self.center_live;
-                                                                    this['start_date'] = self.date_range[0];
-                                                                    this['end_date'] = self.date_range[1];
+                                                                    this['start_date'] = self.start_date;
+                                                                    this['end_date'] = self.end_date;
                                              return new Annotation(str, $(self.chartOptions15.chart.renderTo),this.series.chart, this);
                                              }
                                             }
@@ -982,7 +982,7 @@
                                         (function(series){
                                           $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
                       self.type+'&chart_name=9&proj_name='+self.project_live+'&cen_name='+
-                      self.center_live+'&start_date='+self.date_range[0]+'&end_date='+self.date_range[1]}).success(function(annotations){
+                      self.center_live+'&start_date='+self.start_date+'&end_date='+self.end_date}).success(function(annotations){
                                annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                                $.each(annotations, function(j, annotation){
        
@@ -1080,8 +1080,8 @@
                                                     var str = '14<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                                                     this['project_live'] = self.project_live;
                                                     this['center_live'] = self.center_live;
-                                                    this['start_date'] = self.date_range[0];
-                                                    this['end_date'] = self.date_range[1];
+                                                    this['start_date'] = self.start_date;
+                                                    this['end_date'] = self.end_date;
                                                     return new Annotation(str, $(self.chartOptions19.chart.renderTo),this.series.chart, this);
                                                     }
                                                   }
@@ -1101,7 +1101,7 @@
                                         (function(series){
                                           $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
                       self.type+'&chart_name=14&proj_name='+self.project_live+'&cen_name='+
-                      self.center_live+'&start_date='+self.date_range[0]+'&end_date='+self.date_range[1]}).success(function(annotations){ 
+                      self.center_live+'&start_date='+self.start_date+'&end_date='+self.end_date}).success(function(annotations){ 
                                annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                                $.each(annotations, function(j, annotation){
 
@@ -1196,8 +1196,8 @@
                                 var str = '33<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                                                 this['project_live'] = self.project_live;
                                                 this['center_live'] = self.center_live;
-                                                this['start_date'] = self.date_range[0];
-                                                this['end_date'] = self.date_range[1];
+                                                this['start_date'] = self.start_date;
+                                                this['end_date'] = self.end_date;
                           return new Annotation(str, $(self.chartOptions38.chart.renderTo),this.series.chart, this);
                             }
                           }
@@ -1216,7 +1216,7 @@
                                     (function(series){
                                       $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
                       self.type+'&chart_name=33&proj_name='+self.project_live+'&cen_name='+
-                      self.center_live+'&start_date='+self.date_range[0]+'&end_date='+self.date_range[1]}).success(function(annotations){
+                      self.center_live+'&start_date='+self.start_date+'&end_date='+self.end_date}).success(function(annotations){
                            annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                            $.each(annotations, function(j, annotation){
        
@@ -1317,8 +1317,8 @@
                                                     var str = '26<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                                                     this['project_live'] = self.project_live;
                                                     this['center_live'] = self.center_live;
-                                                    this['start_date'] = self.date_range[0];
-                                                    this['end_date'] = self.date_range[1];
+                                                    this['start_date'] = self.start_date;
+                                                    this['end_date'] = self.end_date;
                                                     return new Annotation(str, $(self.chartOptions31.chart.renderTo),this.series.chart, this);
                                                     }
                                                 }
@@ -1337,7 +1337,7 @@
                                         (function(series){
                                           $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
                                                 self.type+'&chart_name=26&proj_name='+self.project_live+'&cen_name='+
-                                                self.center_live+'&start_date='+self.date_range[0]+'&end_date='+self.date_range[1]}).success(function(annotations){ 
+                                                self.center_live+'&start_date='+self.start_date+'&end_date='+self.end_date}).success(function(annotations){ 
                                                     annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                                                      $.each(annotations, function(j, annotation){
 
@@ -1439,8 +1439,8 @@
                                                     var str = '60<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                                                     this['project_live'] = self.project_live;
                                                     this['center_live'] = self.center_live;
-                                                    this['start_date'] = self.date_range[0];
-                                                    this['end_date'] = self.date_range[1];
+                                                    this['start_date'] = self.start_date;
+                                                    this['end_date'] = self.end_date;
                                                     return new Annotation(str, $(self.chartOptions65.chart.renderTo),this.series.chart, this);
                                                     }
                                                 }
@@ -1459,7 +1459,7 @@
                                         (function(series){
                                           $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
                                                 self.type+'&chart_name=60&proj_name='+self.project_live+'&cen_name='+
-                                                self.center_live+'&start_date='+self.date_range[0]+'&end_date='+self.date_range[1]}).success(function(annotations){ 
+                                                self.center_live+'&start_date='+self.start_date+'&end_date='+self.end_date}).success(function(annotations){ 
                                                     annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                                                      $.each(annotations, function(j, annotation){
 
@@ -1555,8 +1555,8 @@
                                                     var str = '21<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                                                     this['project_live'] = self.project_live;
                                                     this['center_live'] = self.center_live;
-                                                    this['start_date'] = self.date_range[0];
-                                                    this['end_date'] = self.date_range[1];
+                                                    this['start_date'] = self.start_date;
+                                                    this['end_date'] = self.end_date;
                                                     return new Annotation(str, $(self.chartOptions26.chart.renderTo),this.series.chart, this);
                                                     }
                                                   }
@@ -1575,7 +1575,7 @@
                                     (function(series){
                                       $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
                       self.type+'&chart_name=21&proj_name='+self.project_live+'&cen_name='+
-                          self.center_live+'&start_date='+self.date_range[0]+'&end_date='+self.date_range[1]}).success(function(annotations){
+                          self.center_live+'&start_date='+self.start_date+'&end_date='+self.end_date}).success(function(annotations){
                            annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                            $.each(annotations, function(j, annotation){
        
@@ -1705,8 +1705,8 @@
                                                     var str = '11<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                                                     this['project_live'] = self.project_live;
                                                     this['center_live'] = self.center_live;
-                                                    this['start_date'] = self.date_range[0];
-                                                    this['end_date'] = self.date_range[1];
+                                                    this['start_date'] = self.start_date;
+                                                    this['end_date'] = self.end_date;
                                                     return new Annotation(str, $(self.chartOptions16.chart.renderTo),this.series.chart, this);
                                                     }
                                                   }
@@ -1725,7 +1725,7 @@
                                         (function(series){
                                           $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
                       self.type+'&chart_name=11&proj_name='+self.project_live+'&cen_name='+
-                      self.center_live+'&start_date='+self.date_range[0]+'&end_date='+self.date_range[1]}).success(function(annotations){
+                      self.center_live+'&start_date='+self.start_date+'&end_date='+self.end_date}).success(function(annotations){
                                annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                                $.each(annotations, function(j, annotation){
 
@@ -1802,8 +1802,8 @@
                                                     var str = '12<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                                                     this['project_live'] = self.project_live;
                                                     this['center_live'] = self.center_live;
-                                                    this['start_date'] = self.date_range[0];
-                                                    this['end_date'] = self.date_range[1];
+                                                    this['start_date'] = self.start_date;
+                                                    this['end_date'] = self.end_date;
                                                     return new Annotation(str, $(self.chartOptions16_2.chart.renderTo),this.series.chart, this);
                                                     }
                                                   }  
@@ -1821,7 +1821,7 @@
                                         (function(series){
                                           $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
                                           self.type+'&chart_name=12&proj_name='+self.project_live+'&cen_name='+
-                      self.center_live+'&start_date='+self.date_range[0]+'&end_date='+self.date_range[1]}).success(function(annotations){ 
+                      self.center_live+'&start_date='+self.start_date+'&end_date='+self.end_date}).success(function(annotations){ 
                                annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                                $.each(annotations, function(j, annotation){
 
@@ -1951,8 +1951,8 @@
                                                     var str = '6<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                                                     this['project_live'] = self.project_live;
                                                     this['center_live'] = self.center_live;
-                                                    this['start_date'] = self.date_range[0];
-                                                    this['end_date'] = self.date_range[1];
+                                                    this['start_date'] = self.start_date;
+                                                    this['end_date'] = self.end_date;
                                                     return new Annotation(str, $(self.chartOptions10.chart.renderTo),this.series.chart, this);
                                                     }
                                                   }
@@ -1971,7 +1971,7 @@
                                         (function(series){
                                           $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
                       self.type+'&chart_name=6&proj_name='+self.project_live+'&cen_name='+
-                      self.center_live+'&start_date='+self.date_range[0]+'&end_date='+self.date_range[1]}).success(function(annotations){
+                      self.center_live+'&start_date='+self.start_date+'&end_date='+self.end_date}).success(function(annotations){
                                annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                                $.each(annotations, function(j, annotation){
 
@@ -2049,8 +2049,8 @@
                                  var str = '1<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                                             this['project_live'] = self.project_live;
                                             this['center_live'] = self.center_live;
-                                            this['start_date'] = self.date_range[0];
-                                            this['end_date'] = self.date_range[1];
+                                            this['start_date'] = self.start_date;
+                                            this['end_date'] = self.end_date;
                                   return new Annotation(str, $(self.chartOptions.chart.renderTo),this.series.chart, this);
                              }
                            } 
@@ -2070,7 +2070,7 @@
                                         (function(series){
                                           $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
                       self.type+'&chart_name=1&proj_name='+self.project_live+'&cen_name='+
-                      self.center_live+'&start_date='+self.date_range[0]+'&end_date='+self.date_range[1]}).success(function(annotations){  
+                      self.center_live+'&start_date='+self.start_date+'&end_date='+self.end_date}).success(function(annotations){  
                                annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                                $.each(annotations, function(j, annotation){
 
@@ -2187,8 +2187,9 @@
                                                 var str = '24<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                                                 this['project_live'] = self.project_live;
                                                 this['center_live'] = self.center_live;
-                                                this['start_date'] = self.date_range[0];
-                                                this['end_date'] = self.date_range[1];
+                                                this['start_date'] = self.start_date;
+                                                this['end_date'] = self.end_date;
+                                                this['chart_type'] = 'bar';
                                                 return new Annotation(str, $(self.chartOptions29.chart.renderTo),this.series.chart, this);
                                                 }
                                             }
@@ -2208,7 +2209,7 @@
                                         (function(series){
                                           $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
                           self.type+'&chart_name=24&proj_name='+self.project_live+'&cen_name='+
-                      self.center_live+'&start_date='+self.date_range[0]+'&end_date='+self.date_range[1]}).success(function(annotations){ 
+                      self.center_live+'&start_date='+self.start_date+'&end_date='+self.end_date+'&chart_type=bar'}).success(function(annotations){ 
                                annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                                $.each(annotations, function(j, annotation){
 
@@ -2284,7 +2285,9 @@
                                                 var str = '25<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                                                 this['project_live'] = self.project_live;
                                                 this['center_live'] = self.center_live;
-
+                                                this['start_date'] = self.start_date;
+                                                this['end_date'] = self.end_date;
+                                                this['chart_type'] = 'bar';
                                                 return new Annotation(str, $(self.chartOptions30.chart.renderTo),this.series.chart, this);
                                                 }
                                                } 
@@ -2303,7 +2306,7 @@
                                         (function(series){
                                           $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
                       self.type+'&chart_name=25&proj_name='+self.project_live+'&cen_name='+
-                      self.center_live+'&start_date='+self.date_range[0]+'&end_date='+self.date_range[1]}).success(function(annotations){ 
+                      self.center_live+'&start_date='+self.start_date+'&end_date='+self.end_date+'&chart_type=bar'}).success(function(annotations){ 
                                annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                                $.each(annotations, function(j, annotation){
 
@@ -2388,8 +2391,9 @@
                                                 var str = '22<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                                                 this['project_live'] = self.project_live;
                                                 this['center_live'] = self.center_live;
-                                                this['start_date'] = self.date_range[0];
-                                                this['end_date'] = self.date_range[1];
+                                                this['start_date'] = self.start_date;
+                                                this['end_date'] = self.end_date;
+                                                this['chart_type'] = 'bar';
                                                 return new Annotation(str, $(self.chartOptions27.chart.renderTo),this.series.chart, this);
                                                 }
                                               }
@@ -2408,7 +2412,7 @@
                                         (function(series){
                                           $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
                           self.type+'&chart_name=22&proj_name='+self.project_live+'&cen_name='+
-                          self.center_live+'&start_date='+self.date_range[0]+'&end_date='+self.date_range[1]}).success(function(annotations){ 
+                          self.center_live+'&start_date='+self.start_date+'&end_date='+self.end_date+'&chart_type=bar'}).success(function(annotations){ 
                                annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                                $.each(annotations, function(j, annotation){
 
@@ -2484,8 +2488,9 @@
                                                 var str = '23<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                                                 this['project_live'] = self.project_live;
                                                 this['center_live'] = self.center_live;
-                                                this['start_date'] = self.date_range[0];
-                                                this['end_date'] = self.date_range[1];
+                                                this['start_date'] = self.start_date;
+                                                this['end_date'] = self.end_date;
+                                                this['chart_type'] = 'bar';
                                                 return new Annotation(str, $(self.chartOptions28.chart.renderTo),this.series.chart, this);
                                                 }
                                               }
@@ -2505,7 +2510,7 @@
                                         (function(series){
                                           $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
                       self.type+'&chart_name=23&proj_name='+self.project_live+'&cen_name='+
-                      self.center_live+'&start_date='+self.date_range[0]+'&end_date='+self.date_range[1]}).success(function(annotations){ 
+                      self.center_live+'&start_date='+self.start_date+'&end_date='+self.end_date+'&chart_type=bar'}).success(function(annotations){ 
                                annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                                $.each(annotations, function(j, annotation){
 
@@ -2603,8 +2608,8 @@
                                                 var str = '35<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                                                 this['project_live'] = self.project_live;
                                                 this['center_live'] = self.center_live;
-                                                this['start_date'] = self.date_range[0];
-                                                this['end_date'] = self.date_range[1];
+                                                this['start_date'] = self.start_date;
+                                                this['end_date'] = self.end_date;
                                                 return new Annotation(str, $(self.chartOptions40.chart.renderTo),this.series.chart, this);
                                                 }
                                               }
@@ -2623,7 +2628,7 @@
                                     (function(series){
                                       $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
                           self.type+'&chart_name=35&proj_name='+self.project_live+'&cen_name='+
-                      self.center_live+'&start_date='+self.date_range[0]+'&end_date='+self.date_range[1]}).success(function(annotations){
+                      self.center_live+'&start_date='+self.start_date+'&end_date='+self.end_date}).success(function(annotations){
                            annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                            $.each(annotations, function(j, annotation){
 
@@ -2719,8 +2724,8 @@
                                             var str = '37<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                                                 this['project_live'] = self.project_live;
                                                 this['center_live'] = self.center_live;
-                                                this['start_date'] = self.date_range[0];
-                                                this['end_date'] = self.date_range[1];
+                                                this['start_date'] = self.start_date;
+                                                this['end_date'] = self.end_date;
                                                 return new Annotation(str, $(self.chartOptions42.chart.renderTo),this.series.chart, this);
                                                 }
                                               }  
@@ -2740,7 +2745,7 @@
                                     (function(series){
                                       $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
                       self.type+'&chart_name=37&proj_name='+self.project_live+'&cen_name='+
-                      self.center_live+'&start_date='+self.date_range[0]+'&end_date='+self.date_range[1]}).success(function(annotations){ 
+                      self.center_live+'&start_date='+self.start_date+'&end_date='+self.end_date}).success(function(annotations){ 
                            annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                            $.each(annotations, function(j, annotation){
 
@@ -2838,8 +2843,8 @@
                                             var str = '36<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                                                 this['project_live'] = self.project_live;
                                                 this['center_live'] = self.center_live;
-                                                this['start_date'] = self.date_range[0];
-                                                this['end_date'] = self.date_range[1];
+                                                this['start_date'] = self.start_date;
+                                                this['end_date'] = self.end_date;
                                                 return new Annotation(str, $(self.chartOptions41.chart.renderTo),this.series.chart, this);
                                                 }
                                               }
@@ -2859,7 +2864,7 @@
                                     (function(series){
                                       $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
                       self.type+'&chart_name=36&proj_name='+self.project_live+'&cen_name='+
-                      self.center_live+'&start_date='+self.date_range[0]+'&end_date='+self.date_range[1]}).success(function(annotations){ 
+                      self.center_live+'&start_date='+self.start_date+'&end_date='+self.end_date}).success(function(annotations){ 
                            annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                            $.each(annotations, function(j, annotation){
 
@@ -2958,8 +2963,8 @@
                                                 var str = '34<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                                                 this['project_live'] = self.project_live;
                                                 this['center_live'] = self.center_live;
-                                                this['start_date'] = self.date_range[0];
-                                                this['end_date'] = self.date_range[1];
+                                                this['start_date'] = self.start_date;
+                                                this['end_date'] = self.end_date;
                                                 return new Annotation(str, $(self.chartOptions39.chart.renderTo),this.series.chart, this);
                                                 }
                                               }  
@@ -2979,7 +2984,7 @@
                                     (function(series){
                                       $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
                       self.type+'&chart_name=34&proj_name='+self.project_live+'&cen_name='+
-                      self.center_live+'&start_date='+self.date_range[0]+'&end_date='+self.date_range[1]}).success(function(annotations){ 
+                      self.center_live+'&start_date='+self.start_date+'&end_date='+self.end_date}).success(function(annotations){ 
                            annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                            $.each(annotations, function(j, annotation){
 
@@ -3061,8 +3066,9 @@
                                                 var str = '38<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                                                 this['project_live'] = self.project_live;
                                                 this['center_live'] = self.center_live;
-                                                this['start_date'] = self.date_range[0];
-                                                this['end_date'] = self.date_range[1];
+                                                this['start_date'] = self.start_date;
+                                                this['end_date'] = self.end_date;
+                                                this['chart_type'] = 'bar';
                                                 return new Annotation(str, $(self.chartOptions43.chart.renderTo),this.series.chart, this);
                                                 }
                                             }
@@ -3086,7 +3092,7 @@
                                     (function(series){
                                       $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
                       self.type+'&chart_name=38&proj_name='+self.project_live+'&cen_name='+
-                      self.center_live+'&start_date='+self.date_range[0]+'&end_date='+self.date_range[1]}).success(function(annotations){  
+                      self.center_live+'&start_date='+self.start_date+'&end_date='+self.end_date+'&chart_type=bar'}).success(function(annotations){  
                            annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                            $.each(annotations, function(j, annotation){
 
@@ -3161,8 +3167,9 @@
                                                 var str = '39<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                                                 this['project_live'] = self.project_live;
                                                 this['center_live'] = self.center_live;
-                                                this['start_date'] = self.date_range[0];
-                                                this['end_date'] = self.date_range[1];
+                                                this['start_date'] = self.start_date;
+                                                this['end_date'] = self.end_date;
+                                                this['chart_type'] = 'bar';
                                                 return new Annotation(str, $(self.chartOptions44.chart.renderTo),this.series.chart, this);
                                                 }
                                             }
@@ -3186,7 +3193,7 @@
                                     (function(series){
                                       $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
                       self.type+'&chart_name=39&proj_name='+self.project_live+'&cen_name='+
-                      self.center_live+'&start_date='+self.date_range[0]+'&end_date='+self.date_range[1]}).success(function(annotations){  
+                      self.center_live+'&start_date='+self.start_date+'&end_date='+self.end_date+'&chart_type=bar'}).success(function(annotations){  
                            annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                            $.each(annotations, function(j, annotation){
 
@@ -3269,8 +3276,9 @@
                                                 var str = '2<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                                                 this['project_live'] = self.project_live;
                                                 this['center_live'] = self.center_live;
-                                                this['start_date'] = self.date_range[0];
-                                                this['end_date'] = self.date_range[1];
+                                                this['start_date'] = self.start_date;
+                                                this['end_date'] = self.end_date;
+                                                this['chart_type'] = 'bar';
                                                 return new Annotation(str, $(self.chartOptions4.chart.renderTo),this.series.chart, this);
                                                 }
                                               }
@@ -3295,7 +3303,7 @@
                                     (function(series){
                                       $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
                       self.type+'&chart_name=2&proj_name='+self.project_live+'&cen_name='+
-                      self.center_live+'&start_date='+self.date_range[0]+'&end_date='+self.date_range[1]}).success(function(annotations){  
+                      self.center_live+'&start_date='+self.start_date+'&end_date='+self.end_date+'&chart_type=bar'}).success(function(annotations){  
                            annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                            $.each(annotations, function(j, annotation){
 
@@ -3371,8 +3379,9 @@
                                                 var str = '3<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                                                 this['project_live'] = self.project_live;
                                                 this['center_live'] = self.center_live;
-                                                this['start_date'] = self.date_range[0];
-                                                this['end_date'] = self.date_range[1];
+                                                this['start_date'] = self.start_date;
+                                                this['end_date'] = self.end_date;
+                                                this['chart_type'] = 'bar';
                                                 return new Annotation(str, $(self.chartOptions6.chart.renderTo),this.series.chart, this);
                                                 }
                                               }
@@ -3397,7 +3406,7 @@
                                     (function(series){
                                       $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
                       self.type+'&chart_name=3&proj_name='+self.project_live+'&cen_name='+
-                      self.center_live+'&start_date='+self.date_range[0]+'&end_date='+self.date_range[1]}).success(function(annotations){  
+                      self.center_live+'&start_date='+self.start_date+'&end_date='+self.end_date+'&chart_type='+'bar'}).success(function(annotations){  
                            annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                            $.each(annotations, function(j, annotation){
 
@@ -3509,8 +3518,8 @@
                                                     var str = '7<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                                                     this['project_live'] = self.project_live;
                                                     this['center_live'] = self.center_live;
-                                                    this['start_date'] = self.date_range[0];
-                                                    this['end_date'] = self.date_range[1];
+                                                    this['start_date'] = self.start_date;
+                                                    this['end_date'] = self.end_date;
                                                     return new Annotation(str, $(self.chartOptions9_2.chart.renderTo),this.series.chart, this);
                                                     }
                                                   }  
@@ -3527,7 +3536,7 @@
                                         series = chart_data[i];
                                         (function(series){
                                           $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+self.type+'&chart_name=7&proj_name='+self.project_live+'&cen_name='+
-                                           self.center_live+'&start_date='+self.date_range[0]+'&end_date='+self.date_range[1]}).success(function(annotations){
+                                           self.center_live+'&start_date='+self.start_date+'&end_date='+self.end_date}).success(function(annotations){
                                annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                                $.each(annotations, function(j, annotation){
 
@@ -3607,8 +3616,8 @@
                                                     var str = '8<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                                                     this['project_live'] = self.project_live;
                                                     this['center_live'] = self.center_live;
-                                                    this['start_date'] = self.date_range[0];
-                                                    this['end_date'] = self.date_range[1];
+                                                    this['start_date'] = self.start_date;
+                                                    this['end_date'] = self.end_date;
                                                     return new Annotation(str, $(self.chartOptions9.chart.renderTo),this.series.chart, this);
                                                     }
                                                   }
@@ -3627,7 +3636,7 @@
                                         series = chart_data[i];
                                         (function(series){
                                           $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+self.type+'&chart_name=8&proj_name='+self.project_live+'&cen_name='+
-                                           self.center_live+'&start_date='+self.date_range[0]+'&end_date='+self.date_range[1]}).success(function(annotations){  
+                                           self.center_live+'&start_date='+self.start_date+'&end_date='+self.end_dates}).success(function(annotations){  
                                annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                                $.each(annotations, function(j, annotation){
 
