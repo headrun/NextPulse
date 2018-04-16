@@ -231,8 +231,9 @@ def update_annotation(request):
     project = request.POST.get('project_id','')
     start_date = request.POST.get('start_date', '')
     end_date = request.POST.get('end_date', '')
+    
     if action == "delete":
-        anno = Annotation.objects.filter(epoch = epoch, created_by = request.user, key = key_to, id=annotation_id,\
+        anno = Annotation.objects.filter(epoch = epoch, created_by = request.user, key = key_to,\
                                         project=project, center=center)
         if anno:
             anno = anno[0]
