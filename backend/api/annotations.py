@@ -242,7 +242,7 @@ def update_annotation(request):
             anno = Annotation.objects.filter(epoch=epoch,project=project,chart_id=widget_id,text=text)
         elif text != '' and project != '':
             anno = Annotation.objects.filter(epoch=epoch,project=project,text=text)
-        elif project != '':
+        elif project == '':
             anno = Annotation.objects.filter(epoch=epoch,text=text)
         if anno:
             anno = anno[0]
