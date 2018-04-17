@@ -24,18 +24,14 @@ def project(request):
     layout_list = []
     final_dict = {}
 
-    if 'team_lead' in user_group:
-        
-        team_lead_obj = TeamLead.objects.filter(name_id=request.user.id).values_list('center', 'project')
-        center, prj_id = [],[]
-        for item in team_lead_obj:
-            center.append(item[0])
-            prj_id.append(item[1])
-
-    if 'customer' in user_group:
+    if user_group in ['customer','team_lead']:
         select_list = []
-        details = {}      
-        customer_objs = Customer.objects.filter(name_id=request.user.id)
+        details = {}
+        if user_group == 'team_lead':
+            table_name = TeamLead
+        elif user_group == 'customer':
+            table_name = Customer      
+        customer_objs = table_name.objects.filter(name_id=request.user.id)
         center_list = customer_objs.values_list('center', flat = True)
         project_list = customer_objs.values_list('project', flat =True)
         if (len(center_list) & len(project_list)) == 1:
@@ -125,30 +121,21 @@ def project(request):
                 prj_name = select_list[0]
                 prj_id = Project.objects.filter(name=prj_name).values_list('id','center_id') 
 
-    if user_group in ['nextwealth_manager','center_manager','customer']:
-        widgets_id = Widgets_group.objects.filter(\
+    
+    widgets_id = Widgets_group.objects.filter(\
                         User_Group_id=user_group_id, project=prj_id[0][0],center=prj_id[0][1])\
                         .values('widget_priority', 'is_drilldown','is_display', 'widget_name','col', 'display_value')
-        project_display_value = Project.objects.filter(\
+    project_display_value = Project.objects.filter(\
                                 id=prj_id[0][0], center=prj_id[0][1]).values_list('display_value', flat=True)[0]
-    else:
-        widgets_id = Widgets_group.objects.filter(\
-                        User_Group_id=user_group_id, project__in=prj_id,center__in=center)\
-                        .values('widget_priority', 'is_drilldown','is_display', 'widget_name','col', 'display_value')
-        project_display_value = Project.objects.filter(\
-                                id__in=prj_id, center__in=center)\
-                                .values_list('display_value', flat=True)[0]
 
     for data in widgets_id:
         if data['is_display'] == True:
             widgets_data = Widgets.objects.filter(\
                             id=data['widget_name']).values('config_name', 'name', 'id_num', 'opt', 'day_type_widget', 'api')
-            if user_group in ['nextwealth_manager','center_manager','customer']:
-                alias_name = Alias_Widget.objects.filter(\
-                             project=prj_id[0][0],widget_name_id=data['widget_name']).values('alias_widget_name')
-            else:
-                alias_name = Alias_Widget.objects.filter(\
-                             project__in=prj_id,widget_name_id=data['widget_name']).values('alias_widget_name')
+            
+            alias_name = Alias_Widget.objects.filter(\
+                            project=prj_id[0][0],widget_name_id=data['widget_name']).values('alias_widget_name')
+            
             new_dict ={}
             if len(alias_name) > 0:
                 if alias_name[0]['alias_widget_name']:
@@ -178,34 +165,6 @@ def project(request):
         final_dict[config_name] = i
     layout_list.append(final_dict)
     layout_list.append({'layout': lay_out_order}) 
-
-    if 'team_lead' in user_group:
-        final_details = {}
-        details = {}
-        select_list = []
-        tl_query = TeamLead.objects.filter(name_id=request.user.id)
-        center_list = tl_query.values_list('center', flat = True)
-        project_list = tl_query.values_list('project', flat = True)
-        if (len(center_list) & len(project_list)) == 1:
-            select_list.append('none')
-        if len(center_list) < 2:
-            center_name = str(Center.objects.filter(id=center_list[0])[0])
-            for project in project_list:
-                project_name = str(Project.objects.filter(id=project)[0])
-                vari = center_name + ' - ' + project_name
-                select_list.append(vari)
-        elif len(center_list) >= 2:
-            for center in center_list:
-                center_name = str(Center.objects.filter(id=center)[0])
-                for project in project_list:
-                    project_name = str(Project.objects.filter(id=project)[0])
-                    select_list.append(center_name + ' - ' + project_name)
-        new_dates = latest_dates(request, project_list)
-        user = request.user.id
-        user_status = get_permitted_user(_project, _center, user)
-        role = 'team_lead'
-        final_values = common_user_data(request, select_list, role, layout_list, new_dates, user_status)
-        return json_HttpResponse(final_values)
 
     if 'center_manager' in user_group:
         final_details = {}
@@ -279,11 +238,15 @@ def project(request):
         final_values = common_user_data(request, select_list, role, layout_list, new_dates, user_status)
         return json_HttpResponse(final_values)
 
-    if 'customer' in user_group:
+    if user_group in ['customer','team_lead']:
         final_details = {}
         details = {}
         select_list = []
-        customer_query = Customer.objects.filter(name_id=request.user.id)
+        if user_group == 'customer':
+            table_name = Customer
+        elif user_group == 'team_lead':
+            table_name = TeamLead
+        customer_query = table_name.objects.filter(name_id=request.user.id)
         center_list = customer_query.values_list('center', flat = True)
         project_list = customer_query.values_list('project', flat = True)
         if (len(center_list) & len(project_list)) == 1:
@@ -311,7 +274,11 @@ def project(request):
             new_dates = latest_dates(request, project_names)
         user = request.user.id
         user_status = get_permitted_user(_project, _center, user)
-        role = 'customer'
+        if user_group == 'team_lead':
+            role = 'team_lead'
+        else:
+            role = 'customer'
+
         final_values = common_user_data(request, select_list, role, layout_list, new_dates, user_status)
         return json_HttpResponse(final_values)
 

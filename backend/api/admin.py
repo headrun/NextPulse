@@ -15,8 +15,7 @@ class CenterAdmin(admin.ModelAdmin):
 admin.site.register(Center,CenterAdmin)
 
 class TeamleadAdmin(admin.ModelAdmin):
-    list_display = ['name','project','center']
-    list_filter = ('project','center')
+    list_display = ['name']
 admin.site.register(TeamLead,TeamleadAdmin)
 
 class CustomerAdmin(admin.ModelAdmin):

@@ -63,12 +63,12 @@
                 if (this.user.role == "Customer") {
                     $('#fileupload').hide();
                     $('#home').hide();
-	            $('#people').hide()			
+	                   $('#people').hide()			
                 }
                 if (this.user.role == "Team Lead") {
                     $('#select_dropdown').hide();
                     $('#home').hide();
-		    $('#people').hide()	
+		                $('#people').hide()	
                 }
                this.collapsed = false;
 
@@ -110,6 +110,24 @@
                         $('#select_dropdown').show();
                     }
                 }
+                if (result.result.role == "team_lead") {
+                    if (result.result.list[0] == "none") {
+                        $('#select_dropdown').hide();
+                    }
+                    var map_list = result.result.list;
+                    self.mapping_list = map_list;
+                    if (result.result.list[0] != "none"){
+                        if ((result.result.list.length) == 2) {
+                            var option = map_list[0];
+                        }
+                        else {
+                        var option = map_list[1];
+                        }
+                        self.select_option = option.split(' - ')[1];
+                        $('#select_dropdown').show();
+                        $('#fileupload').hide();
+                    }
+                }
                 if (result.result['role'] == "center_manager")
                     {
                     var map_list = result.result.list;
@@ -130,7 +148,7 @@
                         self.select_option = map_list[0].split(' - ')[1];
                         }
                     }
-           $('#videoPop').on('hidden.bs.modal', function () {
+                $('#videoPop').on('hidden.bs.modal', function () {
                 $('video').get(0).pause();  
             }) 
                 //debugger;

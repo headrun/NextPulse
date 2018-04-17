@@ -30,7 +30,7 @@
               }
             $http({method:"GET", url:project}).success(function(result){
 
-                if (result.result['role'] == "customer") {
+                if ((result.result['role'] == "customer") || (result.result['role'] == "team_lead")) {
 
                     var map_list = result.result.list;
 
@@ -62,33 +62,11 @@
                        }
                 }
 
-                if (result.result.role == "team_lead") {
-
-                    self.mapping_list = []
-
-                    self.mapping_list.push(result.result.list[1]);
-
-                    if ((self.mapping_list.length == 1) && ($scope.check == undefined)) {
-
-                        self.showLoading();
-
-                        window.location = "#!/page1/"+self.mapping_list[0];
-
-                    } else if ($scope.check == 1) {
-
-                        window.location = $scope.check_url;
-
-                    } else {
-                        
-                           self.mapping_list; 
-                    }
-                }
-
-                if (result.result['role'] == "center_manager") {
+                if ((result.result['role'] == "center_manager") || (result.result['role'] == "nextwealth_manager")) {
 
                     var map_list = result.result.list;
 
-                    self.mapping_list = map_list;
+                    self.mapping_list = map_list.sort();
 
                     if ((self.mapping_list.length == 1) && ($scope.check == undefined)) {
 
@@ -104,26 +82,6 @@
 
                     }
                  }
-
-                if (result.result['role'] == "nextwealth_manager") {
-
-                    var map_list = result.result.list;
-
-                    self.mapping_list = map_list.sort();
-
-                    $('.mythili').show();
-
-                    if (self.mapping_list.length == 1) {
-
-                        window.location = "#!/page1/"+self.mapping_list[0];
-
-                    } else if ($scope.check == 1) {
-                            window.location = $scope.check_url;   
-                        }
-                       else {
-                            self.mapping_list;   
-                        } 
-                    }
             });
 
              self.widgets_list = '';
