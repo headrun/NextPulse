@@ -35,12 +35,11 @@ class Project(models.Model):
 
 class TeamLead(models.Model):
     name    = models.ForeignKey(User, null=True, db_index=True)
-    center  = models.ForeignKey(Center, null=True)
-    project = models.ForeignKey(Project, null=True)
+    project = models.ManyToManyField(Project, null=True)
+    center = models.ManyToManyField(Center, null=True)
 
     class Meta:
         db_table = u'agent'
-        index_together = (('project', 'center',),)
     def __unicode__(self):
         user_obj = User.objects.filter(id=self.name_id).values_list('username',flat=True)
         return user_obj[0]
