@@ -3457,7 +3457,8 @@
 
                         return $http({method:"GET", url: from_to}).success(function(result){
 
-                            var date_list = result.result.date;
+                            var internal_date_list = result.result.internal_date;
+                            var external_date_list = result.result.external_date;
                             var external_error_timeline = result.result.external_accuracy_timeline;
                             var internal_error_timeline = result.result.internal_accuracy_timeline;
                             var is_annotation = result.result.is_annotation;
@@ -3485,7 +3486,7 @@
 
                                 angular.extend(self.chartOptions9_2, {
                                     xAxis: {
-                                        categories: date_list,
+                                        categories: external_date_list,
                                     },
                                     plotOptions: {
                                         series: {
@@ -3583,7 +3584,7 @@
 
                                 angular.extend(self.chartOptions9, {
                                     xAxis: {
-                                        categories: date_list,
+                                        categories: internal_date_list,
                                     },
                                     plotOptions: {
                                         series: {
