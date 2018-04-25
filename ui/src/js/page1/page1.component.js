@@ -488,6 +488,7 @@
                                     var value = false;
                                 }
 
+                                var graph_name = 'self.chartOptions17';
                                 angular.extend(self.chartOptions17, {
                                     xAxis: {
                                         categories: date_list,
@@ -500,10 +501,12 @@
                                                 return Highcharts.numberFormat(this.y, null, null, ",");
                                             }
                                           },
+                                          //animation: false,
                                           allowPointSelect: true,
                                           cursor: 'pointer',
-                                            point: {
+                                          point: {
                                               events:{
+                                                
                                                 contextmenu: function() {
                                                  if (self.role_for_perm == 'customer') {
 
@@ -529,6 +532,16 @@
                                                     return new Annotation(str, $(self.chartOptions17.chart.renderTo),this.series.chart, this);
                                                     }
                                                   }
+                                                }
+                                          },
+                                          events: {
+                                                hide: function() {
+                                                    window.annotObj.redraw();
+                                                    $(document).find('.widget-17a').find('.annotation-marker[series-name="'+this.name+'"]').hide();
+                                                },
+                                                show: function() {
+                                                    window.annotObj.redraw();
+                                                    $(document).find('.widget-17a').find('.annotation-marker[series-name="'+this.name+'"]').show();
                                                 }
                                             }
                                         }
@@ -557,6 +570,7 @@
                                         chart, point, annotation);
 
                                    console.log(a);
+                                   window.annotObj = a;
                                    self.annot_perm();
                                 }
                                })
@@ -585,7 +599,7 @@
                                 else {
                                     var value = false;
                                 }
-
+                                var graph_name = "self.chartOptions18";
                                 angular.extend(self.chartOptions18, {
                                     xAxis: {
                                         categories: date_list,
@@ -628,6 +642,16 @@
                                                     }
                                                   }
                                                 }
+                                            },
+                                            events: {
+                                                hide: function() {
+                                                    window.annotObj.redraw();
+                                                    $(document).find('.widget-13a').find('.annotation-marker[series-name="'+this.name+'"]').hide();
+                                                },
+                                                show: function() {
+                                                    window.annotObj.redraw();
+                                                    $(document).find('.widget-13a').find('.annotation-marker[series-name="'+this.name+'"]').show();
+                                                }
                                             }
                                         }
                                     },
@@ -655,6 +679,7 @@
                                             chart, point, annotation);
 
                                     console.log(a);
+                                    window.annotObj = a;
                                     self.annot_perm();
                                    }
                                 })
@@ -771,6 +796,16 @@
                                                     }
                                                   }
                                                 }
+                                            },
+                                            events: {
+                                                hide: function() {
+                                                    window.annotObj.redraw();
+                                                    $(document).find('.widget-20a').find('.annotation-marker[series-name="'+this.name+'"]').hide();
+                                                },
+                                                show: function() {
+                                                    window.annotObj.redraw();
+                                                    $(document).find('.widget-20a').find('.annotation-marker[series-name="'+this.name+'"]').show();
+                                                }
                                             }
                                         }
                                     },
@@ -798,6 +833,7 @@
                                         chart, point, annotation);
 
                                    console.log(a);
+                                   window.annotObj = a;
                                    self.annot_perm();
                                    }
                                })
@@ -871,6 +907,16 @@
                                                     }
                                                    }
                                                 }
+                                            },
+                                            events: {
+                                                hide: function() {
+                                                    window.annotObj.redraw();
+                                                    $(document).find('.widget-19a').find('.annotation-marker[series-name="'+this.name+'"]').hide();
+                                                },
+                                                show: function() {
+                                                    window.annotObj.redraw();
+                                                    $(document).find('.widget-19a').find('.annotation-marker[series-name="'+this.name+'"]').show();
+                                                }
                                             }
                                         }
                                     },
@@ -899,6 +945,7 @@
                                         chart, point, annotation);
 
                                    console.log(a);
+                                   window.annotObj = a;
                                    self.annot_perm();
                                    }
                                })
@@ -967,7 +1014,17 @@
                                              }
                                             }
                                          }
-                                         }
+                                         },
+                                         events: {
+                                                hide: function() {
+                                                    window.annotObj.redraw();
+                                                    $(document).find('.widget-9a').find('.annotation-marker[series-name="'+this.name+'"]').hide();
+                                                },
+                                                show: function() {
+                                                    window.annotObj.redraw();
+                                                    $(document).find('.widget-9a').find('.annotation-marker[series-name="'+this.name+'"]').show();
+                                                }
+                                            }
                                      }
                                      },
 
@@ -995,6 +1052,7 @@
                                         chart, point, annotation);
        
                                    console.log(a);
+                                   window.annotObj = a;
                                    self.annot_perm();   
                                    }
                                })
@@ -1086,6 +1144,16 @@
                                                     }
                                                   }
                                                 }
+                                            },
+                                            events: {
+                                                hide: function() {
+                                                    window.annotObj.redraw();
+                                                    $(document).find('.widget-14a').find('.annotation-marker[series-name="'+this.name+'"]').hide();
+                                                },
+                                                show: function() {
+                                                    window.annotObj.redraw();
+                                                    $(document).find('.widget-14a').find('.annotation-marker[series-name="'+this.name+'"]').show();
+                                                }
                                             }
                                         }
                                     },
@@ -1114,6 +1182,7 @@
                                         chart, point, annotation);
 
                                    console.log(a);
+                                   window.annotObj = a;
                                    self.annot_perm();
                                    }
                                })   
@@ -1167,44 +1236,54 @@
                                 xAxis: {
                                     categories: date_list,
                                 },
-                plotOptions: {
-                    series: {
-                      dataLabels: {
-                         enabled: value,
-                      },
-                      allowPointSelect: true,
-                      cursor: 'pointer',
-                    point: {
-                      events:{
-                        contextmenu: function() {
-                         if (self.role_for_perm == 'customer') {
+                                plotOptions: {
+                                    series: {
+                                      dataLabels: {
+                                         enabled: value,
+                                      },
+                                      allowPointSelect: true,
+                                      cursor: 'pointer',
+                                    point: {
+                                      events:{
+                                        contextmenu: function() {
+                                         if (self.role_for_perm == 'customer') {
 
-                            console.log('he is customer');
-                         }
-                         else {
+                                            console.log('he is customer');
+                                         }
+                                         else {
 
-                          if (self.data_to_show.split('&').length == 6) {
-                        var sub_proj = '';
-                        var work_pack = '';
-                        var sub_pack = '';
-                          }
-                          else {
-                            var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
-                        var work_pack = self.data_to_show.split('&')[6].split('=')[1];
-                        var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
-                          }
-                                var str = '33<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
-                                                this['project_live'] = self.project_live;
-                                                this['center_live'] = self.center_live;
-                                                this['start_date'] = self.start_date;
-                                                this['end_date'] = self.end_date;
-                          return new Annotation(str, $(self.chartOptions38.chart.renderTo),this.series.chart, this);
-                            }
-                          }
-                        }
-                        }
-                    }
-                    },
+                                          if (self.data_to_show.split('&').length == 6) {
+                                        var sub_proj = '';
+                                        var work_pack = '';
+                                        var sub_pack = '';
+                                          }
+                                          else {
+                                            var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
+                                        var work_pack = self.data_to_show.split('&')[6].split('=')[1];
+                                        var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
+                                          }
+                                                var str = '33<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
+                                                                this['project_live'] = self.project_live;
+                                                                this['center_live'] = self.center_live;
+                                                                this['start_date'] = self.start_date;
+                                                                this['end_date'] = self.end_date;
+                                          return new Annotation(str, $(self.chartOptions38.chart.renderTo),this.series.chart, this);
+                                            }
+                                          }
+                                        }
+                                        },
+                                        events: {
+                                                hide: function() {
+                                                    window.annotObj.redraw();
+                                                    $(document).find('.widget-33a').find('.annotation-marker[series-name="'+this.name+'"]').hide();
+                                                },
+                                                show: function() {
+                                                    window.annotObj.redraw();
+                                                    $(document).find('.widget-33a').find('.annotation-marker[series-name="'+this.name+'"]').show();
+                                                }
+                                        }
+                                    }
+                                    },
                                 series: prod_avg_data,
                                 onComplete: function(chart){
                                 if (is_annotation) {
@@ -1229,6 +1308,7 @@
                                     chart, point, annotation);
 
                                console.log(a);
+                               window.annotObj = a;
                                self.annot_perm();
                                }
                            })
@@ -1323,6 +1403,16 @@
                                                     }
                                                 }
                                             }
+                                        },
+                                        events: {
+                                            hide: function() {
+                                                window.annotObj.redraw();
+                                                $(document).find('.widget-26a').find('.annotation-marker[series-name="'+this.name+'"]').hide();
+                                            },
+                                            show: function() {
+                                                window.annotObj.redraw();
+                                                $(document).find('.widget-26a').find('.annotation-marker[series-name="'+this.name+'"]').show();
+                                            }
                                         }
                                     }
                                 },
@@ -1350,6 +1440,7 @@
                                                               chart, point, annotation);
 
                                                          console.log(a);
+                                                         window.annotObj = a;
                                                          self.annot_perm();
                                                          }
                                                      })   
@@ -1445,6 +1536,16 @@
                                                     }
                                                 }
                                             }
+                                        },
+                                        events: {
+                                            hide: function() {
+                                                window.annotObj.redraw();
+                                                $(document).find('.widget-60a').find('.annotation-marker[series-name="'+this.name+'"]').hide();
+                                            },
+                                            show: function() {
+                                                window.annotObj.redraw();
+                                                $(document).find('.widget-60a').find('.annotation-marker[series-name="'+this.name+'"]').show();
+                                            }
                                         }
                                     }
                                 },
@@ -1472,6 +1573,7 @@
                                                               chart, point, annotation);
 
                                                          console.log(a);
+                                                         window.annotObj = a;
                                                          self.annot_perm();
                                                          }
                                                      })   
@@ -1561,6 +1663,16 @@
                                                     }
                                                   }
                                                 }
+                                            },
+                                            events: {
+                                                hide: function() {
+                                                    window.annotObj.redraw();
+                                                    $(document).find('.widget-21a').find('.annotation-marker[series-name="'+this.name+'"]').hide();
+                                                },
+                                                show: function() {
+                                                    window.annotObj.redraw();
+                                                    $(document).find('.widget-21a').find('.annotation-marker[series-name="'+this.name+'"]').show();
+                                                }
                                             }
                                         }
                                     },
@@ -1588,6 +1700,7 @@
                                     chart, point, annotation);
        
                                console.log(a);
+                               window.annotObj = a;
                                self.annot_perm();
                                }
                            })
@@ -1711,6 +1824,16 @@
                                                     }
                                                   }
                                                 }
+                                            },
+                                            events: {
+                                                hide: function() {
+                                                    window.annotObj.redraw();
+                                                    $(document).find('.widget-11a').find('.annotation-marker[series-name="'+this.name+'"]').hide();
+                                                },
+                                                show: function() {
+                                                    window.annotObj.redraw();
+                                                    $(document).find('.widget-11a').find('.annotation-marker[series-name="'+this.name+'"]').show();
+                                                }
                                             }
                                         }
                                     },
@@ -1738,6 +1861,7 @@
                                         chart, point, annotation);
 
                                    console.log(a);
+                                   window.annotObj = a;
                                    self.annot_perm();
                                    }
                                })
@@ -1808,6 +1932,16 @@
                                                     }
                                                   }  
                                                 }
+                                            },
+                                            events: {
+                                                hide: function() {
+                                                    window.annotObj.redraw();
+                                                    $(document).find('.widget-12a').find('.annotation-marker[series-name="'+this.name+'"]').hide();
+                                                },
+                                                show: function() {
+                                                    window.annotObj.redraw();
+                                                    $(document).find('.widget-12a').find('.annotation-marker[series-name="'+this.name+'"]').show();
+                                                }
                                             }
                                         }
                                     },
@@ -1836,6 +1970,7 @@
                                    }
 
                                    console.log(a);
+                                   window.annotObj = a;
                                    self.annot_perm();  
                                    }
                                })
@@ -1957,6 +2092,16 @@
                                                     }
                                                   }
                                                 }
+                                            },
+                                            events: {
+                                                hide: function() {
+                                                    window.annotObj.redraw();
+                                                    $(document).find('.widget-6a').find('.annotation-marker[series-name="'+this.name+'"]').hide();
+                                                },
+                                                show: function() {
+                                                    window.annotObj.redraw();
+                                                    $(document).find('.widget-6a').find('.annotation-marker[series-name="'+this.name+'"]').show();
+                                                }
                                             }
                                         }
                                     },
@@ -1984,6 +2129,7 @@
                                         chart, point, annotation);
 
                                    console.log(a);
+                                   window.annotObj = a;
                                    self.annot_perm();
                                    }
                                })
@@ -2018,46 +2164,56 @@
                                    xAxis: {
                                         categories: date_list,
                                     },
-                     plotOptions: {
-                     series: {
-                       dataLabels: {
-                         enabled: value,
-                         formatter: function () {
-                             return Highcharts.numberFormat(this.y, null, null, ",");
-                           },
-                       },
-                       allowPointSelect: true,
-                       cursor: 'pointer',
-                         point: {
-                           events:{ 
-                         contextmenu: function() {
-                         if (self.role_for_perm == 'customer') {
+                                    plotOptions: {
+                                        series: {
+                                            dataLabels: {
+                                                enabled: value,
+                                                formatter: function () {
+                                                    return Highcharts.numberFormat(this.y, null, null, ",");
+                                                },
+                                            },
+                                        allowPointSelect: true,
+                                        cursor: 'pointer',
+                                        point: {
+                                           events:{ 
+                                            contextmenu: function() {
+                                                if (self.role_for_perm == 'customer') {
 
-                            console.log('he is customer');
-                         }
-                         else {
-                           if (self.data_to_show.split('&').length == 6) {
-                             var sub_proj = '';
-                             var work_pack = '';
-                             var sub_pack = '';
-                           }
-                           else {
-                             var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
-                             var work_pack = self.data_to_show.split('&')[6].split('=')[1];
-                             var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
-                           }
-                                 var str = '1<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
-                                            this['project_live'] = self.project_live;
-                                            this['center_live'] = self.center_live;
-                                            this['start_date'] = self.start_date;
-                                            this['end_date'] = self.end_date;
-                                  return new Annotation(str, $(self.chartOptions.chart.renderTo),this.series.chart, this);
-                             }
-                           } 
-                         }
-                         }
-                     }
-                     },
+                                                    console.log('he is customer');
+                                                }
+                                                else {
+                                                    if (self.data_to_show.split('&').length == 6) {
+                                                        var sub_proj = '';
+                                                        var work_pack = '';
+                                                        var sub_pack = '';
+                                                    }
+                                                    else {
+                                                        var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
+                                                        var work_pack = self.data_to_show.split('&')[6].split('=')[1];
+                                                        var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
+                                                    }
+                                                    var str = '1<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
+                                                            this['project_live'] = self.project_live;
+                                                            this['center_live'] = self.center_live;
+                                                            this['start_date'] = self.start_date;
+                                                            this['end_date'] = self.end_date;
+                                                    return new Annotation(str, $(self.chartOptions.chart.renderTo),this.series.chart, this);
+                                                }
+                                            } 
+                                            }
+                                         },
+                                         events: {
+                                                hide: function() {
+                                                    window.annotObj.redraw();
+                                                    $(document).find('.widget-1a').find('.annotation-marker[series-name="'+this.name+'"]').hide();
+                                                },
+                                                show: function() {
+                                                    window.annotObj.redraw();
+                                                    $(document).find('.widget-1a').find('.annotation-marker[series-name="'+this.name+'"]').show();
+                                                }
+                                            }
+                                        }
+                                    },
 
                                     series: main_prod_data,
                                     onComplete: function(chart){
@@ -2083,6 +2239,7 @@
                                         chart, point, annotation);
 
                                    console.log(a);
+                                   window.annotObj = a;
                                    self.annot_perm();
                                    }
                                })
@@ -2194,6 +2351,16 @@
                                                 }
                                             }
                                            } 
+                                        },
+                                        events: {
+                                            hide: function() {
+                                                window.annotObj.redraw();
+                                                $(document).find('.widget-24a').find('.annotation-marker[series-name="'+this.name+'"]').hide();
+                                            },
+                                            show: function() {
+                                                window.annotObj.redraw();
+                                                $(document).find('.widget-24a').find('.annotation-marker[series-name="'+this.name+'"]').show();
+                                            }
                                         }
                                     }
                                 },
@@ -2222,6 +2389,7 @@
                                         chart, point, annotation);
 
                                    console.log(a);
+                                   window.annotObj = a;
                                    self.annot_perm();
                                    }
                                })
@@ -2292,6 +2460,16 @@
                                                 }
                                                } 
                                             }
+                                        },
+                                        events: {
+                                            hide: function() {
+                                                window.annotObj.redraw();
+                                                $(document).find('.widget-25a').find('.annotation-marker[series-name="'+this.name+'"]').hide();
+                                            },
+                                            show: function() {
+                                                window.annotObj.redraw();
+                                                $(document).find('.widget-25a').find('.annotation-marker[series-name="'+this.name+'"]').show();
+                                            }
                                         }
                                     }
                                 },                            
@@ -2319,6 +2497,7 @@
                                         chart, point, annotation);
 
                                    console.log(a);
+                                   window.annotObj = a;
                                    self.annot_perm();
                                    }
                                })
@@ -2398,6 +2577,16 @@
                                                 }
                                               }
                                             }
+                                        },
+                                        events: {
+                                            hide: function() {
+                                                window.annotObj.redraw();
+                                                $(document).find('.widget-22a').find('.annotation-marker[series-name="'+this.name+'"]').hide();
+                                            },
+                                            show: function() {
+                                                window.annotObj.redraw();
+                                                $(document).find('.widget-22a').find('.annotation-marker[series-name="'+this.name+'"]').show();
+                                            }
                                         }
                                     }
                                 },
@@ -2425,6 +2614,7 @@
                                         chart, point, annotation);
 
                                    console.log(a);
+                                   window.annotObj = a;
                                    self.annot_perm();
                                    }
                                })
@@ -2495,6 +2685,16 @@
                                                 }
                                               }
                                             }
+                                        },
+                                        events: {
+                                            hide: function() {
+                                                window.annotObj.redraw();
+                                                $(document).find('.widget-23a').find('.annotation-marker[series-name="'+this.name+'"]').hide();
+                                            },
+                                            show: function() {
+                                                window.annotObj.redraw();
+                                                $(document).find('.widget-23a').find('.annotation-marker[series-name="'+this.name+'"]').show();
+                                            }
                                         }
                                     }
                                 },
@@ -2523,6 +2723,7 @@
                                         chart, point, annotation);
 
                                    console.log(a);
+                                   window.annotObj = a;
                                    self.annot_perm();
                                    }
                                })
@@ -2614,6 +2815,16 @@
                                                 }
                                               }
                                             }
+                                        },
+                                        events: {
+                                            hide: function() {
+                                                window.annotObj.redraw();
+                                                $(document).find('.widget-35a').find('.annotation-marker[series-name="'+this.name+'"]').hide();
+                                            },
+                                            show: function() {
+                                                window.annotObj.redraw();
+                                                $(document).find('.widget-35a').find('.annotation-marker[series-name="'+this.name+'"]').show();
+                                            }
                                         }
                                     }
                                 },
@@ -2641,6 +2852,7 @@
                                     chart, point, annotation);
 
                                console.log(a);
+                               window.annotObj = a;
                                self.annot_perm();
                                }
                            })
@@ -2730,6 +2942,16 @@
                                                 }
                                               }  
                                             }
+                                        },
+                                        events: {
+                                            hide: function() {
+                                                window.annotObj.redraw();
+                                                $(document).find('.widget-37a').find('.annotation-marker[series-name="'+this.name+'"]').hide();
+                                            },
+                                            show: function() {
+                                                window.annotObj.redraw();
+                                                $(document).find('.widget-37a').find('.annotation-marker[series-name="'+this.name+'"]').show();
+                                            }
                                         }
                                     }
                                 },
@@ -2758,6 +2980,7 @@
                                     chart, point, annotation);
 
                                console.log(a);
+                               window.annotObj = a;
                                self.annot_perm();
                                }
                            })
@@ -2849,6 +3072,16 @@
                                                 }
                                               }
                                             }
+                                        },
+                                        events: {
+                                            hide: function() {
+                                                window.annotObj.redraw();
+                                                $(document).find('.widget-36a').find('.annotation-marker[series-name="'+this.name+'"]').hide();
+                                            },
+                                            show: function() {
+                                                window.annotObj.redraw();
+                                                $(document).find('.widget-36a').find('.annotation-marker[series-name="'+this.name+'"]').show();
+                                            }
                                         }
                                     }
                                 },
@@ -2877,6 +3110,7 @@
                                     chart, point, annotation);
 
                                console.log(a);
+                               window.annotObj = a;
                                self.annot_perm();
                                }
                            })
@@ -2969,6 +3203,16 @@
                                                 }
                                               }  
                                             }
+                                        },
+                                        events: {
+                                            hide: function() {
+                                                window.annotObj.redraw();
+                                                $(document).find('.widget-34a').find('.annotation-marker[series-name="'+this.name+'"]').hide();
+                                            },
+                                            show: function() {
+                                                window.annotObj.redraw();
+                                                $(document).find('.widget-34a').find('.annotation-marker[series-name="'+this.name+'"]').show();
+                                            }
                                         }
                                     }
                                 },
@@ -2997,6 +3241,7 @@
                                     chart, point, annotation);
 
                                console.log(a);
+                               window.annotObj = a;
                                self.annot_perm();
                                }
                            })
@@ -3073,6 +3318,16 @@
                                                 }
                                             }
                                           }
+                                        },
+                                        events: {
+                                            hide: function() {
+                                                window.annotObj.redraw();
+                                                $(document).find('.widget-38a').find('.annotation-marker[series-name="'+this.name+'"]').hide();
+                                            },
+                                            show: function() {
+                                                window.annotObj.redraw();
+                                                $(document).find('.widget-38a').find('.annotation-marker[series-name="'+this.name+'"]').show();
+                                            }
                                         }
                                     }
                                 },
@@ -3105,6 +3360,7 @@
                                     chart, point, annotation);
 
                                console.log(a);
+                               window.annotObj = a;
                                self.annot_perm();
                                }
                            })   
@@ -3174,6 +3430,16 @@
                                                 }
                                             }
                                            } 
+                                        },
+                                        events: {
+                                            hide: function() {
+                                                window.annotObj.redraw();
+                                                $(document).find('.widget-39a').find('.annotation-marker[series-name="'+this.name+'"]').hide();
+                                            },
+                                            show: function() {
+                                                window.annotObj.redraw();
+                                                $(document).find('.widget-39a').find('.annotation-marker[series-name="'+this.name+'"]').show();
+                                            }
                                         }
                                     }
                                 },
@@ -3206,6 +3472,7 @@
                                     chart, point, annotation);
 
                                console.log(a);
+                               window.annotObj = a;
                                self.annot_perm();
                                }
                            })   
@@ -3283,6 +3550,16 @@
                                                 }
                                               }
                                             }
+                                        },
+                                        events: {
+                                            hide: function() {
+                                                window.annotObj.redraw();
+                                                $(document).find('.widget-2a').find('.annotation-marker[series-name="'+this.name+'"]').hide();
+                                            },
+                                            show: function() {
+                                                window.annotObj.redraw();
+                                                $(document).find('.widget-2a').find('.annotation-marker[series-name="'+this.name+'"]').show();
+                                            }
                                         }
                                     }
                                 },
@@ -3316,6 +3593,7 @@
                                     chart, point, annotation);
 
                                console.log(a);
+                               window.annotObj = a;
                                self.annot_perm();
                                }
                            })
@@ -3386,6 +3664,16 @@
                                                 }
                                               }
                                             }
+                                        },
+                                        events: {
+                                            hide: function() {
+                                                window.annotObj.redraw();
+                                                $(document).find('.widget-3a').find('.annotation-marker[series-name="'+this.name+'"]').hide();
+                                            },
+                                            show: function() {
+                                                window.annotObj.redraw();
+                                                $(document).find('.widget-3a').find('.annotation-marker[series-name="'+this.name+'"]').show();
+                                            }
                                         }
                                     }
                                 },
@@ -3419,6 +3707,7 @@
                                     chart, point, annotation);
 
                                console.log(a);
+                               window.annotObj = a;
                                self.annot_perm();
                                }
                            })
@@ -3524,6 +3813,16 @@
                                                     }
                                                   }  
                                                 }
+                                            },
+                                            events: {
+                                                hide: function() {
+                                                    window.annotObj.redraw();
+                                                    $(document).find('.widget-7a').find('.annotation-marker[series-name="'+this.name+'"]').hide();
+                                                },
+                                                show: function() {
+                                                    window.annotObj.redraw();
+                                                    $(document).find('.widget-7a').find('.annotation-marker[series-name="'+this.name+'"]').show();
+                                                }
                                             }
                                         }
                                     },
@@ -3547,6 +3846,7 @@
                                         chart, point, annotation);
 
                                    console.log(a);
+                                   window.annotObj = a;
                                    self.annot_perm();
                                    }
                                })
@@ -3622,6 +3922,16 @@
                                                     }
                                                   }
                                                 }
+                                            },
+                                            events: {
+                                                hide: function() {
+                                                    window.annotObj.redraw();
+                                                    $(document).find('.widget-8a').find('.annotation-marker[series-name="'+this.name+'"]').hide();
+                                                },
+                                                show: function() {
+                                                    window.annotObj.redraw();
+                                                    $(document).find('.widget-8a').find('.annotation-marker[series-name="'+this.name+'"]').show();
+                                                }
                                             }
                                         }
                                     },
@@ -3649,6 +3959,7 @@
                                         chart, point, annotation);
 
                                    console.log(a);
+                                   window.annotObj = a;
                                    self.annot_perm();
                                    }
                                })
@@ -6671,6 +6982,7 @@ self.chartOptions64 = {
             plotOptions:{
                 series:{
                     allowPointSelect: true,
+                    showInLegend: false,
                     cursor: 'pointer',
                 point: {
                     events:{

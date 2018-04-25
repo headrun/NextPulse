@@ -114,7 +114,8 @@
                                          .attr({
                                                 "zIndex": 10,
                                                 "class": "annotation-marker",
-                                                "id": "annotation-" + data.id
+                                                "id": "annotation-" + data.id,
+                                                "series-name": point.series.name,
                                               }); 
         }
         else {
@@ -127,7 +128,8 @@
                                      .attr({
                                             "zIndex": 10,
                                             "class": "annotation-marker",
-                                            "id": "annotation-" + data.id
+                                            "id": "annotation-" + data.id,
+                                            "series-name": point.series.name,
                                           });
            }
             else {
@@ -139,7 +141,8 @@
                                      .attr({
                                             "zIndex": 10,
                                             "class": "annotation-marker",
-                                            "id": "annotation-" + data.id
+                                            "id": "annotation-" + data.id,
+                                            "series-name": point.series.name,
                                           });
             }
         }
@@ -323,6 +326,9 @@
             that.$popover.css({"top": (yPos) + "px", "left": (xPos) + "px"}).addClass("show").addClass("in");
             //that.$popover.css({"top": 99 + "px", "left": 270 + "px"}).addClass("show").addClass("in");
 
+            self.widget_check = that.$popover.selector;
+            console.log(self.widget_check);
+
             var $arrow = that.$popover.find("div.arrow").css({"left": "50%"});
 
             if(xPos < $graph.position().left){
@@ -384,16 +390,28 @@
             if(!series_enabled){
 
                 this.$el.fadeOut();
-                this.$annotations_ul.fadeOut();
+                //this.$annotations_ul.fadeOut();
+                //this.$el.fadeOut();
+                if (point.barX) {
+                    this.$el.attr({"y": point.plotY - 10, "x": point.barX+(point.pointWidth) + chart.plotLeft - 10});
+                }
+                else {
+                    this.$el.attr({"y": this.point.plotY + this.chart.plotTop -30, "x": this.point.plotX + this.chart.plotLeft - 10});
+                }
+                //this.$el.attr({"y": this.point.plotY + this.chart.plotTop -30, "x": this.point.plotX + this.chart.plotLeft - 10});
             }else{
-
-                this.$el.attr({"y": this.point.plotY + this.chart.plotTop -30, "x": this.point.plotX + this.chart.plotLeft - 10});
-
+                if (point.barX) {
+                    this.$el.attr({"y": point.plotY - 10, "x": point.barX+(point.pointWidth/2) + chart.plotLeft - 10});
+                }
+                else{
+                    this.$el.attr({"y": this.point.plotY + this.chart.plotTop -30, "x": this.point.plotX + this.chart.plotLeft - 10});
+                }
                 if(!$("body").hasClass("hide-annotations")){
                     this.$el.fadeIn();
                 }
 
-                this.$annotations_ul.fadeIn();
+                //this.$annotations_ul.fadeIn();
+                this.$el.fadeIn();
             }
         };
 

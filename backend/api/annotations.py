@@ -35,7 +35,7 @@ def get_annotations(request):
 
 
     #====================================================================================    
-    
+
     if chart_type == 'bar':
         annotat_data = get_annotation_data(request)
         return json_HttpResponse(annotat_data)
@@ -226,33 +226,43 @@ def update_annotation(request):
     text = request.POST.get("text")
     widget_id = request.POST.get('widget_id','')
     key_to = request.POST.get('key', '')
-    chart_id = request.POST.get('chart_type_name_id','')
     center = request.POST.get('center_id','')
     project = request.POST.get('project_id','')
     start_date = request.POST.get('start_date', '')
     end_date = request.POST.get('end_date', '')
-    
+    if '-' in annotation_id:
+        annotation_id = ""
+
     if action == "delete":
-        if action == 'delete' and text == '':
-            return json_HttpResponse(json.dumps({"status": "success", "message": "deleted successfully"}))    
-        elif key_to != '' and widget_id != '' and text != '' and project != '':
-            anno = Annotation.objects.filter(epoch=epoch,key=key_to,project=project,\
-                        text=text,chart_id=widget_id)
-        elif widget_id != '' and text != '' and project != '':
-            anno = Annotation.objects.filter(epoch=epoch,project=project,chart_id=widget_id,text=text)
-        elif text != '' and project != '':
-            anno = Annotation.objects.filter(epoch=epoch,project=project,text=text)
-        elif project == '':
-            anno = Annotation.objects.filter(epoch=epoch,text=text)
+        if action == "delete" and text == "" and project == "" and annotation_id == "":
+            anno = Annotation.objects.filter(text=text,epoch=epoch)
+            if anno:
+                anno.delete()
+                return json_HttpResponse(json.dumps({"status": "success", "message": "deleted successfully"})) 
+            else:
+                return json_HttpResponse(json.dumps({"status": "success", "message": "deleted successfully"}))
+        elif text != "" and epoch != "" and key_to != "" and project != "" and annotation_id != "":
+            anno = Annotation.objects.filter(text=text,epoch=epoch,key=key_to,\
+                                                    project=project,id=annotation_id)
+        elif text != "" and epoch != "" and project != "" and annotation_id != "":
+            anno = Annotation.objects.filter(text=text,epoch=epoch,project=project,id=annotation_id)
+        elif text != "" and epoch != "" and annotation_id != "" and project == "":
+            anno = Annotation.objects.filter(text=text,epoch=epoch,id=annotation_id)
+        elif text != "" and epoch != "" and project != "" and annotation_id == "":
+            anno = Annotation.objects.filter(text=text,epoch=epoch,project=project)
+        elif text != "" and epoch != "" and project == "" and annotation_id == "":
+            anno = Annotation.objects.filter(text=text,epoch=epoch)
+        elif text == "" and epoch != "" and annotation_id != "":
+            anno = Annotation.objects.filter(text=text,epoch=epoch)
         if anno:
             anno = anno[0]
             anno.delete()
             return json_HttpResponse(json.dumps({"status": "success", "message": "deleted successfully"}))
         else:
             series = series.split('<##>')[0]
-            anno = Annotation.objects.filter(epoch=epoch,created_by=request.user,key__contains=series)[0]
+            anno = Annotation.objects.filter(epoch=epoch,key__contains=series)[0]
             anno.delete()
-            return json_HttpResponse(json.dumps({"status": "success", "message": "deleted successfully"}))
+            return json_HttpResponse(json.dumps({"status": "success", "message": "deleted successfully"}))    
 
     if series is not None:
         series = series.split('<##>')[0]
