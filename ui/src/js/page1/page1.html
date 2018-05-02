@@ -97,9 +97,7 @@ thead {
 
 .widget-data-show {
 }
-.scroll {
-    margin-top: 10px !important;
-}
+
 </style>
     <div class="row">
         <div class="col-lg-2 col-md-2 col-sm-2 col-xs-2" style="padding-bottom: 20px;">
@@ -114,12 +112,10 @@ thead {
         <div class = "col-lg-12 col-md-12 col-sm-12 col-xs-12">
         <div ng-repeat="k in $ctrl.packet_hierarchy_list track by $index" class="packet_num">
             <form>
-                <div class="packet_num col-lg-3 col-md-3 col-sm-3" style="margin-left: -15px;padding:1px">
-                    <div class="form-group">
+                <div class="packet_num col-lg-3 col-md-3 col-sm-3" style="margin-left: -15px;padding:10px">
                     <select class="form-control input-sm packet" id="{{$index}}">
                         <option>All</option>
                     </select>
-                    </div>
                 </div>
             </form>
         </div>
@@ -184,7 +180,7 @@ thead {
     </div>
     </div>
 
-    <!--<div class="row">
+    <div class="row">
         <div class="col-md-6" id="emp_widget">
             <div class="table-responsive">
                 <div class="widget-title clearfix" title="Sample Widg">
@@ -242,7 +238,7 @@ thead {
             </table>
         </div>
     </div>
-</div>-->
+</div>
 <a class="back-to-top" id="goTop">
     <i class="fa fa-arrow-circle-o-up hide"></i>
 </a>
@@ -338,3 +334,4 @@ $(document).ready(function() {
     }
 });
 </script>
+
