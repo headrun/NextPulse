@@ -3,6 +3,9 @@ import datetime
 import json
 from django.db.models import Q
 from api.models import *
+from api.utils import *
+from api.commons import *
+from api.basics import *
 from django.db.models import Count
 from django.http import HttpResponse
 from common.utils import getHttpResponse as json_HttpResponse
@@ -12,12 +15,29 @@ from datetime import date, timedelta
 
 def get_annotations(request):
 
+    dates_list = []
+    main_data_dict = data_dict(request.GET)
+    type = main_data_dict['type']
+    if type == 'day':
+        dates = main_data_dict['dwm_dict']['day']
+        for date in dates:
+            dates_list.append(date)
+    elif type == 'week':
+        dates = main_data_dict['dwm_dict']['week']
+        for date in dates:
+            dates_list.append(date[0] + ' to ' + date[-1])
+    elif type == 'month':
+        dates = main_data_dict['dwm_dict']['month']
+        for month_na,month_va in zip(dates['month_names'],dates['month_dates']):
+            month_dates = month_va
+            dates_list.append(month_dates[0] + ' to ' + month_dates[-1])
+    
     series_name = request.GET['series_name']
     chart_name = request.GET.get('chart_name')
-    project_name = request.GET.get('proj_name', '')
-    center_name = request.GET.get('cen_name', '')
-    start_date = request.GET.get('start_date', '')
-    end_date = request.GET.get('end_date', '')
+    project_name = request.GET.get('project', '')
+    center_name = request.GET.get('center', '')
+    start_date = request.GET.get('from', '')
+    end_date = request.GET.get('to', '')
     chart_type = request.GET.get('chart_type', '')
     if project_name:
         project_name = project_name.split(' - ')[0];
@@ -41,7 +61,7 @@ def get_annotations(request):
         return json_HttpResponse(annotat_data)
     else:
         annotations = Annotation.objects.filter(key__contains='<##>' + chart_name + '<##>' + series_name + '<##>', center__name = center_name,
-                                                project__name = project_name, chart_id = chart_name)
+                                                project__name = project_name, chart_id = chart_name, epoch__in=dates_list)
         annotations_data = []
 
         if annotations:
@@ -62,7 +82,7 @@ def get_annotations(request):
                 annotat_data = get_annotation_data(request)
             else:        
                 annotations = Annotation.objects.filter(project__name = project_name,center__name=center_name,\
-                                                        chart_id=chart_name, key=series_name)
+                                                        chart_id=chart_name, key=series_name, epoch__in=dates_list)
                 if annotations:
                     for annotation in annotations:
                         final_data = {}
@@ -81,10 +101,10 @@ def get_annotation_data(request):
 
     series_name = request.GET['series_name']
     chart_name = request.GET.get('chart_name')
-    project_name = request.GET.get('proj_name', '')
-    center_name = request.GET.get('cen_name', '')
-    start_date = request.GET.get('start_date', '')
-    end_date = request.GET.get('end_date', '')
+    project_name = request.GET.get('project', '')
+    center_name = request.GET.get('center', '')
+    start_date = request.GET.get('from', '')
+    end_date = request.GET.get('to', '')
     chart_type = request.GET.get('chart_type', '')
     if project_name:
         project_name = project_name.split(' - ')[0];
@@ -94,7 +114,7 @@ def get_annotation_data(request):
         day_type = request.GET['type']
     except:
         day_type = ''
-
+    
     check_dates = []
     d1 = date(int(start_date.split('-')[0]), int(start_date.split('-')[1]), int(start_date.split('-')[2]))
     d2 = date(int(end_date.split('-')[0]), int(end_date.split('-')[1]), int(end_date.split('-')[2]))
@@ -104,6 +124,7 @@ def get_annotation_data(request):
 
     annotations = Annotation.objects.filter(key__contains='<##>' + chart_name + '<##>' + series_name + '<##>', center__name = center_name,
                                             project__name = project_name, chart_id = chart_name)
+    
     if annotations:
         result = get_anno_output_data(annotations,check_dates)
     else:
@@ -120,11 +141,9 @@ def get_anno_output_data(annotations,check_dates):
             first_date = annotation.start_date
             last_date = annotation.end_date
             dates = []
-            d = first_date
-            delta = datetime.timedelta(days=1)
-            while d <= last_date:
-                d += delta
-                dates.append(str(d))
+            delta = last_date - first_date
+            for i in range(delta.days + 1):
+                dates.append(str(first_date + timedelta(days=i)))
             final_dates = []
             for date_val in check_dates:
                 if date_val in dates:
@@ -159,14 +178,14 @@ def add_annotation(request):
     key = '<##>' + widget_id + '<##>' + series_name + '<##>' + anno_id
     created_by = request.user
     dt_created = datetime.datetime.now()
-    prj_name = request.POST.get('project_live', '')
+    prj_name = request.POST.get('project', '')
     prj_name = prj_name.split(' - ')[0];
-    cen_name = request.POST.get('center_live', '')
+    cen_name = request.POST.get('center', '')
     cen_name = cen_name.split(' - ')[0]
     prj_obj = Project.objects.filter(name = prj_name)
     center = Center.objects.filter(name = cen_name)
-    start_date = request.POST.get('start_date', '')
-    end_date = request.POST.get('end_date', '')
+    start_date = request.POST.get('from', '')
+    end_date = request.POST.get('to', '')
     
     existed_annotations = Annotation.objects.filter(text=text, project=prj_obj[0],center=center[0],\
                                                 key=key,dt_created=dt_created)
@@ -226,33 +245,47 @@ def update_annotation(request):
     text = request.POST.get("text")
     widget_id = request.POST.get('widget_id','')
     key_to = request.POST.get('key', '')
-    chart_id = request.POST.get('chart_type_name_id','')
     center = request.POST.get('center_id','')
     project = request.POST.get('project_id','')
-    start_date = request.POST.get('start_date', '')
-    end_date = request.POST.get('end_date', '')
-    
+    start_date = request.POST.get('from', '')
+    end_date = request.POST.get('to', '')
+    if '-' in annotation_id:
+        annotation_id = ""
+    #import pdb;pdb.set_trace()
     if action == "delete":
-        if action == 'delete' and text == '':
-            return json_HttpResponse(json.dumps({"status": "success", "message": "deleted successfully"}))    
-        elif key_to != '' and widget_id != '' and text != '' and project != '':
-            anno = Annotation.objects.filter(epoch=epoch,key=key_to,project=project,\
-                        text=text,chart_id=widget_id)
-        elif widget_id != '' and text != '' and project != '':
-            anno = Annotation.objects.filter(epoch=epoch,project=project,chart_id=widget_id,text=text)
-        elif text != '' and project != '':
-            anno = Annotation.objects.filter(epoch=epoch,project=project,text=text)
-        elif project == '':
-            anno = Annotation.objects.filter(epoch=epoch,text=text)
+        if action == "delete" and text == "" and project == "" and annotation_id == "":
+            anno = Annotation.objects.filter(text=text,epoch=epoch)
+            if anno:
+                anno.delete()
+                return json_HttpResponse(json.dumps({"status": "success", "message": "deleted successfully"})) 
+            else:
+                return json_HttpResponse(json.dumps({"status": "success", "message": "deleted successfully"}))
+        elif text != "" and epoch != "" and key_to != "" and project != "" and annotation_id != "":
+            anno = Annotation.objects.filter(text=text,epoch=epoch,key=key_to,\
+                                                    project=project,id=annotation_id)
+        elif text != "" and epoch != "" and project != "" and annotation_id != "":
+            anno = Annotation.objects.filter(text=text,epoch=epoch,project=project,id=annotation_id)
+        elif text != "" and epoch != "" and annotation_id != "" and project == "":
+            anno = Annotation.objects.filter(text=text,epoch=epoch,id=annotation_id)
+        elif text != "" and epoch != "" and project != "" and annotation_id == "":
+            anno = Annotation.objects.filter(text=text,epoch=epoch,project=project)
+        elif text != "" and epoch != "" and project == "" and annotation_id == "":
+            anno = Annotation.objects.filter(text=text,epoch=epoch)
+        elif text == "" and epoch != "" and annotation_id != "":
+            anno = Annotation.objects.filter(text=text,epoch=epoch)
+        elif action == "delete" and text != "" and epoch != "" and widget_id != "":
+            anno = Annotation.objects.filter(text=text,epoch=epoch,chart_id=widget_id)
         if anno:
             anno = anno[0]
             anno.delete()
             return json_HttpResponse(json.dumps({"status": "success", "message": "deleted successfully"}))
         else:
             series = series.split('<##>')[0]
-            anno = Annotation.objects.filter(epoch=epoch,created_by=request.user,key__contains=series)[0]
-            anno.delete()
-            return json_HttpResponse(json.dumps({"status": "success", "message": "deleted successfully"}))
+            anno = Annotation.objects.filter(epoch=epoch,key__contains=series)
+            if anno:
+                anno = anno[0]
+                anno.delete()
+            return json_HttpResponse(json.dumps({"status": "success", "message": "deleted successfully"}))    
 
     if series is not None:
         series = series.split('<##>')[0]
