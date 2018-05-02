@@ -20,7 +20,7 @@ def aht_team_calculations(date_list, project, center, level_structure_key, main_
         packets = query_data.values_list(_term,flat=True).distinct() 
         raw_dates = RawTable.objects.filter(project=project, center=center, date__range=[date_list[0],date_list[-1]]).\
                     values_list('date', flat=True).distinct()
-        result = aht_team_target_data(date_list,project,center,_term,raw_dates,packets,main_dates,request)
+        result = aht_team_target_data(date_list,project,center,_term,raw_dates,packets,main_dates,request,filter_params)
 
         for date in raw_dates:
             packets_list = []
@@ -42,11 +42,15 @@ def aht_team_calculations(date_list, project, center, level_structure_key, main_
     return result
     
 
-def aht_team_target_data(date_list,project,center,_term,dates,packets,main_dates,request):
+def aht_team_target_data(date_list,project,center,_term,dates,packets,main_dates,request,filter_params):
 
     result = {}
     target_line = []
-    if _term == 'work_packet':
+    if _term == 'sub_project':
+        packet = request.GET.get('sub_project', '')
+        main_packets = AHTTeam.objects.filter(project=project,date__range=[main_dates[0], main_dates[-1]],\
+                        sub_project=packet).values_list(_term,flat=True).distinct()
+    elif _term == 'work_packet':
         packet = request.GET.get('work_packet', '')
         if packet != '' and packet != 'All':
             main_packets = AHTTeam.objects.filter(project=project,date__range=[main_dates[0], main_dates[-1]],work_packet=packet).\
@@ -55,7 +59,7 @@ def aht_team_target_data(date_list,project,center,_term,dates,packets,main_dates
             main_packets = AHTTeam.objects.filter(project=project,date__range=[main_dates[0], main_dates[-1]]).\
                 values_list(_term,flat=True).distinct()
     elif _term == 'sub_packet':
-        packet = request.GET.get('sub_packet')
+        packet = request.GET.get('sub_packet', '')
         main_packets = AHTTeam.objects.filter(project=project,date__range=[main_dates[0], main_dates[-1]],sub_packet=packet).\
                 values_list(_term,flat=True).distinct()
     
@@ -80,32 +84,32 @@ def aht_team_target_data(date_list,project,center,_term,dates,packets,main_dates
 def tat_graph(date_list, project, center, level_structure_key, main_dates, request):
 
     result = {}
-    
     filter_params, _term = getting_required_params(level_structure_key, project, center, date_list)
     if _term and filter_params:
         query_data = TatTable.objects.filter(**filter_params)
         query_values = query_data.values_list('date',_term,'met_count','non_met_count')
         packets = query_data.values_list(_term,flat=True).distinct()
-        raw_dates = RawTable.objects.filter(project=project, center=center, date__range=[date_list[0],date_list[-1]]).\
-                    values_list('date', flat=True).distinct()
+        if '' not in packets:
+            raw_dates = RawTable.objects.filter(project=project, center=center, date__range=[date_list[0],date_list[-1]]).\
+                        values_list('date', flat=True).distinct()
 
-        for date in raw_dates:
-            packets_list = []
-            for data in query_values:
-                if str(date) == str(data[0]):
-                    value = (float(data[2])/float(data[3]+data[2]))*100
-                    if result.has_key(data[1]):
-                        result[data[1]].append(round(value, 2)) 
-                    else:
-                        result[data[1]] = [round(value, 2)] 
-                    packets_list.append(data[1])
-        
-            for packet in packets:
-                if packet not in packets_list:
-                    if result.has_key(packet):
-                        result[packet].append(0)
-                    else:
-                        result[packet] = [0] 
+            for date in raw_dates:
+                packets_list = []
+                for data in query_values:
+                    if str(date) == str(data[0]):
+                        value = (float(data[2])/float(data[3]+data[2]))*100
+                        if result.has_key(data[1]):
+                            result[data[1]].append(round(value, 2)) 
+                        else:
+                            result[data[1]] = [round(value, 2)] 
+                        packets_list.append(data[1])
+            
+                for packet in packets:
+                    if packet not in packets_list:
+                        if result.has_key(packet):
+                            result[packet].append(0)
+                        else:
+                            result[packet] = [0] 
     return result
     
 

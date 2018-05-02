@@ -60,7 +60,7 @@ def target_query_set_generation(prj_id,center_obj,level_structure_key,date_list)
 def worktrack_query_insertion(customer_data, prj_obj, center_obj,teamleader_obj_name, db_check):
     worktrac_date_list = customer_data['date']
     check_query = Worktrack.objects.filter(project=prj_obj, sub_project=customer_data.get('sub_project', ''),
-                                          work_packet=customer_data['work_packet'],
+                                          work_packet=customer_data.get('work_packet', ''),
                                           sub_packet=customer_data.get('sub_packet', ''),
                                           date=customer_data['date'],
                                           center=center_obj).values('opening','received', 'non_workable_count','completed','closing_balance')
@@ -88,7 +88,7 @@ def worktrack_query_insertion(customer_data, prj_obj, center_obj,teamleader_obj_
 
     if len(check_query) == 0:
         new_can = Worktrack(sub_project=customer_data.get('sub_project', ''),
-                            work_packet=customer_data['work_packet'],
+                            work_packet=customer_data.get('work_packet', ''),
                             sub_packet=customer_data.get('sub_packet', ''), date=customer_data['date'],
                             opening=opening,
                             received = received,
@@ -201,7 +201,7 @@ def headcount_query_insertion(customer_data, prj_obj, center_obj,teamleader_obj_
 def tat_query_insertion(customer_data, prj_obj, center_obj,teamleader_obj_name, db_check):
     tat_date_list = customer_data['date']
     check_query = TatTable.objects.filter(project=prj_obj, sub_project=customer_data.get('sub_project', ''),
-                                          work_packet=customer_data['work_packet'],
+                                          work_packet=customer_data.get('work_packet', ''),
                                           sub_packet=customer_data.get('sub_packet', ''),
                                           date=customer_data['date'],
                                           center=center_obj).values('total_received','met_count','non_met_count','tat_status')
@@ -225,7 +225,7 @@ def tat_query_insertion(customer_data, prj_obj, center_obj,teamleader_obj_name, 
 
     if len(check_query) == 0:
         new_can = TatTable(sub_project=customer_data.get('sub_project', ''),
-                            work_packet=customer_data['work_packet'],
+                            work_packet=customer_data.get('work_packet', ''),
                             sub_packet=customer_data.get('sub_packet', ''), date=customer_data['date'],
                             total_received=total_received,
                             met_count = met_count,
@@ -340,7 +340,7 @@ def incoming_error_query_insertion(customer_data, prj_obj, center_obj,teamleader
 
     incoming_date_list = customer_data['date']
     check_query = Incomingerror.objects.filter(project=prj_obj, sub_project=customer_data.get('sub_project', ''),
-                                               work_packet=customer_data['work_packet'],
+                                               work_packet=customer_data.get('work_packet', ''),
                                                sub_packet=customer_data.get('sub_packet', ''),
                                                date=customer_data['date'],
                                                center=center_obj).values('error_values')
@@ -351,7 +351,7 @@ def incoming_error_query_insertion(customer_data, prj_obj, center_obj,teamleader
 
     if len(check_query) == 0:
         new_can = Incomingerror(sub_project=customer_data.get('sub_project', ''),
-                                work_packet=customer_data['work_packet'],
+                                work_packet=customer_data.get('work_packet', ''),
                                 sub_packet=customer_data.get('sub_packet', ''), date=customer_data['date'],
                                 error_values=error_values,
                                 project=prj_obj, center=center_obj)
@@ -371,13 +371,13 @@ def raw_table_query_insertion(customer_data,prj_obj,center_obj,teamleader_obj_na
     prod_date_list = customer_data['date']
     new_can = 0
     check_query = RawTable.objects.filter(project=prj_obj, sub_project=customer_data.get('sub_project', ''),
-                                          work_packet=customer_data['work_packet'],
+                                          work_packet=customer_data.get('work_packet',''),
                                           sub_packet=customer_data.get('sub_packet', ''),
                                           employee_id=customer_data.get('employee_id', ''), date=customer_data['date'],
                                           center=center_obj).values('per_day','id')
     if len(check_query) == 0:
         new_can = RawTable(project=prj_obj, sub_project=customer_data.get('sub_project', ''),
-                           work_packet=customer_data['work_packet'],
+                           work_packet=customer_data.get('work_packet', ''),
                            sub_packet=customer_data.get('sub_packet', ''),
                            employee_id=customer_data.get('employee_id', ''),
                            per_hour=0,
@@ -401,7 +401,7 @@ def raw_table_query_insertion(customer_data,prj_obj,center_obj,teamleader_obj_na
 def internalerror_query_insertion(customer_data, prj_obj, center_obj,teamleader_obj_name, db_check):
     internal_date_list = customer_data['date']
     check_query = Internalerrors.objects.filter(project=prj_obj, sub_project=customer_data.get('sub_project', ''),
-                                          work_packet=customer_data['work_packet'],
+                                          work_packet=customer_data.get('work_packet',''),
                                           sub_packet=customer_data.get('sub_packet', ''),
                                           employee_id=customer_data.get('employee_id', ''),date=customer_data['date'],
                                           center=center_obj).values('audited_errors','total_errors', 'id')
@@ -420,7 +420,7 @@ def internalerror_query_insertion(customer_data, prj_obj, center_obj,teamleader_
     if len(check_query) == 0:
         new_can = Internalerrors(employee_id=customer_data.get('employee_id', ''),
                                  sub_project=customer_data.get('sub_project', ''),
-                                 work_packet=customer_data['work_packet'],
+                                 work_packet=customer_data.get('work_packet', ''),
                                  sub_packet=customer_data.get('sub_packet', ''), date=customer_data['date'],
                                  audited_errors=int(float(audited_count)),
                                  total_errors=total_errors,
@@ -447,7 +447,7 @@ def externalerror_query_insertion(customer_data, prj_obj, center_obj,teamleader_
     external_date_list = customer_data['date']
     new_can = 0
     check_query = Externalerrors.objects.filter(project=prj_obj, sub_project=customer_data.get('sub_project', ''),
-                                          work_packet=customer_data['work_packet'],
+                                          work_packet=customer_data.get('work_packet', ''),
                                           sub_packet=customer_data.get('sub_packet', ''),
                                           employee_id=customer_data.get('employee_id', ''),date=customer_data['date'],
                                           center=center_obj).values('audited_errors','total_errors', 'id')
@@ -465,7 +465,7 @@ def externalerror_query_insertion(customer_data, prj_obj, center_obj,teamleader_
     if len(check_query) == 0:
         new_can = Externalerrors(employee_id=customer_data.get('employee_id', ''),
                                  sub_project=customer_data.get('sub_project', ''),
-                                 work_packet=customer_data['work_packet'],
+                                 work_packet=customer_data.get('work_packet', ''),
                                  sub_packet=customer_data.get('sub_packet', ''), date=customer_data['date'],
                                  audited_errors=int(float(audited_count)),
                                  total_errors=total_errors,
