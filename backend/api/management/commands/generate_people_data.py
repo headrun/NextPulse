@@ -35,7 +35,7 @@ class Command(BaseCommand):
         proje_cent = ['Probe','NTT DATA Services TP','NTT DATA Services Coding','Federal Bank','Ujjivan','Gooru','Walmart Salem',\
                       'Walmart Chittor','Mobius','IBM','IBM South East Asia','IBM Pakistan','IBM Africa','IBM DCIW Arabia',\
                       'IBM Quality Control','IBM India and Sri Lanka','IBM NA and EU','IBM Arabia','IBM DCIW','IBM Latin America',\
-                      'IBM Sri Lanka P2P']
+                      'IBM Sri Lanka P2P','Jumio']
 
         for month_name,month_dates in months_dict.iteritems():
             tat_met_sal, tat_not_met_sal = [], []
