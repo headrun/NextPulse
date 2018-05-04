@@ -66,16 +66,7 @@
 
                     var map_list = result.result.list;
 
-                    //self.mapping_list = map_list;
-
-                    self.mapping_list = [];
-
-                    for (var i = 0; i <= map_list.length; i++) {
-
-                        self.mapping_list.push(map_list[i].split(' - ')[1]);
-                        self.mapping_list.sort();
-                    }
-
+                    self.mapping_list = map_list;
 
                     if ((self.mapping_list.length == 1) && ($scope.check == undefined)) {
 
