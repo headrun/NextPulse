@@ -66,7 +66,7 @@
 
                     var map_list = result.result.list;
 
-                    self.mapping_list = map_list.sort();
+                    self.mapping_list = map_list;
 
                     if ((self.mapping_list.length == 1) && ($scope.check == undefined)) {
 

@@ -36,7 +36,7 @@ class Command(BaseCommand):
             proje_cent = ['Probe','NTT DATA Services TP','NTT DATA Services Coding','Federal Bank','Ujjivan','Gooru',\
                           'Walmart Salem','IBM','IBM South East Asia','IBM Pakistan','IBM Africa','IBM DCIW Arabia',\
                           'IBM Quality Control','IBM India and Sri Lanka','IBM NA and EU','IBM Arabia','IBM DCIW',\
-                          'IBM Latin America','IBM Sri Lanka P2P', 'Walmart Chittor', 'Mobius']
+                          'IBM Latin America','IBM Sri Lanka P2P', 'Walmart Chittor', 'Mobius','Jumio']
             ext_audit_sal, ext_audit_chi, int_audit_sal, int_audit_chi = [], [], [], []
             ext_err_sal, ext_err_chi, int_err_sal, int_err_chi = [], [], [], []
             for pro_cen in proje_cent:
@@ -101,7 +101,7 @@ class Command(BaseCommand):
                         int_error_val = 0
                     prj_int_audit_val.append(int_audited_val)
                     prj_int_err_val.append(int_error_val)
-                #import pdb;pdb.set_trace()
+
                 if sum(prj_int_audit_val):
                     int_acc = (float(sum(prj_int_err_val))/float(sum(prj_int_audit_val)))*100
                     int_acc = 100 - float('%.2f' % round(int_acc,2))

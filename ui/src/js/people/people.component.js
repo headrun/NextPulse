@@ -20,7 +20,7 @@
                     $http({method:"GET", url: url}).success(function(result){
                     
                       if (vm.chart_name == 'Productivity') {
-                        var main_data = result.result.original_productivity_graph;    
+                        var main_data = result.result.productivity;    
                         var date_list = result.result.date;
                       }
 
@@ -32,14 +32,14 @@
                       
                       if (vm.chart_name == 'Internal Accuracy') {
 
-                        var main_data = result.result.internal_time_line;
-                        var date_list = result.result.date;
+                        var main_data = result.result.internal_accuracy_timeline;
+                        var date_list = result.result.internal_date;
                       }    
 
                       if (vm.chart_name == 'External Accuracy') {
 
-                        var main_data = result.result.external_time_line;
-                        var date_list = result.result.date; 
+                        var main_data = result.result.external_accuracy_timeline;
+                        var date_list = result.result.external_date; 
                       }
 
                       if (vm.chart_name == 'TAT') {
