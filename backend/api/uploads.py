@@ -14,11 +14,15 @@ from voice_service.models import *
 from common.utils import getHttpResponse as json_HttpResponse
 
 def upload_new(request):
+    #import pdb;pdb.set_trace()
     teamleader_obj_name = TeamLead.objects.filter(name_id=request.user.id)[0]
-    teamleader_obj = (teamleader_obj_name.project_id, teamleader_obj_name.center_id)
-    prj_obj = teamleader_obj_name.project
+    #teamleader_obj = (teamleader_obj_name.project_id, teamleader_obj_name.center_id)
+    teamleader_obj = TeamLead.objects.filter(name_id=request.user.id).values_list('project','center')[0]
+    #prj_obj = teamleader_obj_name.project
+    prj_obj = Project.objects.filter(id=teamleader_obj[0])[0]
     prj_name= prj_obj.name
-    center_obj = teamleader_obj_name.center
+    #center_obj = teamleader_obj_name.center
+    center_obj = Center.objects.filter(id=teamleader_obj[1])[0]
     prj_id = prj_obj.id
     fname = request.FILES['myfile']
     var = fname.name.split('.')[-1].lower()

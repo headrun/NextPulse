@@ -13,6 +13,13 @@
         /*overflow:hidden;*/
     }
  }
+.card {
+    width: 50% !important;
+    margin-left: 23% !important;
+}
+.lvh-label {
+    margin-left: 43% !important;
+}
 </style>
 <head>
 <title>NextPulse</title>
@@ -29,7 +36,7 @@
                         <h2 class="hidden-xs lvh-label">Projects</h2>
                     </div>
                     <div class="col col-33 left">
-                        <a ng-repeat="item in $ctrl.mapping_list"
+                        <a ng-repeat="item in $ctrl.mapping_list | orderBy : 'item'"
                                 ui-sref="dashboard.page1({'selpro': item})"
                                 ng-click="$ctrl.clickPro(item)">
                                 <li>{{item.split(' - ')[1]}}</li>

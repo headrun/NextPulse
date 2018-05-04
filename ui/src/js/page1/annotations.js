@@ -97,26 +97,29 @@
             data["graph_name"] = graph_name;
             data["series_name"] = point.series.name;
             data["widget_id"] = graph_name.split('<##>')[0];
-            data["project_live"] = point.project_live;
-            data["center_live"] = point.center_live;
+            data["project"] = point.project;
+            data["center"] = point.center;
+            data["from"] = point.from;
+            data["to"] = point.to;
+            data["chart_type"] = point.chart_type;
         }
 
-        if((point.barX) & (point.pointWidth < 55)){
-
+        if (point.barX) {
             var instance = chart.renderer.image('/img/marker.png',
-                                                point.barX + point.plotX - 10,
-                                                point.plotY - chart.plotTop -30,
+                                                point.barX+(point.pointWidth/2) + chart.plotLeft - 10,
+                                                point.plotY - 10,
                                                 20,
                                                 24)
                                          .attr({
                                                 "zIndex": 10,
                                                 "class": "annotation-marker",
-                                                "id": "annotation-" + data.id
-                                              });
+                                                "id": "annotation-" + data.id,
+                                                "series-name": point.series.name,
+                                              }); 
         }
         else {
                if (point) {
-               var instance = chart.renderer.image('/img/marker.png',
+                    var instance = chart.renderer.image('/img/marker.png',
                                             point.plotX + chart.plotLeft - 10,
                                             point.plotY + chart.plotTop -30,
                                             20,
@@ -124,11 +127,12 @@
                                      .attr({
                                             "zIndex": 10,
                                             "class": "annotation-marker",
-                                            "id": "annotation-" + data.id
+                                            "id": "annotation-" + data.id,
+                                            "series-name": point.series.name,
                                           });
            }
             else {
-                           var instance = chart.renderer.image('/img/marker.png',
+                    var instance = chart.renderer.image('/img/marker.png',
                                             chart.plotLeft - 10,
                                             chart.plotTop -30,
                                             20,
@@ -136,11 +140,12 @@
                                      .attr({
                                             "zIndex": 10,
                                             "class": "annotation-marker",
-                                            "id": "annotation-" + data.id
+                                            "id": "annotation-" + data.id,
+                                            "series-name": point.series.name,
                                           });
             }
         }
-
+        
         if($("body").hasClass("hide-annotations")){
 
             instance.attr({"style": "display:none"});
@@ -223,6 +228,7 @@
                     });
                     that.$popover.find("p").blur();
                     $(this).removeClass("in").removeClass("show");
+                    //$(this).addClass("show");
                 } else {
                     that.$popover.find("p").blur();
                     //$(this).removeClass("in").removeClass("show");
@@ -374,23 +380,36 @@
             that.redraw();
         };
 
-        this.redraw = function(){
+        this.redraw = function(seriesname, visible){
 
-            var series_enabled = this.point.series.visible;
+            //var series_enabled = this.point.series.visible;
+            var series_enabled = visible;
 
             if(!series_enabled){
 
-                this.$el.fadeOut();
-                this.$annotations_ul.fadeOut();
-            }else{
-
-                this.$el.attr({"y": this.point.plotY + this.chart.plotTop -30, "x": this.point.plotX + this.chart.plotLeft - 10});
-
+                //this.$el.fadeOut();
+                //this.$annotations_ul.fadeOut();
+                //this.$el.fadeOut();
+                if (point.barX) {                   
+                    this.$el.attr({"y": point.plotY - 10, "x": point.barX+(point.pointWidth/2) + chart.plotLeft - 10});                    
+                }
+                else {
+                    this.$el.attr({"y": this.point.plotY + this.chart.plotTop -30, "x": this.point.plotX + this.chart.plotLeft - 10});
+                }
+                //this.$el.attr({"y": this.point.plotY + this.chart.plotTop -30, "x": this.point.plotX + this.chart.plotLeft - 10});
+            } else{
+                if (point.barX) {
+                    this.$el.attr({"y": point.plotY - 10, "x": point.barX+(point.pointWidth/2) + chart.plotLeft - 10});
+                }
+                else{
+                    this.$el.attr({"y": this.point.plotY + this.chart.plotTop -30, "x": this.point.plotX + this.chart.plotLeft - 10});
+                }
                 if(!$("body").hasClass("hide-annotations")){
                     this.$el.fadeIn();
                 }
 
-                this.$annotations_ul.fadeIn();
+                //this.$annotations_ul.fadeIn();
+                this.$el.fadeIn();
             }
         };
 
@@ -434,7 +453,7 @@
                          .off("keydown", "div.popover-content > p", on_keydown)
                          .off("keyup", "div.popover-content > p", on_keyup)
                          .off("click", "span.glyphicon-floppy-disk", save_annotation)
-                         .off("click", "span.glypglyphicon-trashh", delete_annotation);
+                         .off("click", "span.glypglyphicon-trash", delete_annotation);
                          //.off("click", "span.glyphicon-remove", cancel_annotation);
 
             $("body").off(data.graph_name + ".redraw", redraw)
@@ -662,7 +681,7 @@
 
         this.delete_annotation = function(callback) {
 
-            this.destroy();
+            //this.destroy();
 
               swal({
                   title: "Are you sure?",
@@ -683,12 +702,23 @@
                         that.$popover.remove();
                         that.$el.remove();
                         swal("Deleted!", "Your annotation has been deleted.", "success");
-                        
                       }
                     });
                   }
                   else {
-                    swal("Saved!", "Your annotation is safe.", "success");
+                    if (data.text != "") {
+                        swal("Saved!", "Your annotation is safe.", "success");
+                        on_mouseleave();    
+                        console.log(point.series.name);
+                    } else {
+                        $.post("/api/annotations/create/", data, function(resp){
+                            that.save_annotation();
+                            on_mouseleave();
+                            $('.annotation-marker').show();
+                            $(document).find('.annotation-marker[series-name="'+point.series.name+'"]').show();
+                            console.log(point.series.name);
+                        });   
+                    }
                   }
                 });
 

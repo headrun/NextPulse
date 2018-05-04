@@ -7,7 +7,7 @@ class ProjectAdmin(admin.ModelAdmin):
 admin.site.register(Project,ProjectAdmin)
 
 class AnnotationAdmin(admin.ModelAdmin):
-    list_display = ['project','created_by','dt_created']
+    list_display = ['project','created_by','dt_created','chart_id','text','epoch','start_date','end_date','id']
 admin.site.register(Annotation,AnnotationAdmin)
 
 class CenterAdmin(admin.ModelAdmin):
@@ -15,8 +15,7 @@ class CenterAdmin(admin.ModelAdmin):
 admin.site.register(Center,CenterAdmin)
 
 class TeamleadAdmin(admin.ModelAdmin):
-    list_display = ['name','project','center']
-    list_filter = ('project','center')
+    list_display = ['name']
 admin.site.register(TeamLead,TeamleadAdmin)
 
 class CustomerAdmin(admin.ModelAdmin):
