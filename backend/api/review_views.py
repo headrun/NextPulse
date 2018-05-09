@@ -253,13 +253,14 @@ def get_related_user(request):
     tl_objs = TeamLead.objects.filter(name = user_id)
     tl = ""
     project = ""
-
     if not tl_objs:
         return json_HttpResponse('User is not TeamLead')
+    #tl_obj = tl_objs[0]
+    #project = tl_obj.project.id
+    #center = tl_obj.center.id
+    project = tl_objs.values_list('project',flat=True)[0]
+    center = tl_objs.values_list('center',flat=True)[0]
     tl_obj = tl_objs[0]
-    project = tl_obj.project.id
-    center = tl_obj.center.id
-
     result_data = get_all_related_user(project, center, tl_obj)
     return json_HttpResponse(result_data)
 
