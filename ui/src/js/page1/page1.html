@@ -23,7 +23,7 @@
     border-radius: 0;
 }
 
-table {
+/*table {
 
     margin : 0 auto;
     border: 1px solid #323232;
@@ -82,6 +82,10 @@ div.content {
  }
 thead {
     border: 1px solid black;
+}*/
+
+div.content {
+    overflow: hidden;
 }
 
 .widget-loader-show {
@@ -99,193 +103,109 @@ thead {
 }
 
 </style>
-    <div class="row">
-        <div class="col-lg-2 col-md-2 col-sm-2 col-xs-2" style="padding-bottom: 20px;">
-            <div id="wrapper">
-                <div class="font_value">
-                    <h3 class="pull-left brand_style">{{$ctrl.project}}</h3>
-                </div>
+<div class="row">
+    <div class="col-lg-2 col-md-2 col-sm-2 col-xs-2">
+        <div id="wrapper">
+            <div class="font_value">
+                <h4 class="pull-left brand_style">{{$ctrl.project}}</h4>
             </div>
         </div>
+    </div>
 
-        <div class="row col-lg-5 col-md-5 col-sm-5 col-xs-5">
-        <div class = "col-lg-12 col-md-12 col-sm-12 col-xs-12">
-        <div ng-repeat="k in $ctrl.packet_hierarchy_list track by $index" class="packet_num">
+    <div class="col-lg-5 col-md-5 col-sm-5">
+        <div class = "col-lg-12 col-md-12 col-sm-12">
+            <div ng-repeat="k in $ctrl.packet_hierarchy_list track by $index" class="packet_num">
+                <form>
+                    <div class="packet_num col-lg-3 col-md-3 col-sm-3">
+                        <select class="form-control input-sm packet" id="{{$index}}">
+                            <option>All</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="col-lg-12 col-md-12 col-sm-12" id="voice_filter_div">
             <form>
-                <div class="packet_num col-lg-3 col-md-3 col-sm-3" style="margin-left: -15px;padding:10px">
-                    <select class="form-control input-sm packet" id="{{$index}}">
-                        <option>All</option>
+                <div ng-repeat="(key,val) in $ctrl.voice_filters" class="col-lg-3 col-md-3 col-sm-3 voice_filer">
+                    <label class="filters">{{key}}</label>
+                    <select class="form-control input-sm packet_voice" id="{{key}}" style="height: 34px;">
                     </select>
                 </div>
-            </form>
-        </div>
-        </div>
-        <div class="packet_num col-lg-12 col-md-12 col-sm-12 col-xs-12" id="voice_filter_div">
-            <form>
-                <div ng-repeat="(key,val) in $ctrl.voice_filters" class="col-lg-3 col-md-3 col-sm-3 col-xs-3" style="margin-left: -15px;">
-                    <label>{{key}}</label>
-                    <select class="form-control input-sm packet" id="{{key}}" style="height: 34px;">
-                    </select>
-                </div>
-                <div ng-if="$ctrl.is_voice_flag" class="btn-group" class="col-lg-3 col-md-3 col-sm-3 col-xs-3" style="margin-left: 0px;">
-                    <h5 style="margin-bottom: 9px;font-weight: bold;margin-top: 1px;">Voice Type</h5> 
-                        <button type="button" ng-model="radioModel" class="btn btn-default inbound ng-touched btn-success ng-valid active ng-empty ng-dirty" ng-click="$ctrl.voiceTypeFilter('inbound',1)" uib-btn-radio="val" style="cursor:pointer;border-top-left-radius: 5px;border-bottom-left-radius:5px;">Inbound</button>
-                        <button type="button" ng-model="radioModel" class="btn btn-default outbound ng-not-empty ng-touched" ng-click="$ctrl.voiceTypeFilter('outbound',1)" uib-btn-radio="outbound" style="cursor:pointer;border-top-right-radius: 5px;border-bottom-right-radius:5px;">Outbound</button>
+                <div ng-if="$ctrl.is_voice_flag" class="btn-group voice_type" class="col-lg-3 col-md-3 col-sm-3">
+                    <h5 class="voice_title">Voice Type</h5> 
+                        <button type="button" ng-model="radioModel" class="btn btn-default inbound ng-touched btn-success ng-valid active ng-empty ng-dirty" id="voice_button"ng-click="$ctrl.voiceTypeFilter('inbound',1)" uib-btn-radio="val">Inbound</button>
+                        <button type="button" ng-model="radioModel" class="btn btn-default outbound ng-not-empty ng-touched" id="voice_button_1"ng-click="$ctrl.voiceTypeFilter('outbound',1)" uib-btn-radio="outbound">Outbound</button>
                 </div>
             </form>
         </div>
     </div>
-    <div class="packet_num col-lg-5 col-md-5 col-sm-5" style="padding-left: 10px;">
-        <div class="col-lg-6 col-md-6 col-sm-6" style="margin-bottom:initial;">
-            <div ng-if="$ctrl.is_voice_flag">
-                <h5 style="margin-bottom: 9px;font-weight: bold;margin-top: 1px;">Choose Date</h5>
+    <div class="cal_num col-lg-5 col-md-5 col-sm-5">
+        <div class="col-lg-6 col-md-6 col-sm-6 date-colum" id="cal_data">
+            <div class="col-lg-1 col-md-1 col-sm-1 cal-icon">
+                <i class="fa fa-calendar date" aria-hidden="true"></i>
             </div>
-            <i class="fa fa-calendar date" aria-hidden="true"></i><input class="form-control select" id="select" size="22" style="width: 80%;">
+            <div class="col-lg-12 col-md-12 col-sm-12 date_selector">
+                <input class="form-control select" id="select" size="22">
+            </div>
         </div>
         <div class="col-lg-6 col-md-6 col-sm-6">
-            <div class="btn-group" style="float: right;">
-                <div ng-if="$ctrl.is_voice_flag">
-                    <h5 style="margin-bottom: 9px;font-weight: bold;margin-top: 1px;">Choose Period</h5>
-                </div>
-                <button ng-if="$ctrl.is_voice_flag" type="button" id="hour" ng-model="radioModel" class="btn btn-default hour" ng-click="$ctrl.active_filters('hour','hour_yes')" uib-btn-radio="'Hour'" style="cursor:pointer;border-top-left-radius: 5px;border-bottom-left-radius: 5px;">Hour</button>
-                <button type="button" id="day" ng-model="radioModel" class="btn btn-default day" ng-click="$ctrl.active_filters('day','day_yes')" uib-btn-radio="'Day'"style="cursor:pointer;">Day</button>
-                <button type="button" id="week" ng-model="radioModel" class="btn btn-default week" ng-click="$ctrl.active_filters('week','week_yes')" uib-btn-radio="'Week'" style="cursor:pointer;">Week</button>
-                <button type="button" id="Month" ng-model="radioModel" class="btn btn-default month" ng-click="$ctrl.active_filters('month','month_yes')" uib-btn-radio="'Month'" style="cursor:pointer;">Month</button>
+            <div class="btn-group common-button_1" ng-if="$ctrl.is_voice_flag === true" id="voice_date_type">
+                <button type="button" id="hour" ng-model="radioModel" class="btn btn-default hour" ng-click="$ctrl.active_filters('hour','hour_yes')" uib-btn-radio="'Hour'">Hour</button>
+                <button type="button" id="day" ng-model="radioModel" class="btn btn-default day" ng-click="$ctrl.active_filters('day','day_yes')" uib-btn-radio="'Day'">Day</button>
+                <button type="button" id="week" ng-model="radioModel" class="btn btn-default week" ng-click="$ctrl.active_filters('week','week_yes')" uib-btn-radio="'Week'">Week</button>
+                <button type="button" id="Month" ng-model="radioModel" class="btn btn-default month voice_month" ng-click="$ctrl.active_filters('month','month_yes')" uib-btn-radio="'Month'">Month</button>
+            </div>
+            <div class="btn-group common-button" ng-if="$ctrl.is_voice_flag === false">
+                <button type="button" id="day" ng-model="radioModel" class="btn btn-default day" ng-click="$ctrl.active_filters('day','day_yes')" uib-btn-radio="'Day'">Day</button>
+                <button type="button" id="week" ng-model="radioModel" class="btn btn-default week" ng-click="$ctrl.active_filters('week','week_yes')" uib-btn-radio="'Week'">Week</button>
+                <button type="button" id="Month" ng-model="radioModel" class="btn btn-default month" ng-click="$ctrl.active_filters('month','month_yes')" uib-btn-radio="'Month'">Month</button>
             </div>
         </div>
     </div>
-    </div>
+    <!--<div class="col-lg-5 col-md-5 col-sm-5" id="voice_check">
+        <div class="col-lg-6 col-md-6 col-sm-6">
+            <h5>Choose Date</h5>
+            <i class="fa fa-calendar date" aria-hidden="true"></i>
+            <input class="form-control select" id="voice_date_select" ssize="22">
+        </div>
+        <div class="col-lg-6 col-md-6 col-sm-6">
+            <div class="btn-group">
+                <h5>Choose Period</h5>
+                <button type="button" id="hour" ng-model="radioModel" class="btn btn-default hour" ng-click="$ctrl.active_filters('hour','hour_yes')" uib-btn-radio="'Hour'">Hour</button>
+                <button type="button" id="day" ng-model="radioModel" class="btn btn-default day" ng-click="$ctrl.active_filters('day','day_yes')" uib-btn-radio="'Day'">Day</button>
+                <button type="button" id="week" ng-model="radioModel" class="btn btn-default week" ng-click="$ctrl.active_filters('week','week_yes')" uib-btn-radio="'Week'">Week</button>
+                <button type="button" id="Month" ng-model="radioModel" class="btn btn-default month" ng-click="$ctrl.active_filters('month','month_yes')" uib-btn-radio="'Month'">Month</button>
+            </div>
+        </div>
+    </div>-->
 </div>
-    <div class="scroll">
+<div class="scroll">
     <div class="row">
-    <div ng-repeat="i in $ctrl.final_layout_list">
-        <div class="col-sm-{{i.col}} widget">
-            <div class="widget-content widget-loader-show widget-{{i.id_num}}a">
-                <div class="widget-title clearfix" title="Sample Widg">
-                    <span  id="title-name" class="pull-left">{{i.name}}</span>
-                </div>
-                <div class="widget-body widget-data-hide widget-{{i.id_num}}b">
-                    <div ng-if="i.day_type_widget" class="input-group"id="inner2">
-                        <div class="btn-group">
-                            <button ng-if= "$ctrl.is_voice_flag" type="button" id="hour" ng-model="radioModel" class="btn btn-default hour2" ng-click="$ctrl.dateType('hour', i.opt, i.api, 'hour_yes')" uib-btn-radio="'Hour'" style="cursor:pointer;border-top-left-radius: 5px;border-bottom-left-radius: 5px;">Hour</button>
-                            <button type="button" id="day" ng-model="radioModel" class="btn btn-default day2" ng-click="$ctrl.dateType('day', i.opt, i.api, 'day_yes')" uib-btn-radio="'Day'" style="cursor:pointer;">Day</button>
-                            <button type="button" id="week" ng-model="radioModel" class="btn btn-default week2" ng-click="$ctrl.dateType('week', i.opt, i.api, 'week_yes')" uib-btn-radio="'Week'" style="cursor:pointer;">Week</button>
-                            <button type="button" id="Month" ng-model="radioModel" class="btn btn-default month2" ng-click="$ctrl.dateType('month', i.opt, i.api, 'month_yes')" uib-btn-radio="'Month'" style="cursor:pointer;">Month</button>
-                         </div>
+        <div ng-repeat="i in $ctrl.final_layout_list">
+            <div class="col-sm-{{i.col}} widget">
+                <div class="widget-content widget-loader-show widget-{{i.id_num}}a">
+                    <div class="widget-title clearfix" title="Sample Widg">
+                        <span  id="title-name" class="pull-left">{{i.name}}</span>
                     </div>
-                    <highcharts options="$ctrl.final_layout_values_list[i.opt]"></highcharts>
+                    <div class="widget-body widget-data-hide widget-{{i.id_num}}b">
+                        <div ng-if="i.day_type_widget" class="input-group" id="inner2">
+                            <div class="btn-group">
+                                <button ng-if= "$ctrl.is_voice_flag" type="button" id="hour" ng-model="radioModel" class="btn btn-default hour2" ng-click="$ctrl.dateType('hour', i.opt, i.api, 'hour_yes')" uib-btn-radio="'Hour'">Hour</button>
+                                <button type="button" id="day" ng-model="radioModel" class="btn btn-default day2" ng-click="$ctrl.dateType('day', i.opt, i.api, 'day_yes')" uib-btn-radio="'Day'">Day</button>
+                                <button type="button" id="week" ng-model="radioModel" class="btn btn-default week2" ng-click="$ctrl.dateType('week', i.opt, i.api, 'week_yes')" uib-btn-radio="'Week'">Week</button>
+                                <button type="button" id="Month" ng-model="radioModel" class="btn btn-default month2" ng-click="$ctrl.dateType('month', i.opt, i.api, 'month_yes')" uib-btn-radio="'Month'">Month</button>
+                            </div>
+                        </div>
+                        <highcharts options="$ctrl.final_layout_values_list[i.opt]"></highcharts>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-    </div>
-
-    <div class="row">
-        <div class="col-md-6" id="emp_widget">
-            <div class="table-responsive">
-                <div class="widget-title clearfix" title="Sample Widg">
-                    <h4>Top Employee Performance Details</h4>
-                </div>
-                <table class="table table-bordered line">
-                    <thead>
-                        <tr>
-                            <th>Rank</th>
-                            <th>Employee Name</th>
-                            <th>Productivity</th>
-                            <th>Packet</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr ng-repeat="l in $ctrl.top_five">
-                            <td>{{l.rank}}</td>
-                            <td>{{l.employee_id}}</td>
-                            <td>{{l.productivity}}</td>
-                            <td>{{l.work_packet}}</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-<div class="row">
-    <div class="col-md-6" id="volume_table">
-        <div class="table-responsive">
-            <div class="widget-title clearfix" title="Sample Widg">
-                    <h4>Volume Status</h4>
-            </div>
-            <table class="table table-bordered line">
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Opening</th>
-                        <th>Received</th>
-                        <th>NonWorkableCount</th>
-                        <th>Completed</th>
-                        <th>Closing</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr ng-repeat="l in $ctrl.volume_graphs">
-                        <td>{{l.date}}</td>
-                        <td>{{l.opening}}</td>
-                        <td>{{l.received}}</td>
-                        <td>{{l.non_workable_count}}</td>
-                        <td>{{l.completed}}</td>
-                        <td>{{l.closing_balance}}</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
+    <a class="back-to-top" id="goTop">
+        <i class="fa fa-arrow-circle-o-up hide"></i>
+    </a>
 </div>
-<a class="back-to-top" id="goTop">
-    <i class="fa fa-arrow-circle-o-up hide"></i>
-</a>
-</div>
-
-
-<div class="modal fade" id="myModal" role="dialog">
-    <div class="modal-dialog">
-      <div class="modal-content">
-         <div class="modal-header">
-             <button type="button" class="close" data-dismiss="modal">&times;</button>
-             <h4 class="modal-title">{{$ctrl.chart_type}}</h4>
-
-         </div>
-         <div class="modal-body">
-            <div class="row" style="margin-right:16px;">
-                <div class="">
-                     <table style="border:1px solid #3c3c3c;">
-                          <thead style="display:block;">
-                              <tr class="row_name">
-                                  <th ng-repeat="i in $ctrl.fields_list_drilldown" style="width:200px;padding:5px;text-align:-webkit-center;">{{i}}</th>
-                              </tr>
-                          </thead>
-                          <tbody style="max-height:150px;overflow-y:auto;display:block;">
-                             <tr ng-repeat= "x in $ctrl.names">
-                                 <td ng-repeat="i in $ctrl.fields_list_drilldown" style="width:200px;padding:5px;text-align:-webkit-center;">{{x[i]}}</td>
-                             </tr>
-                          </tbody>
-                      </table>
-                      <table>
-                        
-                        <p ng-if="$ctrl.audited_count && $ctrl.fields_list_drilldown.indexOf('audited_count') == 1">Audited Count: 
-                             {{$ctrl.audited_count}}</p>
-                        <p ng-if="$ctrl.audited_count && $ctrl.fields_list_drilldown.indexOf('audited_count') == -1">Productivity Count:
-                             {{$ctrl.audited_count}}</p>
-                        <p ng-if="$ctrl.error_count">Error Count: {{$ctrl.error_count}}</p>
-                     </table>
-                </div>
-            </div>
-         </div>
-         <div class="modal-footer">
-           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-         </div>
-       </div>
-    </div>
-  </div>
- </div>
 <script type="text/javascript" async="async" defer="defer" data-cfasync="false" src="https://mylivechat.com/chatinline.aspx?hccid=73900030"></script>
 <p id="hidden-tag">{{$ctrl.hiden_tag}}</p>
 </body>

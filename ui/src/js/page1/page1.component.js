@@ -62,7 +62,7 @@
 
              self.annotations_data = {};
 
-                self.add_loader = function() {
+             self.add_loader = function() {
                     $('.widget-13a').addClass('widget-loader-show');
                     $('.widget-13b').addClass('widget-data-hide');
                     $('.widget-17a').addClass('widget-loader-show');
@@ -123,7 +123,7 @@
                     $('.widget-39b').addClass('widget-data-hide');
                     $('.widget-60a').addClass('widget-loader-show');
                     $('.widget-60b').addClass('widget-data-hide');
-               }
+             }
 
              self.apply_class = function(){
 
@@ -3932,7 +3932,7 @@
                                         self.annotObj = [];
                                         (function(series){
                                           $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+self.type+'&chart_name=8&project='+self.project_live+'&center='+
-                                           self.center_live+'&from='+self.start_date+'&to='+self.end_dates}).success(function(annotations){  
+                                           self.center_live+'&from='+self.start_date+'&to='+self.end_date}).success(function(annotations){  
                                annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                                $.each(annotations, function(j, annotation){
 
@@ -4264,10 +4264,15 @@
                         if (key != '') {
                             self.voiceProjectType = key; 
                         }
+                        var myElement = document.querySelector("#cal_data");
+                        myElement.style.marginTop = "25px";
+                        $('#select').val(self.first + ' to ' + self.last);
                         var dateEntered = document.getElementById('select').value;
                         dateEntered = dateEntered.replace(' to ','to');
                         var from = dateEntered.split('to')[0].replace(' ','');
                         var to = dateEntered.split('to')[1].replace(' ','');
+                        //var from = self.start;
+                        //var to = self.end;
                         callback.push.apply(callback, [from, to, self.center_live, self.project_live]);
                         if(key == 'inbound') {
                             $('.inbound').addClass('active btn-success');
@@ -4277,8 +4282,8 @@
                             $('.outbound').siblings().removeClass('active btn-success');
                         }
                         if(make_ajax) {
-                            var packet_url = '/api/get_packet_details/?&project='+callback[3]+'&center='+callback[2]+'&from='+self.start+'&to='+self.end+'&voice_project_type='+key;
-                            //var packet_url = '/api/get_packet_details/?&project='+callback[3]+'&center='+callback[2]+'&from='+callback[0]+'&to='+callback[1]+'&voice_project_type='+key;
+                            //var packet_url = '/api/get_packet_details/?&project='+callback[3]+'&center='+callback[2]+'&from='+self.start+'&to='+self.end+'&voice_project_type='+key;
+                            var packet_url = '/api/get_packet_details/?&project='+callback[3]+'&center='+callback[2]+'&from='+callback[0]+'&to='+callback[1]+'&voice_project_type='+key;
                             $http.get(packet_url).then(function(result) {
                                 self.chartProcess(result);
                                 self.checkScroll();
@@ -4339,8 +4344,8 @@
                                     self.packet_hierarchy_list = [];
                                 }
                                 var type = '';
-                                self.voice_filter = '?&project='+callback[3]+'&center='+callback[2]+'&from='+ self.start+'&to='+ self.end + '&type=';
-                                //self.voice_filter = '?&project='+callback[3]+'&center='+callback[2]+'&from='+ callback[0]+'&to='+ callback[1] + '&type=';
+                                //self.voice_filter = '?&project='+callback[3]+'&center='+callback[2]+'&from='+ self.start+'&to='+ self.end + '&type=';
+                                self.voice_filter = '?&project='+callback[3]+'&center='+callback[2]+'&from='+ callback[0]+'&to='+ callback[1] + '&type=';
                                 if ((self.voice_location != '') && (self.voice_skill != '') && (self.voice_disposition != '')) {
                                     self.locationValue = self.voice_location;
                                     self.skillValue = self.voice_skill;
