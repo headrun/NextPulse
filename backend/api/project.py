@@ -34,7 +34,7 @@ def project(request):
         customer_objs = table_name.objects.filter(name_id=request.user.id)
         center_list = customer_objs.values_list('center', flat = True)
         project_list = customer_objs.values_list('project', flat =True)
-        if (len(center_list) & len(project_list)) == 1:
+        if (len(center_list) and len(project_list)) == 1:
             select_list.append('none')
         if len(center_list) < 2:  
             center_name = str(Center.objects.filter(id=center_list[0])[0])
@@ -249,7 +249,7 @@ def project(request):
         customer_query = table_name.objects.filter(name_id=request.user.id)
         center_list = customer_query.values_list('center', flat = True)
         project_list = customer_query.values_list('project', flat = True)
-        if (len(center_list) & len(project_list)) == 1:
+        if (len(center_list) and len(project_list)) == 1:
             select_list.append('none')
         if len(center_list) < 2:
             center_name = str(Center.objects.filter(id=center_list[0])[0])
