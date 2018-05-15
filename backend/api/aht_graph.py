@@ -97,12 +97,13 @@ def tat_graph(date_list, project, center, level_structure_key, main_dates, reque
                 packets_list = []
                 for data in query_values:
                     if str(date) == str(data[0]):
-                        value = (float(data[2])/float(data[3]+data[2]))*100
-                        if result.has_key(data[1]):
-                            result[data[1]].append(round(value, 2)) 
-                        else:
-                            result[data[1]] = [round(value, 2)] 
-                        packets_list.append(data[1])
+                        if data[2]:
+                            value = (float(data[2])/float(data[3]+data[2]))*100
+                            if result.has_key(data[1]):
+                                result[data[1]].append(round(value, 2)) 
+                            else:
+                                result[data[1]] = [round(value, 2)] 
+                            packets_list.append(data[1])
             
                 for packet in packets:
                     if packet not in packets_list:

@@ -29,7 +29,6 @@ def generate_day_type_formats_multiple(request, result_name, function_name, sub_
     _type = main_data_dict['type']
 
     level_structure_key = get_level_structure_key(work_packet, sub_project, sub_packet, pro_center)
-
     if main_data_dict['dwm_dict'].has_key('day') and main_data_dict['type'] == 'day':
         date_list = main_data_dict['dates']
         new_date_list = generate_dates(date_list, prj_id, center)
@@ -43,13 +42,13 @@ def generate_day_type_formats_multiple(request, result_name, function_name, sub_
                                                        level_structure_key,prj_id,center,'utilisation_wrt_work_packet')
         else:
             data = function_name(date_list, prj_id, center, level_structure_key)
-            sub_result1 = data[sub_name1]
-            sub_result2 = data[sub_name2]
-            final_dict[result_name][sub_name1] = graph_data_alignment_color(sub_result1,'data',level_structure_key,prj_id,center,config_1)
-            final_dict[result_name][sub_name2] = graph_data_alignment_color(sub_result2,'data',level_structure_key,prj_id,center,config_2)
+            if data:
+                sub_result1 = data[sub_name1]
+                sub_result2 = data[sub_name2]
+                final_dict[result_name][sub_name1] = graph_data_alignment_color(sub_result1,'data',level_structure_key,prj_id,center,config_1)
+                final_dict[result_name][sub_name2] = graph_data_alignment_color(sub_result2,'data',level_structure_key,prj_id,center,config_2)
         final_dict['date'] = new_date_list
        
-    
     elif main_data_dict['dwm_dict'].has_key('week') and main_data_dict['type'] == 'week':
         dates_list = main_data_dict['dwm_dict']['week']
         if function_name == headcount_widgets:
@@ -64,8 +63,9 @@ def generate_day_type_formats_multiple(request, result_name, function_name, sub_
         else:
             week_data, week_data_1, week_data2 = week_calculations_multi(dates_list,prj_id,center,level_structure_key,\
                                                  function_name,sub_name1,sub_name2)
-            final_dict[result_name][sub_name1] = graph_data_alignment_color(week_data,'data',level_structure_key,prj_id,center,config_1) 
-            final_dict[result_name][sub_name2] = graph_data_alignment_color(week_data_1,'data',level_structure_key,prj_id,center,config_2)
+            if week_data and week_data_1:
+                final_dict[result_name][sub_name1] = graph_data_alignment_color(week_data,'data',level_structure_key,prj_id,center,config_1) 
+                final_dict[result_name][sub_name2] = graph_data_alignment_color(week_data_1,'data',level_structure_key,prj_id,center,config_2)
         final_dict['date'] = date_function(dates_list, _type)
     
     else:
@@ -117,24 +117,28 @@ def week_calculations_multi(dates,project,center,level_structure_key,function_na
         week_num = week_num + 1
         if function_name == headcount_widgets:
             data = function_name(center,project,date,level_structure_key)
-            week_dict[week_name] = data['FTE Utilization']
-            week_dict_1[week_name] = data['Operational Utilization']
-            week_dict_2[week_name] = data['Overall Utilization']
-            result = prod_volume_week_util_headcount(week_names, week_dict, {})
-            result_1 = prod_volume_week_util_headcount(week_names, week_dict_1, {})
-            result_2 = prod_volume_week_util_headcount(week_names, week_dict_2, {})
+            if data:
+                week_dict[week_name] = data['FTE Utilization']
+                week_dict_1[week_name] = data['Operational Utilization']
+                week_dict_2[week_name] = data['Overall Utilization']
+                result = prod_volume_week_util_headcount(week_names, week_dict, {})
+                result_1 = prod_volume_week_util_headcount(week_names, week_dict_1, {})
+                result_2 = prod_volume_week_util_headcount(week_names, week_dict_2, {})
         else:
             data = function_name(date, project, center, level_structure_key)
-            week_dict[week_name] = data[sub_name1]
-            week_dict_1[week_name] = data[sub_name1]
-            if function_name == fte_trend_scope:
-                result = prod_volume_week_util(project, week_names, week_dict, {}, week_or_month)
-                result_1 = prod_volume_week_util(project ,week_names ,week_dict_1, {}, week_or_month)
-                result_2 = ''
+            if data:
+                week_dict[week_name] = data[sub_name1]
+                week_dict_1[week_name] = data[sub_name1]
+                if function_name == fte_trend_scope:
+                    result = prod_volume_week_util(project, week_names, week_dict, {}, week_or_month)
+                    result_1 = prod_volume_week_util(project ,week_names ,week_dict_1, {}, week_or_month)
+                    result_2 = ''
+                else:
+                    result = volume_status_week(week_names, week_dict, final_dict)
+                    result_1 = received_volume_week(week_names, week_dict_1, final_dict_1)
+                    result_2 = ''
             else:
-                result = volume_status_week(week_names, week_dict, final_dict)
-                result_1 = received_volume_week(week_names, week_dict_1, final_dict_1)
-                result_2 = ''
+                result, result_1, result_2 = {}, {}, {}
     return result, result_1, result_2
 
 
@@ -150,24 +154,28 @@ def month_calculations_multi(dates,project,center,level_structure_key,function_n
         month_names.append(month_name)
         if function_name == headcount_widgets:
             data = function_name(center, project, month_dates, level_structure_key)
-            month_dict[month_name] = data['FTE Utilization']
-            month_dict_1[month_name] = data['Operational Utilization']
-            month_dict_2[month_name] = data['Overall Utilization']
-            result = prod_volume_week_util_headcount(month_names, month_dict, {})
-            result_1 = prod_volume_week_util_headcount(month_names, month_dict_1, {})
-            result_2 = prod_volume_week_util_headcount(month_names, month_dict_2, {})
+            if data:
+                month_dict[month_name] = data['FTE Utilization']
+                month_dict_1[month_name] = data['Operational Utilization']
+                month_dict_2[month_name] = data['Overall Utilization']
+                result = prod_volume_week_util_headcount(month_names, month_dict, {})
+                result_1 = prod_volume_week_util_headcount(month_names, month_dict_1, {})
+                result_2 = prod_volume_week_util_headcount(month_names, month_dict_2, {})
         else:
             data = function_name(month_dates, project, center, level_structure_key)
-            month_dict[month_name] = data[sub_name1]
-            month_dict_1[month_name] = data[sub_name2]
-            if function_name == fte_trend_scope:
-                result = prod_volume_week_util(project, month_names, month_dict, {}, week_or_month)
-                result_1 = prod_volume_week_util(project, month_names, month_dict_1, {}, week_or_month)
-                result_2 = ''
+            if data:
+                month_dict[month_name] = data[sub_name1]
+                month_dict_1[month_name] = data[sub_name2]
+                if function_name == fte_trend_scope:
+                    result = prod_volume_week_util(project, month_names, month_dict, {}, week_or_month)
+                    result_1 = prod_volume_week_util(project, month_names, month_dict_1, {}, week_or_month)
+                    result_2 = ''
+                else:
+                    result = volume_status_week(month_names, month_dict, final_dict)
+                    result_1 = received_volume_week(month_names, month_dict, final_dict_1)
+                    result_2 = ''
             else:
-                result = volume_status_week(month_names, month_dict, final_dict)
-                result_1 = received_volume_week(month_names, month_dict, final_dict_1)
-                result_2 = ''
+                result, result_1, result_2 = {}, {}, {}
     return result, result_1, result_2
 
 

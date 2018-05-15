@@ -23,9 +23,12 @@ def volume_cumulative_data(date_list, prj_id, center, level_structure_key,main_d
 
     targets, raw_query, _type = get_target_query_format(level_structure_key, prj_id, center, date_list)
     data_values = raw_query
-    prod_packets = [value[1] for value in data_values]
-    dates = raw_query.values_list('date',flat=True).distinct()
-    packets = set(prod_packets)
+    if raw_query:
+        prod_packets = [value[1] for value in data_values]
+        dates = raw_query.values_list('date',flat=True).distinct()
+        packets = set(prod_packets)
+    else:
+        dates = []
 
     for date in dates:
         for target in targets:
@@ -176,16 +179,17 @@ def get_target_query_format(level_structure_key, prj_id, center, date_list):
             pro_query.update({'work_packet':level_structure_key['work_packet']})
             raw_data.update({'work_packet':level_structure_key['work_packet']})
             _term = 'work_packet'
-    
-    targets = Targets.objects.filter(**query).values_list('from_date','to_date',_term).\
-              annotate(target=Sum('target_value'))
-    if targets:
-        targets = targets
+    if _term != "":
+        targets = Targets.objects.filter(**query).values_list('from_date','to_date',_term).\
+                  annotate(target=Sum('target_value'))
+        if targets:
+            targets = targets
+        else:
+            targets = Targets.objects.filter(**pro_query).values_list('from_date','to_date',_term).\
+                        annotate(target=Sum('target_value'))
+        raw_query = RawTable.objects.filter(**raw_data).values_list('date',_term).annotate(total=Sum('per_day'),count=Count('employee_id'))
     else:
-        targets = Targets.objects.filter(**pro_query).values_list('from_date','to_date',_term).\
-                    annotate(target=Sum('target_value'))
-    raw_query = RawTable.objects.filter(**raw_data).values_list('date',_term).annotate(total=Sum('per_day'),count=Count('employee_id'))
-   
+        targets, raw_query, _type = {}, {}, {}
     return targets, raw_query, _type
 
 

@@ -104,9 +104,11 @@ def data_dict(variable):
         month_count = 0
         days = (to_date - from_date).days
         days = days+1
+
         for i in xrange(0, days):
             date = from_date + datetime.timedelta(i)
             month = date.strftime("%B")
+            month = month+'_'+str(date).split('-')[0]
             if month not in month_names_list:
                 month_names_list.append(month)
             if month in months_dict:
@@ -118,18 +120,8 @@ def data_dict(variable):
                 month_list.append([str(date)])
         if month_list[0] == []:
             del month_list[0]
-
+            
     if type == 'month':
-        employe_dates = {}
-        new_month_dict = {}
-        months = ['January', 'February', 'March', 'April', 'May', 'June', 'July','August', 'September', 'October', 'November', 'December']
-        k = OrderedDict(sorted(months_dict.items(), key=lambda x: months.index(x[0])))
-        for month_na in tuple(k):
-            new_month_dict[month_na] = {}
-            if employe_dates.has_key('days'):
-                employe_dates['days'] = employe_dates['days']+months_dict[month_na]
-            else:
-                employe_dates['days']= months_dict[month_na]
         dwm_dict['month'] = {'month_names':month_names_list, 'month_dates':month_list}
         main_data_dict['dwm_dict'] = dwm_dict
     main_data_dict['type'] = type
