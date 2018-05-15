@@ -13,7 +13,7 @@
             </div>
             <div class="w3-container">
                 <div ng-if="$ctrl.mapping_list.length <= 5" class="col col-33 col_data">
-                    <a ng-repeat="item in $ctrl.mapping_list | orderBy : 'item.split(' - ')[1]'"
+                    <a ng-repeat="item in $ctrl.mapping_list | orderBy : 'item'"
                         ui-sref="dashboard.page1({'selpro': item})"
                         ng-click="$ctrl.clickPro(item)">
                         <li>{{item.split(' - ')[1]}}</li>
@@ -30,7 +30,7 @@
             </div>
             <div class="w3-container">
                 <div ng-if="$ctrl.mapping_list.length > 5" class="col col-33 left">
-                    <a ng-repeat="item in $ctrl.mapping_list | orderBy : 'item.split(' - ')[1]'"
+                    <a ng-repeat="item in $ctrl.mapping_list | orderBy : 'item'"
                         ui-sref="dashboard.page1({'selpro': item})"
                         ng-click="$ctrl.clickPro(item)">
                         <li>{{item.split(' - ')[1]}}</li>

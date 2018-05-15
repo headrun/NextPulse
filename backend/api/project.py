@@ -47,7 +47,7 @@ def project(request):
                 center_name = str(Center.objects.filter(id=center)[0])
                 for project in project_list:
                     project_name = str(Project.objects.filter(id=project)[0])
-                    select_list.append(center_name + ' - ' + project_name) 
+                    select_list.append(center_name + ' - ' + project_name)
         details['list'] = select_list
 
         if len(select_list) > 1:
@@ -169,13 +169,14 @@ def project(request):
     if 'center_manager' in user_group:
         final_details = {}
         details = {}
-        select_list = []
+        _select_list = []
         center = Centermanager.objects.filter(name_id=request.user.id).values_list('center', flat=True)[0]
         center_name = Center.objects.filter(id=center).values_list('name', flat=True)[0]
         project_names = Project.objects.filter(center_id=center).values_list('name', flat=True)
         for project in project_names:
             vari = center_name + ' - ' + project
-            select_list.append(center_name + ' - ' + project)
+            _select_list.append(center_name + ' - ' + project)
+        select_list = sorting_projects(_select_list)
         if len(project_names) > 1: 
             if multi_project:
                 prj_id = Project.objects.filter(name=multi_project).values_list('id',flat=True)
@@ -193,7 +194,7 @@ def project(request):
     if 'nextwealth_manager' in user_group:
         final_details = {}
         details = {}
-        select_list = []
+        _select_list = []
         center_list = Nextwealthmanager.objects.filter(name_id=request.user.id).values_list('center')
         if len(center_list) < 2:
             center_name = str(Center.objects.filter(id=center_list[0][0])[0])
@@ -206,7 +207,8 @@ def project(request):
                 except:
                     lay_list = ''
                 vari = center_name + ' - ' + project_name
-                select_list.append(center_name + ' - ' + project_name)
+                _select_list.append(center_name + ' - ' + project_name)
+            select_list = sorting_projects(_select_list)
 
         elif len(center_list) >= 2:
             for center in center_list:
@@ -221,7 +223,8 @@ def project(request):
                         lay_list = ''
                     vari = center_name + ' - ' + project_name
                     layout_list.append({vari:lay_list})
-                    select_list.append(center_name + ' - ' + project_name)
+                    _select_list.append(center_name + ' - ' + project_name)
+            select_list = sorting_projects(_select_list)
 
         if len(select_list) > 1:
             if multi_project:
@@ -311,3 +314,15 @@ def common_user_data(request, projects_list, role, widgets_list, dates, user_sta
     
     return result_dict
 
+
+def sorting_projects(projects):
+    project_data = []
+    for data in projects:
+        project_data.append(data.split(' - ')[1])
+        project_data.sort()
+        select_list = []
+        for data in project_data:
+            for value in projects:
+                if data == value.split(' - ')[1]:
+                    select_list.append(value.split(' - ')[0] + ' - ' + value.split(' - ')[1])
+    return select_list
