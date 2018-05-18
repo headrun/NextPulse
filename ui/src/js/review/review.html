@@ -317,7 +317,7 @@ input:checked + .slider:before {
 
         <div class="col-md-3 padding-class heading">
             <p class="main-heading">
-                <abbr title="Click to view Dashboard" style="border-bottom:white;">
+                <abbr title="Click to view Dashboard" style="text-decoration: none;">
                     <a href="/#!/landing">
                         <i class="fa fa-arrow-left" id="back" aria-hidden="true">
                         </i>
@@ -495,7 +495,7 @@ input:checked + .slider:before {
                         </div>
                         <div class="col-md-9">
                             <textarea  class="input-clear form-element" rows="4" cols="50" name="reviewagenda" 
-                                ng-model="$ctrl.review.reviewagenda" style="resize:vertical;" required >
+                                ng-model="$ctrl.review.reviewagenda" style="resize:vertical;width:80%;" required >
                                     Enter text here...</textarea>
                             <span ng-if="regForm.reviewagenda.$error.required && regForm.reviewagenda.$touched">
                                 Agenda is Required

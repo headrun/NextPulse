@@ -1,181 +1,118 @@
 <style>
-body {
-    background-color: #ffffff;
-    color: #000000;
- }
-img {
-    width:53%;
-    margin-bottom:-2%;
-    margin-left: 20%;
- }
- .log_in {
-    margin-left: 14%;
-    width:70%;
- }
- .user_name {
-    margin-left: 31%;
- }
- .blue {
-    margin-left: 33%;
- }
- .field-error {
-    margin-left: 31%;
- }
- .row {
-    padding: 10px 10px;
-    margin-top: -3%;
-    color: #fff;
-    text-align: center;
-    margin-left: -21%;
- }
- p {
-    margin: 10px;
- }
-
- .volume {
-    background: #61B329;
-    color: white;
-    padding: 3px;
-    text-align: center;
- }
-@media screen and (min-width: 960px) {
-  .card {
-    background: white;
-    margin-top: -10px;
-    border: solid 1px #61B329;
-    min-height: 330px;
- }
+.widget-loader-show {
+  background: rgba( 255, 255, 255, .8 ) url('http://sampsonresume.com/labs/pIkfp.gif') 50% 50% no-repeat;
 }
- h4 {
-    margin-left: -4px;
- }
- .one_half {
-    /*margin-top: 20px;*/
-    margin-top: -50px;
-    font-size: small;
- }
- .reset {
-    margin-top: 6px;
-    margin-bottom: -7px;
- }
- #update {
-   margin-left: 29%;
- }
- .error-msg {
-    margin-left: 31%;     
- }
 </style>
-<div class="login-form-container" style="background-image: url(/img/services_banner.png);background-size: cover; width: 100%; height: 100%;">
-  <div class="col-md-4 col-sm-4 col-xs-10 conta-dev">
-  <form method="POST" name="userForm"
+<div class="container-fluid" style="background-image: url(/img/services_banner.png);background-size: cover; width: 100%; height: 100%;">
+  <div class="row">
+    <div class="col-md-4 col-sm-4 col-lg-4 col-xs-12 logo_data">
+      <form method="POST" name="userForm"
         ng-submit="$ctrl.onSubmit($ctrl.credentials)"
         novalidate
-        ng-class="{error: $ctrl.errorMsg}" style="margin-top: -18px;">
-
-    <div class="logo-container">
-      <img src="/img/nextwealth.png" alt="Nexwealth_Logo">
-    </div>
-
-    <div class="form-group error-msg">
-      <span >{{$ctrl.errorMsg}}</span>
-    </div>
-
-    <div class="form-group log_in">
-      <label class="user_name">USERNAME</label>
-      <input type="text" name="uName" ng-model="$ctrl.credentials.username"
-             class="form-control " required />
-      <span class="field-error"
+        ng-class="{error: $ctrl.errorMsg}">
+        <div class="logo">
+          <img src="/img/nextwealth.png" alt="Nexwealth_Logo">
+        </div>
+        <div class="form-group">
+          <span >{{$ctrl.errorMsg}}</span>
+        </div>
+        <div class="form-group" id="login_data">
+          <label>USERNAME</label>
+          <input type="text" name="uName" ng-model="$ctrl.credentials.username"
+            class="form-control " required />
+          <span class="field-error"
             ng-show="userForm.uName.$touched">
-        <span ng-show="userForm.uName.$error.required">Username is required.</span>
-      </span>
-    </div>
-
-    <div class="form-group log_in">
-      <label class="user_name">PASSWORD</label>
-      <input type="password" name="uPassword"
-             ng-model="$ctrl.credentials.password"
-             class="form-control" required />
-      <span class="field-error" ng-show="userForm.uPassword.$touched">
-        <span ng-show="userForm.uPassword.$error.required">Password is required</span>
-      </span>
-    </div>
-
-    <div class="form-group ">
-      <input type="submit"
-             ng-disabled="userForm.uName.$error.required || userForm.uPassword.$error.required || $ctrl.viewSubmit"
-             class="btn btn-primary blue sub-val"
-             value="{{$ctrl.loadingText}}" style="margin-left:37.5%;"/>
-    </div>
-    <a type="button" class="btn" id="update" data-toggle="modal" data-target="#forgotpassModal">Forgot Password?</a>
-  </form>
-  <div class="modal fade" id="forgotpassModal" role="dialog">
-    <div class="modal-dialog">
-      <!-- Modal content-->
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal">&times;</button>
-          <h4 class="modal-title">Forgot Password</h4>
+          <span ng-show="userForm.uName.$error.required">Username is required.</span>
+          </span>
         </div>
-        <div class="modal-body">
-          <div class="container">
-                <form>
-                  <div class="form-group">
-                    <label>Enter E-mail id</label>
-                    <input type="text" class="form-control" style="width:25%;" ng-model="$ctrl.email_id"/>
+        <div class="form-group" id="login_data">
+          <label>PASSWORD</label>
+          <input type="password" name="uPassword"
+            ng-model="$ctrl.credentials.password"
+            class="form-control" required />
+          <span class="field-error" ng-show="userForm.uPassword.$touched">
+          <span ng-show="userForm.uPassword.$error.required">Password is required</span>
+          </span>
+        </div>
+        <div class="form-group submit-data">
+          <input type="submit"
+            ng-disabled="userForm.uName.$error.required || userForm.uPassword.$error.required || $ctrl.viewSubmit"
+            class="btn btn-primary blue"
+            value="{{$ctrl.loadingText}}" />
+        </div>
+        <div class="forgot-password">
+          <a id="update" data-toggle="modal" data-target="#forgotpassModal">Forgot Password?</a>
+        </div>
+      </form>
+      <div class="modal fade" id="forgotpassModal" role="dialog">
+            <div class="modal-dialog">
+              <div class="modal-content widget-loader-show">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal">&times;</button>
+                  <h4 class="modal-title">Forgot Password</h4>
+                </div>
+                <div class="modal-body">
+                  <div class="container-fluid forgot-reset">
+                    <form>
+                      <div class="form-group">
+                        <label>Enter E-mail id</label><br><br>
+                        <input type="text" class="form-control" ng-model="$ctrl.email_id"/><br>
+                      </div>
+                      <button class="btn btn-primary btn-sm" ng-click="$ctrl.forgot_pass($ctrl.email_id)">
+                        Submit
+                      </button><br>
+                      <p ng-if="$ctrl.pass_reset" class="reset"> An email with verfication link is sent to your mail-id.<br>
+                      Please click on that link to reset your password. </p>
+                      <p> {{$ctrl.mailid_mes}}</p>
+                    </form>
                   </div>
-                  <button class="btn btn-primary btn-sm" ng-click="$ctrl.forgot_pass($ctrl.email_id)">
-                    Submit
-                  </button>
-                  <p ng-if="$ctrl.pass_reset" class="reset"> An email with verfication link is sent to your mail-id.<br>
-                  Please click on that link to reset your password. </p>
-                <p style="margin-top:9px;margin-bottom:-5px;"> {{$ctrl.mailid_mes}}</p>
-                </form>
-               </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        </div>
-     </div>
-  </div>
-</div>
-  <div class="copyright_info">
-    <div class="limit-width container">
-        <div class="one_half">Copyright © 2017 NextWealth.NextPulse&#8482; . All rights reserved.<br>
-        </div>
-    </div>
-  </div>
- </div>
-  <p id = "proj-tit"><font style = "margin-left: 338px;font-size:37px;"color="#1b95ec">Next</font><font style = "font-size:37px;" color="Green">Pulse</font></p>    
-  <div class="col-md-4 col-sm-4 col-xs-10">
-    <div class="volume">
-      <h4>About US</h4>
-    </div>
-    <div class="card">
-      <p>NextWealth provides
-        <strong> Digital Business Processes Management</strong>
-        services to companies that embrace digital technologies. One of the outcomes of digital technology implementation is automation of processes that require human effort.</p>
-      <p>At one end, there are processes that are amenable to a high degree of automation. In such a case, there is a need for
-        <strong> ‘Human touch to Digital processes.’</strong>
-        NextWealth collects, processes, organizes, and analyses vast amount of data that is ready for automation, thus providing
-        <i>Digital Data services</i>
-      </p>
-      <p>At the other end of the spectrum, some processes are still performed manually. In such a case, there is a need for
-        <strong> ‘Digital touch to Human processes.’ </strong>
-      </p>
-    </div>
-  </div>
-  <div class="col-md-4 col-sm-4 col-xs-10">
-      <div class="volume">
-        <h4>Services</h4>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+              </div>
+            </div>
       </div>
-      <div class="card">
-        <p>Digitalization is taking the world by storm and changing the way businesses think, act, and function. To address the new needs and demands of the market, companies are redrawing the processes paradigm to involve IT solutions that help them emerge as market leaders.</p>
-        <p>At NextWealth, we take on the all-important task of refining your business processes and enhancing workflows for you. We help you meet the ever-changing needs of the market and stay agile – allowing you to take your business to newer frontiers, every single day.</p>
-        <p>And this is achieved through our 3-step strategy to redefine business processes:
+    </div>
+    <div class="title">
+      <p><font color="#1b95ec">Next</font><font color="Green">Pulse</font></p>
+    </div>
+    <div class="col-md-4 col-sm-4 col-lg-4 col-xs-12 about_data">
+      <div class="w3-card-4">
+        <div class="w3-container w3-green header">
+          <h4>About Us</h4>
+        </div>
+        <div class="w3-container">
+          <p>NextWealth provides
+          <strong> Digital Business Processes Management</strong>
+          services to companies that embrace digital technologies. One of the outcomes of digital technology implementation is automation of processes that require human effort.</p>
+          <p>At one end, there are processes that are amenable to a high degree of automation. In such a  case, there is a need for
+          <strong> ‘Human touch to Digital processes.’</strong>
+          NextWealth collects, processes, organizes, and analyses vast amount of data that is ready for automation, thus providing
+          <i>Digital Data services</i>
+          </p>
+          <p>At the other end of the spectrum, some processes are still performed manually. In such a case, there is a need for
+          <strong> ‘Digital touch to Human processes.’ </strong>
+          </p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4 col-sm-4 col-lg-4 col-xs-12 about_data">
+      <div class="w3-card-4">
+        <div class="w3-container w3-green header">
+          <h4>Services</h4>
+        </div>
+        <div class="w3-container">
+          <p>Digitalization is taking the world by storm and changing the way businesses think, act, and function. To address the new needs and demands of the market, companies are redrawing the processes paradigm to involve IT solutions that help them emerge as market leaders.</p>
+          <p>At NextWealth, we take on the all-important task of refining your business processes and enhancing workflows for you. We help you meet the ever-changing needs of the market and stay agile – allowing you to take your business to newer frontiers, every single day.</p>
+          <p>And this is achieved through our 3-step strategy to redefine business processes:
           <strong> Increase Operational Efficiency ,</strong>
           <strong> Enhance Processes Quality ,</strong>
           <strong> Boost Business Agility .</strong>
-        </p>
-     </div>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <small>Copyright © 2017 NextWealth.NextPulse&#8482; . All rights reserved.</small>
 </div>
-

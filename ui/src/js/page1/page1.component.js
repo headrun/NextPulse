@@ -8,9 +8,9 @@
          .component("page1", {
 
            "templateUrl": "/js/page1/page1.html",
-           "controller": ['$http','$scope','$rootScope', '$state', '$q',
+           "controller": ['$http','$scope','$rootScope', '$state', '$q','$compile',
 
-           function ($http,$scope,$rootScope,$state,$q) {
+           function ($http,$scope,$rootScope,$state,$q,$compile) {
              var self = this;
              var color = $rootScope.color;
              var from_to = '/api/from_to/?'
@@ -62,7 +62,7 @@
 
              self.annotations_data = {};
 
-                self.add_loader = function() {
+             self.add_loader = function() {
                     $('.widget-13a').addClass('widget-loader-show');
                     $('.widget-13b').addClass('widget-data-hide');
                     $('.widget-17a').addClass('widget-loader-show');
@@ -123,7 +123,7 @@
                     $('.widget-39b').addClass('widget-data-hide');
                     $('.widget-60a').addClass('widget-loader-show');
                     $('.widget-60b').addClass('widget-data-hide');
-               }
+             }
 
              self.apply_class = function(){
 
@@ -536,19 +536,25 @@
                                           events: {
                                                 hide: function() {
                                                     var name = this.name;
-                                                    var visibility = this.visible;
+                                                    var show = this.visible;
+                                                    var chart_name = self.bar_series_name;
                                                     self.annotObj.forEach(function(value_data){
-                                                        value_data.redraw(name, visibility);
+                                                        value_data.redraw(name, show);
                                                     });
-                                                    $(document).find('.widget-17a').find('.annotation-marker[series-name="'+this.name+'"]').hide();
+                                                    if (chart_name.indexOf(name) >= 0) {
+                                                        $(document).find('.widget-17a').children(".widget-17b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 0);
+                                                    }
                                                 },
                                                 show: function() {
                                                     var name = this.name;
-                                                    var visibility = this.visible;
+                                                    var show = this.visible;
+                                                    var chart_name = self.bar_series_name;
                                                     self.annotObj.forEach(function(value_data){
-                                                        value_data.redraw(name, visibility);
+                                                        value_data.redraw(name, show);
                                                     });
-                                                    $(document).find('.widget-17a').find('.annotation-marker[series-name="'+this.name+'"]').show();
+                                                    if (chart_name.indexOf(name) >= 0) {
+                                                        $(document).find('.widget-17a').children(".widget-17b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 1);
+                                                    }
                                                 }
                                             }
                                         }
@@ -559,6 +565,7 @@
                                         var series = null;
                                         var chart_data = chart.series;
                                         self.annotObj = [];
+                                        self.bar_series_name = [];
                                         for(var i in chart_data){
                                             series = chart_data[i];
                                             (function(series){
@@ -576,7 +583,9 @@
                                         chart, point, annotation);
                                    self.annotObj.push(a);
                                    window.annotObj = a;
+                                   self.bar_series_name.push(series.name);  
                                    self.annot_perm();
+                                   
                                 }
                                })
                                         });
@@ -652,18 +661,24 @@
                                                 hide: function() {
                                                     var name = this.name;
                                                     var visibility = this.visible;
+                                                    var chart_name = self.line_allo_data;
                                                     self.object_data.forEach(function(value_data){
                                                         value_data.redraw(name, visibility);
                                                     });
-                                                    $(document).find('.widget-13a').find('.annotation-marker[series-name="'+this.name+'"]').hide();
+                                                    if (chart_name.indexOf(name) >=0 ) {
+                                                        $(document).find('.widget-13a').children(".widget-13b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 0);   
+                                                    }
                                                 },
                                                 show: function() {
                                                     var name = this.name;
                                                     var visibility = this.visible;
+                                                    var chart_name = self.line_allo_data;
                                                     self.object_data.forEach(function(value_data){
                                                         value_data.redraw(name, visibility);
                                                     });
-                                                    $(document).find('.widget-13a').find('.annotation-marker[series-name="'+this.name+'"]').show();
+                                                    if (chart_name.indexOf(name) >=0 ) {
+                                                        $(document).find('.widget-13a').children(".widget-13b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 1);   
+                                                    }
                                                 }
                                             }
                                         }
@@ -674,6 +689,7 @@
                                         var series = null;
                                         var chart_data = chart.series;
                                         self.object_data = [];
+                                        self.line_allo_data = [];
                                         for(var i in chart_data){
                                             series = chart_data[i];
                                             (function(series){
@@ -692,6 +708,7 @@
                                             chart, point, annotation);
                                     window.object_data = a;
                                     self.object_data.push(a);
+                                    self.line_allo_data.push(series.name);
                                     self.annot_perm();
                                    }
                                 })
@@ -1122,18 +1139,24 @@
                                                 hide: function() {
                                                     var name = this.name;
                                                     var visibility = this.visible;
+                                                    var chart_name = self._productivity_data;
                                                     self.data_anno.forEach(function(value_data){
                                                         value_data.redraw(name, visibility);
                                                     });
-                                                    $(document).find('.widget-14a').find('.annotation-marker[series-name="'+this.name+'"]').hide();
+                                                    if (chart_name.indexOf(name) >= 0) {
+                                                        $(document).find('.widget-14a').children(".widget-14b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 0);
+                                                    }
                                                 },
                                                 show: function() {
                                                     var name = this.name;
                                                     var visibility = this.visible;
+                                                    var chart_name = self._productivity_data;
                                                     self.data_anno.forEach(function(value_data){
                                                         value_data.redraw(name, visibility);
                                                     });
-                                                    $(document).find('.widget-14a').find('.annotation-marker[series-name="'+this.name+'"]').show();
+                                                    if (chart_name.indexOf(name) >= 0) {
+                                                        $(document).find('.widget-14a').children(".widget-14b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 1);
+                                                    }
                                                 }
                                             }
                                         }
@@ -1145,6 +1168,7 @@
                                     var series = null;
                                     var chart_data = chart.series;
                                     self.data_anno = [];
+                                    self._productivity_data = [];
                                     for(var i in chart_data){
                                         series = chart_data[i];
                                         (function(series){
@@ -1163,6 +1187,7 @@
                                         chart, point, annotation);
                                    window.data_anno = a;
                                    self.data_anno.push(a);
+                                   self._productivity_data.push(series.name);
                                    self.annot_perm();
                                    }
                                })   
@@ -1256,18 +1281,24 @@
                                                 hide: function() {
                                                     var name = this.name;
                                                     var visibility = this.visible;
+                                                    var chart_name = self._prod_avg;
                                                     self.anno_obj.forEach(function(value_data){
                                                         value_data.redraw(name, visibility);
                                                     });
-                                                    $(document).find('.widget-33a').find('.annotation-marker[series-name="'+this.name+'"]').hide();
+                                                    if (chart_name.indexOf(name) >= 0) {
+                                                        $(document).find('.widget-33a').children(".widget-33b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 0);
+                                                    }
                                                 },
                                                 show: function() {
                                                     var name =  this.name;
                                                     var visibility = this.visible;
+                                                    var chart_name = self._prod_avg
                                                     self.anno_obj.forEach(function(value_data){
                                                         value_data.redraw(name, visibility);
                                                     });
-                                                    $(document).find('.widget-33a').find('.annotation-marker[series-name="'+this.name+'"]').show();
+                                                    if (chart_name.indexOf(name) >= 0) {
+                                                        $(document).find('.widget-33a').children(".widget-33b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 1);
+                                                    }
                                                 }
                                         }
                                     }
@@ -1278,6 +1309,7 @@
                                 var series = null;
                                 var chart_data = chart.series;
                                 self.anno_obj = [];
+                                self._prod_avg = [];
                                 for(var i in chart_data){
                                     series = chart_data[i];
                                     (function(series){
@@ -1296,6 +1328,7 @@
                                     chart, point, annotation);
                                window.anno_obj = a;
                                self.anno_obj.push(a);
+                               self._prod_avg.push(series.name);
                                self.annot_perm();
                                }
                            })
@@ -1395,18 +1428,24 @@
                                             hide: function() {
                                                 var name =  this.name;
                                                 var visibility = this.visible;
+                                                var chart_name = self._tat_data;
                                                 self.anno_value.forEach(function(value_data){
                                                     value_data.redraw(name, visibility);
                                                 });
-                                                $(document).find('.widget-26a').find('.annotation-marker[series-name="'+this.name+'"]').hide();
+                                                if (chart_name.indexOf(name) >= 0) {
+                                                    $(document).find('.widget-26a').children(".widget-26b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 0);
+                                                }
                                             },
                                             show: function() {
                                                 var name =  this.name;
                                                 var visibility = this.visible;
+                                                var chart_name = self._tat_data;
                                                 self.anno_value.forEach(function(value_data){
                                                     value_data.redraw(name, visibility);
                                                 });
-                                                $(document).find('.widget-26a').find('.annotation-marker[series-name="'+this.name+'"]').show();
+                                                if (chart_name.indexOf(name) >= 0) {
+                                                    $(document).find('.widget-26a').children(".widget-26b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 1);
+                                                }
                                             }
                                         }
                                     }
@@ -1418,6 +1457,7 @@
                                     var series = null;
                                     var chart_data = chart.series;
                                     self.anno_value = [];
+                                    self._tat_data = [];
                                     for(var i in chart_data){
                                         series = chart_data[i];
                                         (function(series){
@@ -1436,6 +1476,7 @@
                                                               chart, point, annotation);
                                                          window.anno_value = a;
                                                          self.anno_value.push(a);
+                                                         self._tat_data.push(series.name);
                                                          self.annot_perm();
                                                          }
                                                      })   
@@ -1536,18 +1577,24 @@
                                             hide: function() {
                                                 var name =  this.name;
                                                 var visibility =  this.visible;
+                                                var chart_name = self._aht_data;
                                                 self.value_anno.forEach(function(value_data){
                                                     value_data.redraw(name, visibility);
                                                 });
-                                                $(document).find('.widget-60a').find('.annotation-marker[series-name="'+this.name+'"]').hide();
+                                                if (chart_name.indexOf(name) >= 0) {
+                                                    $(document).find('.widget-60a').children(".widget-60b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 0);
+                                                }
                                             },
                                             show: function() {
                                                 var name =  this.name;
                                                 var visibility =  this.visible;
+                                                var chart_name = self._aht_data;
                                                 self.value_anno.forEach(function(value_data){
                                                     value_data.redraw(name, visibility);
                                                 });
-                                                $(document).find('.widget-60a').find('.annotation-marker[series-name="'+this.name+'"]').show();
+                                                if (chart_name.indexOf(name) >= 0) {
+                                                    $(document).find('.widget-60a').children(".widget-60b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 1);
+                                                }
                                             }
                                         }
                                     }
@@ -1559,6 +1606,7 @@
                                     var series = null;
                                     var chart_data = chart.series;
                                     self.value_anno = [];
+                                    self._aht_data = [];
                                     for(var i in chart_data){
                                         series = chart_data[i];
                                         (function(series){
@@ -1577,6 +1625,7 @@
                                                               chart, point, annotation);
                                                          window.value_anno = a;
                                                          self.value_anno.push(a);
+                                                         self._aht_data.push(series.name);
                                                          self.annot_perm();
                                                          }
                                                      })   
@@ -1671,18 +1720,24 @@
                                                 hide: function() {
                                                     var name = this.name;
                                                     var visibility = this.visible;
+                                                    var chart_name = self._month_vol;
                                                     self.annotation.forEach(function(value_data){
                                                         value_data.redraw(name, visibility);
                                                     });
-                                                    $(document).find('.widget-21a').find('.annotation-marker[series-name="'+this.name+'"]').hide();
+                                                    if (chart_name.indexOf(name) >= 0) {
+                                                        $(document).find('.widget-21a').children(".widget-21b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 0);
+                                                    }
                                                 },
                                                 show: function() {
                                                     var name = this.name;
                                                     var visibility = this.visible;
+                                                    var chart_name = self._month_vol;
                                                     self.annotation.forEach(function(value_data){
                                                         value_data.redraw(name, visibility);
                                                     });
-                                                    $(document).find('.widget-21a').find('.annotation-marker[series-name="'+this.name+'"]').show();
+                                                    if (chart_name.indexOf(name) >= 0) {
+                                                        $(document).find('.widget-21a').children(".widget-21b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 1);
+                                                    }
                                                 }
                                             }
                                         }
@@ -1693,6 +1748,7 @@
                                 var series = null;
                                 var chart_data = chart.series;
                                 self.annotation = [];
+                                self._month_vol = [];
                                 for(var i in chart_data){
                                     series = chart_data[i];
                                     (function(series){
@@ -1711,6 +1767,7 @@
                                     chart, point, annotation);
                                window.annotation = a;
                                self.annotation.push(a);
+                               self._month_vol.push(series.name);
                                self.annot_perm();
                                }
                            })
@@ -1838,18 +1895,24 @@
                                                 hide: function() {
                                                     var name = this.name;
                                                     var visibility = this.visible;
+                                                    var chart_name = self._fte_data;
                                                     self._data.forEach(function(value_data){
                                                         value_data.redraw(name, visibility);
                                                     });
-                                                    $(document).find('.widget-11a').find('.annotation-marker[series-name="'+this.name+'"]').hide();
+                                                    if (chart_name.indexOf(name) >= 0) {
+                                                        $(document).find('.widget-11a').children(".widget-11b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 0);
+                                                    }
                                                 },
                                                 show: function() {
                                                     var name = this.name;
                                                     var visibility = this.visible;
+                                                    var chart_name = self._fte_data;
                                                     self._data.forEach(function(value_data){
                                                         value_data.redraw(name, visibility);
-                                                    });
-                                                    $(document).find('.widget-11a').find('.annotation-marker[series-name="'+this.name+'"]').show();
+                                                    });                                                    
+                                                    if (chart_name.indexOf(name) >= 0) {
+                                                        $(document).find('.widget-11a').children(".widget-11b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 1);
+                                                    }
                                                 }
                                             }
                                         }
@@ -1860,6 +1923,7 @@
                                     var series = null;
                                     var chart_data = chart.series;
                                     self._data = [];
+                                    self._fte_data = [];
                                     for(var i in chart_data){
                                         series = chart_data[i];
                                         (function(series){
@@ -1877,6 +1941,7 @@
                                    var a = new Annotation("11", $(self.chartOptions16.chart.renderTo),
                                         chart, point, annotation);
                                    self._data.push(a);
+                                   self._fte_data.push(series.name);
                                    window.data = a;
                                    self.annot_perm();
                                    }
@@ -2100,18 +2165,24 @@
                                                 hide: function() {
                                                     var name = this.name;
                                                     var visibility = this.visible;
+                                                    var chart_name = self._main_prod;
                                                     self._value.forEach(function(value_data){
                                                         value_data.redraw(name, visibility);
-                                                    });
-                                                    $(document).find('.widget-6a').find('.annotation-marker[series-name="'+this.name+'"]').hide();
+                                                    });                                                    
+                                                    if (chart_name.indexOf(name) >= 0) {
+                                                        $(document).find('.widget-6a').children(".widget-6b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 0);
+                                                    }
                                                 },
                                                 show: function() {
                                                     var name = this.name;
                                                     var visibility = this.visible;
+                                                    var chart_name = self._main_prod;
                                                     self._value.forEach(function(value_data){
                                                         value_data.redraw(name, visibility);
-                                                    });
-                                                    $(document).find('.widget-6a').find('.annotation-marker[series-name="'+this.name+'"]').show();
+                                                    });                                                    
+                                                    if (chart_name.indexOf(name) >= 0) {
+                                                        $(document).find('.widget-6a').children(".widget-6b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 1);
+                                                    }
                                                 }
                                             }
                                         }
@@ -2122,6 +2193,7 @@
                                     var series = null;
                                     var chart_data = chart.series;
                                     self._value = [];
+                                    self._main_prod = [];
                                     for(var i in chart_data){  
                                         series = chart_data[i];
                                         (function(series){
@@ -2138,8 +2210,9 @@
                                  if(annotation.epoch){
                                    var a = new Annotation("6", $(self.chartOptions10.chart.renderTo),
                                         chart, point, annotation);
-                                   window.value = a;
                                    self._value.push(a);
+                                   window.value = a;
+                                   self._main_prod.push(series.name);
                                    self.annot_perm();
                                    }
                                })
@@ -2216,18 +2289,24 @@
                                                 hide: function() {
                                                     var name = this.name;
                                                     var visibility = this.visible;
+                                                    var chart_name = self._main_prod_line;
                                                     self.anno_data.forEach(function(value_data){
                                                         value_data.redraw(name, visibility);
-                                                    });
-                                                    $(document).find('.widget-1a').find('.annotation-marker[series-name="'+this.name+'"]').hide();
+                                                    });                                                    
+                                                    if (chart_name.indexOf(name) >= 0) {
+                                                        $(document).find('.widget-1a').children(".widget-1b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 0);
+                                                    }
                                                 },
                                                 show: function() {
                                                     var name = this.name;
                                                     var visibility = this.visible;
+                                                    var chart_name = self._main_prod_line;
                                                     self.anno_data.forEach(function(value_data){
                                                         value_data.redraw(name, visibility);
-                                                    });
-                                                    $(document).find('.widget-1a').find('.annotation-marker[series-name="'+this.name+'"]').show();
+                                                    });                                                    
+                                                    if (chart_name.indexOf(name) >= 0) {
+                                                        $(document).find('.widget-1a').children(".widget-1b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 1);
+                                                    }
                                                 }
                                             }
                                         }
@@ -2239,6 +2318,7 @@
                                     var series = null;
                                     var chart_data = chart.series;
                                     self.anno_data = [];
+                                    self._main_prod_line = [];
                                     for(var i in chart_data){
                                         series = chart_data[i];
                                         (function(series){
@@ -2255,8 +2335,9 @@
                                  if(annotation.epoch){
                                    var a = new Annotation("1", $(self.chartOptions.chart.renderTo),
                                         chart, point, annotation);
-                                   window.anno_data = a;
                                    self.anno_data.push(a);
+                                   window.anno_data = a;
+                                   self._main_prod_line.push(series.name);
                                    self.annot_perm();
                                    }
                                })
@@ -2747,6 +2828,170 @@
                 }
          }
 
+                    self.performance = function(final_work,type,date_key){
+                        if (type == undefined) {
+                            type = 'day'
+                        }
+
+                        if (final_work == undefined) {
+                            final_work = ''
+                        }
+                        
+                        if (date_key == undefined){
+                            var performance_summary = '/api/performance_summary/'+self.data_to_show + type + final_work;
+                        }
+                        else{
+                            date_key = date_key.split('@')
+                            var performance_summary = '/api/performance_summary/'+self.data_to_show + type + final_work+"&key_from_date="+date_key[0]+"&key_to_date="+date_key[1];   
+                        }
+
+                        console.log(self.data_to_show)
+                        self.type = type;
+
+                        
+                        return $http({method:"GET", url: performance_summary + '&chart_name=64' }).success(function(result){
+
+                            $('.widget-62a').addClass('widget-loader-show');
+                            $('.widget-62b').addClass('widget-data-hide');
+                            $("#widget-62a-jumio").remove();
+                            var res = result["result"]
+                            var predate_list = res["previous_date"][0]+"@"+res["previous_date"][res["previous_date"].length - 1]
+                            var predate = res["previous_date"][0].split("-").slice(1,3).toString().replace(","," - ") + ' To '+ res["previous_date"][res["previous_date"].length - 1].split("-").slice(1,3).toString().replace(","," - ");
+                            var curdate = res["current_date"][0].split("-").slice(1,3).toString().replace(","," - ") + ' To '+ res["current_date"][res["current_date"].length - 1].split("-").slice(1,3).toString().replace(","," - ");
+                            // var table_html = "<table id='widget-62a-jumio' class='table table-responsive table table-condensed table-striped table-bordered' style='text-align-last: center;'><thead><tr><th colspan='9'></th><th>Total</th><th  colspan='2'>Average</th><tr>";
+                            var table_html = "<div id='widget-62a-jumio' class='table-responsive-sm' ><table class='table table-condensed' style='text-align-last: center;'><thead><tr class='success'><th colspan='9'></th><th>Total</th><th  colspan='2'>Average</th><tr class='success'>";
+                            table_html = table_html +"<th>Date</th><th><a data-toggle='tooltip' title='Previous Week' ng-click=$ctrl.performance(undefined,undefined,'"+predate_list+"')>"+predate+"</a></th>";
+                            var production_count = "<tr><td class='info'>Production Count</td><td class='success'>"+res['pre_main_result']['Pre_Production_Count']+"</td>";
+                            var Audit_Count = "<tr><td class='info'>Audit Count</td><td class='success'>"+res['pre_main_result']['Pre_Audit_Count']+"</td>";
+                            var Error_Count = "<tr><td class='info'>Error Count</td><td class='success'>"+res['pre_main_result']['Pre_Error_Count']+"</td>";
+                            var Accuracy = "<tr><td class='info'>Accuracy %</td><td class='success'>"+res['pre_main_result']['Pre_Accuracy']+"</td>";
+                            var AHT_Avg = "<tr><td class='info'>AHT Avg</td><td class='success'>"+res['pre_main_result']['Pre_Aht_Avg']+"</td>";
+                            var No_of_Logins = "<tr><td class='info'>No of Logins</td><td class='success'>"+res['pre_main_result']['Pre_login_count']+"</td>";
+                            var prod_count = 0;
+                            var aud_count = 0;
+                            var err_count = 0;
+                            var acc_count = 0;
+                            var aht_count = 0;
+                            var login_count = 0;
+                            var counter_var = [0,0,0,0,0,0]
+
+                            for (var ij =0;ij < res["current_date"].length;ij++){
+                                 table_html = table_html + "<th>"+res['current_date'][ij]+"</th>";
+                                 
+                                 if (res['production'][res['current_date'][ij]]){
+                                    production_count = production_count + "<td class='info'>" +res['production'][res['current_date'][ij]] +"</td>" 
+                                    prod_count = prod_count + res['production'][res['current_date'][ij]]
+                                    counter_var[0]++;
+                                 }
+                                 else{
+                                    production_count = production_count + "<td class='info'> NA </td>" 
+                                 }
+
+                                 if (res['audit_count'][res['current_date'][ij]]){
+                                    Audit_Count = Audit_Count + "<td class='info'>" +res['audit_count'][res['current_date'][ij]] +"</td>" 
+                                    aud_count = aud_count + res['audit_count'][res['current_date'][ij]]
+                                    counter_var[1]++;
+                                 }
+                                 else{
+                                    Audit_Count = Audit_Count + "<td class='info'> NA </td>" 
+                                 }
+                                 
+                                 if(res['audit_errors'][res['current_date'][ij]]){
+                                    Error_Count = Error_Count + "<td class='info'>" +res['audit_errors'][res['current_date'][ij]] +"</td>" 
+                                    err_count = err_count + res['audit_errors'][res['current_date'][ij]]
+                                    counter_var[2]++;
+                                 }
+                                 else{
+                                    Error_Count = Error_Count + "<td class='info'> NA </td>" 
+                                 }
+                                 
+                                 if(res['accuracy'][res['current_date'][ij]]){
+                                    Accuracy = Accuracy + "<td class='info'>" +res['accuracy'][res['current_date'][ij]] +"% </td>" 
+                                    acc_count = acc_count + res['accuracy'][res['current_date'][ij]]
+                                    counter_var[3]++;
+                                 }
+                                 else{
+                                    
+                                    Accuracy = Accuracy + "<td class='info'> NA </td>" 
+                                 }
+                                 
+                                 if(res['AHT_avg'][res['current_date'][ij]]){
+                                    AHT_Avg = AHT_Avg + "<td class='info'>" +res['AHT_avg'][res['current_date'][ij]] +"</td>" 
+                                    aht_count = aht_count + res['AHT_avg'][res['current_date'][ij]]
+                                    counter_var[4]++;
+                                 }
+                                 else{
+                                    AHT_Avg = AHT_Avg + "<td class='info'> NA </td>" 
+                                 }
+                                                                  
+                                 if(res['AHT_count'][res['current_date'][ij]] != undefined){
+                                    No_of_Logins = No_of_Logins + "<td class='info'>" +res['AHT_count'][res['current_date'][ij]] +"</td>" 
+                                    login_count = login_count + res['AHT_count'][res['current_date'][ij]]
+                                    counter_var[5]++;
+                                 }
+                                 else{
+                                    No_of_Logins = No_of_Logins + "<td class='info'> NA </td>" 
+                                 }
+                            }
+                            
+                            if (counter_var[0] >0) {
+                                production_count = production_count + '<td class="success">'+prod_count+'</td><td class="success">'+res["pre_main_result"]["Pre_Production_Count"]+'</td><td class="success">'+(prod_count/counter_var[0]).toFixed(0)+'</td></tr>'
+                            }
+                            else{
+                             production_count = production_count + '<td class="success"> NA </td><td class="success"> NA </td><td class="success"> NA </td></tr>'   
+                            }
+                            
+                            if (counter_var[1] >0){
+                                Audit_Count = Audit_Count + '<td class="success">'+aud_count+'</td><td class="success">'+res["pre_main_result"]["Pre_Audit_Count"]+'</td><td class="success">'+(aud_count)+'</td></tr>'    
+                            }
+                            else{
+                                Audit_Count = Audit_Count + '<td class="success"> NA </td><td class="success">'+res["pre_main_result"]["Pre_Audit_Count"]+'</td><td class="success"> NA </td></tr>'
+                            }
+                            
+                            if(counter_var[2] > 0){
+                                Error_Count = Error_Count + '<td class="success">'+err_count+'</td><td class="success">'+res["pre_main_result"]["Pre_Error_Count"]+'</td><td class="success">'+(err_count)+'</td></tr>'
+                            }
+                            else{
+                                Error_Count = Error_Count + '<td class="success"> NA </td><td class="success">'+res["pre_main_result"]["Pre_Error_Count"]+'</td><td class="success"> NA </td></tr>'
+                            }
+                            
+                            if(counter_var[3] > 0){
+                                Accuracy = Accuracy + '<td class="success">'+(acc_count / counter_var[3]).toFixed(2)+'% </td><td class="success">'+res["pre_main_result"]["Pre_Accuracy"]+'</td><td class="success">'+(acc_count/counter_var[3]).toFixed(2)+'% </td></tr>'
+                            }
+                            else{
+                                Accuracy = Accuracy + '<td class="success"> NA </td><td class="success">'+res["pre_main_result"]["Pre_Accuracy"]+'</td><td class="success"> NA </td></tr>'
+                            }
+
+                            if (counter_var[4] > 0){
+                                AHT_Avg = AHT_Avg + '<td class="success">'+(aht_count/counter_var[4]).toFixed(2)+'</td><td class="success">'+res["pre_main_result"]["Pre_Aht_Avg"]+'</td><td class="success">'+(aht_count/counter_var[4]).toFixed(2)+'</td></tr>'    
+                            }
+                            else{
+                                AHT_Avg = AHT_Avg + '<td class="success"> NA </td><td class="success">'+res["pre_main_result"]["Pre_Aht_Avg"]+'</td><td class="success"> NA </td></tr>'
+                            }
+
+                            if(counter_var[5] > 0){
+                                No_of_Logins = No_of_Logins + '<td class="success">'+(login_count/counter_var[5]).toFixed(0)+'</td><td class="success">'+res["pre_main_result"]["Pre_login_count"]+'</td><td class="success">'+(login_count/counter_var[5]).toFixed(0)+'</td></tr>'
+                            }
+                            else{
+                                No_of_Logins = No_of_Logins + '<td class="success"> NA </td><td class="success">'+res["pre_main_result"]["Pre_login_count"]+'</td><td class="success"> NA </td></tr>'
+                            }
+                            
+
+                            table_html = table_html + '<th>'+ curdate +'</th><th>'+ predate +'</th><th>'+ curdate +'</th></tr></thead><tbody class="info">';
+                            
+
+                            table_html = table_html + production_count + Audit_Count + Error_Count + Accuracy + AHT_Avg + No_of_Logins + "</tbody></table></div>";
+                            $(".widget-62b highcharts").remove()
+                            var $el = $(table_html).appendTo(".widget-body.widget-62b");
+                            $compile($el)($scope);
+
+
+                            
+                            $('.widget-62a').removeClass('widget-loader-show');
+                            $('.widget-62b').removeClass('widget-data-hide');
+                        });
+                    }
+
                 
                     self.pre_scan = function(final_work, type) {
 
@@ -2828,18 +3073,24 @@
                                             hide: function() {
                                                 var name = this.name;
                                                 var visible = this.visibility;
+                                                var chart_name = self._pre_data;
                                                 self.data_value.forEach(function(value_data){
                                                     value_data.redraw(name, visibility);
-                                                });
-                                                $(document).find('.widget-35a').find('.annotation-marker[series-name="'+this.name+'"]').hide();
+                                                });                                                
+                                                if (chart_name.indexOf(name) >= 0) {
+                                                    $(document).find('.widget-35a').children(".widget-35b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 0);
+                                                }
                                             },
                                             show: function() {
                                                 var name = this.name;
                                                 var visible = this.visibility;
+                                                var chart_name = self._pre_data;
                                                 self.data_value.forEach(function(value_data){
                                                     value_data.redraw(name, visibility);
-                                                });
-                                                $(document).find('.widget-35a').find('.annotation-marker[series-name="'+this.name+'"]').show();
+                                                });                                                
+                                                if (chart_name.indexOf(name) >= 0) {
+                                                    $(document).find('.widget-35a').children(".widget-35b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 1);
+                                                }
                                             }
                                         }
                                     }
@@ -2850,6 +3101,7 @@
                                 var series = null;
                                 var chart_data = chart.series;
                                 self.data_value = [];
+                                self._pre_data = [];
                                 for(var i in chart_data){
                                     series = chart_data[i];
                                     (function(series){
@@ -2868,6 +3120,7 @@
                                     chart, point, annotation);
                                window.data_value = a;
                                self.data_value.push(a);
+                               self._pre_data.push(series.name);
                                self.annot_perm();
                                }
                            })
@@ -2962,18 +3215,24 @@
                                             hide: function() {
                                                 var name = this.name;
                                                 var visibility = this.visible;
+                                                var chart_name = self._nw_data;
                                                 self.Obj.forEach(function(value_data){
                                                     value_data.redraw(name, visibility);
-                                                });
-                                                $(document).find('.widget-37a').find('.annotation-marker[series-name="'+this.name+'"]').hide();
+                                                });                                                
+                                                if (chart_name.indexOf(name) >= 0) {
+                                                    $(document).find('.widget-37a').children(".widget-37b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 0);
+                                                }
                                             },
                                             show: function() {
                                                 var name = this.name;
                                                 var visibility = this.visible;
+                                                var chart_name = self._nw_data;
                                                 self.Obj.forEach(function(value_data){
                                                     value_data.redraw(name, visibility);
-                                                });
-                                                $(document).find('.widget-37a').find('.annotation-marker[series-name="'+this.name+'"]').show();
+                                                });                                                
+                                                if (chart_name.indexOf(name) >= 0) {
+                                                    $(document).find('.widget-37a').children(".widget-37b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 1);
+                                                }
                                             }
                                         }
                                     }
@@ -2985,6 +3244,7 @@
                                 var series = null;
                                 var chart_data = chart.series;
                                 self.Obj = [];
+                                self._nw_data = [];
                                 for(var i in chart_data){
                                     series = chart_data[i];
                                     (function(series){
@@ -3003,6 +3263,7 @@
                                     chart, point, annotation);
                                window.Obj = a;
                                self.Obj.push(a);
+                               self._nw_data.push(series.name);
                                self.annot_perm();
                                }
                            })
@@ -3099,18 +3360,24 @@
                                             hide: function() {
                                                 var name = this.name;
                                                 var visibility = this.visible;
+                                                var chart_name = self._overall;
                                                 self.Obj_val.forEach(function(value_data){
                                                     value_data.redraw(name, visibility);
-                                                });
-                                                $(document).find('.widget-36a').find('.annotation-marker[series-name="'+this.name+'"]').hide();
+                                                });                                                
+                                                if (chart_name.indexOf(name) >= 0) {
+                                                    $(document).find('.widget-36a').children(".widget-36b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 0);
+                                                }
                                             },
                                             show: function() {
                                                 var name = this.name;
                                                 var visibility = this.visible;
+                                                var chart_name = self._overall;
                                                 self.Obj_val.forEach(function(value_data){
                                                     value_data.redraw(name, visibility);
-                                                });
-                                                $(document).find('.widget-36a').find('.annotation-marker[series-name="'+this.name+'"]').show();
+                                                });                                                
+                                                if (chart_name.indexOf(name) >= 0) {
+                                                    $(document).find('.widget-36a').children(".widget-36b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 1);
+                                                }
                                             }
                                         }
                                     }
@@ -3122,6 +3389,7 @@
                                 var series = null;
                                 var chart_data = chart.series;
                                 self.Obj_val = [];
+                                self._overall = [];
                                 for(var i in chart_data){
                                     series = chart_data[i];
                                     (function(series){
@@ -3140,6 +3408,7 @@
                                     chart, point, annotation);
                                window.Obj_val = a;
                                self.Obj_val.push(a);
+                               self._overall.push(series.name);
                                self.annot_perm();
                                }
                            })
@@ -3785,18 +4054,24 @@
                                                 hide: function() {
                                                     var name =  this.name;
                                                     var visibility = this.visible;
+                                                    var chart_name = self._accuracy_lines;
                                                     self.Obj_data.forEach(function(value_data){
                                                         value_data.redraw(name, visibility);
-                                                    });
-                                                    $(document).find('.widget-7a').find('.annotation-marker[series-name="'+this.name+'"]').hide();
+                                                    });                                                    
+                                                    if (chart_name.indexOf(name) >= 0) {
+                                                        $(document).find('.widget-7a').children(".widget-7b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 0);
+                                                    }
                                                 },
                                                 show: function() {
                                                     var name =  this.name;
                                                     var visibility = this.visible;
+                                                    var chart_name = self._accuracy_lines;
                                                     self.Obj_data.forEach(function(value_data){
                                                         value_data.redraw(name, visibility);
-                                                    });
-                                                    $(document).find('.widget-7a').find('.annotation-marker[series-name="'+this.name+'"]').show();
+                                                    });                                                    
+                                                    if (chart_name.indexOf(name) >= 0) {
+                                                        $(document).find('.widget-7a').children(".widget-7b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 1);
+                                                    }
                                                 }
                                             }
                                         }
@@ -3807,6 +4082,7 @@
                                     var series = null;
                                     var chart_data = chart.series;
                                     self.Obj_data = [];
+                                    self._accuracy_lines = [];
                                     for(var i in chart_data){
                                         series = chart_data[i];
                                         (function(series){
@@ -3822,6 +4098,7 @@
                                         chart, point, annotation);
                                    window.Obj_data = a;
                                    self.Obj_data.push(a);
+                                   self._accuracy_lines.push(series.name);
                                    self.annot_perm();
                                    }
                                })
@@ -3900,22 +4177,26 @@
                                             },
                                             events: {
                                                 hide: function() {
-                                                    //window.Obj_val.redraw(this.name, this.visible);
                                                     var name  = this.name;
                                                     var visibility = this.visible;
+                                                    var chart_name = self._accu_intrnl;
                                                     self.annotObj.forEach(function(value_data){
                                                         value_data.redraw(name, visibility);
-                                                    });
-                                                    $(document).find('.widget-8a').find('.annotation-marker[series-name="'+this.name+'"]').hide();
+                                                    });                                                    
+                                                    if (chart_name.indexOf(name) >= 0) {
+                                                        $(document).find('.widget-8a').children(".widget-8b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 0);
+                                                    }
                                                 },
                                                 show: function() {
-                                                    //window.annotObj.redraw(this.name, this.visible);
                                                     var name  = this.name;
                                                     var visibility = this.visible;
+                                                    var chart_name = self._accu_intrnl;
                                                     self.annotObj.forEach(function(value_data){
                                                         value_data.redraw(name, visibility);
-                                                    });
-                                                    $(document).find('.widget-8a').find('.annotation-marker[series-name="'+this.name+'"]').show();
+                                                    });                                                    
+                                                    if (chart_name.indexOf(name) >= 0) {
+                                                        $(document).find('.widget-8a').children(".widget-8b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 1);
+                                                    }
                                                 }
                                             }
                                         }
@@ -3927,12 +4208,13 @@
                                     var series = null;
                                     var chart_data = chart.series;
                                     self.annotObj = [];
+                                    self._accu_intrnl = [];
                                     for(var i in chart_data){
                                         series = chart_data[i];
                                         self.annotObj = [];
                                         (function(series){
                                           $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+self.type+'&chart_name=8&project='+self.project_live+'&center='+
-                                           self.center_live+'&from='+self.start_date+'&to='+self.end_dates}).success(function(annotations){  
+                                           self.center_live+'&from='+self.start_date+'&to='+self.end_date}).success(function(annotations){  
                                annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                                $.each(annotations, function(j, annotation){
 
@@ -3945,6 +4227,7 @@
                                         chart, point, annotation);
                                    window.annotObj = a;
                                    self.annotObj.push(a);
+                                   self._accu_intrnl.push(series.name);
                                    self.annot_perm();
                                    }
                                })
@@ -4086,6 +4369,8 @@
                     if ((val == 'productivity_chart') || (val == 'productivity_bar_graph')) {
                          self.prod_list.push('production')
                          self.main_prod(undefined, undefined, undefined)
+                    } else if (val == 'performance_summary') {
+                        self.performance(undefined, undefined,undefined)     
                     } else if ((val == 'volume_bar_graph') || (val == 'volume_productivity_graph')) {
                          self.work_list.push('work_track')
                          self.allo_and_comp(undefined, undefined, undefined)
@@ -4264,10 +4549,15 @@
                         if (key != '') {
                             self.voiceProjectType = key; 
                         }
+                        var myElement = document.querySelector("#cal_data");
+                        myElement.style.marginTop = "25px";
+                        $('#select').val(self.first + ' to ' + self.last);
                         var dateEntered = document.getElementById('select').value;
                         dateEntered = dateEntered.replace(' to ','to');
                         var from = dateEntered.split('to')[0].replace(' ','');
                         var to = dateEntered.split('to')[1].replace(' ','');
+                        //var from = self.start;
+                        //var to = self.end;
                         callback.push.apply(callback, [from, to, self.center_live, self.project_live]);
                         if(key == 'inbound') {
                             $('.inbound').addClass('active btn-success');
@@ -4277,8 +4567,8 @@
                             $('.outbound').siblings().removeClass('active btn-success');
                         }
                         if(make_ajax) {
-                            var packet_url = '/api/get_packet_details/?&project='+callback[3]+'&center='+callback[2]+'&from='+self.start+'&to='+self.end+'&voice_project_type='+key;
-                            //var packet_url = '/api/get_packet_details/?&project='+callback[3]+'&center='+callback[2]+'&from='+callback[0]+'&to='+callback[1]+'&voice_project_type='+key;
+                            //var packet_url = '/api/get_packet_details/?&project='+callback[3]+'&center='+callback[2]+'&from='+self.start+'&to='+self.end+'&voice_project_type='+key;
+                            var packet_url = '/api/get_packet_details/?&project='+callback[3]+'&center='+callback[2]+'&from='+callback[0]+'&to='+callback[1]+'&voice_project_type='+key;
                             $http.get(packet_url).then(function(result) {
                                 self.chartProcess(result);
                                 self.checkScroll();
@@ -4339,8 +4629,8 @@
                                     self.packet_hierarchy_list = [];
                                 }
                                 var type = '';
-                                self.voice_filter = '?&project='+callback[3]+'&center='+callback[2]+'&from='+ self.start+'&to='+ self.end + '&type=';
-                                //self.voice_filter = '?&project='+callback[3]+'&center='+callback[2]+'&from='+ callback[0]+'&to='+ callback[1] + '&type=';
+                                //self.voice_filter = '?&project='+callback[3]+'&center='+callback[2]+'&from='+ self.start+'&to='+ self.end + '&type=';
+                                self.voice_filter = '?&project='+callback[3]+'&center='+callback[2]+'&from='+ callback[0]+'&to='+ callback[1] + '&type=';
                                 if ((self.voice_location != '') && (self.voice_skill != '') && (self.voice_disposition != '')) {
                                     self.locationValue = self.voice_location;
                                     self.skillValue = self.voice_skill;

@@ -28,7 +28,7 @@ def generate_day_week_month_format(request, result_name, function_name):
     _type = main_data_dict['type']
     main_dates = main_data_dict['dates']
     level_structure_key = get_level_structure_key(work_packet, sub_project, sub_packet, pro_center)
-
+    
     if main_data_dict['dwm_dict'].has_key('day') and main_data_dict['type'] == 'day':
         date_list = main_data_dict['dates']
         new_date_list = generate_dates(date_list, prj_id, center) 
