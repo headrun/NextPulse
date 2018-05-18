@@ -3,13 +3,14 @@ import datetime
 import redis
 from api.models import *
 from api.commons import data_dict
-from django.db.models import Max, Sum
+from django.db.models import *
 from collections import OrderedDict
 from api.utils import *
 from api.basics import *
 from api.fte_related import *
 from api.weekly_graph import *
 from api.graph_settings import *
+from datetime import datetime,timedelta, date
 from api.voice_widgets import date_function
 from common.utils import getHttpResponse as json_HttpResponse
 
@@ -128,7 +129,7 @@ def week_calculations_multi(dates,project,center,level_structure_key,function_na
             data = function_name(date, project, center, level_structure_key)
             if data:
                 week_dict[week_name] = data[sub_name1]
-                week_dict_1[week_name] = data[sub_name1]
+                week_dict_1[week_name] = data[sub_name2]
                 if function_name == fte_trend_scope:
                     result = prod_volume_week_util(project, week_names, week_dict, {}, week_or_month)
                     result_1 = prod_volume_week_util(project ,week_names ,week_dict_1, {}, week_or_month)
@@ -289,4 +290,153 @@ def headcount_widgets(center_obj,prj_id,date_list,level_structure_key):
 
     return final_utilization_result
 
+def timework(date_list,date_key):
+    if date_key:
+        from_da = datetime.strptime(date_list[0], "%Y-%m-%d")
+        to_da = datetime.strptime(date_list[len(date_list)-1], "%Y-%m-%d")
+    else:
+        from_da = datetime.strptime(date_list[0], "%Y-%b-%d")
+        to_da = datetime.strptime(date_list[len(date_list)-1], "%Y-%b-%d")
 
+    def daterange(date1, date2):
+        for n in range(int ((date2 - date1).days)+1):
+            yield date1 + timedelta(n)
+
+    date_arr = [];    
+    da_arr = [];
+    for t_del in daterange(from_da,to_da):
+        da_arr.append(t_del);
+        if (t_del.isocalendar()[2] == 7) | (t_del == to_da):
+            date_arr.append(da_arr)
+            da_arr = [];
+
+    for i in reversed(date_arr):        
+        if i[0].isocalendar()[2] != 7 and i[0].isocalendar()[2] != 1: 
+            current_date1 =  i[0] - timedelta(days=(7-i[0].isocalendar()[2]))
+            current_date2 =  i[0] + timedelta(days=(7-i[0].isocalendar()[2]))
+        else:
+            current_date1 =  i[0]
+            current_date2 =  i[0] + timedelta(days=(6))        
+
+        da_arr1 = [];
+        for t_del in daterange(current_date1,current_date2):
+            da_arr1.append(t_del.strftime("%Y-%m-%d"));
+
+        pre_date1 =  current_date1 - timedelta(days=7)
+        pre_date2 =  current_date1 - timedelta(days=1)
+
+        da_arr2 = [];
+        for t_del in daterange(pre_date1,pre_date2):
+            da_arr2.append(t_del.strftime("%Y-%m-%d"));
+
+        return {"current":da_arr1,"previous":da_arr2};
+
+def performance_summary(request):
+    main_data_dict = data_dict(request.GET)
+    prj_id = main_data_dict['pro_cen_mapping'][0][0]
+    center = main_data_dict['pro_cen_mapping'][1][0]
+    work_packet = main_data_dict['work_packet']
+    sub_project = main_data_dict['sub_project']
+    sub_packet = main_data_dict['sub_packet']
+    pro_center = main_data_dict['pro_cen_mapping']
+    _type = main_data_dict['type']    
+
+    if request.GET.get('key_from_date','undefined') != 'undefined' and request.GET.get('key_to_date','undefined') != 'undefined' :
+        date_list = [request.GET['key_from_date'],request.GET['key_to_date']]
+        date_obj = timework(date_list,0)
+    else:
+        date_list = main_data_dict['dates']
+        date_obj = timework(date_list,1)    
+
+    level_structure_key = get_level_structure_key(work_packet, sub_project, sub_packet, pro_center)
+    
+    current_date =  date_obj['current']
+    previous_date =  date_obj['previous']
+
+    filter_params_current,_termCur = getting_required_params(level_structure_key, prj_id, center, current_date)
+    filter_params_previous,_termPre = getting_required_params(level_structure_key, prj_id, center, previous_date)
+    
+    data_production =RawTable.objects.filter(**filter_params_current).values("date").annotate(cCount=Sum("per_day")).distinct()
+    data_audit =Externalerrors.objects.filter(**filter_params_current).values("date").annotate(aCount=Sum("audited_errors"),eCount=Sum("total_errors")).distinct()
+
+    data_accuracy = {};
+    for index,data in enumerate(data_audit):
+        if data["aCount"] != 0:
+            data_accuracy.update({str(data["date"].strftime("%Y-%b-%d")):float('%.2f' % round((float(data["aCount"]-data["eCount"])/data["aCount"])*100,2))})
+        else:
+            data_accuracy.update({str(data["date"].strftime("%Y-%b-%d")):0})
+            
+    
+    data_AHT =AHTTeam.objects.filter(**filter_params_current).values("date").annotate(avg=Avg("AHT")).distinct()
+    data_AHT_login =AHTIndividual.objects.filter(**filter_params_current).values("date").annotate(count=Count("emp_name")).distinct()
+    
+    pre_main_result = {}
+    
+    production_obj = {};
+    for prod in data_production:
+        production_obj[str(prod['date'].strftime("%Y-%b-%d"))] = prod['cCount']
+    
+    audit_obj = {};
+    error_obj = {};
+    for audit in data_audit:
+        audit_obj[str(audit['date'].strftime("%Y-%b-%d"))] = audit['aCount']
+        error_obj[str(audit['date'].strftime("%Y-%b-%d"))] = audit['eCount']
+
+    aht_avg_obj = {};
+    aht_count_obj = {};
+    for aht in data_AHT:
+        aht_avg_obj[str(aht['date'].strftime("%Y-%b-%d"))] = float('%.2f' % round(aht['avg'],2))
+    
+    for aht_login in data_AHT_login:
+        aht_count_obj[str(aht_login['date'].strftime("%Y-%b-%d"))] = aht_login['count']    
+    
+    
+    pre_data_production =RawTable.objects.filter(**filter_params_previous).aggregate(Pre_Production_Count=Sum("per_day"))
+    pre_data_audit =Externalerrors.objects.filter(**filter_params_previous).aggregate(Pre_Audit_Count=Sum("audited_errors"),Pre_Error_Count=Sum("total_errors"))
+    pre_data_AHT =AHTTeam.objects.filter(**filter_params_previous).aggregate(Pre_Aht_Avg=Avg("AHT"))
+    pre_data_AHT_login = AHTIndividual.objects.filter(**filter_params_previous).values("date").annotate(Pre_count=Count("emp_name")).aggregate(Pre_login_count=Avg("Pre_count"))
+    
+
+    if (pre_data_audit["Pre_Audit_Count"]) is not None and (pre_data_audit["Pre_Error_Count"] is not None):
+        pre_data_accuracy = str('%.2f' % round((float(pre_data_audit["Pre_Audit_Count"]-pre_data_audit["Pre_Error_Count"])/pre_data_audit["Pre_Audit_Count"])*100,2))+'%'
+    else:
+        pre_data_accuracy = "NA"
+    
+
+    if pre_data_production['Pre_Production_Count'] == None:
+        pre_data_production['Pre_Production_Count'] = " NA "
+
+    pre_main_result.update(pre_data_production)
+
+    if pre_data_audit["Pre_Audit_Count"] is not None:
+        pre_main_result.update(pre_data_audit)
+    else:
+        pre_main_result.update({"Pre_Audit_Count":"NA"})
+    
+    if pre_data_audit["Pre_Error_Count"] is not None:
+        pre_main_result.update({"Pre_Error_Count":pre_data_audit["Pre_Error_Count"]})
+    else:
+        pre_main_result.update({"Pre_Error_Count":"NA"})
+
+    if pre_data_AHT_login["Pre_login_count"] > -1:
+        pre_data_AHT_login["Pre_login_count"] = float('%.2f' % round(float(pre_data_AHT_login["Pre_login_count"]),0))
+        pre_main_result.update(pre_data_AHT_login)
+    else:
+        pre_main_result.update({"Pre_login_count":"NA"})
+
+    if pre_data_AHT["Pre_Aht_Avg"] is not None:
+        pre_main_result.update({"Pre_Aht_Avg":float('%.2f' % round(pre_data_AHT["Pre_Aht_Avg"],2))})
+    else:
+        pre_main_result.update({"Pre_Aht_Avg":"NA"})
+
+    pre_main_result.update({"Pre_Accuracy":pre_data_accuracy})
+
+    for index,cdate in enumerate(current_date):
+        current_date[index] = datetime.strptime(cdate,'%Y-%m-%d').strftime("%Y-%b-%d")
+    
+    for index,pdate in enumerate(previous_date):
+        previous_date[index] = datetime.strptime(pdate,'%Y-%m-%d').strftime("%Y-%b-%d")
+    
+    main_result = {"accuracy":data_accuracy,"production":production_obj,"audit_count":audit_obj,"audit_errors":error_obj,"AHT_avg":aht_avg_obj,"AHT_count":aht_count_obj,"pre_main_result":pre_main_result,"current_date":current_date,"previous_date":previous_date,"pre_api_date":[previous_date[0],previous_date[len(previous_date)-1]]}
+
+    return json_HttpResponse(main_result)

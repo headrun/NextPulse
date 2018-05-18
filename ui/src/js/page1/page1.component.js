@@ -8,9 +8,9 @@
          .component("page1", {
 
            "templateUrl": "/js/page1/page1.html",
-           "controller": ['$http','$scope','$rootScope', '$state', '$q',
+           "controller": ['$http','$scope','$rootScope', '$state', '$q','$compile',
 
-           function ($http,$scope,$rootScope,$state,$q) {
+           function ($http,$scope,$rootScope,$state,$q,$compile) {
              var self = this;
              var color = $rootScope.color;
              var from_to = '/api/from_to/?'
@@ -2828,6 +2828,170 @@
                 }
          }
 
+                    self.performance = function(final_work,type,date_key){
+                        if (type == undefined) {
+                            type = 'day'
+                        }
+
+                        if (final_work == undefined) {
+                            final_work = ''
+                        }
+                        
+                        if (date_key == undefined){
+                            var performance_summary = '/api/performance_summary/'+self.data_to_show + type + final_work;
+                        }
+                        else{
+                            date_key = date_key.split('@')
+                            var performance_summary = '/api/performance_summary/'+self.data_to_show + type + final_work+"&key_from_date="+date_key[0]+"&key_to_date="+date_key[1];   
+                        }
+
+                        console.log(self.data_to_show)
+                        self.type = type;
+
+                        
+                        return $http({method:"GET", url: performance_summary + '&chart_name=64' }).success(function(result){
+
+                            $('.widget-62a').addClass('widget-loader-show');
+                            $('.widget-62b').addClass('widget-data-hide');
+                            $("#widget-62a-jumio").remove();
+                            var res = result["result"]
+                            var predate_list = res["previous_date"][0]+"@"+res["previous_date"][res["previous_date"].length - 1]
+                            var predate = res["previous_date"][0].split("-").slice(1,3).toString().replace(","," - ") + ' To '+ res["previous_date"][res["previous_date"].length - 1].split("-").slice(1,3).toString().replace(","," - ");
+                            var curdate = res["current_date"][0].split("-").slice(1,3).toString().replace(","," - ") + ' To '+ res["current_date"][res["current_date"].length - 1].split("-").slice(1,3).toString().replace(","," - ");
+                            // var table_html = "<table id='widget-62a-jumio' class='table table-responsive table table-condensed table-striped table-bordered' style='text-align-last: center;'><thead><tr><th colspan='9'></th><th>Total</th><th  colspan='2'>Average</th><tr>";
+                            var table_html = "<div id='widget-62a-jumio' class='table-responsive-sm' ><table class='table table-condensed' style='text-align-last: center;'><thead><tr class='success'><th colspan='9'></th><th>Total</th><th  colspan='2'>Average</th><tr class='success'>";
+                            table_html = table_html +"<th>Date</th><th><a data-toggle='tooltip' title='Previous Week' ng-click=$ctrl.performance(undefined,undefined,'"+predate_list+"')>"+predate+"</a></th>";
+                            var production_count = "<tr><td class='info'>Production Count</td><td class='success'>"+res['pre_main_result']['Pre_Production_Count']+"</td>";
+                            var Audit_Count = "<tr><td class='info'>Audit Count</td><td class='success'>"+res['pre_main_result']['Pre_Audit_Count']+"</td>";
+                            var Error_Count = "<tr><td class='info'>Error Count</td><td class='success'>"+res['pre_main_result']['Pre_Error_Count']+"</td>";
+                            var Accuracy = "<tr><td class='info'>Accuracy %</td><td class='success'>"+res['pre_main_result']['Pre_Accuracy']+"</td>";
+                            var AHT_Avg = "<tr><td class='info'>AHT Avg</td><td class='success'>"+res['pre_main_result']['Pre_Aht_Avg']+"</td>";
+                            var No_of_Logins = "<tr><td class='info'>No of Logins</td><td class='success'>"+res['pre_main_result']['Pre_login_count']+"</td>";
+                            var prod_count = 0;
+                            var aud_count = 0;
+                            var err_count = 0;
+                            var acc_count = 0;
+                            var aht_count = 0;
+                            var login_count = 0;
+                            var counter_var = [0,0,0,0,0,0]
+
+                            for (var ij =0;ij < res["current_date"].length;ij++){
+                                 table_html = table_html + "<th>"+res['current_date'][ij]+"</th>";
+                                 
+                                 if (res['production'][res['current_date'][ij]]){
+                                    production_count = production_count + "<td class='info'>" +res['production'][res['current_date'][ij]] +"</td>" 
+                                    prod_count = prod_count + res['production'][res['current_date'][ij]]
+                                    counter_var[0]++;
+                                 }
+                                 else{
+                                    production_count = production_count + "<td class='info'> NA </td>" 
+                                 }
+
+                                 if (res['audit_count'][res['current_date'][ij]]){
+                                    Audit_Count = Audit_Count + "<td class='info'>" +res['audit_count'][res['current_date'][ij]] +"</td>" 
+                                    aud_count = aud_count + res['audit_count'][res['current_date'][ij]]
+                                    counter_var[1]++;
+                                 }
+                                 else{
+                                    Audit_Count = Audit_Count + "<td class='info'> NA </td>" 
+                                 }
+                                 
+                                 if(res['audit_errors'][res['current_date'][ij]]){
+                                    Error_Count = Error_Count + "<td class='info'>" +res['audit_errors'][res['current_date'][ij]] +"</td>" 
+                                    err_count = err_count + res['audit_errors'][res['current_date'][ij]]
+                                    counter_var[2]++;
+                                 }
+                                 else{
+                                    Error_Count = Error_Count + "<td class='info'> NA </td>" 
+                                 }
+                                 
+                                 if(res['accuracy'][res['current_date'][ij]]){
+                                    Accuracy = Accuracy + "<td class='info'>" +res['accuracy'][res['current_date'][ij]] +"% </td>" 
+                                    acc_count = acc_count + res['accuracy'][res['current_date'][ij]]
+                                    counter_var[3]++;
+                                 }
+                                 else{
+                                    
+                                    Accuracy = Accuracy + "<td class='info'> NA </td>" 
+                                 }
+                                 
+                                 if(res['AHT_avg'][res['current_date'][ij]]){
+                                    AHT_Avg = AHT_Avg + "<td class='info'>" +res['AHT_avg'][res['current_date'][ij]] +"</td>" 
+                                    aht_count = aht_count + res['AHT_avg'][res['current_date'][ij]]
+                                    counter_var[4]++;
+                                 }
+                                 else{
+                                    AHT_Avg = AHT_Avg + "<td class='info'> NA </td>" 
+                                 }
+                                                                  
+                                 if(res['AHT_count'][res['current_date'][ij]] != undefined){
+                                    No_of_Logins = No_of_Logins + "<td class='info'>" +res['AHT_count'][res['current_date'][ij]] +"</td>" 
+                                    login_count = login_count + res['AHT_count'][res['current_date'][ij]]
+                                    counter_var[5]++;
+                                 }
+                                 else{
+                                    No_of_Logins = No_of_Logins + "<td class='info'> NA </td>" 
+                                 }
+                            }
+                            
+                            if (counter_var[0] >0) {
+                                production_count = production_count + '<td class="success">'+prod_count+'</td><td class="success">'+res["pre_main_result"]["Pre_Production_Count"]+'</td><td class="success">'+(prod_count/counter_var[0]).toFixed(0)+'</td></tr>'
+                            }
+                            else{
+                             production_count = production_count + '<td class="success"> NA </td><td class="success"> NA </td><td class="success"> NA </td></tr>'   
+                            }
+                            
+                            if (counter_var[1] >0){
+                                Audit_Count = Audit_Count + '<td class="success">'+aud_count+'</td><td class="success">'+res["pre_main_result"]["Pre_Audit_Count"]+'</td><td class="success">'+(aud_count)+'</td></tr>'    
+                            }
+                            else{
+                                Audit_Count = Audit_Count + '<td class="success"> NA </td><td class="success">'+res["pre_main_result"]["Pre_Audit_Count"]+'</td><td class="success"> NA </td></tr>'
+                            }
+                            
+                            if(counter_var[2] > 0){
+                                Error_Count = Error_Count + '<td class="success">'+err_count+'</td><td class="success">'+res["pre_main_result"]["Pre_Error_Count"]+'</td><td class="success">'+(err_count)+'</td></tr>'
+                            }
+                            else{
+                                Error_Count = Error_Count + '<td class="success"> NA </td><td class="success">'+res["pre_main_result"]["Pre_Error_Count"]+'</td><td class="success"> NA </td></tr>'
+                            }
+                            
+                            if(counter_var[3] > 0){
+                                Accuracy = Accuracy + '<td class="success">'+(acc_count / counter_var[3]).toFixed(2)+'% </td><td class="success">'+res["pre_main_result"]["Pre_Accuracy"]+'</td><td class="success">'+(acc_count/counter_var[3]).toFixed(2)+'% </td></tr>'
+                            }
+                            else{
+                                Accuracy = Accuracy + '<td class="success"> NA </td><td class="success">'+res["pre_main_result"]["Pre_Accuracy"]+'</td><td class="success"> NA </td></tr>'
+                            }
+
+                            if (counter_var[4] > 0){
+                                AHT_Avg = AHT_Avg + '<td class="success">'+(aht_count/counter_var[4]).toFixed(2)+'</td><td class="success">'+res["pre_main_result"]["Pre_Aht_Avg"]+'</td><td class="success">'+(aht_count/counter_var[4]).toFixed(2)+'</td></tr>'    
+                            }
+                            else{
+                                AHT_Avg = AHT_Avg + '<td class="success"> NA </td><td class="success">'+res["pre_main_result"]["Pre_Aht_Avg"]+'</td><td class="success"> NA </td></tr>'
+                            }
+
+                            if(counter_var[5] > 0){
+                                No_of_Logins = No_of_Logins + '<td class="success">'+(login_count/counter_var[5]).toFixed(0)+'</td><td class="success">'+res["pre_main_result"]["Pre_login_count"]+'</td><td class="success">'+(login_count/counter_var[5]).toFixed(0)+'</td></tr>'
+                            }
+                            else{
+                                No_of_Logins = No_of_Logins + '<td class="success"> NA </td><td class="success">'+res["pre_main_result"]["Pre_login_count"]+'</td><td class="success"> NA </td></tr>'
+                            }
+                            
+
+                            table_html = table_html + '<th>'+ curdate +'</th><th>'+ predate +'</th><th>'+ curdate +'</th></tr></thead><tbody class="info">';
+                            
+
+                            table_html = table_html + production_count + Audit_Count + Error_Count + Accuracy + AHT_Avg + No_of_Logins + "</tbody></table></div>";
+                            $(".widget-62b highcharts").remove()
+                            var $el = $(table_html).appendTo(".widget-body.widget-62b");
+                            $compile($el)($scope);
+
+
+                            
+                            $('.widget-62a').removeClass('widget-loader-show');
+                            $('.widget-62b').removeClass('widget-data-hide');
+                        });
+                    }
+
                 
                     self.pre_scan = function(final_work, type) {
 
@@ -4205,6 +4369,8 @@
                     if ((val == 'productivity_chart') || (val == 'productivity_bar_graph')) {
                          self.prod_list.push('production')
                          self.main_prod(undefined, undefined, undefined)
+                    } else if (val == 'performance_summary') {
+                        self.performance(undefined, undefined,undefined)     
                     } else if ((val == 'volume_bar_graph') || (val == 'volume_productivity_graph')) {
                          self.work_list.push('work_track')
                          self.allo_and_comp(undefined, undefined, undefined)
