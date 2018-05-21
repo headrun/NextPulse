@@ -2982,6 +2982,7 @@
 
                             table_html = table_html + production_count + Audit_Count + Error_Count + Accuracy + AHT_Avg + No_of_Logins + "</tbody></table></div>";
                             $(".widget-62b highcharts").remove()
+                            $('.widget-62b').css('overflow','auto');
                             var $el = $(table_html).appendTo(".widget-body.widget-62b");
                             $compile($el)($scope);
 
