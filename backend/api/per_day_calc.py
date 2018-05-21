@@ -145,6 +145,21 @@ def aht_team_data(request):
     result = generate_day_week_month_format(request, result_name, function_name)
     return result
 
+def Num_agents_aht(request):
+
+    result_name = 'aht_Num_data'
+    function_name = Daywise_Num_of_agents_aht
+    result = generate_day_week_month_format(request, result_name, function_name)
+    return result
+
+
+def Percentage_aht(request):
+
+    result_name = 'aht_percentage'
+    function_name = Percentage_of_agents_aht
+    result = generate_day_week_month_format(request, result_name, function_name)
+    return result
+
 
 def min_max_num(int_value_range, widget_name):
     min_max_dict = {}

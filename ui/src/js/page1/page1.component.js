@@ -123,6 +123,12 @@
                     $('.widget-39b').addClass('widget-data-hide');
                     $('.widget-60a').addClass('widget-loader-show');
                     $('.widget-60b').addClass('widget-data-hide');
+                    $('.widget-62a').addClass('widget-loader-show');
+                    $('.widget-62b').addClass('widget-data-hide');
+                    $('.widget-64a').addClass('widget-loader-show');
+                    $('.widget-64b').addClass('widget-data-hide');
+                    $('.widget-65a').addClass('widget-loader-show');
+                    $('.widget-65b').addClass('widget-data-hide');
              }
 
              self.apply_class = function(){
@@ -2993,7 +2999,316 @@
                         });
                     }
 
-                
+                    self.No_of_agents_AHT = function(final_work,type) {
+
+                        if (type == undefined) {
+                            type = 'day'
+                        }
+
+                        self.type = type;
+
+                        var aht_var = '/api/no_of_agents_AHT/'+self.aht_data_to_show + type + '&chart_name=63';
+
+                        return $http({method:"GET", url: aht_var}).success(function(result){
+
+                            var date_list = result.result.date;
+                            var agent_count = result.result.aht_Num_data;
+                            var is_annotation = result.result.is_annotation;
+
+
+                            angular.extend(self.chartOptions68, {
+                                   xAxis: {
+                                        categories: date_list,
+                                    },
+                                    plotOptions: {
+                                        series: {
+                                          dataLabels: {
+                                            enabled: false,
+                                            valueDecimals: 2,
+
+                                          },
+                                          allowPointSelect: true,
+                                          cursor: 'pointer',
+                                            point: { 
+                                              events:{
+                                                contextmenu: function() {
+                                                 if (self.role_for_perm == 'customer') {
+
+                                                    console.log('he is customer');
+                                                 }
+                                                 else {
+
+                                                  if (self.data_to_show.split('&').length == 6) {
+                                                    var sub_proj = '';
+                                                    var work_pack = '';
+                                                    var sub_pack = '';
+                                                  }
+                                                  else {
+                                                    var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
+                                                    var work_pack = self.data_to_show.split('&')[6].split('=')[1];
+                                                    var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
+                                                  }
+                                                    var str = '63<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
+                                                    this['project_live'] = self.project_live;
+                                                    this['center_live'] = self.center_live;
+                                                    return new Annotation(str, $(self.chartOptions68.chart.renderTo),this.series.chart, this);
+                                                    }
+                                                  }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    series: agent_count,
+                                    onComplete: function(chart){
+                                    if (is_annotation) {
+                                    var series = null;
+                                    var chart_data = chart.series;
+
+                                    for(var i in chart_data){  
+                                        series = chart_data[i];
+                                        (function(series){
+                                          $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
+                      self.type+'&chart_name=63&proj_name='+self.project_live+'&cen_name='+
+                      self.center_live}).success(function(annotations){
+                               annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
+                               $.each(annotations, function(j, annotation){
+
+                                 var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
+
+                                 point = point[0];
+
+                                 if(annotation.epoch){
+                                   var a = new Annotation("63", $(self.chartOptions68.chart.renderTo),
+                                        chart, point, annotation);
+
+                                   console.log(a);
+                                   }
+                               })
+
+                                        });
+                                        }(series));
+                                    }
+                                    self.annot_perm();
+                                    }
+                                  }
+                                });
+                            $('.widget-63a').removeClass('widget-loader-show');
+                            $('.widget-63b').removeClass('widget-data-hide');
+                        })
+                    }
+
+
+                    self.aht_shift_overall_volume = function(final_work, type) {
+
+                        if (type == undefined) {
+                            type = 'day'
+                        }
+
+                        if (final_work == undefined) {
+                            final_work = ''
+                        }
+
+                        self.type = type;
+
+                        var aht_overall = '/api/shift_overall_volume/'+self.data_to_show + type + final_work + '&chart_name=65';
+
+                        return $http({method:"GET", url: aht_overall}).success(function(result){
+
+                            var date_list = result.result.date;
+                            var aht_data = result.result.aht_overall;
+                            var is_annotation = result.result.is_annotation;                            
+
+                            
+                            angular.extend(self.chartOptions70, {
+                                xAxis: {
+                                    categories: date_list,
+                                },
+                                    plotOptions: {
+                                        series: {
+                                          dataLabels: {
+                                            enabled: value,
+                                          },
+                                          allowPointSelect: true,
+                                          cursor: 'pointer',
+                                            point: {
+                                              events:{
+                                                contextmenu: function() {
+                                                 if (self.role_for_perm == 'customer') {
+
+                                                    console.log('he is customer');
+                                                 }
+                                                 else {
+
+                                                  if (self.data_to_show.split('&').length == 6) {
+                                                    var sub_proj = '';
+                                                    var work_pack = '';
+                                                    var sub_pack = '';
+                                                  }
+                                                  else {
+                                                    var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
+                                                    var work_pack = self.data_to_show.split('&')[6].split('=')[1];
+                                                    var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
+                                                  }
+                                                    var str = '65<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
+                                                    this['project_live'] = self.project_live;
+                                                    this['center_live'] = self.center_live;
+                                                    return new Annotation(str, $(self.chartOptions70.chart.renderTo),this.series.chart, this);
+                                                    }
+                                                  }
+                                                }
+                                            }
+                                        }
+                                    },
+
+                                series: aht_data,
+                                    onComplete: function(chart){
+                                    if (is_annotation) {
+                                    var series = null;
+                                    var chart_data = chart.series;
+
+                                    for(var i in chart_data){
+                                        series = chart_data[i];
+                                        (function(series){
+                                          $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
+                      self.type+'&chart_name=65&proj_name='+self.project_live+'&cen_name='+
+                      self.center_live}).success(function(annotations){ 
+                               annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
+                               $.each(annotations, function(j, annotation){
+
+                                 var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
+
+                                 point = point[0];
+
+                                 if(annotation.epoch){
+                                   var a = new Annotation("65", $(self.chartOptions70.chart.renderTo),
+                                        chart, point, annotation);
+
+                                   console.log(a);
+                                   }
+                               })   
+
+                                        });
+                                        }(series));
+                                    }
+                                    self.annot_perm();
+                                    }
+                                }
+                            });
+                            $('.widget-65a').removeClass('widget-loader-show');
+                            $('.widget-65b').removeClass('widget-data-hide');
+                        })
+                    }
+
+                    self.Percentage_less_aht = function(final_work, type) {
+
+                        if (type == undefined) {
+                            type = 'day'
+                        }
+
+                        if (final_work == undefined) {
+                            final_work = ''
+                        }
+
+                        self.type = type;
+
+                        var aht_val = '/api/percentage_60_aht/'+self.data_to_show + type + final_work + '&chart_name=64';
+
+                        return $http({method:"GET", url: aht_val}).success(function(result){
+
+                            var date_list = result.result.date;
+                            var agent_count = result.result.aht_percentage;
+                            var is_annotation = result.result.is_annotation;
+ 
+                            angular.extend(self.chartOptions69.yAxis,{
+                                min:result.result.min_max.min_value,
+                                max:result.result.min_max.max_value
+                            });
+
+                            angular.extend(self.chartOptions69, {
+                                   xAxis: {
+                                        categories: date_list,
+                                    },
+                                    plotOptions: {
+                                        series: {
+                                          dataLabels: {
+                                            enabled: false,
+                                            format: '{y} %',
+                                            valueDecimals: 2,
+                                            formatter: function () {
+                                                return Highcharts.numberFormat(this.y, null, null, ",");
+                                            },
+                                          },
+                                          allowPointSelect: true,
+                                          cursor: 'pointer',
+                                            point: { 
+                                              events:{
+                                                contextmenu: function() {
+                                                 if (self.role_for_perm == 'customer') {
+
+                                                    console.log('he is customer');
+                                                 }
+                                                 else {
+
+                                                  if (self.data_to_show.split('&').length == 6) {
+                                                    var sub_proj = '';
+                                                    var work_pack = '';
+                                                    var sub_pack = '';
+                                                  }
+                                                  else {
+                                                    var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
+                                                    var work_pack = self.data_to_show.split('&')[6].split('=')[1];
+                                                    var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
+                                                  }
+                                                    var str = '64<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
+                                                    this['project_live'] = self.project_live;
+                                                    this['center_live'] = self.center_live;
+                                                    return new Annotation(str, $(self.chartOptions69.chart.renderTo),this.series.chart, this);
+                                                    }
+                                                  }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    series: agent_count,
+                                    onComplete: function(chart){
+                                    if (is_annotation) {
+                                    var series = null;
+                                    var chart_data = chart.series;
+
+                                    for(var i in chart_data){  
+                                        series = chart_data[i];
+                                        (function(series){
+                                          $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
+                      self.type+'&chart_name=69&proj_name='+self.project_live+'&cen_name='+
+                      self.center_live}).success(function(annotations){
+                               annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
+                               $.each(annotations, function(j, annotation){
+
+                                 var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
+
+                                 point = point[0];
+
+                                 if(annotation.epoch){
+                                   var a = new Annotation("64", $(self.chartOptions69.chart.renderTo),
+                                        chart, point, annotation);
+
+                                   console.log(a);
+                                   }
+                               })
+
+                                        });
+                                        }(series));
+                                    }
+                                    self.annot_perm();
+                                    }
+                                  }
+                                });
+                            $('.widget-64a').removeClass('widget-loader-show');
+                            $('.widget-64b').removeClass('widget-data-hide');
+                        })
+                    }
+
+
                     self.pre_scan = function(final_work, type) {
 
                         if (type == undefined) {
@@ -4515,7 +4830,10 @@
                     "self.chartOptions62":self.chartOptions62,
                     "self.chartOptions63":self.chartOptions63,
                     'self.chartOptions64':self.chartOptions64,
-                    'self.chartOptions65':self.chartOptions65
+                    'self.chartOptions65':self.chartOptions65,
+                    "self.chartOptions68":self.chartOptions68,
+                    "self.chartOptions69":self.chartOptions69,
+                    "self.chartOptions70":self.chartOptions70,
                   };
 
 
@@ -5190,7 +5508,10 @@
                     "self.chartOptions62":self.chartOptions62,
                     "self.chartOptions63":self.chartOptions63,
                     "self.chartOptions64":self.chartOptions64,
-                    'self.chartOptions65':self.chartOptions65
+                    'self.chartOptions65':self.chartOptions65,
+                    'self.chartOptions68':self.chartOptions68,
+                    "self.chartOptions69":self.chartOptions69,
+                    "self.chartOptions70":self.chartOptions70
                 }
 
                 self.render_data = obj[all_data];
@@ -5309,6 +5630,16 @@
                     $('.widget-60b').addClass('widget-data-hide');
                     self.aht_data(final_work, key);
                 }
+                if (name == 'chartOptions68') {
+                    $('.widget-63a').addClass('widget-loader-show');
+                    $('.widget-63b').addClass('widget-data-hide');
+                    self.No_of_agents_AHT(final_work, key);
+                }
+                if (name == 'chartOptions69') {
+                    $('.widget-64a').addClass('widget-loader-show');
+                    $('.widget-64b').addClass('widget-data-hide');
+                    self.Percentage_less_aht(final_work, key);
+                }
                 var chart_type_map = {};
                 chart_type_map = { 'chartOptions47' : self.filter_list[0], 'chartOptions48' : self.filter_list[1] , 'chartOptions49' : self.filter_list[2], 'chartOptions50' : self.filter_list[3], 'chartOptions51' : self.filter_list[4], 'chartOptions52' : self.filter_list[5], 'chartOptions53' : self.filter_list[6], 'chartOptions54' : self.filter_list[7], 'chartOptions55' : self.filter_list[8], 'chartOptions56' : self.filter_list[9], 'chartOptions57' : self.filter_list[10], 'chartOptions58' : self.filter_list[11], 'chartOptions59': self.filter_list[12], 'chartOptions60': self.filter_list[13], 'chartOptions61': self.filter_list[14], 'chartOptions62': self.filter_list[15], 'chartOptions63': self.filter_list[16], 'chartOptions64': self.filter_list[17] };
                 if( self.is_voice_flag ) {
@@ -5368,6 +5699,16 @@
                         $('.widget-14b').addClass('widget-data-hide');
 
                         self.productivity(final_work, key);
+
+                        $('.widget-63a').addClass('widget-loader-show');     
+                        $('.widget-63b').addClass('widget-data-hide');
+
+                        self.No_of_agents_AHT(final_work, key);
+
+                        $('.widget-64a').addClass('widget-loader-show');     
+                        $('.widget-64b').addClass('widget-data-hide');
+
+                        self.Percentage_less_aht(final_work, key);
 
                         $('.widget-33a').addClass('widget-loader-show');   
                         $('.widget-33b').addClass('widget-data-hide');
@@ -5845,6 +6186,58 @@
                                     "<b>" + this.series.name + "</b> : " + Highcharts.numberFormat(this.y, null, null, ",");
                            }
                },    
+            };
+
+            self.chartOptions68 = {
+                chart : {
+                 type: 'column',
+                 backgroundColor: "transparent",
+                 reflow: false
+                },
+                               yAxis: {
+                gridLineColor: 'a2a2a2',
+                min: 0,
+                title: {
+                 text: '',
+                 align: 'high'
+                },
+                labels: {
+                 overflow: 'justify'
+                }
+               },
+
+               tooltip: {
+                valueSuffix: ''
+               },
+               credits: {
+                enabled: false
+               },
+            };
+
+            self.chartOptions69 = {
+                chart : {
+                 type: 'column',
+                 backgroundColor: "transparent",
+                 reflow: false
+                },
+                               yAxis: {
+                gridLineColor: 'a2a2a2',
+                min: 0,
+                title: {
+                 text: '',
+                 align: 'high'
+                },
+                labels: {
+                 overflow: 'justify'
+                }
+               },
+
+               tooltip: {
+                valueSuffix: ' %'
+               },
+               credits: {
+                enabled: false
+               },
             };
 
             self.chartOptions9 = {
