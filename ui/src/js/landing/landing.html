@@ -1,51 +1,44 @@
 <!--<h2>Landing Page</h2>-->
 <style>
-.upload,#admin_but,#dropdown_title,.caret,#home {
-    display: none;
-}
-@media screen and (min-width: 960px){
-    .dashboard-content-wrapper{
-        overflow-x: hidden;
-     }
-} 
-@media screen and (max-device-width: 480px){
-    .dashboard-content-wrapper{
-        /*overflow:hidden;*/
+    #rev-but, #people, #drpdown_btn, .video-sym {
+        display: none;
     }
- }
-.card {
-    width: 50% !important;
-    margin-left: 23% !important;
-}
-.lvh-label {
-    margin-left: 43% !important;
-}
 </style>
-<head>
-<title>NextPulse</title>
-</head>
-<body>
-
-
-<div class="container" style="background: url(/img/banner_about_us.png) no-repeat center center fixed;background-repeat: no-repeat;backgrou    nd-size: cover;width:100%;height:200%;margin-top:-26px;">
-   <div class="card">
-        <div class="listview lv-bordered lv-lg">
-            <div class="clearfix lv-header-alt">
-                <section id="Projects">
-                    <div class="row">
-                        <h2 class="hidden-xs lvh-label">Projects</h2>
-                    </div>
-                    <div class="col col-33 left">
-                        <a ng-repeat="item in $ctrl.mapping_list | orderBy : 'item'"
-                                ui-sref="dashboard.page1({'selpro': item})"
-                                ng-click="$ctrl.clickPro(item)">
-                                <li>{{item.split(' - ')[1]}}</li>
-                        </a>
-                    </div>
-                </section>
+<div class="container" style="background-image: url(/img/banner_about_us.png);background-size: cover; width: 100%; height: 200%;">
+    <div class="w3-row">
+        <div ng-if="$ctrl.mapping_list.length <= 5" class="w3-col w3-container" style="width:35%"></div>
+        <div ng-if="$ctrl.mapping_list.length <= 5" class="w3-col w3-card-4" style="width:30%;">
+            <div class="w3-container w3-green header">
+                <h4>Projects</h4>
+            </div>
+            <div class="w3-container">
+                <div ng-if="$ctrl.mapping_list.length <= 5" class="col col-33 col_data">
+                    <a ng-repeat="item in $ctrl.mapping_list | orderBy : 'item'"
+                        ui-sref="dashboard.page1({'selpro': item})"
+                        ng-click="$ctrl.clickPro(item)">
+                        <li>{{item.split(' - ')[1]}}</li>
+                    </a>
+                </div>
             </div>
         </div>
-    </div> 
+        <div ng-if="$ctrl.mapping_list.length <= 5" class="w3-col w3-container" style="width:35%"></div>
+
+        <div ng-if="$ctrl.mapping_list.length > 5" class="w3-col w3-container" style="width:20%"></div>
+        <div ng-if="$ctrl.mapping_list.length > 5" class="w3-col w3-card-4 landing_la">
+            <div class="w3-container w3-green header">
+                <h4>Projects</h4>
+            </div>
+            <div class="w3-container">
+                <div ng-if="$ctrl.mapping_list.length > 5" class="col col-33 left">
+                    <a ng-repeat="item in $ctrl.mapping_list | orderBy : 'item'"
+                        ui-sref="dashboard.page1({'selpro': item})"
+                        ng-click="$ctrl.clickPro(item)">
+                        <li>{{item.split(' - ')[1]}}</li>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div ng-if="$ctrl.mapping_list.length > 5" class="w3-col w3-container" style="width:20%"></div>
+    </div>
 </div>
 
-</body>

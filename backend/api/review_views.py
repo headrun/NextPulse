@@ -78,7 +78,6 @@ def create_reviews(request):
     review_type = eval(request.POST['json']).get('review_type', '')
     _venue = eval(request.POST['json']).get('venue', "")
     _bridge = eval(request.POST['json']).get('bridge', "")
-    
     if not review_name or not agenda or not review_type or not _review_date:
         return json_HttpResponse('Mandatory Field Not present')
     
@@ -97,7 +96,9 @@ def create_reviews(request):
 
     tl_obj = tl_objs[0]
     tl = tl_obj
-    project = tl_obj.project
+
+    proj_id = tl_objs.values_list('project',flat=True)[0]
+    project = Project.objects.filter(id=proj_id)[0]
     try:
         review_date = datetime.datetime.strptime(_date, "%b %d %Y %H:%M:%S")
         if not _id:
@@ -253,13 +254,12 @@ def get_related_user(request):
     tl_objs = TeamLead.objects.filter(name = user_id)
     tl = ""
     project = ""
-
     if not tl_objs:
         return json_HttpResponse('User is not TeamLead')
-    tl_obj = tl_objs[0]
-    project = tl_obj.project.id
-    center = tl_obj.center.id
 
+    project = tl_objs.values_list('project',flat=True)[0]
+    center = tl_objs.values_list('center',flat=True)[0]
+    tl_obj = tl_objs[0]
     result_data = get_all_related_user(project, center, tl_obj)
     return json_HttpResponse(result_data)
 
@@ -355,7 +355,6 @@ def send_review_mail(data, task, memb_obj = ""):
             _text = "Hi %s, %s, <p> %s </p>" %("Abhishek", "Yeswanth", process[task] )
 
         mail_body = create_mail_body(_text, data)
-        #to = ['sivak@headrun.net', 'abhishek@headrun.com']
 	to = []
         to.append(memb_obj.member.email)
         msg = EmailMultiAlternatives("%s - %s Review for NextWealth - %s" % (task.upper(), data['review_type'], data['project']), "",

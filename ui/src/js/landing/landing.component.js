@@ -77,9 +77,7 @@
                           window.location = $scope.check_url;
 
                     } else {
-
                         self.mapping_list;
-
                     }
                  }
             });
