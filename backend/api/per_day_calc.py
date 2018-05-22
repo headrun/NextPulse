@@ -163,7 +163,7 @@ def Percentage_aht(request):
 
 def min_max_num(int_value_range, widget_name):
     min_max_dict = {}
-    if len(int_value_range) > 0 and (widget_name in ['aht_team_data', 'tat_graph_details']):
+    if len(int_value_range) > 0 and (widget_name in ['aht_team_data', 'tat_graph_details', 'aht_percentage']):
         values_list = []
         data = int_value_range.values()
         for value in data:

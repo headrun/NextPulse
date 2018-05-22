@@ -31,15 +31,15 @@ class Command(BaseCommand):
                 updated_on = 'Last login on ' + str(cust_data.last_login.date())
                 customer_name = cust_data.username
                 details.append({'message':mes, 'last_login_on':updated_on, 'customer':customer_name})
-	    if cust_data.last_login == None:
-		customer_name = cust_data.username
-		details.append({'message': 'Last login - never', 'last_login_on': '', 'customer':customer_name})
+        if cust_data.last_login == None:
+        customer_name = cust_data.username
+        details.append({'message': 'Last login - never', 'last_login_on': '', 'customer':customer_name})
 
         for one in details:
             mail_data += "<h4>"+one['customer']+"</h4>"+"<ul>"+"<li>"+one['last_login_on']+"</li>"+"<li>"+one['message']+"</li></ul>"
 
 
-	to = ['asifa@headrun.net','yatish@headrun.com','rishi@headrun.com', \
+        to = ['asifa@headrun.com','yatish@headrun.com','rishi@headrun.com', \
             'kannan.sundar@nextwealth.in','poornima.mitta@nextwealth.in','sankar.k@mnxw.org']
 
         msg = EmailMessage("Next Pulse : Customer last login details" , mail_data, 'nextpulse@nextwealth.in', to) 

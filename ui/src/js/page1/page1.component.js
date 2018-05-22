@@ -376,6 +376,7 @@
                     }
                    
                     self.data_to_show = '?&project='+callback[3]+'&center='+callback[2]+'&from='+ callback[0]+'&to='+ callback[1]+packet+'&type=';
+                    self.aht_data_to_show = '?&project='+callback[3]+'&center='+callback[2]+'&from='+ callback[0]+'&to='+ callback[1] + '&type=';
                     self.static_widget_data = '&project='+callback[3]+'&center='+callback[2]
                     self.common_for_all = self.data_to_show + self.day_type;
                     var error_bar_graph = '/api/error_bar_graph/'+self.common_for_all;
@@ -3006,7 +3007,7 @@
                         }
 
                         self.type = type;
-
+                        
                         var aht_var = '/api/no_of_agents_AHT/'+self.aht_data_to_show + type + '&chart_name=63';
 
                         return $http({method:"GET", url: aht_var}).success(function(result){
@@ -4687,6 +4688,10 @@
                          self.main_prod(undefined, undefined, undefined)
                     } else if (val == 'performance_summary') {
                         self.performance(undefined, undefined,undefined)     
+                    } else if (val == 'no_of_agents_AHT_daywise') {
+                         self.No_of_agents_AHT(undefined)
+                    } else if (val == 'percentage_people_<67_and>99%_achieved') {
+                         self.Percentage_less_aht(undefined, undefined)
                     } else if ((val == 'volume_bar_graph') || (val == 'volume_productivity_graph')) {
                          self.work_list.push('work_track')
                          self.allo_and_comp(undefined, undefined, undefined)
