@@ -18,8 +18,9 @@ class Command(BaseCommand):
 
         proj_list = Project.objects.all()
 
-        not_req = ["Nextgen", "Quarto", "Bridgei2i", "3i VAPP", "E4U", "Webtrade"]
-	proj_list = filter(lambda x: x.name not in not_req, list(proj_list))
+        not_req = ["Nextgen", "Quarto", "Bridgei2i", "3i VAPP", "E4U", "3i Webtrade", "Future Energie Tech", "Mobius", "Walmart Chittor",
+                    "Ujjivan", "Federal Bank", "IBM DCIW"]
+        proj_list = filter(lambda x: x.name not in not_req, list(proj_list))
 
         details = []
         mail_data = ''
@@ -49,8 +50,8 @@ class Command(BaseCommand):
             mail_data += "<h4>"+one['project']+"</h4>"+"<ul>"+"<li>"+one['last_updated_on']+"</li>"+"<li>"+one['message']+"</li></ul>"
 
 
-	to = ['asifa@headrun.net','yatish@headrun.com', 'rishi@headrun.com', \
-            'kannan.sundar@nextwealth.in','poornima.mitta@nextwealth.in', 'sankar.k@mnxw.org']
+        to = ['asifa@headrun.com','yatish@headrun.com', 'rishi@headrun.com', \
+                'kannan.sundar@nextwealth.in','poornima.mitta@nextwealth.in', 'sankar.k@mnxw.org']
 
         msg = EmailMessage("Next Pulse : Sheet upload status" , mail_data, 'nextpulse@nextwealth.in', to)
     
