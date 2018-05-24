@@ -36,12 +36,7 @@
                   { Packet: "North America", value: "60", Packet1: "Arabia", value1: "70", Packet2: "India and Sri Lanka", value2: "50"},
                   { Packet: "Pakistan", value: "50", Packet1: "Quality Control", value1: "60", Packet2: "Arabia", value2: "35"},
                ]  
-
-               self.del_agent = function() {
-                debugger;
-                $(document).find('agent').children('chandini').children('55').css('display','none');
-               }
-
+               
                self.password = function(new_pa, new_again_pa){
                  if (new_pa === new_again_pa){
 
