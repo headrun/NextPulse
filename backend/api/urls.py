@@ -66,10 +66,10 @@ urlpatterns = [
     url(r'^agent_productivity_data', apiviews.agent_productivity_data),
     url(r'^agent_required', apiviews.agent_required),
     url(r'^aht_team_data', apiviews.aht_team_data),
-    #url(r'^no_of_agents_AHT', apiviews.Num_agents_aht),
-    #url(r'^percentage_60_aht', apiviews.Percentage_aht),
+    url(r'^no_of_agents_AHT', apiviews.Num_agents_aht),
+    url(r'^percentage_60_aht', apiviews.Percentage_aht),
     url(r'^performance_summary', apiviews.performance_summary),
-    #url(r'^notification', apiviews.send_push_notification),
     url(r'^employees_top_5_errors/', static_error_data.employees_top_5_errors),
     url(r'^static_internal_external_error_category/', static_error_data.static_intern_extern_error_category_data),
+    url(r'^notification', apiviews.send_push_notification),
 ]
