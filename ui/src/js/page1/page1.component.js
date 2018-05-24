@@ -2993,6 +2993,281 @@
                         });
                     }
 
+                    self.static_internal_external_agent_error_data = function(){
+                        var error_data = '/api/employees_top_5_errors/?'+self.static_widget_data;
+                        return $http({method:"GET", url: error_data }).success(function(result){
+                            $('.widget-66a').addClass('widget-loader-show');
+                            $('.widget-66b').addClass('widget-data-hide');
+                            $("#widget-66-agent-error").remove();
+                            var thirty_days_internal_agent_data = result['result'].thirty_days_data.internalerrors;
+                            var sixty_days_internal_agent_data = result['result'].sixty_days_data.internalerrors;
+                            var ninty_days_internal_agent_data = result['result'].ninty_days_data.internalerrors;
+                            var table_html = "<div id='widget-66-agent-error' class='table-responsive-sm' ><table border=1px class='table table-condensed' style='text-align-last: center'><thead><tr class='success'><th colspan='2'>30 Days</th><th colspan='2'>60 Days</th><th  colspan='2'>90 Days</th></tr></thead><tr><thead><th>Agent</th><th>Errors</th><th>Agent</th><th>Errors</th><th>Agent</th><th>Errors</th>";
+
+                            // sorting the thirty days data in descending order
+                            var thirty_days_internal_error = []
+                            for(var key in thirty_days_internal_agent_data){
+                                thirty_days_internal_error.push([key, thirty_days_internal_agent_data[key]]);
+                            }
+                            thirty_days_internal_error.sort(function(a, b){
+                                return a[1] - b[1];
+                            });
+                            thirty_days_internal_error = thirty_days_internal_error.reverse();
+
+                            // sorting the sixty days data in descending order
+                            var sixty_days_internal_error = []
+                            for(var key in sixty_days_internal_agent_data){
+                                sixty_days_internal_error.push([key, sixty_days_internal_agent_data[key]]);
+                            }
+                            sixty_days_internal_error.sort(function(a, b){
+                                return a[1] - b[1];
+                            });
+                            sixty_days_internal_error = sixty_days_internal_error.reverse();
+
+                            // sorting the ninty days data in descending order
+                            var ninty_days_internal_error = []
+                            for(var key in ninty_days_internal_agent_data){
+                                ninty_days_internal_error.push([key, ninty_days_internal_agent_data[key]]);
+                            }
+                            ninty_days_internal_error.sort(function(a, b){
+                                return a[1] - b[1];
+                            });
+                            ninty_days_internal_error = ninty_days_internal_error.reverse();
+
+                            var rows = ['', '', '', '', ''];
+                            var total_agent_errors = [thirty_days_internal_error, sixty_days_internal_error, ninty_days_internal_error];
+
+                            for(var k = 0; k < total_agent_errors.length; k++){
+                                for(var i = 0; i<total_agent_errors[k].length; i++){
+                                    for(var j = 0; j<1;j++){
+                                        rows[i]+="<td>"+total_agent_errors[k][i][j]+"</td><td>"+total_agent_errors[k][i][j+1]+"</td>";
+                                    }
+                                }
+                            }
+
+                            for(var i = 0; i<rows.length; i++){
+                                table_html+= "<tr>"+rows[i]+"</tr>";
+                            }
+
+                            table_html+"</table></div>";
+
+                            
+                            $(".widget-66b highcharts").remove();
+                            $('.widget-66b').css('overflow','auto');
+                            var $el = $(table_html).appendTo(".widget-body.widget-66b");
+                            $compile($el)($scope);                            
+                            $('.widget-66a').removeClass('widget-loader-show');
+                            $('.widget-66b').removeClass('widget-data-hide');
+                        
+                            
+
+                            // ===================For External Errors =========================
+
+                            $('.widget-67a').addClass('widget-loader-show');
+                            $('.widget-67b').addClass('widget-data-hide');
+                            $("#widget-67-agent-error").remove();
+                            var thirty_days_external_agent_data = result['result'].thirty_days_data.externalerrors;
+                            var sixty_days_external_agent_data = result['result'].sixty_days_data.externalerrors;
+                            var ninty_days_external_agent_data = result['result'].ninty_days_data.externalerrors;
+                            var table_html = "<div id='widget-67-agent-error' class='table-responsive-sm' ><table border=1px class='table table-condensed' style='text-align-last: center'><thead><tr class='success'><th colspan='2'>30 Days</th><th colspan='2'>60 Days</th><th  colspan='2'>90 Days</th></tr></thead><tr><thead><th>Agent</th><th>Errors</th><th>Agent</th><th>Errors</th><th>Agent</th><th>Errors</th>";
+
+                            // sorting the thirty days data in descending order
+                            var thirty_days_external_error = []
+                            for(var key in thirty_days_external_agent_data){
+                                thirty_days_external_error.push([key, thirty_days_external_agent_data[key]]);
+                            }
+                            //debugger;
+                            thirty_days_external_error.sort(function(a, b){
+                                return a[1] - b[1];
+                            });
+                            thirty_days_external_error = thirty_days_external_error.reverse();
+
+                            // sorting the sixty days data in descending order
+                            var sixty_days_external_error = []
+                            for(var key in sixty_days_external_agent_data){
+                                sixty_days_external_error.push([key, sixty_days_external_agent_data[key]]);
+                            }
+                            sixty_days_external_error.sort(function(a, b){
+                                return a[1] - b[1];
+                            });
+                            sixty_days_external_error = sixty_days_external_error.reverse();
+
+                            // sorting the ninty days data in descending order
+                            var ninty_days_external_error = []
+                            for(var key in ninty_days_external_agent_data){
+                                ninty_days_external_error.push([key, ninty_days_external_agent_data[key]]);
+                            }
+                            ninty_days_external_error.sort(function(a, b){
+                                return a[1] - b[1];
+                            });
+                            ninty_days_external_error = ninty_days_external_error.reverse();
+
+                            var rows = ['', '', '', '', ''];
+                            var total_agent_errors = [thirty_days_external_error, sixty_days_external_error, ninty_days_external_error];
+
+                            for(var k = 0; k < total_agent_errors.length; k++){
+                                for(var i = 0; i<total_agent_errors[k].length; i++){
+                                    for(var j = 0; j<1;j++){
+                                        rows[i]+="<td>"+total_agent_errors[k][i][j]+"</td><td>"+total_agent_errors[k][i][j+1]+"</td>";
+                                    }
+                                }
+                            }
+
+                            for(var i = 0; i<rows.length; i++){
+                                table_html+= "<tr>"+rows[i]+"</tr>";
+                            }
+
+                            table_html+"</table></div>";
+                            $(".widget-67b highcharts").remove()
+                            $('.widget-67b').css('overflow','auto');
+                            var $el = $(table_html).appendTo(".widget-body.widget-67b");
+                            $compile($el)($scope);
+
+
+                            
+                            $('.widget-67a').removeClass('widget-loader-show');
+                            $('.widget-67b').removeClass('widget-data-hide');
+
+                        });
+                    }
+
+                    self.static_internal_external_error = function(){
+                        var error_category = '/api/static_internal_external_error_category/?'+self.static_widget_data;
+                        return $http({method:"GET", url: error_category }).success(function(result){
+                            $('.widget-68a').addClass('widget-loader-show');
+                            $('.widget-68b').addClass('widget-data-hide');
+                            $("#widget-68--error-category").remove();
+                            var thirty_days_internal_error_category = result['result'].thirty_days.internalerrors;
+                            var sixty_days_internal_error_category = result['result'].sixty_days.internalerrors;
+                            var ninty_days_internal_error_category = result['result'].ninty_days.internalerrors;
+                            var table_html = "<div id='widget-68--error-category' class='table-responsive-sm' ><table border=1px class='table table-condensed' style='text-align-last: center'><thead><tr class='success'><th colspan='2'>30 Days</th><th colspan='2'>60 Days</th><th  colspan='2'>90 Days</th></tr></thead><tr><thead><th>Error Type</th><th>Errors</th><th>Error Type</th><th>Errors</th><th>Error Type</th><th>Errors</th>";
+
+                            // sorting the thirty days data in descending order
+                            var thirty_days_internal_error = []
+                            for(var key in thirty_days_internal_error_category){
+                                thirty_days_internal_error.push([key, thirty_days_internal_error_category[key]]);
+                            }
+                            thirty_days_internal_error.sort(function(a, b){
+                                return a[1] - b[1];
+                            });
+                            thirty_days_internal_error = thirty_days_internal_error.reverse();
+
+                            // sorting the sixty days data in descending order
+                            var sixty_days_internal_error = []
+                            for(var key in sixty_days_internal_error_category){
+                                sixty_days_internal_error.push([key, sixty_days_internal_error_category[key]]);
+                            }
+                            sixty_days_internal_error.sort(function(a, b){
+                                return a[1] - b[1];
+                            });
+                            sixty_days_internal_error = sixty_days_internal_error.reverse();
+
+                            // sorting the ninty days data in descending order
+                            var ninty_days_internal_error = []
+                            for(var key in ninty_days_internal_error_category){
+                                ninty_days_internal_error.push([key, ninty_days_internal_error_category[key]]);
+                            }
+                            ninty_days_internal_error.sort(function(a, b){
+                                return a[1] - b[1];
+                            });
+                            ninty_days_internal_error = ninty_days_internal_error.reverse();
+
+                            var rows = ['', '', '', '', ''];
+                            var total_agent_errors = [thirty_days_internal_error, sixty_days_internal_error, ninty_days_internal_error];
+
+                            for(var k = 0; k < total_agent_errors.length; k++){
+                                for(var i = 0; i<total_agent_errors[k].length; i++){
+                                    for(var j = 0; j<1;j++){
+                                        rows[i]+="<td>"+total_agent_errors[k][i][j]+"</td><td>"+total_agent_errors[k][i][j+1]+"</td>";
+                                    }
+                                }
+                            }
+
+                            for(var i = 0; i<rows.length; i++){
+                                table_html+= "<tr>"+rows[i]+"</tr>";
+                            }
+
+                            table_html+"</table></div>";
+
+                            
+                            $(".widget-68b highcharts").remove();
+                            $('.widget-68b').css('overflow','auto');
+                            var $el = $(table_html).appendTo(".widget-body.widget-68b");
+                            $compile($el)($scope);                            
+                            $('.widget-68a').removeClass('widget-loader-show');
+                            $('.widget-68b').removeClass('widget-data-hide');
+                        
+                            
+
+                            // ===================For External Errors =========================
+
+                            $('.widget-69a').addClass('widget-loader-show');
+                            $('.widget-69b').addClass('widget-data-hide');
+                            $("#widget-69-error-category").remove();
+                            var thirty_days_external_error_category = result['result'].thirty_days.externalerrors;
+                            var sixty_days_external_error_category = result['result'].sixty_days.externalerrors;
+                            var ninty_days_external_error_category = result['result'].ninty_days.externalerrors;
+                            var table_html = "<div id='widget-69-error-category' class='table-responsive-sm' ><table border=1px class='table table-condensed' style='text-align-last: center'><thead><tr class='success'><th colspan='2'>30 Days</th><th colspan='2'>60 Days</th><th  colspan='2'>90 Days</th></tr></thead><tr><thead><th>Error Type</th><th>Errors</th><th>Error Type</th><th>Errors</th><th>Error Type</th><th>Errors</th>";
+
+                            // sorting the thirty days data in descending order
+                            var thirty_days_external_error = []
+                            for(var key in thirty_days_external_error_category){
+                                thirty_days_external_error.push([key, thirty_days_external_error_category[key]]);
+                            }
+                          
+                            thirty_days_external_error.sort(function(a, b){
+                                return a[1] - b[1];
+                            });
+                            thirty_days_external_error = thirty_days_external_error.reverse();
+
+                            // sorting the sixty days data in descending order
+                            var sixty_days_external_error = []
+                            for(var key in sixty_days_external_error_category){
+                                sixty_days_external_error.push([key, sixty_days_external_error_category[key]]);
+                            }
+                            sixty_days_external_error.sort(function(a, b){
+                                return a[1] - b[1];
+                            });
+                            sixty_days_external_error = sixty_days_external_error.reverse();
+
+                            // sorting the ninty days data in descending order
+                            var ninty_days_external_error = []
+                            for(var key in ninty_days_external_error_category){
+                                ninty_days_external_error.push([key, ninty_days_external_error_category[key]]);
+                            }
+                            ninty_days_external_error.sort(function(a, b){
+                                return a[1] - b[1];
+                            });
+                            ninty_days_external_error = ninty_days_external_error.reverse();
+
+                            var rows = ['', '', '', '', ''];
+                            var total_agent_errors = [thirty_days_external_error, sixty_days_external_error, ninty_days_external_error];
+
+                            for(var k = 0; k < total_agent_errors.length; k++){
+                                for(var i = 0; i<total_agent_errors[k].length; i++){
+                                    for(var j = 0; j<1;j++){
+                                        rows[i]+="<td>"+total_agent_errors[k][i][j]+"</td><td>"+total_agent_errors[k][i][j+1]+"</td>";
+                                    }
+                                }
+                            }
+
+                            for(var i = 0; i<rows.length; i++){
+                                table_html+= "<tr>"+rows[i]+"</tr>";
+                            }
+
+                            table_html+"</table></div>";
+                            $(".widget-69b highcharts").remove()
+                            $('.widget-69b').css('overflow','auto');
+                            var $el = $(table_html).appendTo(".widget-body.widget-69b");
+                            $compile($el)($scope);
+
+
+                            
+                            $('.widget-69a').removeClass('widget-loader-show');
+                            $('.widget-69b').removeClass('widget-data-hide');
+
+                        });
+                    }
                 
                     self.pre_scan = function(final_work, type) {
 
@@ -4372,6 +4647,10 @@
                          self.main_prod(undefined, undefined, undefined)
                     } else if (val == 'performance_summary') {
                         self.performance(undefined, undefined,undefined)     
+                    } else if (val == 'internal_agent_error_data'){
+                        self.static_internal_external_agent_error_data()
+                    } else if (val == 'static_internal_error_category'){
+                        self.static_internal_external_error() 
                     } else if ((val == 'volume_bar_graph') || (val == 'volume_productivity_graph')) {
                          self.work_list.push('work_track')
                          self.allo_and_comp(undefined, undefined, undefined)
