@@ -3083,7 +3083,7 @@
                             for(var key in thirty_days_external_agent_data){
                                 thirty_days_external_error.push([key, thirty_days_external_agent_data[key]]);
                             }
-                            //debugger;
+                            
                             thirty_days_external_error.sort(function(a, b){
                                 return a[1] - b[1];
                             });
@@ -3273,6 +3273,124 @@
                             $('.widget-69a').removeClass('widget-loader-show');
                             $('.widget-69b').removeClass('widget-data-hide');
 
+                        });
+                    }
+
+                    self.packet_wise_error_internal_data = function(){   
+                        var error_data = '/api/static_internal_packet_wise_error_data/?'+self.static_widget_data
+                        return $http({method:"GET", url: error_data }).success(function(result){
+                            $('.widget-70a').addClass('widget-loader-show');
+                            $('.widget-70b').addClass('widget-data-hide');
+                            $("#widget-70-packet-wise-error").remove();
+                            
+                           
+                            var thirty_days_packet_wise_data = result['result'].thirty_days_packet_wise_error_count;
+                            var sixty_days_packet_wise_data = result['result'].sixty_days_packet_wise_error_count;
+                            var ninty_days_packet_wise_data = result['result'].ninty_days_packet_wise_error_count;
+                          
+                            
+                            var table_html = "<div id='widget-70-packet-wise-error' class='table-responsive-sm' ><table border=1px class='table table-condensed' style='text-align-last: center'><thead><tr class='success'><th colspan='2'>30 Days</th><th colspan='2'>60 Days</th><th  colspan='2'>90 Days</th></tr></thead><tr><thead><th>Packet</th><th>Errors</th><th>Packet</th><th>Errors</th><th>Packet</th><th>Errors</th>";
+                            
+                           
+                            var rows = ['', '', '', '', ''];
+                           
+                            
+                            var total_packet_wise_errors = [thirty_days_packet_wise_data, sixty_days_packet_wise_data, ninty_days_packet_wise_data];
+                        
+
+                            function* enumerate(obj){
+                                var i =0;
+                                for (var key in obj){
+                                    yield [i, key];
+                                    i++;
+                                }
+                            } 
+                           
+                            for(var k = 0; k < total_packet_wise_errors.length; k++){
+                                
+                                for(var [i, key] of enumerate(total_packet_wise_errors[k])){
+                                    
+                                        rows[i]+="<td>"+key+"</td><td>"+total_packet_wise_errors[k][key]+"</td>";
+                                }
+                            }
+
+                            for(var i = 0; i<rows.length; i++){
+
+                                table_html+= "<tr>"+rows[i]+"</tr>";
+                            }
+
+                            table_html+"</table></div>";
+
+                         
+                            $(".widget-70b highcharts").remove();
+                            $('.widget-70b').css('overflow','auto');
+                            var $el = $(table_html).appendTo(".widget-body.widget-70b");
+
+                            $compile($el)($scope);
+
+                            $('.widget-70a').removeClass('widget-loader-show');
+                            $('.widget-70b').removeClass('widget-data-hide');
+                        });
+                    }
+
+
+                   self.packet_wise_error_external_data = function(){   
+                        var error_data = '/api/static_external_packet_wise_error_data/?'+self.static_widget_data
+                        return $http({method:"GET", url: error_data }).success(function(result){
+                            $('.widget-71a').addClass('widget-loader-show');
+                            $('.widget-71b').addClass('widget-data-hide');
+                            $("#widget-71-packet-wise-error").remove();
+                            
+                           
+                            var thirty_days_packet_wise_data = result['result'].thirty_days_packet_wise_error_count;
+                            var sixty_days_packet_wise_data = result['result'].sixty_days_packet_wise_error_count;
+                            var ninty_days_packet_wise_data = result['result'].ninty_days_packet_wise_error_count;
+                           
+                            
+                            var table_html = "<div id='widget-71-packet-wise-error' class='table-responsive-sm' ><table border=1px class='table table-condensed' style='text-align-last: center'><thead><tr class='success'><th colspan='2'>30 Days</th><th colspan='2'>60 Days</th><th  colspan='2'>90 Days</th></tr></thead><tr><thead><th>Packet</th><th>Errors</th><th>Packet</th><th>Errors</th><th>Packet</th><th>Errors</th>";
+                            
+                           
+                            var rows = ['', '', '', '', ''];
+                          
+                            
+                            var total_packet_wise_errors = [thirty_days_packet_wise_data, sixty_days_packet_wise_data, ninty_days_packet_wise_data];
+                         
+
+                            function* enumerate(obj){
+                                var i =0;
+                                for (var key in obj){
+                                    yield [i, key];
+                                    i++;
+                                }
+                            } 
+                         
+                            for(var k = 0; k < total_packet_wise_errors.length; k++){
+                                
+                                for(var [i, key] of enumerate(total_packet_wise_errors[k])){
+                                    
+                                        rows[i]+="<td>"+key+"</td><td>"+total_packet_wise_errors[k][key]+"</td>";
+
+
+                                }
+                            }
+
+                            for(var i = 0; i<rows.length; i++){
+
+                                table_html+= "<tr>"+rows[i]+"</tr>";
+                            }
+
+                            table_html+"</table></div>";
+                          
+                            $(".widget-71b highcharts").remove();
+                            $('.widget-71b').css('overflow','auto');
+                            var $el = $(table_html).appendTo(".widget-body.widget-71b");
+
+                            $compile($el)($scope);
+
+
+                            
+                            $('.widget-71a').removeClass('widget-loader-show');
+                            $('.widget-71b').removeClass('widget-data-hide');
                         });
                     }
                 
@@ -4884,6 +5002,16 @@
                     $('.widget-29a').removeClass('widget-loader-show');
                     $('.widget-29b').removeClass('widget-data-hide');
 
+                    angular.extend(self.chartOptions71, {
+                        xAxis:{
+                            categories:"",
+                            title:{
+                                text:'',
+                            }
+                        },
+                    });
+                    $('.widget-66a').removeClass('widget-loader-show');
+                    $('.widget-66b').removeClass('widget-data-hide');
                     angular.extend(self.chartOptions35, {
                         xAxis: {
                             categories: result.result.date,
@@ -4967,6 +5095,10 @@
                         self.static_internal_external_agent_error_data()
                     } else if (val == 'static_internal_error_category'){
                         self.static_internal_external_error() 
+                    } else if(val == 'internal_packet_wise_error_data'){
+                        self.packet_wise_error_internal_data()
+                    } else if(val == 'external_packet_wise_error_data'){
+                        self.packet_wise_error_external_data()
                     } else if (val == 'no_of_agents_AHT_daywise') {
                          self.No_of_agents_AHT(undefined)
                     } else if (val == 'percentage_people_<67_and>99%_achieved') {
@@ -5118,6 +5250,7 @@
                     "self.chartOptions68":self.chartOptions68,
                     "self.chartOptions69":self.chartOptions69,
                     "self.chartOptions70":self.chartOptions70,
+                    "self.chartOptions71":self.chartOptions71,
                   };
 
 
@@ -6177,6 +6310,7 @@
                     "self.chartOptions63":self.chartOptions63,
                     "self.chartOptions64":self.chartOptions64,
                     'self.chartOptions65':self.chartOptions65,
+                    "self.chartOptions71":self.chartOptions71,
                     };
                     var final_layout_list = [];
                     for (var single in self.layout_list){
@@ -8180,6 +8314,35 @@ self.chartOptions64 = {
                              return "<small>" + this.x + "</small><br/>" +
                                     "<b>" + this.series.name + "</b> : " + Highcharts.numberFormat(this.y, null, null, ",");
                            }
+               },
+               credits: {
+                enabled: false
+               },
+            };
+
+            self.chartOptions71 = {
+                chart : {
+                 backgroundColor: "transparent",
+                 reflow: false
+                },
+                lang: {
+                   thousandsSeparator: ','
+                },
+                yAxis: {
+                gridLineColor: 'a2a2a2',
+
+                min: 0,
+                title: {
+                 text: '',
+                 align: 'high'
+                },
+                labels: {
+                 overflow: 'justify',
+
+                }
+               },
+               tooltip: {
+                valueSuffix: '',
                },
                credits: {
                 enabled: false

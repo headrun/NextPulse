@@ -71,5 +71,7 @@ urlpatterns = [
     url(r'^performance_summary', apiviews.performance_summary),
     url(r'^employees_top_5_errors/', static_error_data.employees_top_5_errors),
     url(r'^static_internal_external_error_category/', static_error_data.static_intern_extern_error_category_data),
+    url(r'^static_internal_packet_wise_error_data/', static_error_data.static_packet_wise_internal_data),
+    url(r'^static_external_packet_wise_error_data/', static_error_data.static_packet_wise_external_data),
     url(r'^notification', apiviews.send_push_notification),
 ]
