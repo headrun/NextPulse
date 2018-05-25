@@ -330,7 +330,7 @@ def generate_three_months(pro_id, center_id):
                 months_dict[month] = [str(date)]
       
 
-def generate_dates(pro_id, center_id):
+def generates_dates(pro_id, center_id):
     generate_one_months(pro_id, center_id)
     generate_two_months(pro_id, center_id)
     generate_three_months(pro_id, center_id)
@@ -349,7 +349,7 @@ def data(request,Table_name):
     pro_id = Project.objects.get(name=project).id
     center_id = Center.objects.get(name=center).id
 
-    days_list = generate_dates(pro_id, center_id)
+    days_list = generates_dates(pro_id, center_id)
     table_name=Table_name
     final_dict = OrderedDict({})
     thirty_days = days_list[0]
