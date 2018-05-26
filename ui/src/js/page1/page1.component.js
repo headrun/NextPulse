@@ -123,6 +123,12 @@
                     $('.widget-39b').addClass('widget-data-hide');
                     $('.widget-60a').addClass('widget-loader-show');
                     $('.widget-60b').addClass('widget-data-hide');
+                    $('.widget-62a').addClass('widget-loader-show');
+                    $('.widget-62b').addClass('widget-data-hide');
+                    $('.widget-64a').addClass('widget-loader-show');
+                    $('.widget-64b').addClass('widget-data-hide');
+                    $('.widget-65a').addClass('widget-loader-show');
+                    $('.widget-65b').addClass('widget-data-hide');
              }
 
              self.apply_class = function(){
@@ -370,6 +376,7 @@
                     }
                    
                     self.data_to_show = '?&project='+callback[3]+'&center='+callback[2]+'&from='+ callback[0]+'&to='+ callback[1]+packet+'&type=';
+                    self.aht_data_to_show = '?&project='+callback[3]+'&center='+callback[2]+'&from='+ callback[0]+'&to='+ callback[1] + '&type=';
                     self.static_widget_data = '&project='+callback[3]+'&center='+callback[2]
                     self.common_for_all = self.data_to_show + self.day_type;
                     var error_bar_graph = '/api/error_bar_graph/'+self.common_for_all;
@@ -2993,7 +3000,777 @@
                         });
                     }
 
+                    function isEmpty(obj){
+                        for (var key in obj){
+                            if(obj.hasOwnProperty(key)){
+                                return false;
+                            }
+                        }
+                        return true;
+                    }
+                    self.static_internal_external_agent_error_data = function(){
+                        var error_data = '/api/employees_top_5_errors/?'+self.static_widget_data;
+                        return $http({method:"GET", url: error_data }).success(function(result){
+                            if(isEmpty(result['result'].thirty_days_data.internalerrors)&&isEmpty(result['result'].sixty_days_data.internalerrors)&&isEmpty(result['result'].ninty_days_data.internalerrors)){
+                                var table_html = '<div style="margin-top:100px;margin-left:250px; font-size:11px; color:#5b5b5b; font-weight:bold;"><span>No data to display</span></div>';
+                                $(".widget-66b highcharts").remove();
+                                $('.widget-66b').css('overflow','auto');
+                                var $el = $(table_html).appendTo(".widget-body.widget-66b");
+                                $compile($el)($scope);                            
+                                $('.widget-66a').removeClass('widget-loader-show');
+                                $('.widget-66b').removeClass('widget-data-hide');
+
+                            }else{
+                                $('.widget-66a').addClass('widget-loader-show');
+                                $('.widget-66b').addClass('widget-data-hide');
+                                $("#widget-66-agent-error").remove();
+                                var thirty_days_internal_agent_data = result['result'].thirty_days_data.internalerrors;
+                                var sixty_days_internal_agent_data = result['result'].sixty_days_data.internalerrors;
+                                var ninty_days_internal_agent_data = result['result'].ninty_days_data.internalerrors;
+                                var table_html = "<div id='widget-66-agent-error' class='table-responsive-sm' ><table border=1px class='table table-condensed' style='text-align-last: center'><thead><tr class='success'><th colspan='2'>30 Days</th><th colspan='2'>60 Days</th><th  colspan='2'>90 Days</th></tr></thead><tr><thead><th>Agent</th><th>Errors</th><th>Agent</th><th>Errors</th><th>Agent</th><th>Errors</th>";
+
+                                // sorting the thirty days data in descending order
+                                var thirty_days_internal_error = []
+                                for(var key in thirty_days_internal_agent_data){
+                                    thirty_days_internal_error.push([key, thirty_days_internal_agent_data[key]]);
+                                }
+                                thirty_days_internal_error.sort(function(a, b){
+                                    return a[1] - b[1];
+                                });
+                                thirty_days_internal_error = thirty_days_internal_error.reverse();
+
+                                // sorting the sixty days data in descending order
+                                var sixty_days_internal_error = []
+                                for(var key in sixty_days_internal_agent_data){
+                                    sixty_days_internal_error.push([key, sixty_days_internal_agent_data[key]]);
+                                }
+                                sixty_days_internal_error.sort(function(a, b){
+                                    return a[1] - b[1];
+                                });
+                                sixty_days_internal_error = sixty_days_internal_error.reverse();
+
+                                // sorting the ninty days data in descending order
+                                var ninty_days_internal_error = []
+                                for(var key in ninty_days_internal_agent_data){
+                                    ninty_days_internal_error.push([key, ninty_days_internal_agent_data[key]]);
+                                }
+                                ninty_days_internal_error.sort(function(a, b){
+                                    return a[1] - b[1];
+                                });
+                                ninty_days_internal_error = ninty_days_internal_error.reverse();
+
+                                var rows = ['', '', '', '', ''];
+                                var total_agent_errors = [thirty_days_internal_error, sixty_days_internal_error, ninty_days_internal_error];
+
+                                for(var k = 0; k < total_agent_errors.length; k++){
+                                    for(var i = 0; i<total_agent_errors[k].length; i++){
+                                        for(var j = 0; j<1;j++){
+                                            rows[i]+="<td>"+total_agent_errors[k][i][j]+"</td><td>"+total_agent_errors[k][i][j+1]+"</td>";
+                                        }
+                                    }
+                                }
+
+                                for(var i = 0; i<rows.length; i++){
+                                    table_html+= "<tr>"+rows[i]+"</tr>";
+                                }
+
+                                table_html+"</table></div>";
+
+                                
+                                $(".widget-66b highcharts").remove();
+                                $('.widget-66b').css('overflow','auto');
+                                var $el = $(table_html).appendTo(".widget-body.widget-66b");
+                                $compile($el)($scope);                            
+                                $('.widget-66a').removeClass('widget-loader-show');
+                                $('.widget-66b').removeClass('widget-data-hide');
+                            }
+                        
+                            
+
+                            // ===================For External Errors =========================
+
+                            if(isEmpty(result['result'].thirty_days_data.externalerrors)&&isEmpty(result['result'].sixty_days_data.externalerrors)&&isEmpty(result['result'].ninty_days_data.externalerrors)){
+                                    var table_html;
+                                    $(".widget-67b highcharts").remove();
+                                    $('.widget-67b').css('overflow','auto');
+                                    var $el = $(table_html).appendTo(".widget-body.widget-67b");
+                                    $compile($el)($scope);                            
+                                    $('.widget-67a').removeClass('widget-loader-show');
+                                    $('.widget-67b').removeClass('widget-data-hide');
+
+                            }else{
+                                $('.widget-67a').addClass('widget-loader-show');
+                                $('.widget-67b').addClass('widget-data-hide');
+                                $("#widget-67-agent-error").remove();
+                                var thirty_days_external_agent_data = result['result'].thirty_days_data.externalerrors;
+                                var sixty_days_external_agent_data = result['result'].sixty_days_data.externalerrors;
+                                var ninty_days_external_agent_data = result['result'].ninty_days_data.externalerrors;
+                                var table_html = "<div id='widget-67-agent-error' class='table-responsive-sm' ><table border=1px class='table table-condensed' style='text-align-last: center'><thead><tr class='success'><th colspan='2'>30 Days</th><th colspan='2'>60 Days</th><th  colspan='2'>90 Days</th></tr></thead><tr><thead><th>Agent</th><th>Errors</th><th>Agent</th><th>Errors</th><th>Agent</th><th>Errors</th>";
+
+                                // sorting the thirty days data in descending order
+                                var thirty_days_external_error = []
+                                for(var key in thirty_days_external_agent_data){
+                                    thirty_days_external_error.push([key, thirty_days_external_agent_data[key]]);
+                                }
+                                
+                                thirty_days_external_error.sort(function(a, b){
+                                    return a[1] - b[1];
+                                });
+                                thirty_days_external_error = thirty_days_external_error.reverse();
+
+                                // sorting the sixty days data in descending order
+                                var sixty_days_external_error = []
+                                for(var key in sixty_days_external_agent_data){
+                                    sixty_days_external_error.push([key, sixty_days_external_agent_data[key]]);
+                                }
+                                sixty_days_external_error.sort(function(a, b){
+                                    return a[1] - b[1];
+                                });
+                                sixty_days_external_error = sixty_days_external_error.reverse();
+
+                                // sorting the ninty days data in descending order
+                                var ninty_days_external_error = []
+                                for(var key in ninty_days_external_agent_data){
+                                    ninty_days_external_error.push([key, ninty_days_external_agent_data[key]]);
+                                }
+                                ninty_days_external_error.sort(function(a, b){
+                                    return a[1] - b[1];
+                                });
+                                ninty_days_external_error = ninty_days_external_error.reverse();
+
+                                var rows = ['', '', '', '', ''];
+                                var total_agent_errors = [thirty_days_external_error, sixty_days_external_error, ninty_days_external_error];
+
+                                for(var k = 0; k < total_agent_errors.length; k++){
+                                    for(var i = 0; i<total_agent_errors[k].length; i++){
+                                        for(var j = 0; j<1;j++){
+                                            rows[i]+="<td>"+total_agent_errors[k][i][j]+"</td><td>"+total_agent_errors[k][i][j+1]+"</td>";
+                                        }
+                                    }
+                                }
+
+                                for(var i = 0; i<rows.length; i++){
+                                    table_html+= "<tr>"+rows[i]+"</tr>";
+                                }
+
+                                table_html+"</table></div>";
+                                $(".widget-67b highcharts").remove()
+                                $('.widget-67b').css('overflow','auto');
+                                var $el = $(table_html).appendTo(".widget-body.widget-67b");
+                                $compile($el)($scope);
+                                
+                                $('.widget-67a').removeClass('widget-loader-show');
+                                $('.widget-67b').removeClass('widget-data-hide');
+
+                            }
+                        });
+                    }
+
+                    self.static_internal_external_error_category = function(){
+                        var error_category = '/api/static_internal_external_error_category/?'+self.static_widget_data;
+                        return $http({method:"GET", url: error_category }).success(function(result){
+                            if(isEmpty(result['result'].thirty_days.internalerrors) && isEmpty(result['result'].sixty_days.internalerrors)&& isEmpty(result['result'].ninty_days.internalerrors)){
+
+                                var table_html = '<div style="margin-top:100px;margin-left:250px; font-size:11px; color:#5b5b5b; font-weight:bold;"><span>No data to display</span></div>';
+                                $(".widget-68b highcharts").remove();
+                                $('.widget-68b').css('overflow','auto');
+                                var $el = $(table_html).appendTo(".widget-body.widget-68b");
+                                $compile($el)($scope);                            
+                                $('.widget-68a').removeClass('widget-loader-show');
+                                $('.widget-68b').removeClass('widget-data-hide');
+
+                            }else{
+                                $('.widget-68a').addClass('widget-loader-show');
+                                $('.widget-68b').addClass('widget-data-hide');
+                                $("#widget-68--error-category").remove();
+                                var thirty_days_internal_error_category = result['result'].thirty_days.internalerrors;
+                                var sixty_days_internal_error_category = result['result'].sixty_days.internalerrors;
+                                var ninty_days_internal_error_category = result['result'].ninty_days.internalerrors;
+                                var table_html = "<div id='widget-68--error-category' class='table-responsive-sm' ><table border=1px class='table table-condensed' style='text-align-last: center'><thead><tr class='success'><th colspan='2'>30 Days</th><th colspan='2'>60 Days</th><th  colspan='2'>90 Days</th></tr></thead><tr><thead><th>Error Type</th><th>Errors</th><th>Error Type</th><th>Errors</th><th>Error Type</th><th>Errors</th>";
+
+                            // sorting the thirty days data in descending order
+                                var thirty_days_internal_error = []
+                                for(var key in thirty_days_internal_error_category){
+                                    thirty_days_internal_error.push([key, thirty_days_internal_error_category[key]]);
+                                }
+                                thirty_days_internal_error.sort(function(a, b){
+                                    return a[1] - b[1];
+                                });
+                                thirty_days_internal_error = thirty_days_internal_error.reverse();
+
+                                // sorting the sixty days data in descending order
+                                var sixty_days_internal_error = []
+                                for(var key in sixty_days_internal_error_category){
+                                    sixty_days_internal_error.push([key, sixty_days_internal_error_category[key]]);
+                                }
+                                sixty_days_internal_error.sort(function(a, b){
+                                    return a[1] - b[1];
+                                });
+                                sixty_days_internal_error = sixty_days_internal_error.reverse();
+
+                                // sorting the ninty days data in descending order
+                                var ninty_days_internal_error = []
+                                for(var key in ninty_days_internal_error_category){
+                                    ninty_days_internal_error.push([key, ninty_days_internal_error_category[key]]);
+                                }
+                                ninty_days_internal_error.sort(function(a, b){
+                                    return a[1] - b[1];
+                                });
+                                ninty_days_internal_error = ninty_days_internal_error.reverse();
+
+                                var rows = ['', '', '', '', ''];
+                                var total_agent_errors = [thirty_days_internal_error, sixty_days_internal_error, ninty_days_internal_error];
+
+                                for(var k = 0; k < total_agent_errors.length; k++){
+                                    for(var i = 0; i<total_agent_errors[k].length; i++){
+                                        for(var j = 0; j<1;j++){
+                                            rows[i]+="<td>"+total_agent_errors[k][i][j]+"</td><td>"+total_agent_errors[k][i][j+1]+"</td>";
+                                        }
+                                    }
+                                }
+
+                                for(var i = 0; i<rows.length; i++){
+                                    table_html+= "<tr>"+rows[i]+"</tr>";
+                                }
+
+                                table_html+"</table></div>";
+
+                                
+                                $(".widget-68b highcharts").remove();
+                                $('.widget-68b').css('overflow','auto');
+                                var $el = $(table_html).appendTo(".widget-body.widget-68b");
+                                $compile($el)($scope);                            
+                                $('.widget-68a').removeClass('widget-loader-show');
+                                $('.widget-68b').removeClass('widget-data-hide');
+                            }
+                        
+                            
+
+                            // ===================For External Errors =========================
+
+                            if(isEmpty(result['result'].thirty_days.externalerrors)&&isEmpty(result['result'].sixty_days.externalerrors)&&isEmpty(result['result'].ninty_days.externalerrors)){
+                                var table_html = '<div style="margin-top:100px;margin-left:250px; font-size:11px; color:#5b5b5b; font-weight:bold;"><span>No data to display</span></div>';
+                                $(".widget-69b highcharts").remove();
+                                $('.widget-69b').css('overflow','auto');
+                                var $el = $(table_html).appendTo(".widget-body.widget-69b");
+                                $compile($el)($scope);                            
+                                $('.widget-69a').removeClass('widget-loader-show');
+                                $('.widget-69b').removeClass('widget-data-hide');
+                            }else{
+                                $('.widget-69a').addClass('widget-loader-show');
+                                $('.widget-69b').addClass('widget-data-hide');
+                                $("#widget-69-error-category").remove();
+                                var thirty_days_external_error_category = result['result'].thirty_days.externalerrors;
+                                var sixty_days_external_error_category = result['result'].sixty_days.externalerrors;
+                                var ninty_days_external_error_category = result['result'].ninty_days.externalerrors;
+                                var table_html = "<div id='widget-69-error-category' class='table-responsive-sm' ><table border=1px class='table table-condensed' style='text-align-last: center'><thead><tr class='success'><th colspan='2'>30 Days</th><th colspan='2'>60 Days</th><th  colspan='2'>90 Days</th></tr></thead><tr><thead><th>Error Type</th><th>Errors</th><th>Error Type</th><th>Errors</th><th>Error Type</th><th>Errors</th>";
+
+                                // sorting the thirty days data in descending order
+                                var thirty_days_external_error = []
+                                for(var key in thirty_days_external_error_category){
+                                    thirty_days_external_error.push([key, thirty_days_external_error_category[key]]);
+                                }
+                              
+                                thirty_days_external_error.sort(function(a, b){
+                                    return a[1] - b[1];
+                                });
+                                thirty_days_external_error = thirty_days_external_error.reverse();
+
+                                // sorting the sixty days data in descending order
+                                var sixty_days_external_error = []
+                                for(var key in sixty_days_external_error_category){
+                                    sixty_days_external_error.push([key, sixty_days_external_error_category[key]]);
+                                }
+                                sixty_days_external_error.sort(function(a, b){
+                                    return a[1] - b[1];
+                                });
+                                sixty_days_external_error = sixty_days_external_error.reverse();
+
+                                // sorting the ninty days data in descending order
+                                var ninty_days_external_error = []
+                                for(var key in ninty_days_external_error_category){
+                                    ninty_days_external_error.push([key, ninty_days_external_error_category[key]]);
+                                }
+                                ninty_days_external_error.sort(function(a, b){
+                                    return a[1] - b[1];
+                                });
+                                ninty_days_external_error = ninty_days_external_error.reverse();
+
+                                var rows = ['', '', '', '', ''];
+                                var total_agent_errors = [thirty_days_external_error, sixty_days_external_error, ninty_days_external_error];
+
+                                for(var k = 0; k < total_agent_errors.length; k++){
+                                    for(var i = 0; i<total_agent_errors[k].length; i++){
+                                        for(var j = 0; j<1;j++){
+                                            rows[i]+="<td>"+total_agent_errors[k][i][j]+"</td><td>"+total_agent_errors[k][i][j+1]+"</td>";
+                                        }
+                                    }
+                                }
+
+                                for(var i = 0; i<rows.length; i++){
+                                    table_html+= "<tr>"+rows[i]+"</tr>";
+                                }
+
+                                table_html+"</table></div>";
+                                $(".widget-69b highcharts").remove()
+                                $('.widget-69b').css('overflow','auto');
+                                var $el = $(table_html).appendTo(".widget-body.widget-69b");
+                                $compile($el)($scope);
+
+
+                                
+                                $('.widget-69a').removeClass('widget-loader-show');
+                                $('.widget-69b').removeClass('widget-data-hide');
+
+                            }
+                        });
+                    }
+
+                    self.packet_wise_error_internal_data = function(){   
+                        var error_data = '/api/static_internal_packet_wise_error_data/?'+self.static_widget_data
+                        return $http({method:"GET", url: error_data }).success(function(result){
+                            if(isEmpty(result['result'].thirty_days_packet_wise_error_count)&&isEmpty(result['result'].sixty_days_packet_wise_error_count)&&isEmpty(result['result'].ninty_days_packet_wise_error_count)){
+                                var table_html = '<div style="margin-top:100px;margin-left:250px; font-size:11px; color:#5b5b5b; font-weight:bold;"><span>No data to display</span></div>';
+                                $(".widget-70a highcharts").remove();
+                                $('.widget-70b').css('overflow','auto');
+                                var $el = $(table_html).appendTo(".widget-body.widget-70b");
+                                $compile($el)($scope);                            
+                                $('.widget-70a').removeClass('widget-loader-show');
+                                $('.widget-70b').removeClass('widget-data-hide');
+                            }else{
+                                $('.widget-70a').addClass('widget-loader-show');
+                                $('.widget-70b').addClass('widget-data-hide');
+                                $("#widget-70-packet-wise-error").remove();
+                                
+                               
+                                var thirty_days_packet_wise_data = result['result'].thirty_days_packet_wise_error_count;
+                                var sixty_days_packet_wise_data = result['result'].sixty_days_packet_wise_error_count;
+                                var ninty_days_packet_wise_data = result['result'].ninty_days_packet_wise_error_count;
+                              
+                                
+                                var table_html = "<div id='widget-70-packet-wise-error' class='table-responsive-sm' ><table border=1px class='table table-condensed' style='text-align-last: center'><thead><tr class='success'><th colspan='2'>30 Days</th><th colspan='2'>60 Days</th><th  colspan='2'>90 Days</th></tr></thead><tr><thead><th>Packet</th><th>Errors</th><th>Packet</th><th>Errors</th><th>Packet</th><th>Errors</th>";
+                                
+                               
+                                var rows = ['', '', '', '', ''];
+                               
+                                
+                                var total_packet_wise_errors = [thirty_days_packet_wise_data, sixty_days_packet_wise_data, ninty_days_packet_wise_data];
+                            
+
+                                function* enumerate(obj){
+                                    var i =0;
+                                    for (var key in obj){
+                                        yield [i, key];
+                                        i++;
+                                    }
+                                } 
+                               
+                                for(var k = 0; k < total_packet_wise_errors.length; k++){
+                                    
+                                    for(var [i, key] of enumerate(total_packet_wise_errors[k])){
+                                        
+                                            rows[i]+="<td>"+key+"</td><td>"+total_packet_wise_errors[k][key]+"</td>";
+                                    }
+                                }
+
+                                for(var i = 0; i<rows.length; i++){
+
+                                    table_html+= "<tr>"+rows[i]+"</tr>";
+                                }
+
+                                table_html+"</table></div>";
+
+                             
+                                $(".widget-70b highcharts").remove();
+                                $('.widget-70b').css('overflow','auto');
+                                var $el = $(table_html).appendTo(".widget-body.widget-70b");
+
+                                $compile($el)($scope);
+
+                                $('.widget-70a').removeClass('widget-loader-show');
+                                $('.widget-70b').removeClass('widget-data-hide');
+                            }
+                        });
+                    }
+
+
+                   self.packet_wise_error_external_data = function(){   
+                        var error_data = '/api/static_external_packet_wise_error_data/?'+self.static_widget_data
+                        return $http({method:"GET", url: error_data }).success(function(result){
+                            if(isEmpty(result['result'].thirty_days_packet_wise_error_count) && isEmpty(result['result'].sixty_days_packet_wise_error_count)&& isEmpty(result['result'].ninty_days_packet_wise_error_count)){
+                                var table_html = '<div style="margin-top:100px;margin-left:250px; font-size:11px; color:#5b5b5b; font-weight:bold;"><span>No data to display</span></div>';
+                                $(".widget-71a highcharts").remove();
+                                $('.widget-71b').css('overflow','auto');
+                                var $el = $(table_html).appendTo(".widget-body.widget-71b");
+                                $compile($el)($scope);                            
+                                $('.widget-71a').removeClass('widget-loader-show');
+                                $('.widget-71b').removeClass('widget-data-hide');
+                            }else{
+                                $('.widget-71a').addClass('widget-loader-show');
+                                $('.widget-71b').addClass('widget-data-hide');
+                                $("#widget-71-packet-wise-error").remove();
+                                
+                               
+                                var thirty_days_packet_wise_data = result['result'].thirty_days_packet_wise_error_count;
+                                var sixty_days_packet_wise_data = result['result'].sixty_days_packet_wise_error_count;
+                                var ninty_days_packet_wise_data = result['result'].ninty_days_packet_wise_error_count;
+                               
+                                
+                                var table_html = "<div id='widget-71-packet-wise-error' class='table-responsive-sm' ><table border=1px class='table table-condensed' style='text-align-last: center'><thead><tr class='success'><th colspan='2'>30 Days</th><th colspan='2'>60 Days</th><th  colspan='2'>90 Days</th></tr></thead><tr><thead><th>Packet</th><th>Errors</th><th>Packet</th><th>Errors</th><th>Packet</th><th>Errors</th>";
+                                
+                               
+                                var rows = ['', '', '', '', ''];
+                              
+                                
+                                var total_packet_wise_errors = [thirty_days_packet_wise_data, sixty_days_packet_wise_data, ninty_days_packet_wise_data];
+                             
+
+                                function* enumerate(obj){
+                                    var i =0;
+                                    for (var key in obj){
+                                        yield [i, key];
+                                        i++;
+                                    }
+                                } 
+                             
+                                for(var k = 0; k < total_packet_wise_errors.length; k++){
+                                    
+                                    for(var [i, key] of enumerate(total_packet_wise_errors[k])){
+                                        
+                                            rows[i]+="<td>"+key+"</td><td>"+total_packet_wise_errors[k][key]+"</td>";
+
+
+                                    }
+                                }
+
+                                for(var i = 0; i<rows.length; i++){
+
+                                    table_html+= "<tr>"+rows[i]+"</tr>";
+                                }
+
+                                table_html+"</table></div>";
+                              
+                                $(".widget-71b highcharts").remove();
+                                $('.widget-71b').css('overflow','auto');
+                                var $el = $(table_html).appendTo(".widget-body.widget-71b");
+
+                                $compile($el)($scope);
+                                
+                                $('.widget-71a').removeClass('widget-loader-show');
+                                $('.widget-71b').removeClass('widget-data-hide');
+                            }
+                        });
+                    }
                 
+                    self.No_of_agents_AHT = function(final_work,type) {
+
+                        if (type == undefined) {
+                            type = 'day'
+                        }
+
+                        self.type = type;
+                        
+                        var aht_var = '/api/no_of_agents_AHT/'+self.aht_data_to_show + type + '&chart_name=63';
+
+                        return $http({method:"GET", url: aht_var}).success(function(result){
+
+                            var date_list = result.result.date;
+                            var agent_count = result.result.aht_Num_data;
+                            var is_annotation = result.result.is_annotation;
+
+
+                            angular.extend(self.chartOptions68, {
+                                   xAxis: {
+                                        categories: date_list,
+                                    },
+                                    plotOptions: {
+                                        series: {
+                                          dataLabels: {
+                                            enabled: false,
+                                            valueDecimals: 2,
+
+                                          },
+                                          allowPointSelect: true,
+                                          cursor: 'pointer',
+                                            point: { 
+                                              events:{
+                                                contextmenu: function() {
+                                                 if (self.role_for_perm == 'customer') {
+
+                                                    console.log('he is customer');
+                                                 }
+                                                 else {
+
+                                                  if (self.data_to_show.split('&').length == 6) {
+                                                    var sub_proj = '';
+                                                    var work_pack = '';
+                                                    var sub_pack = '';
+                                                  }
+                                                  else {
+                                                    var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
+                                                    var work_pack = self.data_to_show.split('&')[6].split('=')[1];
+                                                    var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
+                                                  }
+                                                    var str = '63<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
+                                                    this['project_live'] = self.project_live;
+                                                    this['center_live'] = self.center_live;
+                                                    return new Annotation(str, $(self.chartOptions68.chart.renderTo),this.series.chart, this);
+                                                    }
+                                                  }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    series: agent_count,
+                                    onComplete: function(chart){
+                                    if (is_annotation) {
+                                    var series = null;
+                                    var chart_data = chart.series;
+
+                                    for(var i in chart_data){  
+                                        series = chart_data[i];
+                                        (function(series){
+                                          $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
+                      self.type+'&chart_name=63&proj_name='+self.project_live+'&cen_name='+
+                      self.center_live}).success(function(annotations){
+                               annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
+                               $.each(annotations, function(j, annotation){
+
+                                 var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
+
+                                 point = point[0];
+
+                                 if(annotation.epoch){
+                                   var a = new Annotation("63", $(self.chartOptions68.chart.renderTo),
+                                        chart, point, annotation);
+
+                                   console.log(a);
+                                   }
+                               })
+
+                                        });
+                                        }(series));
+                                    }
+                                    self.annot_perm();
+                                    }
+                                  }
+                                });
+                            $('.widget-63a').removeClass('widget-loader-show');
+                            $('.widget-63b').removeClass('widget-data-hide');
+                        })
+                    }
+
+
+                    self.aht_shift_overall_volume = function(final_work, type) {
+
+                        if (type == undefined) {
+                            type = 'day'
+                        }
+
+                        if (final_work == undefined) {
+                            final_work = ''
+                        }
+
+                        self.type = type;
+
+                        var aht_overall = '/api/shift_overall_volume/'+self.data_to_show + type + final_work + '&chart_name=65';
+
+                        return $http({method:"GET", url: aht_overall}).success(function(result){
+
+                            var date_list = result.result.date;
+                            var aht_data = result.result.aht_overall;
+                            var is_annotation = result.result.is_annotation;                            
+
+                            
+                            angular.extend(self.chartOptions70, {
+                                xAxis: {
+                                    categories: date_list,
+                                },
+                                    plotOptions: {
+                                        series: {
+                                          dataLabels: {
+                                            enabled: value,
+                                          },
+                                          allowPointSelect: true,
+                                          cursor: 'pointer',
+                                            point: {
+                                              events:{
+                                                contextmenu: function() {
+                                                 if (self.role_for_perm == 'customer') {
+
+                                                    console.log('he is customer');
+                                                 }
+                                                 else {
+
+                                                  if (self.data_to_show.split('&').length == 6) {
+                                                    var sub_proj = '';
+                                                    var work_pack = '';
+                                                    var sub_pack = '';
+                                                  }
+                                                  else {
+                                                    var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
+                                                    var work_pack = self.data_to_show.split('&')[6].split('=')[1];
+                                                    var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
+                                                  }
+                                                    var str = '65<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
+                                                    this['project_live'] = self.project_live;
+                                                    this['center_live'] = self.center_live;
+                                                    return new Annotation(str, $(self.chartOptions70.chart.renderTo),this.series.chart, this);
+                                                    }
+                                                  }
+                                                }
+                                            }
+                                        }
+                                    },
+
+                                series: aht_data,
+                                    onComplete: function(chart){
+                                    if (is_annotation) {
+                                    var series = null;
+                                    var chart_data = chart.series;
+
+                                    for(var i in chart_data){
+                                        series = chart_data[i];
+                                        (function(series){
+                                          $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
+                      self.type+'&chart_name=65&proj_name='+self.project_live+'&cen_name='+
+                      self.center_live}).success(function(annotations){ 
+                               annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
+                               $.each(annotations, function(j, annotation){
+
+                                 var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
+
+                                 point = point[0];
+
+                                 if(annotation.epoch){
+                                   var a = new Annotation("65", $(self.chartOptions70.chart.renderTo),
+                                        chart, point, annotation);
+
+                                   console.log(a);
+                                   }
+                               })   
+
+                                        });
+                                        }(series));
+                                    }
+                                    self.annot_perm();
+                                    }
+                                }
+                            });
+                            $('.widget-65a').removeClass('widget-loader-show');
+                            $('.widget-65b').removeClass('widget-data-hide');
+                        })
+                    }
+
+                    self.Percentage_less_aht = function(final_work, type) {
+
+                        if (type == undefined) {
+                            type = 'day'
+                        }
+
+                        if (final_work == undefined) {
+                            final_work = ''
+                        }
+
+                        self.type = type;
+
+                        var aht_val = '/api/percentage_60_aht/'+self.data_to_show + type + final_work + '&chart_name=64';
+
+                        return $http({method:"GET", url: aht_val}).success(function(result){
+
+                            var date_list = result.result.date;
+                            var agent_count = result.result.aht_percentage;
+                            var is_annotation = result.result.is_annotation;
+ 
+                            angular.extend(self.chartOptions69.yAxis,{
+                                min:result.result.min_max.min_value,
+                                max:result.result.min_max.max_value
+                            });
+
+                            angular.extend(self.chartOptions69, {
+                                   xAxis: {
+                                        categories: date_list,
+                                    },
+                                    plotOptions: {
+                                        series: {
+                                          dataLabels: {
+                                            enabled: false,
+                                            format: '{y} %',
+                                            valueDecimals: 2,
+                                            formatter: function () {
+                                                return Highcharts.numberFormat(this.y, null, null, ",");
+                                            },
+                                          },
+                                          allowPointSelect: true,
+                                          cursor: 'pointer',
+                                            point: { 
+                                              events:{
+                                                contextmenu: function() {
+                                                 if (self.role_for_perm == 'customer') {
+
+                                                    console.log('he is customer');
+                                                 }
+                                                 else {
+
+                                                  if (self.data_to_show.split('&').length == 6) {
+                                                    var sub_proj = '';
+                                                    var work_pack = '';
+                                                    var sub_pack = '';
+                                                  }
+                                                  else {
+                                                    var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
+                                                    var work_pack = self.data_to_show.split('&')[6].split('=')[1];
+                                                    var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
+                                                  }
+                                                    var str = '64<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
+                                                    this['project_live'] = self.project_live;
+                                                    this['center_live'] = self.center_live;
+                                                    return new Annotation(str, $(self.chartOptions69.chart.renderTo),this.series.chart, this);
+                                                    }
+                                                  }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    series: agent_count,
+                                    onComplete: function(chart){
+                                    if (is_annotation) {
+                                    var series = null;
+                                    var chart_data = chart.series;
+
+                                    for(var i in chart_data){  
+                                        series = chart_data[i];
+                                        (function(series){
+                                          $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
+                      self.type+'&chart_name=69&proj_name='+self.project_live+'&cen_name='+
+                      self.center_live}).success(function(annotations){
+                               annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
+                               $.each(annotations, function(j, annotation){
+
+                                 var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
+
+                                 point = point[0];
+
+                                 if(annotation.epoch){
+                                   var a = new Annotation("64", $(self.chartOptions69.chart.renderTo),
+                                        chart, point, annotation);
+
+                                   console.log(a);
+                                   }
+                               })
+
+                                        });
+                                        }(series));
+                                    }
+                                    self.annot_perm();
+                                    }
+                                  }
+                                });
+                            $('.widget-64a').removeClass('widget-loader-show');
+                            $('.widget-64b').removeClass('widget-data-hide');
+                        })
+                    }
+
                     self.pre_scan = function(final_work, type) {
 
                         if (type == undefined) {
@@ -4293,6 +5070,16 @@
                     $('.widget-29a').removeClass('widget-loader-show');
                     $('.widget-29b').removeClass('widget-data-hide');
 
+                    angular.extend(self.chartOptions71, {
+                        xAxis:{
+                            categories:"",
+                            title:{
+                                text:'',
+                            }
+                        },
+                    });
+                    $('.widget-66a').removeClass('widget-loader-show');
+                    $('.widget-66b').removeClass('widget-data-hide');
                     angular.extend(self.chartOptions35, {
                         xAxis: {
                             categories: result.result.date,
@@ -4372,6 +5159,18 @@
                          self.main_prod(undefined, undefined, undefined)
                     } else if (val == 'performance_summary') {
                         self.performance(undefined, undefined,undefined)     
+                    } else if (val == 'internal_agent_error_data'){
+                        self.static_internal_external_agent_error_data()
+                    } else if (val == 'static_internal_error_category'){
+                        self.static_internal_external_error_category() 
+                    } else if(val == 'internal_packet_wise_error_data'){
+                        self.packet_wise_error_internal_data()
+                    } else if(val == 'external_packet_wise_error_data'){
+                        self.packet_wise_error_external_data()
+                    } else if (val == 'no_of_agents_AHT_daywise') {
+                         self.No_of_agents_AHT(undefined)
+                    } else if (val == 'percentage_people_<67_and>99%_achieved') {
+                         self.Percentage_less_aht(undefined, undefined)
                     } else if ((val == 'volume_bar_graph') || (val == 'volume_productivity_graph')) {
                          self.work_list.push('work_track')
                          self.allo_and_comp(undefined, undefined, undefined)
@@ -4515,7 +5314,11 @@
                     "self.chartOptions62":self.chartOptions62,
                     "self.chartOptions63":self.chartOptions63,
                     'self.chartOptions64':self.chartOptions64,
-                    'self.chartOptions65':self.chartOptions65
+                    'self.chartOptions65':self.chartOptions65,
+                    "self.chartOptions68":self.chartOptions68,
+                    "self.chartOptions69":self.chartOptions69,
+                    "self.chartOptions70":self.chartOptions70,
+                    "self.chartOptions71":self.chartOptions71,
                   };
 
 
@@ -5190,7 +5993,10 @@
                     "self.chartOptions62":self.chartOptions62,
                     "self.chartOptions63":self.chartOptions63,
                     "self.chartOptions64":self.chartOptions64,
-                    'self.chartOptions65':self.chartOptions65
+                    'self.chartOptions65':self.chartOptions65,
+                    'self.chartOptions68':self.chartOptions68,
+                    "self.chartOptions69":self.chartOptions69,
+                    "self.chartOptions70":self.chartOptions70
                 }
 
                 self.render_data = obj[all_data];
@@ -5309,6 +6115,16 @@
                     $('.widget-60b').addClass('widget-data-hide');
                     self.aht_data(final_work, key);
                 }
+                if (name == 'chartOptions68') {
+                    $('.widget-63a').addClass('widget-loader-show');
+                    $('.widget-63b').addClass('widget-data-hide');
+                    self.No_of_agents_AHT(final_work, key);
+                }
+                if (name == 'chartOptions69') {
+                    $('.widget-64a').addClass('widget-loader-show');
+                    $('.widget-64b').addClass('widget-data-hide');
+                    self.Percentage_less_aht(final_work, key);
+                }
                 var chart_type_map = {};
                 chart_type_map = { 'chartOptions47' : self.filter_list[0], 'chartOptions48' : self.filter_list[1] , 'chartOptions49' : self.filter_list[2], 'chartOptions50' : self.filter_list[3], 'chartOptions51' : self.filter_list[4], 'chartOptions52' : self.filter_list[5], 'chartOptions53' : self.filter_list[6], 'chartOptions54' : self.filter_list[7], 'chartOptions55' : self.filter_list[8], 'chartOptions56' : self.filter_list[9], 'chartOptions57' : self.filter_list[10], 'chartOptions58' : self.filter_list[11], 'chartOptions59': self.filter_list[12], 'chartOptions60': self.filter_list[13], 'chartOptions61': self.filter_list[14], 'chartOptions62': self.filter_list[15], 'chartOptions63': self.filter_list[16], 'chartOptions64': self.filter_list[17] };
                 if( self.is_voice_flag ) {
@@ -5368,6 +6184,16 @@
                         $('.widget-14b').addClass('widget-data-hide');
 
                         self.productivity(final_work, key);
+
+                        $('.widget-63a').addClass('widget-loader-show');     
+                        $('.widget-63b').addClass('widget-data-hide');
+
+                        self.No_of_agents_AHT(final_work, key);
+
+                        $('.widget-64a').addClass('widget-loader-show');     
+                        $('.widget-64b').addClass('widget-data-hide');
+
+                        self.Percentage_less_aht(final_work, key);
 
                         $('.widget-33a').addClass('widget-loader-show');   
                         $('.widget-33b').addClass('widget-data-hide');
@@ -5552,6 +6378,7 @@
                     "self.chartOptions63":self.chartOptions63,
                     "self.chartOptions64":self.chartOptions64,
                     'self.chartOptions65':self.chartOptions65,
+                    "self.chartOptions71":self.chartOptions71,
                     };
                     var final_layout_list = [];
                     for (var single in self.layout_list){
@@ -5845,6 +6672,58 @@
                                     "<b>" + this.series.name + "</b> : " + Highcharts.numberFormat(this.y, null, null, ",");
                            }
                },    
+            };
+
+            self.chartOptions68 = {
+                chart : {
+                 type: 'column',
+                 backgroundColor: "transparent",
+                 reflow: false
+                },
+                               yAxis: {
+                gridLineColor: 'a2a2a2',
+                min: 0,
+                title: {
+                 text: '',
+                 align: 'high'
+                },
+                labels: {
+                 overflow: 'justify'
+                }
+               },
+
+               tooltip: {
+                valueSuffix: ''
+               },
+               credits: {
+                enabled: false
+               },
+            };
+
+            self.chartOptions69 = {
+                chart : {
+                 type: 'column',
+                 backgroundColor: "transparent",
+                 reflow: false
+                },
+                               yAxis: {
+                gridLineColor: 'a2a2a2',
+                min: 0,
+                title: {
+                 text: '',
+                 align: 'high'
+                },
+                labels: {
+                 overflow: 'justify'
+                }
+               },
+
+               tooltip: {
+                valueSuffix: ' %'
+               },
+               credits: {
+                enabled: false
+               },
             };
 
             self.chartOptions9 = {
@@ -7503,6 +8382,35 @@ self.chartOptions64 = {
                              return "<small>" + this.x + "</small><br/>" +
                                     "<b>" + this.series.name + "</b> : " + Highcharts.numberFormat(this.y, null, null, ",");
                            }
+               },
+               credits: {
+                enabled: false
+               },
+            };
+
+            self.chartOptions71 = {
+                chart : {
+                 backgroundColor: "transparent",
+                 reflow: false
+                },
+                lang: {
+                   thousandsSeparator: ','
+                },
+                yAxis: {
+                gridLineColor: 'a2a2a2',
+
+                min: 0,
+                title: {
+                 text: '',
+                 align: 'high'
+                },
+                labels: {
+                 overflow: 'justify',
+
+                }
+               },
+               tooltip: {
+                valueSuffix: '',
                },
                credits: {
                 enabled: false
