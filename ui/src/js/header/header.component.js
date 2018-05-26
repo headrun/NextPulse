@@ -21,21 +21,19 @@
                  $state.go("dashboard.page1",{'selpro': item});
                }
 
-               self.agent_data = [
-                  { Name: "Madhu Priya", value: "45", Name1: "Pavithra S", value1: "60", Name2: "Pavithra S", value2: "80"},
-                  { Name: "Natasha", value: "38", Name1: "Natasha", value1: "45", Name2: "Natasha", value2: "67"},
-                  { Name: "Dhanyalakshmi S", value: "30", Name1: "Maheswari M", value1: "28", Name2: "Maheswari M", value2: "49"},
-                  { Name: "Dharani G K", value: "20", Name1: "Madhu Priya", value1: "15", Name2: "Madhu Priya", value2: "38"},
-                  { Name: "Gomathi K", value: "10", Name1: "Pramila E", value1: "10", Name2: "Pramila E", value2: "12"},
-                  ];
+               self.agent_data = [ "Madhu Priya",
+                                   "Natasha",
+                                   "Dhanyalakshmi S",
+                                   "Dharani G K",
+                                   "Gomathi K"
+                                  ];
 
-               self.packet_data = [
-                  { Packet: "Latin America", value: "100", Packet1: "North America", value1:"90", Packet2: "Australia", value2:"80"},
-                  { Packet: "Europe", value: "90", Packet1: "Arabia", value1: "80", Packet2: "India and Sri Lanka", value2: "70"},
-                  { Packet: "DCIW Arabia", value: "90", Packet1: "Africa", value1: "80", Packet2: "Arabia", value2: "70"},
-                  { Packet: "North America", value: "60", Packet1: "Arabia", value1: "70", Packet2: "India and Sri Lanka", value2: "50"},
-                  { Packet: "Pakistan", value: "50", Packet1: "Quality Control", value1: "60", Packet2: "Arabia", value2: "35"},
-               ]  
+               self.packet_data = [ "Latin America",
+                                    "Europe",
+                                    "DCIW Arabia",
+                                    "North America",
+                                    "Pakistan",
+                                  ];  
                
                self.password = function(new_pa, new_again_pa){
                  if (new_pa === new_again_pa){
