@@ -72,5 +72,7 @@ urlpatterns = [
     url(r'^static_internal_external_agent_errors/', static_error_data.static_internal_external_agent_errors),
     url(r'^static_internal_external_error_category/', static_error_data.static_internal_external_error_category),
     url(r'^static_internal_external_packet_errors/', static_error_data.static_internal_external_packet_errors),
+    url(r'^static_internal_external_packet_accuracy/', static_error_data.static_internal_external_packet_accuracy),
+    url(r'^static_internal_external_agent_accuracy/', static_error_data.static_internal_external_agent_accuracy),
     url(r'^notification', apiviews.send_push_notification),
 ]
