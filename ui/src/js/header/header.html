@@ -3,8 +3,10 @@
     max-height:300px;
     overflow-y: scroll;
   }
-
-  @media screen and (min-width: 960px) {
+#form_data {
+    display: none
+}
+@media screen and (min-width: 960px) {
   .navbar-default {
     height: 60px;
     background:#ffffff;
@@ -286,7 +288,7 @@
                     </div>
                 </li>
                 <li>
-                    <a id="" class="btn form-sym" role="button"><i class="fa fa-wpforms" aria-hidden="true" data-toggle="modal" data-target="#formData" style="font-size: 150%;"></i></a>
+                    <a id="form_data" class="btn form-sym" role="button"><i class="fa fa-wpforms" aria-hidden="true" data-toggle="modal" data-target="#formData" style="font-size: 150%;"></i></a>
                     <div class="modal fade" id="formData" role="dialog">
                         <div class="modal-dialog input-form">
                             <!-- Modal content-->
