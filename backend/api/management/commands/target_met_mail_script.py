@@ -1,12 +1,20 @@
 
+from django.core import mail
+from django.core.mail import send_mail, BadHeaderError
+from django.core.mail import EmailMessage
+from django.db.models import Max, Sum
 from django.core.management.base import BaseCommand, CommandError
 from django.contrib.auth.models import User
+
 import os
+import datetime
 
 from itertools import chain
 from email.MIMEImage import MIMEImage
 
 from api.generate_accuracy_values import *
+from api.models import *
+
 
 class Command(BaseCommand):
 
@@ -17,20 +25,11 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        from django.core import mail
-        from django.core.mail import send_mail, BadHeaderError
-        from django.core.mail import EmailMessage
-        from django.db.models import Max, Sum
-        from api.models import *
-        import datetime
-
-        nw_managers = Nextwealthmanager.objects.all()[:2]
+        nw_managers = Nextwealthmanager.objects.all()
         center_managers = Centermanager.objects.all()
         customers = Customer.objects.all()
         tls = TeamLead.objects.all()
-        prv_date = datetime.datetime.now() - datetime.timedelta(days=1)
-        today_date = datetime.datetime.now()
-
+        
         for customer in customers:
             customer_details = Customer.objects.filter(id=customer.id).\
             values_list('project', flat=True)
