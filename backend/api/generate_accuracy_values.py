@@ -1,9 +1,42 @@
 
 import datetime
+from email.MIMEImage import MIMEImage
 
 from django.db.models import Sum,Max
+from django.core import mail
+from django.core.mail import send_mail, BadHeaderError
+from django.core.mail import EmailMessage
 
 from api.models import *
+
+def send_mail_data(user_details, user, user_group):
+
+    user_data = User.objects.filter(id=user.name_id)
+    user_name = user_data[0].first_name
+    _text1 = "Dear %s, <p>Below is a snapshot of  'Target'  and  'Actual'  values of SLA/KPI.</p>"\
+                    % (user_name)
+
+    mail_data = ''
+    prj_count = []
+    for data in user_details:
+        project = data
+        is_send_mail = Project.objects.get(id=project).is_enable_push
+        if (is_send_mail):
+            result = generate_targets_data(project)
+            project_name = Project.objects.get(id=project).name
+            date = RawTable.objects.filter(project=project).aggregate(Max('date'))
+            mail_data = mail_data + '<html></br></html>' + "%s"%(project_name) + generate_mail_table_format(result, project, date, user_group)
+            prj_count.append(project)
+    if len(prj_count) >= 1:
+        dashboard_url = "https://nextpulse.nextwealth.in"
+        mail_logos = generate_logos_format(dashboard_url)
+        mail_body = _text1 + mail_data + mail_logos
+        to = [user_data[0].email]
+        msg = EmailMessage("NextPulse KPI/SLA Report", mail_body, 'nextpulse@nextwealth.in', to)
+        msg.content_subtype = "html"
+        msg.send()
+
+    return "success"
 
 
 def generate_targets_data(project):
@@ -14,24 +47,32 @@ def generate_targets_data(project):
     rawtable_query = RawTable.objects.filter(project=project, date=last_date).aggregate(Sum('per_day'))
     production_value = rawtable_query['per_day__sum']
     target_query = Targets.objects.filter(\
-                    project=project, from_date__lte=last_date, \
-                    to_date__gte=last_date, target_type='Production').aggregate(Sum('target_value'))
+                    project=project,from_date__lte=last_date,target_method='SLA', \
+                    to_date__gte=last_date,target_type='Productivity').values_list('target_value',flat=True)
+    headcount_data = Headcount.objects.filter(project=project,date=last_date).aggregate(Sum('billable_agents'))
+    agent_data = 0
+    if not headcount_data['billable_agents__sum'] == None:
+        agent_data = headcount_data['billable_agents__sum']
     prod_target_value = 0
-    if not target_query['target_value__sum'] == None:
-        prod_target_value = target_query['target_value__sum']
+    if target_query:
+        prod_target_value = target_query
+    if agent_data != 0:
+        productivity = float('%.2f' % round(float(production_value)/float(agent_data),2))
+    else:
+        productivity = 0
     color = 'black'
     if production_value < prod_target_value:
         color = 'Red'
-    target_type = 'Internal accuracy'
+    target_method = 'KPI'
     table_name = Internalerrors
     internal_data = generate_internal_and_external_values(\
-                    project, table_name, last_date, production_value, target_type)
+                    project, table_name, last_date, production_value, target_method)
     result.update({'internal_target': internal_data['target'], 'internal_actual': internal_data['accuracy'],\
     'internal_color': internal_data['color']})
-    target_type = 'External accuracy'
+    target_method = 'SLA'
     table_name = Externalerrors
     external_data = generate_internal_and_external_values(\
-                    project, table_name, last_date, production_value, target_type)
+                    project, table_name, last_date, production_value, target_method)
     result.update({'external_target': external_data['target'], 'external_actual': external_data['accuracy'],\
     'external_color': external_data['color']})
     result.update({'prod_target': prod_target_value, 'prod_actual': production_value,\
@@ -49,7 +90,7 @@ def generate_targets_data(project):
     return result
 
 
-def generate_internal_and_external_values(project,table_name,date,production,target_type):
+def generate_internal_and_external_values(project,table_name,date,production,target_method):
     
     result = {}
     audited_errors = table_name.objects.filter(project=project, date=date).aggregate(Sum('audited_errors'))
@@ -59,7 +100,7 @@ def generate_internal_and_external_values(project,table_name,date,production,tar
     errors_count = total_errors['total_errors__sum']
     target_query = Targets.objects.filter(\
                     project=project, from_date__lte=date, to_date__gte=date, \
-                    target_type=target_type).aggregate(Sum('target_value'))
+                    target_method=target_method).aggregate(Sum('target_value'))
     target_value = target_query['target_value__sum']
     if errors_count >= 0 and audited_count > 0:
         accuracy_value = 100 - (float(errors_count)/float(audited_count))*100
@@ -148,7 +189,7 @@ def generate_tat_data(project,met_cnt,not_met,date):
     return result
 
 
-def generate_mail_table_format(result, project, date):
+def generate_mail_table_format(result, project, date, user_group):
 
     date = date['date__max']
 
@@ -236,14 +277,16 @@ def generate_mail_table_format(result, project, date):
                     </table>" % (result['tat_target'], result['tat_color'], result['tat'])
     body =  "</body>\
              </html>"
-    if aht_data and tat_data:
+    if aht_data and tat_data and user_group != 'customer':
         _text = mail_body + headers + first_row + second_row + third_row + fourth_row + fifth_row + body
-    elif aht_data:
+    elif aht_data and user_group != 'customer':
         _text = mail_body + headers + first_row + second_row + third_row + sixth_row + body
-    elif tat_data:
+    elif tat_data and user_group != 'customer':
         _text = mail_body + headers + first_row + second_row + third_row + seventh_row + body
-    else:            
+    elif user_group != 'customer':            
         _text = mail_body + headers + first_row + second_row + third_row + body
+    else:
+        _text = mail_body + headers + first_row + third_row + body
     return _text
 
 

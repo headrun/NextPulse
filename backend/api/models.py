@@ -25,6 +25,7 @@ class Project(models.Model):
     is_voice = models.BooleanField(default = False)
     display_value = models.BooleanField(default = False)
     user = models.ManyToManyField(User,null=True)
+    is_enable_push = models.BooleanField(default = False)
 
     class Meta:
         db_table = u'project'
@@ -60,6 +61,8 @@ class Customer(models.Model):
     center  = models.ManyToManyField(Center, null=True, db_index=True)
     project = models.ManyToManyField(Project, null=True, db_index=True)
     is_drilldown = models.BooleanField(default=None)
+    is_senior = models.BooleanField(default=None)
+    is_enable_push_email = models.BooleanField(default=None)
 
     class Meta:
         db_table = u'customer'

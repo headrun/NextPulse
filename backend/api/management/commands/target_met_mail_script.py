@@ -6,7 +6,7 @@ import os
 from itertools import chain
 from email.MIMEImage import MIMEImage
 
-from api.generate_accuracy_values import generate_internal_and_external_values, generate_targets_data, generate_mail_table_format, generate_logos_format
+from api.generate_accuracy_values import *
 
 class Command(BaseCommand):
 
@@ -24,36 +24,35 @@ class Command(BaseCommand):
         from api.models import *
         import datetime
 
-        nw_managers = Nextwealthmanager.objects.all()
-        cntr_managers = Centermanager.objects.all()
-        custmrs = Customer.objects.all()
+        nw_managers = Nextwealthmanager.objects.all()[:2]
+        center_managers = Centermanager.objects.all()
+        customers = Customer.objects.all()
         tls = TeamLead.objects.all()
-        managers = list(chain(nw_managers, cntr_managers, custmrs, tls))
         prv_date = datetime.datetime.now() - datetime.timedelta(days=1)
+        today_date = datetime.datetime.now()
 
-        for manager in managers:
-            projects = Project.objects.filter(user=manager.name_id).values_list('id', flat=True)
-            user_data = User.objects.filter(id=manager.name_id)
-            user_email = user_data[0].email
-            user_name = user_data[0].first_name
-            _text1 = "Dear %s, <p>Below is a snapshot of  'Target'  and  'Actual'  values of SLA/KPI.</p>"\
-                       % (user_name)
-            mail_data = ''
-            prj_count = []
+        for customer in customers:
+            customer_details = Customer.objects.filter(id=customer.id).\
+            values_list('project', flat=True)
+            send_mail_data(customer_details, customer, 'customer')
+
+        for tl in tls:
+            tl_details = TeamLead.objects.filter(id=tl.id, project__isnull = False).\
+                values_list('project',flat=True)
+            send_mail_data(tl_details, tl, 'team_lead')
+
+        for nw_manager in nw_managers:
+            projects = Project.objects.all()
+            projects_list = []
             for project in projects:
-                max_date = RawTable.objects.filter(project=project).aggregate(Max('created_at'))
-                date = RawTable.objects.filter(project=project).aggregate(Max('date'))
-                if str(max_date['created_at__max'].date()) == str(prv_date.date()):
-                    prj_count.append(project)
-                    result = generate_targets_data(project)
-                    name = Project.objects.filter(id=project).values_list('name',flat=True).distinct()
-                    project_name = name[0]
-                    mail_data = mail_data + '<html></br></html>' + "%s"%(project_name) + generate_mail_table_format(result, project, date)
-            if len(prj_count) > 0:
-                dashboard_url = "https://nextpulse.nextwealth.in"
-                mail_logos = generate_logos_format(dashboard_url)
-                mail_body = _text1 + mail_data + mail_logos
-                to = [user_email]
-                msg = EmailMessage("NextPulse KPI/SLA Report", mail_body, 'nextpulse@nextwealth.in', to)
-                msg.content_subtype = "html"
-                msg.send()
+                project = project.id
+                projects_list.append(project)
+            send_mail_data(projects_list, nw_manager, 'NW_manager')
+        
+        for cm_manager in center_managers:
+            center = Centermanager.objects.get(id=cm_manager.id).center_id
+            projects = Project.objects.filter(center=center).values_list('id', flat=True)
+            send_mail_data(projects, cm_manager, 'C_manager')
+
+
+        

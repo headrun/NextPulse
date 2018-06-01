@@ -194,7 +194,7 @@ def week_calculations(dates, project, center, level_structure_key, function_name
         week_dict[week_name] = data
     if function_name in [production_avg_perday,overall_exception_data,nw_exception_data,productivity_day]:
         result = prod_volume_week_util(project, week_names, week_dict, {}, 'week')
-    elif function_name in [tat_graph,aht_team_calculations]:
+    elif function_name in [tat_graph,aht_team_calculations,Daywise_Num_of_agents_aht,Percentage_of_agents_aht]:
         result = prod_volume_week_util_headcount(week_names, week_dict, {})
     elif function_name == pre_scan_exception_data:
         result = prod_volume_prescan_week_util(week_names,week_dict, {})
@@ -215,7 +215,7 @@ def month_calculations(dates, project, center, level_structure_key, function_nam
         month_dict[month_name] = data
     if function_name in [production_avg_perday,overall_exception_data,nw_exception_data,productivity_day]:
         result = prod_volume_week_util(project, month_names, month_dict, {}, 'month')
-    elif function_name in [tat_graph,aht_team_calculations]:
+    elif function_name in [tat_graph,aht_team_calculations,Daywise_Num_of_agents_aht,Percentage_of_agents_aht]:
         result = prod_volume_week_util_headcount(month_names, month_dict, {})
     elif function_name == pre_scan_exception_data:
         result = prod_volume_prescan_week_util(month_names, month_dict, {})

@@ -16,7 +16,6 @@ from common.utils import getHttpResponse as json_HttpResponse
 
 
 def generate_day_type_formats_multiple(request, result_name, function_name, sub_name1, sub_name2, config_1, config_2):
-
     final_dict = {}
     final_dict[result_name] = {}
     new_date_list = []
@@ -40,14 +39,17 @@ def generate_day_type_formats_multiple(request, result_name, function_name, sub_
             final_dict['utilization_operational_details'] = graph_data_alignment_color(data['Operational Utilization'],'data',\
                                                             level_structure_key,prj_id,center,'operational_utilization')
             final_dict['original_utilization_graph'] = graph_data_alignment_color(data['Overall Utilization'],'data',\
-                                                       level_structure_key,prj_id,center,'utilisation_wrt_work_packet')
+                                                       level_structure_key,prj_id,center,'utilisation_wrt_work_packet')        
         else:
-            data = function_name(date_list, prj_id, center, level_structure_key)
+            data = function_name(date_list, prj_id, center, level_structure_key)                                    
             if data:
                 sub_result1 = data[sub_name1]
+                if (data[sub_name2].has_key('Opening') and data[sub_name2].has_key('Received_week')):
+                    del data[sub_name2]['Opening']
+                    del data[sub_name2]['Received_week']
                 sub_result2 = data[sub_name2]
                 final_dict[result_name][sub_name1] = graph_data_alignment_color(sub_result1,'data',level_structure_key,prj_id,center,config_1)
-                final_dict[result_name][sub_name2] = graph_data_alignment_color(sub_result2,'data',level_structure_key,prj_id,center,config_2)
+                final_dict[result_name][sub_name2] = graph_data_alignment_color(sub_result2,'data',level_structure_key,prj_id,center,config_2)        
         final_dict['date'] = new_date_list
        
     elif main_data_dict['dwm_dict'].has_key('week') and main_data_dict['type'] == 'week':
@@ -63,7 +65,8 @@ def generate_day_type_formats_multiple(request, result_name, function_name, sub_
                                                        level_structure_key,prj_id,center,'utilisation_wrt_work_packet')
         else:
             week_data, week_data_1, week_data2 = week_calculations_multi(dates_list,prj_id,center,level_structure_key,\
-                                                 function_name,sub_name1,sub_name2)
+                                                 function_name,sub_name1,sub_name2)          
+            
             if week_data and week_data_1:
                 final_dict[result_name][sub_name1] = graph_data_alignment_color(week_data,'data',level_structure_key,prj_id,center,config_1) 
                 final_dict[result_name][sub_name2] = graph_data_alignment_color(week_data_1,'data',level_structure_key,prj_id,center,config_2)
@@ -215,17 +218,17 @@ def adding_min_max(high_chart_key,final_dict):
 
 
 def work_track_data(date_list,prj_id,center_obj,level_structure_key):
-
+    
     _dict = OrderedDict()
     line_dict = OrderedDict()
     volume_graph_data = {}
-
     filter_params = get_query_parameters(level_structure_key, prj_id, center_obj, date_list)
     if filter_params:
         track_query = Worktrack.objects.filter(**filter_params)
         query_data = track_query.values_list('date').annotate(open_val=Sum('opening'), \
                      receive=Sum('received'), hold=Sum('non_workable_count'), done=Sum('completed'), \
-                     balance=Sum('closing_balance'))
+                     balance=Sum('closing_balance'))        
+        
         for value in query_data:
             if _dict.has_key('Opening'):
                 _dict['Opening'].append(value[4])
@@ -234,7 +237,9 @@ def work_track_data(date_list,prj_id,center_obj,level_structure_key):
                 _dict['Completed'].append(value[2])
                 _dict['Closing balance'].append(value[5])
                 line_dict['Received'].append(value[4]+value[1])
+                line_dict['Received_week'].append(value[1])
                 line_dict['Completed'].append(value[2])
+                line_dict['Opening'].append(value[4])
             else:
                 _dict['Opening'] = [value[4]]
                 _dict['Received'] = [value[1]]
@@ -242,10 +247,13 @@ def work_track_data(date_list,prj_id,center_obj,level_structure_key):
                 _dict['Completed'] = [value[2]]
                 _dict['Closing balance'] = [value[5]]
                 line_dict['Received'] = [value[4]+value[1]]
+                line_dict['Received_week'] = [value[1]]
                 line_dict['Completed'] = [value[2]]
+                line_dict['Opening'] = [value[4]]
         volume_graph_data['bar_data'] = _dict
         volume_graph_data['line_data'] = line_dict
     return volume_graph_data
+
 
 
 def headcount_widgets(center_obj,prj_id,date_list,level_structure_key):

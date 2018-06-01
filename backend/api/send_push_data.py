@@ -70,52 +70,75 @@ def get_user_id(request):
             table_name = TeamLead       
         elif user_group == 'customer':
             table_name = Customer 
-        project = table_name.objects.filter(name = user).values_list('project',flat=True)
-        project = project[0]
-        check_data = OneSignal.objects.filter(user_id = user).values_list('device_id', flat=True)
+        projects = table_name.objects.filter(name = user).values_list('project',flat=True)
+        #import pdb;pdb.set_trace()
+        for project in projects:
+            check_data = OneSignal.objects.filter(user_id = user).values_list('device_id', flat=True)
 
-        if check_data:
-            user = user
-            device_id = player_id
-        else:
-            details = OneSignal(user_id = user, device_id = player_id)
-            details.save()
-            device_id = OneSignal.objects.filter(user_id = user).values_list('device_id', flat=True)
-        values = generate_data_required_for_push(project)
+            if check_data:
+                user = user
+                device_id = player_id
+            else:
+                details = OneSignal(user_id = user, device_id = player_id)
+                details.save()
+                device_id = OneSignal.objects.filter(user_id = user).values_list('device_id', flat=True)
+            values = generate_data_required_for_push(project)
     return values, device_id
 
 
 def send_push_notification(request):
-
+    
     user_group = request.user.groups.values_list('name', flat=True)[0]
     if user_group in ['team_lead', 'customer']:
-        values, device_id = get_user_id(request)
-        data_1 = values['project'] + "\n" + values['date'] + "\n"
-        if ('prod_actual' in values) and ('int_acc' not in values) and ('ext_acc' not in values):
-            metric = 'Production' + ": " + "Target = " + str(values['prod_target']) + ",  Actual = " + str(values['prod_actual'])
-        elif 'int_acc' and 'ext_acc' in values:
-            metric_1 = 'Internal Accuracy' + ": " + "Target = " + str(values['int_target']) + ",  Actual = " + str(values['int_acc']) + "\n"
-            metric_2 = 'External Accuracy' + ": " + "Target = " + str(values['ext_target']) + ",  Actual = " + str(values['ext_acc'])
-            metric = metric_1 + metric_2
-        elif 'int_acc' in values:
-            metric = 'Internal Accuracy' + ": " + "Target = " + str(values['int_target']) + "  Actual = " + str(values['int_acc'])
-        elif 'ext_acc' in values:
-            metric = 'External Accuracy' + ": " + "Target = " + str(values['ext_target']) + "  Actual = " + str(values['ext_acc'])
-        data = data_1 + metric
-        header = {"Content-Type": "application/json; charset=utf-8",
-                  "Authorization": "Basic NDc2MDUwN2YtYjk4Zi00NDM4LWFlZmEtNmQ4NjA3NDhhZTFm"}
+        #import pdb;pdb.set_trace()
+        #values, device_id = get_user_id(request)
+        player_id = request.POST.get('userid', '')
+        user = request.user.id
+        user_group = request.user.groups.values_list('name', flat=True)[0]
+        if user_group == 'team_lead':
+            table_name = TeamLead       
+        elif user_group == 'customer':
+            table_name = Customer 
+        projects = table_name.objects.filter(name = user).values_list('project',flat=True)
+        #import pdb;pdb.set_trace()
+        for project in projects:
+            check_data = OneSignal.objects.filter(user_id = user).values_list('device_id', flat=True)
 
-        payload = {"app_id": "110eec68-f4b0-44d2-a876-aca05bc87845",
-                   "include_player_ids": [device_id],
-                   #"included_segments": ["All"],
-                   "contents": {"en": data}}
-            
-        url = "https://onesignal.com/api/v1/notifications"
-        opener = urllib2.build_opener(urllib2.HTTPHandler)
-        request = urllib2.Request(url, data=json.dumps(payload))
-        request.add_header("Content-Type", "application/json; charset=utf-8") #Header, Value
-        request.add_header("Authorization", "Basic NDc2MDUwN2YtYjk4Zi00NDM4LWFlZmEtNmQ4NjA3NDhhZTFm")                                                                               
-        print opener.open(request)
+            if check_data:
+                user = user
+                device_id = player_id
+            else:
+                details = OneSignal(user_id = user, device_id = player_id)
+                details.save()
+                device_id = OneSignal.objects.filter(user_id = user).values_list('device_id', flat=True)
+            values = generate_data_required_for_push(project)
+            data_1 = values['project'] + "\n" + values['date'] + "\n"
+            if ('prod_actual' in values) and ('int_acc' not in values) and ('ext_acc' not in values):
+                metric = 'Production' + ": " + "Target = " + str(values['prod_target']) + ",  Actual = " + str(values['prod_actual'])
+            elif 'int_acc' and 'ext_acc' in values:
+                metric_1 = 'Internal Accuracy' + ": " + "Target = " + str(values['int_target']) + ",  Actual = " + str(values['int_acc']) + "\n"
+                metric_2 = 'External Accuracy' + ": " + "Target = " + str(values['ext_target']) + ",  Actual = " + str(values['ext_acc'])
+                metric = metric_1 + metric_2
+            elif 'int_acc' in values:
+                metric = 'Internal Accuracy' + ": " + "Target = " + str(values['int_target']) + "  Actual = " + str(values['int_acc'])
+            elif 'ext_acc' in values:
+                metric = 'External Accuracy' + ": " + "Target = " + str(values['ext_target']) + "  Actual = " + str(values['ext_acc'])
+            data = data_1 + metric
+            header = {"Content-Type": "application/json; charset=utf-8",
+                      "Authorization": "Basic MWNhMjliMjAtNzAxMy00N2Y4LWIxYTUtYzdjNjQzMDkzOTZk"}
+
+            payload = {"app_id": "d0d6000e-27ee-459b-be52-d65ed4b3d025",
+                       "include_player_ids": [device_id],
+                       #"included_segments": ["All"],
+                       "contents": {"en": data},
+                       "web_push_topic": 'Unique for every notification'}
+                
+            url = "https://onesignal.com/api/v1/notifications"
+            opener = urllib2.build_opener(urllib2.HTTPHandler)
+            request = urllib2.Request(url, data=json.dumps(payload))
+            request.add_header("Content-Type", "application/json; charset=utf-8") #Header, Value
+            request.add_header("Authorization", "Basic MWNhMjliMjAtNzAxMy00N2Y4LWIxYTUtYzdjNjQzMDkzOTZk")                                                                               
+            print opener.open(request), project
     else:
         payload = {}
     return json_HttpResponse(payload)
