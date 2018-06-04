@@ -2,7 +2,7 @@ from django.conf.urls import include, url
 from django.contrib import admin
 from api import views as apiviews
 from api import review_views
-
+from api import static_error_data
 urlpatterns = [
     # Examples:
     url(r'^error_board',apiviews.error_insert),
@@ -69,5 +69,9 @@ urlpatterns = [
     url(r'^no_of_agents_AHT', apiviews.Num_agents_aht),
     url(r'^percentage_60_aht', apiviews.Percentage_aht),
     url(r'^performance_summary', apiviews.performance_summary),
+    url(r'^employees_top_5_errors/', static_error_data.employees_top_5_errors),
+    url(r'^static_internal_external_error_category/', static_error_data.static_intern_extern_error_category_data),
+    url(r'^static_internal_packet_wise_error_data/', static_error_data.static_packet_wise_internal_data),
+    url(r'^static_external_packet_wise_error_data/', static_error_data.static_packet_wise_external_data),
     url(r'^notification', apiviews.send_push_notification),
 ]
