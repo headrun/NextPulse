@@ -2,7 +2,6 @@ from __future__ import unicode_literals
 from django.contrib.auth.models import User
 from django.db import models
 from django.contrib.auth.models import Group
-#from datetime import datetime
 
 
 class Center(models.Model):
@@ -24,9 +23,9 @@ class Project(models.Model):
     sub_project_check = models.BooleanField(default=None)
     is_voice = models.BooleanField(default = False)
     display_value = models.BooleanField(default = False)
-    user = models.ManyToManyField(User,null=True)
     is_enable_push = models.BooleanField(default = False)
-
+    user = models.ManyToManyField(User)
+    
     class Meta:
         db_table = u'project'
         index_together = (('name', 'center',), ('name', 'sub_project_check', 'center'),)
@@ -36,8 +35,8 @@ class Project(models.Model):
 
 class TeamLead(models.Model):
     name    = models.ForeignKey(User, null=True, db_index=True)
-    project = models.ManyToManyField(Project, null=True)
-    center = models.ManyToManyField(Center, null=True)
+    project = models.ManyToManyField(Project)
+    center = models.ManyToManyField(Center)
 
     class Meta:
         db_table = u'agent'
@@ -58,8 +57,8 @@ class ChartType(models.Model):
 
 class Customer(models.Model):
     name    = models.ForeignKey(User, null=True, db_index=True)
-    center  = models.ManyToManyField(Center, null=True, db_index=True)
-    project = models.ManyToManyField(Project, null=True, db_index=True)
+    center  = models.ManyToManyField(Center, db_index=True)
+    project = models.ManyToManyField(Project, db_index=True)
     is_drilldown = models.BooleanField(default=None)
     is_senior = models.BooleanField(default=None)
     is_enable_push_email = models.BooleanField(default=None)
@@ -182,8 +181,8 @@ class RawTable(models.Model):
     sub_project = models.CharField(max_length=255, blank=True,db_index=True)
     work_packet = models.CharField(max_length=255,db_index=True)
     sub_packet  = models.CharField(max_length=255, blank=True,db_index=True)
-    per_hour    = models.IntegerField(max_length=255, default=0)
-    per_day     = models.IntegerField(max_length=255, default=0,db_index=True)
+    per_hour    = models.IntegerField(default=0)
+    per_day     = models.IntegerField(default=0,db_index=True)
     date = models.DateField()
     norm        = models.IntegerField(blank=True)
     created_at  = models.DateTimeField(auto_now_add=True, null=True)

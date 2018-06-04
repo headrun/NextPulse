@@ -3000,6 +3000,575 @@
                         });
                     }
 
+                    function isEmpty(obj){
+                        for (var key in obj){
+                            if(obj.hasOwnProperty(key)){
+                                return false;
+                            }
+                        }
+                        return true;
+                    }
+
+                    function* enumerate(obj){
+                        var i =0;
+                        for (var key in obj){
+                            yield [i, key];
+                            i++;
+                        }
+                    }
+
+                    
+                    self.static_internal_external_agent_errors= function(){
+                        var error_data = '/api/static_internal_external_agent_errors/?'+self.static_widget_data;
+                        return $http({method:"GET", url: error_data }).success(function(result){
+                            if(isEmpty(result['result'].thirty_days_data.internalerrors)&&isEmpty(result['result'].sixty_days_data.internalerrors)&&isEmpty(result['result'].ninty_days_data.internalerrors)){
+                                var table_html = '<div style="margin-top:100px;margin-left:250px; font-size:11px; color:#5b5b5b; font-weight:bold;"><span>No data to display</span></div>';
+                                $(".widget-66b highcharts").remove();
+                                $('.widget-66b').css('overflow','auto');
+                                var $el = $(table_html).appendTo(".widget-body.widget-66b");
+                                $compile($el)($scope);                            
+                                $('.widget-66a').removeClass('widget-loader-show');
+                                $('.widget-66b').removeClass('widget-data-hide');
+
+                            }else{
+                                $('.widget-66a').addClass('widget-loader-show');
+                                $('.widget-66b').addClass('widget-data-hide');
+                                $("#widget-66-agent-error").remove();
+                                var thirty_days_internal_agent_data = result['result'].thirty_days_data.internalerrors;
+                                var sixty_days_internal_agent_data = result['result'].sixty_days_data.internalerrors;
+                                var ninty_days_internal_agent_data = result['result'].ninty_days_data.internalerrors;
+                                var widget = "<div id='widget-66-agent-error' style='margin-top:20px;'>";
+                                var card_html_1 = "<div class='card'><div class='card-header'><span class='card-header-text'>30 Days</span></div><div class='card-body'>";
+
+                                var card_html_2 = "<div class='card'><div class='card-header'><span class='card-header-text'>60 Days</span></div><div class='card-body'>";
+
+                                var card_html_3 = "<div class='card'><div class='card-header'><span class='card-header-text'>90 Days</span></div><div class='card-body'>";
+                                
+                                var cards = [card_html_1, card_html_2, card_html_3];
+                                var total_agent_errors = [thirty_days_internal_agent_data, sixty_days_internal_agent_data, ninty_days_internal_agent_data];
+
+                                for(var k = 0; k<total_agent_errors.length; k++){
+                                    var rows = ['', '', '', '', ''];
+                                    for(var [i, key] of enumerate(total_agent_errors[k])){
+                                        rows[i]+="<div class='small-card'><h4 class='small-card-body'>"+key+"</h4><p class='badge'>"+total_agent_errors[k][key]+"</p></div>";
+                                    }
+                                   
+                                    for(var i =0; i<rows.length; i++)
+                                        cards[k]+=rows[i];
+                                    cards[k]+="</div>";
+                                }
+
+                                card_html_1=cards[0]+"</div>";
+                                card_html_2=cards[1]+"</div>";
+                                card_html_3=cards[2]+"</div>";
+                                widget+=card_html_1+card_html_2+card_html_3+"</div>";
+                                
+                                $(".widget-66b highcharts").remove();
+                                $('.widget-66b').css('overflow','auto');
+                                var $el = $(widget).appendTo(".widget-body.widget-66b");
+                                $compile($el)($scope);                            
+                                $('.widget-66a').removeClass('widget-loader-show');
+                                $('.widget-66b').removeClass('widget-data-hide');
+                            }
+                        
+                            
+
+                            // ===================For External Errors =========================
+
+                            if(isEmpty(result['result'].thirty_days_data.externalerrors)&&isEmpty(result['result'].sixty_days_data.externalerrors)&&isEmpty(result['result'].ninty_days_data.externalerrors)){
+                                    var table_html= '<div style="margin-top:100px;margin-left:250px; font-size:11px; color:#5b5b5b; font-weight:bold;"><span>No data to display</span></div>';
+                                    $(".widget-67b highcharts").remove();
+                                    $('.widget-67b').css('overflow','auto');
+                                    var $el = $(table_html).appendTo(".widget-body.widget-67b");
+                                    $compile($el)($scope);                            
+                                    $('.widget-67a').removeClass('widget-loader-show');
+                                    $('.widget-67b').removeClass('widget-data-hide');
+
+                            }else{
+                                $('.widget-67a').addClass('widget-loader-show');
+                                $('.widget-67b').addClass('widget-data-hide');
+                                $("#widget-67-agent-error").remove();
+                                var thirty_days_external_agent_data = result['result'].thirty_days_data.externalerrors;
+                                var sixty_days_external_agent_data = result['result'].sixty_days_data.externalerrors;
+                                var ninty_days_external_agent_data = result['result'].ninty_days_data.externalerrors;
+                                var widget_2 = "<div id='widget-67-agent-error' style='margin-top:25px;'>";
+                                var card_html_4 = "<div class='card'><div class='card-header'><span class='card-header-text'>30 Days</span></div><div class='card-body'>";
+
+                                var card_html_5 = "<div class='card'><div class='card-header'><span class='card-header-text'>60 Days</span></div><div class='card-body'>";
+
+                                var card_html_6 = "<div  class='card'><div class='card-header'><span class='card-header-text'>90 Days</span></div><div class='card-body'>";
+
+                                var total_agent_errors = [thirty_days_external_agent_data, sixty_days_external_agent_data, ninty_days_external_agent_data];
+
+                                var cards_2 = [card_html_4, card_html_5, card_html_6];
+                                for(var k = 0; k<total_agent_errors.length; k++){
+                                    var rows = ['', '', '', '', ''];
+                                    for(var [i, key] of enumerate(total_agent_errors[k])){
+                                        rows[i]+="<div class='small-card'><h4 class='small-card-body'>"+key+"</h4><p class='badge'>"+total_agent_errors[k][key]+"</p></div>";
+                                    }
+                                   
+                                    for(var i =0; i<rows.length; i++)
+                                        cards_2[k]+=rows[i];
+                                    cards_2[k]+="</div>";
+                                }
+
+                                card_html_4=cards_2[0]+"</div>";
+                                card_html_5=cards_2[1]+"</div>";
+                                card_html_6=cards_2[2]+"</div>";
+                                widget_2+=card_html_4+card_html_5+card_html_6+"</div>";
+                                $(".widget-67b highcharts").remove()
+                                $('.widget-67b').css('overflow','auto');
+                                var $el = $(widget_2).appendTo(".widget-body.widget-67b");
+                                $compile($el)($scope);
+                                
+                                $('.widget-67a').removeClass('widget-loader-show');
+                                $('.widget-67b').removeClass('widget-data-hide');
+
+                            }
+                        });
+                    }
+                    self.static_internal_external_error_category = function(){
+                        var error_category = '/api/static_internal_external_error_category/?'+self.static_widget_data;
+                        return $http({method:"GET", url: error_category }).success(function(result){
+                            if(isEmpty(result['result'].thirty_days_data.internalerrors) && isEmpty(result['result'].sixty_days_data.internalerrors)&& isEmpty(result['result'].ninty_days_data.internalerrors)){
+
+                                $(".widget-68b highcharts").remove();
+                                $('.widget-68b').css('overflow','auto');
+                                var $el = $(table_html).appendTo(".widget-body.widget-68b");
+                                $compile($el)($scope);                            
+                                $('.widget-68a').removeClass('widget-loader-show');
+                                $('.widget-68b').removeClass('widget-data-hide');
+
+                            }else{
+                                $('.widget-68a').addClass('widget-loader-show');
+                                $('.widget-68b').addClass('widget-data-hide');
+                                $("#widget-68-error-category").remove();
+                                var thirty_days_internal_error_category = result['result'].thirty_days_data.internalerrors;
+                                var sixty_days_internal_error_category = result['result'].sixty_days_data.internalerrors;
+                                var ninty_days_internal_error_category = result['result'].ninty_days_data.internalerrors;
+                                
+                                var widget = "<div id='widget-68-error-category' style='margin-top:20px;'>";
+                                var card_html_1 = "<div class='card'><div class='card-header'><span class='card-header-text'>30 Days</span></div><div class='card-body'>";
+
+                                var card_html_2 = "<div class='card'><div class='card-header'><span class='card-header-text'>60 Days</span></div><div class='card-body'>";
+
+                                var card_html_3 = "<div  class='card'><div class='card-header'><span class='card-header-text'>90 Days</span></div><div class='card-body'>";
+                                
+                                var rows = ['', '', '', '', ''];
+                                var total_category_errors = [thirty_days_internal_error_category, sixty_days_internal_error_category, ninty_days_internal_error_category];
+                                
+                                var cards = [card_html_1, card_html_2, card_html_3];
+                                for(var k = 0; k < total_category_errors.length; k++){
+                                    var rows = ['', '', '', '', ''];
+                                    for(var [i, key] of enumerate(total_category_errors[k])){
+                                        rows[i]+="<div class='small-card'><h4 class='small-card-body'>"+key+"</h4><p class='badge'>"+total_category_errors[k][key]+"</p></div>";
+                                    }
+
+                                    for(var i =0; i<rows.length; i++)
+                                        cards[k]+=rows[i];
+                                    cards[k]+="</div>";
+                                }
+
+                                card_html_1=cards[0]+"</div>";
+                                card_html_2=cards[1]+"</div>";
+                                card_html_3=cards[2]+"</div>";
+                                widget+=card_html_1+card_html_2+card_html_3+"</div>";
+                                
+                                $(".widget-68b highcharts").remove();
+                                $('.widget-68b').css('overflow','auto');
+                                var $el = $(widget).appendTo(".widget-body.widget-68b");
+                                $compile($el)($scope);                            
+                                $('.widget-68a').removeClass('widget-loader-show');
+                                $('.widget-68b').removeClass('widget-data-hide');
+                            }
+                        
+                            
+
+                            // ===================For External Errors =========================
+
+                            if(isEmpty(result['result'].thirty_days_data.externalerrors)&&isEmpty(result['result'].sixty_days_data.externalerrors)&&isEmpty(result['result'].ninty_days_data.externalerrors)){
+                                var table_html = '<div style="margin-top:100px;margin-left:250px; font-size:11px; color:#5b5b5b; font-weight:bold;"><span>No data to display</span></div>';
+                                $(".widget-69b highcharts").remove();
+                                $('.widget-69b').css('overflow','auto');
+                                var $el = $(table_html).appendTo(".widget-body.widget-69b");
+                                $compile($el)($scope);                            
+                                $('.widget-69a').removeClass('widget-loader-show');
+                                $('.widget-69b').removeClass('widget-data-hide');
+                            }else{
+                                $('.widget-69a').addClass('widget-loader-show');
+                                $('.widget-69b').addClass('widget-data-hide');
+                                $("#widget-69-error-category").remove();
+                                var thirty_days_external_error_category = result['result'].thirty_days_data.externalerrors;
+                                var sixty_days_external_error_category = result['result'].sixty_days_data.externalerrors;
+                                var ninty_days_external_error_category = result['result'].ninty_days_data.externalerrors;
+                               
+                                var widget_2 = "<div id='widget-69-error-category' style='margin-top:20px;'>";
+
+                                var card_html_4 = "<div class='card'><div class='card-header'><span class='card-header-text'>30 Days</span></div><div class='card-body'>";
+
+                                var card_html_5 = "<div class='card'><div class='card-header'><span class='card-header-text'>60 Days</span></div><div class='card-body'>";
+
+                                var card_html_6 = "<div  class='card'><div class='card-header'><span class='card-header-text'>90 Days</span></div><div class='card-body'>";
+                                
+                                var cards_2 = [card_html_4, card_html_5, card_html_6];
+
+                                var total_category_errors = [thirty_days_external_error_category, sixty_days_external_error_category, ninty_days_external_error_category];
+
+                                for(var k = 0; k < total_category_errors.length; k++){
+                                    var rows = ['', '', '', '', ''];
+                                    for(var [i, key] of enumerate(total_category_errors[k])){
+                                       rows[i]+="<div class='small-card'><h4 class='small-card-body'>"+key+"</h4><p class='badge'>"+total_category_errors[k][key]+"</p></div>";
+                                    }
+                                    for(var i =0; i<rows.length; i++)
+                                        cards_2[k]+=rows[i];
+                                    cards_2[k]+="</div>";
+                                }
+
+                                card_html_4=cards_2[0]+"</div>";
+                                card_html_5=cards_2[1]+"</div>";
+                                card_html_6=cards_2[2]+"</div>";
+
+                                widget_2+=card_html_4+card_html_5+card_html_6+"</div>";
+
+                                $(".widget-69b highcharts").remove()
+                                $('.widget-69b').css('overflow','auto');
+                                var $el = $(widget_2).appendTo(".widget-body.widget-69b");
+                                $compile($el)($scope);                                
+                                $('.widget-69a').removeClass('widget-loader-show');
+                                $('.widget-69b').removeClass('widget-data-hide');
+
+                            }
+                        });
+                    }
+
+                    self.static_internal_external_packet_errors = function(){   
+                        var error_data = '/api/static_internal_external_packet_errors/?'+self.static_widget_data
+                        return $http({method:"GET", url: error_data }).success(function(result){
+                            if(isEmpty(result['result'].thirty_days_data.internalerrors)&&isEmpty(result['result'].sixty_days_data.internalerrors)&&isEmpty(result['result'].ninty_days_data.internalerrors)){
+                                var table_html = '<div style="margin-top:100px;margin-left:250px; font-size:11px; color:#5b5b5b; font-weight:bold;"><span>No data to display</span></div>';
+                                $(".widget-70a highcharts").remove();
+                                $('.widget-70b').css('overflow','auto');
+                                var $el = $(table_html).appendTo(".widget-body.widget-70b");
+                                $compile($el)($scope);                            
+                                $('.widget-70a').removeClass('widget-loader-show');
+                                $('.widget-70b').removeClass('widget-data-hide');
+                            }else{
+                                $('.widget-70a').addClass('widget-loader-show');
+                                $('.widget-70b').addClass('widget-data-hide');
+                                $("#widget-70-packet-wise-error").remove();
+                            
+                                var thirty_days_packet_wise_data = result['result'].thirty_days_data.internalerrors;
+                                var sixty_days_packet_wise_data = result['result'].sixty_days_data.internalerrors;
+                                var ninty_days_packet_wise_data = result['result'].ninty_days_data.internalerrors;
+                                
+                                var widget = "<div id='widget-70-packet-wise-error' style='margin-top:20px;'>";
+                                var card_html_1 = "<div class='card'><div class='card-header'><span class='card-header-text'>30 Days</span></div><div class='card-body'>";
+                                var card_html_2 = "<div class='card'><div class='card-header'><span class='card-header-text'>60 Days</span></div><div class='card-body'>";
+                                var card_html_3 = "<div  class='card'><div class='card-header'><span class='card-header-text'>90 Days</span></div><div class='card-body'>";
+                                var cards = [card_html_1, card_html_2, card_html_3];
+
+                                var total_packet_wise_errors = [thirty_days_packet_wise_data, sixty_days_packet_wise_data, ninty_days_packet_wise_data];
+                                                           
+                                for(var k = 0; k < total_packet_wise_errors.length; k++){
+                                    var rows = ['', '', '', '', ''];
+                                    for(var [i, key] of enumerate(total_packet_wise_errors[k])){
+                                        
+                                            rows[i]+="<div class='small-card'><h4 class='small-card-body'>"+key+"</h4><p class='badge'>"+total_packet_wise_errors[k][key]+"</p></div>";
+                                    }
+                                    for(var i =0; i<rows.length; i++)
+                                        cards[k]+=rows[i];
+                                    cards[k]+="</div>";
+                                }
+
+                                card_html_1=cards[0]+"</div>";
+                                card_html_2=cards[1]+"</div>";
+                                card_html_3=cards[2]+"</div>";
+                                widget+=card_html_1+card_html_2+card_html_3+"</div>";
+                             
+                                $(".widget-70b highcharts").remove();
+                                $('.widget-70b').css('overflow','auto');
+                                var $el = $(widget).appendTo(".widget-body.widget-70b");
+
+                                $compile($el)($scope);
+
+                                $('.widget-70a').removeClass('widget-loader-show');
+                                $('.widget-70b').removeClass('widget-data-hide');
+                            }
+
+                            // For external packets
+
+                            if(isEmpty(result['result'].thirty_days_data.externalerrors) && isEmpty(result['result'].sixty_days_data.externalerrors)&& isEmpty(result['result'].ninty_days_data.externalerrors)){
+                                var table_html = '<div style="margin-top:100px;margin-left:250px; font-size:11px; color:#5b5b5b; font-weight:bold;"><span>No data to display</span></div>';
+                                $(".widget-71a highcharts").remove();
+                                $('.widget-71b').css('overflow','auto');
+                                var $el = $(table_html).appendTo(".widget-body.widget-71b");
+                                $compile($el)($scope);                            
+                                $('.widget-71a').removeClass('widget-loader-show');
+                                $('.widget-71b').removeClass('widget-data-hide');
+                            }else{
+                                $('.widget-71a').addClass('widget-loader-show');
+                                $('.widget-71b').addClass('widget-data-hide');
+                                $("#widget-71-packet-wise-error").remove();
+                                  
+                                var thirty_days_packet_wise_data = result['result'].thirty_days_data.externalerrors;
+                                var sixty_days_packet_wise_data = result['result'].sixty_days_data.externalerrors;
+                                var ninty_days_packet_wise_data = result['result'].ninty_days_data.externalerrors;
+                        
+                                var widget_2 = "<div id='widget-71-packet-wise-error' style='margin-top:20px;'>";
+                                var card_html_4 = "<div class='card'><div class='card-header'><span class='card-header-text'>30 Days</span></div><div class='card-body'>";
+                                var card_html_5 = "<div class='card'><div class='card-header'><span class='card-header-text'>60 Days</span></div><div class='card-body'>";
+                                var card_html_6 = "<div  class='card'><div class='card-header'><span class='card-header-text'>90 Days</span></div><div class='card-body'>";
+                                var cards_2 = [card_html_4, card_html_5, card_html_6];                         
+                                
+                                var total_packet_wise_errors = [thirty_days_packet_wise_data, sixty_days_packet_wise_data, ninty_days_packet_wise_data];
+                             
+                                for(var k = 0; k < total_packet_wise_errors.length; k++){
+                                    var rows = ['', '', '', '', ''];                                    
+                                    for(var [i, key] of enumerate(total_packet_wise_errors[k])){
+                                            rows[i]+="<div class='small-card'><h4 class='small-card-body'>"+key+"</h4><p class='badge'>"+total_packet_wise_errors[k][key]+"</p></div>";
+                                    }
+
+                                    for(var i =0; i<rows.length; i++)
+                                        cards_2[k]+=rows[i];
+                                    cards_2[k]+="</div>";
+                                }
+
+                                card_html_4=cards_2[0]+"</div>";
+                                card_html_5=cards_2[1]+"</div>";
+                                card_html_6=cards_2[2]+"</div>";
+
+                                widget_2+=card_html_4+card_html_5+card_html_6+"</div>";
+                              
+                                $(".widget-71b highcharts").remove();
+                                $('.widget-71b').css('overflow','auto');
+                                var $el = $(widget_2).appendTo(".widget-body.widget-71b");
+                                $compile($el)($scope);
+                                $('.widget-71a').removeClass('widget-loader-show');
+                                $('.widget-71b').removeClass('widget-data-hide');
+                            }
+                        });
+                    }
+
+                    self.static_internal_external_packet_accuracy = function(){
+                        var url = '/api/static_internal_external_packet_accuracy/?'+self.static_widget_data;
+                        return $http({'method':'GET', 'url':url}).success(function(result){
+                            if(isEmpty(result['result'].thirty_days_data.internalerrors)&&isEmpty(result['result'].sixty_days_data.internalerrors)&&isEmpty(result['result'].ninty_days_data.internalerrors)){
+                                var table_html = '<div style="margin-top:100px;margin-left:250px; font-size:11px; color:#5b5b5b; font-weight:bold;"><span>No data to display</span></div>';
+                                $(".widget-72b highcharts").remove();
+                                $('.widget-72b').css('overflow','auto');
+                                var $el = $(table_html).appendTo(".widget-body.widget-72b");
+                                $compile($el)($scope);                            
+                                $('.widget-72a').removeClass('widget-loader-show');
+                                $('.widget-72b').removeClass('widget-data-hide');
+
+                            }else{
+                                $('.widget-72a').addClass('widget-loader-show');
+                                $('.widget-72b').addClass('widget-data-hide');
+                                $("#widget-72-packet-accuracy").remove();
+                                var thirty_days_internal_packet_accuracy = result['result'].thirty_days_data.internalerrors;
+                                var sixty_days_internal_packet_accuracy = result['result'].sixty_days_data.internalerrors;
+                                var ninty_days_internal_packet_accuracy = result['result'].ninty_days_data.internalerrors;
+                                var widget = "<div id='widget-72-packet-accuracy' style='margin-top:20px;'>";
+                                var card_html_1 = "<div class='card'><div class='card-header'><span class='card-header-text'>30 Days</span></div><div class='card-body'>";
+
+                                var card_html_2 = "<div class='card'><div class='card-header'><span class='card-header-text'>60 Days</span></div><div class='card-body'>";
+
+                                var card_html_3 = "<div  class='card'><div class='card-header'><span class='card-header-text'>90 Days</span></div><div class='card-body'>";
+                                
+                                var cards = [card_html_1, card_html_2, card_html_3];
+                                var total_packet_accuracy = [thirty_days_internal_packet_accuracy, sixty_days_internal_packet_accuracy, ninty_days_internal_packet_accuracy];
+
+                                for(var k = 0; k<total_packet_accuracy.length; k++){
+                                    var rows = ['', '', '', '', ''];
+                                    for(var [i, key] of enumerate(total_packet_accuracy[k])){
+                                        rows[i]+="<div class='small-card'><h4 class='small-card-body'>"+key+"</h4><p class='badge'>"+total_packet_accuracy[k][key]+"</p></div>";
+                                    }
+                                   
+                                    for(var i =0; i<rows.length; i++)
+                                        cards[k]+=rows[i];
+                                    cards[k]+="</div>";
+                                }
+
+                                card_html_1=cards[0]+"</div>";
+                                card_html_2=cards[1]+"</div>";
+                                card_html_3=cards[2]+"</div>";
+                                widget+=card_html_1+card_html_2+card_html_3+"</div>";
+                                
+                                $(".widget-72b highcharts").remove();
+                                $('.widget-72b').css('overflow','auto');
+                                var $el = $(widget).appendTo(".widget-body.widget-72b");
+                                $compile($el)($scope);                            
+                                $('.widget-72a').removeClass('widget-loader-show');
+                                $('.widget-72b').removeClass('widget-data-hide');
+                            }
+                        
+                            
+
+                            // ===================For External Errors =========================
+
+                            if(isEmpty(result['result'].thirty_days_data.externalerrors)&&isEmpty(result['result'].sixty_days_data.externalerrors)&&isEmpty(result['result'].ninty_days_data.externalerrors)){
+                                    var table_html= '<div style="margin-top:100px;margin-left:250px; font-size:11px; color:#5b5b5b; font-weight:bold;"><span>No data to display</span></div>';
+                                    $(".widget-73b highcharts").remove();
+                                    $('.widget-73b').css('overflow','auto');
+                                    var $el = $(table_html).appendTo(".widget-body.widget-73b");
+                                    $compile($el)($scope);                            
+                                    $('.widget-73a').removeClass('widget-loader-show');
+                                    $('.widget-73b').removeClass('widget-data-hide');
+
+                            }else{
+                                $('.widget-73a').addClass('widget-loader-show');
+                                $('.widget-73b').addClass('widget-data-hide');
+                                $("#widget-73-packet-accuracy").remove();
+                                var thirty_days_external_packet_accuracy = result['result'].thirty_days_data.externalerrors;
+                                var sixty_days_external_packet_accuracy = result['result'].sixty_days_data.externalerrors;
+                                var ninty_days_external_packet_accuracy = result['result'].ninty_days_data.externalerrors;
+                                var widget_2 = "<div id='widget-73-packet-accuracy' style='margin-top:20px;'>";
+                                var card_html_4 = "<div class='card'><div class='card-header'><span class='card-header-text'>30 Days</span></div><div class='card-body'>";
+
+                                var card_html_5 = "<div class='card'><div class='card-header'><span class='card-header-text'>60 Days</span></div><div class='card-body'>";
+
+                                var card_html_6 = "<div  class='card'><div class='card-header'><span class='card-header-text'>90 Days</span></div><div class='card-body'>";
+
+                                var total_packet_accuracy = [thirty_days_external_packet_accuracy, sixty_days_external_packet_accuracy, ninty_days_external_packet_accuracy];
+
+                                var cards_2 = [card_html_4, card_html_5, card_html_6];
+                                for(var k = 0; k<total_packet_accuracy.length; k++){
+                                    var rows = ['', '', '', '', ''];
+                                    for(var [i, key] of enumerate(total_packet_accuracy[k])){
+                                        rows[i]+=rows[i]+="<div class='small-card'><h4 class='small-card-body'>"+key+"</h4><p class='badge'>"+total_packet_accuracy[k][key]+"</p></div>";
+                                    }
+                                   
+                                    for(var i =0; i<rows.length; i++)
+                                        cards_2[k]+=rows[i];
+                                    cards_2[k]+="</div>";
+                                }
+
+                                card_html_4=cards_2[0]+"</div>";
+                                card_html_5=cards_2[1]+"</div>";
+                                card_html_6=cards_2[2]+"</div>";
+                                widget_2+=card_html_4+card_html_5+card_html_6+"</div>";
+                                $(".widget-73b highcharts").remove()
+                                $('.widget-73b').css('overflow','auto');
+                                var $el = $(widget_2).appendTo(".widget-body.widget-73b");
+                                $compile($el)($scope);
+                                
+                                $('.widget-73a').removeClass('widget-loader-show');
+                                $('.widget-73b').removeClass('widget-data-hide');
+
+                            }
+                        });
+                    }
+
+                    self.static_internal_external_agent_accuracy = function(){
+                        var url = '/api/static_internal_external_agent_accuracy/?'+self.static_widget_data;
+                        return $http({'method':'GET', 'url':url}).success(function(result){
+                            if(isEmpty(result['result'].thirty_days_data.internalerrors)&&isEmpty(result['result'].sixty_days_data.internalerrors)&&isEmpty(result['result'].ninty_days_data.internalerrors)){
+                                var table_html = '<div style="margin-top:100px;margin-left:250px; font-size:11px; color:#5b5b5b; font-weight:bold;"><span>No data to display</span></div>';
+                                $(".widget-74b highcharts").remove();
+                                $('.widget-74b').css('overflow','auto');
+                                var $el = $(table_html).appendTo(".widget-body.widget-74b");
+                                $compile($el)($scope);                            
+                                $('.widget-74a').removeClass('widget-loader-show');
+                                $('.widget-74b').removeClass('widget-data-hide');
+
+                            }else{
+                                $('.widget-74a').addClass('widget-loader-show');
+                                $('.widget-74b').addClass('widget-data-hide');
+                                $("#widget-74-agent-accuracy").remove();
+                                var thirty_days_internal_agent_accuracy = result['result'].thirty_days_data.internalerrors;
+                                var sixty_days_internal_agent_accuracy = result['result'].sixty_days_data.internalerrors;
+                                var ninty_days_internal_agent_accuracy = result['result'].ninty_days_data.internalerrors;
+                                var widget = "<div id='widget-74-agent-accuracy' style='margin-top:20px;'>";
+                                var card_html_1 = "<div class='card'><div class='card-header'><span class='card-header-text'>30 Days</span></div><div class='card-body'>";
+
+                                var card_html_2 = "<div class='card'><div class='card-header'><span class='card-header-text'>60 Days</span></div><div class='card-body'>";
+
+                                var card_html_3 = "<div  class='card'><div class='card-header'><span class='card-header-text'>90 Days</span></div><div class='card-body'>";
+                                
+                                var cards = [card_html_1, card_html_2, card_html_3];
+                                var total_agent_accuracy = [thirty_days_internal_agent_accuracy, sixty_days_internal_agent_accuracy, ninty_days_internal_agent_accuracy];
+
+                                for(var k = 0; k<total_agent_accuracy.length; k++){
+                                    var rows = ['', '', '', '', ''];
+                                    for(var [i, key] of enumerate(total_agent_accuracy[k])){
+                                        rows[i]+="<div class='small-card'><h4 class='small-card-body'>"+key+"</h4><p class='badge'>"+total_agent_accuracy[k][key]+"</p></div>";
+                                    }
+                                   
+                                    for(var i =0; i<rows.length; i++)
+                                        cards[k]+=rows[i];
+                                    cards[k]+="</div>";
+                                }
+
+                                card_html_1=cards[0]+"</div>";
+                                card_html_2=cards[1]+"</div>";
+                                card_html_3=cards[2]+"</div>";
+                                widget+=card_html_1+card_html_2+card_html_3+"</div>";
+                                
+                                $(".widget-74b highcharts").remove();
+                                $('.widget-74b').css('overflow','auto');
+                                var $el = $(widget).appendTo(".widget-body.widget-74b");
+                                $compile($el)($scope);                            
+                                $('.widget-74a').removeClass('widget-loader-show');
+                                $('.widget-74b').removeClass('widget-data-hide');
+                            }
+                        
+                            
+
+                            // ===================For External Errors =========================
+
+                            if(isEmpty(result['result'].thirty_days_data.externalerrors)&&isEmpty(result['result'].sixty_days_data.externalerrors)&&isEmpty(result['result'].ninty_days_data.externalerrors)){
+                                    var table_html= '<div style="margin-top:100px;margin-left:250px; font-size:11px; color:#5b5b5b; font-weight:bold;"><span>No data to display</span></div>';
+                                    $(".widget-75b highcharts").remove();
+                                    $('.widget-75b').css('overflow','auto');
+                                    var $el = $(table_html).appendTo(".widget-body.widget-75b");
+                                    $compile($el)($scope);                            
+                                    $('.widget-75a').removeClass('widget-loader-show');
+                                    $('.widget-75b').removeClass('widget-data-hide');
+
+                            }else{
+                                $('.widget-75a').addClass('widget-loader-show');
+                                $('.widget-75b').addClass('widget-data-hide');
+                                $("#widget-75-agent-accuracy").remove();
+                                var thirty_days_external_agent_accuracy = result['result'].thirty_days_data.externalerrors;
+                                var sixty_days_external_agent_accuracy = result['result'].sixty_days_data.externalerrors;
+                                var ninty_days_external_agent_accuracy = result['result'].ninty_days_data.externalerrors;
+                                var widget_2 = "<div id='widget-75-agent-accuracy' style='margin-top:20px;'>";
+                                var card_html_4 = "<div class='card'><div class='card-header'><span class='card-header-text'>30 Days</span></div><div class='card-body'>";
+
+                                var card_html_5 = "<div class='card'><div class='card-header'><span class='card-header-text'>60 Days</span></div><div class='card-body'>";
+
+                                var card_html_6 = "<div  class='card'><div class='card-header'><span class='card-header-text'>90 Days</span></div><div class='card-body'>";
+
+                                var total_agent_accuracy = [thirty_days_external_agent_accuracy, sixty_days_external_agent_accuracy, ninty_days_external_agent_accuracy];
+
+                                var cards_2 = [card_html_4, card_html_5, card_html_6];
+                                for(var k = 0; k<total_agent_accuracy.length; k++){
+                                    var rows = ['', '', '', '', ''];
+                                    for(var [i, key] of enumerate(total_agent_accuracy[k])){
+                                        rows[i]+=rows[i]+="<div class='small-card'><h4 class='small-card-body'>"+key+"</h4><p class='badge'>"+total_agent_accuracy[k][key]+"</p></div>";
+                                    }
+                                   
+                                    for(var i =0; i<rows.length; i++)
+                                        cards_2[k]+=rows[i];
+                                    cards_2[k]+="</div>";
+                                }
+
+                                card_html_4=cards_2[0]+"</div>";
+                                card_html_5=cards_2[1]+"</div>";
+                                card_html_6=cards_2[2]+"</div>";
+                                widget_2+=card_html_4+card_html_5+card_html_6+"</div>";
+                                $(".widget-75b highcharts").remove()
+                                $('.widget-75b').css('overflow','auto');
+                                var $el = $(widget_2).appendTo(".widget-body.widget-75b");
+                                $compile($el)($scope);
+                                
+                                $('.widget-75a').removeClass('widget-loader-show');
+                                $('.widget-75b').removeClass('widget-data-hide');
+
+                            }
+                        });
+                    }
+                
                     self.No_of_agents_AHT = function(final_work,type) {
 
                         if (type == undefined) {
@@ -3308,7 +3877,6 @@
                             $('.widget-64b').removeClass('widget-data-hide');
                         })
                     }
-
 
                     self.pre_scan = function(final_work, type) {
 
@@ -4609,6 +5177,7 @@
                     $('.widget-29a').removeClass('widget-loader-show');
                     $('.widget-29b').removeClass('widget-data-hide');
 
+                    
                     angular.extend(self.chartOptions35, {
                         xAxis: {
                             categories: result.result.date,
@@ -4688,6 +5257,16 @@
                          self.main_prod(undefined, undefined, undefined)
                     } else if (val == 'performance_summary') {
                         self.performance(undefined, undefined,undefined)     
+                    } else if (val == 'internal_agent_error_data'){
+                        self.static_internal_external_agent_errors()
+                    } else if (val == 'static_internal_error_category'){
+                        self.static_internal_external_error_category() 
+                    } else if(val == 'internal_packet_wise_error_data'){
+                        self.static_internal_external_packet_errors()
+                    } else if(val == 'internal_packet_accuracy') {
+                        self.static_internal_external_packet_accuracy()
+                    } else if(val =='internal_agent_accuracy'){
+                        self.static_internal_external_agent_accuracy()
                     } else if (val == 'no_of_agents_AHT_daywise') {
                          self.No_of_agents_AHT(undefined)
                     } else if (val == 'percentage_people_<67_and>99%_achieved') {
