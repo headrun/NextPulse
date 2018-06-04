@@ -372,7 +372,7 @@ class Targets(models.Model):
     target      = models.IntegerField()
     fte_target  = models.IntegerField(default=0)
     target_type = models.CharField(max_length=255, blank=True, db_index=True)
-    target_value = models.IntegerField(default=0)
+    target_value = models.FloatField(default=0)
     target_method = models.CharField(max_length=125, blank=True, db_index=True)
     center = models.ForeignKey(Center, null=True)
     project = models.ForeignKey(Project, null=True,db_index=True)
