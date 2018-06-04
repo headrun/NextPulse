@@ -1,161 +1,323 @@
 
 import datetime
+from email.MIMEImage import MIMEImage
 
 from django.db.models import Sum,Max
+from django.core import mail
+from django.core.mail import send_mail, BadHeaderError
+from django.core.mail import EmailMessage
 
 from api.models import *
 
+def send_mail_data(user_details, user, user_group):
 
-def generate_targets_data(project):
+    user_data = User.objects.filter(id=user.name_id)
+    user_name = user_data[0].first_name
+    _data = "Dear %s, <p>Below is a snapshot of  'Target'  and  'Actual'  values of SLA/KPI.</p>"\
+                    % (user_name)
+    yesterdays_date = datetime.datetime.now() - datetime.timedelta(days=1)
     
-    result = {}
+    mail_data = ''
+    prj_count = []
+    for data in user_details:
+        project = data
+        is_send_mail = Project.objects.get(id=project).is_enable_push
+        max_date = RawTable.objects.filter(project=project).aggregate(Max('created_at'))
+        if user_group == 'customer':
+            is_senior = Customer.objects.get(id=user.id).is_senior
+            is_enable_mail = Customer.objects.get(id=user.id).is_enable_push_email
+        else:
+            is_senior = False
+            is_enable_mail = True
+        if (is_send_mail and is_enable_mail) and (str(max_date['created_at__max'].date()) == str(yesterdays_date.date())):
+            result = generate_targets_data(project,user_group,is_senior)            
+            project_name = Project.objects.get(id=project).name
+            date = RawTable.objects.filter(project=project).aggregate(Max('date'))
+            mail_table_data = generate_mail_table_format(result,project,date,user_group,is_senior)
+            if mail_table_data != '':
+                mail_data = mail_data + '<html></br></html>' + "%s"%(project_name) + mail_table_data
+                prj_count.append(project)
+    if len(prj_count) >= 1:
+        dashboard_url = "https://nextpulse.nextwealth.in"
+        mail_logos = generate_logos_format(dashboard_url)
+        mail_body = _data + mail_data + mail_logos
+        to = [user_data[0].email]
+        msg = EmailMessage("NextPulse KPI/SLA Report", mail_body, 'nextpulse@nextwealth.in', to)
+        msg.content_subtype = "html"
+        msg.send()
+
+    return "success"
+
+
+def generate_targets_data(project,user_group,is_senior):
+
+    common_dict = {}
+
     date_query = RawTable.objects.filter(project_id=project).aggregate(Max('date'))
     last_date = str(date_query['date__max'])
-    rawtable_query = RawTable.objects.filter(project=project, date=last_date).aggregate(Sum('per_day'))
-    production_value = rawtable_query['per_day__sum']
-    target_query = Targets.objects.filter(\
-                    project=project, from_date__lte=last_date, \
-                    to_date__gte=last_date, target_type='Production').aggregate(Sum('target_value'))
-    prod_target_value = 0
-    if not target_query['target_value__sum'] == None:
-        prod_target_value = target_query['target_value__sum']
-    color = 'black'
-    if production_value < prod_target_value:
-        color = 'Red'
-    target_type = 'Internal accuracy'
-    table_name = Internalerrors
-    internal_data = generate_internal_and_external_values(\
-                    project, table_name, last_date, production_value, target_type)
-    result.update({'internal_target': internal_data['target'], 'internal_actual': internal_data['accuracy'],\
-    'internal_color': internal_data['color']})
-    target_type = 'External accuracy'
-    table_name = Externalerrors
-    external_data = generate_internal_and_external_values(\
-                    project, table_name, last_date, production_value, target_type)
-    result.update({'external_target': external_data['target'], 'external_actual': external_data['accuracy'],\
-    'external_color': external_data['color']})
-    result.update({'prod_target': prod_target_value, 'prod_actual': production_value,\
-    'prod_color': color})
-    aht_check = AHTTeam.objects.filter(project=project,date=last_date).aggregate(Sum('AHT'))
-    tat_check = TatTable.objects.filter(project=project,date=last_date)
-    met_cnt = tat_check.aggregate(Sum('met_count'))
-    not_met = tat_check.aggregate(Sum('non_met_count'))
-    if aht_check != None:
-        aht_data = generate_aht_data(project,last_date,aht_check)
-        result.update({'aht_target':aht_data['target'],'aht':aht_data['aht'],'aht_color':aht_data['color']})
-    if met_cnt['met_count__sum'] != None:
-        tat_data = generate_tat_data(project,met_cnt,not_met,last_date)
-        result.update({'tat_target':tat_data['target'],'tat':tat_data['tat'],'tat_color':tat_data['color']})
-    return result
+    target_query = Targets.objects.filter(project=project,from_date__lte=last_date, to_date__gte=last_date).\
+                    values_list('target_type','target_method').distinct()
 
+    for _type in  target_query:
+        if (_type[0] == 'FTE Target') or (_type[0] == 'Target') :
+            production = get_production_data(project,last_date,_type[0])
+            production['prod_target_method'] = _type[1]
+            common_dict['production'] = production
 
-def generate_internal_and_external_values(project,table_name,date,production,target_type):
+        elif _type[1] == 'SLA' and 'Accuracy' in _type[0]:
+            table_name = Externalerrors
+            sla = get_accuracy_data(project,last_date,_type,table_name)
+            sla['sla_target_method'] = _type[1]
+            common_dict['sla'] = sla
     
+        elif _type[1] == 'KPI' and 'Accuracy' in _type[0]:
+            table_name = Internalerrors
+            kpi = get_accuracy_data(project,last_date,_type,table_name)
+            kpi['kpi_target_method'] = _type[1]
+            common_dict['kpi'] = kpi
+        
+        elif (_type[0] == 'Productivity') or (_type[0] == 'Productivity%'):
+            productivity = get_productivity_data(project,last_date,_type[0])
+            productivity['productivity_target_method'] = _type[1]
+            common_dict['productivity'] = productivity
+        
+        elif _type[0] == 'AHT':
+            aht = get_aht_data(project,last_date)
+            aht['aht_target_method'] = _type[1]
+            common_dict['aht'] = aht
+            
+        elif _type[0] == 'TAT':
+            tat = get_tat_data(project,last_date)    
+            tat['tat_target_method'] = _type[1]
+            common_dict['tat'] = tat
+
+    return common_dict
+
+
+def get_production_data(project,date,_type):
+
     result = {}
-    audited_errors = table_name.objects.filter(project=project, date=date).aggregate(Sum('audited_errors'))
-    total_errors = table_name.objects.filter(project=project, date=date).aggregate(Sum('total_errors'))
-    agent_count = table_name.objects.filter(project=project, date=date).values('employee_id').count()
-    audited_count = audited_errors['audited_errors__sum'] 
-    errors_count = total_errors['total_errors__sum']
-    target_query = Targets.objects.filter(\
-                    project=project, from_date__lte=date, to_date__gte=date, \
-                    target_type=target_type).aggregate(Sum('target_value'))
-    target_value = target_query['target_value__sum']
-    if errors_count >= 0 and audited_count > 0:
-        accuracy_value = 100 - (float(errors_count)/float(audited_count))*100
-        accuracy_value = float('%.2f' % round(accuracy_value, 2))
-    elif errors_count >= 0 and audited_count == None:
-        accuracy_value = 100 - (float(errors_count)/float(production))*100
-        accuracy_value = float('%.2f' % round(accuracy_value, 2))
-    elif errors_count == None and audited_count == None and agent_count == 0:
-        target_value = target_value
-        accuracy_value = 0
-    if (target_value > accuracy_value) and (agent_count > 0):
-        target = target_value
-        accuracy = accuracy_value
+
+    work_done = RawTable.objects.filter(project=project,date=date).aggregate(Sum('per_day'))
+    work_done = work_done['per_day__sum']
+    billable_agents = Headcount.objects.filter(project=project,date=date).aggregate(Sum('billable_agents'))
+    billable_agents = billable_agents['billable_agents__sum']
+    if _type == 'FTE Target':
+        target = Targets.objects.filter(project=project,from_date__lte=date,to_date__gte=date,target_type=_type).\
+            aggregate(Sum('target_value'))
+        target = target['target_value__sum']
+        if billable_agents == None:
+            billable_agents = 0
+        if target == None:
+            target = 0
+        actual_target = target * billable_agents
+    else:
+        target = Targets.objects.filter(project=project,from_date__lte=date,to_date__gte=date,target_type=_type).\
+            aggregate(Sum('target_value'))
+        actual_target = target['target_value__sum']
+        
+    color = 'black'
+    if actual_target > work_done:
         color = 'Red'
-    elif (target_value < accuracy_value) and (agent_count > 0):
-        target = target_value
-        accuracy = accuracy_value
-        color = 'black'
-    elif target_value == None and accuracy_value > 0:
-        target = 'No data'
-        accuracy = accuracy_value
-        color = 'black'
-    elif agent_count == 0 and target_value > 0:
-        target = target_value
-        accuracy = 'No data'
-        color = 'black'
-    elif agent_count == 0 and target_value == None:
-        target = 'No data'
-        accuracy = 'No data'
-        color = 'black'
+    result['production_target'] = actual_target
+    result['workdone'] = work_done
+    result['prod_color'] = color
 
-    result['target'] = target
-    result['accuracy'] = accuracy
-    result['color'] = color
     return result
 
 
-def generate_aht_data(project,date,aht_value):
+def get_accuracy_data(project,date,_type,table_name):
 
     result = {}
-    aht_value = aht_value['AHT__sum']
-    target_value = Targets.objects.filter(project=project,from_date__lte=date,to_date__gte=date,\
-                    target_type='AHT').aggregate(Sum('target_value'))
-    target_value = target_value['target_value__sum']
-    if target_value > aht_value:
-        result['target'] = target_value
-        result['aht'] = aht_value
-        result['color'] = 'Red'
-    elif target_value < aht_value:
-        result['target'] = target_value
-        result['aht'] = aht_value
-        result['color'] = 'black'
-    elif target_value == None:
-        result['target'] = target_value
-        result['aht'] = aht_value
-        result['color'] = 'black'
-    return result
 
+    work_done = RawTable.objects.filter(project=project,date=date).aggregate(Sum('per_day'))
+    work_done = work_done['per_day__sum']
+    error_data = table_name.objects.filter(project=project,date=date).values_list('date').\
+                    annotate(audited=Sum('audited_errors'), errors = Sum('total_errors'))
+    if error_data:
+        if error_data[0][2]: 
+            audit_data = error_data[0][2]
+        else:
+            audit_data = work_done
+        
+        if audit_data:
+            accuracy = (float(error_data[0][1])/float(audit_data))*100
+            accuracy =  100 - round(accuracy,2)
+        else:
+            accuracy = 0
+    else:
+        accuracy = 'No data'
+    target = Targets.objects.filter(project=project,from_date__lte=date,to_date__gte=date,target_type=_type[0],\
+        target_method=_type[1]).values_list('target_value',flat=True)
 
-def generate_tat_data(project,met_cnt,not_met,date):
-
-    result = {}
-    target_value = Targets.objects.filter(project=project,from_date__lte=date,to_date__gte=date,\
-                    target_type='TAT').aggregate(Sum('target_value'))
-    met_val = met_cnt['met_count__sum']
-    not_met_val = not_met['non_met_count__sum']
-    value = (float(met_val) /float(met_val + not_met_val))*100
-    value = float('%.2f' % round(value, 2))
-    target = target_value['target_value__sum']
-    if target > value:
-        target = target
-        tat_val = value
+    if target:
+        target = target[0]
+    else:
+        target = 'No data'
+    color = 'black'
+    if target > accuracy:
         color = 'Red'
-    elif target < value:
-        target = target
-        tat_val = value
-        color = 'black'
-    elif target == None:
-        target = 'No data'
-        tat_val = value
-        color = 'black'
+    result[_type[1]+'_'+'accuracy'] = accuracy
+    result[_type[1]+'_'+'target'] = target
+    result[_type[1]+'_'+'color'] = color
 
-    result['tat'] = tat_val
-    result['target'] = target
-    result['color'] = color
     return result
 
 
-def generate_mail_table_format(result, project, date):
+def get_productivity_data(project,date,_type):
+
+    result = {}
+
+    work_done = RawTable.objects.filter(project=project,date=date).aggregate(Sum('per_day'))
+    work_done = work_done['per_day__sum']
+    billable_agents = Headcount.objects.filter(project=project,date=date).aggregate(Sum('billable_agents'))
+    billable_agents = billable_agents['billable_agents__sum']
+    
+    if billable_agents == None:
+        billable_agents = 0
+
+    if _type == 'Productivity':
+        target = Targets.objects.filter(project=project,from_date__lte=date,to_date__gte=date,target_type=_type).\
+                    values_list('target_value',flat=True)
+        if target:
+            target = target[0]
+        else:
+            target = 'No data'
+        if billable_agents:
+            productivity = work_done/billable_agents
+            productivity = round(productivity, 2)
+        else:
+            productivity = 0
+    else:
+        target_data = Targets.objects.filter(project=project,from_date__lte=date,to_date__gte=date,target_type=_type)
+        _target_type = Targets.objects.filter(project=project,from_date__lte=date,to_date__gte=date).\
+                        values_list('target_type',flat=True).distinct()
+        target = target_data.values_list('target_value',flat=True)
+        if target:
+            target = target[0]
+        else:
+            target = 'No Data'
+
+        if 'FTE Target' in _target_type:
+            target_value = Targets.objects.filter(project=project,from_date__lte=date,to_date__gte=date,\
+                            target_type='FTE Target').aggregate(Sum('target_value'))
+            target_value = target_value['target_value__sum']
+            if target_value == None:
+                target_value = 0
+            final_target = target_value * billable_agents
+            if final_target:
+                productivity = (work_done/final_target) * 100
+                productivity = round(productivity, 2)
+            else:
+                productivity = 0 
+        else:
+            target_value = Targets.objects.filter(project=project,from_date__lte=date,to_date__gte=date,\
+                            target_type='Target').aggregate(Sum('target_value'))
+            target_value = target_value['target_value__sum']
+            _target = target_value
+            if _target:
+                productivity = (work_done/_target) * 100
+                productivity = round(productivity, 2)
+            else:
+                productivity = 0
+
+    color = 'black'
+    if target > productivity:
+        color = 'Red'
+    result['productivity'] = productivity
+    result['productivity_target'] = target
+    result['productivity_color'] = color
+
+    return result
+
+
+def get_aht_data(project,date):
+
+    result = {}
+
+    aht_value = AHTTeam.objects.filter(project=project,date=date).aggregate(Sum('AHT'))
+    aht = aht_value['AHT__sum']
+    target = Targets.objects.filter(project=project,from_date__lte=date,to_date__gte=date,target_type='AHT').\
+                aggregate(Sum('target_value'))
+    target = target['target_value__sum']
+    if aht != None:
+        aht = round(aht,2)
+    color = 'black'
+
+    if target > aht:
+        color = 'Red'
+    result['aht_color'] = color
+    result['aht_target'] = target
+    result['aht'] = aht
+
+    return result
+
+
+def get_tat_data(project,date):
+
+    result = {}
+
+    target = Targets.objects.filter(project=project,from_date__lte=date,to_date__gte=date,target_type='TAT').\
+                aggregate(Sum('target_value'))
+    target = target['target_value__sum']
+
+    tat_data = TatTable.objects.filter(project=project,date=date).values_list('date').\
+        annotate(met=Sum('met_count'), not_met=Sum('not_met_count'))
+    if tat_data[0]:
+        tat = (float(tat[0])/float(tat[0]+tat[1])) *100
+        tat = round(tat, 2)
+    else:
+        tat = 0
+
+    color = 'black'
+    if target > tat:
+        color = 'Red'
+
+    result['tat_color'] = color
+    result['tat'] = tat
+    result['tat_target'] = target
+
+    return result
+
+
+def get_senior_customer_data(_data):
+
+    result = {}
+    for key, value in _data.iteritems():
+        for tar_key, tar_value in value.iteritems():
+            if tar_value == 'SLA':
+                if key == 'production':
+                    if _data['production']['production_target'] > _data['production']['workdone']:
+                        result[key] = value
+                elif key == 'aht':
+                    if _data['aht']['aht_target'] > _data['aht']['aht']:
+                        result[key] = value
+                elif key == 'productivity':
+                    if _data['productivity']['productivity_target'] > _data['productivity']['productivity']:
+                        result[key] = value
+                elif key == 'sla':
+                    if _data['sla']['SLA_target'] > _data['sla']['SLA_accuracy']:
+                        result[key] = value
+                elif key == 'tat':
+                    if _data['tat']['tat_target'] > _data['tat']['tat']:
+                        result[key] = value
+    return result
+
+
+def get_customer_data(_data):
+
+    result = {}
+    for key, value in _data.iteritems():
+        for tar_key, tar_value in value.iteritems():
+            if tar_value == 'SLA':
+                result[key] = value
+    return result
+
+
+def generate_mail_table_format(final_data,project,date,user_group,is_senior):
 
     date = date['date__max']
-
-    aht_data = AHTTeam.objects.filter(project=project,date=date).values('AHT').count()
-
-    tat_data = TatTable.objects.filter(project=project,date=date).values('met_count').count()
-
+    
     mail_body = "<html>\
                     <head>\
                         <style>\
@@ -167,6 +329,7 @@ def generate_mail_table_format(result, project, date):
                             td, th {\
                                 text-align: center;\
                                 padding: 8px;\
+                                color: red;\
                             }\
                             tr:nth-child(even) {\
                                 background-color: #dddddd;\
@@ -184,67 +347,278 @@ def generate_mail_table_format(result, project, date):
                                 color: white !important;\
                             }\
                         </style>\
-                    </head>\
-                    <body>\
-                        <table align='center' border='1'>"
+    </head>\
+    <body>\
+        <table align='center' border='1'>"
+
     headers = "<tr>\
                 <th>Name</th>\
                 <th>Target</th>\
                 <th>Actual</th>\
-            </tr>"
-    first_row = "<tr>\
-                    <td>Production</td>\
-                    <td>%s</td>\
-                    <td><font color=%s>%s</font></td>\
-                </tr>" % (result['prod_target'], result['prod_color'], result['prod_actual'])
-    second_row = "<tr>\
-                <td>Internal Accuracy</td>\
+            </tr>"        
+    body =  "</body>\
+            </html>"
+
+    if user_group == 'customer' and is_senior:
+        result = get_senior_customer_data(final_data)
+    elif user_group == 'customer':
+        result = get_customer_data(final_data)
+    else:
+        result = final_data
+    _keys = result.keys()
+    if (('production' in _keys) and ('aht' in _keys) and ('productivity' in _keys) and ('sla' in _keys)) or \
+        (('production' in _keys) and ('sla' in _keys) and ('productivity' in _keys) and ('kpi' in _keys)):
+        result_data = get_prod_sla_productivity(result)
+        _text = mail_body + headers + result_data 
+    elif (('production' in _keys) and ('sla' in _keys) and ('productivity' in _keys)) or (('production' in _keys) and ('sla' in _keys) and ('aht' in _keys))\
+        or (('aht' in _keys) and ('sla' in _keys) and ('productivity' in _keys)):
+        result_data = get_prod_sla_productivity(result)
+        _text = mail_body + headers + result_data
+    elif ((('production' in _keys) and ('aht' in _keys)) or (('production' in _keys) and ('sla' in _keys))\
+        or (('productivity' in _keys) and ('sla' in _keys)) or (('production' in _keys) and ('productivity' in _keys))):
+        result_data = get_fields_data(result)
+        _text = mail_body + headers + result_data       
+    elif (('production' in _keys) or ('sla' in _keys) or ('productivity' in _keys) or ('aht' in _keys)\
+        or ('kpi' in _keys)):
+        result_data = get_individual_fields(result)
+        _text = mail_body + headers + result_data            
+    else:
+        _text = ''                
+
+    return _text
+
+
+def get_prod_sla_productivity(result):
+
+    values = result.keys()
+    if ('production' in values) and ('sla' in values) and ('productivity' in values) and ('aht' in values):
+        production_data = "<tr>\
+            <td>Production</td>\
+            <td>%s</td>\
+            <td><font color=%s>%s</font></td>\
+            </tr>" % (result['production']['production_target'], result['production']['prod_color'], result['production']['workdone'])
+
+        sla_data = "<tr>\
+                <td>External Accuracy</td>\
                 <td>%s</td>\
                 <td><font color=%s>%s</font></td>\
-                </tr>" % (result['internal_target'], result['internal_color'], result['internal_actual'])
-    third_row = "<tr>\
+            </tr>" % (result['sla']['SLA_target'], result['sla']['SLA_color'], result['sla']['SLA_accuracy'])
+
+        productivity_data = "<tr>\
+                <td>Productivity</td>\
+                <td>%s</td>\
+                <td><font color=%s>%s</font></td>\
+            </tr>" % (result['productivity']['productivity_target'], result['productivity']['productivity_color'], result['productivity']['productivity'])
+
+        aht_data = "<tr>\
+                        <td>AHT</td>\
+                        <td>%s</td>\
+                        <td><font color=%s>%s</font></td>\
+                    </tr></table>" % (result['aht']['aht_target'], result['aht']['aht_color'], result['aht']['aht'])
+
+        _text = production_data + sla_data + productivity_data + aht_data
+
+    elif ('production' in values) and ('sla' in values) and ('productivity' in values) and ('kpi' in values):
+        production_data = "<tr>\
+            <td>Production</td>\
+            <td>%s</td>\
+            <td><font color=%s>%s</font></td>\
+            </tr>" % (result['production']['production_target'], result['production']['prod_color'], result['production']['workdone'])
+
+        sla_data = "<tr>\
+                <td>External Accuracy</td>\
+                <td>%s</td>\
+                <td><font color=%s>%s</font></td>\
+            </tr>" % (result['sla']['SLA_target'], result['sla']['SLA_color'], result['sla']['SLA_accuracy'])
+
+        productivity_data = "<tr>\
+                <td>Productivity</td>\
+                <td>%s</td>\
+                <td><font color=%s>%s</font></td>\
+            </tr>" % (result['productivity']['productivity_target'], result['productivity']['productivity_color'], result['productivity']['productivity'])
+
+        kpi_data = "<tr>\
+            <td>Internal Accuracy</td>\
+            <td>%s</td>\
+            <td><font color=%s>%s</font></td>\
+            </tr>" % (result['kpi']['KPI_target'], result['kpi']['KPI_color'], result['kpi']['KPI_accuracy'])
+
+        _text = production_data + sla_data + productivity_data + kpi_data
+
+    elif ('production' in values) and ('sla' in values) and ('productivity' in values):
+        production_data = "<tr>\
+            <td>Production</td>\
+            <td>%s</td>\
+            <td><font color=%s>%s</font></td>\
+            </tr>" % (result['production']['production_target'], result['production']['prod_color'], result['production']['workdone'])
+
+        sla_data = "<tr>\
+                <td>External Accuracy</td>\
+                <td>%s</td>\
+                <td><font color=%s>%s</font></td>\
+            </tr>" % (result['sla']['SLA_target'], result['sla']['SLA_color'], result['sla']['SLA_accuracy'])
+
+        productivity_data = "<tr>\
+                <td>Productivity</td>\
+                <td>%s</td>\
+                <td><font color=%s>%s</font></td>\
+            </tr></table>" % (result['productivity']['productivity_target'], result['productivity']['productivity_color'], result['productivity']['productivity'])
+        _text = production_data + sla_data + productivity_data    
+
+    elif ('production' in values) and ('sla' in values) and ('aht' in values):
+        production_data = "<tr>\
+            <td>Production</td>\
+            <td>%s</td>\
+            <td><font color=%s>%s</font></td>\
+            </tr>" % (result['production']['production_target'], result['production']['prod_color'], result['production']['workdone'])
+        sla_data = "<tr>\
+                <td>External Accuracy</td>\
+                <td>%s</td>\
+                <td><font color=%s>%s</font></td>\
+            </tr>" % (result['sla']['SLA_target'], result['sla']['SLA_color'], result['sla']['SLA_accuracy'])
+        aht_data = "<tr>\
+                        <td>AHT</td>\
+                        <td>%s</td>\
+                        <td><font color=%s>%s</font></td>\
+                    </tr></table>" % (result['aht']['aht_target'], result['aht']['aht_color'], result['aht']['aht'])        
+        _text = production_data + sla_data + aht_data
+
+    elif ('productivity' in values) and ('sla' in values) and ('aht' in values):
+        productivity_data = "<tr>\
+            <td>Productivity</td>\
+            <td>%s</td>\
+            <td><font color=%s>%s</font></td>\
+            </tr>" % (result['productivity']['productivity_target'], result['productivity']['productivity_color'], result['productivity']['productivity'])
+        sla_data = "<tr>\
+                <td>External Accuracy</td>\
+                <td>%s</td>\
+                <td><font color=%s>%s</font></td>\
+            </tr>" % (result['sla']['SLA_target'], result['sla']['SLA_color'], result['sla']['SLA_accuracy'])
+        aht_data = "<tr>\
+                        <td>AHT</td>\
+                        <td>%s</td>\
+                        <td><font color=%s>%s</font></td>\
+                    </tr></table>" % (result['aht']['aht_target'], result['aht']['aht_color'], result['aht']['aht'])        
+        _text = productivity_data + sla_data + aht_data
+    return _text
+
+
+def get_fields_data(result):
+
+    values = result.keys()
+    
+    if ('sla' in values) and ('productivity' in values):
+        sla_data = "<tr>\
                     <td>External Accuracy</td>\
                     <td>%s</td>\
                     <td><font color=%s>%s</font></td>\
-                </tr>" % (result['external_target'], result['external_color'], result['external_actual'])
+                </tr>" % (result['sla']['SLA_target'], result['sla']['SLA_color'], result['sla']['SLA_accuracy'])
+        productivity_data = "<tr>\
+                    <td>Productivity</td>\
+                    <td>%s</td>\
+                    <td><font color=%s>%s</font></td>\
+                </tr></table>" % (result['productivity']['productivity_target'], result['productivity']['productivity_color'], result['productivity']['productivity'])
+        _text = sla_data + productivity_data
 
-    if aht_data and tat_data:
-        fourth_row = "<tr>\
+    elif ('production' in values) and ('sla' in values):
+        sla_data = "<tr>\
+                    <td>External Accuracy</td>\
+                    <td>%s</td>\
+                    <td><font color=%s>%s</font></td>\
+                </tr>" % (result['sla']['SLA_target'], result['sla']['SLA_color'], result['sla']['SLA_accuracy'])
+        production_data = "<tr>\
+            <td>Production</td>\
+            <td>%s</td>\
+            <td><font color=%s>%s</font></td>\
+            </tr>\
+            </table>" % (result['production']['production_target'], result['production']['prod_color'], result['production']['workdone'])
+        _text = sla_data + production_data
+
+    elif ('sla' in values) and ('aht' in values):
+        sla_data = "<tr>\
+                    <td>External Accuracy</td>\
+                    <td>%s</td>\
+                    <td><font color=%s>%s</font></td>\
+                </tr>" % (result['sla']['SLA_target'], result['sla']['SLA_color'], result['sla']['SLA_accuracy'])
+        aht_data = "<tr>\
                         <td>AHT</td>\
                         <td>%s</td>\
                         <td><font color=%s>%s</font></td>\
-                    </tr>" % (result['aht_target'], result['aht_color'], result['aht'])
-        fifth_row = "<tr>\
-                        <td>TAT</td>\
-                        <td>%s</td>\
-                        <td><font color=%s>%s</font></td>\
-                    </tr>\
-                    </table>" % (result['tat_target'], result['tat_color'], result['tat'])
-    elif aht_data:
-        sixth_row = "<tr>\
+                </tr></table>" % (result['aht']['aht_target'], result['aht']['aht_color'], result['aht']['aht'])
+        _text = sla_data + aht_data
+
+    elif ('production' in values) and ('aht' in values):
+        aht_data = "<tr>\
+                    <td>AHT</td>\
+                    <td>%s</td>\
+                    <td><font color=%s>%s</font></td>\
+                </tr>" % (result['aht']['aht_target'], result['aht']['aht_color'], result['aht']['aht'])
+        production_data = "<tr>\
+            <td>Production</td>\
+            <td>%s</td>\
+            <td><font color=%s>%s</font></td>\
+            </tr>\
+            </table>" % (result['production']['production_target'], result['production']['prod_color'], result['production']['workdone'])
+        _text = aht_data + production_data
+
+    elif ('production' in values) and ('productivity' in values):
+        production_data = "<tr>\
+                    <td>Production</td>\
+                    <td>%s</td>\
+                    <td><font color=%s>%s</font></td>\
+                </tr>" % (result['production']['production_target'], result['production']['prod_color'], result['production']['workdone'])
+        productivity_data = "<tr>\
+                    <td>Productivity</td>\
+                    <td>%s</td>\
+                    <td><font color=%s>%s</font></td>\
+                </tr></table>" % (result['productivity']['productivity_target'], result['productivity']['productivity_color'], result['productivity']['productivity'])
+        _text = sla_data + productivity_data
+    return _text    
+
+
+def get_individual_fields(result):
+    values = result.keys()
+
+    if ('production' in values):
+        production_data = "<tr>\
+                            <td>Production</td>\
+                            <td>%s</td>\
+                            <td><font color=%s>%s</font></td>\
+                            </tr>\
+                        </table>" % (result['production']['production_target'], result['production']['prod_color'], result['production']['workdone'])
+        result = production_data
+    elif ('productivity' in values):
+        productivity_data = "<tr>\
+                    <td>Productivity</td>\
+                    <td>%s</td>\
+                    <td><font color=%s>%s</font></td>\
+                </tr>\
+                </table>" % (result['productivity']['productivity_target'], result['productivity']['productivity_color'], result['productivity']['productivity'])
+        result = productivity_data
+    elif ('sla' in values):
+        sla_data =  "<tr>\
+                    <td>External Accuracy</td>\
+                    <td>%s</td>\
+                    <td><font color=%s>%s</font></td>\
+                </tr>\
+                </table>" % (result['sla']['SLA_target'], result['sla']['SLA_color'], result['sla']['SLA_accuracy'])
+        result = sla_data
+    elif ('aht' in values):
+        aht_data = "<tr>\
                         <td>AHT</td>\
                         <td>%s</td>\
                         <td><font color=%s>%s</font></td>\
                     </tr>\
-                    </table>" % (result['aht_target'], result['aht_color'], result['aht'])
-    elif tat_data:
-        seventh_row = "<tr>\
-                        <td>TAT</td>\
+                    </table>" % (result['aht']['aht_target'], result['aht']['aht_color'], result['aht']['aht'])
+        result = aht_data
+    elif('kpi' in values):
+        kpi_data = "<tr>\
+                        <td>Internal Accuracy(%)</td>\
                         <td>%s</td>\
                         <td><font color=%s>%s</font></td>\
                     </tr>\
-                    </table>" % (result['tat_target'], result['tat_color'], result['tat'])
-    body =  "</body>\
-             </html>"
-    if aht_data and tat_data:
-        _text = mail_body + headers + first_row + second_row + third_row + fourth_row + fifth_row + body
-    elif aht_data:
-        _text = mail_body + headers + first_row + second_row + third_row + sixth_row + body
-    elif tat_data:
-        _text = mail_body + headers + first_row + second_row + third_row + seventh_row + body
-    else:            
-        _text = mail_body + headers + first_row + second_row + third_row + body
-    return _text
+                </table>" % (result['kpi']['KPI_target'], result['kpi']['KPI_color'], result['kpi']['KPI_accuracy'])
+    return result
 
 
 def generate_logos_format(dashboard_url):

@@ -23,8 +23,9 @@ class Project(models.Model):
     sub_project_check = models.BooleanField(default=None)
     is_voice = models.BooleanField(default = False)
     display_value = models.BooleanField(default = False)
+    is_enable_push = models.BooleanField(default = False)
     user = models.ManyToManyField(User)
-
+    
     class Meta:
         db_table = u'project'
         index_together = (('name', 'center',), ('name', 'sub_project_check', 'center'),)
@@ -59,6 +60,8 @@ class Customer(models.Model):
     center  = models.ManyToManyField(Center, db_index=True)
     project = models.ManyToManyField(Project, db_index=True)
     is_drilldown = models.BooleanField(default=None)
+    is_senior = models.BooleanField(default=None)
+    is_enable_push_email = models.BooleanField(default=None)
 
     class Meta:
         db_table = u'customer'
@@ -368,7 +371,7 @@ class Targets(models.Model):
     target      = models.IntegerField()
     fte_target  = models.IntegerField(default=0)
     target_type = models.CharField(max_length=255, blank=True, db_index=True)
-    target_value = models.IntegerField(default=0)
+    target_value = models.FloatField(default=0)
     target_method = models.CharField(max_length=125, blank=True, db_index=True)
     center = models.ForeignKey(Center, null=True)
     project = models.ForeignKey(Project, null=True,db_index=True)
