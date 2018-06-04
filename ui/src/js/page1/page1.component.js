@@ -3037,6 +3037,7 @@
                                 var thirty_days_internal_agent_data = result['result'].thirty_days_data.internalerrors;
                                 var sixty_days_internal_agent_data = result['result'].sixty_days_data.internalerrors;
                                 var ninty_days_internal_agent_data = result['result'].ninty_days_data.internalerrors;
+
                                 var widget = "<div id='widget-66-agent-error' style='margin-top:20px;'>";
                                 var card_html_1 = "<div class='card'><div class='card-header'><span class='card-header-text'>30 Days</span></div><div class='card-body'>";
 
@@ -3065,7 +3066,7 @@
                                 
                                 $(".widget-66b highcharts").remove();
                                 $('.widget-66b').css('overflow','auto');
-                                var $el = $(widget).appendTo(".widget-body.widget-66b");
+                                var $el = $(widget).appendTo(".widget-body.widget-66b");                                
                                 $compile($el)($scope);                            
                                 $('.widget-66a').removeClass('widget-loader-show');
                                 $('.widget-66b').removeClass('widget-data-hide');
@@ -3091,6 +3092,7 @@
                                 var thirty_days_external_agent_data = result['result'].thirty_days_data.externalerrors;
                                 var sixty_days_external_agent_data = result['result'].sixty_days_data.externalerrors;
                                 var ninty_days_external_agent_data = result['result'].ninty_days_data.externalerrors;
+
                                 var widget_2 = "<div id='widget-67-agent-error' style='margin-top:25px;'>";
                                 var card_html_4 = "<div class='card'><div class='card-header'><span class='card-header-text'>30 Days</span></div><div class='card-body'>";
 
@@ -3127,11 +3129,11 @@
                             }
                         });
                     }
+
                     self.static_internal_external_error_category = function(){
                         var error_category = '/api/static_internal_external_error_category/?'+self.static_widget_data;
                         return $http({method:"GET", url: error_category }).success(function(result){
                             if(isEmpty(result['result'].thirty_days_data.internalerrors) && isEmpty(result['result'].sixty_days_data.internalerrors)&& isEmpty(result['result'].ninty_days_data.internalerrors)){
-
                                 $(".widget-68b highcharts").remove();
                                 $('.widget-68b').css('overflow','auto');
                                 var $el = $(table_html).appendTo(".widget-body.widget-68b");
@@ -3142,6 +3144,7 @@
                             }else{
                                 $('.widget-68a').addClass('widget-loader-show');
                                 $('.widget-68b').addClass('widget-data-hide');
+
                                 $("#widget-68-error-category").remove();
                                 var thirty_days_internal_error_category = result['result'].thirty_days_data.internalerrors;
                                 var sixty_days_internal_error_category = result['result'].sixty_days_data.internalerrors;
@@ -3177,6 +3180,7 @@
                                 $(".widget-68b highcharts").remove();
                                 $('.widget-68b').css('overflow','auto');
                                 var $el = $(widget).appendTo(".widget-body.widget-68b");
+
                                 $compile($el)($scope);                            
                                 $('.widget-68a').removeClass('widget-loader-show');
                                 $('.widget-68b').removeClass('widget-data-hide');
@@ -3186,7 +3190,9 @@
 
                             // ===================For External Errors =========================
 
+
                             if(isEmpty(result['result'].thirty_days_data.externalerrors)&&isEmpty(result['result'].sixty_days_data.externalerrors)&&isEmpty(result['result'].ninty_days_data.externalerrors)){
+
                                 var table_html = '<div style="margin-top:100px;margin-left:250px; font-size:11px; color:#5b5b5b; font-weight:bold;"><span>No data to display</span></div>';
                                 $(".widget-69b highcharts").remove();
                                 $('.widget-69b').css('overflow','auto');
@@ -3198,6 +3204,7 @@
                                 $('.widget-69a').addClass('widget-loader-show');
                                 $('.widget-69b').addClass('widget-data-hide');
                                 $("#widget-69-error-category").remove();
+
                                 var thirty_days_external_error_category = result['result'].thirty_days_data.externalerrors;
                                 var sixty_days_external_error_category = result['result'].sixty_days_data.externalerrors;
                                 var ninty_days_external_error_category = result['result'].ninty_days_data.externalerrors;
@@ -3234,6 +3241,7 @@
                                 $('.widget-69b').css('overflow','auto');
                                 var $el = $(widget_2).appendTo(".widget-body.widget-69b");
                                 $compile($el)($scope);                                
+
                                 $('.widget-69a').removeClass('widget-loader-show');
                                 $('.widget-69b').removeClass('widget-data-hide');
 
@@ -3245,6 +3253,7 @@
                         var error_data = '/api/static_internal_external_packet_errors/?'+self.static_widget_data
                         return $http({method:"GET", url: error_data }).success(function(result){
                             if(isEmpty(result['result'].thirty_days_data.internalerrors)&&isEmpty(result['result'].sixty_days_data.internalerrors)&&isEmpty(result['result'].ninty_days_data.internalerrors)){
+
                                 var table_html = '<div style="margin-top:100px;margin-left:250px; font-size:11px; color:#5b5b5b; font-weight:bold;"><span>No data to display</span></div>';
                                 $(".widget-70a highcharts").remove();
                                 $('.widget-70b').css('overflow','auto');
@@ -3255,8 +3264,7 @@
                             }else{
                                 $('.widget-70a').addClass('widget-loader-show');
                                 $('.widget-70b').addClass('widget-data-hide');
-                                $("#widget-70-packet-wise-error").remove();
-                            
+                                $("#widget-70-packet-wise-error").remove();                            
                                 var thirty_days_packet_wise_data = result['result'].thirty_days_data.internalerrors;
                                 var sixty_days_packet_wise_data = result['result'].sixty_days_data.internalerrors;
                                 var ninty_days_packet_wise_data = result['result'].ninty_days_data.internalerrors;
@@ -3294,7 +3302,6 @@
                                 $('.widget-70a').removeClass('widget-loader-show');
                                 $('.widget-70b').removeClass('widget-data-hide');
                             }
-
                             // For external packets
 
                             if(isEmpty(result['result'].thirty_days_data.externalerrors) && isEmpty(result['result'].sixty_days_data.externalerrors)&& isEmpty(result['result'].ninty_days_data.externalerrors)){
@@ -3308,8 +3315,7 @@
                             }else{
                                 $('.widget-71a').addClass('widget-loader-show');
                                 $('.widget-71b').addClass('widget-data-hide');
-                                $("#widget-71-packet-wise-error").remove();
-                                  
+                                $("#widget-71-packet-wise-error").remove();                                  
                                 var thirty_days_packet_wise_data = result['result'].thirty_days_data.externalerrors;
                                 var sixty_days_packet_wise_data = result['result'].sixty_days_data.externalerrors;
                                 var ninty_days_packet_wise_data = result['result'].ninty_days_data.externalerrors;
@@ -3564,7 +3570,6 @@
                                 
                                 $('.widget-75a').removeClass('widget-loader-show');
                                 $('.widget-75b').removeClass('widget-data-hide');
-
                             }
                         });
                     }
@@ -5177,7 +5182,6 @@
                     $('.widget-29a').removeClass('widget-loader-show');
                     $('.widget-29b').removeClass('widget-data-hide');
 
-                    
                     angular.extend(self.chartOptions35, {
                         xAxis: {
                             categories: result.result.date,
@@ -5417,7 +5421,7 @@
                     'self.chartOptions65':self.chartOptions65,
                     "self.chartOptions68":self.chartOptions68,
                     "self.chartOptions69":self.chartOptions69,
-                    "self.chartOptions70":self.chartOptions70,
+                    "self.chartOptions70":self.chartOptions70",
                   };
 
 

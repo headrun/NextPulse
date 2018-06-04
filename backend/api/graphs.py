@@ -176,7 +176,7 @@ def month_calculations_multi(dates,project,center,level_structure_key,function_n
                     result_2 = ''
                 else:
                     result = volume_status_week(month_names, month_dict, final_dict)
-                    result_1 = received_volume_week(month_names, month_dict, final_dict_1)
+                    result_1 = received_volume_week(month_names, month_dict_1, final_dict_1)
                     result_2 = ''
             else:
                 result, result_1, result_2 = {}, {}, {}
