@@ -7,7 +7,6 @@ from operator import itemgetter
 from dateutil.relativedelta import relativedelta
 from collections import OrderedDict
 
-
 def generate_dates(project, center, required_dates):
 
 	days_lists = [list(), list(), list()]
