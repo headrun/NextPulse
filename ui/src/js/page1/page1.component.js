@@ -220,6 +220,118 @@
 
                });
 
+                
+                $('#date-selector').daterangepicker({}, function(start, end){
+                  var start_date = start.format('YYYY-MM-DD');
+                  var end_date = end.format('YYYY-MM-DD');
+                  var url = '/api/packet_agent/?'+self.static_widget_data+'&from_date='+start_date+'&to_date='+end_date;
+                  $http({method:'GET', url:url}).then(function(result){
+                        $('#formData').attr('class', 'modal fade in');
+                        $('#formData').css('display', 'block');
+                        $("<div class='modal-backdrop fade in'></div>").insertAfter('#formData');
+                        $(".close-sample-form").click(function(){
+                            $('#formData').fadeOut(50);
+                            $('.modal-backdrop').remove();
+                        });
+                        self.packet_data = result.packets;
+                        self.agent_data = reusult.agents;
+                  }, function(error){
+
+                  });
+                });
+                dragula([document.getElementById('dragger-packet')], {
+                    removeOnSpill: true
+                });
+
+                dragula([document.getElementById('dragger-agent')], {
+                    removeOnSpill: true
+                });
+
+                self.simple = function(id){
+                    self.click_el = id;
+                }
+
+                self.add_packet = function(){
+                    var newpacket = document.getElementById('newpacket').value;
+                    if( newpacket !== ""){
+                        var el = document.getElementById(self.click_el);
+                        el.innerText=newpacket;
+                        document.getElementById('newpacket').value='';
+                    }
+
+                }
+
+                self.add_agent = function(){
+                    var newagent = document.getElementById('newagent').value;
+                    if(newagent !== ""){
+                        var el = document.getElementById(self.click_el);
+                        el.innerText=newagent;
+                        document.getElementById('newagent').value='';
+                    }
+                }
+
+                $("#packet-add").click(function(){
+                    var text = $("#dragger-packet").children().last()["0"].innerText.trim();
+                    $("#dragger-packet").children().last().remove();
+                    var data = window.prompt("Add Packet:", "Packet")
+                    if(data === null || data === undefined || data.toLowerCase() === "packet")
+                        var el = "<div class='w3-panel w3-card' style='margin-top: -10px;'>\
+                                <p style='margin-top:10px;text-align:center; cursor: all-scroll;'>"+text+"</p>\
+                            </div>";
+                    else
+                        var el = "<div class='w3-panel w3-card' style='margin-top: -10px;'>\
+                                <p style='margin-top:10px;text-align:center; cursor: all-scroll;'>"+data+"</p>\
+                            </div>";
+                    $('#dragger-packet').append(el);
+                });
+
+                $("#agent-add").click(function(){
+                    var text = $("#dragger-agent").children().last()["0"].innerText.trim();
+                    $("#dragger-agent").children().last().remove();
+                    var data = window.prompt("Add Agent:", "Agent")
+                    if(data === null || data === undefined || data.toLowerCase() === "agent")
+                        var el = "<div class='w3-panel w3-card' style='margin-top: -10px;'>\
+                                <p style='margin-top:10px;text-align:center; cursor: all-scroll;'>"+text+"</p>\
+                            </div>";
+                    else
+                        var el = "<div class='w3-panel w3-card' style='margin-top: -10px;'>\
+                                <p style='margin-top:10px;text-align:center; cursor: all-scroll;'>"+data+"</p>\
+                            </div>";
+                    
+                    $('#dragger-agent').append(el);
+                });
+
+                self.formData = function(){
+                        var audit_per = document.getElementById('audit').value;
+                        var random_per = document.getElementById('randomsample').value;
+                        var packets = ['packet1', 'packet2', 'packet3', 'packet4', 'packet5'];
+                        var agents = ['agent1', 'agent2', 'agent3', 'agent4', 'agent5'];
+                        var packets_data = new Array(5);
+                        var agents_data = new Array(5);
+
+                        for(var i = 0; i<packets.length; i++)
+                            packets_data[i] = document.getElementById(packets[i]).innerText;
+
+                        for(var j = 0; j<agents.length; j++)
+                            agents_data[j] = document.getElementById(agents[j]).innerText;
+
+                        console.log(packets_data);
+                        console.log(agents_data);
+                        console.log(audit_per+'  '+random_per);
+                        var url = "/api/packet_agent_audit_random/";
+
+                        $http({method:'POST', url:url, data:{'packets':packets_data, 'agents':agents_data, 'audit_per':audit_per, 'random':random_per}}).then(
+                            function(result){
+                                self.success = true;
+                                self.packets_data = result.packets;
+                                self.agents_data = result.agents;
+                                self.audit = result.audit;
+                                self.random = result.random;
+                            }, function(error){
+                                console.log("Something went wrong...");
+                        });
+                }
+
             //Voice Type User
             self.filter_list = ['location', 'skill', 'disposition', 'call_status', 'cate_dispo_inbound', 'outbound_dispo_cate', 'outbound_disposition', 'outbnd_dispo_common', 'inbnd_utilization', 'outbnd_utilization', 'inbnd_occupancy', 'outbnd_occupancy', 'inbound_productivity', 'outbound_productivity', 'utilization', 'occupancy', 'agent_productivity_data', 'agent_required'];
             self.chartType = ['bar', 'stacked', 'pie', 'line'];
