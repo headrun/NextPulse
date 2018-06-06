@@ -7,11 +7,11 @@ from operator import itemgetter
 from dateutil.relativedelta import relativedelta
 from collections import OrderedDict
 
-
 def generate_dates(project, center, required_dates):
 	"""
 		It generates the dates from the last uploaded sheet date for that project to past 30 days, 60 days and 90 days.
 	"""
+
 	days_lists = [list(), list(), list()]
 
 	# Getting latest sheet uploded date for requsted project and center
@@ -24,9 +24,11 @@ def generate_dates(project, center, required_dates):
 	return days_lists
 
 def dates_data(project, center):
+
 	"""
 		It returns the dates_data taken from the generate_dates method and split the dates on basis months(1, 2, 3) wise.
 	"""
+
 	days_list = generate_dates(project, center, [30, 60, 90])
 	thirty_days_list =days_list[0]
 	sixty_days_list =days_list[1]
@@ -261,18 +263,17 @@ def static_internal_external_agent_errors(request):
 	center_id = Center.objects.get(name=center).id
 
 	dates_list = dates_data(pro_id, center_id)
-
 	result = get_internal_external_agent_error_data(pro_id, center_id, dates_list[0], dates_list[1], dates_list[2])
 
 	return JsonResponse(result)
 
 def static_internal_external_error_category(request):
+
 	project = request.GET.get('project', '')
 	center = request.GET.get('center', '').split(' -')[0]
-
 	pro_id = Project.objects.get(name=project).id
 	center_id = Center.objects.get(name=center).id
-
 	dates_list = dates_data(pro_id, center_id)
 	result = get_internal_external_error_category_data(pro_id, center_id, dates_list[0], dates_list[1], dates_list[2])
 	return JsonResponse(result)
+
