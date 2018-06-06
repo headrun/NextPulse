@@ -74,4 +74,5 @@ urlpatterns = [
     url(r'^static_internal_packet_wise_error_data/', static_error_data.static_packet_wise_internal_data),
     url(r'^static_external_packet_wise_error_data/', static_error_data.static_packet_wise_external_data),
     url(r'^notification', apiviews.send_push_notification),
+    url(r'^packet_agent', apiviews.packet_agent_data),
 ]
