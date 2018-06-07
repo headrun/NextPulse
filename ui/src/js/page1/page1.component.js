@@ -316,22 +316,23 @@
                         for(var j = 0; j<agents.length; j++)
                             agents_data[j] = document.getElementById(agents[j]).innerText;
 
-                        console.log(packets_data);
-                        console.log(agents_data);
-                        console.log(audit_per+'  '+random_per);
                         var center = self.static_widget_data.split('=')[2];
                         var project = self.static_widget_data.split('=')[1].split('&')[0]
                         var url = "/api/packet_agent_audit_random/";
-                        var data = {'packets':packets_data, 'agents':agents_data, 'audit':audit_per, 'random':random_per, "from":self.start_date, "to":self.end_date, "project":project, "center":center};
-                        $http({method:'POST', url:url, data:data, headers:{'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8;'}}).then(
-                            function(result){
-                                self.success = true;
-                                self.packets_data = result.data.packets;
-                                self.agents_data = result.data.agents;
-                                self.audit = result.data.audit;
-                                self.random = result.data.random;
-                            }, function(error){
-                                console.log("Something went wrong...");
+                        var data = {}
+                        data['packets'] = packets_data
+                        data['agents'] = agents_data
+                        data['audit'] = audit_per
+                        data['random'] = random_per
+                        data['from'] = self.start_date
+                        data['to'] = self.end_date
+                        data['project'] = project
+                        data['center'] = center
+                        var main_data = $.param({ json: JSON.stringify(data) });
+                        $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
+                        $http.post(url, (main_data)).then(function(result){
+                            self.excel_data = result.data;
+                            console.log(self.excel_data);
                         });
                 }
 
