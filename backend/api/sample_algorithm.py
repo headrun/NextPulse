@@ -15,7 +15,6 @@ from api.models import Project, Center, RawTable, Internalerrors
 def historical_packet_agent_data(request):
 
 	result = {}
-
 	main_data = data_dict(request.GET)
 	project_id = main_data['pro_cen_mapping'][0][0]
 	center_id = main_data['pro_cen_mapping'][1][0]
@@ -95,7 +94,6 @@ def generate_required_dates(dates, required_dates):
 def packet_agent_audit_random(request):
 
 	result = {}
-	
 	audit_value = request.POST.get('audit','')
 	packets = request.POST.get('packets','')
 	agents = request.POST.get('agents','')

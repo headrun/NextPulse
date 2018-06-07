@@ -319,10 +319,11 @@
                         console.log(packets_data);
                         console.log(agents_data);
                         console.log(audit_per+'  '+random_per);
+                        var center = self.static_widget_data.split('=')[2];
+                        var project = self.static_widget_data.split('=')[1].split('&')[0]
                         var url = "/api/packet_agent_audit_random/";
-                        var data = {'packets':packets_data, 'agents':agents_data, 'audit':audit_per, 'random':random_per, "from":self.start_date, "to":self.end_date}
-            
-                        $http({method:'POST', url:url, data:JSON.stringify(data),"Content-Type":'application/x-www-form-urlencoded;charset=utf-8;'}).then(
+                        var data = {'packets':packets_data, 'agents':agents_data, 'audit':audit_per, 'random':random_per, "from":self.start_date, "to":self.end_date, "project":project, "center":center};
+                        $http({method:'POST', url:url, data:data, headers:{'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8;'}}).then(
                             function(result){
                                 self.success = true;
                                 self.packets_data = result.data.packets;
