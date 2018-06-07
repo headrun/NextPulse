@@ -222,9 +222,9 @@
 
                 
                 $('#date-selector').daterangepicker({}, function(start, end){
-                  var start_date = start.format('YYYY-MM-DD');
-                  var end_date = end.format('YYYY-MM-DD');
-                  var url = '/api/packet_agent/?'+self.static_widget_data+'&from='+start_date+'&to='+end_date;
+                  self.start_date = start.format('YYYY-MM-DD');
+                  self.end_date = end.format('YYYY-MM-DD');
+                  var url = '/api/packet_agent/?'+self.static_widget_data+'&from='+self.start_date+'&to='+self.end_date;
                   $http({method:'GET', url:url}).then(function(result){
                         $('#formData').attr('class', 'modal fade in');
                         $('#formData').css('display', 'block');
@@ -249,6 +249,7 @@
 
                 self.simple = function(id){
                     self.click_el = id;
+                    self.el_data = document.getElementById(self.click_el).innerText;
                 }
 
                 self.add_packet = function(){
@@ -320,7 +321,7 @@
                         console.log(audit_per+'  '+random_per);
                         var url = "/api/packet_agent_audit_random/";
 
-                        $http({method:'POST', url:url, data:{'packets':packets_data, 'agents':agents_data, 'audit_per':audit_per, 'random':random_per}}).then(
+                        $http({method:'POST', url:url, data:{'packets':packets_data, 'agents':agents_data, 'audit':audit_per, 'random':random_per, "from":self.start_date, "to":self.end_date, "center_project":self.static_widget_data}}).then(
                             function(result){
                                 self.success = true;
                                 self.packets_data = result.data.packets;

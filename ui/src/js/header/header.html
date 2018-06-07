@@ -4,13 +4,6 @@
     overflow-y: scroll;
   }
   
-#date-selector {
-   display:none;
-   float:left;
-   margin-top:15px;
-   margin-left:-70px;
-
-}
 @media screen and (min-width: 960px) {
   .navbar-default {
     height: 60px;
@@ -237,6 +230,14 @@
 .agent, .space {
     margin-left: 10px;
 }
+.date-modal{
+    width:120%;
+    height:450px;
+}
+.date-in{
+    width:32%;
+}
+
 </style>
 <nav class="navbar navbar-default">
     <div class="container-fluid">
@@ -255,8 +256,6 @@
                     <span class="glyphicon glyphicon-home" id="home" aria-hidden="true"></span></a></abbr>
                 </li>
                 <li><a><p class="title"><font color="#0EBFE9">Next</font><font color="#308014">Pulse</font></p></a></li>
-
-                <li ><input type="text" class='form-control' name="date-picker" id='date-selector' size='30'></li>
             </ul>
             <ul class="nav navbar-nav navbar-right menu">
                 
@@ -296,7 +295,7 @@
                     </div>
                 </li>
                 <li>
-                    <a id="form_data" class="btn form-sym" role="button" onclick='datepicker();'><i class="fa fa-wpforms" aria-hidden="true" style="font-size: 150%;" ></i></a>
+                    <a class="btn form-sym" role="button" data-toggle="modal" data-target="#date-selector-modal"><i class="fa fa-wpforms" aria-hidden="true" style="font-size: 150%;"></i></a>
                 </li>
                 <li class="dropdown active span8" id="drpdown_btn">
                     <a class="dropdown-toggle" id="select_dropdown" data-toggle="dropdown">
@@ -373,6 +372,20 @@
         </div>      
     </div>
 </nav>
+<div id="date-selector-modal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content date-modal">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Date Selector</h4>
+      </div>
+      <div class="modal-body">
+        <input type="text" class="form-control date-in" id="date-selector">
+      </div>
+    </div>
+
+  </div>
+</div>
 <script>
     $(function () {
        $("#fileupload").uploadFile({
@@ -410,7 +423,7 @@
        $('#dropdown_title').html($(".brand_style").text().replace(" - DASHBOARD",''));
     });*/
 
-      function datepicker(){
-        document.getElementById('date-selector').style.display='inline';
-    }
+    //   function datepicker(){
+    //     document.getElementById('date-selector').style.display='inline';
+    // }
 </script>
