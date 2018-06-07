@@ -24,8 +24,9 @@ class Project(models.Model):
     is_voice = models.BooleanField(default = False)
     display_value = models.BooleanField(default = False)
     is_enable_push = models.BooleanField(default = False)
-    user = models.ManyToManyField(User)
-    
+    no_of_packets = models.IntegerField(default=5)
+    no_of_agents = models.IntegerField(default=5)
+
     class Meta:
         db_table = u'project'
         index_together = (('name', 'center',), ('name', 'sub_project_check', 'center'),)
