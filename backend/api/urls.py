@@ -75,5 +75,6 @@ urlpatterns = [
     url(r'^static_internal_external_packet_accuracy/', static_error_data.static_internal_external_packet_accuracy),
     url(r'^static_internal_external_agent_accuracy/', static_error_data.static_internal_external_agent_accuracy),
     url(r'^notification', apiviews.send_push_notification),
-    url(r'^packet_agent', apiviews.packet_agent_data),
+    url(r'^historical_packet_agent', apiviews.historical_packet_agent_data),
+    url(r'^packet_agent_audit_random', apiviews.packet_agent_audit_random),
 ]

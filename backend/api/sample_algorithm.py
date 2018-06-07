@@ -2,6 +2,8 @@
 from django.http import HttpResponse, JsonResponse
 
 import datetime as dt
+import xlwt
+from xlwt import Workbook
 from datetime import date
 from operator import itemgetter
 
@@ -10,7 +12,7 @@ from api.commons import data_dict
 from api.models import Project, Center, RawTable, Internalerrors
 
 
-def packet_agent_data(request):
+def historical_packet_agent_data(request):
 
 	result = {}
 
@@ -35,6 +37,8 @@ def packet_agent_data(request):
 
 
 def get_the_packet_and_agent_data(required_data,dates,project_id,center_id,filter_type):
+
+	####===generates the output for displaying top5 packets and agents based on historical data===####
 
 	result_dict = {}
 	result = {}
@@ -75,6 +79,8 @@ def get_the_packet_and_agent_data(required_data,dates,project_id,center_id,filte
 
 def generate_required_dates(dates, required_dates):
 
+	####======generates past 15, 30, 60 and 90 dates based on current database date=====####
+
 	dates = dates[0]
 	check_date = date(*map(int, dates.split('-')))
 	dates_lists = [list(), list(), list(), list()]
@@ -84,6 +90,50 @@ def generate_required_dates(dates, required_dates):
 			dates_lists[index].append((check_date - dt.timedelta(day)).strftime('%Y-%m-%d'))
 	
 	return dates_lists
+
+
+def packet_agent_audit_random(request):
+
+	result = {}
+	
+	audit_value = request.POST.get('audit','')
+	packets = request.POST.get('packets','')
+	agents = request.POST.get('agents','')
+	start_date = request.POST.get('from','')
+	end_date = request.POST.get('to','')
+	center_project = request.POST.get('center_project')
+	center = center_project.split(' - ')[0]
+	project = center_project.split(' - ')[1]
+
+	project_id = Project.objects.get(name=project).id
+	center_id = Center.objects.get(name=center).id
+
+	workdone_value = RawTable.objects.filter(project=project_id,center=center_id,\
+			date=date).aggregate(Sum('per_day'))
+	workdone_value = workdone_value['per_day__sum']
+
+	audited_percentage_value = (audit_value/100)*(workdone_value)
+
+	i=0
+	k=0
+	total = 0
+
+	for agent in agents:
+		if total <= audited_percentage_value:
+			agent_workdone = RawTable.objects.filter(project=project_id,center=center_id,date=start_date,\
+				employee_id=agents[i]).aggregate(Sum('per_day'))
+			total += agent_workdone['per_day__sum']
+			i+=1
+			result[agent] = agent_workdone['per_day__sum']
+			if audited_percentage_value < total:
+				for packet in packets:
+					packet_workdone = RawTable.objects.filter(project=project_id,center=center_id,\
+						date=start_date,work_packet=packets[k]).aggregate(Sum('per_day'))
+					total += packet_workdone['per_day__sum']
+					k+=1
+					result[packet] = packet_workdone['per_day__sum']
+	
+	return JsonResponse(result)
 
 
 
