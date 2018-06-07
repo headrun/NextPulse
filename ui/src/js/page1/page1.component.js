@@ -224,7 +224,7 @@
                 $('#date-selector').daterangepicker({}, function(start, end){
                   var start_date = start.format('YYYY-MM-DD');
                   var end_date = end.format('YYYY-MM-DD');
-                  var url = '/api/packet_agent/?'+self.static_widget_data+'&from_date='+start_date+'&to_date='+end_date;
+                  var url = '/api/packet_agent/?'+self.static_widget_data+'&from='+start_date+'&to='+end_date;
                   $http({method:'GET', url:url}).then(function(result){
                         $('#formData').attr('class', 'modal fade in');
                         $('#formData').css('display', 'block');
@@ -233,8 +233,8 @@
                             $('#formData').fadeOut(50);
                             $('.modal-backdrop').remove();
                         });
-                        self.packet_data = result.packets;
-                        self.agent_data = reusult.agents;
+                        self.packet_data = result.data.packets;
+                        self.agent_data = result.data.agents;
                   }, function(error){
 
                   });
@@ -323,10 +323,10 @@
                         $http({method:'POST', url:url, data:{'packets':packets_data, 'agents':agents_data, 'audit_per':audit_per, 'random':random_per}}).then(
                             function(result){
                                 self.success = true;
-                                self.packets_data = result.packets;
-                                self.agents_data = result.agents;
-                                self.audit = result.audit;
-                                self.random = result.random;
+                                self.packets_data = result.data.packets;
+                                self.agents_data = result.data.agents;
+                                self.audit = result.data.audit;
+                                self.random = result.data.random;
                             }, function(error){
                                 console.log("Something went wrong...");
                         });
@@ -5533,7 +5533,7 @@
                     'self.chartOptions65':self.chartOptions65,
                     "self.chartOptions68":self.chartOptions68,
                     "self.chartOptions69":self.chartOptions69,
-                    "self.chartOptions70":self.chartOptions70",
+                    "self.chartOptions70":self.chartOptions70
                   };
 
 
