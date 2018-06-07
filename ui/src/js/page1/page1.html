@@ -75,66 +75,71 @@
     margin:7px 5px;
 }
 
-/*table {
-
-    margin : 0 auto;
-    border: 1px solid #323232;
- }
-.table-responsive {
-    border: 1px solid #ccc;
-    background-color:#ffffff;
-    margin: 5px;
-    padding-right: 10px;
-    padding-left: 10px;
+.w3-card:active{
+    /*-webkit-animation: wiggle 0.3s 0s infinite ease-in;
+    animation: wiggle 0.3s 0s infinite ease-in;*/
+    opacity: .6;
+    border:2px solid grey;
+    
 }
-.table-bordered>tbody>tr>td {
-    border : none;
+.w3-card:hover{
+    background-color: #e5e5e5;
+    box-shadow: 0 0 0 0;
+    transition: .1s;
 }
 
-.table>tbody>tr>td {
-    border-top: none;
+/*@-webkit-keyframes wiggle {
+  0% {
+    -webkit-transform: rotate(0deg);
+  }
+  25% {
+    -webkit-transform: rotate(2deg);
+  }
+  75% {
+    -webkit-transform: rotate(-2deg);
+  }
+  100% {
+    -webkit-transform: rotate(0deg);
+  }
 }
-.table-bordered>tfoot>tr>th {
-    border : none;
-}
-.table-bordered>thead>tr>td {
-    border : none;
-}
-.table-bordered>thead>tr>th {
-    border : none;
-}
-.body {
-        width: 100%;
-    }
-.body thead, .body tbody, .body tr, .body td, .body th{
-    display: block;
- }
-.body tr:after {
-    content: ' ';
-    display: block;
-    visibility: hidden;
-    clear: both;
-}
- .body tbody{
-    height: 180px;
-    overflow-y: auto;
-}
-
-.body th {
-    height: 40px;
-}
-
-.body td, .body th {
-    width: 19.7%;
-    float: left;
-}
-
-div.content {
-    overflow: hidden;
- }
-thead {
-    border: 1px solid black;
+@keyframes wiggle {
+  0% {
+    transform: rotate(-2deg);
+  }
+  25% {
+    transform: rotate(2deg);
+  }
+  75% {
+    transform: rotate(-2deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
 }*/
+.gu-mirror {
+  position: fixed !important;
+  margin: 0 !important;
+  z-index: 9999 !important;
+  padding: 1em;
+}
+
+.gu-hide {
+  display: none !important;
+}
+
+.gu-unselectable {
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+  user-select: none !important;
+}
+
+.gu-transit {
+  opacity: 0.5;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";
+  filter: alpha(opacity=50);
+}
+
 div.content {
     overflow: hidden;
 }
@@ -257,6 +262,104 @@ div.content {
         <i class="fa fa-arrow-circle-o-up hide"></i>
     </a>
 </div>
+<div class="modal fade" id="formData" role="dialog" style="overflow-y:auto;">
+    <div class="modal-dialog input-form">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close close-sample-form" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Form Data</h4>
+            </div>
+            <hr>
+            <div class="modal-body" >
+                <form class="form-inline">
+                    <div class="row">
+                        <div class="col-lg-3 form-group"><label for="aduit">Audit %</label><input type="number" class="form-control" value="{{$ctrl.audit}}" id="audit" min="0" max="100"></div>
+                        <div class="col-lg-4"><label for="randomsample">Random Sample %</label><input type="number" class="form-control" value="{{$ctrl.random}}" id="randomsample"  min="0" max="100"></div>
+                    </div>
+                    <br>
+                    <div class="w3-container">
+                        <div class="row">
+                            <div class="col-md-offset-4 col-md-4">
+                                <p style="text-align: center;"><b>Work Packets</b></p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-offset-4 col-md-4" id='dragger-packet'>
+                                <div class="w3-panel w3-card" ng-repeat="item in $ctrl.packet_data" style="margin-top: -10px; cursor: all-scroll;" ng-click="$ctrl.simple('packet'+($index+1))" data-toggle="modal" data-target="#addpacket">
+                                    <p id="packet{{$index+1}}" style="margin-top:10px;text-align:center;">{{item}}</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                    <i class="fa fa-plus-circle" id="packet-add" style="font-size: x-large; cursor: pointer;"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w3-container">
+                        <div class="row" >
+                            <div class="col-md-offset-4 col-md-4" >
+                                <p style="text-align: center;"><b>Agents</b></p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-offset-4 col-md-4"  id='dragger-agent'>
+                                <div class="w3-panel w3-card" ng-repeat="item in $ctrl.agent_data" style="margin-top: -10px; cursor: all-scroll;" ng-click="$ctrl.simple('agent'+($index+1))" data-toggle="modal" data-target="#addagent">
+                                    <p style="margin-top:10px;text-align:center;" id="agent{{$index+1}}">{{item}}</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <i class="fa fa-plus-circle" id="agent-add" style="font-size: x-large; cursor: pointer"></i>
+                            </div>
+                        </div>
+                    </div>     
+                    <div class="modal-footer">
+                        <button type="button " class="btn btn-primary btn-md animate-if" ng-if="$ctrl.success" ng-model="$ctrl.success" ng-init="success=false">Download</button>
+                        <button type="submit" class="btn btn-default" ng-click="$ctrl.formData()">Submit</button>
+                    </div>
+                </form>
+            </div> 
+        </div>
+    </div>
+</div>
+
+<!-- For adding packet -->
+<div class="modal fade" id="addpacket" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Add packet</h4>
+            </div>
+            <div class="modal-body">
+                <label for="newpacket">New Packet:</label>
+                <input type="text" name="newpacket" id="newpacket" class="form-control">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="$ctrl.add_packet()">Ok</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- For adding agent -->
+<div class="modal fade" id="addagent" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Add Agent</h4>
+            </div>
+            <div class="modal-body">
+                <label for="newpacket">New Agent:</label>
+                <input type="text" name="newagent" id="newagent" class="form-control">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="$ctrl.add_agent()">Ok</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <script type="text/javascript" async="async" defer="defer" data-cfasync="false" src="https://mylivechat.com/chatinline.aspx?hccid=73900030"></script>
 <p id="hidden-tag">{{$ctrl.hiden_tag}}</p>
 </body>
