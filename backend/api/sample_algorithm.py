@@ -5,11 +5,11 @@ import datetime as dt
 import xlsxwriter
 from datetime import date
 from operator import itemgetter
-
+import ast
 from api.basics import *
 from api.commons import data_dict
 from api.models import Project, Center, RawTable, Internalerrors
-
+from django.utils.encoding import smart_str
 
 def historical_packet_agent_data(request):
 
@@ -97,15 +97,16 @@ def packet_agent_audit_random(request):
     ###=====claculation of audit%=====###
 
     result = {}
+    data_dict = ast.literal_eval(request.POST.keys()[0])
 
-    audit_value = eval(request.POST['json']).get('audit', "")
-    packets = eval(request.POST['json']).get('packets', "")
-    agents = eval(request.POST['json']).get('agents', "")
-    start_date = eval(request.POST['json']).get('from', "")
-    end_date = eval(request.POST['json']).get('to', "")
-    project = eval(request.POST['json']).get('project', "")
-    center = eval(request.POST['json']).get('center', "").split(' - ')[0]
-
+    audit_value = data_dict.get('audit', "")
+    packets = data_dict.get('packets', "")
+    agents = data_dict.get('agents', "")
+    start_date = data_dict.get('from', "")
+    end_date = data_dict.get('to', "")
+    project = data_dict.get('project', "")
+    center = data_dict.get('center', "").split(' - ')[0]
+    
     project_id = Project.objects.get(name=project).id
     center_id = Center.objects.get(name=center).id
 
@@ -136,18 +137,21 @@ def packet_agent_audit_random(request):
 
 
 def generate_excel_for_audit_data(request):
-
+    from xlsxwriter.workbook import Workbook
     ##=====generates agents and packets data in excel=====##
-
-    workbook = xlsxwriter.Workbook('audit_data.xlsx')
-    worksheet = workbook.add_worksheet()
-
-    i = 1
-    for key, value in data.iteritems():
-        worksheet.write('A'+str(i), key)
-        worksheet.write('B'+str(i), value)
-        i +=1
-    workbook.close()
-
-
-
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename=%s' % ('audit_data.xlsx')
+    workbook = Workbook(response, {'in_memory': True})
+    if request.method == 'POST':
+        data = ast.literal_eval(request.POST.keys()[0])
+        workbook = xlsxwriter.Workbook('audit_data.xlsx')
+        worksheet = workbook.add_worksheet('audit_data')
+        i = 1
+        for key, value in data.iteritems():
+            worksheet.write('A'+str(i), key)
+            worksheet.write('B'+str(i), value)
+            i +=1    
+        workbook.close()
+        return response
+    else:
+        return HttpResponse('Please use the post method to send the data.')

@@ -221,22 +221,29 @@
                });
 
                 
-                $('#date-selector').daterangepicker({}, function(start, end){
+                $('#date-selector').daterangepicker({
+                    'autoApply':true
+                }, function(start, end){
+                  $('#date-selector-modal').slideUp(400);
+                  $('#data-loader').show();
                   self.start_date = start.format('YYYY-MM-DD');
                   self.end_date = end.format('YYYY-MM-DD');
                   var url = '/api/historical_packet_agent/?'+self.static_widget_data+'&from='+self.start_date+'&to='+self.end_date;
                   $http({method:'GET', url:url}).then(function(result){
+                        $('#formData').slideDown(200);
                         $('#formData').attr('class', 'modal fade in');
                         $('#formData').css('display', 'block');
                         $("<div class='modal-backdrop fade in'></div>").insertAfter('#formData');
                         $(".close-sample-form").click(function(){
-                            $('#formData').fadeOut(50);
+                            $('#formData').slideUp(300);
                             $('.modal-backdrop').remove();
                         });
                         self.packet_data = result.data.packets;
                         self.agent_data = result.data.agents;
                   }, function(error){
-
+                        $('.modal-backdrop').remove();
+                        self.error=true;
+                        $('.error-msg').delay(500).fadeOut();
                   });
                 });
                 dragula([document.getElementById('dragger-packet')], {
@@ -303,8 +310,8 @@
                 });
 
                 self.formData = function(){
-                        var audit_per = document.getElementById('audit').value;
-                        var random_per = document.getElementById('randomsample').value;
+                        self.audit_per = document.getElementById('audit').value;
+                        self.random_per = document.getElementById('randomsample').value;
                         var packets = ['packet1', 'packet2', 'packet3', 'packet4', 'packet5'];
                         var agents = ['agent1', 'agent2', 'agent3', 'agent4', 'agent5'];
                         var packets_data = new Array(5);
@@ -319,21 +326,22 @@
                         var center = self.static_widget_data.split('=')[2];
                         var project = self.static_widget_data.split('=')[1].split('&')[0]
                         var url = "/api/packet_agent_audit_random/";
-                        var data = {}
-                        data['packets'] = packets_data
-                        data['agents'] = agents_data
-                        data['audit'] = audit_per
-                        data['random'] = random_per
-                        data['from'] = self.start_date
-                        data['to'] = self.end_date
-                        data['project'] = project
-                        data['center'] = center
-                        var main_data = $.param({ json: JSON.stringify(data) });
-                        $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
-                        $http.post(url, (main_data)).then(function(result){
+                        var data = {'packets':packets_data, 'agents':agents_data, 'audit':self.audit_per, 'random':self.random_per, 'from':self.start_date, 'to':self.end_date, 'project':project, 'center':center};
+
+
+                        $http({method:'POST', url:url, data:data, headers:{'Content-Type':'application/x-www-form-urlencoded;charset=utf-8;'}}).then(function(result){
+                            self.success = true;
+                            $('#audit').val(self.audit_per);
+                            $('randomsample').val(self.random_per);
                             self.excel_data = result.data;
-                            console.log(self.excel_data);
                         });
+                }
+
+                self.download_excel = function(){
+                    var url = "/api/download_audit_excel/";
+                    $http({method:'POST', url:url, data:self.excel_data, headers:{'Content-Type':'application/x-www-form-urlencoded;charset=utf-8;'}}).then(function(result){
+                        window.open('/api/download_audit_excel/auidt_data.xlsx ');
+                    });
                 }
 
             //Voice Type User
