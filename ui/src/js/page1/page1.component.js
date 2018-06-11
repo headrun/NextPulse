@@ -340,7 +340,13 @@
                 self.download_excel = function(){
                     var url = "/api/download_audit_excel/";
                     $http({method:'POST', url:url, data:self.excel_data, headers:{'Content-Type':'application/x-www-form-urlencoded;charset=utf-8;'}}).then(function(result){
-                        window.open('/api/download_audit_excel/auidt_data.xlsx ');
+                        const url = window.URL.createObjectURL(new Blob([result.data]));
+                        const link = document.createElement('a');
+                        link.href = url;
+                        link.setAttribute('download', 'auidt_data.pdf');
+                        document.body.appendChild(link);
+                        link.click();
+                        // window.open('/api/download_audit_excel/auidt_data.xlsx ');
                     });
                 }
 

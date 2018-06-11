@@ -326,7 +326,7 @@ page1 div.modal-content{
                         </div>
                     </div>     
                     <div class="modal-footer">
-                        <a href="/home/thrilok/nextwealth/NextPulse/backend/audit_data.xlsx" class="btn btn-success btn-md animate-if" ng-if="$ctrl.success" ng-model="$ctrl.success" ng-init="success=false"  download>Download</a>
+                        <a class="btn btn-success btn-md animate-if" ng-if="$ctrl.success" ng-model="$ctrl.success" ng-init="success=false"  ng-click="$ctrl.download_excel()" download>Download</a>
                         <button type="submit" class="btn btn-primary" ng-click="$ctrl.formData()">Submit</button>
                     </div>
                 </form>

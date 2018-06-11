@@ -28,12 +28,17 @@ def historical_packet_agent_data(request):
     packets = raw_query.values_list('work_packet',flat=True).distinct()
     agents = raw_query.values_list('employee_id',flat=True).distinct()
 
-    packets_result = get_the_packet_and_agent_data(packets,dates,project_id,center_id,filter_type='work_packet')
-    result['packets'] = packets_result
-    agents_result = get_the_packet_and_agent_data(agents,dates,project_id,center_id,filter_type='employee_id')
-    result['agents'] = agents_result
-    
-    return JsonResponse(result)
+    packets_result, packet_data = get_the_packet_and_agent_data(packets,dates,project_id,center_id,filter_type='packet')
+    result['config_packets'] = packets_result
+    result['packets'] = packet_data['packets']
+    result['packet_value'] = packet_data['packetvalue']
+
+    agents_result, agent_data = get_the_packet_and_agent_data(agents,dates,project_id,center_id,filter_type='agent')
+    result['config_agents'] = agents_result
+    result['agents'] = agent_data['agents']
+    result['agent_value'] = agent_data['agentvalue']
+
+    return JsonResponse(result) 
 
 
 def get_the_packet_and_agent_data(required_data,dates,project_id,center_id,filter_type):
@@ -43,12 +48,15 @@ def get_the_packet_and_agent_data(required_data,dates,project_id,center_id,filte
     result_dict = {}
     result = {}
 
+    values_dict = {}
+
+    data_list = []
     dates_lists = generate_required_dates(dates, [15,30,60,90])
 
     values = [1, 0.5, 0.25, 0.125]
     for data in required_data:
         for date_values, factor in zip(dates_lists,values):
-            if filter_type == 'work_packet':
+            if filter_type == 'packet':
                 internal_data = Internalerrors.objects.filter(project=project_id,center=center_id,\
                     work_packet=data,date__range=[date_values[-1],date_values[0]])
                 config_value = Project.objects.get(id=project_id,center=center_id).no_of_packets
@@ -74,7 +82,12 @@ def get_the_packet_and_agent_data(required_data,dates,project_id,center_id,filte
     sorted_data = (sorted(result.items(), key=itemgetter(1)))[-config_value:]
     sorted_names = [names[0] for names in sorted_data]
     sorted_names.reverse()
-    return sorted_names
+    values_dict[filter_type+'value'] = config_value
+    for name in required_data:
+        if name not in sorted_names:
+            data_list.append(name)
+    values_dict[filter_type+'s'] = data_list
+    return sorted_names, values_dict
 
 
 def generate_required_dates(dates, required_dates):
@@ -137,6 +150,7 @@ def packet_agent_audit_random(request):
 
 
 def generate_excel_for_audit_data(request):
+    
     from xlsxwriter.workbook import Workbook
     ##=====generates agents and packets data in excel=====##
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
