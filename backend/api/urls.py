@@ -78,4 +78,5 @@ urlpatterns = [
     url(r'^historical_packet_agent/', apiviews.historical_packet_agent_data),
     url(r'^packet_agent_audit_random/', apiviews.packet_agent_audit_random),
     url(r'^download_audit_excel/', apiviews.generate_excel_for_audit_data),
+    url(r'^unaudited_packet/', static_error_data.static_internal_external_unaudited_packets),
 ]

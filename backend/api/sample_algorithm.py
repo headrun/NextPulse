@@ -146,6 +146,17 @@ def packet_agent_audit_random(request):
                     result[packets[k]] = packet_workdone['per_day__sum']
                     k += 1
                     break
+
+    workbook = xlsxwriter.Workbook('audit_data.xlsx')
+    worksheet = workbook.add_worksheet()
+
+    i = 1
+    for key, value in result.iteritems():
+        worksheet.write('A'+str(i), key)
+        worksheet.write('B'+str(i), value)
+        i +=1
+    workbook.close()
+
     return JsonResponse(result)
 
 

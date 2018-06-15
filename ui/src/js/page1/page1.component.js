@@ -222,7 +222,7 @@
 
                 
                 $('#date-selector').daterangepicker({
-                    'autoApply':true
+                    'autoApply':true,
                 }, function(start, end){
                   $('#date-selector-modal').slideUp(400);
                   $('#data-loader').show();
@@ -230,6 +230,7 @@
                   self.end_date = end.format('YYYY-MM-DD');
                   var url = '/api/historical_packet_agent/?'+self.static_widget_data+'&from='+self.start_date+'&to='+self.end_date;
                   $http({method:'GET', url:url}).then(function(result){
+                        console.log(result.data.url)
                         $('#formData').slideDown(200);
                         $('#formData').attr('class', 'modal fade in');
                         $('#formData').css('display', 'block');
@@ -238,90 +239,316 @@
                             $('#formData').slideUp(300);
                             $('.modal-backdrop').remove();
                         });
-                        self.packet_data = result.data.packets;
-                        self.agent_data = result.data.agents;
+                        self.packet_data = result.data.config_packets;
+                        self.agent_data = result.data.config_agents;
+                        self.rem_packets = result.data.packets;
+                        self.rem_agents = result.data.agents;
+                        self.packet_config_value = result.data.packet_value;
+                        self.agent_config_value = result.data.agent_value;
+
                   }, function(error){
                         $('.modal-backdrop').remove();
-                        self.error=true;
                         $('.error-msg').delay(500).fadeOut();
                   });
                 });
-                dragula([document.getElementById('dragger-packet')], {
-                    removeOnSpill: true
-                });
 
-                dragula([document.getElementById('dragger-agent')], {
-                    removeOnSpill: true
-                });
-
-                self.simple = function(id){
-                    self.click_el = id;
-                    self.el_data = document.getElementById(self.click_el).innerText;
-                }
-
-                self.add_packet = function(){
-                    var newpacket = document.getElementById('newpacket').value;
-                    if( newpacket !== ""){
-                        var el = document.getElementById(self.click_el);
-                        el.innerText=newpacket;
-                        document.getElementById('newpacket').value='';
+                dragula([document.getElementById('dragger-packet')],{removeOnSpill:true}).on('out', function(el, target, container, source){
+                  self.packets_elements = el.parentElement.parentElement.children['0'].children;
+                  for (var i = 0; i<self.packets_elements.length; i++){
+                    if(el === self.packets_elements[i]){
+                      self.el_id = el.children['0'].id;
+                      self.rm_el_index = i;
+                      self.rm_el_data = el.innerText.trim();
+                      self.rem_packets.push(self.rm_el_data);
+                      break;
                     }
-
+                  }
+                });
+                self.add_packet = function(){
+                  var new_packet = document.getElementById('newpacket').value;
+                  // This if will execute when the packet is not selected and directly when we click plus button.
+                  if(self.rm_el_index == undefined){
+                    var rm_el_id = $("#dragger-packet").children().last()['0'].firstElementChild.id;
+                    var rm_el_data = $('#dragger-packet').children().last()['0'].firstElementChild.innerText;
+                    var i = self.rem_packets.indexOf(new_packet);
+                    if (i === -1)
+                      i = 0
+                    self.rem_packets.splice(i, 1);
+                    self.rem_packets.push(rm_el_data);
+                    var el = "<div class='w3-panel w3-card ng-scope' ng-repeat='item in $ctrl.packet_data' style='margin-top: -10px; cursor:all-scroll', ng-click='$ctrl.simple("+rm_el_id+")' data-toggle='modal' data-target='#addpacket-card'>\
+                                  <p style='margin-top:10px;text-align:center;' id="+rm_el_id+">"+new_packet+"</p>\
+                              </div>";
+                    var pl = $('#dragger-packet').children().length;
+                    if(pl=== self.packet_config_value){
+                      $("#dragger-packet").children().last().remove();
+                      $("#dragger-packet").append(el);
+                    }else{
+                      $("#dragger-packet").append(el);
+                    }
+                  // This else will execute when the packet is  and after plus button is clicked.
+                  }else if(self.rm_el_index !== undefined){
+                      var pl = $('#dragger-packet').children().length;
+                      if(self.rm_el_index==pl){
+                        var i = self.rem_packets.indexOf(new_packet);
+                        self.rem_packets.splice(i, 1);
+                        var el = "<div class='w3-panel w3-card ng-scope' ng-repeat='item in $ctrl.packet_data' style='margin-top: -10px; cursor:all-scroll', ng-click='$ctrl.simple("+self.rm_el_id+")' data-toggle='modal' data-target='#addpacket-card'>\
+                                  <p style='margin-top:10px;text-align:center;' id="+self.rm_el_id+">"+new_packet+"</p>\
+                              </div>";
+                        $('#dragger-packet').append(el);
+                        // This else if will execute when the no packet was removed still the packet
+                        // was try to removed and plus button is clicked, it will replace the last packet with new one. 
+                      }else if(pl == self.packet_config_value ){
+                        var rm_el_id = $("#dragger-packet").children().last()['0'].firstElementChild.id;
+                        var rm_el_data = $('#dragger-packet').children().last()['0'].firstElementChild.innerText;
+                        var i = self.rem_packets.indexOf(new_packet);
+                        self.rem_packets.splice(i, 1);
+                        self.rem_packets.push(rm_el_data);
+                        var el = "<div class='w3-panel w3-card ng-scope' ng-repeat='item in $ctrl.packet_data' style='margin-top: -10px; cursor:all-scroll', ng-click='$ctrl.simple("+rm_el_id+")' data-toggle='modal' data-target='#addpacket-card'>\
+                                      <p style='margin-top:10px;text-align:center;' id="+rm_el_id+">"+new_packet+"</p>\
+                                  </div>";
+                        var pl = $('#dragger-packet').children().length;
+                        if(pl=== self.packet_config_value){
+                          $("#dragger-packet").children().last().remove();
+                          $("#dragger-packet").append(el);
+                        }else{
+                          $("#dragger-packet").append(el);
+                        }
+                      }else if(pl != self.packet_config_value){
+                        var temp = [];
+                        // This if executes when the packet is not first one.
+                        if(self.rm_el_index != 0){
+                          var temp_index = 0;
+                          for (var i=0; i<self.rm_el_index; i++){
+                            temp.push(self.packets_elements[i]);
+                            temp_index = i;
+                          }
+                          var i = self.rem_packets.indexOf(new_packet);
+                          self.rem_packets.splice(i, 1);
+                          var el = "<div class='w3-panel w3-card ng-scope' ng-repeat='item in $ctrl.packet_data' style='margin-top: -10px; cursor:all-scroll', ng-click='$ctrl.simple("+self.rm_el_id+")' data-toggle='modal' data-target='#addpacket-card'>\
+                                      <p style='margin-top:10px;text-align:center;' id="+self.rm_el_id+">"+new_packet+"</p>\
+                                  </div>";
+                          temp.push(el);
+                          temp_index+=1
+                          for (temp_index; temp_index<self.packets_elements.length; temp_index++){
+                            temp.push(self.packets_elements[temp_index])
+                          }
+                          $('#dragger-packet').children().remove();
+                          $('#dragger-packet').append(temp);
+                        }else{
+                          var i = self.rem_packets.indexOf(new_packet);
+                          self.rem_packets.splice(i, 1);
+                          var el = "<div class='w3-panel w3-card ng-scope' ng-repeat='item in $ctrl.packet_data' style='margin-top: -10px; cursor:all-scroll', ng-click='$ctrl.simple("+self.rm_el_id+")' data-toggle='modal' data-target='#addpacket-card'>\
+                                      <p style='margin-top:10px;text-align:center;' id="+self.rm_el_id+">"+new_packet+"</p>\
+                                  </div>";
+                          $(el).prependTo('#dragger-packet');
+                        }
+                      }
+                  }
                 }
+
+                self.simple = function(p_id){
+                  self.p_id = p_id;
+                  self.p_data = document.getElementById(p_id).innerText;
+                }
+
+                self.add_packet_card = function(){
+                  var new_packet_data = document.getElementById('newpacketcard').value;
+                  document.getElementById(self.p_id).innerText=new_packet_data;
+                  var index = self.rem_packets.indexOf(new_packet_data);
+                  self.rem_packets.splice(index, 1);
+                  self.rem_packets.push(self.p_data);
+                }
+
+                self.autocomplete = function(inp, arr) {
+                  var inp = document.getElementById(inp);
+                  if(arr == undefined){arr=self.rem_agents}
+                  var currentFocus;
+                  inp.addEventListener("input", function(e) {
+                    var a, b, i, val = this.value;
+                    closeAllLists();
+                      if (!val) { return false;}
+                      currentFocus = -1;
+                      a = document.createElement("DIV");
+                      a.setAttribute("id", this.id + "autocomplete-list");
+                      a.setAttribute("class", "autocomplete-items");
+                      this.parentNode.appendChild(a);
+                      for (var i = 0; i < arr.length; i++) {
+                        if (arr[i].substr(0, val.length).toUpperCase() == val.toUpperCase()) {
+                          b = document.createElement("DIV");
+                          b.innerHTML = "<strong>" + arr[i].substr(0, val.length) + "</strong>";
+                          b.innerHTML += arr[i].substr(val.length);
+                          b.innerHTML += "<input type='hidden' value='" + arr[i] + "'>";
+                          b.addEventListener("click", function(e) {
+                              inp.value = this.getElementsByTagName("input")[0].value;
+                              closeAllLists();
+                          });
+                          a.appendChild(b);
+                        }
+                      }
+                  });
+                  inp.addEventListener("keydown", function(e) {
+                      var x = document.getElementById(this.id + "autocomplete-list");
+                      if (x) x = x.getElementsByTagName("div");
+                      if (e.keyCode == 40) {
+                        currentFocus++;
+                        addActive(x);
+                      } else if (e.keyCode == 38) { 
+                        currentFocus--;
+                        addActive(x);
+                      } else if (e.keyCode == 13) {
+                        e.preventDefault();
+                        if (currentFocus > -1) {
+                          if (x) x[currentFocus].click();
+                        }
+                      }
+                  });
+                  function addActive(x) {
+                    if (!x) return false;
+                    removeActive(x);
+                    if (currentFocus >= x.length) currentFocus = 0;
+                    if (currentFocus < 0) currentFocus = (x.length - 1);
+                    x[currentFocus].classList.add("autocomplete-active");
+                  }
+                  function removeActive(x) {
+                    for (var i = 0; i < x.length; i++) {
+                      x[i].classList.remove("autocomplete-active");
+                    }
+                  }
+                  function closeAllLists(elmnt) {
+                    var x = document.getElementsByClassName("autocomplete-items");
+                    for (var i = 0; i < x.length; i++) {
+                      if (elmnt != x[i] && elmnt != inp) {
+                        x[i].parentNode.removeChild(x[i]);
+                      }
+                    }
+                  }
+                  document.addEventListener("click", function (e) {
+                      closeAllLists(e.target);
+                  });
+                }
+
+                self.add_agent_card = function(){
+                  var newagent = document.getElementById('newagentcard').value;
+                  var el = document.getElementById(self.p_id);
+                  el.innerText = newagent;
+                  var index = self.rem_agents.indexOf(newagent);
+                  self.rem_agents.splice(index, 1);
+                  self.rem_agents.push(self.p_data);
+                }
+
+                dragula([document.getElementById('dragger-agent')],{removeOnSpill:true}).on('out', function(el, target, container, source){
+                  self.agents_elements = el.parentElement.children;
+                  for (var i = 0; i<self.agents_elements.length; i++){
+                    if(el === self.agents_elements[i]){
+                      self.a_el_id = el.children['0'].id;
+                      self.a_rm_el_index = i;
+                      self.a_rm_el_data = el.innerText.trim();
+                      self.rem_agents.push(self.a_rm_el_data);
+                      break;
+                    }
+                  }
+                });
 
                 self.add_agent = function(){
-                    var newagent = document.getElementById('newagent').value;
-                    if(newagent !== ""){
-                        var el = document.getElementById(self.click_el);
-                        el.innerText=newagent;
-                        document.getElementById('newagent').value='';
+                  var new_agent = document.getElementById('newagent').value;
+                  // This if will execute when the packet is not selected and directly when we click plus button.
+                  if(self.a_rm_el_index == undefined){
+                    var rm_el_id = $("#dragger-agent").children().last()['0'].firstElementChild.id;
+                    var rm_el_data = $('#dragger-agent').children().last()['0'].firstElementChild.innerText;
+                    var i = self.rem_agents.indexOf(new_agent);
+                    self.rem_agents.splice(i, 1);
+                    self.rem_agents.push(rm_el_data);
+                    var el = "<div class='w3-panel w3-card ng-scope' ng-repeat='item in $ctrl.agent_data' style='margin-top: -10px; cursor:all-scroll', ng-click='$ctrl.simple("+rm_el_id+")' data-toggle='modal' data-target='#addagent-card'>\
+                                  <p style='margin-top:10px;text-align:center;' id="+rm_el_id+">"+new_agent+"</p>\
+                              </div>";
+                    var pl = $('#dragger-agent').children().length;
+                    if(pl=== self.packet_config_value){
+                      $("#dragger-agent").children().last().remove();
+                      $(el).prependTo("#dragger-agent");
                     }
+                  // This else if will execute when the packet is dragged and after plus button is clicked.
+                  }else if(self.a_rm_el_index !== undefined){
+                      var pl = $('#dragger-agent').children().length;
+                      if(self.a_rm_el_index==pl){
+                        var i = self.rem_agents.indexOf(new_agent);
+                        self.rem_agents.splice(i, 1);
+                        var el = "<div class='w3-panel w3-card ng-scope' ng-repeat='item in $ctrl.agent_data' style='margin-top: -10px; cursor:all-scroll', ng-click='$ctrl.simple("+self.a_rm_el_id+")' data-toggle='modal' data-target='#addagent-card'>\
+                                  <p style='margin-top:10px;text-align:center;' id="+self.a_rm_el_id+">"+new_agent+"</p>\
+                              </div>";
+                        $('#dragger-agent').append(el);
+                        // This else if will execute when the no packet was removed still the packet
+                        // was try to removed and plus button is clicked, it will replace the last packet with new one. 
+                      }else if(pl == self.agent_config_value ){
+                        var rm_el_id = $("#dragger-agent").children().last()['0'].firstElementChild.id;
+                        var rm_el_data = $('#dragger-agent').children().last()['0'].firstElementChild.innerText;
+                        var i = self.rem_agents.indexOf(new_agent);
+                        self.rem_agents.splice(i, 1);
+                        self.rem_agents.push(rm_el_data);
+                        var el = "<div class='w3-panel w3-card ng-scope' ng-repeat='item in $ctrl.agent_data' style='margin-top: -10px; cursor:all-scroll', ng-click='$ctrl.simple("+rm_el_id+")' data-toggle='modal' data-target='#addagent-card'>\
+                                      <p style='margin-top:10px;text-align:center;' id="+rm_el_id+">"+new_agent+"</p>\
+                                  </div>";
+                        var pl = $('#dragger-agent').children().length;
+                        if(pl=== self.agent_config_value){
+                          $("#dragger-agent").children().last().remove();
+                          $("#dragger-agent").append(el);
+                        }else{
+                          $("#dragger-agent").append(el);
+                        }
+                      }else if(pl != self.agent_config_value){
+                        var temp = [];
+                        // This if executes when the packet is not first one.
+                        if(self.a_rm_el_index != 0){
+                          var temp_index = 0;
+                          for (var i=0; i<self.a_rm_el_index; i++){
+                            temp.push(self.agents_elements[i]);
+                            temp_index = i;
+                          }
+                          var i = self.rem_agents.indexOf(new_agent);
+                          self.rem_agents.splice(i, 1);
+                          var el = "<div class='w3-panel w3-card ng-scope' ng-repeat='item in $ctrl.agent_data' style='margin-top: -10px; cursor:all-scroll', ng-click='$ctrl.simple("+self.a_rm_el_id+")' data-toggle='modal' data-target='#addagent-card'>\
+                                      <p style='margin-top:10px;text-align:center;' id="+self.a_rm_el_id+">"+new_agent+"</p>\
+                                  </div>";
+                          temp.push(el);
+                          temp_index+=1
+                          for (temp_index; temp_index<self.agents_elements.length; temp_index++){
+                            temp.push(self.agents_elements[temp_index])
+                          }
+                          $('#dragger-agent').children().remove();
+                          $('#dragger-agent').append(temp);
+                        }else{
+                          var i = self.rem_agents.indexOf(new_agent);
+                          self.rem_agents.splice(i, 1);
+                          var el = "<div class='w3-panel w3-card ng-scope' ng-repeat='item in $ctrl.agent_data' style='margin-top: -10px; cursor:all-scroll', ng-click='$ctrl.simple("+self.a_rm_el_id+")' data-toggle='modal' data-target='#addagent-card'>\
+                                      <p style='margin-top:10px;text-align:center;' id="+self.a_rm_el_id+">"+new_agent+"</p>\
+                                  </div>";
+                          $(el).prependTo('#dragger-agent');
+                        }
+                      }
+                  }
                 }
-
-                $("#packet-add").click(function(){
-                    var text = $("#dragger-packet").children().last()["0"].innerText.trim();
-                    $("#dragger-packet").children().last().remove();
-                    var data = window.prompt("Add Packet:", "Packet")
-                    if(data === null || data === undefined || data.toLowerCase() === "packet")
-                        var el = "<div class='w3-panel w3-card' style='margin-top: -10px;'>\
-                                <p style='margin-top:10px;text-align:center; cursor: all-scroll;'>"+text+"</p>\
-                            </div>";
-                    else
-                        var el = "<div class='w3-panel w3-card' style='margin-top: -10px;'>\
-                                <p style='margin-top:10px;text-align:center; cursor: all-scroll;'>"+data+"</p>\
-                            </div>";
-                    $('#dragger-packet').append(el);
-                });
-
-                $("#agent-add").click(function(){
-                    var text = $("#dragger-agent").children().last()["0"].innerText.trim();
-                    $("#dragger-agent").children().last().remove();
-                    var data = window.prompt("Add Agent:", "Agent")
-                    if(data === null || data === undefined || data.toLowerCase() === "agent")
-                        var el = "<div class='w3-panel w3-card' style='margin-top: -10px;'>\
-                                <p style='margin-top:10px;text-align:center; cursor: all-scroll;'>"+text+"</p>\
-                            </div>";
-                    else
-                        var el = "<div class='w3-panel w3-card' style='margin-top: -10px;'>\
-                                <p style='margin-top:10px;text-align:center; cursor: all-scroll;'>"+data+"</p>\
-                            </div>";
-                    
-                    $('#dragger-agent').append(el);
-                });
 
                 self.formData = function(){
                         self.audit_per = document.getElementById('audit').value;
                         self.random_per = document.getElementById('randomsample').value;
-                        var packets = ['packet1', 'packet2', 'packet3', 'packet4', 'packet5'];
-                        var agents = ['agent1', 'agent2', 'agent3', 'agent4', 'agent5'];
-                        var packets_data = new Array(5);
-                        var agents_data = new Array(5);
+                        var packets_ids = [];
+                        var agents_ids = [];
+                        var total_packets = $('#dragger-packet').children().length;
+                        for(var i = 1; i<=total_packets; i++){
+                          packets_ids.push("packet"+i);
+                        }
 
-                        for(var i = 0; i<packets.length; i++)
-                            packets_data[i] = document.getElementById(packets[i]).innerText;
+                        var total_agents = $('#dragger-agent').children().length;
+                        for(var i = 1; i<=total_agents; i++){
+                          agents_ids.push("agent"+i);
+                        }
+                        var packets_data = new Array(total_packets);
+                        var agents_data = new Array(total_agents);
 
-                        for(var j = 0; j<agents.length; j++)
-                            agents_data[j] = document.getElementById(agents[j]).innerText;
+                        for(var i = 0; i<packets_ids.length; i++)
+                            packets_data[i] = document.getElementById(packets_ids[i]).innerText;
+
+                        for(var j = 0; j<agents_ids.length; j++)
+                            agents_data[j] = document.getElementById(agents_ids[j]).innerText;
 
                         var center = self.static_widget_data.split('=')[2];
                         var project = self.static_widget_data.split('=')[1].split('&')[0]
@@ -340,13 +567,13 @@
                 self.download_excel = function(){
                     var url = "/api/download_audit_excel/";
                     $http({method:'POST', url:url, data:self.excel_data, headers:{'Content-Type':'application/x-www-form-urlencoded;charset=utf-8;'}}).then(function(result){
-                        const url = window.URL.createObjectURL(new Blob([result.data]));
-                        const link = document.createElement('a');
-                        link.href = url;
-                        link.setAttribute('download', 'auidt_data.pdf');
-                        document.body.appendChild(link);
-                        link.click();
-                        // window.open('/api/download_audit_excel/auidt_data.xlsx ');
+
+                       const url = window.URL.createObjectURL(new Blob([result.data]));
+                       const link = document.createElement('a');
+                       link.href = url;
+                       link.setAttribute('download', 'audit_data.xlsx');
+                       document.body.appendChild(link);
+                       link.click();
                     });
                 }
 
@@ -3264,6 +3491,7 @@
                         var error_category = '/api/static_internal_external_error_category/?'+self.static_widget_data;
                         return $http({method:"GET", url: error_category }).success(function(result){
                             if(isEmpty(result['result'].thirty_days_data.internalerrors) && isEmpty(result['result'].sixty_days_data.internalerrors)&& isEmpty(result['result'].ninty_days_data.internalerrors)){
+                                var table_html = '<div style="margin-top:100px;margin-left:250px; font-size:11px; color:#5b5b5b; font-weight:bold;"><span>No data to display</span></div>';
                                 $(".widget-68b highcharts").remove();
                                 $('.widget-68b').css('overflow','auto');
                                 var $el = $(table_html).appendTo(".widget-body.widget-68b");
@@ -3385,7 +3613,7 @@
                             if(isEmpty(result['result'].thirty_days_data.internalerrors)&&isEmpty(result['result'].sixty_days_data.internalerrors)&&isEmpty(result['result'].ninty_days_data.internalerrors)){
 
                                 var table_html = '<div style="margin-top:100px;margin-left:250px; font-size:11px; color:#5b5b5b; font-weight:bold;"><span>No data to display</span></div>';
-                                $(".widget-70a highcharts").remove();
+                                $(".widget-70b highcharts").remove();
                                 $('.widget-70b').css('overflow','auto');
                                 var $el = $(table_html).appendTo(".widget-body.widget-70b");
                                 $compile($el)($scope);                            
@@ -3436,7 +3664,7 @@
 
                             if(isEmpty(result['result'].thirty_days_data.externalerrors) && isEmpty(result['result'].sixty_days_data.externalerrors)&& isEmpty(result['result'].ninty_days_data.externalerrors)){
                                 var table_html = '<div style="margin-top:100px;margin-left:250px; font-size:11px; color:#5b5b5b; font-weight:bold;"><span>No data to display</span></div>';
-                                $(".widget-71a highcharts").remove();
+                                $(".widget-71b highcharts").remove();
                                 $('.widget-71b').css('overflow','auto');
                                 var $el = $(table_html).appendTo(".widget-body.widget-71b");
                                 $compile($el)($scope);                            
@@ -3492,7 +3720,7 @@
                                 var table_html = '<div style="margin-top:100px;margin-left:250px; font-size:11px; color:#5b5b5b; font-weight:bold;"><span>No data to display</span></div>';
                                 $(".widget-72b highcharts").remove();
                                 $('.widget-72b').css('overflow','auto');
-                                var $el = $(table_html).appendTo(".widget-body.widget-72b");
+                                var $el = $(table_html).appendTo(".widget-body .widget-72b");
                                 $compile($el)($scope);                            
                                 $('.widget-72a').removeClass('widget-loader-show');
                                 $('.widget-72b').removeClass('widget-data-hide');
@@ -3703,7 +3931,115 @@
                             }
                         });
                     }
-                
+                    self.static_internal_external_unaudited_packet = function(){
+                        var url = '/api/unaudited_packet/?'+self.static_widget_data;
+                        return $http({'method':'GET', 'url':url}).success(function(result){
+                            if(isEmpty(result['result'].thirty_days_data.internalerrors)&&isEmpty(result['result'].sixty_days_data.internalerrors)&&isEmpty(result['result'].ninty_days_data.internalerrors)){
+                                var table_html = '<div style="margin-top:100px;margin-left:250px; font-size:11px; color:#5b5b5b; font-weight:bold;"><span>No data to display</span></div>';
+                                $(".widget-76b highcharts").remove();
+                                $('.widget-76b').css('overflow','auto');
+                                var $el = $(table_html).appendTo(".widget-body.widget-76b");
+                                $compile($el)($scope);                            
+                                $('.widget-76a').removeClass('widget-loader-show');
+                                $('.widget-76b').removeClass('widget-data-hide');
+
+                            }else{
+                                $('.widget-76a').addClass('widget-loader-show');
+                                $('.widget-76b').addClass('widget-data-hide');
+                                $("#widget-76-unaudited-packets").remove();
+                                var thirty_days_internal_unaudited_packet = result['result'].thirty_days_data.internalerrors;
+                                var sixty_days_internal_unaudited_packet = result['result'].sixty_days_data.internalerrors;
+                                var ninty_days_internal_unaudited_packet = result['result'].ninty_days_data.internalerrors;
+                                var widget = "<div id='widget-76-unaudited-packets' style='margin-top:20px;'>";
+                                var card_html_1 = "<div class='card'><div class='card-header'><span class='card-header-text'>30 Days</span></div><div class='card-body'>";
+
+                                var card_html_2 = "<div class='card'><div class='card-header'><span class='card-header-text'>60 Days</span></div><div class='card-body'>";
+
+                                var card_html_3 = "<div  class='card'><div class='card-header'><span class='card-header-text'>90 Days</span></div><div class='card-body'>";
+                                
+                                var cards = [card_html_1, card_html_2, card_html_3];
+                                var total_unaudited_packet = [thirty_days_internal_unaudited_packet, sixty_days_internal_unaudited_packet, ninty_days_internal_unaudited_packet];
+
+                                for(var k = 0; k<total_unaudited_packet.length; k++){
+                                    var rows = ['', '', '', '', ''];
+                                    for(var [i, key] of enumerate(total_unaudited_packet[k])){
+                                        rows[i]+="<div class='small-card'><h4 class='small-card-body'>"+key+"</h4><p class='badge'>"+total_unaudited_packet[k][key]+"</p></div>";
+                                    }
+                                   
+                                    for(var i =0; i<rows.length; i++)
+                                        cards[k]+=rows[i];
+                                    cards[k]+="</div>";
+                                }
+
+                                card_html_1=cards[0]+"</div>";
+                                card_html_2=cards[1]+"</div>";
+                                card_html_3=cards[2]+"</div>";
+                                widget+=card_html_1+card_html_2+card_html_3+"</div>";
+                                
+                                $(".widget-76b highcharts").remove();
+                                $('.widget-76b').css('overflow','auto');
+                                var $el = $(widget).appendTo(".widget-body.widget-76b");
+                                $compile($el)($scope);                            
+                                $('.widget-76a').removeClass('widget-loader-show');
+                                $('.widget-76b').removeClass('widget-data-hide');
+                            }
+                        
+                            
+
+                            // ===================For External Errors =========================
+
+                            if(isEmpty(result['result'].thirty_days_data.externalerrors)&&isEmpty(result['result'].sixty_days_data.externalerrors)&&isEmpty(result['result'].ninty_days_data.externalerrors)){
+                                    var table_html= '<div style="margin-top:100px;margin-left:250px; font-size:11px; color:#5b5b5b; font-weight:bold;"><span>No data to display</span></div>';
+                                    $(".widget-77b highcharts").remove();
+                                    $('.widget-77b').css('overflow','auto');
+                                    var $el = $(table_html).appendTo(".widget-body.widget-77b");
+                                    $compile($el)($scope);                            
+                                    $('.widget-77a').removeClass('widget-loader-show');
+                                    $('.widget-77b').removeClass('widget-data-hide');
+
+                            }else{
+                                $('.widget-77a').addClass('widget-loader-show');
+                                $('.widget-77b').addClass('widget-data-hide');
+                                $("#widget-77-unaudited-packets").remove();
+                                var thirty_days_external_unaudited_packet = result['result'].thirty_days_data.externalerrors;
+                                var sixty_days_external_unaudited_packet = result['result'].sixty_days_data.externalerrors;
+                                var ninty_days_external_unaudited_packet = result['result'].ninty_days_data.externalerrors;
+                                var widget_2 = "<div id='widget-77-unaudited-packets' style='margin-top:20px;'>";
+                                var card_html_4 = "<div class='card'><div class='card-header'><span class='card-header-text'>30 Days</span></div><div class='card-body'>";
+
+                                var card_html_5 = "<div class='card'><div class='card-header'><span class='card-header-text'>60 Days</span></div><div class='card-body'>";
+
+                                var card_html_6 = "<div  class='card'><div class='card-header'><span class='card-header-text'>90 Days</span></div><div class='card-body'>";
+
+                                var total_unaudited_packet = [thirty_days_external_unaudited_packet, sixty_days_external_unaudited_packet, ninty_days_external_unaudited_packet];
+
+                                var cards_2 = [card_html_4, card_html_5, card_html_6];
+                                for(var k = 0; k<total_unaudited_packet.length; k++){
+                                    var rows = ['', '', '', '', ''];
+                                    for(var [i, key] of enumerate(total_unaudited_packet[k])){
+                                        rows[i]+=rows[i]+="<div class='small-card'><h4 class='small-card-body'>"+key+"</h4><p class='badge'>"+total_unaudited_packet[k][key]+"</p></div>";
+                                    }
+                                   
+                                    for(var i =0; i<rows.length; i++)
+                                        cards_2[k]+=rows[i];
+                                    cards_2[k]+="</div>";
+                                }
+
+                                card_html_4=cards_2[0]+"</div>";
+                                card_html_5=cards_2[1]+"</div>";
+                                card_html_6=cards_2[2]+"</div>";
+                                widget_2+=card_html_4+card_html_5+card_html_6+"</div>";
+                                $(".widget-77b highcharts").remove()
+                                $('.widget-77b').css('overflow','auto');
+                                var $el = $(widget_2).appendTo(".widget-body.widget-77b");
+                                $compile($el)($scope);
+                                
+                                $('.widget-77a').removeClass('widget-loader-show');
+                                $('.widget-77b').removeClass('widget-data-hide');
+                            }
+                        });
+                    }
+
                     self.No_of_agents_AHT = function(final_work,type) {
 
                         if (type == undefined) {
@@ -5401,6 +5737,8 @@
                         self.static_internal_external_packet_accuracy()
                     } else if(val =='internal_agent_accuracy'){
                         self.static_internal_external_agent_accuracy()
+                    } else if(val =='internal_unaudited_packets'){
+                        self.static_internal_external_unaudited_packet()
                     } else if (val == 'no_of_agents_AHT_daywise') {
                          self.No_of_agents_AHT(undefined)
                     } else if (val == 'percentage_people_<67_and>99%_achieved') {
