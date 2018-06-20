@@ -222,133 +222,14 @@
 
                 
                 $('#date-selector').daterangepicker({
-                    'autoApply':true
+                    'autoApply':true,
                 }, function(start, end){
                   $('#date-selector-modal').slideUp(400);
-                  $('#data-loader').show();
+                  $('.modal-backdrop').remove();
                   self.start_date = start.format('YYYY-MM-DD');
                   self.end_date = end.format('YYYY-MM-DD');
-                  var url = '/api/historical_packet_agent/?'+self.static_widget_data+'&from='+self.start_date+'&to='+self.end_date;
-                  $http({method:'GET', url:url}).then(function(result){
-                        $('#formData').slideDown(200);
-                        $('#formData').attr('class', 'modal fade in');
-                        $('#formData').css('display', 'block');
-                        $("<div class='modal-backdrop fade in'></div>").insertAfter('#formData');
-                        $(".close-sample-form").click(function(){
-                            $('#formData').slideUp(300);
-                            $('.modal-backdrop').remove();
-                        });
-                        self.packet_data = result.data.packets;
-                        self.agent_data = result.data.agents;
-                  }, function(error){
-                        $('.modal-backdrop').remove();
-                        self.error=true;
-                        $('.error-msg').delay(500).fadeOut();
-                  });
+                  window.open('/js/page1/sample.html?widget_data='+self.static_widget_data+'&from='+self.start_date+'&to='+self.end_date);
                 });
-                dragula([document.getElementById('dragger-packet')], {
-                    removeOnSpill: true
-                });
-
-                dragula([document.getElementById('dragger-agent')], {
-                    removeOnSpill: true
-                });
-
-                self.simple = function(id){
-                    self.click_el = id;
-                    self.el_data = document.getElementById(self.click_el).innerText;
-                }
-
-                self.add_packet = function(){
-                    var newpacket = document.getElementById('newpacket').value;
-                    if( newpacket !== ""){
-                        var el = document.getElementById(self.click_el);
-                        el.innerText=newpacket;
-                        document.getElementById('newpacket').value='';
-                    }
-
-                }
-
-                self.add_agent = function(){
-                    var newagent = document.getElementById('newagent').value;
-                    if(newagent !== ""){
-                        var el = document.getElementById(self.click_el);
-                        el.innerText=newagent;
-                        document.getElementById('newagent').value='';
-                    }
-                }
-
-                $("#packet-add").click(function(){
-                    var text = $("#dragger-packet").children().last()["0"].innerText.trim();
-                    $("#dragger-packet").children().last().remove();
-                    var data = window.prompt("Add Packet:", "Packet")
-                    if(data === null || data === undefined || data.toLowerCase() === "packet")
-                        var el = "<div class='w3-panel w3-card' style='margin-top: -10px;'>\
-                                <p style='margin-top:10px;text-align:center; cursor: all-scroll;'>"+text+"</p>\
-                            </div>";
-                    else
-                        var el = "<div class='w3-panel w3-card' style='margin-top: -10px;'>\
-                                <p style='margin-top:10px;text-align:center; cursor: all-scroll;'>"+data+"</p>\
-                            </div>";
-                    $('#dragger-packet').append(el);
-                });
-
-                $("#agent-add").click(function(){
-                    var text = $("#dragger-agent").children().last()["0"].innerText.trim();
-                    $("#dragger-agent").children().last().remove();
-                    var data = window.prompt("Add Agent:", "Agent")
-                    if(data === null || data === undefined || data.toLowerCase() === "agent")
-                        var el = "<div class='w3-panel w3-card' style='margin-top: -10px;'>\
-                                <p style='margin-top:10px;text-align:center; cursor: all-scroll;'>"+text+"</p>\
-                            </div>";
-                    else
-                        var el = "<div class='w3-panel w3-card' style='margin-top: -10px;'>\
-                                <p style='margin-top:10px;text-align:center; cursor: all-scroll;'>"+data+"</p>\
-                            </div>";
-                    
-                    $('#dragger-agent').append(el);
-                });
-
-                self.formData = function(){
-                        self.audit_per = document.getElementById('audit').value;
-                        self.random_per = document.getElementById('randomsample').value;
-                        var packets = ['packet1', 'packet2', 'packet3', 'packet4', 'packet5'];
-                        var agents = ['agent1', 'agent2', 'agent3', 'agent4', 'agent5'];
-                        var packets_data = new Array(5);
-                        var agents_data = new Array(5);
-
-                        for(var i = 0; i<packets.length; i++)
-                            packets_data[i] = document.getElementById(packets[i]).innerText;
-
-                        for(var j = 0; j<agents.length; j++)
-                            agents_data[j] = document.getElementById(agents[j]).innerText;
-
-                        var center = self.static_widget_data.split('=')[2];
-                        var project = self.static_widget_data.split('=')[1].split('&')[0]
-                        var url = "/api/packet_agent_audit_random/";
-                        var data = {'packets':packets_data, 'agents':agents_data, 'audit':self.audit_per, 'random':self.random_per, 'from':self.start_date, 'to':self.end_date, 'project':project, 'center':center};
-
-
-                        $http({method:'POST', url:url, data:data, headers:{'Content-Type':'application/x-www-form-urlencoded;charset=utf-8;'}}).then(function(result){
-                            self.success = true;
-                            $('#audit').val(self.audit_per);
-                            $('randomsample').val(self.random_per);
-                            self.excel_data = result.data;
-                        });
-                }
-
-                self.download_excel = function(){
-                    var url = "/api/download_audit_excel/";
-                    $http({method:'POST', url:url, data:self.excel_data, headers:{'Content-Type':'application/x-www-form-urlencoded;charset=utf-8;'}}).then(function(result){
-                        const url = window.URL.createObjectURL(new Blob([result.data]));
-                        const link = document.createElement('a');
-                        link.href = url;
-                        link.setAttribute('download', 'auidt_data.pdf');
-                        document.body.appendChild(link);
-                        link.click();
-                        // window.open('/api/download_audit_excel/auidt_data.xlsx ');
-                    });
-                }
 
             //Voice Type User
             self.filter_list = ['location', 'skill', 'disposition', 'call_status', 'cate_dispo_inbound', 'outbound_dispo_cate', 'outbound_disposition', 'outbnd_dispo_common', 'inbnd_utilization', 'outbnd_utilization', 'inbnd_occupancy', 'outbnd_occupancy', 'inbound_productivity', 'outbound_productivity', 'utilization', 'occupancy', 'agent_productivity_data', 'agent_required'];
@@ -3264,6 +3145,7 @@
                         var error_category = '/api/static_internal_external_error_category/?'+self.static_widget_data;
                         return $http({method:"GET", url: error_category }).success(function(result){
                             if(isEmpty(result['result'].thirty_days_data.internalerrors) && isEmpty(result['result'].sixty_days_data.internalerrors)&& isEmpty(result['result'].ninty_days_data.internalerrors)){
+                                var table_html = '<div style="margin-top:100px;margin-left:250px; font-size:11px; color:#5b5b5b; font-weight:bold;"><span>No data to display</span></div>';
                                 $(".widget-68b highcharts").remove();
                                 $('.widget-68b').css('overflow','auto');
                                 var $el = $(table_html).appendTo(".widget-body.widget-68b");
@@ -3385,7 +3267,7 @@
                             if(isEmpty(result['result'].thirty_days_data.internalerrors)&&isEmpty(result['result'].sixty_days_data.internalerrors)&&isEmpty(result['result'].ninty_days_data.internalerrors)){
 
                                 var table_html = '<div style="margin-top:100px;margin-left:250px; font-size:11px; color:#5b5b5b; font-weight:bold;"><span>No data to display</span></div>';
-                                $(".widget-70a highcharts").remove();
+                                $(".widget-70b highcharts").remove();
                                 $('.widget-70b').css('overflow','auto');
                                 var $el = $(table_html).appendTo(".widget-body.widget-70b");
                                 $compile($el)($scope);                            
@@ -3436,7 +3318,7 @@
 
                             if(isEmpty(result['result'].thirty_days_data.externalerrors) && isEmpty(result['result'].sixty_days_data.externalerrors)&& isEmpty(result['result'].ninty_days_data.externalerrors)){
                                 var table_html = '<div style="margin-top:100px;margin-left:250px; font-size:11px; color:#5b5b5b; font-weight:bold;"><span>No data to display</span></div>';
-                                $(".widget-71a highcharts").remove();
+                                $(".widget-71b highcharts").remove();
                                 $('.widget-71b').css('overflow','auto');
                                 var $el = $(table_html).appendTo(".widget-body.widget-71b");
                                 $compile($el)($scope);                            
@@ -3492,7 +3374,7 @@
                                 var table_html = '<div style="margin-top:100px;margin-left:250px; font-size:11px; color:#5b5b5b; font-weight:bold;"><span>No data to display</span></div>';
                                 $(".widget-72b highcharts").remove();
                                 $('.widget-72b').css('overflow','auto');
-                                var $el = $(table_html).appendTo(".widget-body.widget-72b");
+                                var $el = $(table_html).appendTo(".widget-body .widget-72b");
                                 $compile($el)($scope);                            
                                 $('.widget-72a').removeClass('widget-loader-show');
                                 $('.widget-72b').removeClass('widget-data-hide');
@@ -3703,7 +3585,115 @@
                             }
                         });
                     }
-                
+                    self.static_internal_external_unaudited_packet = function(){
+                        var url = '/api/unaudited_packet/?'+self.static_widget_data;
+                        return $http({'method':'GET', 'url':url}).success(function(result){
+                            if(isEmpty(result['result'].thirty_days_data.internalerrors)&&isEmpty(result['result'].sixty_days_data.internalerrors)&&isEmpty(result['result'].ninty_days_data.internalerrors)){
+                                var table_html = '<div style="margin-top:100px;margin-left:250px; font-size:11px; color:#5b5b5b; font-weight:bold;"><span>No data to display</span></div>';
+                                $(".widget-76b highcharts").remove();
+                                $('.widget-76b').css('overflow','auto');
+                                var $el = $(table_html).appendTo(".widget-body.widget-76b");
+                                $compile($el)($scope);                            
+                                $('.widget-76a').removeClass('widget-loader-show');
+                                $('.widget-76b').removeClass('widget-data-hide');
+
+                            }else{
+                                $('.widget-76a').addClass('widget-loader-show');
+                                $('.widget-76b').addClass('widget-data-hide');
+                                $("#widget-76-unaudited-packets").remove();
+                                var thirty_days_internal_unaudited_packet = result['result'].thirty_days_data.internalerrors;
+                                var sixty_days_internal_unaudited_packet = result['result'].sixty_days_data.internalerrors;
+                                var ninty_days_internal_unaudited_packet = result['result'].ninty_days_data.internalerrors;
+                                var widget = "<div id='widget-76-unaudited-packets' style='margin-top:20px;'>";
+                                var card_html_1 = "<div class='card'><div class='card-header'><span class='card-header-text'>30 Days</span></div><div class='card-body'>";
+
+                                var card_html_2 = "<div class='card'><div class='card-header'><span class='card-header-text'>60 Days</span></div><div class='card-body'>";
+
+                                var card_html_3 = "<div  class='card'><div class='card-header'><span class='card-header-text'>90 Days</span></div><div class='card-body'>";
+                                
+                                var cards = [card_html_1, card_html_2, card_html_3];
+                                var total_unaudited_packet = [thirty_days_internal_unaudited_packet, sixty_days_internal_unaudited_packet, ninty_days_internal_unaudited_packet];
+
+                                for(var k = 0; k<total_unaudited_packet.length; k++){
+                                    var rows = ['', '', '', '', ''];
+                                    for(var [i, key] of enumerate(total_unaudited_packet[k])){
+                                        rows[i]+="<div class='small-card'><h4 class='small-card-body'>"+key+"</h4><p class='badge'>"+total_unaudited_packet[k][key]+"</p></div>";
+                                    }
+                                   
+                                    for(var i =0; i<rows.length; i++)
+                                        cards[k]+=rows[i];
+                                    cards[k]+="</div>";
+                                }
+
+                                card_html_1=cards[0]+"</div>";
+                                card_html_2=cards[1]+"</div>";
+                                card_html_3=cards[2]+"</div>";
+                                widget+=card_html_1+card_html_2+card_html_3+"</div>";
+                                
+                                $(".widget-76b highcharts").remove();
+                                $('.widget-76b').css('overflow','auto');
+                                var $el = $(widget).appendTo(".widget-body.widget-76b");
+                                $compile($el)($scope);                            
+                                $('.widget-76a').removeClass('widget-loader-show');
+                                $('.widget-76b').removeClass('widget-data-hide');
+                            }
+                        
+                            
+
+                            // ===================For External Errors =========================
+
+                            if(isEmpty(result['result'].thirty_days_data.externalerrors)&&isEmpty(result['result'].sixty_days_data.externalerrors)&&isEmpty(result['result'].ninty_days_data.externalerrors)){
+                                    var table_html= '<div style="margin-top:100px;margin-left:250px; font-size:11px; color:#5b5b5b; font-weight:bold;"><span>No data to display</span></div>';
+                                    $(".widget-77b highcharts").remove();
+                                    $('.widget-77b').css('overflow','auto');
+                                    var $el = $(table_html).appendTo(".widget-body.widget-77b");
+                                    $compile($el)($scope);                            
+                                    $('.widget-77a').removeClass('widget-loader-show');
+                                    $('.widget-77b').removeClass('widget-data-hide');
+
+                            }else{
+                                $('.widget-77a').addClass('widget-loader-show');
+                                $('.widget-77b').addClass('widget-data-hide');
+                                $("#widget-77-unaudited-packets").remove();
+                                var thirty_days_external_unaudited_packet = result['result'].thirty_days_data.externalerrors;
+                                var sixty_days_external_unaudited_packet = result['result'].sixty_days_data.externalerrors;
+                                var ninty_days_external_unaudited_packet = result['result'].ninty_days_data.externalerrors;
+                                var widget_2 = "<div id='widget-77-unaudited-packets' style='margin-top:20px;'>";
+                                var card_html_4 = "<div class='card'><div class='card-header'><span class='card-header-text'>30 Days</span></div><div class='card-body'>";
+
+                                var card_html_5 = "<div class='card'><div class='card-header'><span class='card-header-text'>60 Days</span></div><div class='card-body'>";
+
+                                var card_html_6 = "<div  class='card'><div class='card-header'><span class='card-header-text'>90 Days</span></div><div class='card-body'>";
+
+                                var total_unaudited_packet = [thirty_days_external_unaudited_packet, sixty_days_external_unaudited_packet, ninty_days_external_unaudited_packet];
+
+                                var cards_2 = [card_html_4, card_html_5, card_html_6];
+                                for(var k = 0; k<total_unaudited_packet.length; k++){
+                                    var rows = ['', '', '', '', ''];
+                                    for(var [i, key] of enumerate(total_unaudited_packet[k])){
+                                        rows[i]+=rows[i]+="<div class='small-card'><h4 class='small-card-body'>"+key+"</h4><p class='badge'>"+total_unaudited_packet[k][key]+"</p></div>";
+                                    }
+                                   
+                                    for(var i =0; i<rows.length; i++)
+                                        cards_2[k]+=rows[i];
+                                    cards_2[k]+="</div>";
+                                }
+
+                                card_html_4=cards_2[0]+"</div>";
+                                card_html_5=cards_2[1]+"</div>";
+                                card_html_6=cards_2[2]+"</div>";
+                                widget_2+=card_html_4+card_html_5+card_html_6+"</div>";
+                                $(".widget-77b highcharts").remove()
+                                $('.widget-77b').css('overflow','auto');
+                                var $el = $(widget_2).appendTo(".widget-body.widget-77b");
+                                $compile($el)($scope);
+                                
+                                $('.widget-77a').removeClass('widget-loader-show');
+                                $('.widget-77b').removeClass('widget-data-hide');
+                            }
+                        });
+                    }
+
                     self.No_of_agents_AHT = function(final_work,type) {
 
                         if (type == undefined) {
@@ -5401,6 +5391,8 @@
                         self.static_internal_external_packet_accuracy()
                     } else if(val =='internal_agent_accuracy'){
                         self.static_internal_external_agent_accuracy()
+                    } else if(val =='internal_unaudited_packets'){
+                        self.static_internal_external_unaudited_packet()
                     } else if (val == 'no_of_agents_AHT_daywise') {
                          self.No_of_agents_AHT(undefined)
                     } else if (val == 'percentage_people_<67_and>99%_achieved') {

@@ -230,14 +230,14 @@
 .agent, .space {
     margin-left: 10px;
 }
+
 .date-modal{
-    width:120%;
-    height:450px;
+        width:120%;
+        height:450px;
 }
 .date-in{
     width:32%;
 }
-
 </style>
 <nav class="navbar navbar-default">
     <div class="container-fluid">
@@ -295,7 +295,7 @@
                     </div>
                 </li>
                 <li>
-                    <a class="btn form-sym" role="button" data-toggle="modal" data-target="#date-selector-modal"><i class="fa fa-wpforms" aria-hidden="true" style="font-size: 150%;"></i></a>
+                    <a class="btn form-sym" role="button" data-toggle='modal' data-target="#date-selector-modal"><i class="fa fa-wpforms" aria-hidden="true" style="font-size: 150%;"></i></a>
                 </li>
                 <li class="dropdown active span8" id="drpdown_btn">
                     <a class="dropdown-toggle" id="select_dropdown" data-toggle="dropdown">
@@ -372,20 +372,19 @@
         </div>      
     </div>
 </nav>
-<div id="date-selector-modal" class="modal fade" role="dialog">
-  <div class="modal-dialog">
-    <div class="modal-content date-modal">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal">&times;</button>
-        <h4 class="modal-title">Date Selector</h4>
-      </div>
-      <div class="modal-body">
-        <input type="text" class="form-control date-in" id="date-selector">
-      </div>
+<div class="modal fade" id="date-selector-modal" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content date-modal">
+                <div class="modal-header">
+                    <button class="close" type="button" data-dismiss="modal">&times;</button>
+                    <h4>Date Selector</h4>
+                </div>
+                <div class="modal-body date-in">
+                    <input type="text" id='date-selector' class='form-control' />
+                </div>
+            </div>
+        </div>
     </div>
-
-  </div>
-</div>
 <script>
     $(function () {
        $("#fileupload").uploadFile({
@@ -426,4 +425,14 @@
     //   function datepicker(){
     //     document.getElementById('date-selector').style.display='inline';
     // }
+    // $('#date-selector-modal').click(function(){
+    //     var ael = document.createElement('a');
+    //     var attr1 = document.createAttribute('href');
+    //     attr1.value='/js/page1/sample.html';
+    //     ael.setAttributeNode(attr1);
+    //     var attr2 = document.createAttribute('target');
+    //     attr2.value='_blank';
+    //     ael.setAttributeNode(attr2);
+    //     ael.click();
+    // });
 </script>

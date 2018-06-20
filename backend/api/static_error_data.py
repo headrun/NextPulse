@@ -178,9 +178,6 @@ def get_internal_external_packet_accuracy(project, center, thirty_days, sixty_da
 def get_internal_external_agent_accuracy(project, center, thirty_days, sixty_days, ninty_days):
 	project = project
 	center = center
-	thirty_days = thirty_days
-	sixty_days = sixty_days
-	ninty_days = ninty_days
 	final_dict = {}
 	tables = [Internalerrors, Externalerrors]
 	dates_list = [thirty_days, sixty_days, ninty_days]
@@ -211,6 +208,28 @@ def get_internal_external_agent_accuracy(project, center, thirty_days, sixty_day
 	final_dict = final_result(agent_accuracy, final_dict, 'agent_accuracy')
 
 	return final_dict
+
+
+def get_internal_external_unaudited_packets(project, center, thirty_days, sixty_days, ninty_days):
+	project = project
+	center = center
+	final_dict = {}
+	tables = [Internalerrors, Externalerrors]
+	dates_list = [thirty_days, sixty_days, ninty_days]
+	unaudited_packets = [{}, {}, {}, {}, {}, {}]
+
+	i=0
+	for date_list in dates_list:
+		for table in tables:
+			packets = table.objects.filter(project=project, center=center, date__range=(date_list[-1], date_list[0]), audited_errors=0).values_list('work_packet', flat=True).distinct()
+			for packet in packets:
+				packet_work_done = RawTable.objects.filter(project=project, center=center, date__range=(date_list[-1], date_list[0]), work_packet=packet).aggregate(Sum('per_day'))['per_day__sum']
+				unaudited_packets[i][packet] = packet_work_done
+			i+=1
+ 
+	final_dict = final_result(unaudited_packets, final_dict, 'unaudited_packets')
+	return final_dict
+
 
 def static_internal_external_agent_accuracy(request):
 	project = request.GET.get('project', '')
@@ -277,3 +296,11 @@ def static_internal_external_error_category(request):
 	result = get_internal_external_error_category_data(pro_id, center_id, dates_list[0], dates_list[1], dates_list[2])
 	return JsonResponse(result)
 
+def static_internal_external_unaudited_packets(request):
+	project = request.GET.get('project', '')
+	center = request.GET.get('center', '').split(' -')[0]
+	pro_id = Project.objects.get(name=project).id
+	center_id = Center.objects.get(name=center).id
+	dates_list = dates_data(pro_id, center_id)
+	result = get_internal_external_unaudited_packets(pro_id, center_id, dates_list[0], dates_list[1], dates_list[2])
+	return JsonResponse(result)

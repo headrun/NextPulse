@@ -3,6 +3,7 @@ from django.http import HttpResponse, JsonResponse
 
 import datetime as dt
 import xlsxwriter
+from xlsxwriter.workbook import Workbook
 from datetime import date
 from operator import itemgetter
 import ast
@@ -146,16 +147,23 @@ def packet_agent_audit_random(request):
                     result[packets[k]] = packet_workdone['per_day__sum']
                     k += 1
                     break
+
+    workbook = xlsxwriter.Workbook('audit_data.xlsx')
+    worksheet = workbook.add_worksheet()
+
+    i = 1
+    for key, value in result.iteritems():
+        worksheet.write('A'+str(i), key)
+        worksheet.write('B'+str(i), value)
+        i +=1
+    workbook.close()
+
     return JsonResponse(result)
 
 
 def generate_excel_for_audit_data(request):
-    
-    from xlsxwriter.workbook import Workbook
+
     ##=====generates agents and packets data in excel=====##
-    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-    response['Content-Disposition'] = 'attachment; filename=%s' % ('audit_data.xlsx')
-    workbook = Workbook(response, {'in_memory': True})
     if request.method == 'POST':
         data = ast.literal_eval(request.POST.keys()[0])
         workbook = xlsxwriter.Workbook('audit_data.xlsx')
@@ -166,6 +174,11 @@ def generate_excel_for_audit_data(request):
             worksheet.write('B'+str(i), value)
             i +=1    
         workbook.close()
+        with open('audit_data.xlsx', 'rb')as xl:
+            xl_data = xl.read();
+
+        response = HttpResponse(xl_data, content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = 'attachment; filename=%s' % ('audit_data.xlsx')
         return response
     else:
         return HttpResponse('Please use the post method to send the data.')
