@@ -76,8 +76,6 @@
 }
 
 .w3-card:active{
-    /*-webkit-animation: wiggle 0.3s 0s infinite ease-in;
-    animation: wiggle 0.3s 0s infinite ease-in;*/
     opacity: .6;
     border:2px solid grey;
     
@@ -88,34 +86,6 @@
     transition: .1s;
 }
 
-@-webkit-keyframes wiggle {
-  0% {
-    -webkit-transform: rotate(0deg);
-  }
-  25% {
-    -webkit-transform: rotate(2deg);
-  }
-  75% {
-    -webkit-transform: rotate(-2deg);
-  }
-  100% {
-    -webkit-transform: rotate(0deg);
-  }
-}
-@keyframes wiggle {
-  0% {
-    transform: rotate(-2deg);
-  }
-  25% {
-    transform: rotate(2deg);
-  }
-  75% {
-    transform: rotate(-2deg);
-  }
-  100% {
-    transform: rotate(0deg);
-  }
-}
 .gu-mirror {
   position: fixed !important;
   margin: 0 !important;
@@ -303,156 +273,7 @@ page1 div.modal-content{
     <a class="back-to-top" id="goTop">
         <i class="fa fa-arrow-circle-o-up hide"></i>
     </a>
-</div>
-<div class="modal fade" id="formData" role="dialog" style="overflow-y:auto;">
-    <div class="modal-dialog input-form">
-        <!-- Modal content-->
-        <div class="modal-content ">
-            <div class="modal-border"></div>
-            <div class="modal-header">
-                <button type="button" class="close close-sample-form" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Form Data</h4>
-            </div>
-            <hr>
-            <div class="modal-body" >
-                <form class="form-inline">
-                    <div class="row">
-                        <div class="col-md-offset-3 col-md-3 form-group"><label for="aduit">Audit %</label><input type="number" class="form-control" value="{{$ctrl.audit}}" id="audit" min="0" max="100"></div>
-                        <div class="col-md-4"><label for="randomsample">Random Sample %</label><input type="number" class="form-control" value="{{$ctrl.random}}" id="randomsample"  min="0" max="100"></div>
-                    </div>
-                    <br>
-                    <div class="w3-container">
-                        <div class="row">
-                            <div class="col-md-offset-1 col-md-4">
-                                <p style="text-align: center;"><b>Work Packets</b></p>
-                            </div>
-                            <div class="col-md-offset-1 col-md-4" >
-                                <p style="text-align: center;"><b>Agents</b></p>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-offset-1 col-md-4" id='dragger-packet'>
-                                <div class="w3-panel w3-card" ng-repeat="item in $ctrl.packet_data" style="margin-top: -10px; cursor: all-scroll;" ng-click="$ctrl.simple('packet'+($index+1))" data-toggle="modal" data-target="#addpacket-card">
-                                    <p id="packet{{$index+1}}" style="margin-top:10px;text-align:center;">{{item}}</p>
-                                </div>
-                            </div>
-                            <div class="col-md-1">
-                                    <i class="fa fa-plus-circle" id="plus-packet-add" data-toggle="modal" data-target="#addpacket" style="font-size: x-large; cursor: pointer;"></i>
-                            </div>
-                            <div class="col-md-4"  id='dragger-agent'>
-                                <div class="w3-panel w3-card" ng-repeat="item in $ctrl.agent_data" style="margin-top: -10px; cursor: all-scroll;" ng-click="$ctrl.simple('agent'+($index+1))" data-toggle="modal" data-target="#addagent-card">
-                                    <p style="margin-top:10px;text-align:center;" id="agent{{$index+1}}">{{item}}</p>
-                                </div>
-                            </div>
-                            <div class="col-md-1">
-                                <i class="fa fa-plus-circle" id="plus-agent-add" data-toggle="modal" data-target="#addagent" style="font-size: x-large; cursor: pointer"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="w3-container">
-                        <div class="row" >
-                            
-                        </div>
-                        <div class="row">
-                            
-                            
-                        </div>
-                    </div>     
-                    <div class="modal-footer">
-
-                        <button class="btn btn-success btn-md" ng-if="$ctrl.success" ng-model="$ctrl.success" ng-init="success=false"  ng-click="$ctrl.download_excel()" download>Download</button>
-                        <button type="submit" class="btn btn-primary" ng-click="$ctrl.formData()">Submit</button>
-                    </div>
-                </form>
-            </div> 
-        </div>
-    </div>
-</div>
-
-<!-- For adding packet -->
-<div class="modal fade" id="addpacket" role="dialog">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Add packet</h4>
-            </div>
-            <div class="modal-body">
-                    <label for="newpacket">New Packet:</label>
-                    <select class="form-control" id="newpacket" >
-                        <option value="{{packet}}" ng-repeat="packet in $ctrl.rem_packets">{{packet}}</option>
-                    </select>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="$ctrl.add_packet()">Ok</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- for directly adding the packet by clicking card. -->
-<div class="modal fade" id="addpacket-card" role="dialog">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Add packet</h4>
-            </div>
-            <div class="modal-body">
-                    <label for="newpacketcard">New Packet:</label>
-                    <select class="form-control" id="newpacketcard" >
-                        <option value="{{packet}}" ng-repeat="packet in $ctrl.rem_packets">{{packet}}</option>
-                    </select>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="$ctrl.add_packet_card()">Ok</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- For adding agent -->
-<div class="modal fade" id="addagent" role="dialog">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Add Agent</h4>
-            </div>
-            <div class="modal-body">
-                <label for="newagent">New Agent:</label>
-                <div class="autocomplete">
-                    <input id="newagent" class="form-control" type="text" name="agent" placeholder="New Agent" ng-keydown="$ctrl.autocomplete('newagent', $ctrl.rem_agents)">
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="$ctrl.add_agent()">Ok</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- for directly adding the agent by clicking card. -->
-<div class="modal fade" id="addagent-card" role="dialog">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Add Agent</h4>
-            </div>
-            <div class="modal-body">
-                <label for="newagentcard">New Agent:</label>
-                <div class="autocomplete">
-                    <input id="newagentcard" class="form-control" type="text" name="agent" placeholder="Search Agent" ng-keydown="$ctrl.autocomplete('newagentcard', $ctrl.rem_agents)">
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="$ctrl.add_agent_card()">Ok</button>
-            </div>
-        </div>
-    </div>
-</div>
-
+</div>  
 
 <script type="text/javascript" async="async" defer="defer" data-cfasync="false" src="https://mylivechat.com/chatinline.aspx?hccid=73900030"></script>
 <p id="hidden-tag">{{$ctrl.hiden_tag}}</p>
