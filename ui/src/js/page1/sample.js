@@ -350,7 +350,7 @@ app.controller('sampleCtrl', function($scope, $http){
 
     $scope.audit_submit = function(){
       $('.handle-audit').fadeOut(300);
-      var audit_url = '/api/intelligent-audit/?audit_val='+$scope.intelligent_audit_value;
+      var audit_url = '/api/intelligent-audit/?audit_val='+$scope.intelligent_audit_value+'&total_production='+$scope.total_production;
       $http({method:'GET', url:audit_url}).then(function(result){
         $scope.audit_value = result.data.audit_value;
       }, function(error){
@@ -361,7 +361,7 @@ app.controller('sampleCtrl', function($scope, $http){
 
     $scope.random_submit = function(){
       $('.handle-random').fadeOut(300);
-      var random_url = '/api/random-audit/?random_val='+$scope.random_audit_value;
+      var random_url = '/api/random-audit/?random_val='+$scope.random_audit_value+'&total_production='+$scope.total_production;
       $http({method:'GET', url:random_url}).then(function(result){
         $scope.random_value = result.data.random_value;
       }, function(error){
