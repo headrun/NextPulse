@@ -3781,9 +3781,9 @@
                             var is_annotation = result.result.is_annotation;
                             
                             
-                            if (self.list_object.aht_team_graph != undefined) {
+                            if (self.list_object.no_of_agents_AHT_daywise != undefined) {
 
-                                if(self.list_object.aht_team_graph.legends_align == 'bottom') {
+                                if(self.list_object.no_of_agents_AHT_daywise.legends_align == 'bottom') {
                                 
                                     var align = 'center';
                                     var ver_align = 'bottom';
@@ -3791,7 +3791,7 @@
                             
                                 }
                             
-                                else if(self.list_object.aht_team_graph.legends_align == 'left'){
+                                else if(self.list_object.no_of_agents_AHT_daywise.legends_align == 'left'){
                             
                                     var align ='left';
                                     var ver_align = 'top';
@@ -3925,11 +3925,47 @@
                                 min:result.result.min_max.min_value,
                                 max:result.result.min_max.max_value
                             });
+                          if (self.list_object.percentage_people_67_and_99_achieved != undefined) {
+
+                                if(self.list_object.percentage_people_67_and_99_achieved.legends_align == 'bottom') {
+                                
+                                    var align = 'center';
+                                    var ver_align = 'bottom';
+                                    var layout = 'horizontal';
+                            
+                                }
+                            
+                                else if(self.list_object.percentage_people_67_and_99_achieved.legends_align == 'left'){
+                            
+                                    var align ='left';
+                                    var ver_align = 'top';
+                                    var layout = 'vertical';
+                                }
+                            
+                                else {
+                                    var align = 'right';
+                                    var ver_align = 'top';
+                                    var layout = 'vertical';
+                                }
+                            }
+                            
+                            else {
+                                var align = 'center';
+                                var ver_align = 'bottom';
+                                var layout = 'horizontal';
+                            }
+
 
                             angular.extend(self.chartOptions69, {
                                    xAxis: {
                                         categories: date_list,
                                     },
+                                   legend: {
+                                        align: align,
+                                        verticalAlign:ver_align,
+                                        layout: layout
+                                    }, 
+                              
                                     plotOptions: {
                                         series: {
                                           dataLabels: {
