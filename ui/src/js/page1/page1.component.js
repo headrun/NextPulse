@@ -5677,7 +5677,7 @@
                         self.static_internal_external_error() 
                     } else if (val == 'no_of_agents_AHT_daywise') {
                          self.No_of_agents_AHT(undefined)
-                    } else if (val == 'percentage_people_<67_and>99%_achieved') {
+                    } else if (val == 'percentage_people_67_and_99_achieved') {
                          self.Percentage_less_aht(undefined, undefined)
                     } else if ((val == 'volume_bar_graph') || (val == 'volume_productivity_graph')) {
                          self.work_list.push('work_track')
