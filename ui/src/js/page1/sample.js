@@ -24,6 +24,7 @@ app.controller('sampleCtrl', function($scope, $http){
     $scope.rem_agents = result.data.agents;
     $scope.packet_config_value = result.data.packet_value;
     $scope.agent_config_value = result.data.agent_value;
+    $scope.total_production = result.data.total_production;
     }, function(error){
           $('.modal-backdrop').remove();
           $('.error-msg').delay(500).fadeOut();
@@ -31,12 +32,13 @@ app.controller('sampleCtrl', function($scope, $http){
 
   dragula([document.getElementById('dragger-packet')],{removeOnSpill:true}).on('out', function(el, target, container, source){
       $scope.packets_elements = el.parentElement.parentElement.children['0'].children;
+      $scope.p_size = $scope.packets_elements.length;
       for (var i = 0; i<$scope.packets_elements.length; i++){
         if(el === $scope.packets_elements[i]){
           $scope.el_id = el.children['0'].id;
           $scope.rm_el_index = i;
           $scope.rm_el_data = el.innerText.trim();
-          $scope.rem_packets.push($scope.rm_el_data);
+          $scope.p_size -= 1;
           break;
         }
       }
@@ -44,96 +46,89 @@ app.controller('sampleCtrl', function($scope, $http){
 
     $scope.add_packet = function(){
       var new_packet = document.getElementById('newpacket').value;
+      var pl = $('#dragger-packet').children().length;
 
-      // This if will execute when the packet is not selected and directly when we click plus button.
-      if($scope.rm_el_index == undefined || $scope.packets_elements.length === $scope.packet_config_value){
-        var rm_el_id = $("#dragger-packet").children().last()['0'].firstElementChild.id;
-        var rm_el_data = $('#dragger-packet').children().last()['0'].firstElementChild.innerText;
+      // This 'if' block will execute when the packet is not selected and directly when we click plus button.
+      if($scope.rm_el_index == undefined){
         var i = $scope.rem_packets.indexOf(new_packet);
         $scope.rem_packets.splice(i, 1);
-        $scope.rem_packets.push(rm_el_data);
-        var el = "<div class='w3-panel w3-card ng-scope' ng-repeat='item in $ctrl.packet_data' style='margin-top: -10px; cursor:all-scroll', ng-click='$ctrl.simple("+rm_el_id+")' data-toggle='modal' data-target='#addpacket-card'>\
-                      <p style='margin-top:10px;text-align:center;' id="+rm_el_id+">"+new_packet+"</p>\
+        var el = "<div class='w3-panel w3-card ng-scope' ng-repeat='item in $ctrl.packet_data' style='margin-top: -10px; cursor:all-scroll'>\
+                      <p style='margin-top:10px;text-align:center;'>"+new_packet+"</p>\
                   </div>";
-        var pl = $('#dragger-packet').children().length;
-        if(pl=== $scope.packet_config_value){
-          $("#dragger-packet").children().last().remove();
-          $(el).prependTo('#dragger-packet');
-        }
+        $(el).prependTo('#dragger-packet');
 
-      // This else will execute when the packet is  and after plus button is clicked.
-      }else if($scope.rm_el_index !== undefined){
+        // This 'elseif ' block will execute when the rm_el_index is not undefined.
+      }else if($scope.rm_el_index != undefined){
           var pl = $('#dragger-packet').children().length;
-          if($scope.rm_el_index==pl){
+
+          // This 'elseif' block will execute when the last packet is removed and plus button is clicked.
+          if($scope.rm_el_index != undefined && $scope.rm_el_index === pl){
             var i = $scope.rem_packets.indexOf(new_packet);
             $scope.rem_packets.splice(i, 1);
-            var el = "<div class='w3-panel w3-card ng-scope' ng-repeat='item in $ctrl.packet_data' style='margin-top: -10px; cursor:all-scroll', ng-click='$ctrl.simple("+$scope.rm_el_id+")' data-toggle='modal' data-target='#addpacket-card'>\
-                      <p style='margin-top:10px;text-align:center;' id="+$scope.rm_el_id+">"+new_packet+"</p>\
+            $scope.rem_packets.push($scope.rm_el_data);
+            var el = "<div class='w3-panel w3-card ng-scope' ng-repeat='item in $ctrl.packet_data' style='margin-top: -10px; cursor:all-scroll'>\
+                      <p style='margin-top:10px;text-align:center;'>"+new_packet+"</p>\
                   </div>";
             $('#dragger-packet').append(el);
-            // This else if will execute when the no packet was removed still the packet
-            // was try to removed and plus button is clicked, it will replace the last packet with new one. 
-          }else if(pl == $scope.packet_config_value ){
-            var rm_el_id = $("#dragger-packet").children().last()['0'].firstElementChild.id;
-            var rm_el_data = $('#dragger-packet').children().last()['0'].firstElementChild.innerText;
-            var i = $scope.rem_packets.indexOf(new_packet);
-            $scope.rem_packets.splice(i, 1);
-            $scope.rem_packets.push(rm_el_data);
-            var el = "<div class='w3-panel w3-card ng-scope' ng-repeat='item in $ctrl.packet_data' style='margin-top: -10px; cursor:all-scroll', ng-click='$ctrl.simple("+rm_el_id+")' data-toggle='modal' data-target='#addpacket-card'>\
-                          <p style='margin-top:10px;text-align:center;' id="+rm_el_id+">"+new_packet+"</p>\
-                      </div>";
-            var pl = $('#dragger-packet').children().length;
-            if(pl=== $scope.packet_config_value){
-              $("#dragger-packet").children().last().remove();
-              $("#dragger-packet").append(el);
-            }else{
-              $("#dragger-packet").append(el);
-            }
-          }else if(pl != $scope.packet_config_value){
+            $scope.rm_el_index = undefined;
+          }else if($scope.p_size === pl && ($scope.rm_el_index != undefined && $scope.rm_el_index !== 0)){
             var temp = [];
             // This if executes when the packet is not first one.
-            if($scope.rm_el_index != 0){
-              var temp_index = 0;
-              for (var i=0; i<$scope.rm_el_index; i++){
-                temp.push($scope.packets_elements[i]);
-                temp_index = i;
-              }
-              var i = $scope.rem_packets.indexOf(new_packet);
-              $scope.rem_packets.splice(i, 1);
-              var el = "<div class='w3-panel w3-card ng-scope' ng-repeat='item in $ctrl.packet_data' style='margin-top: -10px; cursor:all-scroll', ng-click='$ctrl.simple("+$scope.rm_el_id+")' data-toggle='modal' data-target='#addpacket-card'>\
-                          <p style='margin-top:10px;text-align:center;' id="+$scope.rm_el_id+">"+new_packet+"</p>\
-                      </div>";
-              temp.push(el);
-              temp_index+=1
-              for (temp_index; temp_index<$scope.packets_elements.length; temp_index++){
-                temp.push($scope.packets_elements[temp_index])
-              }
+            var temp_index = 0;
+            for (var i=0; i<$scope.rm_el_index; i++){
+              temp.push($scope.packets_elements[i]);
+              temp_index = i;
+            }
+            var i = $scope.rem_packets.indexOf(new_packet);
+            $scope.rem_packets.splice(i, 1);
+            $scope.rem_packets.push($scope.rm_el_data);
+            var el = "<div class='w3-panel w3-card ng-scope' ng-repeat='item in $ctrl.packet_data' style='margin-top: -10px; cursor:all-scroll'>\
+                        <p style='margin-top:10px;text-align:center;'>"+new_packet+"</p>\
+                    </div>";
+            temp.push(el);
+            temp_index+=1
+            for (temp_index; temp_index<$scope.packets_elements.length; temp_index++){
+              temp.push($scope.packets_elements[temp_index])
+            }
               $('#dragger-packet').children().remove();
               $('#dragger-packet').append(temp);
-            }else{
+              $scope.rm_el_index = undefined;
+          }else if(($scope.rm_el_index != undefined && $scope.rm_el_index === 0) || $scope.p_size !== pl){
               var i = $scope.rem_packets.indexOf(new_packet);
               $scope.rem_packets.splice(i, 1);
-              var el = "<div class='w3-panel w3-card ng-scope' ng-repeat='item in $ctrl.packet_data' style='margin-top: -10px; cursor:all-scroll', ng-click='$ctrl.simple("+$scope.rm_el_id+")' data-toggle='modal' data-target='#addpacket-card'>\
-                          <p style='margin-top:10px;text-align:center;' id="+$scope.rm_el_id+">"+new_packet+"</p>\
+              var el = "<div class='w3-panel w3-card ng-scope' ng-repeat='item in $ctrl.packet_data' style='margin-top: -10px; cursor:all-scroll'>\
+                          <p style='margin-top:10px;text-align:center;'>"+new_packet+"</p>\
                       </div>";
               $(el).prependTo('#dragger-packet');
-            }
+              $scope.rm_el_index = undefined;
+
+          /* This 'elseif' block will execute when the no packet was removed still the packet
+              was dragged and plus button is clicked, it will replace the last packet with new one. */
+          }else if($scope.rm_el_index != undefined && pl !== $scope.packet_config_value ){
+            var i = $scope.rem_packets.indexOf(new_packet);
+            $scope.rem_packets.splice(i, 1);
+            $scope.rem_packets.push($scope.rm_el_data);
+            var el = "<div class='w3-panel w3-card ng-scope' ng-repeat='item in $ctrl.packet_data' style='margin-top: -10px; cursor:all-scroll'>\
+                          <p style='margin-top:10px;text-align:center;'>"+new_packet+"</p>\
+                      </div>";
+            $(el).prependTo("#dragger-packet");
+            $scope.rm_el_index = undefined;
           }
       }
-    }
+    };
 
-    $scope.simple = function(p_id){
-      $scope.p_id = p_id;
-      $scope.p_data = document.getElementById(p_id).innerText;
-    }
+    // $scope.simple = function(p_id){
+    //   $scope.p_id = p_id;
+    //   $scope.p_data = document.getElementById(p_id).innerText;
+    // }
 
-    $scope.add_packet_card = function(){
-      var new_packet_data = document.getElementById('newpacketcard').value;
-      document.getElementById($scope.p_id).innerText=new_packet_data;
-      var index = $scope.rem_packets.indexOf(new_packet_data);
-      $scope.rem_packets.splice(index, 1);
-      $scope.rem_packets.push($scope.p_data);
-    }
+    // $scope.add_packet_card = function(){
+    //   var new_packet_data = document.getElementById('newpacketcard').value;
+    //   document.getElementById($scope.p_id).innerText=new_packet_data;
+    //   var index = $scope.rem_packets.indexOf(new_packet_data);
+    //   $scope.rem_packets.splice(index, 1);
+    //   $scope.rem_packets.push($scope.p_data);
+    // }
 
     $scope.autocomplete = function(inp, arr) {
       var inp = document.getElementById(inp);
@@ -203,23 +198,24 @@ app.controller('sampleCtrl', function($scope, $http){
       });
     }
 
-    $scope.add_agent_card = function(){
-      var newagent = document.getElementById('newagentcard').value;
-      var el = document.getElementById($scope.p_id);
-      el.innerText = newagent;
-      var index = $scope.rem_agents.indexOf(newagent);
-      $scope.rem_agents.splice(index, 1);
-      $scope.rem_agents.push($scope.p_data);
-    }
+    // $scope.add_agent_card = function(){
+    //   var newagent = document.getElementById('newagentcard').value;
+    //   var el = document.getElementById($scope.p_id);
+    //   el.innerText = newagent;
+    //   var index = $scope.rem_agents.indexOf(newagent);
+    //   $scope.rem_agents.splice(index, 1);
+    //   $scope.rem_agents.push($scope.p_data);
+    // }
 
     dragula([document.getElementById('dragger-agent')],{removeOnSpill:true}).on('out', function(el, target, container, source){
       $scope.agents_elements = el.parentElement.children;
+      $scope.a_size = $scope.agents_elements.length;
       for (var i = 0; i<$scope.agents_elements.length; i++){
         if(el === $scope.agents_elements[i]){
           $scope.a_el_id = el.children['0'].id;
           $scope.a_rm_el_index = i;
           $scope.a_rm_el_data = el.innerText.trim();
-          $scope.rem_agents.push($scope.a_rm_el_data);
+          $scope.a_size -= 1;
           break;
         }
       }
@@ -227,104 +223,87 @@ app.controller('sampleCtrl', function($scope, $http){
 
     $scope.add_agent = function(){
       var new_agent = document.getElementById('newagent').value;
+
       // This if will execute when the packet is not selected and directly when we click plus button.
-      if($scope.a_rm_el_index == undefined || $scope.agents_elements.length === $scope.agent_config_value){
-        var rm_el_id = $("#dragger-agent").children().last()['0'].firstElementChild.id;
-        var rm_el_data = $('#dragger-agent').children().last()['0'].firstElementChild.innerText;
+      if($scope.a_rm_el_index == undefined){
         var i = $scope.rem_agents.indexOf(new_agent);
         $scope.rem_agents.splice(i, 1);
-        $scope.rem_agents.push(rm_el_data);
-        var el = "<div class='w3-panel w3-card ng-scope' ng-repeat='item in $ctrl.agent_data' style='margin-top: -10px; cursor:all-scroll', ng-click='$ctrl.simple("+rm_el_id+")' data-toggle='modal' data-target='#addagent-card'>\
-                      <p style='margin-top:10px;text-align:center;' id="+rm_el_id+">"+new_agent+"</p>\
+        var el = "<div class='w3-panel w3-card ng-scope' ng-repeat='item in $ctrl.agent_data' style='margin-top: -10px; cursor:all-scroll'>\
+                      <p style='margin-top:10px;text-align:center;'>"+new_agent+"</p>\
                   </div>";
-        var pl = $('#dragger-agent').children().length;
-        if(pl=== $scope.packet_config_value){
-          $("#dragger-agent").children().last().remove();
-          $(el).prependTo("#dragger-agent");
-        }
+        $(el).prependTo("#dragger-agent");
+
       // This else if will execute when the packet is dragged and after plus button is clicked.
       }else if($scope.a_rm_el_index !== undefined){
-          var pl = $('#dragger-agent').children().length;
-          if($scope.a_rm_el_index==pl){
+          var al = $('#dragger-agent').children().length;
+
+          if($scope.a_rm_el_index !== undefined && $scope.a_rm_el_index === al){
             var i = $scope.rem_agents.indexOf(new_agent);
             $scope.rem_agents.splice(i, 1);
-            var el = "<div class='w3-panel w3-card ng-scope' ng-repeat='item in $ctrl.agent_data' style='margin-top: -10px; cursor:all-scroll', ng-click='$ctrl.simple("+$scope.a_rm_el_id+")' data-toggle='modal' data-target='#addagent-card'>\
-                      <p style='margin-top:10px;text-align:center;' id="+$scope.a_rm_el_id+">"+new_agent+"</p>\
+            $scope.rem_agents.push($scope.a_rm_el_data);
+            var el = "<div class='w3-panel w3-card ng-scope' ng-repeat='item in $ctrl.agent_data' style='margin-top: -10px; cursor:all-scroll'>\
+                      <p style='margin-top:10px;text-align:center;'>"+new_agent+"</p>\
                   </div>";
             $('#dragger-agent').append(el);
-            // This else if will execute when the no packet was removed still the packet
-            // was try to removed and plus button is clicked, it will replace the last packet with new one. 
-          }else if(pl == $scope.agent_config_value ){
-            var rm_el_id = $("#dragger-agent").children().last()['0'].firstElementChild.id;
-            var rm_el_data = $('#dragger-agent').children().last()['0'].firstElementChild.innerText;
+            $scope.a_rm_el_index = undefined;
+
+          }else if($scope.a_size === al && ($scope.a_rm_el_index != undefined && $scope.a_rm_el_index !== 0)){
+            var temp = [];
+            var temp_index = 0;
+            for (var i=0; i<$scope.a_rm_el_index; i++){
+              temp.push($scope.agents_elements[i]);
+              temp_index = i;
+            }
             var i = $scope.rem_agents.indexOf(new_agent);
             $scope.rem_agents.splice(i, 1);
-            $scope.rem_agents.push(rm_el_data);
-            var el = "<div class='w3-panel w3-card ng-scope' ng-repeat='item in $ctrl.agent_data' style='margin-top: -10px; cursor:all-scroll', ng-click='$ctrl.simple("+rm_el_id+")' data-toggle='modal' data-target='#addagent-card'>\
-                          <p style='margin-top:10px;text-align:center;' id="+rm_el_id+">"+new_agent+"</p>\
-                      </div>";
-            var pl = $('#dragger-agent').children().length;
-            if(pl=== $scope.agent_config_value){
-              $("#dragger-agent").children().last().remove();
-              $("#dragger-agent").append(el);
-            }else{
-              $("#dragger-agent").append(el);
+            $scope.rem_agents.push($scope.a_rm_el_data);
+            var el = "<div class='w3-panel w3-card ng-scope' ng-repeat='item in $ctrl.agent_data' style='margin-top: -10px; cursor:all-scroll'>\
+                        <p style='margin-top:10px;text-align:center;'>"+new_agent+"</p>\
+                    </div>";
+            temp.push(el);
+            temp_index+=1
+            for (temp_index; temp_index<$scope.agents_elements.length; temp_index++){
+              temp.push($scope.agents_elements[temp_index])
             }
-          }else if(pl != $scope.agent_config_value){
-            var temp = [];
-            // This if executes when the packet is not first one.
-            if($scope.a_rm_el_index != 0){
-              var temp_index = 0;
-              for (var i=0; i<$scope.a_rm_el_index; i++){
-                temp.push($scope.agents_elements[i]);
-                temp_index = i;
-              }
-              var i = $scope.rem_agents.indexOf(new_agent);
-              $scope.rem_agents.splice(i, 1);
-              var el = "<div class='w3-panel w3-card ng-scope' ng-repeat='item in $ctrl.agent_data' style='margin-top: -10px; cursor:all-scroll', ng-click='$ctrl.simple("+$scope.a_rm_el_id+")' data-toggle='modal' data-target='#addagent-card'>\
-                          <p style='margin-top:10px;text-align:center;' id="+$scope.a_rm_el_id+">"+new_agent+"</p>\
-                      </div>";
-              temp.push(el);
-              temp_index+=1
-              for (temp_index; temp_index<$scope.agents_elements.length; temp_index++){
-                temp.push($scope.agents_elements[temp_index])
-              }
-              $('#dragger-agent').children().remove();
-              $('#dragger-agent').append(temp);
-            }else{
-              var i = $scope.rem_agents.indexOf(new_agent);
-              $scope.rem_agents.splice(i, 1);
-              var el = "<div class='w3-panel w3-card ng-scope' ng-repeat='item in $ctrl.agent_data' style='margin-top: -10px; cursor:all-scroll', ng-click='$ctrl.simple("+$scope.a_rm_el_id+")' data-toggle='modal' data-target='#addagent-card'>\
-                          <p style='margin-top:10px;text-align:center;' id="+$scope.a_rm_el_id+">"+new_agent+"</p>\
-                      </div>";
-              $(el).prependTo('#dragger-agent');
-            }
-          }
+            $('#dragger-agent').children().remove();
+            $('#dragger-agent').append(temp);
+            $scope.a_rm_el_index = undefined;
+          }else if(($scope.a_rm_el_index != undefined && $scope.a_rm_el_index === 0) || $scope.a_size !== al){
+            var i = $scope.rem_agents.indexOf(new_agent);
+            $scope.rem_agents.splice(i, 1);
+            $scope.rem_agents.push($scope.a_rm_el_data);
+            var el = "<div class='w3-panel w3-card ng-scope' ng-repeat='item in $ctrl.agent_data' style='margin-top: -10px; cursor:all-scroll'>\
+                        <p style='margin-top:10px;text-align:center;'>"+new_agent+"</p>\
+                    </div>";
+            $(el).prependTo('#dragger-agent');
+            $scope.a_rm_el_index = undefined;
+        }else if($scope.a_rm_el_index != undefined && al !== $scope.agent_config_value){
+          var i = $scope.rem_agents.indexOf(new_agent);
+          $scope.rem_agents.splice(i, 1);
+          var el = "<div class='w3-panel w3-card ng-scope' ng-repeat='item in $ctrl.agent_data' style='margin-top: -10px; cursor:all-scroll'>\
+                        <p style='margin-top:10px;text-align:center;'>"+new_agent+"</p>\
+                    </div>";
+            $(el).prependTo('#dragger-agent');
+            $scope.a_rm_el_index = undefined;
+        }
       }
     }
 
     $scope.formData = function(){
             $scope.audit_per = document.getElementById('audit').value;
             $scope.random_per = document.getElementById('randomsample').value;
-            var packets_ids = [];
-            var agents_ids = [];
+            var packets = $('#dragger-packet').children();
+            var agents = $('#dragger-agent').children();
             var total_packets = $('#dragger-packet').children().length;
-            for(var i = 1; i<=total_packets; i++){
-              packets_ids.push("packet"+i);
-            }
-
             var total_agents = $('#dragger-agent').children().length;
-            for(var i = 1; i<=total_agents; i++){
-              agents_ids.push("agent"+i);
-            }
             var packets_data = new Array(total_packets);
             var agents_data = new Array(total_agents);
 
-            for(var i = 0; i<packets_ids.length; i++)
-                packets_data[i] = document.getElementById(packets_ids[i]).innerText;
+            for(var i = 0; i<total_packets; i++)
+                packets_data[i] = packets[i].firstChild.nextElementSibling.innerText;
 
-            for(var j = 0; j<agents_ids.length; j++)
-                agents_data[j] = document.getElementById(agents_ids[j]).innerText;
+            for(var j = 0; j<total_agents; j++)
+                agents_data[j] = agents[j].firstChild.nextElementSibling.innerText;
 
             var center = $scope.sa_url_split[2].split('=')[1]
             var project = $scope.sa_url_split[1].split('=')[1]
@@ -334,10 +313,17 @@ app.controller('sampleCtrl', function($scope, $http){
 
 
             $http({method:'POST', url:url, data:data, headers:{'Content-Type':'application/x-www-form-urlencoded;charset=utf-8;'}}).then(function(result){
-                $scope.success = true;
-                $('#audit').val($scope.audit_per);
-                $('randomsample').val($scope.random_per);
-                $scope.excel_data = result.data;
+                if(result.data.message){
+                  swal({
+                    title:'warning',
+                    text:result.data.message,
+                    icon:'warning',
+                    button:'ok'
+                  });
+                }else{
+                  $scope.success = true;
+                  $scope.excel_data = result.data;
+                }
             });
     }
 
@@ -352,5 +338,35 @@ app.controller('sampleCtrl', function($scope, $http){
            document.body.appendChild(link);
            link.click();
         });
+    }
+
+    $scope.show_ok_audit = function(){
+        $('.handle-audit').fadeIn(300);
+    };
+
+    $scope.show_ok_random = function(){
+      $('.handle-random').fadeIn(300);
+    }
+
+    $scope.audit_submit = function(){
+      $('.handle-audit').fadeOut(300);
+      var audit_url = '/api/intelligent-audit/?audit_val='+$scope.intelligent_audit_value;
+      $http({method:'GET', url:audit_url}).then(function(result){
+        $scope.audit_value = result.data.audit_value;
+      }, function(error){
+        $scope.intelligent_audit_err_msg = true;
+        console.log('something went wrong!');
+      });
+    };
+
+    $scope.random_submit = function(){
+      $('.handle-random').fadeOut(300);
+      var random_url = '/api/random-audit/?random_val='+$scope.random_audit_value;
+      $http({method:'GET', url:random_url}).then(function(result){
+        $scope.random_value = result.data.random_value;
+      }, function(error){
+          $scope.random_audit_err_msg = true;
+          console.log('something went wrong!');
+      });
     }
 });

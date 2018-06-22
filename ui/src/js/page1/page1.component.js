@@ -1873,7 +1873,7 @@
                                     plotOptions: {
                                         series: {
                                             label: {
-                                                connectorAllowed: true
+                                                connectorAllowed: false
                                             },
                                         dataLabels: {
                                             enabled: value,

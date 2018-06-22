@@ -7,6 +7,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.5.8/angular.js"></script>
     <script src='https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.2/dragula.min.js'></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css" />
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
@@ -66,7 +67,6 @@
       cursor: pointer;
       background-color: #fff; 
       border-bottom: 1px solid #d4d4d4; 
-      overflow-y: scroll;
     }
     .autocomplete-items div:hover {
       /*when hovering an item:*/
@@ -97,6 +97,20 @@
         left:40%;
         top:30%;
     }
+    #dragger-packet, #dragger-agent{
+        height:250px;
+        overflow-y: auto;
+    }
+    .margin-top-10{
+        margin-top:10px;
+    }
+    .alert-danger, .close, .err-msg{
+        position:relative;
+        top:2px;
+        left:0px;
+        padding:3px;
+    }
+    
 	</style>
 </head>
 <body ng-app="sample" ng-controller="sampleCtrl">
@@ -110,13 +124,36 @@
             <div class="modal-border"></div>
             <div class="modal-header">
                 <button type="button" class="close close-sample-form" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Form Data</h4>
+                <h4 class="modal-title"><b>Intelligent Audit Form</b></h4>
+                <h4>Total Production: {{total_production}}</h4>
             </div>
             <div class="modal-body" >
                 <form class="form-inline">
                     <div class="row">
-                        <div class="col-md-offset-3 col-md-3 form-group"><label for="aduit">Audit %</label><input type="number" class="form-control" value="{{audit}}" id="audit" min="0" max="100"></div>
-                        <div class="col-md-4"><label for="randomsample">Random Sample %</label><input type="number" class="form-control" value="{{random}}" id="randomsample"  min="0" max="100"></div>
+                        <div ng-if="intelligent_audit_err_msg" ng-init="intelligent_audit_err_msg=false" class=" col-md-offset-1 col-md-4 alert alert-danger alert-dismissible">
+                        <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a> <strong class="err-msg">Something went wrong!</strong></div>
+
+                        <div ng-if="random_audit_err_msg" ng-init="random_audit_err_msg=false" class="col-md-offset-6 col-md-4 alert alert-danger alert-dismissible" style="display:inline-block;" >
+                        <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a> <strong class="err-msg">Something went wrong!</strong></div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-offset-1 col-md-3 form-group">
+                                <label for="aduit">Intelligent Audit %</label><input type="number" class="form-control" id="audit" ng-model="intelligent_audit_value" min="0" max="100" ng-change="show_ok_audit()">
+                                <label style="position:relative; top:4px;">Intelligent Audit:</label>&nbsp;&nbsp;&nbsp;<input type="number" class="form-control margin-top-10" value="{{audit_value}}" min="0" max="100" readonly>
+                        </div>
+
+                        <div class="col-md-2">
+                            <input type="button" class="btn btn-success handle-audit" value="ok" style="display: none;" ng-click="audit_submit()">
+                        </div>
+
+                        <div class="col-md-3">
+                            <span ></span>
+                            <label for="randomsample">Random Audit %</label><input type="number" class="form-control" id="randomsample"  ng-model="random_audit_value" min="0" max="100" ng-change="show_ok_random()">
+                            <label style="position:relative; top:4px;">Random Audit:</label>&nbsp;&nbsp;&nbsp;<input type="number" class="form-control margin-top-10" value="{{random_value}}" min="0" max="100" readonly>
+                        </div>
+                        <div >
+                            <input type="button" class="btn btn-success handle-random" value="ok" style="display: none;" ng-click="random_submit()">
+                        </div>
                     </div>
                     <br>
                     <div class="w3-container">
@@ -130,16 +167,16 @@
                         </div>
                         <div class="row">
                             <div class="col-md-offset-1 col-md-4" id='dragger-packet'>
-                                <div class="w3-panel w3-card" ng-repeat="item in packet_data" style="margin-top: -10px; cursor: all-scroll;" ng-click="simple('packet'+($index+1))" data-toggle="modal" data-target="#addpacket-card">
-                                    <p id="packet{{$index+1}}" style="margin-top:10px;text-align:center;">{{item}}</p>
+                                <div class="w3-panel w3-card" ng-repeat="item in packet_data" style="margin-top: -10px; cursor: all-scroll;" >
+                                    <p style="margin-top:10px;text-align:center;">{{item}}</p>
                                 </div>
                             </div>
                             <div class="col-md-1">
                                     <i class="fa fa-plus-circle" id="plus-packet-add" data-toggle="modal" data-target="#addpacket" style="font-size: x-large; cursor: pointer;"></i>
                             </div>
                             <div class="col-md-4"  id='dragger-agent'>
-                                <div class="w3-panel w3-card" ng-repeat="item in agent_data" style="margin-top: -10px; cursor: all-scroll;" ng-click="simple('agent'+($index+1))" data-toggle="modal" data-target="#addagent-card">
-                                    <p style="margin-top:10px;text-align:center;" id="agent{{$index+1}}">{{item}}</p>
+                                <div class="w3-panel w3-card" ng-repeat="item in agent_data" style="margin-top: -10px; cursor: all-scroll;">
+                                    <p style="margin-top:10px;text-align:center;">{{item}}</p>
                                 </div>
                             </div>
                             <div class="col-md-1">
@@ -149,7 +186,7 @@
                     </div>
                     <div class="modal-footer">
                         <button class="btn btn-success btn-md" ng-if="success" ng-model="success" ng-init="success=false" ng-click="download_excel()">Download</button>
-                        <button type="submit" class="btn btn-primary" ng-click="formData()">Submit</button>
+                        <button type="button" class="btn btn-primary" ng-click="formData()">Submit</button>
                     </div>
                 </form>
             </div> 
@@ -179,7 +216,7 @@
 </div>
 
 <!-- for directly adding the packet by clicking card. -->
-<div class="modal fade" id="addpacket-card" role="dialog">
+<!-- <div class="modal fade" id="addpacket-card" role="dialog">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -197,7 +234,7 @@
             </div>
         </div>
     </div>
-</div>
+</div> -->
 
 <!-- For adding agent -->
 <div class="modal fade" id="addagent" role="dialog">
@@ -221,7 +258,7 @@
 </div>
 
 <!-- for directly adding the agent by clicking card. -->
-<div class="modal fade" id="addagent-card" role="dialog">
+<!-- <div class="modal fade" id="addagent-card" role="dialog">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -239,7 +276,7 @@
             </div>
         </div>
     </div>
-</div>
+</div> -->
 
 </body>
 </html>
