@@ -8,7 +8,6 @@
            "controller"  : ["$rootScope", "Auth", "AUTH_EVENTS", "$http",
 
              function ($rootScope, Auth, AUTH_EVENTS, $http) {
-
               var that = this;
               that.email_id = '';
               that.pass_reset = false;
@@ -43,17 +42,19 @@
                 this.loadingText = "Verifying...";
                 this.viewSubmit = "disabled";
 
-                Auth.login(credentials).then(function () {
-
+                Auth.login(credentials).then(function (data,err) {
+                  
                   $rootScope.$broadcast(AUTH_EVENTS.loginSuccess);
-                }, function () {
-
+                }, function (data,err) {
                   that.loadingText = "Submit";
-                  that.errorMsg = "Invalid Credentials";
+                  that.errorMsg = data.data.msg;
                   that.viewSubmit = "";
+                  
+                  swal("Nextpulse Says", data.data.msg, "error");
                 });
               };
             }]
         });
 
 }(window.angular));
+

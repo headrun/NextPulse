@@ -1,6 +1,5 @@
-
 from api.review_views import get_all_related_user
-
+from api.models import *
 
 def get_permitted_user(project, center, user):
     """Check whether the user is permitted for the project or not
@@ -9,5 +8,7 @@ def get_permitted_user(project, center, user):
     if project and center:
         user_dict = get_all_related_user(project, center)
         if user not in user_dict['id_list']:
+            var = 'Invalid User'
+        if Project.objects.filter(id=project,display_project = True).count() == 0:
             var = 'Invalid User'
     return var

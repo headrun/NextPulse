@@ -119,8 +119,7 @@ def graph_data_alignment_other(volumes_data, work_packets, name_key):
         return productivity_series_list
 
 
-def volume_status_week(week_names,productivity_list,final_productivity):
-
+def volume_status_week(week_names,productivity_list,final_productivity):    
     final_productivity =  OrderedDict()
     for final_key, final_value in productivity_list.iteritems():
         for week_key, week_value in final_value.iteritems():
@@ -147,8 +146,9 @@ def volume_status_week(week_names,productivity_list,final_productivity):
                     final_productivity[prod_key].append(0)
         else:
             for vol_key, vol_values in final_productivity.iteritems():
-                final_productivity[vol_key].append(0)
+                final_productivity[vol_key].append(0)    
     return final_productivity
+
 
 
 def received_volume_week(week_names,productivity_list,final_productivity):            
@@ -185,6 +185,7 @@ def received_volume_week(week_names,productivity_list,final_productivity):
             final_productivity['Received'] = [0]    
     
     return final_productivity
+
 
 
 def prod_volume_prescan_week_util(week_names,productivity_list,final_productivity):

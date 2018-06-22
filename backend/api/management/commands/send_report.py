@@ -16,7 +16,7 @@ class Command(BaseCommand):
         from api.models import Project,RawTable
         import datetime
 
-        proj_list = Project.objects.all()
+        proj_list = Project.objects.filter(display_project = True)
 
         not_req = ["Nextgen", "Quarto", "Bridgei2i", "3i VAPP", "E4U", "3i Webtrade", "Future Energie Tech", "Mobius", "Walmart Chittor",
                     "Ujjivan", "Federal Bank", "IBM DCIW"]
@@ -50,8 +50,9 @@ class Command(BaseCommand):
             mail_data += "<h4>"+one['project']+"</h4>"+"<ul>"+"<li>"+one['last_updated_on']+"</li>"+"<li>"+one['message']+"</li></ul>"
 
 
-        to = ['asifa@headrun.com','yatish@headrun.com', 'rishi@headrun.com', \
-                'kannan.sundar@nextwealth.in','poornima.mitta@nextwealth.in', 'sankar.k@mnxw.org']
+        # to = ['asifa@headrun.com','yatish@headrun.com', 'rishi@headrun.com', \
+                # 'kannan.sundar@nextwealth.in','poornima.mitta@nextwealth.in', 'sankar.k@mnxw.org']
+        to = ['arunkumar.s@mnw.co.in']
 
         msg = EmailMessage("Next Pulse : Sheet upload status" , mail_data, 'nextpulse@nextwealth.in', to)
     

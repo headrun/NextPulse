@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 from django.contrib.auth.models import User
 from django.db import models
 from django.contrib.auth.models import Group
+#from datetime import datetime
 
 
 class Center(models.Model):
@@ -23,9 +24,10 @@ class Project(models.Model):
     sub_project_check = models.BooleanField(default=None)
     is_voice = models.BooleanField(default = False)
     display_value = models.BooleanField(default = False)
-    is_enable_push = models.BooleanField(default = False)
-    user = models.ManyToManyField(User)
+    user = models.ManyToManyField(User,null=True)    
+    display_project = models.BooleanField(default = True)
     
+
     class Meta:
         db_table = u'project'
         index_together = (('name', 'center',), ('name', 'sub_project_check', 'center'),)
@@ -35,8 +37,9 @@ class Project(models.Model):
 
 class TeamLead(models.Model):
     name    = models.ForeignKey(User, null=True, db_index=True)
-    project = models.ManyToManyField(Project)
-    center = models.ManyToManyField(Center)
+    project = models.ManyToManyField(Project, null=True)
+    center = models.ManyToManyField(Center, null=True)
+    display_upload = models.BooleanField(default = True)
 
     class Meta:
         db_table = u'agent'
@@ -57,11 +60,11 @@ class ChartType(models.Model):
 
 class Customer(models.Model):
     name    = models.ForeignKey(User, null=True, db_index=True)
-    center  = models.ManyToManyField(Center, db_index=True)
-    project = models.ManyToManyField(Project, db_index=True)
+    center  = models.ManyToManyField(Center, null=True, db_index=True)
+    project = models.ManyToManyField(Project, null=True, db_index=True)        
     is_drilldown = models.BooleanField(default=None)
-    is_senior = models.BooleanField(default=None)
-    is_enable_push_email = models.BooleanField(default=None)
+    legends_alignment_choices = (('left','Left'),('right','Right'),('bottom','Bottom'))
+    legends_alignment = models.CharField(max_length=30,choices=legends_alignment_choices,default='bottom') 
 
     class Meta:
         db_table = u'customer'
@@ -97,6 +100,8 @@ class Widgets_group(models.Model):
     is_display = models.BooleanField(default=None)
     is_drilldown = models.BooleanField(default = None)
     display_value = models.BooleanField(default = True)
+    legends_alignment_choices = (('left','Left'),('right','Right'),('bottom','Bottom'))
+    legends_alignment = models.CharField(max_length=30,choices=legends_alignment_choices,default='bottom') 
 
     class Meta:
         db_table = u'Widgets_group'
@@ -181,8 +186,8 @@ class RawTable(models.Model):
     sub_project = models.CharField(max_length=255, blank=True,db_index=True)
     work_packet = models.CharField(max_length=255,db_index=True)
     sub_packet  = models.CharField(max_length=255, blank=True,db_index=True)
-    per_hour    = models.IntegerField(default=0)
-    per_day     = models.IntegerField(default=0,db_index=True)
+    per_hour    = models.IntegerField(max_length=255, default=0)
+    per_day     = models.IntegerField(max_length=255, default=0,db_index=True)
     date = models.DateField()
     norm        = models.IntegerField(blank=True)
     created_at  = models.DateTimeField(auto_now_add=True, null=True)
@@ -371,7 +376,7 @@ class Targets(models.Model):
     target      = models.IntegerField()
     fte_target  = models.IntegerField(default=0)
     target_type = models.CharField(max_length=255, blank=True, db_index=True)
-    target_value = models.FloatField(default=0)
+    target_value = models.IntegerField(default=0)
     target_method = models.CharField(max_length=125, blank=True, db_index=True)
     center = models.ForeignKey(Center, null=True)
     project = models.ForeignKey(Project, null=True,db_index=True)
