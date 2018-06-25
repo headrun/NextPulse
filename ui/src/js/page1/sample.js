@@ -292,39 +292,62 @@ app.controller('sampleCtrl', function($scope, $http){
     $scope.formData = function(){
             $scope.audit_per = document.getElementById('audit').value;
             $scope.random_per = document.getElementById('randomsample').value;
-            var packets = $('#dragger-packet').children();
-            var agents = $('#dragger-agent').children();
-            var total_packets = $('#dragger-packet').children().length;
-            var total_agents = $('#dragger-agent').children().length;
-            var packets_data = new Array(total_packets);
-            var agents_data = new Array(total_agents);
+            if( $scope.audit_per !== "" || $scope.random_per !== ""){
+              var packets = $('#dragger-packet').children();
+              var agents = $('#dragger-agent').children();
+              var total_packets = $('#dragger-packet').children().length;
+              var total_agents = $('#dragger-agent').children().length;
+              var packets_data = new Array(total_packets);
+              var agents_data = new Array(total_agents);
 
-            for(var i = 0; i<total_packets; i++)
-                packets_data[i] = packets[i].firstChild.nextElementSibling.innerText;
+              for(var i = 0; i<total_packets; i++)
+                  packets_data[i] = packets[i].firstChild.nextElementSibling.innerText;
 
-            for(var j = 0; j<total_agents; j++)
-                agents_data[j] = agents[j].firstChild.nextElementSibling.innerText;
+              for(var j = 0; j<total_agents; j++)
+                  agents_data[j] = agents[j].firstChild.nextElementSibling.innerText;
 
-            var center = $scope.sa_url_split[2].split('=')[1]
-            var project = $scope.sa_url_split[1].split('=')[1]
-            project = project.replace(/%20/g, ' ');
-            var url = "/api/packet_agent_audit_random/";
-            var data = {'packets':packets_data, 'agents':agents_data, 'audit':$scope.audit_per, 'random':$scope.random_per, 'from':$scope.start_date, 'to':$scope.end_date, 'project':project, 'center':center};
+              var center = $scope.sa_url_split[2].split('=')[1]
+              var project = $scope.sa_url_split[1].split('=')[1]
+              project = project.replace(/%20/g, ' ');
+              var url = "/api/packet_agent_audit_random/";
+              var data = {'packets':packets_data, 'agents':agents_data, 'audit':$scope.audit_per, 'random':$scope.random_per, 'from':$scope.start_date, 'to':$scope.end_date, 'project':project, 'center':center};
 
 
-            $http({method:'POST', url:url, data:data, headers:{'Content-Type':'application/x-www-form-urlencoded;charset=utf-8;'}}).then(function(result){
-                if(result.data.message){
-                  swal({
-                    title:'warning',
-                    text:result.data.message,
-                    icon:'warning',
-                    button:'ok'
-                  });
-                }else{
-                  $scope.success = true;
-                  $scope.excel_data = result.data;
-                }
-            });
+              $http({method:'POST', url:url, data:data, headers:{'Content-Type':'application/x-www-form-urlencoded;charset=utf-8;'}}).then(function(result){
+                  if(typeof(result.data.audit) === "string" & typeof(result.data.random) === "string"){
+                    swal({
+                      title:'warning',
+                      text:'Please select packets or agents to meet the intelligent audit criteria, and select high random value',
+                      icon:'warning',
+                      button:'ok'
+                    });
+                  }else if(typeof(result.data.audit) === "string"){
+                    swal({
+                      title:'warning',
+                      text:'Please select the packets or agents to meet the criteria.',
+                      icon:'warning',
+                      button:'ok'
+                    });
+                  }else if(typeof(result.data.random) === "string"){
+                    swal({
+                      title:'warning',
+                      text:'Please select the high random value.',
+                      icon:'warning',
+                      button:'ok'
+                    });
+                  }else{
+                    $scope.success = true;
+                    $scope.excel_data = result.data;
+                  }
+              });
+            }else{
+              swal({
+                      title:'error',
+                      text:'Please select intelligent audit or random audit.',
+                      icon:'error',
+                      button:'ok'
+                    });
+            }
     }
 
     $scope.download_excel = function(){
@@ -341,11 +364,25 @@ app.controller('sampleCtrl', function($scope, $http){
     }
 
     $scope.show_ok_audit = function(){
-        $('.handle-audit').fadeIn(300);
+        var iav = $scope.intelligent_audit_value;
+        if(iav === null){
+          $scope.audit_value = null;
+          $('.handle-audit').fadeOut(300);
+          $('.audit-show').hide();
+        }else{
+          $('.handle-audit').fadeIn(300);
+        }
     };
 
     $scope.show_ok_random = function(){
-      $('.handle-random').fadeIn(300);
+      var rav = $scope.random_audit_value;
+        if(rav === null){
+          $scope.random_value = null;
+          $('.handle-random').fadeOut(300);
+          $('.random-show').hide();
+        }else{
+          $('.handle-random').fadeIn(300);
+        }
     }
 
     $scope.audit_submit = function(){
