@@ -7,10 +7,12 @@ from xlsxwriter.workbook import Workbook
 from datetime import date
 from operator import itemgetter
 import ast
+
 from api.basics import *
 from api.commons import data_dict
 from api.models import Project, Center, RawTable, Internalerrors
 from django.utils.encoding import smart_str
+
 
 def historical_packet_agent_data(request):
 
@@ -28,6 +30,8 @@ def historical_packet_agent_data(request):
         raw_query = RawTable.objects.filter(project=project_id,center=center_id,date=dates[0])
     packets = raw_query.values_list('work_packet',flat=True).distinct()
     agents = raw_query.values_list('employee_id',flat=True).distinct()
+    prodution = raw_query.aggregate(Sum('per_day'))
+    total_production = prodution['per_day__sum']
 
     packets_result, packet_data = get_the_packet_and_agent_data(packets,dates,project_id,center_id,filter_type='packet')
     result['config_packets'] = packets_result
@@ -39,6 +43,7 @@ def historical_packet_agent_data(request):
     result['agents'] = agent_data['agents']
     result['agent_value'] = agent_data['agentvalue']
 
+    result['total_production'] = total_production
     return JsonResponse(result) 
 
 
@@ -106,6 +111,36 @@ def generate_required_dates(dates, required_dates):
     return dates_lists
 
 
+def get_intelligent_audit_value(request):
+
+    ###====  Calculates the audit production value for the selected audit percentage ====###
+
+    audit_percentage = request.GET.get('audit_val','')
+    production_value = request.GET.get('total_production','')
+
+    if audit_percentage:
+        audit_value = (float(audit_percentage)/100)*int(production_value)
+    else:
+        audit_value = 'Intelligence audit value not selected'
+
+    return JsonResponse(audit_value, safe=False)
+
+
+def get_random_audit_value(request):
+
+    ###====  Calculates the random production value for the selected random percentage ====###
+
+    random_percentage = request.GET.get('random_val','')
+    production_value = request.GET.get('total_production','')
+
+    if random_percentage:
+        random_value = (float(random_percentage)/100)*int(production_value)
+    else:
+        random_value = 'Random audit value not selected'
+    
+    return JsonResponse(random_value, safe=False)
+
+
 def packet_agent_audit_random(request):
 
     ###=====claculation of audit%=====###
@@ -114,12 +149,14 @@ def packet_agent_audit_random(request):
     data_dict = ast.literal_eval(request.POST.keys()[0])
 
     audit_value = data_dict.get('audit', "")
+    random_value = data_dict.get('random', "")
     packets = data_dict.get('packets', "")
     agents = data_dict.get('agents', "")
     start_date = data_dict.get('from', "")
     end_date = data_dict.get('to', "")
     project = data_dict.get('project', "")
     center = data_dict.get('center', "").split(' - ')[0]
+    workdone_value = data_dict.get('total_production', "")
     
     project_id = Project.objects.get(name=project).id
     center_id = Center.objects.get(name=center).id
@@ -128,37 +165,77 @@ def packet_agent_audit_random(request):
             date=start_date).aggregate(Sum('per_day'))
     workdone_value = workdone_value['per_day__sum']
 
-    audited_percentage_value = (float(audit_value)/100)*(workdone_value)
+    if audit_value:
+        audited_percentage_value = (float(audit_value)/100)*(workdone_value)
+    if random_value:
+        random_percentage_value = (float(random_value)/100)*(workdone_value)
 
-    i, k, total = 0, 0, 0
+    k, t, total = 0, 0, 0
 
-    for agent in agents:
-        if total <= audited_percentage_value:
-            agent_workdone = RawTable.objects.filter(project=project_id,center=center_id,date=start_date,\
-                employee_id=agents[i]).aggregate(Sum('per_day'))
-            total += agent_workdone['per_day__sum']
-            result[agents[i]] = agent_workdone['per_day__sum']
-            i += 1
-            if total < audited_percentage_value:
-                for packet in packets:
-                    packet_workdone = RawTable.objects.filter(project=project_id,center=center_id,\
-                        date=start_date,work_packet=packets[k]).aggregate(Sum('per_day'))
-                    total += packet_workdone['per_day__sum']
-                    result[packets[k]] = packet_workdone['per_day__sum']
-                    k += 1
-                    break
+    audit_dict, random_dict = {}, {}
 
-    workbook = xlsxwriter.Workbook('audit_data.xlsx')
-    worksheet = workbook.add_worksheet()
+    production_records = RawTable.objects.filter(project=project_id,center=center_id,date=start_date)
 
-    i = 1
-    for key, value in result.iteritems():
-        worksheet.write('A'+str(i), key)
-        worksheet.write('B'+str(i), value)
-        i +=1
-    workbook.close()
+    for i in xrange(len(production_records)):
+        agent = production_records[i].employee_id
+        work_done = production_records[i].per_day
+        sub_project = production_records[i].sub_project
+        work_packet = production_records[i].work_packet
+        sub_packet = production_records[i].sub_packet
+
+        data = {"work_done":work_done,"sub_project":sub_project,"work_packet":work_packet,\
+                "sub_packet":sub_packet,"agent":agent,"date":start_date}
+
+        if ((work_packet in packets) and (agent in agents)) or (work_packet in packets) or (agent in agents):
+            audit_dict[k] = data
+            k += 1
+        else:
+            random_dict[t] = data
+            t += 1
+
+    total_value = 0
+    
+    for i in xrange(len(audit_dict)):
+        value = audit_dict[i]["work_done"]
+        total_value += value
+
+    if total_value >= audited_percentage_value:
+        result['audit'] = audit_dict
+    else:
+        result['audit'] = "Please add more Packets and Agents"
+    
+    if random_value:
+        result['random'] = generate_random_data(random_dict,random_percentage_value)
 
     return JsonResponse(result)
+
+
+def generate_random_data(random_dict,random_value):
+
+    from random import *
+
+    _dict = {}
+    k = 0
+    total, total_value = 0, 0
+    keys = random_dict.keys()
+    
+    for i in xrange(len(random_dict)): 
+        value = round(random() * len(random_dict))
+        if k in keys:
+            _dict[k] = random_dict[value]
+            check_value = random_dict[value]["work_done"]
+            if total <= random_value:
+                total += check_value
+                k += 1
+
+    for i in xrange(len(_dict)):
+        value = _dict[i]["work_done"]
+        total_value += value
+    
+    if total_value >= random_value:
+        return _dict
+    else:
+        return "Please Select More Random Value"
 
 
 def generate_excel_for_audit_data(request):
@@ -167,12 +244,44 @@ def generate_excel_for_audit_data(request):
     if request.method == 'POST':
         data = ast.literal_eval(request.POST.keys()[0])
         workbook = xlsxwriter.Workbook('audit_data.xlsx')
+        bold = workbook.add_format({'bold': True})
         worksheet = workbook.add_worksheet('audit_data')
-        i = 1
-        for key, value in data.iteritems():
-            worksheet.write('A'+str(i), key)
-            worksheet.write('B'+str(i), value)
-            i +=1    
+        audit_dict = data.get('audit','')
+        random_dict = data.get('random','')
+
+        worksheet.write('A'+str(1), 'Intelligent sampling', bold)
+        worksheet.write('A'+str(2), 'Date', bold)
+        worksheet.write('B'+str(2), 'Emp Name', bold)
+        worksheet.write('C'+str(2), 'Sub Project', bold)
+        worksheet.write('D'+str(2), 'Work Packet', bold)
+        worksheet.write('E'+str(2), 'Sub Packet', bold)
+        worksheet.write('F'+str(2), 'Audit count',bold)
+        i = 3
+        k = 0
+        
+        for data in xrange(len(audit_dict)):
+            worksheet.write('A'+str(i), audit_dict[str(k)]["date"])
+            worksheet.write('B'+str(i), audit_dict[str(k)]["agent"])
+            worksheet.write('C'+str(i), audit_dict[str(k)]["sub_project"])
+            worksheet.write('D'+str(i), audit_dict[str(k)]["work_packet"])
+            worksheet.write('E'+str(i), audit_dict[str(k)]["sub_packet"])
+            worksheet.write('F'+str(i), audit_dict[str(k)]["work_done"])
+            i += 1
+            k += 1
+        
+        worksheet.write('A'+str(k+4), 'Random sampling', bold)
+        t = i + 2
+        _index = 0    
+        for data in xrange(len(random_dict)):
+            worksheet.write('A'+str(t), random_dict[str(_index)]["date"])
+            worksheet.write('B'+str(t), random_dict[str(_index)]["agent"])
+            worksheet.write('C'+str(t), random_dict[str(_index)]["sub_project"])
+            worksheet.write('D'+str(t), random_dict[str(_index)]["work_packet"])
+            worksheet.write('E'+str(t), random_dict[str(_index)]["sub_packet"])
+            worksheet.write('F'+str(t), random_dict[str(_index)]["work_done"])
+            t += 1
+            _index += 1
+
         workbook.close()
         with open('audit_data.xlsx', 'rb')as xl:
             xl_data = xl.read();
