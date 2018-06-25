@@ -193,16 +193,24 @@ def packet_agent_audit_random(request):
             random_dict[t] = data
             t += 1
 
-    total_value = 0
-    
-    for i in xrange(len(audit_dict)):
-        value = audit_dict[i]["work_done"]
-        total_value += value
+    if audit_value:
+        calculated_value = 0
+        final_dict = {}
+        for index in xrange(len(audit_dict)):
+            if calculated_value <= audited_percentage_value:
+                final_dict[index] = audit_dict[index]
+                _value =  audit_dict[index]["work_done"]
+                calculated_value += _value
 
-    if total_value >= audited_percentage_value:
-        result['audit'] = audit_dict
-    else:
-        result['audit'] = "Please add more Packets and Agents"
+        total_value = 0
+        for index_value in xrange(len(final_dict)):
+            value = final_dict[index_value]["work_done"]
+            total_value += value
+
+        if total_value >= audited_percentage_value:
+            result['audit'] = audit_dict
+        else:
+            result['audit'] = "Please add more Packets and Agents"
     
     if random_value:
         result['random'] = generate_random_data(random_dict,random_percentage_value)
@@ -215,21 +223,17 @@ def generate_random_data(random_dict,random_value):
     from random import *
 
     _dict = {}
-    k = 0
     total, total_value = 0, 0
-    keys = random_dict.keys()
-    
-    for i in xrange(len(random_dict)): 
-        value = round(random() * len(random_dict))
-        if k in keys:
-            _dict[k] = random_dict[value]
-            check_value = random_dict[value]["work_done"]
-            if total <= random_value:
-                total += check_value
-                k += 1
 
-    for i in xrange(len(_dict)):
-        value = _dict[i]["work_done"]
+    for index in xrange(len(random_dict)):
+        if total <= random_value: 
+            value = round(random() * len(random_dict))
+            _dict[index] = random_dict[value]
+            done_value = random_dict[value]["work_done"]
+            total += done_value
+            
+    for index_value in xrange(len(_dict)):
+        value = _dict[index_value]["work_done"]
         total_value += value
     
     if total_value >= random_value:
@@ -260,6 +264,7 @@ def generate_excel_for_audit_data(request):
         k = 0
         
         for data in xrange(len(audit_dict)):
+            #import pdb;pdb.set_trace()
             worksheet.write('A'+str(i), audit_dict[str(k)]["date"])
             worksheet.write('B'+str(i), audit_dict[str(k)]["agent"])
             worksheet.write('C'+str(i), audit_dict[str(k)]["sub_project"])
