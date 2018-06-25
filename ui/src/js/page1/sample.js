@@ -352,7 +352,8 @@ app.controller('sampleCtrl', function($scope, $http){
       $('.handle-audit').fadeOut(300);
       var audit_url = '/api/intelligent-audit/?audit_val='+$scope.intelligent_audit_value+'&total_production='+$scope.total_production;
       $http({method:'GET', url:audit_url}).then(function(result){
-        $scope.audit_value = result.data.audit_value;
+        $('.audit-show').show();
+        $scope.audit_value = result.data;
       }, function(error){
         $scope.intelligent_audit_err_msg = true;
         console.log('something went wrong!');
@@ -363,7 +364,8 @@ app.controller('sampleCtrl', function($scope, $http){
       $('.handle-random').fadeOut(300);
       var random_url = '/api/random-audit/?random_val='+$scope.random_audit_value+'&total_production='+$scope.total_production;
       $http({method:'GET', url:random_url}).then(function(result){
-        $scope.random_value = result.data.random_value;
+         $('.random-show').show();
+        $scope.random_value = result.data;
       }, function(error){
           $scope.random_audit_err_msg = true;
           console.log('something went wrong!');
