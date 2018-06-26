@@ -238,6 +238,8 @@
 .date-in{
     width:32%;
 }
+
+
 </style>
 <nav class="navbar navbar-default">
     <div class="container-fluid">
@@ -294,8 +296,8 @@
                         </div>
                     </div>
                 </li>
-                <li>
-                    <a class="btn form-sym" role="button" data-toggle='modal' data-target="#date-selector-modal"><i class="fa fa-calendar date" aria-hidden="true" style="font-size: 150%;"></i></a>
+                <li class="form-sym" style="display:none;">
+                    <a class="btn form-sym" role="button" data-toggle='modal' data-target="#date-selector-modal" title="Intelligent audit"><i class="fa fa-calendar date" aria-hidden="true" style="font-size: 150%;"></i></a>
                 </li>
                 <li class="dropdown active span8" id="drpdown_btn">
                     <a class="dropdown-toggle" id="select_dropdown" data-toggle="dropdown">
@@ -380,7 +382,7 @@
                     <h4>Date Selector</h4>
                 </div>
                 <div class="modal-body date-in">
-                    <input type="text" id='date-selector' class='form-control' />
+                    <input type="text" id='date-selector' class='form-control'/>
                 </div>
             </div>
         </div>

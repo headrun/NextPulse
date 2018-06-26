@@ -66,6 +66,9 @@ app.controller('sampleCtrl', function($scope, $http){
       $('#addpacket').slideUp(300);
     });
     $scope.add_packet = function(){
+      $('#addpacket').hide();
+      $('#addpacket').attr('class', 'modal fade out');
+      $('#addpacket').css('display', 'none');
       
       var new_packet = document.getElementById('newpacket').value;
       var pl = $('#dragger-packet').children().length;
@@ -271,6 +274,9 @@ app.controller('sampleCtrl', function($scope, $http){
     });
 
     $scope.add_agent = function(){
+        // $('#addagent').hide();
+        $('#addagent').attr('class', 'modal fade out');
+        $('#addagent').css('display', 'none');
       var new_agent = document.getElementById('newagent').value;
 
       // This if will execute when the packet is not selected and directly when we click plus button.
@@ -414,6 +420,7 @@ app.controller('sampleCtrl', function($scope, $http){
 
     $scope.show_ok_audit = function(){
         var iav = $scope.intelligent_audit_value;
+        $scope.success = false;
         if(iav === null){
           $scope.audit_value = null;
           $('.handle-audit').fadeOut(300);
@@ -425,6 +432,7 @@ app.controller('sampleCtrl', function($scope, $http){
 
     $scope.show_ok_random = function(){
       var rav = $scope.random_audit_value;
+      $scope.success = false;
         if(rav === null){
           $scope.random_value = null;
           $('.handle-random').fadeOut(300);

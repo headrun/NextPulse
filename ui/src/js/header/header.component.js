@@ -82,7 +82,8 @@
                 if (this.user.role == "Team Lead") {
                     $('#select_dropdown').hide();
                     $('#home').hide();
-		                $('#people').hide()	
+		                $('#people').hide();
+                    $('.form-sym').show();	
                 }
                this.collapsed = false;
 

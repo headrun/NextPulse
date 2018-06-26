@@ -154,10 +154,10 @@
                     </div>
                     <div class="row">
                         <div class="col-md-offset-1 col-md-4">
-                            <label style="position:relative; top:4px; display:none;" class="audit-show">Intelligent Audit:&nbsp;&nbsp;&nbsp;<input type="text" class="form-control margin-top-10" size="10" value="{{audit_value | number:4}}" readonly></label>
+                            <label style="position:relative; top:4px; display:none;" class="audit-show">Intelligent Audit:&nbsp;&nbsp;&nbsp;<input type="text" class="form-control margin-top-10" size="10" value="{{audit_value | number:2}}" readonly></label>
                         </div>
                         <div class="col-md-offset-1 col-md-4">
-                            <label style="position:relative; top:4px; display:none;" class="random-show">Random Audit:&nbsp;&nbsp;&nbsp;<input type="text" class="form-control margin-top-10 random-show" value="{{random_value | number:4}}" size="10" readonly></label>
+                            <label style="position:relative; top:4px; display:none;" class="random-show">Random Audit:&nbsp;&nbsp;&nbsp;<input type="text" class="form-control margin-top-10 random-show" value="{{random_value | number:2}}" size="10" readonly></label>
                         </div>
                     </div>
                     <br>
@@ -190,7 +190,7 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button class="btn btn-success btn-md" ng-if="success" ng-model="success" ng-init="success=false" ng-click="download_excel()">Download</button>
+                        <button class="btn btn-success btn-md" ng-if="success"  ng-init="success=false" ng-click="download_excel()">Download</button>
                         <button type="button" class="btn btn-primary" ng-click="formData()">Submit</button>
                     </div>
                 </form>
