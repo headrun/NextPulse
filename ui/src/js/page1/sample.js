@@ -386,7 +386,7 @@ app.controller('sampleCtrl', function($scope, $http){
                   }else if(typeof(result.data.random) === "string"){
                     swal({
                       title:'warning',
-                      text:'Please select the high random value.',
+                      text:'Please select the low random value.',
                       icon:'warning',
                       button:'ok'
                     });

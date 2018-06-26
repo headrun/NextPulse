@@ -136,7 +136,7 @@
                         <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a> <strong class="err-msg">Something went wrong!</strong></div>
                     </div>
                     <div class="row">
-                        <div class="col-md-offset-1 col-md-4 form-group">
+                        <div class="col-md-offset-1 col-md-3 form-group">
                                 <label for="aduit">Intelligent Audit %</label><input type="number" class="form-control" id="audit" ng-model="intelligent_audit_value" min="0" max="100" ng-change="show_ok_audit()">
                                 
                         </div>
@@ -145,7 +145,7 @@
                             <input type="button" class="btn btn-success handle-audit" value="ok" style="display: none;" ng-click="audit_submit()">
                         </div>
 
-                        <div class="col-md-3">
+                        <div class="col-md-offset-1 col-md-3">
                             <label for="randomsample">Random Audit %</label><input type="number" class="form-control" id="randomsample"  ng-model="random_audit_value" min="0" max="100" ng-change="show_ok_random()">
                         </div>
                         <div >
@@ -154,10 +154,10 @@
                     </div>
                     <div class="row">
                         <div class="col-md-offset-1 col-md-4">
-                            <label style="position:relative; top:4px; display:none;" class="audit-show">Intelligent Audit:&nbsp;&nbsp;&nbsp;<input type="text" class="form-control margin-top-10" size="10" value="{{audit_value | number:2}}" readonly></label>
+                            <label style="position:relative; top:4px; display:none;" class="audit-show">Intelligent Audit:&nbsp;&nbsp;&nbsp;<input type="text" class="form-control margin-top-10" size="6" value="{{audit_value | number:2}}" readonly></label>
                         </div>
                         <div class="col-md-offset-1 col-md-4">
-                            <label style="position:relative; top:4px; display:none;" class="random-show">Random Audit:&nbsp;&nbsp;&nbsp;<input type="text" class="form-control margin-top-10 random-show" value="{{random_value | number:2}}" size="10" readonly></label>
+                            <label style="position:relative; top:4px; display:none;" class="random-show">Random Audit:&nbsp;&nbsp;&nbsp;<input type="text" class="form-control margin-top-10 random-show" value="{{random_value | number:2}}" size="6" readonly></label>
                         </div>
                     </div>
                     <br>
