@@ -9,7 +9,6 @@
              function ($rootScope, $state, $filter, $interval , $http, Session) {
 
                var self = this;
-
                this.user = Session.get();
 
                self.new_password = '';
@@ -19,6 +18,7 @@
 
                self.change_href = function(item) {
                  $state.go("dashboard.page1",{'selpro': item});
+                  
                }
 
                self.agent_data = [ "Madhu Priya",
@@ -82,7 +82,8 @@
                 if (this.user.role == "Team Lead") {
                     $('#select_dropdown').hide();
                     $('#home').hide();
-		                $('#people').hide()	
+		                $('#people').hide();
+                    $('.form-sym').show();	
                 }
                this.collapsed = false;
 
@@ -106,7 +107,6 @@
                 $('video').get(0).pause()
 
               $http({method:"GET", url:project}).success(function(result){
-
                 if (result.result.role == "customer") {
                     if (result.result.list[0] == "none") {
                         $('#select_dropdown').hide();
@@ -122,6 +122,7 @@
                         }
                         self.select_option = option.split(' - ')[1];
                         $('#select_dropdown').show();
+
                     }
                 }
                 if (result.result.role == "team_lead") {
@@ -140,6 +141,7 @@
                         self.select_option = option.split(' - ')[1];
                         $('#select_dropdown').show();
                         $('#fileupload').hide();
+                        console.log(self.select_option)
                     }
                 }
                 if (result.result['role'] == "center_manager")
@@ -161,9 +163,12 @@
                     else{
                         self.select_option = map_list[0].split(' - ')[1];
                         }
+                        console.log(self.select_option);
                     }
                 $('#videoPop').on('hidden.bs.modal', function () {
                 $('video').get(0).pause();  
+
+
             }) 
                 //debugger;
               });

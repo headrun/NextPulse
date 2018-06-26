@@ -75,66 +75,41 @@
     margin:7px 5px;
 }
 
-/*table {
-
-    margin : 0 auto;
-    border: 1px solid #323232;
- }
-.table-responsive {
-    border: 1px solid #ccc;
-    background-color:#ffffff;
-    margin: 5px;
-    padding-right: 10px;
-    padding-left: 10px;
+.w3-card:active{
+    opacity: .6;
+    border:2px solid grey;
+    
 }
-.table-bordered>tbody>tr>td {
-    border : none;
+.w3-card:hover{
+    background-color: #e5e5e5;
+    box-shadow: 0 0 0 0;
+    transition: .1s;
 }
 
-.table>tbody>tr>td {
-    border-top: none;
-}
-.table-bordered>tfoot>tr>th {
-    border : none;
-}
-.table-bordered>thead>tr>td {
-    border : none;
-}
-.table-bordered>thead>tr>th {
-    border : none;
-}
-.body {
-        width: 100%;
-    }
-.body thead, .body tbody, .body tr, .body td, .body th{
-    display: block;
- }
-.body tr:after {
-    content: ' ';
-    display: block;
-    visibility: hidden;
-    clear: both;
-}
- .body tbody{
-    height: 180px;
-    overflow-y: auto;
+.gu-mirror {
+  position: fixed !important;
+  margin: 0 !important;
+  z-index: 9999 !important;
+  padding: 1em;
 }
 
-.body th {
-    height: 40px;
+.gu-hide {
+  display: none !important;
 }
 
-.body td, .body th {
-    width: 19.7%;
-    float: left;
+.gu-unselectable {
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+  user-select: none !important;
 }
 
-div.content {
-    overflow: hidden;
- }
-thead {
-    border: 1px solid black;
-}*/
+.gu-transit {
+  opacity: 0.5;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";
+  filter: alpha(opacity=50);
+}
+
 div.content {
     overflow: hidden;
 }
@@ -152,7 +127,49 @@ div.content {
 
 .widget-data-show {
 }
+.modal-border{
+    background: linear-gradient(to right, rgb(255, 76, 112), rgb(255, 109, 189), rgb(142, 65, 244), rgb(113, 65, 244),rgb(99, 129, 249), rgb(91, 124, 255), rgb(0, 135, 214), rgb(0, 160, 214),rgb(9, 180, 237), #65c1ac 75%, rgb(66, 244, 235));
+    height:5px;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    margin-top: -.52px;
+}
 
+.autocomplete {
+  position: relative;
+  display: block;
+}
+.autocomplete-items {
+  position: absolute;
+  border: 1px solid #d4d4d4;
+  border-bottom: none;
+  border-top: none;
+  z-index: 99;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background-color: white;
+}
+.autocomplete-items div {
+  padding: 10px;
+  cursor: pointer;
+  background-color: #fff; 
+  border-bottom: 1px solid #d4d4d4; 
+  overflow-y: scroll;
+}
+.autocomplete-items div:hover {
+  /*when hovering an item:*/
+  background-color: #e9e9e9; 
+}
+.autocomplete-active {
+  /*when navigating through the items using the arrow keys:*/
+  background-color: DodgerBlue !important; 
+  color: #ffffff; 
+}
+
+page1 div.modal-content{
+    background: white;
+}
 </style>
 <div class="row">
     <div class="col-lg-2 col-md-2 col-sm-2">
@@ -256,7 +273,8 @@ div.content {
     <a class="back-to-top" id="goTop">
         <i class="fa fa-arrow-circle-o-up hide"></i>
     </a>
-</div>
+</div>  
+
 <script type="text/javascript" async="async" defer="defer" data-cfasync="false" src="https://mylivechat.com/chatinline.aspx?hccid=73900030"></script>
 <p id="hidden-tag">{{$ctrl.hiden_tag}}</p>
 </body>

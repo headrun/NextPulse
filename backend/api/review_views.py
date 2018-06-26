@@ -489,7 +489,6 @@ def download_attachments(request):
 
     rev_fil_objs = ReviewFiles.objects.filter(id = doc_id)
     obj = rev_fil_objs[0]
-
     with open(obj.file_name.path, 'r') as x:
         data = x.read()
     response = HttpResponse(data, content_type='application/force-download')
