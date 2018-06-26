@@ -186,7 +186,7 @@ def packet_agent_audit_random(request):
         data = {"work_done":work_done,"sub_project":sub_project,"work_packet":work_packet,\
                 "sub_packet":sub_packet,"agent":agent,"date":start_date}
 
-        if ((work_packet in packets) and (agent in agents)) or (work_packet in packets) or (agent in agents):
+        if ((((work_packet in packets) and (agent in agents)) or (work_packet in packets) or (agent in agents)) and audit_value):
             audit_dict[k] = data
             k += 1
         else:
@@ -213,7 +213,7 @@ def packet_agent_audit_random(request):
             result['audit'] = audit_dict
         else:
             result['audit'] = "Please add more Packets and Agents"
-    
+
     if random_value:
         result['random'] = generate_random_data(random_dict,random_percentage_value)
 
@@ -277,6 +277,7 @@ def generate_excel_for_audit_data(request):
                 worksheet.write('F'+str(i), audit_dict[str(k)]["work_done"])
                 i += 1
                 k += 1
+                
         if random_dict != '' and audit_dict == '':
             worksheet.write('A'+str(1), 'Random sampling', bold)
             t, _index = 3, 0
@@ -289,6 +290,7 @@ def generate_excel_for_audit_data(request):
                 worksheet.write('F'+str(t), random_dict[str(_index)]["work_done"])
                 t += 1
                 _index += 1
+
         elif random_dict != '' and audit_dict != '':
             worksheet.write('A'+str(k+4), 'Random sampling', bold)
             t = i + 2
