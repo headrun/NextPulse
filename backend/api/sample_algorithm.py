@@ -170,9 +170,15 @@ def packet_agent_audit_random(request):
     if random_value:
         random_percentage_value = (float(random_value)/100)*(workdone_value)
 
-    k, t, total = 0, 0, 0
+    if audit_value == '':
+        audited_percentage_value = 0
 
-    audit_dict, random_dict = {}, {}
+    k, t, total = 0, 0, 0
+    calculated_value = 0
+
+    audit_dict = OrderedDict()
+    random_dict = OrderedDict()
+    common_dict = OrderedDict()
 
     production_records = RawTable.objects.filter(project=project_id,center=center_id,date=start_date)
 
@@ -186,34 +192,47 @@ def packet_agent_audit_random(request):
         data = {"work_done":work_done,"sub_project":sub_project,"work_packet":work_packet,\
                 "sub_packet":sub_packet,"agent":agent,"date":start_date}
 
-        if ((((work_packet in packets) and (agent in agents)) or (work_packet in packets) or (agent in agents)) and audit_value):
-            audit_dict[k] = data
-            k += 1
-        else:
-            random_dict[t] = data
-            t += 1
-
-    if audit_value:
-        calculated_value = 0
-        final_dict = {}
-        for index in xrange(len(audit_dict)):
-            if calculated_value <= audited_percentage_value:
-                final_dict[index] = audit_dict[index]
-                _value =  audit_dict[index]["work_done"]
-                calculated_value += _value
+        if (calculated_value <= audited_percentage_value) and (audit_value):
+            if ((work_packet in packets) and (agent in agents)):
+                calculated_value += work_done
+                audit_dict[k] = data
+                k += 1
             else:
-                break
+                common_dict[t] = data
+                t += 1
+        else:
+            common_dict[t] = data
+            t += 1
+    
+    random_index = 0
+    for index in xrange(len(common_dict)):
+        work_packet = common_dict[index]["work_packet"]
+        agent = common_dict[index]["agent"]
+        work_done = common_dict[index]["work_done"]
+        sub_project = common_dict[index]["sub_project"]
+        sub_packet = common_dict[index]["sub_packet"]
 
-        total_value = 0
-        for index_value in xrange(len(final_dict)):
-            value = final_dict[index_value]["work_done"]
-            total_value += value
+        _data = {"work_done":work_done,"sub_project":sub_project,"work_packet":work_packet,\
+                "sub_packet":sub_packet,"agent":agent,"date":start_date}
 
-        if total_value >= audited_percentage_value:
+        if (calculated_value <= audited_percentage_value) and (audit_value):
+            if (work_packet in packets) or (agent in agents):
+                calculated_value += work_done
+                audit_dict[k] = _data
+                k += 1
+            else:
+                random_dict[random_index] = common_dict[index]
+                random_index += 1
+        else:
+            random_dict[random_index] = common_dict[index]
+            random_index += 1
+
+    if audit_value:        
+        if calculated_value >= audited_percentage_value:
             result['audit'] = audit_dict
         else:
             result['audit'] = "Please add more Packets and Agents"
-
+    
     if random_value:
         result['random'] = generate_random_data(random_dict,random_percentage_value)
 
@@ -222,10 +241,12 @@ def packet_agent_audit_random(request):
 
 def generate_random_data(random_dict,random_value):
 
+    ###==== Random data generation ====###
+
     from random import *
 
-    _dict = {}
-    total, total_value = 0, 0
+    _dict = OrderedDict()
+    total = 0
     
     for index in xrange(len(random_dict)):
         if total <= random_value: 
@@ -235,15 +256,11 @@ def generate_random_data(random_dict,random_value):
             total += done_value
         else:
             break
-
-    for index_value in xrange(len(_dict)):
-        value = _dict[index_value]["work_done"]
-        total_value += value
     
-    if total_value >= random_value:
+    if total >= random_value:
         return _dict
     else:
-        return "Please Select More Random Value"
+        return "Please Select Low Random Value"
 
 
 def generate_excel_for_audit_data(request):
