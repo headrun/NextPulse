@@ -186,24 +186,34 @@ def packet_agent_audit_random(request):
         data = {"work_done":work_done,"sub_project":sub_project,"work_packet":work_packet,\
                 "sub_packet":sub_packet,"agent":agent,"date":start_date}
 
-        if ((work_packet in packets) and (agent in agents)) or (work_packet in packets) or (agent in agents):
+        if ((((work_packet in packets) and (agent in agents)) or (work_packet in packets) or (agent in agents)) and audit_value):
             audit_dict[k] = data
             k += 1
         else:
             random_dict[t] = data
             t += 1
 
-    total_value = 0
-    
-    for i in xrange(len(audit_dict)):
-        value = audit_dict[i]["work_done"]
-        total_value += value
+    if audit_value:
+        calculated_value = 0
+        final_dict = {}
+        for index in xrange(len(audit_dict)):
+            if calculated_value <= audited_percentage_value:
+                final_dict[index] = audit_dict[index]
+                _value =  audit_dict[index]["work_done"]
+                calculated_value += _value
+            else:
+                break
 
-    if total_value >= audited_percentage_value:
-        result['audit'] = audit_dict
-    else:
-        result['audit'] = "Please add more Packets and Agents"
-    
+        total_value = 0
+        for index_value in xrange(len(final_dict)):
+            value = final_dict[index_value]["work_done"]
+            total_value += value
+
+        if total_value >= audited_percentage_value:
+            result['audit'] = audit_dict
+        else:
+            result['audit'] = "Please add more Packets and Agents"
+
     if random_value:
         result['random'] = generate_random_data(random_dict,random_percentage_value)
 
@@ -215,21 +225,19 @@ def generate_random_data(random_dict,random_value):
     from random import *
 
     _dict = {}
-    k = 0
     total, total_value = 0, 0
-    keys = random_dict.keys()
     
-    for i in xrange(len(random_dict)): 
-        value = round(random() * len(random_dict))
-        if k in keys:
-            _dict[k] = random_dict[value]
-            check_value = random_dict[value]["work_done"]
-            if total <= random_value:
-                total += check_value
-                k += 1
+    for index in xrange(len(random_dict)):
+        if total <= random_value: 
+            value = round(random() * len(random_dict))
+            _dict[index] = random_dict[value]
+            done_value = random_dict[value]["work_done"]
+            total += done_value
+        else:
+            break
 
-    for i in xrange(len(_dict)):
-        value = _dict[i]["work_done"]
+    for index_value in xrange(len(_dict)):
+        value = _dict[index_value]["work_done"]
         total_value += value
     
     if total_value >= random_value:
@@ -248,39 +256,54 @@ def generate_excel_for_audit_data(request):
         worksheet = workbook.add_worksheet('audit_data')
         audit_dict = data.get('audit','')
         random_dict = data.get('random','')
-
-        worksheet.write('A'+str(1), 'Intelligent sampling', bold)
         worksheet.write('A'+str(2), 'Date', bold)
         worksheet.write('B'+str(2), 'Emp Name', bold)
         worksheet.write('C'+str(2), 'Sub Project', bold)
         worksheet.write('D'+str(2), 'Work Packet', bold)
         worksheet.write('E'+str(2), 'Sub Packet', bold)
         worksheet.write('F'+str(2), 'Audit count',bold)
-        i = 3
-        k = 0
-        
-        for data in xrange(len(audit_dict)):
-            worksheet.write('A'+str(i), audit_dict[str(k)]["date"])
-            worksheet.write('B'+str(i), audit_dict[str(k)]["agent"])
-            worksheet.write('C'+str(i), audit_dict[str(k)]["sub_project"])
-            worksheet.write('D'+str(i), audit_dict[str(k)]["work_packet"])
-            worksheet.write('E'+str(i), audit_dict[str(k)]["sub_packet"])
-            worksheet.write('F'+str(i), audit_dict[str(k)]["work_done"])
-            i += 1
-            k += 1
-        
-        worksheet.write('A'+str(k+4), 'Random sampling', bold)
-        t = i + 2
-        _index = 0    
-        for data in xrange(len(random_dict)):
-            worksheet.write('A'+str(t), random_dict[str(_index)]["date"])
-            worksheet.write('B'+str(t), random_dict[str(_index)]["agent"])
-            worksheet.write('C'+str(t), random_dict[str(_index)]["sub_project"])
-            worksheet.write('D'+str(t), random_dict[str(_index)]["work_packet"])
-            worksheet.write('E'+str(t), random_dict[str(_index)]["sub_packet"])
-            worksheet.write('F'+str(t), random_dict[str(_index)]["work_done"])
-            t += 1
-            _index += 1
+
+        if audit_dict:
+            worksheet.write('A'+str(1), 'Intelligent sampling', bold)
+            i = 3
+            k = 0
+            
+            for data in xrange(len(audit_dict)):
+                worksheet.write('A'+str(i), audit_dict[str(k)]["date"])
+                worksheet.write('B'+str(i), audit_dict[str(k)]["agent"].decode('utf-8'))
+                worksheet.write('C'+str(i), audit_dict[str(k)]["sub_project"])
+                worksheet.write('D'+str(i), audit_dict[str(k)]["work_packet"])
+                worksheet.write('E'+str(i), audit_dict[str(k)]["sub_packet"])
+                worksheet.write('F'+str(i), audit_dict[str(k)]["work_done"])
+                i += 1
+                k += 1
+                
+        if random_dict != '' and audit_dict == '':
+            worksheet.write('A'+str(1), 'Random sampling', bold)
+            t, _index = 3, 0
+            for data in xrange(len(random_dict)):
+                worksheet.write('A'+str(t), random_dict[str(_index)]["date"])
+                worksheet.write('B'+str(t), random_dict[str(_index)]["agent"].decode('utf-8'))
+                worksheet.write('C'+str(t), random_dict[str(_index)]["sub_project"])
+                worksheet.write('D'+str(t), random_dict[str(_index)]["work_packet"])
+                worksheet.write('E'+str(t), random_dict[str(_index)]["sub_packet"])
+                worksheet.write('F'+str(t), random_dict[str(_index)]["work_done"])
+                t += 1
+                _index += 1
+
+        elif random_dict != '' and audit_dict != '':
+            worksheet.write('A'+str(k+4), 'Random sampling', bold)
+            t = i + 2
+            _index = 0  
+            for data in xrange(len(random_dict)):
+                worksheet.write('A'+str(t), random_dict[str(_index)]["date"])
+                worksheet.write('B'+str(t), random_dict[str(_index)]["agent"].decode('utf-8'))
+                worksheet.write('C'+str(t), random_dict[str(_index)]["sub_project"])
+                worksheet.write('D'+str(t), random_dict[str(_index)]["work_packet"])
+                worksheet.write('E'+str(t), random_dict[str(_index)]["sub_packet"])
+                worksheet.write('F'+str(t), random_dict[str(_index)]["work_done"])
+                t += 1
+                _index += 1
 
         workbook.close()
         with open('audit_data.xlsx', 'rb')as xl:
