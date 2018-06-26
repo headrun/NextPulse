@@ -123,7 +123,6 @@
         <div class="modal-content modal-content-form">
             <div class="modal-border"></div>
             <div class="modal-header">
-                <button type="button" class="close close-sample-form" data-dismiss="modal">&times;</button>
                 <h4 class="modal-title"><b>Intelligent Audit Form</b></h4>
                 <h4>Total Production: {{total_production}}</h4>
             </div>
@@ -155,10 +154,10 @@
                     </div>
                     <div class="row">
                         <div class="col-md-offset-1 col-md-4">
-                            <label style="position:relative; top:4px; display:none;" class="audit-show">Intelligent Audit:&nbsp;&nbsp;&nbsp;<input type="text" class="form-control margin-top-10" size="10" value="{{audit_value | number:4}}" readonly></label>
+                            <label style="position:relative; top:4px; display:none;" class="audit-show">Intelligent Audit:&nbsp;&nbsp;&nbsp;<input type="text" class="form-control margin-top-10" size="10" value="{{audit_value | number:2}}" readonly></label>
                         </div>
                         <div class="col-md-offset-1 col-md-4">
-                            <label style="position:relative; top:4px; display:none;" class="random-show">Random Audit:&nbsp;&nbsp;&nbsp;<input type="text" class="form-control margin-top-10 random-show" value="{{random_value | number:4}}" size="10" readonly></label>
+                            <label style="position:relative; top:4px; display:none;" class="random-show">Random Audit:&nbsp;&nbsp;&nbsp;<input type="text" class="form-control margin-top-10 random-show" value="{{random_value | number:2}}" size="10" readonly></label>
                         </div>
                     </div>
                     <br>
@@ -178,7 +177,7 @@
                                 </div>
                             </div>
                             <div class="col-md-1">
-                                    <i class="fa fa-plus-circle" id="plus-packet-add" data-toggle="modal" data-target="#addpacket" style="font-size: x-large; cursor: pointer;"></i>
+                                    <i class="fa fa-plus-circle" id="plus-packet-add" ng-click="add_packet_cnf()"  style="font-size: x-large; cursor: pointer;"></i>
                             </div>
                             <div class="col-md-4"  id='dragger-agent'>
                                 <div class="w3-panel w3-card" ng-repeat="item in agent_data" style="margin-top: -10px; cursor: all-scroll;">
@@ -186,12 +185,12 @@
                                 </div>
                             </div>
                             <div class="col-md-1">
-                                <i class="fa fa-plus-circle" id="plus-agent-add" data-toggle="modal" data-target="#addagent" style="font-size: x-large; cursor: pointer"></i>
+                                <i class="fa fa-plus-circle" id="plus-agent-add" ng-click="add_agent_cnf()" style="font-size: x-large; cursor: pointer"></i>
                             </div>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button class="btn btn-success btn-md" ng-if="success" ng-model="success" ng-init="success=false" ng-click="download_excel()">Download</button>
+                        <button class="btn btn-success btn-md" ng-if="success"  ng-init="success=false" ng-click="download_excel()">Download</button>
                         <button type="button" class="btn btn-primary" ng-click="formData()">Submit</button>
                     </div>
                 </form>
@@ -205,7 +204,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <button type="button" class="close close-add-packet" data-dismiss="modal">&times;</button>
                 <h4 class="modal-title">Add packet</h4>
             </div>
             <div class="modal-body">
@@ -247,7 +246,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <button type="button" class="close close-add-agent" data-dismiss="modal">&times;</button>
                 <h4 class="modal-title">Add Agent</h4>
             </div>
             <div class="modal-body">

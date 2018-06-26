@@ -14,10 +14,6 @@ app.controller('sampleCtrl', function($scope, $http){
     $('#formData').attr('class', 'modal fade in');
     $('#formData').css('display', 'block');
     $("<div class='modal-backdrop fade in'></div>").insertAfter('#formData');
-    $(".close-sample-form").click(function(){
-      $('#formData').slideUp(300);
-      $('.modal-backdrop').remove();
-    });
     $scope.packet_data = result.data.config_packets;
     $scope.agent_data = result.data.config_agents;
     $scope.rem_packets = result.data.packets;
@@ -44,7 +40,36 @@ app.controller('sampleCtrl', function($scope, $http){
       }
     });
 
+    $scope.add_packet_cnf = function(){
+      if($scope.rem_packets.length === 0 && $scope.rem_agents.length !== 0){
+        swal({
+          title:'info',
+          text:'No Packets, Please select agents...',
+          icon:'info',
+          button:'ok'
+        });
+        return;
+      }else if($scope.rem_packets.length === 0 && $scope.rem_agents.length === 0){
+        swal({
+          title:'info',
+          text:'No Agents or Packets',
+          icon:'info',
+          button:'ok'
+        });
+      }else{
+        $('#addpacket').show();
+        $('#addpacket').attr('class', 'modal fade in');
+        $('#addpacket').css('display', 'block');
+      }
+    }
+    $(".close-add-packet").click(function(){
+      $('#addpacket').slideUp(300);
+    });
     $scope.add_packet = function(){
+      $('#addpacket').hide();
+      $('#addpacket').attr('class', 'modal fade out');
+      $('#addpacket').css('display', 'none');
+      
       var new_packet = document.getElementById('newpacket').value;
       var pl = $('#dragger-packet').children().length;
 
@@ -221,7 +246,37 @@ app.controller('sampleCtrl', function($scope, $http){
       }
     });
 
+    $scope.add_agent_cnf = function(){
+      if($scope.rem_packets.length !== 0 && $scope.rem_agents.length === 0){
+        swal({
+          title:'info',
+          text:'No Agents, Please select packets...',
+          icon:'info',
+          button:'ok'
+        });
+        return;
+      }else if($scope.rem_packets.length === 0 && $scope.rem_agents.length === 0){
+        swal({
+          title:'info',
+          text:'No Agents or Packets',
+          icon:'info',
+          button:'ok'
+        });
+      }else{
+        $('#addagent').show();
+        $('#addagent').attr('class', 'modal fade in');
+        $('#addagent').css('display', 'block');
+      }
+    }
+
+    $(".close-add-agent").click(function(){
+      $('#addagent').slideUp(300);
+    });
+
     $scope.add_agent = function(){
+        // $('#addagent').hide();
+        $('#addagent').attr('class', 'modal fade out');
+        $('#addagent').css('display', 'none');
       var new_agent = document.getElementById('newagent').value;
 
       // This if will execute when the packet is not selected and directly when we click plus button.
@@ -365,6 +420,7 @@ app.controller('sampleCtrl', function($scope, $http){
 
     $scope.show_ok_audit = function(){
         var iav = $scope.intelligent_audit_value;
+        $scope.success = false;
         if(iav === null){
           $scope.audit_value = null;
           $('.handle-audit').fadeOut(300);
@@ -376,6 +432,7 @@ app.controller('sampleCtrl', function($scope, $http){
 
     $scope.show_ok_random = function(){
       var rav = $scope.random_audit_value;
+      $scope.success = false;
         if(rav === null){
           $scope.random_value = null;
           $('.handle-random').fadeOut(300);
