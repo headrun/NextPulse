@@ -228,6 +228,10 @@
                   $('.modal-backdrop').remove();
                   self.start_date = start.format('YYYY-MM-DD');
                   self.end_date = end.format('YYYY-MM-DD');
+                  var today_date = new Date();
+                  today_date = today_date.getMonth()+1+'/'+today_date.getDate()+'/'+today_date.getFullYear();
+                  $('#date-selector').data('daterangepicker').setStartDate(today_date);
+                  $('#date-selector').data('daterangepicker').setEndDate(today_date);
                   window.open('/js/page1/sample.html?widget_data='+self.static_widget_data+'&from='+self.start_date+'&to='+self.end_date);
                 });
 
@@ -3049,7 +3053,7 @@
                                 var sixty_days_internal_agent_data = result['result'].sixty_days_data.internalerrors;
                                 var ninty_days_internal_agent_data = result['result'].ninty_days_data.internalerrors;
 
-                                var widget = "<div id='widget-66-agent-error' style='margin-top:20px;'>";
+                                var widget = "<div id='widget-66-agent-error' style='position:relative; left:5%; top:5%; overflow:hidden !important;'>";
                                 var card_html_1 = "<div class='card'><div class='card-header'><span class='card-header-text'>30 Days</span></div><div class='card-body'>";
 
                                 var card_html_2 = "<div class='card'><div class='card-header'><span class='card-header-text'>60 Days</span></div><div class='card-body'>";
