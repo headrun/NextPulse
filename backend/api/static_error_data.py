@@ -221,10 +221,12 @@ def get_internal_external_unaudited_packets(project, center, thirty_days, sixty_
 	i=0
 	for date_list in dates_list:
 		for table in tables:
-			packets = table.objects.filter(project=project, center=center, date__range=(date_list[-1], date_list[0]), audited_errors=0).values_list('work_packet', flat=True).distinct()
+			packets = RawTable.objects.filter(project=project, center=center, date__range=(date_list[-1], date_list[0])).values_list("work_packet", flat=True).distinct()
 			for packet in packets:
-				packet_work_done = RawTable.objects.filter(project=project, center=center, date__range=(date_list[-1], date_list[0]), work_packet=packet).aggregate(Sum('per_day'))['per_day__sum']
-				unaudited_packets[i][packet] = packet_work_done
+				unaudited_packet = table.objects.filter(project=project, center=center, date__range=(date_list[-1], date_list[0]), work_packet=packet)
+				if len(unaudited_packet) == 0:
+					work_done = RawTable.objects.filter(project=project, center=center, date__range=(date_list[-1], date_list[0]), work_packet=packet).aggregate(Sum('per_day'))['per_day__sum']
+					unaudited_packets[i][packet] = work_done
 			i+=1
  
 	final_dict = final_result(unaudited_packets, final_dict, 'unaudited_packets')

@@ -85,9 +85,8 @@ def get_the_packet_and_agent_data(required_data,dates,project_id,center_id,filte
     for key,value in result_dict.iteritems():
         result[key] = sum(value)
 
-    sorted_data = (sorted(result.items(), key=itemgetter(1)))[-config_value:]
-    sorted_names = [names[0] for names in sorted_data]
-    sorted_names.reverse()
+    sorted_data = (sorted(result.items(), key=itemgetter(1), reverse=True))[:config_value]
+    sorted_names = [re.sub(r'[^\x00-\x7F]+',' ', names[0]) for names in sorted_data]
     values_dict[filter_type+'value'] = config_value
     for name in required_data:
         if name not in sorted_names:
@@ -111,7 +110,7 @@ def generate_required_dates(dates, required_dates):
     return dates_lists
 
 
-def get_intelligent_audit_value(request):
+"""def get_intelligent_audit_value(request):
 
     ###====  Calculates the audit production value for the selected audit percentage ====###
 
@@ -138,7 +137,7 @@ def get_random_audit_value(request):
     else:
         random_value = 'Random audit value not selected'
     
-    return JsonResponse(random_value, safe=False)
+    return JsonResponse(random_value, safe=False)"""
 
 
 def packet_agent_audit_random(request):
@@ -157,18 +156,19 @@ def packet_agent_audit_random(request):
     project = data_dict.get('project', "")
     center = data_dict.get('center', "").split(' - ')[0]
     workdone_value = data_dict.get('total_production', "")
-    
+    audited_percentage_value = data_dict.get('audit_value', "")
+    random_percentage_value = data_dict.get('random_value', "")
     project_id = Project.objects.get(name=project).id
     center_id = Center.objects.get(name=center).id
 
-    workdone_value = RawTable.objects.filter(project=project_id,center=center_id,\
-            date=start_date).aggregate(Sum('per_day'))
-    workdone_value = workdone_value['per_day__sum']
+    #workdone_value = RawTable.objects.filter(project=project_id,center=center_id,\
+            #date=start_date).aggregate(Sum('per_day'))
+    #workdone_value = workdone_value['per_day__sum']
 
     if audit_value:
-        audited_percentage_value = (float(audit_value)/100)*(workdone_value)
+        audited_percentage_value = int(audited_percentage_value)
     if random_value:
-        random_percentage_value = (float(random_value)/100)*(workdone_value)
+        random_percentage_value = int(random_percentage_value)
 
     if audit_value == '':
         audited_percentage_value = 0
@@ -183,7 +183,7 @@ def packet_agent_audit_random(request):
     production_records = RawTable.objects.filter(project=project_id,center=center_id,date=start_date)
 
     for i in xrange(len(production_records)):
-        agent = production_records[i].employee_id
+        agent = re.sub(r'[^\x00-\x7F]+',' ', production_records[i].employee_id)
         work_done = production_records[i].per_day
         sub_project = production_records[i].sub_project
         work_packet = production_records[i].work_packet
@@ -207,7 +207,7 @@ def packet_agent_audit_random(request):
     random_index = 0
     for index in xrange(len(common_dict)):
         work_packet = common_dict[index]["work_packet"]
-        agent = common_dict[index]["agent"]
+        agent = re.sub(r'[^\x00-\x7F]+',' ', common_dict[index]["agent"])
         work_done = common_dict[index]["work_done"]
         sub_project = common_dict[index]["sub_project"]
         sub_packet = common_dict[index]["sub_packet"]

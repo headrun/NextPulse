@@ -127,7 +127,7 @@
                 <h4>Total Production: {{total_production}}</h4>
             </div>
             <div class="modal-body" >
-                <form class="form-inline" novalidate>
+                <form class="form-inline">
                     <div class="row">
                         <div ng-if="intelligent_audit_err_msg" ng-init="intelligent_audit_err_msg=false" class=" col-md-offset-1 col-md-4 alert alert-danger alert-dismissible">
                         <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a> <strong class="err-msg">Something went wrong!</strong></div>
@@ -137,27 +137,27 @@
                     </div>
                     <div class="row">
                         <div class="col-md-offset-1 col-md-3 form-group">
-                                <label for="aduit">Intelligent Audit %</label><input type="number" class="form-control" id="audit" ng-model="intelligent_audit_value" min="0" max="100" ng-change="show_ok_audit()">
+                                <label for="aduit">Intelligent Audit %</label><input type="number" class="form-control" id="audit" ng-model="intelligent_audit_value" min="0" max="100" ng-init="intelligent_audit_value=0" ng-change="show_audit()">
                                 
                         </div>
 
-                        <div class="col-md-1">
+                        <!-- <div class="col-md-1">
                             <input type="button" class="btn btn-success handle-audit" value="ok" style="display: none;" ng-click="audit_submit()">
-                        </div>
+                        </div> -->
 
-                        <div class="col-md-offset-1 col-md-3">
-                            <label for="randomsample">Random Audit %</label><input type="number" class="form-control" id="randomsample"  ng-model="random_audit_value" min="0" max="100" ng-change="show_ok_random()">
+                        <div class="col-md-offset-2 col-md-3">
+                            <label for="randomsample">Random Audit %</label><input type="number" class="form-control" id="randomsample"  ng-model="random_audit_value" min="0" max="100" ng-init="random_audit_value=0" ng-change="show_random()">
                         </div>
-                        <div >
+                        <!-- <div >
                             <input type="button" class="btn btn-success handle-random" value="ok" style="display: none;" ng-click="random_submit()">
-                        </div>
+                        </div> -->
                     </div>
                     <div class="row">
                         <div class="col-md-offset-1 col-md-4">
-                            <label style="position:relative; top:4px; display:none;" class="audit-show">Intelligent Audit:&nbsp;&nbsp;&nbsp;<input type="text" class="form-control margin-top-10" size="6" value="{{audit_value | number:2}}" readonly></label>
+                            <label style="position:relative; top:4px;" class="audit-show">Intelligent Audit:&nbsp;&nbsp;&nbsp;<input type="text" class="form-control margin-top-10" size="6" value="{{audit_value | number:0}}" ng-init="audit_value=0" readonly></label>
                         </div>
                         <div class="col-md-offset-1 col-md-4">
-                            <label style="position:relative; top:4px; display:none;" class="random-show">Random Audit:&nbsp;&nbsp;&nbsp;<input type="text" class="form-control margin-top-10 random-show" value="{{random_value | number:2}}" size="6" readonly></label>
+                            <label style="position:relative; top:4px;" class="random-show">Random Audit:&nbsp;&nbsp;&nbsp;<input type="text" class="form-control margin-top-10" size="6" value="{{random_value | number:0}}" ng-init="random_value=0" readonly></label>
                         </div>
                     </div>
                     <br>
@@ -172,7 +172,7 @@
                         </div>
                         <div class="row">
                             <div class="col-md-offset-1 col-md-4" id='dragger-packet'>
-                                <div class="w3-panel w3-card" ng-repeat="item in packet_data" style="margin-top: -10px; cursor: all-scroll;" >
+                                <div class="w3-panel w3-card" ng-repeat="item in packet_data" style="margin-top: -10px; cursor: all-scroll;">
                                     <p style="margin-top:10px;text-align:center;">{{item}}</p>
                                 </div>
                             </div>
@@ -240,7 +240,6 @@
         </div>
     </div>
 </div> -->
-
 <!-- For adding agent -->
 <div class="modal fade" id="addagent" role="dialog">
     <div class="modal-dialog">

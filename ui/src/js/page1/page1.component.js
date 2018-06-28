@@ -228,6 +228,10 @@
                   $('.modal-backdrop').remove();
                   self.start_date = start.format('YYYY-MM-DD');
                   self.end_date = end.format('YYYY-MM-DD');
+                  var today_date = new Date();
+                  today_date = today_date.getMonth()+1+'/'+today_date.getDate()+'/'+today_date.getFullYear();
+                  $('#date-selector').data('daterangepicker').setStartDate(today_date);
+                  $('#date-selector').data('daterangepicker').setEndDate(today_date);
                   window.open('/js/page1/sample.html?widget_data='+self.static_widget_data+'&from='+self.start_date+'&to='+self.end_date);
                 });
 
