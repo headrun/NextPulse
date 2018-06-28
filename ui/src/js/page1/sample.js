@@ -40,6 +40,7 @@ app.controller('sampleCtrl', function($scope, $http){
       }
     });
 
+
     $scope.add_packet_cnf = function(){
       if($scope.rem_packets.length === 0 && $scope.rem_agents.length !== 0){
         swal({
@@ -365,7 +366,7 @@ app.controller('sampleCtrl', function($scope, $http){
               var project = $scope.sa_url_split[1].split('=')[1]
               project = project.replace(/%20/g, ' ');
               var url = "/api/packet_agent_audit_random/";
-              var data = {'packets':packets_data, 'agents':agents_data, 'audit':$scope.audit_per, 'random':$scope.random_per, 'from':$scope.start_date, 'to':$scope.end_date, 'project':project, 'center':center};
+              var data = {'packets':packets_data, 'agents':agents_data, 'audit':$scope.audit_per, 'random':$scope.random_per, 'audit_value':$scope.audit_value,'random_value':$scope.random_value, 'total_production':$scope.total_production,'from':$scope.start_date, 'to':$scope.end_date, 'project':project, 'center':center};
 
 
               $http({method:'POST', url:url, data:data, headers:{'Content-Type':'application/x-www-form-urlencoded;charset=utf-8;'}}).then(function(result){
@@ -418,51 +419,39 @@ app.controller('sampleCtrl', function($scope, $http){
         });
     }
 
-    $scope.show_ok_audit = function(){
-        var iav = $scope.intelligent_audit_value;
+    $scope.show_audit = function(){
+        $scope.audit_value = ($scope.intelligent_audit_value/100) * $scope.total_production;
+        if(!$scope.intelligent_audit_value)
+          $scope.success = false;
+    };
+
+    $scope.show_random = function(){
+      $scope.random_value = ($scope.random_audit_value/100) * $scope.total_production;
+      if(!$scope.random_audit_value)
         $scope.success = false;
-        if(iav === null){
-          $scope.audit_value = null;
-          $('.handle-audit').fadeOut(300);
-          $('.audit-show').hide();
-        }else{
-          $('.handle-audit').fadeIn(300);
-        }
-    };
-
-    $scope.show_ok_random = function(){
-      var rav = $scope.random_audit_value;
-      $scope.success = false;
-        if(rav === null){
-          $scope.random_value = null;
-          $('.handle-random').fadeOut(300);
-          $('.random-show').hide();
-        }else{
-          $('.handle-random').fadeIn(300);
-        }
     }
 
-    $scope.audit_submit = function(){
-      $('.handle-audit').fadeOut(300);
-      var audit_url = '/api/intelligent-audit/?audit_val='+$scope.intelligent_audit_value+'&total_production='+$scope.total_production;
-      $http({method:'GET', url:audit_url}).then(function(result){
-        $('.audit-show').show();
-        $scope.audit_value = result.data;
-      }, function(error){
-        $scope.intelligent_audit_err_msg = true;
-        console.log('something went wrong!');
-      });
-    };
+    // $scope.audit_submit = function(){
+    //   $('.handle-audit').fadeOut(300);
+    //   var audit_url = '/api/intelligent-audit/?audit_val='+$scope.intelligent_audit_value+'&total_production='+$scope.total_production;
+    //   $http({method:'GET', url:audit_url}).then(function(result){
+    //     $('.audit-show').show();
+    //     $scope.audit_value = result.data;
+    //   }, function(error){
+    //     $scope.intelligent_audit_err_msg = true;
+    //     console.log('something went wrong!');
+    //   });
+    // };
 
-    $scope.random_submit = function(){
-      $('.handle-random').fadeOut(300);
-      var random_url = '/api/random-audit/?random_val='+$scope.random_audit_value+'&total_production='+$scope.total_production;
-      $http({method:'GET', url:random_url}).then(function(result){
-         $('.random-show').show();
-        $scope.random_value = result.data;
-      }, function(error){
-          $scope.random_audit_err_msg = true;
-          console.log('something went wrong!');
-      });
-    }
+    // $scope.random_submit = function(){
+    //   $('.handle-random').fadeOut(300);
+    //   var random_url = '/api/random-audit/?random_val='+$scope.random_audit_value+'&total_production='+$scope.total_production;
+    //   $http({method:'GET', url:random_url}).then(function(result){
+    //      $('.random-show').show();
+    //     $scope.random_value = result.data;
+    //   }, function(error){
+    //       $scope.random_audit_err_msg = true;
+    //       console.log('something went wrong!');
+    //   });
+    // }
 });
