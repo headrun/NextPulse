@@ -110,7 +110,7 @@ def generate_required_dates(dates, required_dates):
     return dates_lists
 
 
-def get_intelligent_audit_value(request):
+"""def get_intelligent_audit_value(request):
 
     ###====  Calculates the audit production value for the selected audit percentage ====###
 
@@ -137,7 +137,7 @@ def get_random_audit_value(request):
     else:
         random_value = 'Random audit value not selected'
     
-    return JsonResponse(random_value, safe=False)
+    return JsonResponse(random_value, safe=False)"""
 
 
 def packet_agent_audit_random(request):
@@ -156,18 +156,19 @@ def packet_agent_audit_random(request):
     project = data_dict.get('project', "")
     center = data_dict.get('center', "").split(' - ')[0]
     workdone_value = data_dict.get('total_production', "")
-    
+    audited_percentage_value = data_dict.get('audit_value', "")
+    random_percentage_value = data_dict.get('random_value', "")
     project_id = Project.objects.get(name=project).id
     center_id = Center.objects.get(name=center).id
 
-    workdone_value = RawTable.objects.filter(project=project_id,center=center_id,\
-            date=start_date).aggregate(Sum('per_day'))
-    workdone_value = workdone_value['per_day__sum']
+    #workdone_value = RawTable.objects.filter(project=project_id,center=center_id,\
+            #date=start_date).aggregate(Sum('per_day'))
+    #workdone_value = workdone_value['per_day__sum']
 
     if audit_value:
-        audited_percentage_value = (float(audit_value)/100)*(workdone_value)
+        audited_percentage_value = int(audited_percentage_value)
     if random_value:
-        random_percentage_value = (float(random_value)/100)*(workdone_value)
+        random_percentage_value = int(random_percentage_value)
 
     if audit_value == '':
         audited_percentage_value = 0
