@@ -44,20 +44,10 @@ app.controller('sampleCtrl', function($scope, $http){
 
     $scope.add_packet_cnf = function(){
       if($scope.rem_packets.length === 0 && $scope.rem_agents.length !== 0){
-        swal({
-          title:'info',
-          text:'No Packets, Please select agents...',
-          icon:'info',
-          button:'ok'
-        });
+        swal('No Packets, Please select agents');
         return;
       }else if($scope.rem_packets.length === 0 && $scope.rem_agents.length === 0){
-        swal({
-          title:'info',
-          text:'No Agents or Packets',
-          icon:'info',
-          button:'ok'
-        });
+        swal('No Agents or Packets');
       }else{
         $('#addpacket').show();
         $('#addpacket').attr('class', 'modal fade in');
@@ -138,8 +128,12 @@ app.controller('sampleCtrl', function($scope, $http){
     }
 
     $scope.add_packet_card = function(){
-      var elements = $('#dragger-packet').children();
       var new_packet_data = document.getElementById('newpacketcard').value;
+      if(new_packet_data === "" || new_packet_data == undefined){
+        swal('Please select packet');
+        return;
+      }
+      var elements = $('#dragger-packet').children();
       var index = $scope.rem_packets.indexOf(new_packet_data);
       if(self.p_el_index === 0){
         $scope.packet_data.splice(0,0,new_packet_data);
@@ -219,8 +213,12 @@ app.controller('sampleCtrl', function($scope, $http){
     }
 
     $scope.add_agent_card = function(){
-      var elements = $('#dragger-agent').children();
       var new_agent_data = document.getElementById('newagentcard').value;
+      if(new_agent_data === "" || new_agent_data == undefined){
+        swal('Please select agent');
+        return;
+      }
+      var elements = $('#dragger-agent').children();
       var index = $scope.rem_agents.indexOf(new_agent_data);
       if(self.a_el_index === 0){
         $scope.agent_data.splice(0,0, new_agent_data);
@@ -248,20 +246,10 @@ app.controller('sampleCtrl', function($scope, $http){
 
     $scope.add_agent_cnf = function(){
       if($scope.rem_packets.length !== 0 && $scope.rem_agents.length === 0){
-        swal({
-          title:'info',
-          text:'No Agents, Please select packets...',
-          icon:'info',
-          button:'Ok'
-        });
+        swal('No Agents, Please select packets');
         return;
       }else if($scope.rem_packets.length === 0 && $scope.rem_agents.length === 0){
-        swal({
-          title:'info',
-          text:'No Agents or Packets',
-          icon:'info',
-          button:'Ok'
-        });
+        swal('No Agents or Packets');
       }else{
         $('#addagent').show();
         $('#addagent').attr('class', 'modal fade in');
@@ -277,7 +265,10 @@ app.controller('sampleCtrl', function($scope, $http){
         $('#addagent').attr('class', 'modal fade out');
         $('#addagent').css('display', 'none');
       var new_agent = document.getElementById('newagent').value;
-
+      if(new_agent === "" || new_agent == undefined){
+        swal('Please select agent');
+        return;
+      }
       // This if will execute when the packet is not selected and directly when we click plus button.
       if($scope.a_rm_el_index == undefined){
         var i = $scope.rem_agents.indexOf(new_agent);
@@ -342,38 +333,18 @@ app.controller('sampleCtrl', function($scope, $http){
 
               $http({method:'POST', url:url, data:data, headers:{'Content-Type':'application/x-www-form-urlencoded;charset=utf-8;'}}).then(function(result){
                   if(typeof(result.data.audit) === "string" & typeof(result.data.random) === "string"){
-                    swal({
-                      title:'warning',
-                      text:'Please select packets or agents to meet the intelligent audit criteria, and select high random value',
-                      icon:'warning',
-                      button:'Ok'
-                    });
+                    swal('Please select packets or agents to meet the intelligent audit criteria, and select high random value');
                   }else if(typeof(result.data.audit) === "string"){
-                    swal({
-                      title:'warning',
-                      text:'Please select the packets or agents to meet the criteria.',
-                      icon:'warning',
-                      button:'Ok'
-                    });
+                    swal('Please select the packets or agents to meet the criteria');
                   }else if(typeof(result.data.random) === "string"){
-                    swal({
-                      title:'warning',
-                      text:'Please select the low random value.',
-                      icon:'warning',
-                      button:'Ok'
-                    });
+                    swal('Please select the low random value');
                   }else{
                     $scope.success = true;
                     $scope.excel_data = result.data;
                   }
               });
             }else{
-              swal({
-                      title:'error',
-                      text:'Please select intelligent audit or random audit.',
-                      icon:'error',
-                      button:'Ok'
-                    });
+              swal('Please select intelligent audit or random audit');
             }
     }
 
@@ -399,28 +370,4 @@ app.controller('sampleCtrl', function($scope, $http){
       $scope.random_value = ($scope.random_audit_value/100) * $scope.total_production;
         $scope.success = false;
     }
-
-    // $scope.audit_submit = function(){
-    //   $('.handle-audit').fadeOut(300);
-    //   var audit_url = '/api/intelligent-audit/?audit_val='+$scope.intelligent_audit_value+'&total_production='+$scope.total_production;
-    //   $http({method:'GET', url:audit_url}).then(function(result){
-    //     $('.audit-show').show();
-    //     $scope.audit_value = result.data;
-    //   }, function(error){
-    //     $scope.intelligent_audit_err_msg = true;
-    //     console.log('something went wrong!');
-    //   });
-    // };
-
-    // $scope.random_submit = function(){
-    //   $('.handle-random').fadeOut(300);
-    //   var random_url = '/api/random-audit/?random_val='+$scope.random_audit_value+'&total_production='+$scope.total_production;
-    //   $http({method:'GET', url:random_url}).then(function(result){
-    //      $('.random-show').show();
-    //     $scope.random_value = result.data;
-    //   }, function(error){
-    //       $scope.random_audit_err_msg = true;
-    //       console.log('something went wrong!');
-    //   });
-    // }
 });
