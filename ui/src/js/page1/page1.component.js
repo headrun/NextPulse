@@ -3061,7 +3061,8 @@
                                 var sixty_days_internal_agent_data = result['result'].sixty_days_data.internalerrors;
                                 var ninty_days_internal_agent_data = result['result'].ninty_days_data.internalerrors;
 
-                                var widget = "<div id='widget-66-agent-error' style='margin-top:20px;'>";
+                                var widget = "<div id='widget-66-agent-error' style='margin-top:20px'>";
+             
                                 var card_html_1 = "<div class='card'><div class='card-header'><span class='card-header-text'>30 Days</span></div><div class='card-body'>";
 
                                 var card_html_2 = "<div class='card'><div class='card-header'><span class='card-header-text'>60 Days</span></div><div class='card-body'>";
