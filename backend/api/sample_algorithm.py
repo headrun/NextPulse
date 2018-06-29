@@ -110,36 +110,6 @@ def generate_required_dates(dates, required_dates):
     return dates_lists
 
 
-def get_intelligent_audit_value(request):
-
-    ###====  Calculates the audit production value for the selected audit percentage ====###
-
-    audit_percentage = request.GET.get('audit_val','')
-    production_value = request.GET.get('total_production','')
-
-    if audit_percentage:
-        audit_value = (float(audit_percentage)/100)*int(production_value)
-    else:
-        audit_value = 'Intelligence audit value not selected'
-
-    return JsonResponse(audit_value, safe=False)
-
-
-def get_random_audit_value(request):
-
-    ###====  Calculates the random production value for the selected random percentage ====###
-
-    random_percentage = request.GET.get('random_val','')
-    production_value = request.GET.get('total_production','')
-
-    if random_percentage:
-        random_value = (float(random_percentage)/100)*int(production_value)
-    else:
-        random_value = 'Random audit value not selected'
-    
-    return JsonResponse(random_value, safe=False)
-
-
 def packet_agent_audit_random(request):
 
     ###=====claculation of audit%=====###
@@ -155,22 +125,14 @@ def packet_agent_audit_random(request):
     end_date = data_dict.get('to', "")
     project = data_dict.get('project', "")
     center = data_dict.get('center', "").split(' - ')[0]
-    workdone_value = data_dict.get('total_production', "")
-    
+    workdone_value = int(data_dict.get('total_production', ""))
+    audited_percentage_value = data_dict.get('audit_value', "")
+    random_percentage_value = data_dict.get('random_value', "")
     project_id = Project.objects.get(name=project).id
     center_id = Center.objects.get(name=center).id
-
-    workdone_value = RawTable.objects.filter(project=project_id,center=center_id,\
-            date=start_date).aggregate(Sum('per_day'))
-    workdone_value = workdone_value['per_day__sum']
-
-    if audit_value:
-        audited_percentage_value = (float(audit_value)/100)*(workdone_value)
-    if random_value:
-        random_percentage_value = (float(random_value)/100)*(workdone_value)
-
-    if audit_value == '':
-        audited_percentage_value = 0
+    
+    audited_percentage_value = int(audited_percentage_value)
+    random_percentage_value = int(random_percentage_value)
 
     k, t, total = 0, 0, 0
     calculated_value = 0
@@ -226,19 +188,19 @@ def packet_agent_audit_random(request):
             random_dict[random_index] = common_dict[index]
             random_index += 1
 
-    if audit_value:        
+    if audited_percentage_value:        
         if calculated_value >= audited_percentage_value:
             result['audit'] = audit_dict
         else:
             result['audit'] = "Please add more Packets and Agents"
-    
-    if random_value:
+
+    if random_percentage_value:
         result['random'] = generate_random_data(random_dict,random_percentage_value)
 
     return JsonResponse(result)
 
 
-def generate_random_data(random_dict,random_value):
+def generate_random_data(random_dict,random_percentage_value):
 
     ###==== Random data generation ====###
 
@@ -248,7 +210,7 @@ def generate_random_data(random_dict,random_value):
     total = 0
     
     for index in xrange(len(random_dict)):
-        if total <= random_value: 
+        if total <= random_percentage_value: 
             value = round(random() * len(random_dict))
             _dict[index] = random_dict[value]
             done_value = random_dict[value]["work_done"]
@@ -256,7 +218,7 @@ def generate_random_data(random_dict,random_value):
         else:
             break
     
-    if total >= random_value:
+    if total >= random_percentage_value:
         return _dict
     else:
         return "Please Select Low Random Value"
