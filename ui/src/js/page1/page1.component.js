@@ -2188,22 +2188,26 @@
                                                     var name = this.name;
                                                     var visibility = this.visible;
                                                     var chart_name = self._main_prod;
-                                                    self._value.forEach(function(value_data){
-                                                        value_data.redraw(name, visibility);
-                                                    });                                                    
-                                                    if (chart_name.indexOf(name) >= 0) {
+                                                    if (self._value) {
+                                                      if (chart_name.indexOf(name) >= 0) {
+                                                        self._value.forEach(function(value_data){
+                                                          value_data.redraw(name, visibility);
+                                                        });                                                    
                                                         $(document).find('.widget-6a').children(".widget-6b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 0);
+                                                      }
                                                     }
                                                 },
                                                 show: function() {
                                                     var name = this.name;
                                                     var visibility = this.visible;
                                                     var chart_name = self._main_prod;
-                                                    self._value.forEach(function(value_data){
-                                                        value_data.redraw(name, visibility);
-                                                    });                                                    
-                                                    if (chart_name.indexOf(name) >= 0) {
+                                                    if (self._value) {
+                                                      if (chart_name.indexOf(name) >= 0) {
+                                                        self._value.forEach(function(value_data){
+                                                          value_data.redraw(name, visibility);
+                                                        });                                                                                                            
                                                         $(document).find('.widget-6a').children(".widget-6b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 1);
+                                                      }
                                                     }
                                                 }
                                             }
@@ -2309,26 +2313,30 @@
                                          },
                                          events: {
                                                 hide: function() {
-                                                    var name = this.name;
-                                                    var visibility = this.visible;
-                                                    var chart_name = self._main_prod_line;
-                                                    self.anno_data.forEach(function(value_data){
-                                                        value_data.redraw(name, visibility);
-                                                    });                                                    
-                                                    if (chart_name.indexOf(name) >= 0) {
-                                                        $(document).find('.widget-1a').children(".widget-1b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 0);
-                                                    }
+                                                      var name = this.name;
+                                                      var visibility = this.visible;
+                                                      var chart_name = self._main_prod_line;
+                                                      if (self.anno_data) {
+                                                        if (chart_name.indexOf(name) >= 0) {
+                                                          self.anno_data.forEach(function(value_data){
+                                                              value_data.redraw(name, visibility);
+                                                          });                                                    
+                                                          $(document).find('.widget-1a').children(".widget-1b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 0);
+                                                        }
+                                                      }
                                                 },
-                                                show: function() {
-                                                    var name = this.name;
-                                                    var visibility = this.visible;
-                                                    var chart_name = self._main_prod_line;
-                                                    self.anno_data.forEach(function(value_data){
-                                                        value_data.redraw(name, visibility);
-                                                    });                                                    
-                                                    if (chart_name.indexOf(name) >= 0) {
-                                                        $(document).find('.widget-1a').children(".widget-1b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 1);
-                                                    }
+                                                show: function() {    
+                                                      var name = this.name;
+                                                      var visibility = this.visible;
+                                                      var chart_name = self._main_prod_line;
+                                                      if (self.anno_data) {
+                                                        if (chart_name.indexOf(name) >= 0) {
+                                                          self.anno_data.forEach(function(value_data){
+                                                            value_data.redraw(name, visibility);
+                                                          });                                                    
+                                                          $(document).find('.widget-1a').children(".widget-1b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 1);
+                                                        }
+                                                      }
                                                 }
                                             }
                                         }
@@ -3053,7 +3061,8 @@
                                 var sixty_days_internal_agent_data = result['result'].sixty_days_data.internalerrors;
                                 var ninty_days_internal_agent_data = result['result'].ninty_days_data.internalerrors;
 
-                                var widget = "<div id='widget-66-agent-error' style='margin-top:20px;'>";
+                                var widget = "<div id='widget-66-agent-error' style='margin-top:20px'>";
+             
                                 var card_html_1 = "<div class='card'><div class='card-header'><span class='card-header-text'>30 Days</span></div><div class='card-body'>";
 
                                 var card_html_2 = "<div class='card'><div class='card-header'><span class='card-header-text'>60 Days</span></div><div class='card-body'>";

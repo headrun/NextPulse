@@ -172,7 +172,7 @@
                         </div>
                         <div class="row">
                             <div class="col-md-offset-1 col-md-4" id='dragger-packet'>
-                                <div class="w3-panel w3-card" ng-repeat="item in packet_data" style="margin-top: -10px; cursor: all-scroll;">
+                                <div class="w3-panel w3-card" ng-repeat="item in packet_data" style="margin-top: -10px; cursor: all-scroll;" data-toggle="modal" data-target="#addpacket-card" ng-click="simple_card(item, 'packet')">
                                     <p style="margin-top:10px;text-align:center;">{{item}}</p>
                                 </div>
                             </div>
@@ -180,7 +180,7 @@
                                     <i class="fa fa-plus-circle" id="plus-packet-add" ng-click="add_packet_cnf()"  style="font-size: x-large; cursor: pointer;"></i>
                             </div>
                             <div class="col-md-4"  id='dragger-agent'>
-                                <div class="w3-panel w3-card" ng-repeat="item in agent_data" style="margin-top: -10px; cursor: all-scroll;">
+                                <div class="w3-panel w3-card" ng-repeat="item in agent_data" style="margin-top: -10px; cursor: all-scroll;" data-toggle="modal" data-target="#addagent-card" ng-click="simple_card(item, 'agent')">
                                     <p style="margin-top:10px;text-align:center;">{{item}}</p>
                                 </div>
                             </div>
@@ -221,7 +221,7 @@
 </div>
 
 <!-- for directly adding the packet by clicking card. -->
-<!-- <div class="modal fade" id="addpacket-card" role="dialog">
+<div class="modal fade" id="addpacket-card" role="dialog">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -239,7 +239,7 @@
             </div>
         </div>
     </div>
-</div> -->
+</div>
 <!-- For adding agent -->
 <div class="modal fade" id="addagent" role="dialog">
     <div class="modal-dialog">
@@ -262,7 +262,7 @@
 </div>
 
 <!-- for directly adding the agent by clicking card. -->
-<!-- <div class="modal fade" id="addagent-card" role="dialog">
+<div class="modal fade" id="addagent-card" role="dialog">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -280,7 +280,7 @@
             </div>
         </div>
     </div>
-</div> -->
+</div>
 
 </body>
 </html>

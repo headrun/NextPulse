@@ -34,6 +34,7 @@ app.controller('sampleCtrl', function($scope, $http){
           $scope.el_id = el.children['0'].id;
           $scope.rm_el_index = i;
           $scope.rm_el_data = el.innerText.trim();
+          $scope.packet_data.splice($scope.rm_el_index, 1);
           $scope.p_size -= 1;
           break;
         }
@@ -43,20 +44,10 @@ app.controller('sampleCtrl', function($scope, $http){
 
     $scope.add_packet_cnf = function(){
       if($scope.rem_packets.length === 0 && $scope.rem_agents.length !== 0){
-        swal({
-          title:'info',
-          text:'No Packets, Please select agents...',
-          icon:'info',
-          button:'ok'
-        });
+        swal('No Packets, Please select agents');
         return;
       }else if($scope.rem_packets.length === 0 && $scope.rem_agents.length === 0){
-        swal({
-          title:'info',
-          text:'No Agents or Packets',
-          icon:'info',
-          button:'ok'
-        });
+        swal('No Agents or Packets');
       }else{
         $('#addpacket').show();
         $('#addpacket').attr('class', 'modal fade in');
@@ -66,6 +57,7 @@ app.controller('sampleCtrl', function($scope, $http){
     $(".close-add-packet").click(function(){
       $('#addpacket').slideUp(300);
     });
+
     $scope.add_packet = function(){
       $('#addpacket').hide();
       $('#addpacket').attr('class', 'modal fade out');
@@ -78,10 +70,7 @@ app.controller('sampleCtrl', function($scope, $http){
       if($scope.rm_el_index == undefined){
         var i = $scope.rem_packets.indexOf(new_packet);
         $scope.rem_packets.splice(i, 1);
-        var el = "<div class='w3-panel w3-card ng-scope' ng-repeat='item in $ctrl.packet_data' style='margin-top: -10px; cursor:all-scroll'>\
-                      <p style='margin-top:10px;text-align:center;'>"+new_packet+"</p>\
-                  </div>";
-        $(el).prependTo('#dragger-packet');
+        $scope.packet_data.splice(0, 0, new_packet);
 
         // This 'elseif ' block will execute when the rm_el_index is not undefined.
       }else if($scope.rm_el_index != undefined){
@@ -92,40 +81,18 @@ app.controller('sampleCtrl', function($scope, $http){
             var i = $scope.rem_packets.indexOf(new_packet);
             $scope.rem_packets.splice(i, 1);
             $scope.rem_packets.push($scope.rm_el_data);
-            var el = "<div class='w3-panel w3-card ng-scope' ng-repeat='item in $ctrl.packet_data' style='margin-top: -10px; cursor:all-scroll'>\
-                      <p style='margin-top:10px;text-align:center;'>"+new_packet+"</p>\
-                  </div>";
-            $('#dragger-packet').append(el);
+            $scope.packet_data.push(new_packet);
             $scope.rm_el_index = undefined;
           }else if($scope.p_size === pl && ($scope.rm_el_index != undefined && $scope.rm_el_index !== 0)){
-            var temp = [];
-            // This if executes when the packet is not first one.
-            var temp_index = 0;
-            for (var i=0; i<$scope.rm_el_index; i++){
-              temp.push($scope.packets_elements[i]);
-              temp_index = i;
-            }
-            var i = $scope.rem_packets.indexOf(new_packet);
-            $scope.rem_packets.splice(i, 1);
-            $scope.rem_packets.push($scope.rm_el_data);
-            var el = "<div class='w3-panel w3-card ng-scope' ng-repeat='item in $ctrl.packet_data' style='margin-top: -10px; cursor:all-scroll'>\
-                        <p style='margin-top:10px;text-align:center;'>"+new_packet+"</p>\
-                    </div>";
-            temp.push(el);
-            temp_index+=1
-            for (temp_index; temp_index<$scope.packets_elements.length; temp_index++){
-              temp.push($scope.packets_elements[temp_index])
-            }
-              $('#dragger-packet').children().remove();
-              $('#dragger-packet').append(temp);
-              $scope.rm_el_index = undefined;
+             var i = $scope.rem_packets.indexOf(new_packet);
+             $scope.rem_packets.splice(i, 1);
+             $scope.rem_packets.push($scope.rm_el_data);
+             $scope.packet_data.splice($scope.a_rm_el_index, 0, new_packet);
+             $scope.rm_el_index = undefined;
           }else if(($scope.rm_el_index != undefined && $scope.rm_el_index === 0) || $scope.p_size !== pl){
               var i = $scope.rem_packets.indexOf(new_packet);
               $scope.rem_packets.splice(i, 1);
-              var el = "<div class='w3-panel w3-card ng-scope' ng-repeat='item in $ctrl.packet_data' style='margin-top: -10px; cursor:all-scroll'>\
-                          <p style='margin-top:10px;text-align:center;'>"+new_packet+"</p>\
-                      </div>";
-              $(el).prependTo('#dragger-packet');
+              $scope.packet_data.splice(0, 0, new_packet);
               $scope.rm_el_index = undefined;
 
           /* This 'elseif' block will execute when the no packet was removed still the packet
@@ -134,27 +101,48 @@ app.controller('sampleCtrl', function($scope, $http){
             var i = $scope.rem_packets.indexOf(new_packet);
             $scope.rem_packets.splice(i, 1);
             $scope.rem_packets.push($scope.rm_el_data);
-            var el = "<div class='w3-panel w3-card ng-scope' ng-repeat='item in $ctrl.packet_data' style='margin-top: -10px; cursor:all-scroll'>\
-                          <p style='margin-top:10px;text-align:center;'>"+new_packet+"</p>\
-                      </div>";
-            $(el).prependTo("#dragger-packet");
+            $scope.packet_data.splice(0, 0, new_packet);
             $scope.rm_el_index = undefined;
           }
       }
     };
 
-    // $scope.simple = function(p_id){
-    //   $scope.p_id = p_id;
-    //   $scope.p_data = document.getElementById(p_id).innerText;
-    // }
+    $scope.simple_card = function(data, category){
+      if(category === 'packet'){
+        var elements = $('#dragger-packet').children();
+        for(var i = 0; elements.length; i++){
+          if(elements[i].innerText.trim().toLowerCase() === data.toLowerCase()){
+            self.p_el_index = i;
+            break;
+          }
+        }
+      }else{
+        var elements = $('#dragger-agent').children();
+        for(var i = 0; elements.length; i++){
+          if(elements[i].innerText.trim().toLowerCase() === data.toLowerCase()){
+            self.a_el_index = i;
+            break;
+          }
+        }
+      }
+    }
 
-    // $scope.add_packet_card = function(){
-    //   var new_packet_data = document.getElementById('newpacketcard').value;
-    //   document.getElementById($scope.p_id).innerText=new_packet_data;
-    //   var index = $scope.rem_packets.indexOf(new_packet_data);
-    //   $scope.rem_packets.splice(index, 1);
-    //   $scope.rem_packets.push($scope.p_data);
-    // }
+    $scope.add_packet_card = function(){
+      var new_packet_data = document.getElementById('newpacketcard').value;
+      if(new_packet_data === "" || new_packet_data == undefined){
+        swal('Please select packet');
+        return;
+      }
+      var elements = $('#dragger-packet').children();
+      var index = $scope.rem_packets.indexOf(new_packet_data);
+      if(self.p_el_index === 0){
+        $scope.packet_data.splice(0,0,new_packet_data);
+        $scope.rem_packets.splice(index, 1);
+      }else{
+        $scope.packet_data.splice(self.p_el_index, 0, new_packet_data);
+        $scope.rem_packets.splice(index, 1);
+      }
+    }
 
     $scope.autocomplete = function(inp, arr) {
       var inp = document.getElementById(inp);
@@ -224,14 +212,22 @@ app.controller('sampleCtrl', function($scope, $http){
       });
     }
 
-    // $scope.add_agent_card = function(){
-    //   var newagent = document.getElementById('newagentcard').value;
-    //   var el = document.getElementById($scope.p_id);
-    //   el.innerText = newagent;
-    //   var index = $scope.rem_agents.indexOf(newagent);
-    //   $scope.rem_agents.splice(index, 1);
-    //   $scope.rem_agents.push($scope.p_data);
-    // }
+    $scope.add_agent_card = function(){
+      var new_agent_data = document.getElementById('newagentcard').value;
+      if(new_agent_data === "" || new_agent_data == undefined){
+        swal('Please select agent');
+        return;
+      }
+      var elements = $('#dragger-agent').children();
+      var index = $scope.rem_agents.indexOf(new_agent_data);
+      if(self.a_el_index === 0){
+        $scope.agent_data.splice(0,0, new_agent_data);
+        $scope.rem_agents.splice(index, 1);
+      }else{
+        $scope.agent_data.splice(self.a_el_index, 0, new_agent_data);
+        $scope.rem_agents.splice(index, 1);
+      }
+    }
 
     dragula([document.getElementById('dragger-agent')],{removeOnSpill:true}).on('out', function(el, target, container, source){
       $scope.agents_elements = el.parentElement.children;
@@ -241,6 +237,7 @@ app.controller('sampleCtrl', function($scope, $http){
           $scope.a_el_id = el.children['0'].id;
           $scope.a_rm_el_index = i;
           $scope.a_rm_el_data = el.innerText.trim();
+          $scope.agent_data.splice($scope.a_rm_el_index, 1);
           $scope.a_size -= 1;
           break;
         }
@@ -249,20 +246,10 @@ app.controller('sampleCtrl', function($scope, $http){
 
     $scope.add_agent_cnf = function(){
       if($scope.rem_packets.length !== 0 && $scope.rem_agents.length === 0){
-        swal({
-          title:'info',
-          text:'No Agents, Please select packets...',
-          icon:'info',
-          button:'ok'
-        });
+        swal('No Agents, Please select packets');
         return;
       }else if($scope.rem_packets.length === 0 && $scope.rem_agents.length === 0){
-        swal({
-          title:'info',
-          text:'No Agents or Packets',
-          icon:'info',
-          button:'ok'
-        });
+        swal('No Agents or Packets');
       }else{
         $('#addagent').show();
         $('#addagent').attr('class', 'modal fade in');
@@ -275,71 +262,46 @@ app.controller('sampleCtrl', function($scope, $http){
     });
 
     $scope.add_agent = function(){
-        // $('#addagent').hide();
         $('#addagent').attr('class', 'modal fade out');
         $('#addagent').css('display', 'none');
       var new_agent = document.getElementById('newagent').value;
-
+      if(new_agent === "" || new_agent == undefined){
+        swal('Please select agent');
+        return;
+      }
       // This if will execute when the packet is not selected and directly when we click plus button.
       if($scope.a_rm_el_index == undefined){
         var i = $scope.rem_agents.indexOf(new_agent);
         $scope.rem_agents.splice(i, 1);
-        var el = "<div class='w3-panel w3-card ng-scope' ng-repeat='item in $ctrl.agent_data' style='margin-top: -10px; cursor:all-scroll'>\
-                      <p style='margin-top:10px;text-align:center;'>"+new_agent+"</p>\
-                  </div>";
-        $(el).prependTo("#dragger-agent");
+        $scope.agent_data.splice(0,0, new_agent);
 
       // This else if will execute when the packet is dragged and after plus button is clicked.
-      }else if($scope.a_rm_el_index !== undefined){
+      }else if($scope.a_rm_el_index != undefined){
           var al = $('#dragger-agent').children().length;
 
-          if($scope.a_rm_el_index !== undefined && $scope.a_rm_el_index === al){
+          if($scope.a_rm_el_index != undefined && $scope.a_rm_el_index === al){
             var i = $scope.rem_agents.indexOf(new_agent);
             $scope.rem_agents.splice(i, 1);
             $scope.rem_agents.push($scope.a_rm_el_data);
-            var el = "<div class='w3-panel w3-card ng-scope' ng-repeat='item in $ctrl.agent_data' style='margin-top: -10px; cursor:all-scroll'>\
-                      <p style='margin-top:10px;text-align:center;'>"+new_agent+"</p>\
-                  </div>";
-            $('#dragger-agent').append(el);
+            $scope.agent_data.push(new_agent);
             $scope.a_rm_el_index = undefined;
 
           }else if($scope.a_size === al && ($scope.a_rm_el_index != undefined && $scope.a_rm_el_index !== 0)){
-            var temp = [];
-            var temp_index = 0;
-            for (var i=0; i<$scope.a_rm_el_index; i++){
-              temp.push($scope.agents_elements[i]);
-              temp_index = i;
-            }
             var i = $scope.rem_agents.indexOf(new_agent);
             $scope.rem_agents.splice(i, 1);
             $scope.rem_agents.push($scope.a_rm_el_data);
-            var el = "<div class='w3-panel w3-card ng-scope' ng-repeat='item in $ctrl.agent_data' style='margin-top: -10px; cursor:all-scroll'>\
-                        <p style='margin-top:10px;text-align:center;'>"+new_agent+"</p>\
-                    </div>";
-            temp.push(el);
-            temp_index+=1
-            for (temp_index; temp_index<$scope.agents_elements.length; temp_index++){
-              temp.push($scope.agents_elements[temp_index])
-            }
-            $('#dragger-agent').children().remove();
-            $('#dragger-agent').append(temp);
+            $scope.agent_data.splice($scope.a_rm_el_index, 0, new_agent);
             $scope.a_rm_el_index = undefined;
           }else if(($scope.a_rm_el_index != undefined && $scope.a_rm_el_index === 0) || $scope.a_size !== al){
             var i = $scope.rem_agents.indexOf(new_agent);
             $scope.rem_agents.splice(i, 1);
             $scope.rem_agents.push($scope.a_rm_el_data);
-            var el = "<div class='w3-panel w3-card ng-scope' ng-repeat='item in $ctrl.agent_data' style='margin-top: -10px; cursor:all-scroll'>\
-                        <p style='margin-top:10px;text-align:center;'>"+new_agent+"</p>\
-                    </div>";
-            $(el).prependTo('#dragger-agent');
+            $scope.agent_data.splice(0,0,new_agent);
             $scope.a_rm_el_index = undefined;
         }else if($scope.a_rm_el_index != undefined && al !== $scope.agent_config_value){
-          var i = $scope.rem_agents.indexOf(new_agent);
-          $scope.rem_agents.splice(i, 1);
-          var el = "<div class='w3-panel w3-card ng-scope' ng-repeat='item in $ctrl.agent_data' style='margin-top: -10px; cursor:all-scroll'>\
-                        <p style='margin-top:10px;text-align:center;'>"+new_agent+"</p>\
-                    </div>";
-            $(el).prependTo('#dragger-agent');
+            var i = $scope.rem_agents.indexOf(new_agent);
+            $scope.rem_agents.splice(i, 1);
+            $scope.agent_data.splice(0,0,new_agent);
             $scope.a_rm_el_index = undefined;
         }
       }
@@ -348,7 +310,7 @@ app.controller('sampleCtrl', function($scope, $http){
     $scope.formData = function(){
             $scope.audit_per = document.getElementById('audit').value;
             $scope.random_per = document.getElementById('randomsample').value;
-            if( $scope.audit_per !== "" || $scope.random_per !== ""){
+            if( $scope.audit_per !== '0' && $scope.audit_per !== ''|| $scope.random_per !== '0' && $scope.random_per !== ''){
               var packets = $('#dragger-packet').children();
               var agents = $('#dragger-agent').children();
               var total_packets = $('#dragger-packet').children().length;
@@ -371,38 +333,18 @@ app.controller('sampleCtrl', function($scope, $http){
 
               $http({method:'POST', url:url, data:data, headers:{'Content-Type':'application/x-www-form-urlencoded;charset=utf-8;'}}).then(function(result){
                   if(typeof(result.data.audit) === "string" & typeof(result.data.random) === "string"){
-                    swal({
-                      title:'warning',
-                      text:'Please select packets or agents to meet the intelligent audit criteria, and select high random value',
-                      icon:'warning',
-                      button:'ok'
-                    });
+                    swal('Please select packets or agents to meet the intelligent audit criteria, and select high random value');
                   }else if(typeof(result.data.audit) === "string"){
-                    swal({
-                      title:'warning',
-                      text:'Please select the packets or agents to meet the criteria.',
-                      icon:'warning',
-                      button:'ok'
-                    });
+                    swal('Please select the packets or agents to meet the criteria');
                   }else if(typeof(result.data.random) === "string"){
-                    swal({
-                      title:'warning',
-                      text:'Please select the low random value.',
-                      icon:'warning',
-                      button:'ok'
-                    });
+                    swal('Please select the low random value');
                   }else{
                     $scope.success = true;
                     $scope.excel_data = result.data;
                   }
               });
             }else{
-              swal({
-                      title:'error',
-                      text:'Please select intelligent audit or random audit.',
-                      icon:'error',
-                      button:'ok'
-                    });
+              swal('Please select intelligent audit or random audit');
             }
     }
 
@@ -421,37 +363,11 @@ app.controller('sampleCtrl', function($scope, $http){
 
     $scope.show_audit = function(){
         $scope.audit_value = ($scope.intelligent_audit_value/100) * $scope.total_production;
-        if(!$scope.intelligent_audit_value)
           $scope.success = false;
     };
 
     $scope.show_random = function(){
       $scope.random_value = ($scope.random_audit_value/100) * $scope.total_production;
-      if(!$scope.random_audit_value)
         $scope.success = false;
     }
-
-    // $scope.audit_submit = function(){
-    //   $('.handle-audit').fadeOut(300);
-    //   var audit_url = '/api/intelligent-audit/?audit_val='+$scope.intelligent_audit_value+'&total_production='+$scope.total_production;
-    //   $http({method:'GET', url:audit_url}).then(function(result){
-    //     $('.audit-show').show();
-    //     $scope.audit_value = result.data;
-    //   }, function(error){
-    //     $scope.intelligent_audit_err_msg = true;
-    //     console.log('something went wrong!');
-    //   });
-    // };
-
-    // $scope.random_submit = function(){
-    //   $('.handle-random').fadeOut(300);
-    //   var random_url = '/api/random-audit/?random_val='+$scope.random_audit_value+'&total_production='+$scope.total_production;
-    //   $http({method:'GET', url:random_url}).then(function(result){
-    //      $('.random-show').show();
-    //     $scope.random_value = result.data;
-    //   }, function(error){
-    //       $scope.random_audit_err_msg = true;
-    //       console.log('something went wrong!');
-    //   });
-    // }
 });
