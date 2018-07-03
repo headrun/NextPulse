@@ -1,9 +1,10 @@
-import datetime
+import datetime, collections
 from django.db.models import Max
 from django.shortcuts import redirect
 from api.models import *
 from api.basics import latest_dates
 from api.security import get_permitted_user
+from django.contrib.auth.models import User
 from common.utils import getHttpResponse as json_HttpResponse
 
 def project(request):
@@ -17,11 +18,12 @@ def project(request):
         _project, _center = project_vals[0][0], project_vals[0][1]
     except:
         _project, _center = '', '' 
-
+    
     user_group = request.user.groups.values_list('name', flat=True)[0]
     user_group_id = Group.objects.filter(name=user_group).values_list('id', flat=True)
     list_wid = []
     layout_list = []
+    legend_align = []
     final_dict = {}
 
     if user_group in ['customer','team_lead']:
@@ -33,7 +35,7 @@ def project(request):
             table_name = Customer      
         customer_objs = table_name.objects.filter(name_id=request.user.id)
         center_list = customer_objs.values_list('center', flat = True)
-        project_list = customer_objs.values_list('project', flat =True)
+        project_list = customer_objs.filter(project__display_project = True).values_list('project', flat =True)
         if (len(center_list) and len(project_list)) == 1:
             select_list.append('none')
         if len(center_list) < 2:  
@@ -51,12 +53,12 @@ def project(request):
         details['list'] = select_list
 
         if len(select_list) > 1:
-              if multi_project:
-                 prj_id = Project.objects.filter(name=multi_project).values_list('id','center_id')
-              else:
-                 prj_name = select_list[1].split(' - ')[1]
-                 prj_id = Project.objects.filter(name=prj_name).values_list('id','center_id') 
-
+            if multi_project:
+                prj_id = Project.objects.filter(name=multi_project).values_list('id','center_id')
+            else:
+                prj_name = select_list[1].split(' - ')[1]
+                prj_id = Project.objects.filter(name=prj_name).values_list('id','center_id') 
+        
 
     if 'nextwealth_manager' in user_group:
         select_list = []
@@ -64,7 +66,7 @@ def project(request):
         if center_list.count() < 2:
             center_obj = Center.objects.filter(id=center_list[0])[0]
             center_name, center_id = center_obj.name, center_obj.id
-            project_list = Project.objects.filter(center_id=center_id)
+            project_list = Project.objects.filter(center_id=center_id,display_project = True)
             for project in project_list:
                 project_name = str(project)
                 select_list.append(project_name)
@@ -74,7 +76,7 @@ def project(request):
                 center_query = Center.objects.filter(id=center)
                 center_name = str(center_query[0])
                 center_id = center_query[0].id
-                project_list = Project.objects.filter(center_id=center_id)
+                project_list = Project.objects.filter(center_id=center_id,display_project = True)
                 for project in project_list:
                     project_name = str(project)
                     select_list.append(project_name)
@@ -92,7 +94,7 @@ def project(request):
         if center_list.count() < 2:
             center_obj = Center.objects.filter(id=center_list[0])[0]
             center_name, center_id = center_obj.name, center_obj.id
-            project_list = Project.objects.filter(center_id=center_id)
+            project_list = Project.objects.filter(center_id=center_id,display_project = True)
             for project in project_list:
                 project_name = str(project)
                 select_list.append(project_name)
@@ -102,7 +104,7 @@ def project(request):
                 center_query = Center.objects.filter(id=center)
                 center_name = str(center_query[0])
                 center_id = center_query[0].id
-                project_list = Project.objects.filter(center_id=center_id)
+                project_list = Project.objects.filter(center_id=center_id,display_project = True)
                 for project in project_list:
                     project_name = str(project)
                     select_list.append(project_name)
@@ -120,11 +122,10 @@ def project(request):
             else:
                 prj_name = select_list[0]
                 prj_id = Project.objects.filter(name=prj_name).values_list('id','center_id') 
-
     
-    widgets_id = Widgets_group.objects.filter(\
-                        User_Group_id=user_group_id, project=prj_id[0][0],center=prj_id[0][1])\
-                        .values('widget_priority', 'is_drilldown','is_display', 'widget_name','col', 'display_value')
+    
+    widgets_id = Widgets_group.objects.filter(User_Group_id=user_group_id, project=prj_id[0][0],center=prj_id[0][1])\
+                        .values('widget_priority', 'is_drilldown','is_display', 'widget_name','col', 'display_value', 'legends_alignment')
     project_display_value = Project.objects.filter(\
                                 id=prj_id[0][0], center=prj_id[0][1]).values_list('display_value', flat=True)[0]
 
@@ -152,6 +153,7 @@ def project(request):
             wid_dict['widget_priority'] = data['widget_priority']
             wid_dict['is_drilldown'] = data['is_drilldown']
             wid_dict['col'] = data['col']
+            wid_dict['legends_align'] = data['legends_alignment']
             if project_display_value == True and data['display_value'] == True:
                 wid_dict['display_value'] = True
             else:
@@ -172,7 +174,7 @@ def project(request):
         _select_list = []
         center = Centermanager.objects.filter(name_id=request.user.id).values_list('center', flat=True)[0]
         center_name = Center.objects.filter(id=center).values_list('name', flat=True)[0]
-        project_names = Project.objects.filter(center_id=center).values_list('name', flat=True)
+        project_names = Project.objects.filter(center_id=center,display_project = True).values_list('name', flat=True)
         for project in project_names:
             vari = center_name + ' - ' + project
             _select_list.append(center_name + ' - ' + project)
@@ -186,7 +188,7 @@ def project(request):
         else:
             new_dates = latest_dates(request, project_names)
         role = 'center_manager'
-        user = request.user.id 
+        user = request.user.id
         user_status = get_permitted_user(_project, _center, user)
         final_values = common_user_data(request, select_list, role, layout_list, new_dates, user_status)
         return json_HttpResponse(final_values)
@@ -199,7 +201,7 @@ def project(request):
         if len(center_list) < 2:
             center_name = str(Center.objects.filter(id=center_list[0][0])[0])
             center_id = center[0]
-            project_list = Project.objects.filter(center_id=center_id)
+            project_list = Project.objects.filter(center_id=center_id,display_project = True)
             for project in project_list:
                 project_name = str(project)
                 try:
@@ -214,7 +216,7 @@ def project(request):
             for center in center_list:
                 center_name = str(Center.objects.filter(id=center[0])[0])
                 center_id = center[0]
-                project_list = Project.objects.filter(center_id=center_id)
+                project_list = Project.objects.filter(center_id=center_id,display_project = True)
                 for project in project_list:
                     project_name = str(project)
                     try:
@@ -251,7 +253,7 @@ def project(request):
             table_name = TeamLead
         customer_query = table_name.objects.filter(name_id=request.user.id)
         center_list = customer_query.values_list('center', flat = True)
-        project_list = customer_query.values_list('project', flat = True)
+        project_list = customer_query.filter(project__display_project = True).values_list('project', flat = True)
         if (len(center_list) and len(project_list)) == 1:
             select_list.append('none')
         if len(center_list) < 2:
@@ -311,18 +313,41 @@ def common_user_data(request, projects_list, role, widgets_list, dates, user_sta
     result_dict['location'] = request.GET.get('location', '')
     result_dict['skill'] = request.GET.get('skill', '')
     result_dict['disposition'] = request.GET.get('disposition', '')
+
+    
+    if role == "team_lead":
+        if TeamLead.objects.filter(name_id=request.user.id).values("display_upload")[0]['display_upload']:
+            result_dict['upload'] = True
+        else:
+            result_dict['upload'] = False
+    else:
+        result_dict['upload'] = False
     
     return result_dict
 
 
-def sorting_projects(projects):
-    project_data = []
-    for data in projects:
-        project_data.append(data.split(' - ')[1])
-        project_data.sort()
-        select_list = []
-        for data in project_data:
-            for value in projects:
-                if data == value.split(' - ')[1]:
-                    select_list.append(value.split(' - ')[0] + ' - ' + value.split(' - ')[1])
+def sorting_projects(projects):        
+    project_cen = {}
+    select_list = []
+    for data in projects:        
+        if not project_cen.has_key(data.split(' - ')[0]):
+            project_cen[data.split(' - ')[0]] = [data.split(' - ')[1]]
+        else:
+            project_cen[data.split(' - ')[0]].append(data.split(' - ')[1])
+    
+    project_cen = collections.OrderedDict(sorted(project_cen.items()))
+    proj_cent = {}
+    for center, proj_list in project_cen.iteritems():
+        proj_list = sorted(proj_list)
+        for proj in proj_list:
+            select_list.append(center + ' - ' + proj)    
+        proj_cent[center] = proj_list
     return select_list
+
+
+def MyLiveChat(request):
+    result_dict = {}
+    user = User.objects.get(id= request.user.id)
+    result_dict['email_id'] = user.email
+    result_dict['user'] = user.first_name.title()
+    return json_HttpResponse(result_dict)

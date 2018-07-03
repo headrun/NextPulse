@@ -24,7 +24,9 @@ class Project(models.Model):
     sub_project_check = models.BooleanField(default=None)
     is_voice = models.BooleanField(default = False)
     display_value = models.BooleanField(default = False)
-    user = models.ManyToManyField(User,null=True)
+    user = models.ManyToManyField(User,null=True)    
+    display_project = models.BooleanField(default = True)
+    
 
     class Meta:
         db_table = u'project'
@@ -37,6 +39,7 @@ class TeamLead(models.Model):
     name    = models.ForeignKey(User, null=True, db_index=True)
     project = models.ManyToManyField(Project, null=True)
     center = models.ManyToManyField(Center, null=True)
+    display_upload = models.BooleanField(default = True)
 
     class Meta:
         db_table = u'agent'
@@ -58,8 +61,10 @@ class ChartType(models.Model):
 class Customer(models.Model):
     name    = models.ForeignKey(User, null=True, db_index=True)
     center  = models.ManyToManyField(Center, null=True, db_index=True)
-    project = models.ManyToManyField(Project, null=True, db_index=True)
+    project = models.ManyToManyField(Project, null=True, db_index=True)        
     is_drilldown = models.BooleanField(default=None)
+    legends_alignment_choices = (('left','Left'),('right','Right'),('bottom','Bottom'))
+    legends_alignment = models.CharField(max_length=30,choices=legends_alignment_choices,default='bottom') 
 
     class Meta:
         db_table = u'customer'
@@ -95,6 +100,8 @@ class Widgets_group(models.Model):
     is_display = models.BooleanField(default=None)
     is_drilldown = models.BooleanField(default = None)
     display_value = models.BooleanField(default = True)
+    legends_alignment_choices = (('left','Left'),('right','Right'),('bottom','Bottom'))
+    legends_alignment = models.CharField(max_length=30,choices=legends_alignment_choices,default='bottom') 
 
     class Meta:
         db_table = u'Widgets_group'

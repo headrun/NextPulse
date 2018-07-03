@@ -1,4 +1,3 @@
-
 import datetime
 import redis
 from django.db.models import Sum
@@ -18,10 +17,10 @@ def redis_insertion_final(prj_obj,center_obj,dates_list,key_type,level_structure
     if key_type == 'External':
         volumes_list = Externalerrors.objects.filter(project=prj_obj, center=center_obj).values('sub_project', 'work_packet', 'sub_packet').distinct()
     if key_type == 'WorkTrack':
-        volumes_list = Worktrack.objects.filter(project=prj_obj, center=center_obj).values('sub_project', 'work_packet', 'sub_packet').distinct()
+        volumes_list = Worktrack.objects.filter(project=prj_obj, center=center_obj).values('sub_project', 'work_packet', 'sub_packet').distinct()        
     for date in dates_list:
         date_is = datetime.datetime.strptime(date,'%Y-%m-%d').date()
-        for row_record_dict in volumes_list:
+        for row_record_dict in volumes_list:            
             final_work_packet = ''
             single_row_dict, query_set = {}, {}
             query_set['date'] = date
@@ -43,6 +42,12 @@ def redis_insertion_final(prj_obj,center_obj,dates_list,key_type,level_structure
                 else:
                     final_work_packet = row_record_dict['sub_packet']
             value_dict = {}
+            if final_work_packet:
+                final_work_packet = re.sub(r'[^\x00-\x7F]+',' ', final_work_packet)                            
+            else:
+                final_work_packet = ''
+            prj_name = re.sub(r'[^\x00-\x7F]+',' ', prj_name)
+            center_name = re.sub(r'[^\x00-\x7F]+',' ', center_name)
             if key_type == 'Production':
                 redis_key = '{0}_{1}_{2}_{3}'.format(prj_name,center_name,final_work_packet,str(date_is))
                 total = RawTable.objects.filter(**query_set).values_list('per_day').aggregate(Sum('per_day'))
@@ -155,6 +160,7 @@ def redis_insert(prj_obj,center_obj,dates_list,key_type):
             level_dict['level1'] = level_dict['level1'] = level_herarchy
         else:
             level_dict['level1'] = level_dict['level1'] = ['work_packet']
+    
     for level_key in level_dict:
         final_inserting = redis_insertion_final(prj_obj, center_obj, dates_list, key_type, level_dict[level_key])
     return "completed"

@@ -1,3 +1,4 @@
+
 <body>
 <style>
 ::-webkit-scrollbar-thumb {
@@ -101,6 +102,7 @@ div.content {
 
 .widget-data-show {
 }
+
 
 </style>
 <div class="row">
@@ -206,12 +208,39 @@ div.content {
         <i class="fa fa-arrow-circle-o-up hide"></i>
     </a>
 </div>
+
 <script type="text/javascript" async="async" defer="defer" data-cfasync="false" src="https://mylivechat.com/chatinline.aspx?hccid=73900030"></script>
+
+<script type="text/javascript">
+    
+    var username ='';
+    var email ='';   
+    
+    $.ajax({
+        type:'GET',
+        url:'api/mylivechat_details/',
+         success:function(res){        
+            username = res.result.user;
+            email = res.result.email_id;           
+            $(".mylivechat_offline_name_box").val(username);
+            $(".mylivechat_offline_email_box").val(email);
+        },error:function(){
+            $(".mylivechat_offline_name_box").val('');
+            $(".mylivechat_offline_email_box").val('');
+        }
+    });
+    function MyLiveChat_OnInit() {
+        MyLiveChat_SetUserName(username);
+        MyLiveChat_SetEmail(email);
+       }
+
+</script>
+
 <p id="hidden-tag">{{$ctrl.hiden_tag}}</p>
 </body>
 
 
-<script>
+<script type="text/javascript">
 
     $('body').on('click','.btn-group button', function(e) {
      $(this).addClass('active btn-success');
@@ -251,7 +280,11 @@ $(document).ready(function() {
         } else {
             $('.fa-arrow-circle-o-up').removeClass('hide');
         }
-    }
+    }   
+
+
 });
 </script>
+
+
 

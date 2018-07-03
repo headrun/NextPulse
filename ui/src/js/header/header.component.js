@@ -21,6 +21,20 @@
                  $state.go("dashboard.page1",{'selpro': item});
                }
 
+               self.agent_data = [ "Madhu Priya",
+                                   "Natasha",
+                                   "Dhanyalakshmi S",
+                                   "Dharani G K",
+                                   "Gomathi K"
+                                  ];
+
+               self.packet_data = [ "Latin America",
+                                    "Europe",
+                                    "DCIW Arabia",
+                                    "North America",
+                                    "Pakistan",
+                                  ];  
+               
                self.password = function(new_pa, new_again_pa){
                  if (new_pa === new_again_pa){
 
