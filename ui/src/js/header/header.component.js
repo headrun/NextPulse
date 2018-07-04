@@ -15,7 +15,8 @@
                self.new_again = '';
                self.pass_status = false;
                self.pass_error = false;
-
+	       self.upload = ''; 	
+		
                self.change_href = function(item) {
                  $state.go("dashboard.page1",{'selpro': item});
                   
@@ -77,13 +78,13 @@
                 if (this.user.role == "Customer") {
                     $('#fileupload').hide();
                     $('#home').hide();
-	                   $('#people').hide()			
+	            $('#people').hide()			
                 }
                 if (this.user.role == "Team Lead") {
                     $('#select_dropdown').hide();
                     $('#home').hide();
-		                $('#people').hide();
-                    $('.form-sym').show();	
+		    $('#people').hide();
+                    //$('.form-sym').show();	
                 }
                this.collapsed = false;
 
@@ -131,6 +132,7 @@
                     }
                     var map_list = result.result.list;
                     self.mapping_list = map_list;
+                    self.upload = result.result.upload;
                     if (result.result.list[0] != "none"){
                         if ((result.result.list.length) == 2) {
                             var option = map_list[0];

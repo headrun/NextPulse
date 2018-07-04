@@ -82,11 +82,12 @@ def forgot_password(request):
 
 def get_cell_data(open_sheet, row_idx, col_idx):
     try:
-        cell_data = open_sheet.cell(row_idx, col_idx).value
-        cell_data = smart_str(cell_data)
+        cell_data = open_sheet.cell(row_idx, col_idx).value               
+        cell_data = smart_str(cell_data)        
         cell_data = str(cell_data)
         if isinstance(cell_data, str):
             cell_data = cell_data.strip()
+            cell_data = re.sub(r'[^\x00-\x7F]+',' ', cell_data)
     except IndexError:
         cell_data = ''
     return cell_data

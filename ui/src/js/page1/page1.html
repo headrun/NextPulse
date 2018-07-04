@@ -1,3 +1,4 @@
+
 <body>
 <style>
 ::-webkit-scrollbar-thumb {
@@ -23,92 +24,21 @@
     border-radius: 0;
 }
 
-.card{
-    display:inline;
-    float:left;
-    width:fit-content;
-    height:fit-content;
-    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
-    transition: 0.3s;
-    margin:5px 5px;
-}
-.card:hover{
-     box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
-}
-.card-header{
-    font-size:20px;
-    height:30px;
-    background-color: #454f68;
-}
-.card-header-text{
-    display: block;
-    margin:0px; 
-    color:white;
-    text-align:center;
-}
+/*table {
 
-.card-body{
-    background-color: #d3d3d3;
-
+    margin : 0 auto;
+    border: 1px solid #323232;
+ }
+.table-responsive {
+    border: 1px solid #ccc;
+    background-color:#ffffff;
+    margin: 5px;
+    padding-right: 10px;
+    padding-left: 10px;
 }
-.small-card{
-    height:33px;
-    margin-top:5px;
-    background-color:white;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-}
-.small-card-body{
-    float:left;
-    display:inline;
-    margin:0px;
-    padding:9px 10px;
-    font-size: 15px;
-    color:#454f68;
-}
-.badge{
-    display: inline;
-    float: right;
-    color:white;
-    background: #454f68;
-    border-radius: 5px;
-    padding: 3px 5px;
-    margin:7px 5px;
-}
-
-.w3-card:active{
-    opacity: .6;
-    border:2px solid grey;
-    
-}
-.w3-card:hover{
-    background-color: #e5e5e5;
-    box-shadow: 0 0 0 0;
-    transition: .1s;
-}
-
-.gu-mirror {
-  position: fixed !important;
-  margin: 0 !important;
-  z-index: 9999 !important;
-  padding: 1em;
-}
-
-.gu-hide {
-  display: none !important;
-}
-
-.gu-unselectable {
-  -webkit-user-select: none !important;
-  -moz-user-select: none !important;
-  -ms-user-select: none !important;
-  user-select: none !important;
-}
-
-.gu-transit {
-  opacity: 0.5;
-  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";
-  filter: alpha(opacity=50);
-}
+thead {
+    border: 1px solid black;
+}*/
 
 div.content {
     overflow: hidden;
@@ -127,49 +57,7 @@ div.content {
 
 .widget-data-show {
 }
-.modal-border{
-    background: linear-gradient(to right, rgb(255, 76, 112), rgb(255, 109, 189), rgb(142, 65, 244), rgb(113, 65, 244),rgb(99, 129, 249), rgb(91, 124, 255), rgb(0, 135, 214), rgb(0, 160, 214),rgb(9, 180, 237), #65c1ac 75%, rgb(66, 244, 235));
-    height:5px;
-    border-top-left-radius: 20px;
-    border-top-right-radius: 20px;
-    margin-top: -.52px;
-}
 
-.autocomplete {
-  position: relative;
-  display: block;
-}
-.autocomplete-items {
-  position: absolute;
-  border: 1px solid #d4d4d4;
-  border-bottom: none;
-  border-top: none;
-  z-index: 99;
-  top: 100%;
-  left: 0;
-  right: 0;
-  background-color: white;
-}
-.autocomplete-items div {
-  padding: 10px;
-  cursor: pointer;
-  background-color: #fff; 
-  border-bottom: 1px solid #d4d4d4; 
-  overflow-y: scroll;
-}
-.autocomplete-items div:hover {
-  /*when hovering an item:*/
-  background-color: #e9e9e9; 
-}
-.autocomplete-active {
-  /*when navigating through the items using the arrow keys:*/
-  background-color: DodgerBlue !important; 
-  color: #ffffff; 
-}
-
-page1 div.modal-content{
-    background: white;
-}
 </style>
 <div class="row">
     <div class="col-lg-2 col-md-2 col-sm-2">
@@ -273,14 +161,40 @@ page1 div.modal-content{
     <a class="back-to-top" id="goTop">
         <i class="fa fa-arrow-circle-o-up hide"></i>
     </a>
-</div>  
+</div>
 
 <script type="text/javascript" async="async" defer="defer" data-cfasync="false" src="https://mylivechat.com/chatinline.aspx?hccid=73900030"></script>
+
+<script type="text/javascript">
+    
+    var username ='';
+    var email ='';   
+    
+    $.ajax({
+        type:'GET',
+        url:'api/mylivechat_details/',
+         success:function(res){        
+            username = res.result.user;
+            email = res.result.email_id;           
+            $(".mylivechat_offline_name_box").val(username);
+            $(".mylivechat_offline_email_box").val(email);
+        },error:function(){
+            $(".mylivechat_offline_name_box").val('');
+            $(".mylivechat_offline_email_box").val('');
+        }
+    });
+    function MyLiveChat_OnInit() {
+        MyLiveChat_SetUserName(username);
+        MyLiveChat_SetEmail(email);
+       }
+
+</script>
+
 <p id="hidden-tag">{{$ctrl.hiden_tag}}</p>
 </body>
 
 
-<script>
+<script type="text/javascript">
 
     $('body').on('click','.btn-group button', function(e) {
      $(this).addClass('active btn-success');
@@ -320,7 +234,11 @@ $(document).ready(function() {
         } else {
             $('.fa-arrow-circle-o-up').removeClass('hide');
         }
-    }
+    }   
+
+
 });
 </script>
+
+
 
