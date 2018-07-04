@@ -23,7 +23,7 @@ def historical_packet_agent_data(request):
     project_id = main_data['pro_cen_mapping'][0][0]
     center_id = main_data['pro_cen_mapping'][1][0]
     dates = main_data['dates']
-    
+
     if len(dates) > 1:
         raw_query = RawTable.objects.filter(project=project_id,center=center_id,date__range=[dates[0],dates[-1]])
     else:
@@ -65,18 +65,40 @@ def get_the_packet_and_agent_data(required_data,dates,project_id,center_id,filte
             if filter_type == 'packet':
                 internal_data = Internalerrors.objects.filter(project=project_id,center=center_id,\
                     work_packet=data,date__range=[date_values[-1],date_values[0]])
+                external_data = Externalerrors.objects.filter(project=project_id,center=center_id,\
+                    work_packet=data,date__range=[date_values[-1],date_values[0]])
+                raw_data = RawTable.objects.filter(project=project_id,center=center_id,work_packet=data,\
+                    date__range=[date_values[-1],date_values[0]]).aggregate(Sum('per_day'))
                 config_value = Project.objects.get(id=project_id,center=center_id).no_of_packets
             else:
                 internal_data = Internalerrors.objects.filter(project=project_id,center=center_id,\
                     employee_id=data,date__range=[date_values[-1],date_values[0]])
+                external_data = Externalerrors.objects.filter(project=project_id,center=center_id,\
+                    employee_id=data,date__range=[date_values[-1],date_values[0]])
+                raw_data = RawTable.objects.filter(project=project_id,center=center_id,employee_id=data,\
+                    date__range=[date_values[-1],date_values[0]]).aggregate(Sum('per_day'))
                 config_value = Project.objects.get(id=project_id,center=center_id).no_of_agents
-            errors = internal_data.aggregate(Sum('total_errors'))
-            audited = internal_data.aggregate(Sum('audited_errors'))
 
-            if errors['total_errors__sum'] != None and audited['audited_errors__sum'] != None:
-                error_value = (float(errors['total_errors__sum'])/float(audited['audited_errors__sum']))
+            error_list = [internal_data.aggregate(Sum('total_errors')),external_data.aggregate(Sum('total_errors'))]
+            audit_list = [internal_data.aggregate(Sum('audited_errors')),external_data.aggregate(Sum('audited_errors'))]
+            
+            total_errors = [ error['total_errors__sum'] if error['total_errors__sum'] is not None else 0 for error in error_list ]
+            audited_errors = [ audit['audited_errors__sum'] if audit['audited_errors__sum'] is not None else 0 for audit in audit_list ]
+
+            per_day = 0
+            if raw_data['per_day__sum'] != None:
+                per_day = raw_data['per_day__sum']
+
+            if sum(audited_errors):
+                error_value = (float(sum(total_errors))/float(sum(audited_errors)))
             else:
                 error_value = 0
+
+            if per_day:
+                error_value = (float(sum(total_errors))/per_day)
+            else:
+                error_value = 0
+
             if result_dict.has_key(data):
                 result_dict[data].append(round((factor*error_value), 2))
             else:
@@ -88,6 +110,7 @@ def get_the_packet_and_agent_data(required_data,dates,project_id,center_id,filte
     sorted_data = (sorted(result.items(), key=itemgetter(1), reverse=True))[:config_value]
     sorted_names = [re.sub(r'[^\x00-\x7F]+',' ', names[0]) for names in sorted_data]
     values_dict[filter_type+'value'] = config_value
+    
     for name in required_data:
         if name not in sorted_names:
             data_list.append(name)
@@ -100,6 +123,7 @@ def generate_required_dates(dates, required_dates):
     ####======generates past 15, 30, 60 and 90 dates based on current database date=====####
 
     dates = dates[0]
+    
     check_date = date(*map(int, dates.split('-')))
     dates_lists = [list(), list(), list(), list()]
     
@@ -108,7 +132,7 @@ def generate_required_dates(dates, required_dates):
             dates_lists[index].append((check_date - dt.timedelta(day)).strftime('%Y-%m-%d'))
     
     return dates_lists
-
+    
 
 def packet_agent_audit_random(request):
 
