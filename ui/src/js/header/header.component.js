@@ -16,6 +16,7 @@
                self.new_again = '';
                self.pass_status = false;
                self.pass_error = false;
+	       self.upload = '';
 
                self.change_href = function(item) {
                  $state.go("dashboard.page1",{'selpro': item});
@@ -129,6 +130,7 @@
                         $('#select_dropdown').hide();
                     }
                     var map_list = result.result.list;
+		    self.upload = result.result.upload
                     self.mapping_list = map_list;
                     if (result.result.list[0] != "none"){
                         if ((result.result.list.length) == 2) {
