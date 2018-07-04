@@ -10,10 +10,7 @@ app.controller('sampleCtrl', function($scope, $http){
   $scope.url = '/api/historical_packet_agent/?widget_data=&'+$scope.sa_url_split[1]+'&'+$scope.sa_url_split[2]+'&'+$scope.sa_url_split[3]+'&'+$scope.sa_url_split[4];
   $http({method:'GET', url:$scope.url}).then(function(result){
     $('#loader').hide();
-    $('#formData').slideDown(200);
-    $('#formData').attr('class', 'modal fade in');
-    $('#formData').css('display', 'block');
-    $("<div class='modal-backdrop fade in'></div>").insertAfter('#formData');
+    $('.nextpredict').show();
     $scope.packet_data = result.data.config_packets;
     $scope.agent_data = result.data.config_agents;
     $scope.rem_packets = result.data.packets;
@@ -51,6 +48,7 @@ app.controller('sampleCtrl', function($scope, $http){
       }else{
         $('#addpacket').show();
         $('#addpacket').attr('class', 'modal fade in');
+        $('#addpacket').attr('z-index', '1');
         $('#addpacket').css('display', 'block');
       }
     }
@@ -247,7 +245,6 @@ app.controller('sampleCtrl', function($scope, $http){
     $scope.add_agent_cnf = function(){
       if($scope.rem_packets.length !== 0 && $scope.rem_agents.length === 0){
         swal('No Agents, Please select packets');
-        return;
       }else if($scope.rem_packets.length === 0 && $scope.rem_agents.length === 0){
         swal('No Agents or Packets');
       }else{
@@ -319,10 +316,10 @@ app.controller('sampleCtrl', function($scope, $http){
               var agents_data = new Array(total_agents);
 
               for(var i = 0; i<total_packets; i++)
-                  packets_data[i] = packets[i].firstChild.nextElementSibling.innerText;
+                  packets_data[i] = packets[i].firstChild.innerText;
 
               for(var j = 0; j<total_agents; j++)
-                  agents_data[j] = agents[j].firstChild.nextElementSibling.innerText;
+                  agents_data[j] = agents[j].firstChild.innerText;
 
               var center = $scope.sa_url_split[2].split('=')[1]
               var project = $scope.sa_url_split[1].split('=')[1]
