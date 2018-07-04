@@ -119,8 +119,7 @@ def graph_data_alignment_other(volumes_data, work_packets, name_key):
         return productivity_series_list
 
 
-def volume_status_week(week_names,productivity_list,final_productivity):
-
+def volume_status_week(week_names,productivity_list,final_productivity):    
     final_productivity =  OrderedDict()
     for final_key, final_value in productivity_list.iteritems():
         for week_key, week_value in final_value.iteritems():
@@ -147,59 +146,46 @@ def volume_status_week(week_names,productivity_list,final_productivity):
                     final_productivity[prod_key].append(0)
         else:
             for vol_key, vol_values in final_productivity.iteritems():
-                final_productivity[vol_key].append(0)
+                final_productivity[vol_key].append(0)    
     return final_productivity
 
 
-def received_volume_week(week_names,productivity_list,final_productivity):
 
+def received_volume_week(week_names,productivity_list,final_productivity):            
     final_productivity =  OrderedDict()
-    productivity_data = {}
-    for final_key, final_value in productivity_list.iteritems():
-        for week_key, week_value in final_value.iteritems():
-            if week_key not in final_productivity.keys():
-                final_productivity[week_key] = []
+    productivity_data = {} 
     for prod_week_num in week_names:
         if len(productivity_list.get(prod_week_num,'')) > 0:
             values = productivity_list[prod_week_num]
             flag = isinstance(values.get('Received',""), list) & isinstance(values.get('Completed',""), list) & isinstance(values.get('Opening',""), list)
             if flag:
-                if len(values['Received']) == len(values['Opening']):
-                    values['Received'][0] = values['Received'][0] + values['Opening'][0]
-                    values['Received'] = sum(values['Received'])
-                    values['Completed'] = sum(values['Completed'])
-                    productivity_data.update(values)
-                    del productivity_data['Opening']
-                    del productivity_data['Non Workable Count']
-                    del productivity_data['Closing balance']
-                    for vol_key,vol_values in productivity_data.iteritems():
-                        if final_productivity.has_key(vol_key):
-                            final_productivity[vol_key].append(vol_values)
+                if len(values['Received']) == len(values['Opening']) and len(values['Opening']) >= 1:                    
+                    productivity_data['Received'] = values['Opening'][0] + sum(values['Received_week'])
+                    productivity_data['Completed'] = sum(values['Completed'])
+                    
+                    for prod_key, prod_values in productivity_data.iteritems():
+                        if final_productivity.has_key(prod_key):
+                            final_productivity[prod_key].append(prod_values)
                         else:
-                            final_productivity[vol_key] = [vol_values]
+                            final_productivity[prod_key] = [prod_values]
 
-                for prod_key, prod_values in final_productivity.iteritems():
-                    if prod_key not in productivity_list[prod_week_num].keys():
-                        final_productivity[prod_key].append(0)
+                    for prod_key, prod_values in final_productivity.iteritems():
+                        if prod_key not in productivity_list[prod_week_num].keys():
+                            final_productivity[prod_key].append(0)
+                else:
+                    final_productivity['Completed'] = [0]
+                    final_productivity['Received'] = [0]
+                        
             else:
-                values['Received'] = values['Received'] + values['Opening'][0]
-                values['Completed'] = values['Completed']
-                productivity_data.update(values)
-                for vol_key,vol_values in productivity_data.iteritems():
-                    if final_productivity.has_key(vol_key):
-                        final_productivity[vol_key].append(vol_values)
-                    else:
-                        final_productivity[vol_key] = [vol_values]
+                for vol_key in productivity_list[prod_week_num].keys():
+                    if vol_key != 'Opening':
+                        final_productivity[vol_key].append(0)              
         else:
-            for vol_key, vol_values in final_productivity.iteritems():
-                final_productivity[vol_key].append(0)
-    if final_productivity.has_key('Opening'):
-        del final_productivity['Opening']
-        del final_productivity['Non Workable Count']
-        del final_productivity['Closing balance']
-    else:
-        final_productivity = final_productivity
+            final_productivity['Completed'] = [0]
+            final_productivity['Received'] = [0]    
+    
     return final_productivity
+
 
 
 def prod_volume_prescan_week_util(week_names,productivity_list,final_productivity):

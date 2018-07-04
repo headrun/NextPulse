@@ -58,8 +58,9 @@
 
                     }
                 });  
-             }); 
+             });            
 
+             
              self.annotations_data = {};
 
              self.add_loader = function() {
@@ -219,6 +220,21 @@
                 $('.widget17b').addClass('widget-data-hide');
 
                });
+
+                
+                $('#date-selector').daterangepicker({
+                    'autoApply':true,
+                }, function(start, end){
+                  $('#date-selector-modal').slideUp(400);
+                  $('.modal-backdrop').remove();
+                  self.start_date = start.format('YYYY-MM-DD');
+                  self.end_date = end.format('YYYY-MM-DD');
+                  var today_date = new Date();
+                  today_date = today_date.getMonth()+1+'/'+today_date.getDate()+'/'+today_date.getFullYear();
+                  $('#date-selector').data('daterangepicker').setStartDate(today_date);
+                  $('#date-selector').data('daterangepicker').setEndDate(today_date);
+                  window.open('/js/page1/sample.html?widget_data='+self.static_widget_data+'&from='+self.start_date+'&to='+self.end_date);
+                });
 
             //Voice Type User
             self.filter_list = ['location', 'skill', 'disposition', 'call_status', 'cate_dispo_inbound', 'outbound_dispo_cate', 'outbound_disposition', 'outbnd_dispo_common', 'inbnd_utilization', 'outbnd_utilization', 'inbnd_occupancy', 'outbnd_occupancy', 'inbound_productivity', 'outbound_productivity', 'utilization', 'occupancy', 'agent_productivity_data', 'agent_required'];
@@ -392,7 +408,7 @@
                       $http({method: "GET", url: self.pro_landing_url}).success(function(result){
 
                         self.role_for_perm = result.result.role;
-
+                        
                       });
                     }
 
@@ -495,10 +511,45 @@
                                     var value = false;
                                 }
 
-                                var graph_name = 'self.chartOptions17';
+                                if (self.list_object.volume_bar_graph != undefined) {
+
+                                    if(self.list_object.volume_bar_graph.legends_align == 'bottom') {
+                                    
+                                        var align = 'center';
+                                        var ver_align = 'bottom';
+                                        var layout = 'horizontal';
+
+                                    }
+
+                                    else if(self.list_object.volume_bar_graph.legends_align == 'left'){
+
+                                        var align = 'left';
+                                        var ver_align = 'top';
+                                        var layout = 'vertical';
+                                    }
+
+                                    else {
+                                        var align = 'right';
+                                        var ver_align = 'top';
+                                        var layout = 'vertical';
+                                    }
+                                }
+
+                                else {
+                                    var align = 'center';
+                                    var ver_align = 'bottom';
+                                    var layout = 'horizontal';
+                                }
+
+                                
                                 angular.extend(self.chartOptions17, {
                                     xAxis: {
                                         categories: date_list,
+                                    },
+                                    legend: {
+                                        align: align,
+                                        verticalAlign:ver_align,
+                                        layout: layout
                                     },
                                     plotOptions: {
                                         series: {
@@ -620,10 +671,44 @@
                                 else {
                                     var value = false;
                                 }
-                                var graph_name = "self.chartOptions18";
+                                if (self.list_object.volume_productivity_graph != undefined) {
+
+                                    if(self.list_object.volume_productivity_graph.legends_align == 'bottom') {
+                                    
+                                        var align = 'center';
+                                        var ver_align = 'bottom';
+                                        var layout = 'horizontal';
+                                
+                                    }
+                                
+                                    else if(self.list_object.volume_bar_graph.legends_align == 'left'){
+                                
+                                        var align ='left';
+                                        var ver_align = 'top';
+                                        var layout = 'vertical';
+                                    }
+                                
+                                    else {
+                                        var align = 'right';
+                                        var ver_align = 'top';
+                                        var layout = 'vertical';
+                                    }
+                                }
+                                
+                                else {
+                                    var align = 'center';
+                                    var ver_align = 'bottom';
+                                    var layout = 'horizontal';
+                                }
+                                
                                 angular.extend(self.chartOptions18, {
                                     xAxis: {
                                         categories: date_list,
+                                    },
+                                    legend: {
+                                        align: align,
+                                        verticalAlign:ver_align,
+                                        layout: layout
                                     },
                                     plotOptions: {
                                         series: {
@@ -792,11 +877,46 @@
 
                                     var value = false;
                                 }
+                                if (self.list_object.operational_utilization != undefined) {
+
+                                    if(self.list_object.operational_utilization.legends_align == 'bottom') {
+                                    
+                                        var align = 'center';
+                                        var ver_align = 'bottom';
+                                        var layout = 'horizontal';
+                                
+                                    }
+                                
+                                    else if(self.list_object.operational_utilization.legends_align == 'left'){
+                                
+                                        var align ='left';
+                                        var ver_align = 'top';
+                                        var layout = 'vertical';
+                                    }
+                                
+                                    else {
+                                        var align = 'right';
+                                        var ver_align = 'top';
+                                        var layout = 'vertical';
+                                    }
+                                }
+                                
+                                else {
+                                    var align = 'center';
+                                    var ver_align = 'bottom';
+                                    var layout = 'horizontal';
+                                }
 
                                 angular.extend(self.chartOptions25, {
                                     xAxis: {
                                         categories: date_list,
                                     },
+                                    legend: {
+                                        align: align,
+                                        verticalAlign:ver_align,
+                                        layout: layout
+                                    },
+                            
                                     plotOptions: {
                                         series: {
                                           dataLabels: {
@@ -890,11 +1010,46 @@
 
                                     var value = false;
                                 }
+                            if (self.list_object.fte_utilization != undefined) {
+
+                                    if(self.list_object.fte_utilization.legends_align == 'bottom') {
+                                    
+                                        var align = 'center';
+                                        var ver_align = 'bottom';
+                                        var layout = 'horizontal';
+                                
+                                    }
+                                
+                                    else if(self.list_object.fte_utilization.legends_align == 'left'){
+                                
+                                        var align ='left';
+                                        var ver_align = 'top';
+                                        var layout = 'vertical';
+                                    }
+                                
+                                    else {
+                                        var align = 'right';
+                                        var ver_align = 'top';
+                                        var layout = 'vertical';
+                                    }
+                                }
+                                
+                                else {
+                                    var align = 'center';
+                                    var ver_align = 'bottom';
+                                    var layout = 'horizontal';
+                                }
 
                                 angular.extend(self.chartOptions24, {
                                     xAxis: {
                                         categories: date_list,
                                     },
+                                    legend: {
+                                        align: align,
+                                        verticalAlign:ver_align,
+                                        layout: layout
+                                    },
+                            
                                     plotOptions: {
                                         series: {
                                           dataLabels: {
@@ -985,9 +1140,43 @@
                                 else {
                                     var value = false;
                                 }
+                                if (self.list_object.utilisation_wrt_work_packet != undefined) {
+
+                                    if(self.list_object.utilisation_wrt_work_packet.legends_align == 'bottom') {
+                                    
+                                        var align = 'center';
+                                        var ver_align = 'bottom';
+                                        var layout = 'horizontal';
+                                
+                                    }
+                                
+                                    else if(self.list_object.utilisation_wrt_work_packet.legends_align == 'left'){
+                                
+                                        var align ='left';
+                                        var ver_align = 'top';
+                                        var layout = 'vertical';
+                                    }
+                                
+                                    else {
+                                        var align = 'right';
+                                        var ver_align = 'top';
+                                        var layout = 'vertical';
+                                    }
+                                }
+                                
+                                else {
+                                    var align = 'center';
+                                    var ver_align = 'bottom';
+                                    var layout = 'horizontal';
+                                }
                                 angular.extend(self.chartOptions15, {
                                     xAxis: {
                                         categories: date_list,
+                                    },
+                                    legend: {
+                                        align: align,
+                                        verticalAlign:ver_align,
+                                        layout: layout
                                     },
                                      plotOptions: {
                                      series: {
@@ -1101,10 +1290,44 @@
                             else {
                                 var value = false;
                             }
+                            if (self.list_object.productivity_trends != undefined) {
+
+                                if(self.list_object.productivity_trends.legends_align == 'bottom') {
+                                
+                                    var align = 'center';
+                                    var ver_align = 'bottom';
+                                    var layout = 'horizontal';
+                            
+                                }
+                            
+                                else if(self.list_object.productivity_trends.legends_align == 'left'){
+                            
+                                    var align ='left';
+                                    var ver_align = 'top';
+                                    var layout = 'vertical';
+                                }
+                            
+                                else {
+                                    var align = 'right';
+                                    var ver_align = 'top';
+                                    var layout = 'vertical';
+                                }
+                            }
+                            
+                            else {
+                                var align = 'center';
+                                var ver_align = 'bottom';
+                                var layout = 'horizontal';
+                            }
 
                             angular.extend(self.chartOptions19, {
                                 xAxis: {
                                     categories: date_list,
+                                },
+                                legend: {
+                                    align: align,
+                                    verticalAlign:ver_align,
+                                    layout: layout
                                 },
                                     plotOptions: {
                                         series: {
@@ -1243,10 +1466,43 @@
                             else {
                                 var value = false;
                             }
+                            if (self.list_object.production_avg_perday != undefined) {
+
+                                if(self.list_object.production_avg_perday.legends_align == 'bottom') {
+                                
+                                    var align = 'center';
+                                    var ver_align = 'bottom';
+                                    var layout = 'horizontal';
                             
+                                }
+                            
+                                else if(self.list_object.production_avg_perday.legends_align == 'left'){
+                            
+                                    var align ='left';
+                                    var ver_align = 'top';
+                                    var layout = 'vertical';
+                                }
+                            
+                                else {
+                                    var align = 'right';
+                                    var ver_align = 'top';
+                                    var layout = 'vertical';
+                                }
+                            }
+                            
+                            else {
+                                var align = 'center';
+                                var ver_align = 'bottom';
+                                var layout = 'horizontal';
+                            }
                            angular.extend(self.chartOptions38, {
                                 xAxis: {
                                     categories: date_list,
+                                },
+                                legend: {
+                                    align: align,
+                                    verticalAlign:ver_align,
+                                    layout: layout
                                 },
                                 plotOptions: {
                                     series: {
@@ -1385,6 +1641,35 @@
                                 
                                 var value = false
                             }
+                            if (self.list_object.tat_graph != undefined) {
+
+                                if(self.list_object.tat_graph.legends_align == 'bottom') {
+                                
+                                    var align = 'center';
+                                    var ver_align = 'bottom';
+                                    var layout = 'horizontal';
+                            
+                                }
+                            
+                                else if(self.list_object.tat_graph.legends_align == 'left'){
+                            
+                                    var align ='left';
+                                    var ver_align = 'top';
+                                    var layout = 'vertical';
+                                }
+                            
+                                else {
+                                    var align = 'right';
+                                    var ver_align = 'top';
+                                    var layout = 'vertical';
+                                }
+                            }
+                            
+                            else {
+                                var align = 'center';
+                                var ver_align = 'bottom';
+                                var layout = 'horizontal';
+                            }
 
                             angular.extend(self.chartOptions31.yAxis,{
                                min:result.result.min_max.min_value,
@@ -1395,6 +1680,11 @@
                                 xAxis: {
                                     categories: date_list,
                                 },
+                                legend: {
+                                    align: align,
+                                    verticalAlign:ver_align,
+                                    layout: layout
+                                },                        
                                 plotOptions: {
                                     series: {
                                         dataLabels: {
@@ -1534,7 +1824,35 @@
      
                                 var value = false
                             }
+                            if (self.list_object.aht_team_grpah != undefined) {
 
+                                if(self.list_object.aht_team_grpah.legends_align == 'bottom') {
+                                
+                                    var align = 'center';
+                                    var ver_align = 'bottom';
+                                    var layout = 'horizontal';
+                            
+                                }
+                            
+                                else if(self.list_object.aht_team_grpah.legends_align == 'left'){
+                            
+                                    var align ='left';
+                                    var ver_align = 'top';
+                                    var layout = 'vertical';
+                                }
+                            
+                                else {
+                                    var align = 'right';
+                                    var ver_align = 'top';
+                                    var layout = 'vertical';
+                                }
+                            }
+                            
+                            else {
+                                var align = 'center';
+                                var ver_align = 'bottom';
+                                var layout = 'horizontal';
+                            }
                             angular.extend(self.chartOptions65.yAxis,{
                                min:result.result.min_max.min_value,
                                max:result.result.min_max.max_value
@@ -1544,6 +1862,12 @@
                                 xAxis: {
                                     categories: date_list,
                                 },
+                                legend: {
+                                    align: align,
+                                    verticalAlign:ver_align,
+                                    layout: layout
+                                },
+                        
                                 plotOptions: {
                                     series: {
                                         dataLabels: {
@@ -1683,10 +2007,45 @@
                                 var value = false;
                             }
 
+                            if (self.list_object.monthly_volume_widget != undefined) {
+
+                                if(self.list_object.monthly_volume_widget.legends_align == 'bottom') {
+                                
+                                    var align = 'center';
+                                    var ver_align = 'bottom';
+                                    var layout = 'horizontal';
+                            
+                                }
+                            
+                                else if(self.list_object.monthly_volume_widget.legends_align == 'left'){
+                            
+                                    var align ='left';
+                                    var ver_align = 'top';
+                                    var layout = 'vertical';
+                                }
+                            
+                                else {
+                                    var align = 'right';
+                                    var ver_align = 'top';
+                                    var layout = 'vertical';
+                                }
+                            }
+                            
+                            else {
+                                var align = 'center';
+                                var ver_align = 'bottom';
+                                var layout = 'horizontal';
+                            }
+
                             angular.extend(self.chartOptions26, {
                                 xAxis: {
                                     categories: date_list,
                                 },
+                                legend: {
+                                    align: align,
+                                    verticalAlign:ver_align,
+                                    layout: layout
+                                },                                
                                     plotOptions: {
                                         series: {
                                         dataLabels: {
@@ -1854,15 +2213,50 @@
                                 else {
                                     var value = false;
                                 }
+                                 
+                                if (self.list_object.total_fte != undefined) {
+
+                                    if(self.list_object.total_fte.legends_align == 'bottom') {
+                                    
+                                        var align = 'center';
+                                        var ver_align = 'bottom';
+                                        var layout = 'horizontal';
+                                
+                                    }
+                                
+                                    else if(self.list_object.total_fte.legends_align == 'left'){
+                                
+                                        var align ='left';
+                                        var ver_align = 'top';
+                                        var layout = 'vertical';
+                                    }
+                                
+                                    else {
+                                        var align = 'right';
+                                        var ver_align = 'top';
+                                        var layout = 'vertical';
+                                    }
+                                }
+                                
+                                else {
+                                    var align = 'center';
+                                    var ver_align = 'bottom';
+                                    var layout = 'horizontal';
+                                }
 
                                 angular.extend(self.chartOptions16, {
                                     xAxis: {
                                         categories: date_list,
                                     },
+                                    legend: {
+                                        align: align,
+                                        verticalAlign:ver_align,
+                                        layout: layout
+                                    },
                                     plotOptions: {
                                         series: {
                                             label: {
-                                                connectorAllowed: true
+                                                connectorAllowed: false
                                             },
                                         dataLabels: {
                                             enabled: value,
@@ -1980,9 +2374,43 @@
                                     var value = false;
                                 }
 
+                            if (self.list_object.sum_total_fte != undefined) {
+
+                                if(self.list_object.sum_total_fte.legends_align == 'bottom') {
+                                
+                                    var align = 'center';
+                                    var ver_align = 'bottom';
+                                    var layout = 'horizontal';
+                            
+                                }
+                            
+                                else if(self.list_object.sum_total_fte.legends_align == 'left'){
+                            
+                                    var align ='left';
+                                    var ver_align = 'top';
+                                    var layout = 'vertical';
+                                }
+                            
+                                else {
+                                    var align = 'right';
+                                    var ver_align = 'top';
+                                    var layout = 'vertical';
+                                }
+                            }
+                            
+                            else {
+                                var align = 'center';
+                                var ver_align = 'bottom';
+                                var layout = 'horizontal';
+                            }
                                 angular.extend(self.chartOptions16_2, {
                                     xAxis: {
                                         categories: date_list,
+                                    },
+                                    legend: {
+                                        align: align,
+                                        verticalAlign:ver_align,
+                                        layout: layout
                                     },
                                     plotOptions: {
                                         series: {
@@ -2125,10 +2553,49 @@
                                 else {
                                     var value = false;
                                 }
+                                if (self.list_object.productivity_bar_graph != undefined) {
+
+                                    if(self.list_object.productivity_bar_graph.legends_align == 'bottom') {
+                                    
+                                        var align = 'center';
+                                        var ver_align = 'bottom';
+                                        var layout = 'horizontal';
+                                
+                                    }
+                                
+                                    else if(self.list_object.productivity_bar_graph.legends_align == 'left'){
+                                
+                                        var align ='left';
+                                        var ver_align = 'top';
+                                        var layout = 'vertical';
+                                    }
+                                
+                                    else {
+                                        var align = 'right';
+                                        var ver_align = 'top';
+                                        var layout = 'vertical';
+                                    }
+                                }
+                                
+                                else {
+                                    var align = 'center';
+                                    var ver_align = 'bottom';
+                                    var layout = 'horizontal';
+                                }
+
+
                                 angular.extend(self.chartOptions10, {
+                                   chart:{
+                                        type:'column',                                        
+                                   },
                                    xAxis: {
                                         categories: date_list,
                                     },
+                                    legend: {                                        
+                                        align: align,
+                                        verticalAlign:ver_align,
+                                        layout: layout
+                                    },                                    
                                     plotOptions: {
                                         series: {
                                           dataLabels: {
@@ -2173,22 +2640,26 @@
                                                     var name = this.name;
                                                     var visibility = this.visible;
                                                     var chart_name = self._main_prod;
-                                                    self._value.forEach(function(value_data){
-                                                        value_data.redraw(name, visibility);
-                                                    });                                                    
-                                                    if (chart_name.indexOf(name) >= 0) {
+                                                    if (self._value) {
+                                                      if (chart_name.indexOf(name) >= 0) {
+                                                        self._value.forEach(function(value_data){
+                                                          value_data.redraw(name, visibility);
+                                                        });                                                    
                                                         $(document).find('.widget-6a').children(".widget-6b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 0);
+                                                      }
                                                     }
                                                 },
                                                 show: function() {
                                                     var name = this.name;
                                                     var visibility = this.visible;
                                                     var chart_name = self._main_prod;
-                                                    self._value.forEach(function(value_data){
-                                                        value_data.redraw(name, visibility);
-                                                    });                                                    
-                                                    if (chart_name.indexOf(name) >= 0) {
+                                                    if (self._value) {
+                                                      if (chart_name.indexOf(name) >= 0) {
+                                                        self._value.forEach(function(value_data){
+                                                          value_data.redraw(name, visibility);
+                                                        });                                                                                                            
                                                         $(document).find('.widget-6a').children(".widget-6b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 1);
+                                                      }
                                                     }
                                                 }
                                             }
@@ -2250,10 +2721,46 @@
                                     var value = false;
                                 }
 
+                                if (self.list_object.productivity_chart != undefined) {
+
+                                    if(self.list_object.productivity_chart.legends_align == 'bottom') {
+                                    
+                                        var align = 'center';
+                                        var ver_align = 'bottom';
+                                        var layout = 'horizontal';
+                                
+                                    }
+                                
+                                    else if(self.list_object.productivity_chart.legends_align == 'left'){
+                                
+                                        var align ='left';
+                                        var ver_align = 'top';
+                                        var layout = 'vertical';
+                                    }
+                                
+                                    else {
+                                        var align = 'right';
+                                        var ver_align = 'top';
+                                        var layout = 'vertical';
+                                    }
+                                }
+                                
+                                else {
+                                    var align = 'center';
+                                    var ver_align = 'bottom';
+                                    var layout = 'horizontal';
+                                }
+
                                 angular.extend(self.chartOptions, {
                                    xAxis: {
                                         categories: date_list,
                                     },
+                                    legend: {
+                                        align: align,
+                                        verticalAlign:ver_align,
+                                        layout: layout
+                                    },
+                            
                                     plotOptions: {
                                         series: {
                                             dataLabels: {
@@ -2294,26 +2801,30 @@
                                          },
                                          events: {
                                                 hide: function() {
-                                                    var name = this.name;
-                                                    var visibility = this.visible;
-                                                    var chart_name = self._main_prod_line;
-                                                    self.anno_data.forEach(function(value_data){
-                                                        value_data.redraw(name, visibility);
-                                                    });                                                    
-                                                    if (chart_name.indexOf(name) >= 0) {
-                                                        $(document).find('.widget-1a').children(".widget-1b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 0);
-                                                    }
+                                                      var name = this.name;
+                                                      var visibility = this.visible;
+                                                      var chart_name = self._main_prod_line;
+                                                      if (self.anno_data) {
+                                                        if (chart_name.indexOf(name) >= 0) {
+                                                          self.anno_data.forEach(function(value_data){
+                                                              value_data.redraw(name, visibility);
+                                                          });                                                    
+                                                          $(document).find('.widget-1a').children(".widget-1b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 0);
+                                                        }
+                                                      }
                                                 },
-                                                show: function() {
-                                                    var name = this.name;
-                                                    var visibility = this.visible;
-                                                    var chart_name = self._main_prod_line;
-                                                    self.anno_data.forEach(function(value_data){
-                                                        value_data.redraw(name, visibility);
-                                                    });                                                    
-                                                    if (chart_name.indexOf(name) >= 0) {
-                                                        $(document).find('.widget-1a').children(".widget-1b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 1);
-                                                    }
+                                                show: function() {    
+                                                      var name = this.name;
+                                                      var visibility = this.visible;
+                                                      var chart_name = self._main_prod_line;
+                                                      if (self.anno_data) {
+                                                        if (chart_name.indexOf(name) >= 0) {
+                                                          self.anno_data.forEach(function(value_data){
+                                                            value_data.redraw(name, visibility);
+                                                          });                                                    
+                                                          $(document).find('.widget-1a').children(".widget-1b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 1);
+                                                        }
+                                                      }
                                                 }
                                             }
                                         }
@@ -2852,7 +3363,7 @@
                             var performance_summary = '/api/performance_summary/'+self.data_to_show + type + final_work+"&key_from_date="+date_key[0]+"&key_to_date="+date_key[1];   
                         }
 
-                        console.log(self.data_to_show)
+                        
                         self.type = type;
 
                         
@@ -3000,468 +3511,7 @@
                         });
                     }
 
-                    function isEmpty(obj){
-                        for (var key in obj){
-                            if(obj.hasOwnProperty(key)){
-                                return false;
-                            }
-                        }
-                        return true;
-                    }
-                    self.static_internal_external_agent_error_data = function(){
-                        var error_data = '/api/employees_top_5_errors/?'+self.static_widget_data;
-                        return $http({method:"GET", url: error_data }).success(function(result){
-                            if(isEmpty(result['result'].thirty_days_data.internalerrors)&&isEmpty(result['result'].sixty_days_data.internalerrors)&&isEmpty(result['result'].ninty_days_data.internalerrors)){
-                                var table_html = '<div style="margin-top:100px;margin-left:250px; font-size:11px; color:#5b5b5b; font-weight:bold;"><span>No data to display</span></div>';
-                                $(".widget-66b highcharts").remove();
-                                $('.widget-66b').css('overflow','auto');
-                                var $el = $(table_html).appendTo(".widget-body.widget-66b");
-                                $compile($el)($scope);                            
-                                $('.widget-66a').removeClass('widget-loader-show');
-                                $('.widget-66b').removeClass('widget-data-hide');
 
-                            }else{
-                                $('.widget-66a').addClass('widget-loader-show');
-                                $('.widget-66b').addClass('widget-data-hide');
-                                $("#widget-66-agent-error").remove();
-                                var thirty_days_internal_agent_data = result['result'].thirty_days_data.internalerrors;
-                                var sixty_days_internal_agent_data = result['result'].sixty_days_data.internalerrors;
-                                var ninty_days_internal_agent_data = result['result'].ninty_days_data.internalerrors;
-                                var table_html = "<div id='widget-66-agent-error' class='table-responsive-sm' ><table border=1px class='table table-condensed' style='text-align-last: center'><thead><tr class='success'><th colspan='2'>30 Days</th><th colspan='2'>60 Days</th><th  colspan='2'>90 Days</th></tr></thead><tr><thead><th>Agent</th><th>Errors</th><th>Agent</th><th>Errors</th><th>Agent</th><th>Errors</th>";
-
-                                // sorting the thirty days data in descending order
-                                var thirty_days_internal_error = []
-                                for(var key in thirty_days_internal_agent_data){
-                                    thirty_days_internal_error.push([key, thirty_days_internal_agent_data[key]]);
-                                }
-                                thirty_days_internal_error.sort(function(a, b){
-                                    return a[1] - b[1];
-                                });
-                                thirty_days_internal_error = thirty_days_internal_error.reverse();
-
-                                // sorting the sixty days data in descending order
-                                var sixty_days_internal_error = []
-                                for(var key in sixty_days_internal_agent_data){
-                                    sixty_days_internal_error.push([key, sixty_days_internal_agent_data[key]]);
-                                }
-                                sixty_days_internal_error.sort(function(a, b){
-                                    return a[1] - b[1];
-                                });
-                                sixty_days_internal_error = sixty_days_internal_error.reverse();
-
-                                // sorting the ninty days data in descending order
-                                var ninty_days_internal_error = []
-                                for(var key in ninty_days_internal_agent_data){
-                                    ninty_days_internal_error.push([key, ninty_days_internal_agent_data[key]]);
-                                }
-                                ninty_days_internal_error.sort(function(a, b){
-                                    return a[1] - b[1];
-                                });
-                                ninty_days_internal_error = ninty_days_internal_error.reverse();
-
-                                var rows = ['', '', '', '', ''];
-                                var total_agent_errors = [thirty_days_internal_error, sixty_days_internal_error, ninty_days_internal_error];
-
-                                for(var k = 0; k < total_agent_errors.length; k++){
-                                    for(var i = 0; i<total_agent_errors[k].length; i++){
-                                        for(var j = 0; j<1;j++){
-                                            rows[i]+="<td>"+total_agent_errors[k][i][j]+"</td><td>"+total_agent_errors[k][i][j+1]+"</td>";
-                                        }
-                                    }
-                                }
-
-                                for(var i = 0; i<rows.length; i++){
-                                    table_html+= "<tr>"+rows[i]+"</tr>";
-                                }
-
-                                table_html+"</table></div>";
-
-                                
-                                $(".widget-66b highcharts").remove();
-                                $('.widget-66b').css('overflow','auto');
-                                var $el = $(table_html).appendTo(".widget-body.widget-66b");
-                                $compile($el)($scope);                            
-                                $('.widget-66a').removeClass('widget-loader-show');
-                                $('.widget-66b').removeClass('widget-data-hide');
-                            }
-                        
-                            
-
-                            // ===================For External Errors =========================
-
-                            if(isEmpty(result['result'].thirty_days_data.externalerrors)&&isEmpty(result['result'].sixty_days_data.externalerrors)&&isEmpty(result['result'].ninty_days_data.externalerrors)){
-                                    var table_html;
-                                    $(".widget-67b highcharts").remove();
-                                    $('.widget-67b').css('overflow','auto');
-                                    var $el = $(table_html).appendTo(".widget-body.widget-67b");
-                                    $compile($el)($scope);                            
-                                    $('.widget-67a').removeClass('widget-loader-show');
-                                    $('.widget-67b').removeClass('widget-data-hide');
-
-                            }else{
-                                $('.widget-67a').addClass('widget-loader-show');
-                                $('.widget-67b').addClass('widget-data-hide');
-                                $("#widget-67-agent-error").remove();
-                                var thirty_days_external_agent_data = result['result'].thirty_days_data.externalerrors;
-                                var sixty_days_external_agent_data = result['result'].sixty_days_data.externalerrors;
-                                var ninty_days_external_agent_data = result['result'].ninty_days_data.externalerrors;
-                                var table_html = "<div id='widget-67-agent-error' class='table-responsive-sm' ><table border=1px class='table table-condensed' style='text-align-last: center'><thead><tr class='success'><th colspan='2'>30 Days</th><th colspan='2'>60 Days</th><th  colspan='2'>90 Days</th></tr></thead><tr><thead><th>Agent</th><th>Errors</th><th>Agent</th><th>Errors</th><th>Agent</th><th>Errors</th>";
-
-                                // sorting the thirty days data in descending order
-                                var thirty_days_external_error = []
-                                for(var key in thirty_days_external_agent_data){
-                                    thirty_days_external_error.push([key, thirty_days_external_agent_data[key]]);
-                                }
-                                
-                                thirty_days_external_error.sort(function(a, b){
-                                    return a[1] - b[1];
-                                });
-                                thirty_days_external_error = thirty_days_external_error.reverse();
-
-                                // sorting the sixty days data in descending order
-                                var sixty_days_external_error = []
-                                for(var key in sixty_days_external_agent_data){
-                                    sixty_days_external_error.push([key, sixty_days_external_agent_data[key]]);
-                                }
-                                sixty_days_external_error.sort(function(a, b){
-                                    return a[1] - b[1];
-                                });
-                                sixty_days_external_error = sixty_days_external_error.reverse();
-
-                                // sorting the ninty days data in descending order
-                                var ninty_days_external_error = []
-                                for(var key in ninty_days_external_agent_data){
-                                    ninty_days_external_error.push([key, ninty_days_external_agent_data[key]]);
-                                }
-                                ninty_days_external_error.sort(function(a, b){
-                                    return a[1] - b[1];
-                                });
-                                ninty_days_external_error = ninty_days_external_error.reverse();
-
-                                var rows = ['', '', '', '', ''];
-                                var total_agent_errors = [thirty_days_external_error, sixty_days_external_error, ninty_days_external_error];
-
-                                for(var k = 0; k < total_agent_errors.length; k++){
-                                    for(var i = 0; i<total_agent_errors[k].length; i++){
-                                        for(var j = 0; j<1;j++){
-                                            rows[i]+="<td>"+total_agent_errors[k][i][j]+"</td><td>"+total_agent_errors[k][i][j+1]+"</td>";
-                                        }
-                                    }
-                                }
-
-                                for(var i = 0; i<rows.length; i++){
-                                    table_html+= "<tr>"+rows[i]+"</tr>";
-                                }
-
-                                table_html+"</table></div>";
-                                $(".widget-67b highcharts").remove()
-                                $('.widget-67b').css('overflow','auto');
-                                var $el = $(table_html).appendTo(".widget-body.widget-67b");
-                                $compile($el)($scope);
-                                
-                                $('.widget-67a').removeClass('widget-loader-show');
-                                $('.widget-67b').removeClass('widget-data-hide');
-
-                            }
-                        });
-                    }
-
-                    self.static_internal_external_error_category = function(){
-                        var error_category = '/api/static_internal_external_error_category/?'+self.static_widget_data;
-                        return $http({method:"GET", url: error_category }).success(function(result){
-                            if(isEmpty(result['result'].thirty_days.internalerrors) && isEmpty(result['result'].sixty_days.internalerrors)&& isEmpty(result['result'].ninty_days.internalerrors)){
-
-                                var table_html = '<div style="margin-top:100px;margin-left:250px; font-size:11px; color:#5b5b5b; font-weight:bold;"><span>No data to display</span></div>';
-                                $(".widget-68b highcharts").remove();
-                                $('.widget-68b').css('overflow','auto');
-                                var $el = $(table_html).appendTo(".widget-body.widget-68b");
-                                $compile($el)($scope);                            
-                                $('.widget-68a').removeClass('widget-loader-show');
-                                $('.widget-68b').removeClass('widget-data-hide');
-
-                            }else{
-                                $('.widget-68a').addClass('widget-loader-show');
-                                $('.widget-68b').addClass('widget-data-hide');
-                                $("#widget-68--error-category").remove();
-                                var thirty_days_internal_error_category = result['result'].thirty_days.internalerrors;
-                                var sixty_days_internal_error_category = result['result'].sixty_days.internalerrors;
-                                var ninty_days_internal_error_category = result['result'].ninty_days.internalerrors;
-                                var table_html = "<div id='widget-68--error-category' class='table-responsive-sm' ><table border=1px class='table table-condensed' style='text-align-last: center'><thead><tr class='success'><th colspan='2'>30 Days</th><th colspan='2'>60 Days</th><th  colspan='2'>90 Days</th></tr></thead><tr><thead><th>Error Type</th><th>Errors</th><th>Error Type</th><th>Errors</th><th>Error Type</th><th>Errors</th>";
-
-                            // sorting the thirty days data in descending order
-                                var thirty_days_internal_error = []
-                                for(var key in thirty_days_internal_error_category){
-                                    thirty_days_internal_error.push([key, thirty_days_internal_error_category[key]]);
-                                }
-                                thirty_days_internal_error.sort(function(a, b){
-                                    return a[1] - b[1];
-                                });
-                                thirty_days_internal_error = thirty_days_internal_error.reverse();
-
-                                // sorting the sixty days data in descending order
-                                var sixty_days_internal_error = []
-                                for(var key in sixty_days_internal_error_category){
-                                    sixty_days_internal_error.push([key, sixty_days_internal_error_category[key]]);
-                                }
-                                sixty_days_internal_error.sort(function(a, b){
-                                    return a[1] - b[1];
-                                });
-                                sixty_days_internal_error = sixty_days_internal_error.reverse();
-
-                                // sorting the ninty days data in descending order
-                                var ninty_days_internal_error = []
-                                for(var key in ninty_days_internal_error_category){
-                                    ninty_days_internal_error.push([key, ninty_days_internal_error_category[key]]);
-                                }
-                                ninty_days_internal_error.sort(function(a, b){
-                                    return a[1] - b[1];
-                                });
-                                ninty_days_internal_error = ninty_days_internal_error.reverse();
-
-                                var rows = ['', '', '', '', ''];
-                                var total_agent_errors = [thirty_days_internal_error, sixty_days_internal_error, ninty_days_internal_error];
-
-                                for(var k = 0; k < total_agent_errors.length; k++){
-                                    for(var i = 0; i<total_agent_errors[k].length; i++){
-                                        for(var j = 0; j<1;j++){
-                                            rows[i]+="<td>"+total_agent_errors[k][i][j]+"</td><td>"+total_agent_errors[k][i][j+1]+"</td>";
-                                        }
-                                    }
-                                }
-
-                                for(var i = 0; i<rows.length; i++){
-                                    table_html+= "<tr>"+rows[i]+"</tr>";
-                                }
-
-                                table_html+"</table></div>";
-
-                                
-                                $(".widget-68b highcharts").remove();
-                                $('.widget-68b').css('overflow','auto');
-                                var $el = $(table_html).appendTo(".widget-body.widget-68b");
-                                $compile($el)($scope);                            
-                                $('.widget-68a').removeClass('widget-loader-show');
-                                $('.widget-68b').removeClass('widget-data-hide');
-                            }
-                        
-                            
-
-                            // ===================For External Errors =========================
-
-                            if(isEmpty(result['result'].thirty_days.externalerrors)&&isEmpty(result['result'].sixty_days.externalerrors)&&isEmpty(result['result'].ninty_days.externalerrors)){
-                                var table_html = '<div style="margin-top:100px;margin-left:250px; font-size:11px; color:#5b5b5b; font-weight:bold;"><span>No data to display</span></div>';
-                                $(".widget-69b highcharts").remove();
-                                $('.widget-69b').css('overflow','auto');
-                                var $el = $(table_html).appendTo(".widget-body.widget-69b");
-                                $compile($el)($scope);                            
-                                $('.widget-69a').removeClass('widget-loader-show');
-                                $('.widget-69b').removeClass('widget-data-hide');
-                            }else{
-                                $('.widget-69a').addClass('widget-loader-show');
-                                $('.widget-69b').addClass('widget-data-hide');
-                                $("#widget-69-error-category").remove();
-                                var thirty_days_external_error_category = result['result'].thirty_days.externalerrors;
-                                var sixty_days_external_error_category = result['result'].sixty_days.externalerrors;
-                                var ninty_days_external_error_category = result['result'].ninty_days.externalerrors;
-                                var table_html = "<div id='widget-69-error-category' class='table-responsive-sm' ><table border=1px class='table table-condensed' style='text-align-last: center'><thead><tr class='success'><th colspan='2'>30 Days</th><th colspan='2'>60 Days</th><th  colspan='2'>90 Days</th></tr></thead><tr><thead><th>Error Type</th><th>Errors</th><th>Error Type</th><th>Errors</th><th>Error Type</th><th>Errors</th>";
-
-                                // sorting the thirty days data in descending order
-                                var thirty_days_external_error = []
-                                for(var key in thirty_days_external_error_category){
-                                    thirty_days_external_error.push([key, thirty_days_external_error_category[key]]);
-                                }
-                              
-                                thirty_days_external_error.sort(function(a, b){
-                                    return a[1] - b[1];
-                                });
-                                thirty_days_external_error = thirty_days_external_error.reverse();
-
-                                // sorting the sixty days data in descending order
-                                var sixty_days_external_error = []
-                                for(var key in sixty_days_external_error_category){
-                                    sixty_days_external_error.push([key, sixty_days_external_error_category[key]]);
-                                }
-                                sixty_days_external_error.sort(function(a, b){
-                                    return a[1] - b[1];
-                                });
-                                sixty_days_external_error = sixty_days_external_error.reverse();
-
-                                // sorting the ninty days data in descending order
-                                var ninty_days_external_error = []
-                                for(var key in ninty_days_external_error_category){
-                                    ninty_days_external_error.push([key, ninty_days_external_error_category[key]]);
-                                }
-                                ninty_days_external_error.sort(function(a, b){
-                                    return a[1] - b[1];
-                                });
-                                ninty_days_external_error = ninty_days_external_error.reverse();
-
-                                var rows = ['', '', '', '', ''];
-                                var total_agent_errors = [thirty_days_external_error, sixty_days_external_error, ninty_days_external_error];
-
-                                for(var k = 0; k < total_agent_errors.length; k++){
-                                    for(var i = 0; i<total_agent_errors[k].length; i++){
-                                        for(var j = 0; j<1;j++){
-                                            rows[i]+="<td>"+total_agent_errors[k][i][j]+"</td><td>"+total_agent_errors[k][i][j+1]+"</td>";
-                                        }
-                                    }
-                                }
-
-                                for(var i = 0; i<rows.length; i++){
-                                    table_html+= "<tr>"+rows[i]+"</tr>";
-                                }
-
-                                table_html+"</table></div>";
-                                $(".widget-69b highcharts").remove()
-                                $('.widget-69b').css('overflow','auto');
-                                var $el = $(table_html).appendTo(".widget-body.widget-69b");
-                                $compile($el)($scope);
-
-
-                                
-                                $('.widget-69a').removeClass('widget-loader-show');
-                                $('.widget-69b').removeClass('widget-data-hide');
-
-                            }
-                        });
-                    }
-
-                    self.packet_wise_error_internal_data = function(){   
-                        var error_data = '/api/static_internal_packet_wise_error_data/?'+self.static_widget_data
-                        return $http({method:"GET", url: error_data }).success(function(result){
-                            if(isEmpty(result['result'].thirty_days_packet_wise_error_count)&&isEmpty(result['result'].sixty_days_packet_wise_error_count)&&isEmpty(result['result'].ninty_days_packet_wise_error_count)){
-                                var table_html = '<div style="margin-top:100px;margin-left:250px; font-size:11px; color:#5b5b5b; font-weight:bold;"><span>No data to display</span></div>';
-                                $(".widget-70a highcharts").remove();
-                                $('.widget-70b').css('overflow','auto');
-                                var $el = $(table_html).appendTo(".widget-body.widget-70b");
-                                $compile($el)($scope);                            
-                                $('.widget-70a').removeClass('widget-loader-show');
-                                $('.widget-70b').removeClass('widget-data-hide');
-                            }else{
-                                $('.widget-70a').addClass('widget-loader-show');
-                                $('.widget-70b').addClass('widget-data-hide');
-                                $("#widget-70-packet-wise-error").remove();
-                                
-                               
-                                var thirty_days_packet_wise_data = result['result'].thirty_days_packet_wise_error_count;
-                                var sixty_days_packet_wise_data = result['result'].sixty_days_packet_wise_error_count;
-                                var ninty_days_packet_wise_data = result['result'].ninty_days_packet_wise_error_count;
-                              
-                                
-                                var table_html = "<div id='widget-70-packet-wise-error' class='table-responsive-sm' ><table border=1px class='table table-condensed' style='text-align-last: center'><thead><tr class='success'><th colspan='2'>30 Days</th><th colspan='2'>60 Days</th><th  colspan='2'>90 Days</th></tr></thead><tr><thead><th>Packet</th><th>Errors</th><th>Packet</th><th>Errors</th><th>Packet</th><th>Errors</th>";
-                                
-                               
-                                var rows = ['', '', '', '', ''];
-                               
-                                
-                                var total_packet_wise_errors = [thirty_days_packet_wise_data, sixty_days_packet_wise_data, ninty_days_packet_wise_data];
-                            
-
-                                function* enumerate(obj){
-                                    var i =0;
-                                    for (var key in obj){
-                                        yield [i, key];
-                                        i++;
-                                    }
-                                } 
-                               
-                                for(var k = 0; k < total_packet_wise_errors.length; k++){
-                                    
-                                    for(var [i, key] of enumerate(total_packet_wise_errors[k])){
-                                        
-                                            rows[i]+="<td>"+key+"</td><td>"+total_packet_wise_errors[k][key]+"</td>";
-                                    }
-                                }
-
-                                for(var i = 0; i<rows.length; i++){
-
-                                    table_html+= "<tr>"+rows[i]+"</tr>";
-                                }
-
-                                table_html+"</table></div>";
-
-                             
-                                $(".widget-70b highcharts").remove();
-                                $('.widget-70b').css('overflow','auto');
-                                var $el = $(table_html).appendTo(".widget-body.widget-70b");
-
-                                $compile($el)($scope);
-
-                                $('.widget-70a').removeClass('widget-loader-show');
-                                $('.widget-70b').removeClass('widget-data-hide');
-                            }
-                        });
-                    }
-
-
-                   self.packet_wise_error_external_data = function(){   
-                        var error_data = '/api/static_external_packet_wise_error_data/?'+self.static_widget_data
-                        return $http({method:"GET", url: error_data }).success(function(result){
-                            if(isEmpty(result['result'].thirty_days_packet_wise_error_count) && isEmpty(result['result'].sixty_days_packet_wise_error_count)&& isEmpty(result['result'].ninty_days_packet_wise_error_count)){
-                                var table_html = '<div style="margin-top:100px;margin-left:250px; font-size:11px; color:#5b5b5b; font-weight:bold;"><span>No data to display</span></div>';
-                                $(".widget-71a highcharts").remove();
-                                $('.widget-71b').css('overflow','auto');
-                                var $el = $(table_html).appendTo(".widget-body.widget-71b");
-                                $compile($el)($scope);                            
-                                $('.widget-71a').removeClass('widget-loader-show');
-                                $('.widget-71b').removeClass('widget-data-hide');
-                            }else{
-                                $('.widget-71a').addClass('widget-loader-show');
-                                $('.widget-71b').addClass('widget-data-hide');
-                                $("#widget-71-packet-wise-error").remove();
-                                
-                               
-                                var thirty_days_packet_wise_data = result['result'].thirty_days_packet_wise_error_count;
-                                var sixty_days_packet_wise_data = result['result'].sixty_days_packet_wise_error_count;
-                                var ninty_days_packet_wise_data = result['result'].ninty_days_packet_wise_error_count;
-                               
-                                
-                                var table_html = "<div id='widget-71-packet-wise-error' class='table-responsive-sm' ><table border=1px class='table table-condensed' style='text-align-last: center'><thead><tr class='success'><th colspan='2'>30 Days</th><th colspan='2'>60 Days</th><th  colspan='2'>90 Days</th></tr></thead><tr><thead><th>Packet</th><th>Errors</th><th>Packet</th><th>Errors</th><th>Packet</th><th>Errors</th>";
-                                
-                               
-                                var rows = ['', '', '', '', ''];
-                              
-                                
-                                var total_packet_wise_errors = [thirty_days_packet_wise_data, sixty_days_packet_wise_data, ninty_days_packet_wise_data];
-                             
-
-                                function* enumerate(obj){
-                                    var i =0;
-                                    for (var key in obj){
-                                        yield [i, key];
-                                        i++;
-                                    }
-                                } 
-                             
-                                for(var k = 0; k < total_packet_wise_errors.length; k++){
-                                    
-                                    for(var [i, key] of enumerate(total_packet_wise_errors[k])){
-                                        
-                                            rows[i]+="<td>"+key+"</td><td>"+total_packet_wise_errors[k][key]+"</td>";
-
-
-                                    }
-                                }
-
-                                for(var i = 0; i<rows.length; i++){
-
-                                    table_html+= "<tr>"+rows[i]+"</tr>";
-                                }
-
-                                table_html+"</table></div>";
-                              
-                                $(".widget-71b highcharts").remove();
-                                $('.widget-71b').css('overflow','auto');
-                                var $el = $(table_html).appendTo(".widget-body.widget-71b");
-
-                                $compile($el)($scope);
-                                
-                                $('.widget-71a').removeClass('widget-loader-show');
-                                $('.widget-71b').removeClass('widget-data-hide');
-                            }
-                        });
-                    }
-                
                     self.No_of_agents_AHT = function(final_work,type) {
 
                         if (type == undefined) {
@@ -3477,12 +3527,48 @@
                             var date_list = result.result.date;
                             var agent_count = result.result.aht_Num_data;
                             var is_annotation = result.result.is_annotation;
+                            
+                            
+                            if (self.list_object.no_of_agents_AHT_daywise != undefined) {
 
+                                if(self.list_object.no_of_agents_AHT_daywise.legends_align == 'bottom') {
+                                
+                                    var align = 'center';
+                                    var ver_align = 'bottom';
+                                    var layout = 'horizontal';
+                            
+                                }
+                            
+                                else if(self.list_object.no_of_agents_AHT_daywise.legends_align == 'left'){
+                            
+                                    var align ='left';
+                                    var ver_align = 'top';
+                                    var layout = 'vertical';
+                                }
+                            
+                                else {
+                                    var align = 'ight';
+                                    var ver_align = 'top';
+                                    var layout = 'vertical';
+                                }
+                            }
+                            
+                            else {
+                                var align = 'center';
+                                var ver_align = 'bottom';
+                                var layout = 'horizontal';
+                            }
 
                             angular.extend(self.chartOptions68, {
                                    xAxis: {
                                         categories: date_list,
                                     },
+                                    legend: {
+                                        align: align,
+                                        verticalAlign:ver_align,
+                                        layout: layout
+                                    },
+
                                     plotOptions: {
                                         series: {
                                           dataLabels: {
@@ -3561,107 +3647,8 @@
                     }
 
 
-                    self.aht_shift_overall_volume = function(final_work, type) {
-
-                        if (type == undefined) {
-                            type = 'day'
-                        }
-
-                        if (final_work == undefined) {
-                            final_work = ''
-                        }
-
-                        self.type = type;
-
-                        var aht_overall = '/api/shift_overall_volume/'+self.data_to_show + type + final_work + '&chart_name=65';
-
-                        return $http({method:"GET", url: aht_overall}).success(function(result){
-
-                            var date_list = result.result.date;
-                            var aht_data = result.result.aht_overall;
-                            var is_annotation = result.result.is_annotation;                            
-
-                            
-                            angular.extend(self.chartOptions70, {
-                                xAxis: {
-                                    categories: date_list,
-                                },
-                                    plotOptions: {
-                                        series: {
-                                          dataLabels: {
-                                            enabled: value,
-                                          },
-                                          allowPointSelect: true,
-                                          cursor: 'pointer',
-                                            point: {
-                                              events:{
-                                                contextmenu: function() {
-                                                 if (self.role_for_perm == 'customer') {
-
-                                                    console.log('he is customer');
-                                                 }
-                                                 else {
-
-                                                  if (self.data_to_show.split('&').length == 6) {
-                                                    var sub_proj = '';
-                                                    var work_pack = '';
-                                                    var sub_pack = '';
-                                                  }
-                                                  else {
-                                                    var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
-                                                    var work_pack = self.data_to_show.split('&')[6].split('=')[1];
-                                                    var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
-                                                  }
-                                                    var str = '65<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
-                                                    this['project_live'] = self.project_live;
-                                                    this['center_live'] = self.center_live;
-                                                    return new Annotation(str, $(self.chartOptions70.chart.renderTo),this.series.chart, this);
-                                                    }
-                                                  }
-                                                }
-                                            }
-                                        }
-                                    },
-
-                                series: aht_data,
-                                    onComplete: function(chart){
-                                    if (is_annotation) {
-                                    var series = null;
-                                    var chart_data = chart.series;
-
-                                    for(var i in chart_data){
-                                        series = chart_data[i];
-                                        (function(series){
-                                          $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
-                      self.type+'&chart_name=65&proj_name='+self.project_live+'&cen_name='+
-                      self.center_live}).success(function(annotations){ 
-                               annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
-                               $.each(annotations, function(j, annotation){
-
-                                 var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
-
-                                 point = point[0];
-
-                                 if(annotation.epoch){
-                                   var a = new Annotation("65", $(self.chartOptions70.chart.renderTo),
-                                        chart, point, annotation);
-
-                                   console.log(a);
-                                   }
-                               })   
-
-                                        });
-                                        }(series));
-                                    }
-                                    self.annot_perm();
-                                    }
-                                }
-                            });
-                            $('.widget-65a').removeClass('widget-loader-show');
-                            $('.widget-65b').removeClass('widget-data-hide');
-                        })
-                    }
-
+                    
+                    
                     self.Percentage_less_aht = function(final_work, type) {
 
                         if (type == undefined) {
@@ -3686,11 +3673,47 @@
                                 min:result.result.min_max.min_value,
                                 max:result.result.min_max.max_value
                             });
+                          if (self.list_object.percentage_people_67_and_99_achieved != undefined) {
+
+                                if(self.list_object.percentage_people_67_and_99_achieved.legends_align == 'bottom') {
+                                
+                                    var align = 'center';
+                                    var ver_align = 'bottom';
+                                    var layout = 'horizontal';
+                            
+                                }
+                            
+                                else if(self.list_object.percentage_people_67_and_99_achieved.legends_align == 'left'){
+                            
+                                    var align ='left';
+                                    var ver_align = 'top';
+                                    var layout = 'vertical';
+                                }
+                            
+                                else {
+                                    var align = 'right';
+                                    var ver_align = 'top';
+                                    var layout = 'vertical';
+                                }
+                            }
+                            
+                            else {
+                                var align = 'center';
+                                var ver_align = 'bottom';
+                                var layout = 'horizontal';
+                            }
+
 
                             angular.extend(self.chartOptions69, {
                                    xAxis: {
                                         categories: date_list,
                                     },
+                                   legend: {
+                                        align: align,
+                                        verticalAlign:ver_align,
+                                        layout: layout
+                                    }, 
+                              
                                     plotOptions: {
                                         series: {
                                           dataLabels: {
@@ -3803,6 +3826,35 @@
                             else {
                                 var value = false;
                             }
+                            if (self.list_object.pre_scan_exception_chart != undefined) {
+
+                                if(self.list_object.pre_scan_exception_chart.legends_align == 'bottom') {
+                                
+                                    var align = 'center';
+                                    var ver_align = 'bottom';
+                                    var layout = 'horizontal';
+                            
+                                }
+                            
+                                else if(self.list_object.pre_scan_exception_chart.legends_align == 'left'){
+                            
+                                    var align ='left';
+                                    var ver_align = 'top';
+                                    var layout = 'vertical';
+                                }
+                            
+                                else {
+                                    var align = 'right';
+                                    var ver_align = 'top';
+                                    var layout = 'vertical';
+                                }
+                            }
+                            
+                            else {
+                                var align = 'center';
+                                var ver_align = 'bottom';
+                                var layout = 'horizontal';
+                            }
                             angular.extend(self.chartOptions40, {
 
                                 xAxis: {
@@ -3811,6 +3863,11 @@
                                     text: '',
                                  }
                                },
+                               legend: {
+                                align: align,
+                                verticalAlign:ver_align,
+                                layout: layout
+                            },
                                 plotOptions: {
                                     series: {
                                       dataLabels: {
@@ -5027,8 +5084,187 @@
 
         var static_ajax = static_data + self.static_widget_data;
         self.static_data_call = function(static_ajax){
+                
+            if (self.list_object.Static_Monthly_Production_Trend != undefined) {
 
-                if (self.stacti_list.length == 1) {
+                if(self.list_object.Static_Monthly_Production_Trend.legends_align == 'bottom') {
+                
+                    var align1 = "center";                    
+                    var ver_align1 = "bottom";
+                    var layout1 = "horizontal";
+            
+                }
+            
+                else if(self.list_object.Static_Monthly_Production_Trend.legends_align == 'left'){
+            
+                    var align1 = "left";
+                    var ver_align1 = "top";
+                    var layout1 = "vertical";
+                }
+            
+                else {
+                    var align1 = "right";
+                    var ver_align1 = "top";
+                    var layout1 = "vertical";
+                }
+            }
+            
+            else {
+                var align1 = "center";
+                var ver_align1 = "bottom";
+                var layout1 = "horizontal";
+            }  
+            
+            if (self.list_object.Static_Weekly_Production_Trend != undefined) {
+
+                if(self.list_object.Static_Weekly_Production_Trend.legends_align == 'bottom') {
+                
+                    var align2 = "center";
+                    var ver_align2 = "bottom";
+                    var layout2 = "horizontal";
+            
+                }
+            
+                else if(self.list_object.Static_Weekly_Production_Trend.legends_align == 'left'){
+            
+                    var align2 = "left";
+                    var ver_align2 = "top";
+                    var layout2 = "vertical";
+                }
+            
+                else {
+                    var align2 = "right";
+                    var ver_align2 = "top";
+                    var layout2 = "vertical";
+                }
+            }
+            
+            else {
+                var align2 = "center";
+                var ver_align2 = "bottom";
+                var layout2 = "horizontal";
+            }
+            
+            if (self.list_object.Static_Daily_Production_Trend != undefined) {
+
+                if(self.list_object.Static_Daily_Production_Trend.legends_align == 'bottom') {
+                
+                    var align3 = "center";
+                    var ver_align3 = "bottom";
+                    var layout3 = "horizontal";
+            
+                }
+            
+                else if(self.list_object.Static_Daily_Production_Trend.legends_align == 'left'){
+            
+                    var align3 = "left";
+                    var ver_align3 = "top";
+                    var layout3 = "vertical";
+                }
+            
+                else {
+                    var align3 = "right";
+                    var ver_align3 = "top";
+                    var layout3 = "vertical";
+                }
+            }
+            
+            else {
+                var align3 = "center";
+                var ver_align3 = "bottom";
+                var layout3 = "horizontal";
+            }
+            
+            if (self.list_object.Static_Daily_Production_Bar != undefined) {
+
+                if(self.list_object.Static_Daily_Production_Bar.legends_align == 'bottom') {
+                
+                    var align4 = "center";
+                    var ver_align4 = "bottom";
+                    var layout4 = "horizontal";
+            
+                }
+            
+                else if(self.list_object.Static_Daily_Production_Bar.legends_align == 'left'){
+            
+                    var align4 = "left";
+                    var ver_align4 = "top";
+                    var layout4 = "vertical";
+                }
+            
+                else {
+                    var align4 = "right";
+                    var ver_align4 = "top";
+                    var layout4 = "vertical";
+                }
+            }
+            
+            else {
+                var align4 = "center";
+                var ver_align4 = "bottom";
+                var layout4 = "horizontal";
+            }
+
+            if (self.list_object.Static_Weekly_Production_Bar != undefined) {
+
+                if(self.list_object.Static_Weekly_Production_Bar.legends_align == 'bottom') {
+                
+                    var align5 = "center";
+                    var ver_align5 = "bottom";
+                    var layout5 = "horizontal";
+            
+                }
+            
+                else if(self.list_object.Static_Weekly_Production_Bar.legends_align == 'left'){
+            
+                    var align5 = "left";
+                    var ver_align5 = "top";
+                    var layout5 = "vertical";
+                }
+            
+                else {
+                    var align5 = "right";
+                    var ver_align5 = "top";
+                    var layout5 = "vertical";
+                }
+            }
+            
+            else {
+                var align5 = "center";
+                var ver_align5 = "bottom";
+                var layout5 = "horizontal";
+            }
+
+            if (self.list_object.Static_Monthly_Production_Bar != undefined) {
+
+                if(self.list_object.Static_Monthly_Production_Bar.legends_align == 'bottom') {
+                
+                    var align6 = "center";
+                    var ver_align6 = "bottom";
+                    var layout6 = "horizontal";
+            
+                }
+            
+                else if(self.list_object.Static_Monthly_Production_Bar.legends_align == 'left'){
+            
+                    var align6 = "left";
+                    var ver_align6 = "top";
+                    var layout6 = "vertical";
+                }
+            
+                else {
+                    var align6 = "right";
+                    var ver_align6 = "top";
+                    var layout6 = "vertical";
+                }
+            }
+            
+            else {
+                var align6 = "center";
+                var ver_align6 = "bottom";
+                var layout6 = "horizontal";
+            }
+            if (self.stacti_list.length == 1) {
                 
                 $http({method:"GET", url:static_ajax}).success(function(result){
                     angular.extend(self.chartOptions32, {
@@ -5036,7 +5272,13 @@
                             categories: result.result.month_productivity_data.date,
                         title: {
                             text: '',
-                         }
+                         },
+                         legend: {
+                            align: align1,
+                            verticalAlign:ver_align1,
+                            layout: layout1
+                        },
+                
                        },
 
                        series: result.result.month_productivity_data.data
@@ -5049,7 +5291,12 @@
                             categories: result.result.week_productivity_data.date,
                         title: {
                             text: '',
-                         }
+                         },
+                         legend: {
+                            align: align2,
+                            verticalAlign:ver_align2,
+                            layout: layout2
+                        },
                        },
 
                        series: result.result.week_productivity_data.data
@@ -5062,7 +5309,12 @@
                             categories: result.result.date,
                         title: {
                             text: '',
-                         }
+                         },
+                         legend: {
+                            align: align3,
+                            verticalAlign:ver_align3,
+                            layout: layout3
+                        },
                        },
 
                        series: result.result.data
@@ -5070,22 +5322,17 @@
                     $('.widget-29a').removeClass('widget-loader-show');
                     $('.widget-29b').removeClass('widget-data-hide');
 
-                    angular.extend(self.chartOptions71, {
-                        xAxis:{
-                            categories:"",
-                            title:{
-                                text:'',
-                            }
-                        },
-                    });
-                    $('.widget-66a').removeClass('widget-loader-show');
-                    $('.widget-66b').removeClass('widget-data-hide');
                     angular.extend(self.chartOptions35, {
                         xAxis: {
                             categories: result.result.date,
                         title: {
                             text: '',
-                         }
+                         },
+                         legend: {
+                            align: align4,
+                            verticalAlign:ver_align4,
+                            layout: layout4
+                        },
                        },
 
                        series: result.result.data
@@ -5100,6 +5347,11 @@
                             text: '',
                          }
                        },
+                       legend: {
+                        align: align5,
+                        verticalAlign:ver_align5,
+                        layout: layout5
+                    },
 
                        series: result.result.week_productivity_data.data
                     });
@@ -5111,8 +5363,14 @@
                             categories: result.result.month_productivity_data.date,
                         title: {
                             text: '',
-                         }
-                       },
+                         },
+                        },
+                         legend: {
+                            align: align6,
+                            verticalAlign:ver_align6,
+                            layout: layout6
+                        },
+                       
 
                        series: result.result.month_productivity_data.data
                     });
@@ -5139,6 +5397,8 @@
                 for (var key in self.list_object) {
                      sort_array.push({key:key,value:self.list_object[key].widget_priority});
                 }
+                
+                
                sort_array.sort(function(x,y){return x.value - y.value});
                 var values_array = [];
                 sort_array.forEach( function (eachObj){
@@ -5158,18 +5418,10 @@
                          self.prod_list.push('production')
                          self.main_prod(undefined, undefined, undefined)
                     } else if (val == 'performance_summary') {
-                        self.performance(undefined, undefined,undefined)     
-                    } else if (val == 'internal_agent_error_data'){
-                        self.static_internal_external_agent_error_data()
-                    } else if (val == 'static_internal_error_category'){
-                        self.static_internal_external_error_category() 
-                    } else if(val == 'internal_packet_wise_error_data'){
-                        self.packet_wise_error_internal_data()
-                    } else if(val == 'external_packet_wise_error_data'){
-                        self.packet_wise_error_external_data()
+                        self.performance(undefined, undefined,undefined)
                     } else if (val == 'no_of_agents_AHT_daywise') {
                          self.No_of_agents_AHT(undefined)
-                    } else if (val == 'percentage_people_<67_and>99%_achieved') {
+                    } else if (val == 'percentage_people_67_and_99_achieved') {
                          self.Percentage_less_aht(undefined, undefined)
                     } else if ((val == 'volume_bar_graph') || (val == 'volume_productivity_graph')) {
                          self.work_list.push('work_track')
@@ -5226,7 +5478,7 @@
         }
 
              self.packet_data = $http.get(self.pro_landing_url).then(function(result){
-
+                
                 self.list_object = result.data.result.lay[0];
                 self.layout_list = result.data.result.lay[1].layout;
                 self.user_status = result.data.result.user_status;
@@ -5317,8 +5569,7 @@
                     'self.chartOptions65':self.chartOptions65,
                     "self.chartOptions68":self.chartOptions68,
                     "self.chartOptions69":self.chartOptions69,
-                    "self.chartOptions70":self.chartOptions70,
-                    "self.chartOptions71":self.chartOptions71,
+                    "self.chartOptions70":self.chartOptions70
                   };
 
 
@@ -6288,14 +6539,17 @@
                         }
                         var url_to_call = 'api/project/?name=' + newVal;
                         $http({method:"GET", url:url_to_call}).success(function(result){
+                                                        
                             var pro_cen_nam = self.location + self.project.replace(' - ','');
                             self.useful_layout = [];
                             self.list_object = result.result.lay[0];
+                            console.log('he');
                 if((result.result.role === 'customer') || (result.result.role === 'team_lead') || (result.result.role === 'center_manager') || (result.result.role === 'nextwealth_manager'))
                 {   
                     $('#emp_widget').hide();
                     $('#volume_table').hide();
                     self.first = result.result.dates.from_date;
+                    
                     self.lastDate = self.first;
                     self.last = result.result.dates.to_date;
                     self.firstDate = self.last;
@@ -6378,7 +6632,6 @@
                     "self.chartOptions63":self.chartOptions63,
                     "self.chartOptions64":self.chartOptions64,
                     'self.chartOptions65':self.chartOptions65,
-                    "self.chartOptions71":self.chartOptions71,
                     };
                     var final_layout_list = [];
                     for (var single in self.layout_list){
@@ -8382,35 +8635,6 @@ self.chartOptions64 = {
                              return "<small>" + this.x + "</small><br/>" +
                                     "<b>" + this.series.name + "</b> : " + Highcharts.numberFormat(this.y, null, null, ",");
                            }
-               },
-               credits: {
-                enabled: false
-               },
-            };
-
-            self.chartOptions71 = {
-                chart : {
-                 backgroundColor: "transparent",
-                 reflow: false
-                },
-                lang: {
-                   thousandsSeparator: ','
-                },
-                yAxis: {
-                gridLineColor: 'a2a2a2',
-
-                min: 0,
-                title: {
-                 text: '',
-                 align: 'high'
-                },
-                labels: {
-                 overflow: 'justify',
-
-                }
-               },
-               tooltip: {
-                valueSuffix: '',
                },
                credits: {
                 enabled: false

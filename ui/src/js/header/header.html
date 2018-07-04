@@ -3,8 +3,8 @@
     max-height:300px;
     overflow-y: scroll;
   }
-
-  @media screen and (min-width: 960px) {
+  
+@media screen and (min-width: 960px) {
   .navbar-default {
     height: 60px;
     background:#ffffff;
@@ -223,7 +223,23 @@
 }
 .video-sym {
     background : white;
-}     
+}
+.input-form {
+    width: 80%;
+}
+.agent, .space {
+    margin-left: 10px;
+}
+
+.date-modal{
+        width:120%;
+        height:450px;
+}
+.date-in{
+    width:32%;
+}
+
+
 </style>
 <nav class="navbar navbar-default">
     <div class="container-fluid">
@@ -244,6 +260,7 @@
                 <li><a><p class="title"><font color="#0EBFE9">Next</font><font color="#308014">Pulse</font></p></a></li>
             </ul>
             <ul class="nav navbar-nav navbar-right menu">
+                
                 <li>
                     <abbr title="Reviews">
                         <a href="/#!/review" id="rev-but" class="btn btn-info" role="button"><i class="fa fa-calendar-check-o" aria-hidden="true"></i></a>
@@ -279,6 +296,9 @@
                         </div>
                     </div>
                 </li>
+                <li class="form-sym" style="display:none;">
+                    <a class="btn form-sym" role="button" data-toggle='modal' data-target="#date-selector-modal" title="NextPredict"><span class="glyphicon glyphicon-list-alt" aria-hidden="true" style="font-size: large;"></span></a>
+                </li>
                 <li class="dropdown active span8" id="drpdown_btn">
                     <a class="dropdown-toggle" id="select_dropdown" data-toggle="dropdown">
                         <span id="dropdown_title">{{$ctrl.select_option}}</span><span class="caret"></span>
@@ -294,7 +314,7 @@
                 <!--<li>
                     <a href="/admin/api" id="admin_but" class="btn btn-info" role="button" target="_blank">Admin</a>
                 </li>-->
-                <li>
+                <li ng-show=$ctrl.upload >
                     <div id="fileupload" class="upload">
                         <span>Upload</span>
                     </div>
@@ -354,6 +374,19 @@
         </div>      
     </div>
 </nav>
+<div class="modal fade" id="date-selector-modal" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content date-modal">
+                <div class="modal-header">
+                    <button class="close" type="button" data-dismiss="modal">&times;</button>
+                    <h4>Date Selector</h4>
+                </div>
+                <div class="modal-body date-in">
+                    <input type="text" id='date-selector' class='form-control'/>
+                </div>
+            </div>
+        </div>
+    </div>
 <script>
     $(function () {
        $("#fileupload").uploadFile({
@@ -385,8 +418,23 @@
     });
 
     $('.dropdown-toggle').dropdown();
+
+
     /*$('#divNewNotifications li').on('click', function() {
        $('#dropdown_title').html($(".brand_style").text().replace(" - DASHBOARD",''));
     });*/
 
+    //   function datepicker(){
+    //     document.getElementById('date-selector').style.display='inline';
+    // }
+    // $('#date-selector-modal').click(function(){
+    //     var ael = document.createElement('a');
+    //     var attr1 = document.createAttribute('href');
+    //     attr1.value='/js/page1/sample.html';
+    //     ael.setAttributeNode(attr1);
+    //     var attr2 = document.createAttribute('target');
+    //     attr2.value='_blank';
+    //     ael.setAttributeNode(attr2);
+    //     ael.click();
+    // });
 </script>

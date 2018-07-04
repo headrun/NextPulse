@@ -1,3 +1,4 @@
+
 <body>
 <style>
 ::-webkit-scrollbar-thumb {
@@ -35,51 +36,6 @@
     padding-right: 10px;
     padding-left: 10px;
 }
-.table-bordered>tbody>tr>td {
-    border : none;
-}
-
-.table>tbody>tr>td {
-    border-top: none;
-}
-.table-bordered>tfoot>tr>th {
-    border : none;
-}
-.table-bordered>thead>tr>td {
-    border : none;
-}
-.table-bordered>thead>tr>th {
-    border : none;
-}
-.body {
-        width: 100%;
-    }
-.body thead, .body tbody, .body tr, .body td, .body th{
-    display: block;
- }
-.body tr:after {
-    content: ' ';
-    display: block;
-    visibility: hidden;
-    clear: both;
-}
- .body tbody{
-    height: 180px;
-    overflow-y: auto;
-}
-
-.body th {
-    height: 40px;
-}
-
-.body td, .body th {
-    width: 19.7%;
-    float: left;
-}
-
-div.content {
-    overflow: hidden;
- }
 thead {
     border: 1px solid black;
 }*/
@@ -206,12 +162,39 @@ div.content {
         <i class="fa fa-arrow-circle-o-up hide"></i>
     </a>
 </div>
+
 <script type="text/javascript" async="async" defer="defer" data-cfasync="false" src="https://mylivechat.com/chatinline.aspx?hccid=73900030"></script>
+
+<script type="text/javascript">
+    
+    var username ='';
+    var email ='';   
+    
+    $.ajax({
+        type:'GET',
+        url:'api/mylivechat_details/',
+         success:function(res){        
+            username = res.result.user;
+            email = res.result.email_id;           
+            $(".mylivechat_offline_name_box").val(username);
+            $(".mylivechat_offline_email_box").val(email);
+        },error:function(){
+            $(".mylivechat_offline_name_box").val('');
+            $(".mylivechat_offline_email_box").val('');
+        }
+    });
+    function MyLiveChat_OnInit() {
+        MyLiveChat_SetUserName(username);
+        MyLiveChat_SetEmail(email);
+       }
+
+</script>
+
 <p id="hidden-tag">{{$ctrl.hiden_tag}}</p>
 </body>
 
 
-<script>
+<script type="text/javascript">
 
     $('body').on('click','.btn-group button', function(e) {
      $(this).addClass('active btn-success');
@@ -251,7 +234,11 @@ $(document).ready(function() {
         } else {
             $('.fa-arrow-circle-o-up').removeClass('hide');
         }
-    }
+    }   
+
+
 });
 </script>
+
+
 

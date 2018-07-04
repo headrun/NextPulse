@@ -82,11 +82,12 @@ def forgot_password(request):
 
 def get_cell_data(open_sheet, row_idx, col_idx):
     try:
-        cell_data = open_sheet.cell(row_idx, col_idx).value
-        cell_data = smart_str(cell_data)
+        cell_data = open_sheet.cell(row_idx, col_idx).value               
+        cell_data = smart_str(cell_data)        
         cell_data = str(cell_data)
         if isinstance(cell_data, str):
             cell_data = cell_data.strip()
+            cell_data = re.sub(r'[^\x00-\x7F]+',' ', cell_data)
     except IndexError:
         cell_data = ''
     return cell_data
@@ -161,9 +162,9 @@ def sub_project_names(request,open_book):
     sub_prj_names = {}
     open_sheet = open_book.sheet_by_index(0)
     prj_names = set(open_sheet.col_values(2)[1:])
-    teamleader_obj = TeamLead.objects.filter(name_id=request.user.id).values_list('project_id','center_id')[0]
+    teamleader_obj = TeamLead.objects.filter(name_id=request.user.id).values_list('project','center')[0]
     prj_obj = Project.objects.filter(id=teamleader_obj[0])[0]
-    center = TeamLead.objects.filter(name_id=request.user.id).values_list('center_id',flat=True)[0]
+    center = TeamLead.objects.filter(name_id=request.user.id).values_list('center',flat=True)[0]
     for project_name in prj_names:
         project_name = prj_obj.name +  " " + project_name
         main_prj_name = Project.objects.filter(name = project_name).values_list('id',flat=True)
