@@ -24,32 +24,27 @@ def historical_packet_agent_data(request):
     center_id = main_data['pro_cen_mapping'][1][0]
     dates = main_data['dates']
 
-    date_check = RawTable.objects.filter(project=project_id,date=dates[0]).aggregate(Sum('per_day'))
-    if date_check['per_day__sum'] != None:
-        if len(dates) > 1:
-            raw_query = RawTable.objects.filter(project=project_id,center=center_id,date__range=[dates[0],dates[-1]])
-        else:
-            raw_query = RawTable.objects.filter(project=project_id,center=center_id,date=dates[0])
-        packets = raw_query.values_list('work_packet',flat=True).distinct()
-        agents = raw_query.values_list('employee_id',flat=True).distinct()
-        prodution = raw_query.aggregate(Sum('per_day'))
-        total_production = prodution['per_day__sum']
-
-        packets_result, packet_data = get_the_packet_and_agent_data(packets,dates,project_id,center_id,filter_type='packet')
-        result['config_packets'] = packets_result
-        result['packets'] = packet_data['packets']
-        result['packet_value'] = packet_data['packetvalue']
-
-        agents_result, agent_data = get_the_packet_and_agent_data(agents,dates,project_id,center_id,filter_type='agent')
-        result['config_agents'] = agents_result
-        result['agents'] = agent_data['agents']
-        result['agent_value'] = agent_data['agentvalue']
-
-        result['total_production'] = total_production
-        return JsonResponse(result) 
-
+    if len(dates) > 1:
+        raw_query = RawTable.objects.filter(project=project_id,center=center_id,date__range=[dates[0],dates[-1]])
     else:
-        return JsonResponse('Please select valid date', safe=False)
+        raw_query = RawTable.objects.filter(project=project_id,center=center_id,date=dates[0])
+    packets = raw_query.values_list('work_packet',flat=True).distinct()
+    agents = raw_query.values_list('employee_id',flat=True).distinct()
+    prodution = raw_query.aggregate(Sum('per_day'))
+    total_production = prodution['per_day__sum']
+
+    packets_result, packet_data = get_the_packet_and_agent_data(packets,dates,project_id,center_id,filter_type='packet')
+    result['config_packets'] = packets_result
+    result['packets'] = packet_data['packets']
+    result['packet_value'] = packet_data['packetvalue']
+
+    agents_result, agent_data = get_the_packet_and_agent_data(agents,dates,project_id,center_id,filter_type='agent')
+    result['config_agents'] = agents_result
+    result['agents'] = agent_data['agents']
+    result['agent_value'] = agent_data['agentvalue']
+
+    result['total_production'] = total_production
+    return JsonResponse(result) 
 
 
 def get_the_packet_and_agent_data(required_data,dates,project_id,center_id,filter_type):
@@ -72,12 +67,16 @@ def get_the_packet_and_agent_data(required_data,dates,project_id,center_id,filte
                     work_packet=data,date__range=[date_values[-1],date_values[0]])
                 external_data = Externalerrors.objects.filter(project=project_id,center=center_id,\
                     work_packet=data,date__range=[date_values[-1],date_values[0]])
+                raw_data = RawTable.objects.filter(project=project_id,center=center_id,work_packet=data,\
+                    date__range=[date_values[-1],date_values[0]]).aggregate(Sum('per_day'))
                 config_value = Project.objects.get(id=project_id,center=center_id).no_of_packets
             else:
                 internal_data = Internalerrors.objects.filter(project=project_id,center=center_id,\
                     employee_id=data,date__range=[date_values[-1],date_values[0]])
                 external_data = Externalerrors.objects.filter(project=project_id,center=center_id,\
                     employee_id=data,date__range=[date_values[-1],date_values[0]])
+                raw_data = RawTable.objects.filter(project=project_id,center=center_id,employee_id=data,\
+                    date__range=[date_values[-1],date_values[0]]).aggregate(Sum('per_day'))
                 config_value = Project.objects.get(id=project_id,center=center_id).no_of_agents
 
             error_list = [internal_data.aggregate(Sum('total_errors')),external_data.aggregate(Sum('total_errors'))]
@@ -85,9 +84,18 @@ def get_the_packet_and_agent_data(required_data,dates,project_id,center_id,filte
             
             total_errors = [ error['total_errors__sum'] if error['total_errors__sum'] is not None else 0 for error in error_list ]
             audited_errors = [ audit['audited_errors__sum'] if audit['audited_errors__sum'] is not None else 0 for audit in audit_list ]
-            
+
+            per_day = 0
+            if raw_data['per_day__sum'] != None:
+                per_day = raw_data['per_day__sum']
+
             if sum(audited_errors):
                 error_value = (float(sum(total_errors))/float(sum(audited_errors)))
+            else:
+                error_value = 0
+
+            if per_day:
+                error_value = (float(sum(total_errors))/per_day)
             else:
                 error_value = 0
 
