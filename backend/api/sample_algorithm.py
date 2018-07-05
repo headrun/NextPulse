@@ -91,10 +91,7 @@ def get_the_packet_and_agent_data(required_data,dates,project_id,center_id,filte
 
             if sum(audited_errors):
                 error_value = (float(sum(total_errors))/float(sum(audited_errors)))
-            else:
-                error_value = 0
-
-            if per_day:
+            elif per_day:
                 error_value = (float(sum(total_errors))/per_day)
             else:
                 error_value = 0
