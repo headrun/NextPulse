@@ -22,7 +22,7 @@
   align-items:center;
   font-size:1em;
   width:50%;
-  font-size:1em;
+  font-weight: bold;
   margin-left:10px;
   /* border: 1px solid #fff; */
 }
@@ -80,7 +80,7 @@
   font-size:20px;
 }
 .agent-head{
-  margin-right:2%;
+  margin-right:3.5%;
   font-size:20px;
 }
 .packet-container{
@@ -99,6 +99,7 @@
   border-radius: 0px !important;
   padding:5px;
   margin:5px;
+  cursor: all-scroll;
 }
 .icard-content{
   display:flex;
@@ -106,6 +107,11 @@
   align-items: center;
   font-size:large;
   margin-top:3px;
+}
+.icard:hover{
+  background-color:#E0E0E0;
+  border:2px solid #424242;
+
 }
 .agent-container{
   display: inline-flex;

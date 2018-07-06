@@ -47,8 +47,7 @@ app.controller('sampleCtrl', function($scope, $http){
         swal('No Agents or Packets');
       }else{
         $('#addpacket').show();
-        $('#addpacket').attr('class', 'modal fade in');
-        $('#addpacket').attr('z-index', '1');
+        $('#addpacket').slideDown();
         $('#addpacket').css('display', 'block');
       }
     }
@@ -162,8 +161,8 @@ app.controller('sampleCtrl', function($scope, $http){
               b.innerHTML += arr[i].substr(val.length);
               b.innerHTML += "<input type='hidden' value='" + arr[i] + "'>";
               b.addEventListener("click", function(e) {
-                  inp.value = this.getElementsByTagName("input")[0].value;
-                  closeAllLists();
+                inp.value = this.getElementsByTagName("input")[0].value;
+                closeAllLists();
               });
               a.appendChild(b);
             }
@@ -212,6 +211,7 @@ app.controller('sampleCtrl', function($scope, $http){
 
     $scope.add_agent_card = function(){
       var new_agent_data = document.getElementById('newagentcard').value;
+      $('#newagentcard').val('');
       if(new_agent_data === "" || new_agent_data == undefined){
         swal('Please select agent');
         return;
@@ -228,6 +228,8 @@ app.controller('sampleCtrl', function($scope, $http){
     }
 
     dragula([document.getElementById('dragger-agent')],{removeOnSpill:true}).on('out', function(el, target, container, source){
+      $('#dragger-agent').css('backgroundColor', 'gray');
+      $('#dragger-agent').css('border', '1px solid black');
       $scope.agents_elements = el.parentElement.children;
       $scope.a_size = $scope.agents_elements.length;
       for (var i = 0; i<$scope.agents_elements.length; i++){
@@ -262,6 +264,7 @@ app.controller('sampleCtrl', function($scope, $http){
         $('#addagent').attr('class', 'modal fade out');
         $('#addagent').css('display', 'none');
       var new_agent = document.getElementById('newagent').value;
+      $('#newagent').val('');
       if(new_agent === "" || new_agent == undefined){
         swal('Please select agent');
         return;
@@ -305,66 +308,70 @@ app.controller('sampleCtrl', function($scope, $http){
     }
 
     $scope.formData = function(){
-            $scope.audit_per = document.getElementById('audit').value;
-            $scope.random_per = document.getElementById('randomsample').value;
-            if( $scope.audit_per !== '0' && $scope.audit_per !== ''|| $scope.random_per !== '0' && $scope.random_per !== ''){
-              var packets = $('#dragger-packet').children();
-              var agents = $('#dragger-agent').children();
-              var total_packets = $('#dragger-packet').children().length;
-              var total_agents = $('#dragger-agent').children().length;
-              var packets_data = new Array(total_packets);
-              var agents_data = new Array(total_agents);
+      $scope.audit_per = document.getElementById('audit').value;
+      $scope.random_per = document.getElementById('randomsample').value;
+      if(Number($scope.audit_per) > 100 || Number($scope.random_per) > 100 || (Number($scope.audit_per) + Number($scope.random_per)) > 100){
+        swal('Please enter the percentages below 100.');
+        return;
+      }
+      if( $scope.audit_per !== '0' && $scope.audit_per !== ''|| $scope.random_per !== '0' && $scope.random_per !== ''){
+        var packets = $('#dragger-packet').children();
+        var agents = $('#dragger-agent').children();
+        var total_packets = $('#dragger-packet').children().length;
+        var total_agents = $('#dragger-agent').children().length;
+        var packets_data = new Array(total_packets);
+        var agents_data = new Array(total_agents);
 
-              for(var i = 0; i<total_packets; i++)
-                  packets_data[i] = packets[i].firstChild.innerText;
+        for(var i = 0; i<total_packets; i++)
+          packets_data[i] = packets[i].firstChild.innerText;
 
-              for(var j = 0; j<total_agents; j++)
-                  agents_data[j] = agents[j].firstChild.innerText;
+        for(var j = 0; j<total_agents; j++)
+          agents_data[j] = agents[j].firstChild.innerText;
 
-              var center = $scope.sa_url_split[2].split('=')[1]
-              var project = $scope.sa_url_split[1].split('=')[1]
-              project = project.replace(/%20/g, ' ');
-              var url = "/api/packet_agent_audit_random/";
-              var data = {'packets':packets_data, 'agents':agents_data, 'audit':$scope.audit_per, 'random':$scope.random_per, 'audit_value':$scope.audit_value,'random_value':$scope.random_value, 'total_production':$scope.total_production,'from':$scope.start_date, 'to':$scope.end_date, 'project':project, 'center':center};
+        var center = $scope.sa_url_split[2].split('=')[1]
+        var project = $scope.sa_url_split[1].split('=')[1]
+        project = project.replace(/%20/g, ' ');
+        var url = "/api/packet_agent_audit_random/";
+        var data = {'packets':packets_data, 'agents':agents_data, 'audit':$scope.audit_per, 'random':$scope.random_per, 'audit_value':$scope.audit_value,'random_value':$scope.random_value, 'total_production':$scope.total_production,'from':$scope.start_date, 'to':$scope.end_date, 'project':project, 'center':center};
 
 
-              $http({method:'POST', url:url, data:data, headers:{'Content-Type':'application/x-www-form-urlencoded;charset=utf-8;'}}).then(function(result){
-                  if(typeof(result.data.audit) === "string" & typeof(result.data.random) === "string"){
-                    swal('Please select packets or agents to meet the intelligent audit criteria, and select high random value');
-                  }else if(typeof(result.data.audit) === "string"){
-                    swal('Please select the packets or agents to meet the criteria');
-                  }else if(typeof(result.data.random) === "string"){
-                    swal('Please select the low random value');
-                  }else{
-                    $scope.success = true;
-                    $scope.excel_data = result.data;
-                  }
-              });
-            }else{
-              swal('Please select intelligent audit or random audit');
-            }
+        $http({method:'POST', url:url, data:data, headers:{'Content-Type':'application/x-www-form-urlencoded;charset=utf-8;'}}).then(function(result){
+          if(typeof(result.data.audit) === "string" & typeof(result.data.random) === "string"){
+            swal('Please select packets or agents to meet the intelligent audit criteria, and select low random value');
+          }else if(typeof(result.data.audit) === "string"){
+            swal('Please select the packets or agents to meet the criteria');
+          }else if(typeof(result.data.random) === "string"){
+            swal('Please select the low random value');
+          }else{
+            $scope.success = true;
+            $scope.excel_data = result.data;
+          }
+        });
+      }else{
+        swal('Please select intelligent audit or random audit');
+      }
     }
 
     $scope.download_excel = function(){
         var url = "/api/download_audit_excel/";
         $http({method:'POST', url:url, data:$scope.excel_data, responseType: "blob", headers:{'Content-Type':'application/x-www-form-urlencoded;charset=utf-8;'}}).then(function(result){
 
-           const url = window.URL.createObjectURL(new Blob([result.data]));
-           const link = document.createElement('a');
-           link.href = url;
-           link.setAttribute('download', 'audit_data.xlsx');
-           document.body.appendChild(link);
-           link.click();
+          const url = window.URL.createObjectURL(new Blob([result.data]));
+          const link = document.createElement('a');
+          link.href = url;
+          link.setAttribute('download', 'audit_data.xlsx');
+          document.body.appendChild(link);
+          link.click();
         });
     }
 
     $scope.show_audit = function(){
-        $scope.audit_value = ($scope.intelligent_audit_value/100) * $scope.total_production;
-          $scope.success = false;
+      $scope.audit_value = ($scope.intelligent_audit_value/100) * $scope.total_production;
+      $scope.success = false;
     };
 
     $scope.show_random = function(){
       $scope.random_value = ($scope.random_audit_value/100) * $scope.total_production;
-        $scope.success = false;
+      $scope.success = false;
     }
 });
