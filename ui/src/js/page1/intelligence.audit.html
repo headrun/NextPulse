@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Intelligence Audit | NextPulse</title>
+  <link rel="stylesheet" href="intelligence.audit.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.5.8/angular.js"></script>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.2/dragula.min.js'></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css" />
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+	<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+	<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+  <script src="sample.js"></script>
+</head>
+<body ng-app="sample" ng-controller="sampleCtrl">
+  <div id="loader">
+    <img src="https://loading.io/spinners/dual-ring/lg.dual-ring-loader.gif" alt="Loading...">
+  </div>
+<div class="nextpredict">
+  <div class="header-component">
+    <div class="header">
+      <h1>NextPredict</h1>
+    </div>
+    <div class="total-prod">
+      <p>Total Production </p>
+      <p class="total-prod-val">{{total_production}}</p>
+    </div>
+  </div>
+
+  <div class="audit-random-per">
+    <div class="auditper">
+      <p class="auditper-label">Intelligence Audit %</p>
+      <input type="number" class="form-control" min="0" max="100" name="iauditper" size="3" id="audit" ng-model="intelligent_audit_value" min="0" max="100" ng-init="intelligent_audit_value=0" ng-change="show_audit()">
+    </div>
+    <div class="randomper">
+      <p class="randomper-label">Random Audit %</p>
+      <input type="number"class="form-control"  min="0" max="100" name="rauditper" size="3" id="randomsample"  ng-model="random_audit_value" min="0" max="100" ng-init="random_audit_value=0" ng-change="show_random()">
+    </div>
+  </div>
+
+  <div class="audit-random">
+    <div class="audit">
+      <p class="audit-label">Intelligence Audit</p>
+      <input type="text" class="form-control" name="iaudit" size="3"value="{{audit_value | number:0}}" ng-init="audit_value=0" disabled>
+    </div>
+    <div class="random">
+      <p class="random-label">Random Audit</p>
+      <input type="text" class="form-control" min="0" max="100" name="raudit" size="3"value="{{random_value | number:0}}" ng-init="random_value=0" disabled>
+    </div>
+  </div>
+  <div class="packet-agent">
+    <h2 class="packet-head">WORK PACKETS</h2>
+    <h2 class="agent-head">AGENTS</h2>
+  </div>
+  <div class="packet-container" id='dragger-packet'>
+  <div class="icard" ng-repeat="item in packet_data" data-toggle="modal" data-target="#addpacket-card" ng-click="simple_card(item, 'packet')"><p class="icard-content">{{item}}</p></div></div>
+  <div class="packet-plus">
+    <i class="fa fa-plus-circle" id="plus-packet-add" ng-click="add_packet_cnf()"  style="font-size: x-large; cursor: pointer;"></i>
+  </div>
+
+  <div class="agent-container"id='dragger-agent'>
+    <div class="icard" ng-repeat="item in agent_data" data-toggle="modal" data-target="#addagent-card" ng-click="simple_card(item, 'agent')" ><p class="icard-content">{{item}}</p></div>
+  </div>
+  <div class="agent-plus">
+    <i class="fa fa-plus-circle" id="plus-agent-add" ng-click="add_agent_cnf()" style="font-size: x-large; cursor: pointer"></i>
+  </div>
+  <div class="download-submit-btn">
+    <button type="submit"class="btn btn-success download-btn" ng-if="success"  ng-init="success=false" ng-click="download_excel()" >Download</button>
+    <button type="submit" class="btn btn-primary" ng-click="formData()">submit</button>
+  </div>
+</div>
+
+<!-- For adding packet -->
+<div class="modal"  id="addpacket" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header" style="border-bottom:0px;">
+                <button type="button" class="close close-add-packet" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Add packet</h4>
+            </div>
+            <div class="modal-body">
+                    <label for="newpacket">New Packet:</label>
+                    <select class="form-control" id="newpacket" >
+                        <option value="{{packet}}" ng-repeat="packet in rem_packets">{{packet}}</option>
+                    </select>
+            </div>
+            <div class="modal-footer" style="border-top:0px;">
+                <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="add_packet()">Ok</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- for directly adding the packet by clicking card. -->
+<div class="modal fade" id="addpacket-card" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header" style="border-bottom:0px;">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Add packet</h4>
+            </div>
+            <div class="modal-body">
+                    <label for="newpacketcard">New Packet:</label>
+                    <select class="form-control" id="newpacketcard" >
+                        <option value="{{packet}}" ng-repeat="packet in rem_packets">{{packet}}</option>
+                    </select>
+            </div>
+            <div class="modal-footer" style="border-top:0px;">
+                <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="add_packet_card()">Ok</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- For adding agent -->
+<div class="modal fade" tabindex="-1" id="addagent" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header" style="border-bottom:0px;">
+                <button type="button" class="close close-add-agent" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Add Agent</h4>
+            </div>
+            <div class="modal-body">
+                <label for="newagent">New Agent:</label>
+                <div class="autocomplete">
+                    <input id="newagent" class="form-control" type="text" name="agent" placeholder="New Agent" ng-keydown="autocomplete('newagent', rem_agents)">
+                </div>
+            </div>
+            <div class="modal-footer" style="border-top:0px;">
+                <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="add_agent()">Ok</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- for directly adding the agent by clicking card. -->
+<div class="modal fade" id="addagent-card" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header" style="border-bottom:0px;">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Add Agent</h4>
+            </div>
+            <div class="modal-body">
+                <label for="newagentcard">New Agent:</label>
+                <div class="autocomplete">
+                    <input id="newagentcard" class="form-control" type="text" name="agent" placeholder="Search Agent" ng-keydown="autocomplete('newagentcard', rem_agents)">
+                </div>
+            </div>
+            <div class="modal-footer" style="border-top:0px;">
+                <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="add_agent_card()">Ok</button>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
