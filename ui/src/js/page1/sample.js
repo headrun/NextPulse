@@ -47,7 +47,7 @@ app.controller('sampleCtrl', function($scope, $http){
         swal('No Agents or Packets');
       }else{
         $('#addpacket').show();
-        $('#addpacket').slideDown();
+        $('#addpacket').attr('class', 'modal fade in');
         $('#addpacket').css('display', 'block');
       }
     }
@@ -228,8 +228,6 @@ app.controller('sampleCtrl', function($scope, $http){
     }
 
     dragula([document.getElementById('dragger-agent')],{removeOnSpill:true}).on('out', function(el, target, container, source){
-      $('#dragger-agent').css('backgroundColor', 'gray');
-      $('#dragger-agent').css('border', '1px solid black');
       $scope.agents_elements = el.parentElement.children;
       $scope.a_size = $scope.agents_elements.length;
       for (var i = 0; i<$scope.agents_elements.length; i++){
