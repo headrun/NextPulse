@@ -10,7 +10,7 @@ app.controller('sampleCtrl', function($scope, $http){
   $scope.url = '/api/historical_packet_agent/?widget_data=&'+$scope.sa_url_split[1]+'&'+$scope.sa_url_split[2]+'&'+$scope.sa_url_split[3]+'&'+$scope.sa_url_split[4];
   $http({method:'GET', url:$scope.url}).then(function(result){
     $('#loader').hide();
-    $('.nextpredict').show();
+    $('.nextpredict').fadeIn(2000);
     $scope.packet_data = result.data.config_packets;
     $scope.agent_data = result.data.config_agents;
     $scope.rem_packets = result.data.packets;
@@ -24,7 +24,7 @@ app.controller('sampleCtrl', function($scope, $http){
   });
 
   dragula([document.getElementById('dragger-packet')],{removeOnSpill:true}).on('out', function(el, target, container, source){
-      $scope.packets_elements = el.parentElement.parentElement.children['0'].children;
+      $scope.packets_elements = el.parentElement.children;
       $scope.p_size = $scope.packets_elements.length;
       for (var i = 0; i<$scope.packets_elements.length; i++){
         if(el === $scope.packets_elements[i]){
@@ -50,7 +50,7 @@ app.controller('sampleCtrl', function($scope, $http){
         $('#addpacket').attr('class', 'modal fade in');
         $('#addpacket').css('display', 'block');
       }
-    }
+    };
     $(".close-add-packet").click(function(){
       $('#addpacket').slideUp(300);
     });
@@ -59,7 +59,7 @@ app.controller('sampleCtrl', function($scope, $http){
       $('#addpacket').hide();
       $('#addpacket').attr('class', 'modal fade out');
       $('#addpacket').css('display', 'none');
-      
+
       var new_packet = document.getElementById('newpacket').value;
       var pl = $('#dragger-packet').children().length;
 
@@ -71,8 +71,6 @@ app.controller('sampleCtrl', function($scope, $http){
 
         // This 'elseif ' block will execute when the rm_el_index is not undefined.
       }else if($scope.rm_el_index != undefined){
-          var pl = $('#dragger-packet').children().length;
-
           // This 'elseif' block will execute when the last packet is removed and plus button is clicked.
           if($scope.rm_el_index != undefined && $scope.rm_el_index === pl){
             var i = $scope.rem_packets.indexOf(new_packet);
@@ -90,6 +88,7 @@ app.controller('sampleCtrl', function($scope, $http){
               var i = $scope.rem_packets.indexOf(new_packet);
               $scope.rem_packets.splice(i, 1);
               $scope.packet_data.splice(0, 0, new_packet);
+              $scope.rem_packets.push($scope.rm_el_data);
               $scope.rm_el_index = undefined;
 
           /* This 'elseif' block will execute when the no packet was removed still the packet
@@ -122,7 +121,7 @@ app.controller('sampleCtrl', function($scope, $http){
           }
         }
       }
-    }
+    };
 
     $scope.add_packet_card = function(){
       var new_packet_data = document.getElementById('newpacketcard').value;
@@ -139,11 +138,11 @@ app.controller('sampleCtrl', function($scope, $http){
         $scope.packet_data.splice(self.p_el_index, 0, new_packet_data);
         $scope.rem_packets.splice(index, 1);
       }
-    }
+    };
 
     $scope.autocomplete = function(inp, arr) {
       var inp = document.getElementById(inp);
-      if(arr == undefined){arr=$scope.rem_agents}
+      if(arr == undefined){arr=$scope.rem_agents; }
       var currentFocus;
       inp.addEventListener("input", function(e) {
         var a, b, i, val = this.value;
@@ -207,7 +206,7 @@ app.controller('sampleCtrl', function($scope, $http){
       document.addEventListener("click", function (e) {
           closeAllLists(e.target);
       });
-    }
+    };
 
     $scope.add_agent_card = function(){
       var new_agent_data = document.getElementById('newagentcard').value;
@@ -225,7 +224,7 @@ app.controller('sampleCtrl', function($scope, $http){
         $scope.agent_data.splice(self.a_el_index, 0, new_agent_data);
         $scope.rem_agents.splice(index, 1);
       }
-    }
+    };
 
     dragula([document.getElementById('dragger-agent')],{removeOnSpill:true}).on('out', function(el, target, container, source){
       $scope.agents_elements = el.parentElement.children;
@@ -252,7 +251,7 @@ app.controller('sampleCtrl', function($scope, $http){
         $('#addagent').attr('class', 'modal fade in');
         $('#addagent').css('display', 'block');
       }
-    }
+    };
 
     $(".close-add-agent").click(function(){
       $('#addagent').slideUp(300);
@@ -276,34 +275,31 @@ app.controller('sampleCtrl', function($scope, $http){
       // This else if will execute when the packet is dragged and after plus button is clicked.
       }else if($scope.a_rm_el_index != undefined){
           var al = $('#dragger-agent').children().length;
-
+          var i = $scope.rem_agents.indexOf(new_agent);
           if($scope.a_rm_el_index != undefined && $scope.a_rm_el_index === al){
-            var i = $scope.rem_agents.indexOf(new_agent);
             $scope.rem_agents.splice(i, 1);
             $scope.rem_agents.push($scope.a_rm_el_data);
             $scope.agent_data.push(new_agent);
             $scope.a_rm_el_index = undefined;
 
           }else if($scope.a_size === al && ($scope.a_rm_el_index != undefined && $scope.a_rm_el_index !== 0)){
-            var i = $scope.rem_agents.indexOf(new_agent);
             $scope.rem_agents.splice(i, 1);
             $scope.rem_agents.push($scope.a_rm_el_data);
             $scope.agent_data.splice($scope.a_rm_el_index, 0, new_agent);
             $scope.a_rm_el_index = undefined;
           }else if(($scope.a_rm_el_index != undefined && $scope.a_rm_el_index === 0) || $scope.a_size !== al){
-            var i = $scope.rem_agents.indexOf(new_agent);
             $scope.rem_agents.splice(i, 1);
             $scope.rem_agents.push($scope.a_rm_el_data);
             $scope.agent_data.splice(0,0,new_agent);
             $scope.a_rm_el_index = undefined;
         }else if($scope.a_rm_el_index != undefined && al !== $scope.agent_config_value){
-            var i = $scope.rem_agents.indexOf(new_agent);
             $scope.rem_agents.splice(i, 1);
+            $scope.rem_agents.push($scope.a_rm_el_data);
             $scope.agent_data.splice(0,0,new_agent);
             $scope.a_rm_el_index = undefined;
         }
       }
-    }
+    };
 
     $scope.formData = function(){
       $scope.audit_per = document.getElementById('audit').value;
@@ -348,7 +344,7 @@ app.controller('sampleCtrl', function($scope, $http){
       }else{
         swal('Please select intelligent audit or random audit');
       }
-    }
+    };
 
     $scope.download_excel = function(){
         var url = "/api/download_audit_excel/";
@@ -361,7 +357,7 @@ app.controller('sampleCtrl', function($scope, $http){
           document.body.appendChild(link);
           link.click();
         });
-    }
+    };
 
     $scope.show_audit = function(){
       $scope.audit_value = ($scope.intelligent_audit_value/100) * $scope.total_production;
@@ -371,5 +367,5 @@ app.controller('sampleCtrl', function($scope, $http){
     $scope.show_random = function(){
       $scope.random_value = ($scope.random_audit_value/100) * $scope.total_production;
       $scope.success = false;
-    }
+    };
 });
