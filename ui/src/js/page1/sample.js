@@ -18,6 +18,8 @@ app.controller('sampleCtrl', function($scope, $http){
     $scope.packet_config_value = result.data.packet_value;
     $scope.agent_config_value = result.data.agent_value;
     $scope.total_production = result.data.total_production;
+    $scope.packet_details = result.data.packet_details;
+    $scope.agent_details = result.data.agent_details;
     }, function(error){
           $('.modal-backdrop').remove();
           $('.error-msg').delay(500).fadeOut();
@@ -330,7 +332,7 @@ app.controller('sampleCtrl', function($scope, $http){
         var project = $scope.sa_url_split[1].split('=')[1]
         project = project.replace(/%20/g, ' ');
         var url = "/api/packet_agent_audit_random/";
-        var data = {'packets':packets_data, 'agents':agents_data, 'audit':$scope.audit_per, 'random':$scope.random_per, 'audit_value':$scope.audit_value,'random_value':$scope.random_value, 'total_production':$scope.total_production,'from':$scope.start_date, 'to':$scope.end_date, 'project':project, 'center':center};
+        var data = {'packets':packets_data, 'agents':agents_data, 'audit':$scope.audit_per, 'random':$scope.random_per, 'audit_value':$scope.audit_value,'random_value':$scope.random_value, 'total_production':$scope.total_production,'from':$scope.start_date, 'to':$scope.end_date, 'project':project, 'center':center, 'packet_details':$scope.packet_details, 'agent_details':$scope.agent_details};
 
 
         $http({method:'POST', url:url, data:data, headers:{'Content-Type':'application/x-www-form-urlencoded;charset=utf-8;'}}).then(function(result){
@@ -352,7 +354,8 @@ app.controller('sampleCtrl', function($scope, $http){
 
     $scope.download_excel = function(){
         var url = "/api/download_audit_excel/";
-        $http({method:'POST', url:url, data:$scope.excel_data, responseType: "blob", headers:{'Content-Type':'application/x-www-form-urlencoded;charset=utf-8;'}}).then(function(result){
+        var data = {'excel_data':$scope.excel_data, 'packet_details':$scope.packet_details, 'agent_details':$scope.agent_details}
+        $http({method:'POST', url:url, data:data, responseType: "blob", headers:{'Content-Type':'application/x-www-form-urlencoded;charset=utf-8;'}}).then(function(result){
 
           const url = window.URL.createObjectURL(new Blob([result.data]));
           const link = document.createElement('a');
