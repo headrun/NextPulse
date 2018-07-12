@@ -328,7 +328,7 @@ def generate_excel_for_audit_data(request):
         data           = ast.literal_eval(request.POST.keys()[0])['excel_data']
         packet_details = ast.literal_eval(request.POST.keys()[0])['packet_details']
         agent_details  = ast.literal_eval(request.POST.keys()[0])['agent_details']
-        workbook       = xlsxwriter.Workbook('audit_data.xlsx')
+        workbook       = xlsxwriter.Workbook('audit_data.xlsx')                                                                                                                                                                                                                                                                                                                                                                                            
         bold           = workbook.add_format({'bold': True})
         worksheet      = workbook.add_worksheet('audit_data')
         worksheet_1    = workbook.add_worksheet('calculation')
@@ -340,84 +340,84 @@ def generate_excel_for_audit_data(request):
         worksheet.write('D'+str(2), 'Work Packet', bold)
         worksheet.write('E'+str(2), 'Sub Packet', bold)
         worksheet.write('F'+str(2), 'Audit count',bold)
+        if audit_dict:
+            worksheet_1.write('A'+str(1), 'Work Packet', bold)
+            worksheet_1.write('A'+str(3), 'Name', bold)
+            worksheet_1.write('B'+str(2), '15', bold)
+            worksheet_1.write('E'+str(2), '30', bold)
+            worksheet_1.write('H'+str(2), '60', bold)
+            worksheet_1.write('K'+str(2), '90', bold)
+            worksheet_1.write('B'+str(3), 'Audited', bold)
+            worksheet_1.write('C'+str(3), 'Errors', bold)
+            worksheet_1.write('D'+str(3), 'Accuracy', bold)
+            worksheet_1.write('E'+str(3), 'Audited', bold)
+            worksheet_1.write('F'+str(3), 'Errors', bold)
+            worksheet_1.write('G'+str(3), 'Accuracy', bold)
+            worksheet_1.write('H'+str(3), 'Audited', bold)
+            worksheet_1.write('I'+str(3), 'Errors', bold)
+            worksheet_1.write('J'+str(3), 'Accuracy', bold)
+            worksheet_1.write('K'+str(3), 'Audited', bold)
+            worksheet_1.write('L'+str(3), 'Errors', bold)
+            worksheet_1.write('M'+str(3), 'Accuracy', bold)
+            worksheet_1.write('O'+str(3), 'Calculation', bold)
 
-        worksheet_1.write('A'+str(1), 'Work Packet', bold)
-        worksheet_1.write('A'+str(3), 'Name', bold)
-        worksheet_1.write('B'+str(2), '15', bold)
-        worksheet_1.write('E'+str(2), '30', bold)
-        worksheet_1.write('H'+str(2), '60', bold)
-        worksheet_1.write('K'+str(2), '90', bold)
-        worksheet_1.write('B'+str(3), 'Audited', bold)
-        worksheet_1.write('C'+str(3), 'Errors', bold)
-        worksheet_1.write('D'+str(3), 'Accuracy', bold)
-        worksheet_1.write('E'+str(3), 'Audited', bold)
-        worksheet_1.write('F'+str(3), 'Errors', bold)
-        worksheet_1.write('G'+str(3), 'Accuracy', bold)
-        worksheet_1.write('H'+str(3), 'Audited', bold)
-        worksheet_1.write('I'+str(3), 'Errors', bold)
-        worksheet_1.write('J'+str(3), 'Accuracy', bold)
-        worksheet_1.write('K'+str(3), 'Audited', bold)
-        worksheet_1.write('L'+str(3), 'Errors', bold)
-        worksheet_1.write('M'+str(3), 'Accuracy', bold)
-        worksheet_1.write('O'+str(3), 'Calculation', bold)
+            packet_names, agent_names = [], []
+            
+            for name in packet_details.keys():
+                if name != 'work_packet':
+                    packet_names.append(name.split('_')[0])
+            packet_names = set(packet_names)
 
-        packet_names, agent_names = [], []
-        
-        for name in packet_details.keys():
-            if name != 'work_packet':
-                packet_names.append(name.split('_')[0])
-        packet_names = set(packet_names)
+            for name in agent_details.keys():
+                if name != 'employee_id':
+                    agent_names.append(name.split('_')[0])
+            agent_names  = set(agent_names)
 
-        for name in agent_details.keys():
-            if name != 'employee_id':
-                agent_names.append(name.split('_')[0])
-        agent_names  = set(agent_names)
+            v = 4
+            for name in packet_names:
+                audited  = packet_details[name+'_audited']
+                errors   = packet_details[name+'_error']
+                accuracy = packet_details[name+'_accuracy']
+                final    = packet_details[name+'_final']
+                worksheet_1.write('A'+str(v), name)
+                worksheet_1.write('B'+str(v), audited[0])
+                worksheet_1.write('C'+str(v), errors[0])
+                worksheet_1.write('D'+str(v), accuracy[0])
+                worksheet_1.write('E'+str(v), audited[1])
+                worksheet_1.write('F'+str(v), errors[1])
+                worksheet_1.write('G'+str(v), accuracy[1])
+                worksheet_1.write('H'+str(v), audited[2])
+                worksheet_1.write('I'+str(v), errors[2])
+                worksheet_1.write('J'+str(v), accuracy[2])
+                worksheet_1.write('K'+str(v), audited[3])
+                worksheet_1.write('L'+str(v), errors[3])
+                worksheet_1.write('M'+str(v), accuracy[3])
+                worksheet_1.write('O'+str(v), final)
+                v += 1
 
-        v = 4
-        for name in packet_names:
-            audited  = packet_details[name+'_audited']
-            errors   = packet_details[name+'_error']
-            accuracy = packet_details[name+'_accuracy']
-            final    = packet_details[name+'_final']
-            worksheet_1.write('A'+str(v), name)
-            worksheet_1.write('B'+str(v), audited[0])
-            worksheet_1.write('C'+str(v), errors[0])
-            worksheet_1.write('D'+str(v), accuracy[0])
-            worksheet_1.write('E'+str(v), audited[1])
-            worksheet_1.write('F'+str(v), errors[1])
-            worksheet_1.write('G'+str(v), accuracy[1])
-            worksheet_1.write('H'+str(v), audited[2])
-            worksheet_1.write('I'+str(v), errors[2])
-            worksheet_1.write('J'+str(v), accuracy[2])
-            worksheet_1.write('K'+str(v), audited[3])
-            worksheet_1.write('L'+str(v), errors[3])
-            worksheet_1.write('M'+str(v), accuracy[3])
-            worksheet_1.write('O'+str(v), final)
-            v += 1
-
-        worksheet_1.write('A'+str(v+1), 'Agents', bold)        
-        m = v + 2
-        
-        for name in agent_names:
-            audited  = agent_details[name+'_audited']
-            errors   = agent_details[name+'_error']
-            accuracy = agent_details[name+'_accuracy']
-            final    = agent_details[name+'_final']
-            worksheet_1.write('A'+str(m), name)
-            worksheet_1.write('B'+str(m), audited[0])
-            worksheet_1.write('C'+str(m), errors[0])
-            worksheet_1.write('D'+str(m), accuracy[0])
-            worksheet_1.write('E'+str(m), audited[1])
-            worksheet_1.write('F'+str(m), errors[1])
-            worksheet_1.write('G'+str(m), accuracy[1])
-            worksheet_1.write('H'+str(m), audited[2])
-            worksheet_1.write('I'+str(m), errors[2])
-            worksheet_1.write('J'+str(m), accuracy[2])
-            worksheet_1.write('K'+str(m), audited[3])
-            worksheet_1.write('L'+str(m), errors[3])
-            worksheet_1.write('M'+str(m), accuracy[3])
-            worksheet_1.write('O'+str(m), final)
-            m += 1
+            worksheet_1.write('A'+str(v+1), 'Agents', bold)        
+            m = v + 2
+            
+            for name in agent_names:
+                audited  = agent_details[name+'_audited']
+                errors   = agent_details[name+'_error']
+                accuracy = agent_details[name+'_accuracy']
+                final    = agent_details[name+'_final']
+                worksheet_1.write('A'+str(m), name)
+                worksheet_1.write('B'+str(m), audited[0])
+                worksheet_1.write('C'+str(m), errors[0])
+                worksheet_1.write('D'+str(m), accuracy[0])
+                worksheet_1.write('E'+str(m), audited[1])
+                worksheet_1.write('F'+str(m), errors[1])
+                worksheet_1.write('G'+str(m), accuracy[1])
+                worksheet_1.write('H'+str(m), audited[2])
+                worksheet_1.write('I'+str(m), errors[2])
+                worksheet_1.write('J'+str(m), accuracy[2])
+                worksheet_1.write('K'+str(m), audited[3])
+                worksheet_1.write('L'+str(m), errors[3])
+                worksheet_1.write('M'+str(m), accuracy[3])
+                worksheet_1.write('O'+str(m), final)
+                m += 1
 
         if audit_dict:
             worksheet.write('A'+str(1), 'Intelligent sampling', bold)
