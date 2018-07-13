@@ -25,8 +25,8 @@
              this.$onInit = function () {
 
                unWatch = $scope.$watch(function(scope) {
-
-                 return scope.options.series;
+                if(scope.options != undefined)
+                  return scope.options.series;
                },
                function(newVal) {
 

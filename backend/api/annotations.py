@@ -186,7 +186,7 @@ def add_annotation(request):
     center = Center.objects.filter(name = cen_name)
     start_date = request.POST.get('from', '')
     end_date = request.POST.get('to', '')
-    
+
     existed_annotations = Annotation.objects.filter(text=text, project=prj_obj[0],center=center[0],\
                                                 key=key,dt_created=dt_created)
     if existed_annotations:
@@ -251,7 +251,7 @@ def update_annotation(request):
     end_date = request.POST.get('to', '')
     if '-' in annotation_id:
         annotation_id = ""
-    #import pdb;pdb.set_trace()
+
     if action == "delete":
         if action == "delete" and text == "" and project == "" and annotation_id == "":
             anno = Annotation.objects.filter(text=text,epoch=epoch)
