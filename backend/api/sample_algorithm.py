@@ -293,7 +293,7 @@ def generate_or_case_calculation_for_intelligent_audit(audited_value,and_case_va
                 k += 1
         return audit_and_case_dict
     else:
-        return "Please select either packets or agents Or select low random value to audit the samples"
+        return "Please select either packets or agents Or select low value to audit the samples"
 
 
 def generate_random_data(random_dict,random_value):
