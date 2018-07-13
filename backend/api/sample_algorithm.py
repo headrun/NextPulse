@@ -126,7 +126,7 @@ def generate_accuracy_for_packet_and_agent(required_data,project_id,center_id,da
                     accuracy = 1
 
                 field_accuracy.append(accuracy)
-                packet_or_agent_error.update({name: round(sum(field_accuracy),2)})
+                packet_or_agent_error.update({name: sum(field_accuracy)})
             
             if ((name not in internal_packets) and (name not in external_packets) and (query_field == 'work_packet')) or \
                 ((name not in internal_agents) and (name not in external_agents) and (query_field == 'employee_id')):
@@ -143,7 +143,7 @@ def generate_accuracy_for_packet_and_agent(required_data,project_id,center_id,da
         names_list.append(name)
         name = re.sub(r'[^\x00-\x7F]+',' ', name)
         packet_or_agent_details.update({query_field:name, name+'_audited':audited_list, name+'_error':error_list,\
-                name+'_accuracy':field_accuracy, name+'_final':round(sum(field_accuracy),2)})
+                name+'_accuracy':field_accuracy, name+'_final':sum(field_accuracy)})
 
     final_details = {}
     for packet_or_agent in required_data:
