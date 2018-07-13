@@ -391,7 +391,7 @@
                 //this.$annotations_ul.fadeOut();
                 //this.$el.fadeOut();
                 if (point.barX) {                   
-                    this.$el.attr({"y": point.plotY - 10, "x": point.barX+(point.pointWidth/2) + chart.plotLeft - 10});                    
+                    this.$el.attr({"y": point.plotY - 10, "x": point.barX+(point.pointWidth/2) + chart.plotLeft - 10});
                 }
                 else {
                     this.$el.attr({"y": this.point.plotY + this.chart.plotTop -30, "x": this.point.plotX + this.chart.plotLeft - 10});
