@@ -174,8 +174,7 @@
         self.end = end.format('YYYY-MM-DD');
         $('.input-sm').prop('selectedIndex',0);
         self.add_loader();
-        callback.push.apply(callback, [self.start, self.end, self.center_live, self.project_live])
-        self.apply_class();
+        callback.push.apply(callback, [self.start, self.end, self.center_live, self.project_live]);   self.apply_class();
         if(self.is_voice_flag) {
           self.voiceTypeFilter(self.voiceProjectType, 1);
         }else {
@@ -361,13 +360,12 @@
       }
       $(widgetA).removeClass('widget-loader-show');
       $(widgetB).removeClass('widget-data-hide');
-    }
+    };
 
     self.highlightTypes = function (button_type, widgetName) {
       $(widgetName + ' .' + button_type + '2').addClass('active btn-success');
       $(widgetName + ' .' + button_type + '2').siblings().removeClass('active btn-success');
-    }
-
+    };
     self.main_widget_function = function(callback, packet) {
       self.center_live = callback[2];
       self.project_live = callback[3];
@@ -388,7 +386,7 @@
 
       self.data_to_show = '?&project='+callback[3]+'&center='+callback[2]+'&from='+ callback[0]+'&to='+ callback[1]+packet+'&type=';
       self.aht_data_to_show = '?&project='+callback[3]+'&center='+callback[2]+'&from='+ callback[0]+'&to='+ callback[1] + '&type=';
-      self.static_widget_data = '&project='+callback[3]+'&center='+callback[2]
+      self.static_widget_data = '&project='+callback[3]+'&center='+callback[2];
       self.common_for_all = self.data_to_show + self.day_type;
       var error_bar_graph = '/api/error_bar_graph/'+self.common_for_all;
       var err_field_graph = '/api/err_field_graph/'+self.common_for_all;
@@ -402,7 +400,7 @@
         $http({method: "GET", url: self.pro_landing_url}).success(function(result){
           self.role_for_perm = result.result.role;
         });
-      }
+      };
 
       self.ajax_for_role();
 
@@ -422,7 +420,7 @@
           $('.popover-title').show();
           //$('.icon-action-group').show()
         }
-      }
+      };
 
       self.allo_and_comp = function(final_work, type, name) {
         if (type == undefined) {
@@ -518,7 +516,7 @@
                             else {
                               var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
                               var work_pack = self.data_to_show.split('&')[6].split('=')[1];
-                              var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
+                              var sub_pack = self.data_to_show.split('&')[7].split('=')[1];
                             }
                             var str = '17<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                             this['project'] = self.project_live;
@@ -569,9 +567,9 @@
                         $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
                         self.type+'&chart_name=17&project='+self.project_live+'&center='+
                         self.center_live+'&from='+self.start_date+'&to='+self.end_date}).success(function(annotations){
-                          annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
+                          annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch; });
                           $.each(annotations, function(j, annotation){
-                            var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
+                            var point = _.filter(series.points, function(point){ return point.category == annotation.epoch; });
                             point = point[0];
                             if(annotation.epoch){
                               var a = new Annotation("17", $(self.chartOptions17.chart.renderTo), chart, point, annotation);
@@ -627,7 +625,7 @@
                             }else {
                               var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
                               var work_pack = self.data_to_show.split('&')[6].split('=')[1];
-                              var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
+                              var sub_pack = self.data_to_show.split('&')[7].split('=')[1];
                             }
                             var str = '13<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                             this['project'] = self.project_live;
@@ -678,9 +676,9 @@
                         $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
                         self.type+'&chart_name=13&project='+self.project_live+'&center='+
                         self.center_live+'&from='+self.start_date+'&to='+self.end_date}).success(function(annotations){
-                          annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
+                          annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch; });
                           $.each(annotations, function(j, annotation){
-                            var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
+                            var point = _.filter(series.points, function(point){ return point.category == annotation.epoch; });
                             point = point[0];
                             if(annotation.epoch){
                               var a = new Annotation("13", $(self.chartOptions18.chart.renderTo),
@@ -700,7 +698,7 @@
             }
           });
         }
-      }
+      };
 
   self.utill_all = function(final_work, type,name) {
       if(type == undefined) {
@@ -775,9 +773,9 @@
                           }else {
                             var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
                             var work_pack = self.data_to_show.split('&')[6].split('=')[1];
-                            var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
+                            var sub_pack = self.data_to_show.split('&')[7].split('=')[1];
                           }
-                          var str = '20<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
+                          var str = '20<##>' + self.type+'<##>' + sub_proj + '<##>' + work_pack + '<##>' + sub_pack;
                           this['project'] = self.project_live;
                           this['center'] = self.center_live;
                           this['from'] = self.start_date;
@@ -800,9 +798,9 @@
                       $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
                       self.type+'&chart_name=20&project='+self.project_live+'&center='+
                       self.center_live+'&from='+self.start_date+'&to='+self.end_date}).success(function(annotations){
-                        annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
+                        annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch; });
                         $.each(annotations, function(j, annotation){
-                          var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
+                          var point = _.filter(series.points, function(point){ return point.category == annotation.epoch; });
                           point = point[0];
 
                           if(annotation.epoch){
@@ -855,7 +853,7 @@
                           }else {
                             var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
                             var work_pack = self.data_to_show.split('&')[6].split('=')[1];
-                            var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
+                            var sub_pack = self.data_to_show.split('&')[7].split('=')[1];
                           }
                           var str = '19<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
                           this['project'] = self.project_live;
@@ -2746,7 +2744,7 @@
     var error_data = '/api/static_internal_external_agent_errors/?'+self.static_widget_data;
     return $http({method:"GET", url: error_data }).success(function(result){
       if(isEmpty(result['result'].thirty_days_data.internalerrors)&&isEmpty(result['result'].sixty_days_data.internalerrors)&&isEmpty(result['result'].ninty_days_data.internalerrors)){
-        var table_html = '<div style="margin-top:100px;margin-left:250px; font-size:11px; color:#5b5b5b; font-weight:bold;"><span>No data to display</span></div>';
+        var table_html = '<div style="font-size:11px; color:#5b5b5b; font-weight:bold;display:flex; justify-content:center; margin-top:100px"><p>No data to display</p></div>';
         $(".widget-66b highcharts").remove();
         $('.widget-66b').css('overflow','auto');
         var $el = $(table_html).appendTo(".widget-body.widget-66b");
@@ -2762,7 +2760,7 @@
         var sixty_days_internal_agent_data = result['result'].sixty_days_data.internalerrors;
         var ninty_days_internal_agent_data = result['result'].ninty_days_data.internalerrors;
 
-        var widget = "<div id='widget-66-agent-error' style='margin-top:20px; display:flex; '>";
+        var widget = "<div id='widget-66-agent-error' style='margin-top:20px; display:flex; justify-content:center'>";
         var card_html_1 = "<div class='card'><div class='card-header'><span class='card-header-text'>30 Days</span></div><div class='card-body'>";
 
         var card_html_2 = "<div class='card'><div class='card-header'><span class='card-header-text'>60 Days</span></div><div class='card-body'>";
@@ -2798,7 +2796,7 @@
       // ===================For External Errors =========================
 
       if(isEmpty(result['result'].thirty_days_data.externalerrors)&&isEmpty(result['result'].sixty_days_data.externalerrors)&&isEmpty(result['result'].ninty_days_data.externalerrors)){
-        var table_html= '<div style="margin-top:100px;margin-left:250px; font-size:11px; color:#5b5b5b; font-weight:bold;"><span>No data to display</span></div>';
+        var table_html= '<div style="margin-top:100px;font-size:11px; color:#5b5b5b; font-weight:bold; display:flex; justify-content:center;"><span>No data to display</span></div>';
         $(".widget-67b highcharts").remove();
         $('.widget-67b').css('overflow','auto');
         var $el = $(table_html).appendTo(".widget-body.widget-67b");
@@ -2814,7 +2812,7 @@
         var sixty_days_external_agent_data = result['result'].sixty_days_data.externalerrors;
         var ninty_days_external_agent_data = result['result'].ninty_days_data.externalerrors;
 
-        var widget_2 = "<div id='widget-67-agent-error' style='margin-top:20px; display:flex; justify-content:space-around;'>";
+        var widget_2 = "<div id='widget-67-agent-error' style='margin-top:20px; display:flex; justify-content:center;'>";
         var card_html_4 = "<div class='card'><div class='card-header'><span class='card-header-text'>30 Days</span></div><div class='card-body'>";
 
         var card_html_5 = "<div class='card'><div class='card-header'><span class='card-header-text'>60 Days</span></div><div class='card-body'>";
@@ -2855,7 +2853,7 @@
     var error_category = '/api/static_internal_external_error_category/?'+self.static_widget_data;
     return $http({method:"GET", url: error_category }).success(function(result){
       if(isEmpty(result['result'].thirty_days_data.internalerrors) && isEmpty(result['result'].sixty_days_data.internalerrors)&& isEmpty(result['result'].ninty_days_data.internalerrors)){
-        var table_html = '<div style="margin-top:100px;margin-left:250px; font-size:11px; color:#5b5b5b; font-weight:bold;"><span>No data to display</span></div>';
+        var table_html = '<div style="margin-top:100px;font-size:11px; color:#5b5b5b; font-weight:bold; display:flex; justify-content:center;"><span>No data to display</span></div>';
         $(".widget-68b highcharts").remove();
         $('.widget-68b').css('overflow','auto');
         var $el = $(table_html).appendTo(".widget-body.widget-68b");
@@ -2872,7 +2870,7 @@
         var sixty_days_internal_error_category = result['result'].sixty_days_data.internalerrors;
         var ninty_days_internal_error_category = result['result'].ninty_days_data.internalerrors;
 
-        var widget = "<div id='widget-68-error-category' style='margin-top:20px; display:flex;'>";
+        var widget = "<div id='widget-68-error-category' style='display:flex; justify-content:center'>";
         var card_html_1 = "<div class='card'><div class='card-header'><span class='card-header-text'>30 Days</span></div><div class='card-body'>";
 
         var card_html_2 = "<div class='card'><div class='card-header'><span class='card-header-text'>60 Days</span></div><div class='card-body'>";
@@ -2912,7 +2910,7 @@
 
       if(isEmpty(result['result'].thirty_days_data.externalerrors)&&isEmpty(result['result'].sixty_days_data.externalerrors)&&isEmpty(result['result'].ninty_days_data.externalerrors)){
 
-        var table_html = '<div style="margin-top:100px;margin-left:250px; font-size:11px; color:#5b5b5b; font-weight:bold;"><span>No data to display</span></div>';
+        var table_html = '<div style="margin-top:100px;font-size:11px; color:#5b5b5b; font-weight:bold; display:flex; justify-content:center;"><span>No data to display</span></div>';
         $(".widget-69b highcharts").remove();
         $('.widget-69b').css('overflow','auto');
         var $el = $(table_html).appendTo(".widget-body.widget-69b");
@@ -2928,7 +2926,7 @@
         var sixty_days_external_error_category = result['result'].sixty_days_data.externalerrors;
         var ninty_days_external_error_category = result['result'].ninty_days_data.externalerrors;
 
-        var widget_2 = "<div id='widget-69-error-category' style='margin-top:20px; display:flex;'>";
+        var widget_2 = "<div id='widget-69-error-category' style='display:flex; justify-content:center;'>";
 
         var card_html_4 = "<div class='card'><div class='card-header'><span class='card-header-text'>30 Days</span></div><div class='card-body'>";
 
@@ -2973,7 +2971,7 @@
     return $http({method:"GET", url: error_data }).success(function(result){
       if(isEmpty(result['result'].thirty_days_data.internalerrors)&&isEmpty(result['result'].sixty_days_data.internalerrors)&&isEmpty(result['result'].ninty_days_data.internalerrors)){
 
-        var table_html = '<div style="margin-top:100px;margin-left:250px; font-size:11px; color:#5b5b5b; font-weight:bold;"><span>No data to display</span></div>';
+        var table_html = '<div style="margin-top:100px;font-size:11px; color:#5b5b5b; font-weight:bold; display:flex; justify-content:center;"><span>No data to display</span></div>';
         $(".widget-70b highcharts").remove();
         $('.widget-70b').css('overflow','auto');
         var $el = $(table_html).appendTo(".widget-body.widget-70b");
@@ -2988,7 +2986,7 @@
         var sixty_days_packet_wise_data = result['result'].sixty_days_data.internalerrors;
         var ninty_days_packet_wise_data = result['result'].ninty_days_data.internalerrors;
 
-        var widget = "<div id='widget-70-packet-wise-error' style='margin-top:20px; display:flex;'>";
+        var widget = "<div id='widget-70-packet-wise-error' style='margin-top:20px; display:flex;justify-content:center'>";
         var card_html_1 = "<div class='card'><div class='card-header'><span class='card-header-text'>30 Days</span></div><div class='card-body'>";
         var card_html_2 = "<div class='card'><div class='card-header'><span class='card-header-text'>60 Days</span></div><div class='card-body'>";
         var card_html_3 = "<div  class='card'><div class='card-header'><span class='card-header-text'>90 Days</span></div><div class='card-body'>";
@@ -3024,7 +3022,7 @@
       // For external packets
 
       if(isEmpty(result['result'].thirty_days_data.externalerrors) && isEmpty(result['result'].sixty_days_data.externalerrors)&& isEmpty(result['result'].ninty_days_data.externalerrors)){
-        var table_html = '<div style="margin-top:100px;margin-left:250px; font-size:11px; color:#5b5b5b; font-weight:bold;"><span>No data to display</span></div>';
+        var table_html = '<div style="margin-top:100px;font-size:11px; color:#5b5b5b; font-weight:bold; display:flex; justify-content:center;"><span>No data to display</span></div>';
         $(".widget-71b highcharts").remove();
         $('.widget-71b').css('overflow','auto');
         var $el = $(table_html).appendTo(".widget-body.widget-71b");
@@ -3039,7 +3037,7 @@
         var sixty_days_packet_wise_data = result['result'].sixty_days_data.externalerrors;
         var ninty_days_packet_wise_data = result['result'].ninty_days_data.externalerrors;
 
-        var widget_2 = "<div id='widget-71-packet-wise-error' style='margin-top:20px; display:flex;'>";
+        var widget_2 = "<div id='widget-71-packet-wise-error' style='margin-top:20px; display:flex; justify-content:center;'>";
         var card_html_4 = "<div class='card'><div class='card-header'><span class='card-header-text'>30 Days</span></div><div class='card-body'>";
         var card_html_5 = "<div class='card'><div class='card-header'><span class='card-header-text'>60 Days</span></div><div class='card-body'>";
         var card_html_6 = "<div  class='card'><div class='card-header'><span class='card-header-text'>90 Days</span></div><div class='card-body'>";
@@ -3078,7 +3076,7 @@
     var url = '/api/static_internal_external_packet_accuracy/?'+self.static_widget_data;
     return $http({'method':'GET', 'url':url}).success(function(result){
       if(isEmpty(result['result'].thirty_days_data.internalerrors)&&isEmpty(result['result'].sixty_days_data.internalerrors)&&isEmpty(result['result'].ninty_days_data.internalerrors)){
-        var table_html = '<div style="margin-top:100px;margin-left:250px; font-size:11px; color:#5b5b5b; font-weight:bold;"><span>No data to display</span></div>';
+        var table_html = '<div style="margin-top:100px;font-size:11px; color:#5b5b5b; font-weight:bold; display:flex; justify-content:center;"><span>No data to display</span></div>';
         $(".widget-72b highcharts").remove();
         $('.widget-72b').css('overflow','auto');
         var $el = $(table_html).appendTo(".widget-body .widget-72b");
@@ -3092,7 +3090,7 @@
         var thirty_days_internal_packet_accuracy = result['result'].thirty_days_data.internalerrors;
         var sixty_days_internal_packet_accuracy = result['result'].sixty_days_data.internalerrors;
         var ninty_days_internal_packet_accuracy = result['result'].ninty_days_data.internalerrors;
-        var widget = "<div id='widget-72-packet-accuracy' style='margin-top:20px; display:flex;'>";
+        var widget = "<div id='widget-72-packet-accuracy' style='margin-top:20px; display:flex; justify-content:center'>";
         var card_html_1 = "<div class='card'><div class='card-header'><span class='card-header-text'>30 Days</span></div><div class='card-body'>";
 
         var card_html_2 = "<div class='card'><div class='card-header'><span class='card-header-text'>60 Days</span></div><div class='card-body'>";
@@ -3129,7 +3127,7 @@
       // ===================For External Errors =========================
 
       if(isEmpty(result['result'].thirty_days_data.externalerrors)&&isEmpty(result['result'].sixty_days_data.externalerrors)&&isEmpty(result['result'].ninty_days_data.externalerrors)){
-        var table_html= '<div style="margin-top:100px;margin-left:250px; font-size:11px; color:#5b5b5b; font-weight:bold;"><span>No data to display</span></div>';
+        var table_html= '<div style="margin-top:100px;font-size:11px; color:#5b5b5b; font-weight:bold; display:flex; justify-content:center;"><span>No data to display</span></div>';
         $(".widget-73b highcharts").remove();
         $('.widget-73b').css('overflow','auto');
         var $el = $(table_html).appendTo(".widget-body.widget-73b");
@@ -3144,7 +3142,7 @@
         var thirty_days_external_packet_accuracy = result['result'].thirty_days_data.externalerrors;
         var sixty_days_external_packet_accuracy = result['result'].sixty_days_data.externalerrors;
         var ninty_days_external_packet_accuracy = result['result'].ninty_days_data.externalerrors;
-        var widget_2 = "<div id='widget-73-packet-accuracy' style='margin-top:20px; display:flex;'>";
+        var widget_2 = "<div id='widget-73-packet-accuracy' style='margin-top:20px; display:flex; justify-content:center;'>";
         var card_html_4 = "<div class='card'><div class='card-header'><span class='card-header-text'>30 Days</span></div><div class='card-body'>";
 
         var card_html_5 = "<div class='card'><div class='card-header'><span class='card-header-text'>60 Days</span></div><div class='card-body'>";
@@ -3185,7 +3183,7 @@
     var url = '/api/static_internal_external_agent_accuracy/?'+self.static_widget_data;
     return $http({'method':'GET', 'url':url}).success(function(result){
       if(isEmpty(result['result'].thirty_days_data.internalerrors)&&isEmpty(result['result'].sixty_days_data.internalerrors)&&isEmpty(result['result'].ninty_days_data.internalerrors)){
-        var table_html = '<div style="margin-top:100px;margin-left:250px; font-size:11px; color:#5b5b5b; font-weight:bold;"><span>No data to display</span></div>';
+        var table_html = '<div style="margin-top:100px;font-size:11px; color:#5b5b5b; font-weight:bold;display:flex; justify-content:center;"><span>No data to display</span></div>';
         $(".widget-74b highcharts").remove();
         $('.widget-74b').css('overflow','auto');
         var $el = $(table_html).appendTo(".widget-body.widget-74b");
@@ -3200,7 +3198,7 @@
         var thirty_days_internal_agent_accuracy = result['result'].thirty_days_data.internalerrors;
         var sixty_days_internal_agent_accuracy = result['result'].sixty_days_data.internalerrors;
         var ninty_days_internal_agent_accuracy = result['result'].ninty_days_data.internalerrors;
-        var widget = "<div id='widget-74-agent-accuracy' style='margin-top:20px; display:flex;'>";
+        var widget = "<div id='widget-74-agent-accuracy' style='margin-top:20px; display:flex; justify-content:center;'>";
         var card_html_1 = "<div class='card'><div class='card-header'><span class='card-header-text'>30 Days</span></div><div class='card-body'>";
 
         var card_html_2 = "<div class='card'><div class='card-header'><span class='card-header-text'>60 Days</span></div><div class='card-body'>";
@@ -3236,7 +3234,7 @@
       // ===================For External Errors =========================
 
       if(isEmpty(result['result'].thirty_days_data.externalerrors)&&isEmpty(result['result'].sixty_days_data.externalerrors)&&isEmpty(result['result'].ninty_days_data.externalerrors)){
-        var table_html= '<div style="margin-top:100px;margin-left:250px; font-size:11px; color:#5b5b5b; font-weight:bold;"><span>No data to display</span></div>';
+        var table_html= '<div style="margin-top:100px;font-size:11px; color:#5b5b5b; font-weight:bold; display:flex; justify-content:center;"><span>No data to display</span></div>';
         $(".widget-75b highcharts").remove();
         $('.widget-75b').css('overflow','auto');
         var $el = $(table_html).appendTo(".widget-body.widget-75b");
@@ -3251,7 +3249,7 @@
         var thirty_days_external_agent_accuracy = result['result'].thirty_days_data.externalerrors;
         var sixty_days_external_agent_accuracy = result['result'].sixty_days_data.externalerrors;
         var ninty_days_external_agent_accuracy = result['result'].ninty_days_data.externalerrors;
-        var widget_2 = "<div id='widget-75-agent-accuracy' style='margin-top:20px; display:flex;'>";
+        var widget_2 = "<div id='widget-75-agent-accuracy' style='margin-top:20px; display:flex; justify-content:center;'>";
         var card_html_4 = "<div class='card'><div class='card-header'><span class='card-header-text'>30 Days</span></div><div class='card-body'>";
 
         var card_html_5 = "<div class='card'><div class='card-header'><span class='card-header-text'>60 Days</span></div><div class='card-body'>";
@@ -3291,7 +3289,7 @@
     var url = '/api/unaudited_packet/?'+self.static_widget_data;
     return $http({'method':'GET', 'url':url}).success(function(result){
       if(isEmpty(result['result'].thirty_days_data.internalerrors)&&isEmpty(result['result'].sixty_days_data.internalerrors)&&isEmpty(result['result'].ninty_days_data.internalerrors)){
-        var table_html = '<div style="margin-top:100px;margin-left:250px; font-size:11px; color:#5b5b5b; font-weight:bold;"><span>No data to display</span></div>';
+        var table_html = '<div style="margin-top:100px;font-size:11px; color:#5b5b5b; font-weight:bold; display:flex; justify-content:center;"><span>No data to display</span></div>';
         $(".widget-76b highcharts").remove();
         $('.widget-76b').css('overflow','auto');
         var $el = $(table_html).appendTo(".widget-body.widget-76b");
@@ -3305,7 +3303,7 @@
         var thirty_days_internal_unaudited_packet = result['result'].thirty_days_data.internalerrors;
         var sixty_days_internal_unaudited_packet = result['result'].sixty_days_data.internalerrors;
         var ninty_days_internal_unaudited_packet = result['result'].ninty_days_data.internalerrors;
-        var widget = "<div id='widget-76-unaudited-packets' style='margin-top:20px; display:flex;'>";
+        var widget = "<div id='widget-76-unaudited-packets' style='margin-top:20px; display:flex; justify-content:center;'>";
         var card_html_1 = "<div class='card'><div class='card-header'><span class='card-header-text'>30 Days</span></div><div class='card-body'>";
 
         var card_html_2 = "<div class='card'><div class='card-header'><span class='card-header-text'>60 Days</span></div><div class='card-body'>";
@@ -3342,7 +3340,7 @@
      // ===================For External Errors =========================
 
       if(isEmpty(result['result'].thirty_days_data.externalerrors)&&isEmpty(result['result'].sixty_days_data.externalerrors)&&isEmpty(result['result'].ninty_days_data.externalerrors)){
-        var table_html= '<div style="margin-top:100px;margin-left:250px; font-size:11px; color:#5b5b5b; font-weight:bold;"><span>No data to display</span></div>';
+        var table_html= '<div style="margin-top:100px;font-size:11px; color:#5b5b5b; font-weight:bold;display:flex; justify-content:center;"><span>No data to display</span></div>';
         $(".widget-77b highcharts").remove();
         $('.widget-77b').css('overflow','auto');
         var $el = $(table_html).appendTo(".widget-body.widget-77b");
@@ -3357,7 +3355,7 @@
         var thirty_days_external_unaudited_packet = result['result'].thirty_days_data.externalerrors;
         var sixty_days_external_unaudited_packet = result['result'].sixty_days_data.externalerrors;
         var ninty_days_external_unaudited_packet = result['result'].ninty_days_data.externalerrors;
-        var widget_2 = "<div id='widget-77-unaudited-packets' style='margin-top:20px; display:flex;'>";
+        var widget_2 = "<div id='widget-77-unaudited-packets' style='margin-top:20px; display:flex; justify-content:center;'>";
         var card_html_4 = "<div class='card'><div class='card-header'><span class='card-header-text'>30 Days</span></div><div class='card-body'>";
 
         var card_html_5 = "<div class='card'><div class='card-header'><span class='card-header-text'>60 Days</span></div><div class='card-body'>";
@@ -3662,6 +3660,7 @@
                     var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
 
                     point = point[0];
+
 
                     if(annotation.epoch){
                       var a = new Annotation("64", $(self.chartOptions69.chart.renderTo),
