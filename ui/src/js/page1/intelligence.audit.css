@@ -46,9 +46,10 @@
   padding-left:5px;
   font-weight: bold;
 }
+
 .audit-random-per, .audit-random{
   display: flex;
-  justify-content: space-between;
+  justify-content: space-around;
   margin-top:10px;
 }
  .auditper, .randomper, .audit, .random{
@@ -73,16 +74,18 @@
 .packet-agent{
   display: flex;
   margin-top:1%;
+  margin-right:2%;
   justify-content:space-around;
+  font-size:20px;
 }
-.packet-head{
+/* .packet-head{
   margin-right:4%;
   font-size:20px;
 }
 .agent-head{
   margin-right:3.5%;
   font-size:20px;
-}
+} */
 .packet-container{
   display: inline-flex;
   align-items: center;
@@ -111,7 +114,6 @@
 }
 .icard:hover{
   background-color:#E0E0E0;
-  border:2px solid #424242;
   box-shadow: none;
 
 }
