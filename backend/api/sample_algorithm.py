@@ -55,8 +55,6 @@ def get_the_packet_and_agent_data(required_data,dates,project_id,center_id,filte
 
     packet_or_agent_config = {}
     
-    data_list   = []
-    
     if filter_type  == 'packets':
         config_value = Project.objects.get(id=project_id,center=center_id).no_of_packets
         query_field  = 'work_packet'
@@ -65,15 +63,13 @@ def get_the_packet_and_agent_data(required_data,dates,project_id,center_id,filte
         query_field  = 'employee_id'
 
     result, details  = generate_accuracy_for_packet_and_agent(required_data,project_id,center_id,dates,query_field,config_value)
-    sorted_data      = (sorted(result.items(), key=itemgetter(1)))[:config_value]
+    sorted_data      = (sorted(result.items(), key=itemgetter(1)))
     sorted_names     = [re.sub(r'[^\x00-\x7F]+',' ', names[0]) for names in sorted_data]
-    for name in required_data:
-        if name not in sorted_names:
-            data_list.append(re.sub(r'[^\x00-\x7F]+',' ', name))
-    packet_or_agent_config[filter_type] = data_list
+    remaining_names  = sorted_names[config_value:]
+    packet_or_agent_config[filter_type] = remaining_names
     packet_or_agent_config[filter_type+'value'] = config_value
     packet_or_agent_config[filter_type+'_details'] = details
-    return sorted_names, packet_or_agent_config
+    return sorted_names[:config_value], packet_or_agent_config
 
 
 def generate_accuracy_for_packet_and_agent(required_data,project_id,center_id,dates,query_field,config_value):
@@ -150,6 +146,7 @@ def generate_accuracy_for_packet_and_agent(required_data,project_id,center_id,da
                 packet_or_agent_details.update({field_name+'_audited':audit_list,field_name+'_error':error_list,field_name+'_accuracy':int_accuracy_list,\
                 field_name+'_final':sum(field_accuracy),field_name+'_extrnl_audited':ext_audit_list,field_name+'_extrnl_error':ext_error_list,\
                 field_name+'_extrnl_accuracy':extnl_accuracy_list})
+
     return packet_or_agent_error, packet_or_agent_details
 
 
@@ -194,6 +191,8 @@ def packet_agent_audit_random(request):
     
     packets           = data_dict.get('packets', "")
     agents            = data_dict.get('agents', "")
+    remaining_packets = data_dict.get('remaining_packets', "")
+    remaining_agents  = data_dict.get('remaining_agents', "")
     start_date        = data_dict.get('from', "")
     end_date          = data_dict.get('to', "")
     project           = data_dict.get('project', "")
@@ -206,7 +205,9 @@ def packet_agent_audit_random(request):
     
     k, t, l = 0, 0, 0
     audit_and_case_value, audit_or_case_value = 0, 0
- 
+
+    and_case_packets, and_case_agents = [], []
+
     audit_and_case_dict, random_dict, common_dict = OrderedDict(), OrderedDict(), OrderedDict()
     audit_or_case_dict = OrderedDict()
     production_records = RawTable.objects.filter(project=project_id,center=center_id,date=start_date)
@@ -220,33 +221,104 @@ def packet_agent_audit_random(request):
 
         data = {"work_done":work_done,"sub_project":sub_project,"work_packet":work_packet,\
                 "sub_packet":sub_packet,"agent":agent,"date":start_date}
-            
+        
         if ((work_packet in packets) and (agent in agents)) and (audited_value):
             audit_and_case_value   += work_done
             audit_and_case_dict[k]  = data
+            and_case_packets.append(work_packet)
+            and_case_agents.append(agent)
             k += 1
         else:
             common_dict[t]          = data
             t += 1
-        
+    
+
+    if audit_and_case_value > audited_value:
+        iterating_packets = list(set(packets) - set(and_case_packets))
+        iterating_agents  = list(set(agents)  - set(and_case_agents))
+
+        if (iterating_packets):
+            and_packets_dict = OrderedDict()
+            value = 0
+            for packet in iterating_packets:
+                for agent in remaining_agents:
+                    for index in xrange(len(common_dict)):
+                        if (index in common_dict.keys()):
+                            work_packet = common_dict[index]["work_packet"]
+                            employee    = common_dict[index]["agent"]
+                            if packet == work_packet and agent == employee:
+                                and_packets_dict[value] = common_dict[index]
+                                del common_dict[index]
+                                value += 1
+
+            final_and_packet_names = []
+            for key, value in and_packets_dict.iteritems():
+                if final_and_packet_names:
+                    if (value["work_packet"]) not in final_and_packet_names:
+                        audit_and_case_dict[k] = and_packets_dict[key]
+                        audit_and_case_value   += and_packets_dict[key]["work_done"]
+                        final_and_packet_names.append(value["work_packet"])
+                        k += 1
+                    else:
+                        common_dict[t] = and_packets_dict[key]
+                        t += 1
+                else:
+                    audit_and_case_dict[k] = and_packets_dict[key]
+                    audit_and_case_value   += and_packets_dict[key]["work_done"]
+                    final_and_packet_names.append(value["work_packet"])
+                    k += 1
+
+        if (iterating_agents):
+            and_agents_dict = OrderedDict()
+            index_value = 0
+            for agent in iterating_agents:
+                for packet in remaining_packets:
+                    for index in xrange(len(common_dict)):
+                        if (index in common_dict.keys()):
+                            work_packet = common_dict[index]["work_packet"]
+                            employee    = common_dict[index]["agent"]
+                            if packet == work_packet and agent == employee:
+                                and_agents_dict[index_value] = common_dict[index]
+                                del common_dict[index_value]
+                                index_value += 1
+
+            final_and_agent_names = []
+            for key, value in and_agents_dict.iteritems():
+                if final_and_agent_names:
+                    if (value["agent"]) not in final_and_agent_names:
+                        audit_and_case_dict[k] = and_agents_dict[key]
+                        audit_and_case_value   += and_agents_dict[key]["work_done"]
+                        final_and_agent_names.append(value["agent"])
+                        k += 1
+                    else:
+                        common_dict[t] = and_packets_dict[key]
+                        t += 1
+                else:
+                    audit_and_case_dict[k] = and_packets_dict[key]
+                    audit_and_case_value   += and_packets_dict[key]["work_done"]
+                    final_and_agent_names.append(value["agent"])
+                    k += 1
+                     
+
     random_index = 0
     for index in xrange(len(common_dict)):
-        work_packet = common_dict[index]["work_packet"]
-        agent       = re.sub(r'[^\x00-\x7F]+',' ', common_dict[index]["agent"])
-        work_done   = common_dict[index]["work_done"]
-        sub_project = common_dict[index]["sub_project"]
-        sub_packet  = common_dict[index]["sub_packet"]
+        if (index in common_dict.keys()):
+            work_packet = common_dict[index]["work_packet"]
+            agent       = re.sub(r'[^\x00-\x7F]+',' ', common_dict[index]["agent"])
+            work_done   = common_dict[index]["work_done"]
+            sub_project = common_dict[index]["sub_project"]
+            sub_packet  = common_dict[index]["sub_packet"]
 
-        _data = {"work_done":work_done,"sub_project":sub_project,"work_packet":work_packet,\
-                "sub_packet":sub_packet,"agent":agent,"date":start_date}
-        
-        if ((work_packet in packets) or (agent in agents)) and (audited_value):
-            audit_or_case_value      += work_done
-            audit_or_case_dict[l]     = _data
-            l += 1
-        else:
-            random_dict[random_index] = common_dict[index]
-            random_index += 1
+            _data = {"work_done":work_done,"sub_project":sub_project,"work_packet":work_packet,\
+                    "sub_packet":sub_packet,"agent":agent,"date":start_date}
+            
+            if ((work_packet in packets) or (agent in agents)) and (audited_value):
+                audit_or_case_value      += work_done
+                audit_or_case_dict[l]     = _data
+                l += 1
+            else:
+                random_dict[random_index] = common_dict[index]
+                random_index += 1
    
     if audited_value:        
         if audit_and_case_value > audited_value:
