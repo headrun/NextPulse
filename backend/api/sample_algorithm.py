@@ -212,7 +212,7 @@ def packet_agent_audit_random(request):
     audit_or_case_dict = OrderedDict()
     production_records = RawTable.objects.filter(project=project_id,center=center_id,date=start_date)
 
-    for i in xrange(len(production_records)):
+    for i in range(len(production_records)):
         agent       = re.sub(r'[^\x00-\x7F]+',' ', production_records[i].employee_id)
         work_done   = production_records[i].per_day
         sub_project = production_records[i].sub_project
@@ -241,15 +241,12 @@ def packet_agent_audit_random(request):
             and_packets_dict = OrderedDict()
             value = 0
             for packet in iterating_packets:
-                for agent in remaining_agents:
-                    for index in xrange(len(common_dict)):
-                        if (index in common_dict.keys()):
-                            work_packet = common_dict[index]["work_packet"]
-                            employee    = common_dict[index]["agent"]
-                            if packet == work_packet and agent == employee:
-                                and_packets_dict[value] = common_dict[index]
-                                del common_dict[index]
-                                value += 1
+                for index in range(len(common_dict)):
+                    if (index in common_dict.keys()):
+                        if packet == common_dict[index]["work_packet"]:
+                            and_packets_dict[value] = common_dict[index]
+                            del common_dict[index]
+                            value += 1
 
             final_and_packet_names = []
             for key, value in and_packets_dict.iteritems():
@@ -266,21 +263,19 @@ def packet_agent_audit_random(request):
                     audit_and_case_dict[k] = and_packets_dict[key]
                     audit_and_case_value   += and_packets_dict[key]["work_done"]
                     final_and_packet_names.append(value["work_packet"])
-                    k += 1
+                    k += 1 
 
         if (iterating_agents):
             and_agents_dict = OrderedDict()
             index_value = 0
+            
             for agent in iterating_agents:
-                for packet in remaining_packets:
-                    for index in xrange(len(common_dict)):
-                        if (index in common_dict.keys()):
-                            work_packet = common_dict[index]["work_packet"]
-                            employee    = common_dict[index]["agent"]
-                            if packet == work_packet and agent == employee:
-                                and_agents_dict[index_value] = common_dict[index]
-                                del common_dict[index_value]
-                                index_value += 1
+                for index in range(len(common_dict)):
+                    if (index in common_dict.keys()):
+                        if agent == common_dict[index]["agent"]:
+                            and_agents_dict[value] = common_dict[index]
+                            del common_dict[index]
+                            value += 1
 
             final_and_agent_names = []
             for key, value in and_agents_dict.iteritems():
@@ -291,17 +286,16 @@ def packet_agent_audit_random(request):
                         final_and_agent_names.append(value["agent"])
                         k += 1
                     else:
-                        common_dict[t] = and_packets_dict[key]
+                        common_dict[t] = and_agents_dict[key]
                         t += 1
                 else:
-                    audit_and_case_dict[k] = and_packets_dict[key]
-                    audit_and_case_value   += and_packets_dict[key]["work_done"]
+                    audit_and_case_dict[k] = and_agents_dict[key]
+                    audit_and_case_value   += and_agents_dict[key]["work_done"]
                     final_and_agent_names.append(value["agent"])
                     k += 1
-                     
 
     random_index = 0
-    for index in xrange(len(common_dict)):
+    for index in range(len(common_dict)):
         if (index in common_dict.keys()):
             work_packet = common_dict[index]["work_packet"]
             agent       = re.sub(r'[^\x00-\x7F]+',' ', common_dict[index]["agent"])
@@ -370,23 +364,36 @@ def generate_random_data(random_dict,random_value):
 
     from random import *
 
-    _dict = OrderedDict()
-    total = 0
-    keys  = random_dict.keys()
-    for index in xrange((len(random_dict))-1):
-        if total <= random_value: 
-            value             = int(round(random() * len(random_dict)))
-            if value in keys:
-                _dict[index]  = random_dict[value]
-                done_value    = random_dict[value]["work_done"]
-                total        += done_value
-        else:
-            break
+    _dict, final_dict = OrderedDict(), OrderedDict()
     
-    if total >= random_value:
-        return _dict
-    else:
-        return "Please Select Low Random Value"
+    prev_value = 0
+
+    for data in random_dict.values():
+        data.update({'work_done': data['work_done'] + prev_value})
+        prev_value = data['work_done']
+
+    for number in range(0, random_value):
+        random_number = int(round(random() * prev_value))
+        for value in random_dict.values():
+            if value['work_done'] >= random_number:
+                _dict.update({number: value})
+                break
+
+    final_done = []
+    index = 0 
+    for value in _dict.values():
+        if value['work_done'] not in final_done:
+            value['count'] = 1
+            final_dict.update({index: value})
+            final_done.append(value['work_done'])
+            index += 1
+        else:
+            value['count'] = value['count'] + 1
+            final_dict.update({index: value})
+            final_done.append(value['work_done'])
+            del final_dict[index]
+            index += 1
+    return final_dict
 
 
 def generate_excel_for_audit_data(request):
@@ -402,9 +409,9 @@ def generate_excel_for_audit_data(request):
         worksheet_1    = workbook.add_worksheet('calculation')
         audit_dict     = data.get('audit','')
         random_dict    = data.get('random','')
-        audit_headers  = ['Date','Emp Name','Sub Project','Work Packet','Sub Packet','Audit count']
-        auidt_letters  = ['A','B','C','D','E','F']
-        sample_data = ["date","agent","sub_project","work_packet","sub_packet","work_done"]
+        audit_headers  = ['Date','Emp Name','Sub Project','Work Packet','Sub Packet','Audit count','Count']
+        auidt_letters  = ['A','B','C','D','E','F','G']
+        sample_data = ["date","agent","sub_project","work_packet","sub_packet","work_done","count"]
 
         for header, letter in zip(audit_headers, auidt_letters):
             worksheet.write(letter+str(2), header, bold)
@@ -497,29 +504,26 @@ def generate_excel_for_audit_data(request):
             k = 0
             
             for data in xrange(len(audit_dict)):
-                for sample_name, letter in zip(sample_data, auidt_letters):
+                for sample_name, letter in zip(sample_data[:6], auidt_letters[:6]):
                     worksheet.write(letter+str(i), audit_dict[str(k)][sample_name])
                 i += 1
                 k += 1
-                
+        
         if random_dict != '' and audit_dict == '':
             worksheet.write('A'+str(1), 'Random sampling', bold)
-            t, _index = 3, 0
-            for data in xrange(len(random_dict)):
+            t = 3
+            for data in random_dict.values():
                 for random_name, letter in zip(sample_data, auidt_letters):
-                    worksheet.write(letter+str(t), random_dict[str(_index)][random_name])
+                    worksheet.write(letter+str(t), data[random_name])
                 t += 1
-                _index += 1
 
         elif random_dict != '' and audit_dict != '':
             worksheet.write('A'+str(k+4), 'Random sampling', bold)
             t = i + 2
-            _index = 0  
-            for data in xrange(len(random_dict)):
-                for name, letter in zip(sample_data, auidt_letters):
-                    worksheet.write(letter+str(t), random_dict[str(_index)][name])
+            for data in random_dict.values():
+                for random_name, letter in zip(sample_data, auidt_letters):
+                    worksheet.write(letter+str(t), data[random_name])
                 t += 1
-                _index += 1
 
         workbook.close()
         with open('audit_data.xlsx', 'rb')as xl:
