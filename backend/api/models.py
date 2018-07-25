@@ -26,6 +26,7 @@ class Project(models.Model):
     is_enable_push = models.BooleanField(default = False)
     no_of_packets = models.IntegerField(default=5)
     no_of_agents = models.IntegerField(default=5)
+    external_audit_percentage = models.IntegerField(default=50)
 
     class Meta:
         db_table = u'project'
