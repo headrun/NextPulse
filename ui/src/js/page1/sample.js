@@ -335,7 +335,7 @@ app.controller('sampleCtrl', function($scope, $http){
           if(typeof(result.data.audit) === "string" & typeof(result.data.random) === "string"){
             swal('Please select packets or agents to meet the intelligent audit criteria, and select low random value');
           }else if(typeof(result.data.audit) === "string"){
-            swal('Please select either packets or agents Or select low random value to audit the samples');
+            swal('Please select packets or agents to meet the audit criteria OR select low audit percentage');
           }else if(typeof(result.data.random) === "string"){
             swal('Please select the low random value');
           }else{

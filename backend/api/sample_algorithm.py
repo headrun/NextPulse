@@ -232,67 +232,40 @@ def packet_agent_audit_random(request):
             common_dict[t]          = data
             t += 1
     
+    iterating_packets = list(set(packets) - set(and_case_packets))
+    iterating_agents  = list(set(agents)  - set(and_case_agents))
 
-    if audit_and_case_value > audited_value:
-        iterating_packets = list(set(packets) - set(and_case_packets))
-        iterating_agents  = list(set(agents)  - set(and_case_agents))
+    if (iterating_packets):
+        packet_agent = [(packet, agent) for packet in iterating_packets for agent in remaining_agents]
 
-        if (iterating_packets):
-            and_packets_dict = OrderedDict()
-            value = 0
-            for packet in iterating_packets:
-                for index in range(len(common_dict)):
-                    if (index in common_dict.keys()):
-                        if packet == common_dict[index]["work_packet"]:
-                            and_packets_dict[value] = common_dict[index]
-                            del common_dict[index]
-                            value += 1
-
-            final_and_packet_names = []
-            for key, value in and_packets_dict.iteritems():
-                if final_and_packet_names:
-                    if (value["work_packet"]) not in final_and_packet_names:
-                        audit_and_case_dict[k] = and_packets_dict[key]
-                        audit_and_case_value   += and_packets_dict[key]["work_done"]
-                        final_and_packet_names.append(value["work_packet"])
+        packet_list = []
+        for data in packet_agent:
+            if data[0] not in packet_list:
+                for key, value in common_dict.iteritems():
+                    if (data[0] == value['work_packet'] and data[1] == value['agent']):
+                        audit_and_case_dict[k] = value
+                        audit_and_case_value  += value["work_done"]
+                        packet_list.append(data[0])
+                        packet_agent = filter(lambda a: a[0] != data[0], packet_agent)
+                        del common_dict[key]
                         k += 1
-                    else:
-                        common_dict[t] = and_packets_dict[key]
-                        t += 1
-                else:
-                    audit_and_case_dict[k] = and_packets_dict[key]
-                    audit_and_case_value   += and_packets_dict[key]["work_done"]
-                    final_and_packet_names.append(value["work_packet"])
-                    k += 1 
+                        break
 
-        if (iterating_agents):
-            and_agents_dict = OrderedDict()
-            index_value = 0
-            
-            for agent in iterating_agents:
-                for index in range(len(common_dict)):
-                    if (index in common_dict.keys()):
-                        if agent == common_dict[index]["agent"]:
-                            and_agents_dict[value] = common_dict[index]
-                            del common_dict[index]
-                            value += 1
+    if (iterating_agents):
+        agent_packet = [(agent, packet) for agent in iterating_agents for packet in remaining_packets]
 
-            final_and_agent_names = []
-            for key, value in and_agents_dict.iteritems():
-                if final_and_agent_names:
-                    if (value["agent"]) not in final_and_agent_names:
-                        audit_and_case_dict[k] = and_agents_dict[key]
-                        audit_and_case_value   += and_agents_dict[key]["work_done"]
-                        final_and_agent_names.append(value["agent"])
+        agents_list = []
+        for data in agent_packet:
+            if data[0] not in agents_list:
+                for key, value in common_dict.iteritems():
+                    if (data[0] == value['agent'] and data[1] == value['work_packet']):
+                        audit_and_case_dict[k] = value
+                        audit_and_case_value  += value['work_done']
+                        agents_list.append(data[0])
+                        agent_packet = filter(lambda a: a[0] != data[0], agent_packet)
+                        del common_dict[key]
                         k += 1
-                    else:
-                        common_dict[t] = and_agents_dict[key]
-                        t += 1
-                else:
-                    audit_and_case_dict[k] = and_agents_dict[key]
-                    audit_and_case_value   += and_agents_dict[key]["work_done"]
-                    final_and_agent_names.append(value["agent"])
-                    k += 1
+                        break
 
     random_index = 0
     for index in range(len(common_dict)):
@@ -313,14 +286,14 @@ def packet_agent_audit_random(request):
             else:
                 random_dict[random_index] = common_dict[index]
                 random_index += 1
-   
+            
     if audited_value:        
         if audit_and_case_value > audited_value:
             result['audit'] = generate_and_case_calculation_for_intelligent_audit(audited_value,audit_and_case_dict,\
                 audit_and_case_value)
         else:
             result['audit'] = generate_or_case_calculation_for_intelligent_audit(audited_value,audit_and_case_value,\
-                                audit_or_case_value,audit_or_case_dict,audit_and_case_dict)
+                                audit_and_case_dict,common_dict,packets,agents,remaining_packets,remaining_agents,k)
         
     if random_value:
         result['random']    = generate_random_data(random_dict,random_value)
@@ -330,6 +303,7 @@ def packet_agent_audit_random(request):
 
 def generate_and_case_calculation_for_intelligent_audit(audited_value,audit_and_case_dict,and_case_value):
 
+    ### and percentage calculation ###
     
     and_percentage = round((float(audited_value)/and_case_value)*100)
 
@@ -340,22 +314,40 @@ def generate_and_case_calculation_for_intelligent_audit(audited_value,audit_and_
     return audit_and_case_dict
 
 
-def generate_or_case_calculation_for_intelligent_audit(audited_value,and_case_value,or_case_value,audit_or_case_dict,audit_and_case_dict):
-    
-    or_percentage = round((float(audited_value-and_case_value)/(or_case_value))*100)
-    k             = len(audit_and_case_dict.keys())
-    check_value   = or_case_value + and_case_value
+def generate_or_case_calculation_for_intelligent_audit(audited_value,and_case_value,audit_and_case_dict,common_dict,packets,agents,\
+    remaining_packets,remaining_agents,next_index):
 
-    if check_value > audited_value:
-        for index in xrange(len(audit_or_case_dict)):
-            work_done = round((float(or_percentage)/100) * audit_or_case_dict[index]['work_done'])
-            if work_done:
-                audit_or_case_dict[index].update({'work_done': work_done})
-                audit_and_case_dict[k] = audit_or_case_dict[index]
-                k += 1
+    packet_agent_keys = [(packets[0], agent) for agent in remaining_agents]
+    agent_packet_keys = [(agents[0], packet) for packet in remaining_packets]
+
+    for packet_agent in packet_agent_keys:
+        if and_case_value <= audited_value:
+            for key, value in common_dict.iteritems():
+                if packet_agent[0] == value['work_packet'] and packet_agent[1] == value['agent']:
+                    audit_and_case_dict[next_index] = value
+                    and_case_value += value['work_done']
+                    del common_dict[key]
+                    next_index += 1
+        
+    for agent_packet in agent_packet_keys:
+        if and_case_value <= audited_value:
+            for key, value in common_dict.iteritems():
+                if agent_packet[0] == value['agent'] and agent_packet[1] == value['work_packet']:
+                    audit_and_case_dict[next_index] = value
+                    and_case_value += value['work_done']
+                    del common_dict[key]
+                    next_index += 1
+
+    if and_case_value >= audited_value:
         return audit_and_case_dict
-    else:
-        return "Please select either packets or agents Or select low value to audit the samples"
+    else: 
+        packets.pop(0)
+        agents.pop(0)
+        if len(packets) != 0 and len(agents) != 0:
+            return generate_or_case_calculation_for_intelligent_audit(audited_value,and_case_value,audit_and_case_dict,common_dict,packets,agents,\
+                remaining_packets,remaining_agents,next_index)
+        else:
+            return "Select low random value or choose packets or agents to meet the sample"
 
 
 def generate_random_data(random_dict,random_value):
@@ -409,9 +401,10 @@ def generate_excel_for_audit_data(request):
         worksheet_1    = workbook.add_worksheet('calculation')
         audit_dict     = data.get('audit','')
         random_dict    = data.get('random','')
-        audit_headers  = ['Date','Emp Name','Sub Project','Work Packet','Sub Packet','Audit count','Count']
-        auidt_letters  = ['A','B','C','D','E','F','G']
-        sample_data = ["date","agent","sub_project","work_packet","sub_packet","work_done","count"]
+        audit_headers  = ['Date','Emp Name','Sub Project','Work Packet','Sub Packet','Audit count']
+        auidt_letters  = ['A','B','C','D','E','F']
+        audit_sample_data = ["date","agent","sub_project","work_packet","sub_packet","work_done"]
+        random_sample_data = ["date","agent","sub_project","work_packet","sub_packet","count"]
 
         for header, letter in zip(audit_headers, auidt_letters):
             worksheet.write(letter+str(2), header, bold)
@@ -504,7 +497,7 @@ def generate_excel_for_audit_data(request):
             k = 0
             
             for data in xrange(len(audit_dict)):
-                for sample_name, letter in zip(sample_data[:6], auidt_letters[:6]):
+                for sample_name, letter in zip(audit_sample_data, auidt_letters):
                     worksheet.write(letter+str(i), audit_dict[str(k)][sample_name])
                 i += 1
                 k += 1
@@ -513,7 +506,7 @@ def generate_excel_for_audit_data(request):
             worksheet.write('A'+str(1), 'Random sampling', bold)
             t = 3
             for data in random_dict.values():
-                for random_name, letter in zip(sample_data, auidt_letters):
+                for random_name, letter in zip(random_sample_data, auidt_letters):
                     worksheet.write(letter+str(t), data[random_name])
                 t += 1
 
@@ -521,7 +514,7 @@ def generate_excel_for_audit_data(request):
             worksheet.write('A'+str(k+4), 'Random sampling', bold)
             t = i + 2
             for data in random_dict.values():
-                for random_name, letter in zip(sample_data, auidt_letters):
+                for random_name, letter in zip(random_sample_data, auidt_letters):
                     worksheet.write(letter+str(t), data[random_name])
                 t += 1
 
