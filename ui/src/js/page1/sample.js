@@ -328,14 +328,14 @@ app.controller('sampleCtrl', function($scope, $http){
         var project = $scope.sa_url_split[1].split('=')[1]
         project = project.replace(/%20/g, ' ');
         var url = "/api/packet_agent_audit_random/";
-        var data = {'packets':packets_data, 'agents':agents_data, 'audit':$scope.audit_per, 'random':$scope.random_per, 'audit_value':$scope.audit_value,'random_value':$scope.random_value, 'total_production':$scope.total_production,'from':$scope.start_date, 'to':$scope.end_date, 'project':project, 'center':center, 'packet_details':$scope.packet_details, 'agent_details':$scope.agent_details};
+        var data = {'packets':packets_data, 'agents':agents_data, 'audit':$scope.audit_per, 'random':$scope.random_per, 'audit_value':$scope.audit_value,'random_value':$scope.random_value, 'total_production':$scope.total_production,'from':$scope.start_date, 'to':$scope.end_date, 'project':project, 'center':center, 'remaining_packets':$scope.rem_packets, 'remaining_agents':$scope.rem_agents};
 
 
         $http({method:'POST', url:url, data:data, headers:{'Content-Type':'application/x-www-form-urlencoded;charset=utf-8;'}}).then(function(result){
           if(typeof(result.data.audit) === "string" & typeof(result.data.random) === "string"){
             swal('Please select packets or agents to meet the intelligent audit criteria, and select low random value');
           }else if(typeof(result.data.audit) === "string"){
-            swal('Please select either packets or agents Or select low random value to audit the samples');
+            swal('Please select packets or agents to meet the audit criteria OR select low audit percentage');
           }else if(typeof(result.data.random) === "string"){
             swal('Please select the low random value');
           }else{
