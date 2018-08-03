@@ -40,7 +40,7 @@ class Command(BaseCommand):
 
 
         to = ['asifa@headrun.com','yatish@headrun.com','rishi@headrun.com', \
-            'kannan.sundar@nextwealth.in','poornima.mitta@nextwealth.in','sankar.k@mnxw.org']
+            'kannan.sundar@nextwealth.in','poornima.mitta@nextwealth.in','sankar.k@mnxw.org','Jagadish.sh@nextwealth.in']
 
         msg = EmailMessage("Next Pulse : Customer last login details" , mail_data, 'nextpulse@nextwealth.in', to) 
 
