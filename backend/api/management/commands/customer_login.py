@@ -32,8 +32,8 @@ class Command(BaseCommand):
                 customer_name = cust_data.username
                 details.append({'message':mes, 'last_login_on':updated_on, 'customer':customer_name})
         if cust_data.last_login == None:
-        customer_name = cust_data.username
-        details.append({'message': 'Last login - never', 'last_login_on': '', 'customer':customer_name})
+            customer_name = cust_data.username
+            details.append({'message': 'Last login - never', 'last_login_on': '', 'customer':customer_name})
 
         for one in details:
             mail_data += "<h4>"+one['customer']+"</h4>"+"<ul>"+"<li>"+one['last_login_on']+"</li>"+"<li>"+one['message']+"</li></ul>"
