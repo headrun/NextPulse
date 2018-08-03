@@ -15,7 +15,7 @@ def Get_Projects_Count(user):
       table_name = TeamLead
   elif user_group == 'customer':
       table_name = Customer 
-  elif user_group == 'nextwealth_manager':
+  elif user_group in ['nextwealth_manager',"center_manager"]:
       return 2;
   customer_objs = table_name.objects.filter(name_id=user.id,project__display_project = True)
   project_list = customer_objs.values_list('project', flat =True)
