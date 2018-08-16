@@ -304,7 +304,7 @@ def packet_agent_audit_random(request):
 def generate_and_case_calculation_for_intelligent_audit(audited_value,audit_and_case_dict,and_case_value):
 
     ### and percentage calculation ###
-    
+
     and_percentage = round((float(audited_value)/and_case_value)*100)
 
     for index in xrange(len(audit_and_case_dict)):
@@ -319,7 +319,7 @@ def generate_or_case_calculation_for_intelligent_audit(audited_value,and_case_va
 
     packet_agent_keys = [(packets[0], agent) for agent in remaining_agents]
     agent_packet_keys = [(agents[0], packet) for packet in remaining_packets]
-
+    
     for packet_agent in packet_agent_keys:
         if and_case_value <= audited_value:
             for key, value in common_dict.iteritems():

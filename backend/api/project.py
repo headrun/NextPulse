@@ -189,6 +189,7 @@ def project(request):
         user = request.user.id 
         user_status = get_permitted_user(_project, _center, user)
         final_values = common_user_data(request, select_list, role, layout_list, new_dates, user_status)
+
         return json_HttpResponse(final_values)
 
     if 'nextwealth_manager' in user_group:
