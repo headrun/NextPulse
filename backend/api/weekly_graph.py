@@ -226,9 +226,9 @@ def accuracy_line_graphs(date_list,prj_id,center_obj,level_structure_key,error_t
                     if str(pack) not in packet_list:                       
                             
                         if not data_dict.has_key(pack):
-                            data_dict[pack] = [0]
+                            data_dict[pack] = [100]
                         else:
-                            data_dict[pack].append(0)
+                            data_dict[pack].append(100)
 
     final_dict['internal_accuracy_timeline'] = data_dict
     final_dict['date'] = date_pack
@@ -263,10 +263,7 @@ def accuracy_line_week_month(date_list,prj_id,center_obj,level_structure_key,err
             else:
                 accuracy = 100
             _dict[data[0]] = accuracy
-
     return _dict
-
-
 
 
 def adding_min_max(high_chart_key,values_dict):
