@@ -29,7 +29,12 @@ def error_timeline_min_max(min_max_dict):
 def errors_week_calcuations(week_names,internal_accuracy_timeline,final_internal_accuracy_timeline):
     for prodct_key, prodct_value in internal_accuracy_timeline.iteritems():
         for vol_key, vol_values in prodct_value.iteritems():
-            error_pers = [i for i in vol_values if i != 'NA']
+            error_pers = []
+            if vol_values != 'NA':
+                error_pers.append(vol_values)
+            else:
+                error_pers.append(100)
+
             if len(error_pers) > 0:
                 int_errors = float(sum(error_pers)) / len(error_pers)
                 int_errors = float('%.2f' % round(int_errors, 2))
