@@ -51,10 +51,10 @@ def errors_week_calcuations(week_names,internal_accuracy_timeline,final_internal
                         final_internal_accuracy_timeline[vol_key] = [vol_values]
                 for prod_key, prod_values in final_internal_accuracy_timeline.iteritems():
                     if prod_key not in internal_accuracy_timeline[prod_week_num].keys():
-                        final_internal_accuracy_timeline[prod_key].append(0)
+                        final_internal_accuracy_timeline[prod_key].append(100)
             else:
                 for vol_key, vol_values in final_internal_accuracy_timeline.iteritems():
-                    final_internal_accuracy_timeline[vol_key].append(0)
+                    final_internal_accuracy_timeline[vol_key].append(100)
     return final_internal_accuracy_timeline
 
 

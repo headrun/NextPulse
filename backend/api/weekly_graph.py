@@ -226,9 +226,9 @@ def accuracy_line_graphs(date_list,prj_id,center_obj,level_structure_key,error_t
                     if str(pack) not in packet_list:                       
                             
                         if not data_dict.has_key(pack):
-                            data_dict[pack] = [0]
+                            data_dict[pack] = [100]
                         else:
-                            data_dict[pack].append(0)
+                            data_dict[pack].append(100)
 
     final_dict['internal_accuracy_timeline'] = data_dict
     final_dict['date'] = date_pack
@@ -263,48 +263,7 @@ def accuracy_line_week_month(date_list,prj_id,center_obj,level_structure_key,err
             else:
                 accuracy = 100
             _dict[data[0]] = accuracy
-
     return _dict
-
-
-def errors_week_calcuations(week_names,internal_accuracy_timeline,final_internal_accuracy_timeline):
-    for prodct_key, prodct_value in internal_accuracy_timeline.iteritems():
-        for vol_key, vol_values in prodct_value.iteritems():
-            error_pers = []
-            if vol_values != 'NA':
-                error_pers.append(vol_values)
-            else:
-                error_pers.append(0)
-
-            if len(error_pers) > 0:
-                int_errors = float(sum(error_pers)) / len(error_pers)
-                int_errors = float('%.2f' % round(int_errors, 2))
-            else:
-                int_errors = 0
-            internal_accuracy_timeline[prodct_key][vol_key] = int_errors
-
-    for final_key, final_value in internal_accuracy_timeline.iteritems():
-        for week_key, week_value in final_value.iteritems():
-            if week_key not in final_internal_accuracy_timeline.keys():
-                final_internal_accuracy_timeline[week_key] = []
-
-    for prod_week_num in week_names:
-        if internal_accuracy_timeline.has_key(prod_week_num):
-            if len(internal_accuracy_timeline[prod_week_num]) > 0:
-                for vol_key, vol_values in internal_accuracy_timeline[prod_week_num].iteritems():
-                    if final_internal_accuracy_timeline.has_key(vol_key):
-                        final_internal_accuracy_timeline[vol_key].append(vol_values)
-                    else:
-                        final_internal_accuracy_timeline[vol_key] = [vol_values]
-
-                for prod_key, prod_values in final_internal_accuracy_timeline.iteritems():
-                    if prod_key not in internal_accuracy_timeline[prod_week_num].keys():
-                        final_internal_accuracy_timeline[prod_key].append(0)
-            else:
-                for vol_key, vol_values in final_internal_accuracy_timeline.iteritems():
-                    final_internal_accuracy_timeline[vol_key].append(0)
-
-    return final_internal_accuracy_timeline
 
 
 def adding_min_max(high_chart_key,values_dict):
