@@ -9,17 +9,17 @@
 
            function ($http,$scope,$rootScope) {
 
-             var self = this;
+              var self = this;
 
-             $rootScope.sel_value = '';
+              $rootScope.sel_value = '';
 
-             var project = 'api/project/';
+              var project = 'api/project/';
 
-             self.hideLoading();
+              self.hideLoading();
 
-             $scope.check = $rootScope.check;
-
-             $scope.check_url = $rootScope.check_url;
+              $scope.check = $rootScope.check;
+ 
+              $scope.check_url = $rootScope.check_url;
 
               self.clickPro = function(val, $rootScope){
 
@@ -29,6 +29,9 @@
 
               }
             $http({method:"GET", url:project}).success(function(result){
+
+                self.from_date = result.result.dates.from_date;
+                self.to_date   = result.result.dates.to_date;
 
                 if ((result.result['role'] == "customer") || (result.result['role'] == "team_lead")) {
 

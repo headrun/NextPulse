@@ -5100,28 +5100,28 @@
       'self.chartOptions44':self.chartOptions44,
       'self.chartOptions45':self.chartOptions45,
       'self.chartOptions46':self.chartOptions46,
-      "self.chartOptions47":self.chartOptions47,
-      "self.chartOptions48":self.chartOptions48,
-      "self.chartOptions49":self.chartOptions49,
-      "self.chartOptions50":self.chartOptions50,
-      "self.chartOptions51":self.chartOptions51,
-      "self.chartOptions52":self.chartOptions52,
-      "self.chartOptions53":self.chartOptions53,
-      "self.chartOptions54":self.chartOptions54,
-      "self.chartOptions55":self.chartOptions55,
-      "self.chartOptions56":self.chartOptions56,
-      "self.chartOptions57":self.chartOptions57,
-      "self.chartOptions58":self.chartOptions58,
-      "self.chartOptions59":self.chartOptions59,
-      "self.chartOptions60":self.chartOptions60,
-      "self.chartOptions61":self.chartOptions61,
-      "self.chartOptions62":self.chartOptions62,
-      "self.chartOptions63":self.chartOptions63,
+      'self.chartOptions47':self.chartOptions47,
+      'self.chartOptions48':self.chartOptions48,
+      'self.chartOptions49':self.chartOptions49,
+      'self.chartOptions50':self.chartOptions50,
+      'self.chartOptions51':self.chartOptions51,
+      'self.chartOptions52':self.chartOptions52,
+      'self.chartOptions53':self.chartOptions53,
+      'self.chartOptions54':self.chartOptions54,
+      'self.chartOptions55':self.chartOptions55,
+      'self.chartOptions56':self.chartOptions56,
+      'self.chartOptions57':self.chartOptions57,
+      'self.chartOptions58':self.chartOptions58,
+      'self.chartOptions59':self.chartOptions59,
+      'self.chartOptions60':self.chartOptions60,
+      'self.chartOptions61':self.chartOptions61,
+      'self.chartOptions62':self.chartOptions62,
+      'self.chartOptions63':self.chartOptions63,
       'self.chartOptions64':self.chartOptions64,
       'self.chartOptions65':self.chartOptions65,
-      "self.chartOptions68":self.chartOptions68,
-      "self.chartOptions69":self.chartOptions69,
-      "self.chartOptions70":self.chartOptions70
+      'self.chartOptions68':self.chartOptions68,
+      'self.chartOptions69':self.chartOptions69,
+      'self.chartOptions70':self.chartOptions70
 
     };
 
@@ -5698,111 +5698,138 @@
                 }
              }
 
-                if((self.work_packet != '') || (self.sub_packet != '') || (self.sub_project != '')) {
-                    self.apply_class();
-                    self.add_loader();
-                    self.drop_sub_proj = self.sub_project;
-                    self.drop_work_pack = self.work_packet;
-                    self.drop_sub_pack = self.sub_packet;
-                    var dateEntered = document.getElementById('select').value
-                    dateEntered = dateEntered.replace(' to ','to');
-                    var from = dateEntered.split('to')[0].replace(' ','');
-                    var to = dateEntered.split('to')[1].replace(' ','');
-                    var placeholder = ''
-                    self.call_back = [];
-                    self.call_back.push(from);
-                    self.call_back.push(to);
-                    var pro_cen_nam = $state.params.selpro;
-                    self.location = pro_cen_nam.split('-')[0].replace(' ','') + ' - '
-                    var project_check = pro_cen_nam.split('-')[1].replace(' ','');
-                    var project_val = project_check.search('&');
-                    if (project_val != -1) {
-                        self.project = pro_cen_nam.split('-')[1].split('&')[0].replace(' ','');
-                    }
-                    else {
-                        self.project = pro_cen_nam.split('-')[1].replace(' ','');
-                    }
-                    self.call_back.push(self.location);
-                    self.call_back.push(self.project);
-
-                    var final_work =  '&sub_project=' + self.drop_sub_proj + '&sub_packet=' + self.drop_sub_pack + '&work_packet=' +
-                                                self.drop_work_pack;
-
-                       self.main_widget_function(self.call_back, final_work);
-                       if ((self.drop_sub_proj == 'undefined') || (self.drop_sub_proj == '')) {
-                            $('#0').val(self.drop_work_pack);
-                            $('#1').val(self.drop_sub_pack);
-                       } else if ((self.drop_sub_pack == 'undefined') || (self.drop_sub_pack == '')) {
-                            $('#0').val(self.drop_sub_proj);
-                            $('#1').val(self.drop_work_pack);
-                       } else {
-                            $('#0').val(self.drop_sub_proj);
-                            $('#1').val(self.drop_work_pack);
-                            $('#2').val(self.drop_sub_pack);
-                       }
+            if((self.work_packet != '') || (self.sub_packet != '') || (self.sub_project != '')) {
+                self.apply_class();
+                self.add_loader();
+                self.drop_sub_proj = self.sub_project;
+                self.drop_work_pack = self.work_packet;
+                self.drop_sub_pack = self.sub_packet;
+                var dateEntered = document.getElementById('select').value
+                dateEntered = dateEntered.replace(' to ','to');
+                var from = dateEntered.split('to')[0].replace(' ','');
+                var to = dateEntered.split('to')[1].replace(' ','');
+                var placeholder = ''
+                self.call_back = [];
+                self.call_back.push(from);
+                self.call_back.push(to);
+                var pro_cen_nam = $state.params.selpro;
+                self.location = pro_cen_nam.split('-')[0].replace(' ','') + ' - '
+                var project_check = pro_cen_nam.split('-')[1].replace(' ','');
+                var project_val = project_check.search('&');
+                if (project_val != -1) {
+                    self.project = pro_cen_nam.split('-')[1].split('&')[0].replace(' ','');
                 }
                 else {
-                    self.main_widget_function(self.call_back, '');
+                    self.project = pro_cen_nam.split('-')[1].replace(' ','');
                 }
-             })
-             return callback;
+                self.call_back.push(self.location);
+                self.call_back.push(self.project);
 
-            }).then(function(callback){
+                var final_work =  '&sub_project=' + self.drop_sub_proj + '&sub_packet=' + self.drop_sub_pack + '&work_packet=' +
+                                            self.drop_work_pack;
+
+                self.main_widget_function(self.call_back, final_work);
+                if ((self.drop_sub_proj == '') && (self.drop_work_pack != '') && (self.drop_sub_pack != '')) {
+                    $('#0').val(self.drop_work_pack);
+                    var x = document.getElementById('1');
+                    var sub_packets = Object.keys(result.data.result.drop_value[self.drop_work_pack]);
+                    for (var packet of sub_packets) {
+                      var option = document.createElement('option');
+                      option.text = packet;
+                      x.add(option);
+                    }
+                  
+                    $('#1').val(self.drop_sub_pack);
+
+                } else if ((self.drop_sub_pack == '') && (self.drop_work_pack != '') && (self.drop_sub_proj == '')) {
+                    //$('#0').val(self.drop_sub_proj);
+                    $('#0').val(self.drop_work_pack);
+                } else {
+                    $('#0').val(self.drop_sub_proj);
+                    var x = document.getElementById('1');
+                    var work_packets = Object.keys(result.data.result.drop_value[self.drop_sub_proj]);
+                    var sub_packets = result.data.result.drop_value[self.drop_sub_proj][self.drop_work_pack];
+          
+                    for (var packet of work_packets) {
+                      var option = document.createElement('option');
+                      option.text = packet;
+                      x.add(option);
+                    }
+
+                    var y = document.getElementById('2');
+                    for (var packet of sub_packets) {
+                      var option = document.createElement('option');
+                      option.text = packet;
+                      y.add(option);
+                    }
+                    $('#1').val(self.drop_work_pack);
+                    
+                    $('#2').val(self.drop_sub_pack);
+                    
+                }
+            }
+            else {
+                self.main_widget_function(self.call_back, '');
+            }
+          })
+          return callback;
+
+        }).then(function(callback){
 
                 self.dateType = function(key,all_data,name,button_clicked){
 
                 self.call_back = callback;
 
                 var obj = {
-                    "self.chartOptions10":self.chartOptions10,
-                    "self.chartOptions17":self.chartOptions17,
-                    "self.chartOptions18":self.chartOptions18,
-                    "self.chartOptions25":self.chartOptions25,
-                    "self.chartOptions24":self.chartOptions24,
-                    "self.chartOptions15":self.chartOptions15,
-                    "self.chartOptions9":self.chartOptions9,
-                    "self.chartOptions9_2":self.chartOptions9_2,
-                    "self.chartOptions19":self.chartOptions19,
-                    "self.chartOptions26":self.chartOptions26,
-                    "self.chartOptions16":self.chartOptions16,
-                    "self.chartOptions16_2":self.chartOptions16_2,
-                    "self.chartOptions38":self.chartOptions38,
-                    "self.chartOptions5":self.chartOptions5,
-                    "self.chartOptions5_2":self.chartOptions5_2,
-                    "self.chartOptions29":self.chartOptions29,
-                    "self.chartOptions30":self.chartOptions30,
-                    "self.chartOptions27":self.chartOptions27,
-                    "self.chartOptions28":self.chartOptions28,
-                    "self.chartOptions":self.chartOptions,
-                    "self.chartOptions40":self.chartOptions40,
-                    "self.chartOptions41":self.chartOptions41,
-                    "self.chartOptions42":self.chartOptions42,
-                    "self.chartOptions39":self.chartOptions39,
-                    "self.chartOptions43":self.chartOptions43,
-                    "self.chartOptions44":self.chartOptions44,
-                    "self.chartOptions31":self.chartOptions31,
-                    "self.chartOptions47":self.chartOptions47,
-                    "self.chartOptions48":self.chartOptions48,
-                    "self.chartOptions49":self.chartOptions49,
-                    "self.chartOptions50":self.chartOptions50,
-                    "self.chartOptions51":self.chartOptions51,
-                    "self.chartOptions52":self.chartOptions52,
-                    "self.chartOptions53":self.chartOptions53,
-                    "self.chartOptions54":self.chartOptions54,
-                    "self.chartOptions55":self.chartOptions55,
-                    "self.chartOptions56":self.chartOptions56,
-                    "self.chartOptions57":self.chartOptions57,
-                    "self.chartOptions58":self.chartOptions58,
-                    "self.chartOptions59":self.chartOptions59,
-                    "self.chartOptions60":self.chartOptions60,
-                    "self.chartOptions61":self.chartOptions61,
-                    "self.chartOptions62":self.chartOptions62,
-                    "self.chartOptions63":self.chartOptions63,
-                    "self.chartOptions64":self.chartOptions64,
+                    'self.chartOptions10':self.chartOptions10,
+                    'self.chartOptions17':self.chartOptions17,
+                    'self.chartOptions18':self.chartOptions18,
+                    'self.chartOptions25':self.chartOptions25,
+                    'self.chartOptions24':self.chartOptions24,
+                    'self.chartOptions15':self.chartOptions15,
+                    'self.chartOptions9':self.chartOptions9,
+                    'self.chartOptions9_2':self.chartOptions9_2,
+                    'self.chartOptions19':self.chartOptions19,
+                    'self.chartOptions26':self.chartOptions26,
+                    'self.chartOptions16':self.chartOptions16,
+                    'self.chartOptions16_2':self.chartOptions16_2,
+                    'self.chartOptions38':self.chartOptions38,
+                    'self.chartOptions5':self.chartOptions5,
+                    'self.chartOptions5_2':self.chartOptions5_2,
+                    'self.chartOptions29':self.chartOptions29,
+                    'self.chartOptions30':self.chartOptions30,
+                    'self.chartOptions27':self.chartOptions27,
+                    'self.chartOptions28':self.chartOptions28,
+                    'self.chartOptions':self.chartOptions,
+                    'self.chartOptions40':self.chartOptions40,
+                    'self.chartOptions41':self.chartOptions41,
+                    'self.chartOptions42':self.chartOptions42,
+                    'self.chartOptions39':self.chartOptions39,
+                    'self.chartOptions43':self.chartOptions43,
+                    'self.chartOptions44':self.chartOptions44,
+                    'self.chartOptions31':self.chartOptions31,
+                    'self.chartOptions47':self.chartOptions47,
+                    'self.chartOptions48':self.chartOptions48,
+                    'self.chartOptions49':self.chartOptions49,
+                    'self.chartOptions50':self.chartOptions50,
+                    'self.chartOptions51':self.chartOptions51,
+                    'self.chartOptions52':self.chartOptions52,
+                    'self.chartOptions53':self.chartOptions53,
+                    'self.chartOptions54':self.chartOptions54,
+                    'self.chartOptions55':self.chartOptions55,
+                    'self.chartOptions56':self.chartOptions56,
+                    'self.chartOptions57':self.chartOptions57,
+                    'self.chartOptions58':self.chartOptions58,
+                    'self.chartOptions59':self.chartOptions59,
+                    'self.chartOptions60':self.chartOptions60,
+                    'self.chartOptions61':self.chartOptions61,
+                    'self.chartOptions62':self.chartOptions62,
+                    'self.chartOptions63':self.chartOptions63,
+                    'self.chartOptions64':self.chartOptions64,
                     'self.chartOptions65':self.chartOptions65,
                     'self.chartOptions68':self.chartOptions68,
-                    "self.chartOptions69":self.chartOptions69,
-                    "self.chartOptions70":self.chartOptions70
+                    'self.chartOptions69':self.chartOptions69,
+                    'self.chartOptions70':self.chartOptions70
                 }
 
                 self.render_data = obj[all_data];
@@ -6170,18 +6197,18 @@
                     'self.chartOptions50':self.chartOptions50,
                     'self.chartOptions51':self.chartOptions51,
                     'self.chartOptions52':self.chartOptions52,
-                    "self.chartOptions53":self.chartOptions53,
-                    "self.chartOptions54":self.chartOptions54,
-                    "self.chartOptions55":self.chartOptions55,
-                    "self.chartOptions56":self.chartOptions56,
-                    "self.chartOptions57":self.chartOptions57,
-                    "self.chartOptions58":self.chartOptions58,
-                    "self.chartOptions59":self.chartOptions59,
-                    "self.chartOptions60":self.chartOptions60,
-                    "self.chartOptions61":self.chartOptions61,
-                    "self.chartOptions62":self.chartOptions62,
-                    "self.chartOptions63":self.chartOptions63,
-                    "self.chartOptions64":self.chartOptions64,
+                    'self.chartOptions53':self.chartOptions53,
+                    'self.chartOptions54':self.chartOptions54,
+                    'self.chartOptions55':self.chartOptions55,
+                    'self.chartOptions56':self.chartOptions56,
+                    'self.chartOptions57':self.chartOptions57,
+                    'self.chartOptions58':self.chartOptions58,
+                    'self.chartOptions59':self.chartOptions59,
+                    'self.chartOptions60':self.chartOptions60,
+                    'self.chartOptions61':self.chartOptions61,
+                    'self.chartOptions62':self.chartOptions62,
+                    'self.chartOptions63':self.chartOptions63,
+                    'self.chartOptions64':self.chartOptions64,
                     'self.chartOptions65':self.chartOptions65,
                     };
                     var final_layout_list = [];

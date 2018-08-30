@@ -10,6 +10,7 @@ from common.utils import getHttpResponse as json_HttpResponse
 
 def data_dict(variable):
     """It generates common code required for all the widgets"""
+    
     main_data_dict = {}
     from_date = datetime.datetime.strptime(variable['from'],'%Y-%m-%d').date()
     to_date = datetime.datetime.strptime(variable['to'],'%Y-%m-%d').date()

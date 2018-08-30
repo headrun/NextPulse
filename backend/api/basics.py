@@ -522,6 +522,7 @@ def getting_required_params(level_structure_key, prj_id, center_obj, date_list):
     packet_2 = level_structure_key.get('work_packet', '')
     packet_3  = level_structure_key.get('sub_packet', '')
     field = ''
+
     if (packet_1 != '' and packet_2 != '' and packet_3 != '') or (packet_1 != ''):
         if (packet_1 == 'All' and packet_2 == 'All' and packet_3 == 'All') or (packet_1 == 'All'):
             query_dict.update({'project': prj_id, 'center': center_obj, 'date__range': [date_list[0], date_list[-1]]})
@@ -562,7 +563,32 @@ def getting_required_params(level_structure_key, prj_id, center_obj, date_list):
             field = 'work_packet'
     return query_dict, field
 
+
+def get_dashboard_opens_with_parameters_data(packet_1, packet_2, packet_3, project, center, date_list):
+
+    query_params_dict = {}
+    if (packet_1 != '') and (packet_2 == '') and (packet_3 == ''):
+        query_params_dict.update({'project': project, 'center': center, 'date__range': [date_list[0], date_list[-1]], 'sub_project': packet_1})
+        query_field = 'work_packet'        
+    elif (packet_1 != '') and (packet_2 != '') and (packet_3 != ''):
+        query_params_dict.update({'project': project, 'center': center, 'date__range': [date_list[0], date_list[-1]], \
+            'sub_project': packet_1, 'work_packet': packet_2})
+        query_field = 'sub_packet'
+    elif (packet_1 != '') and (packet_2 != '') and (packet_3 != ''):
+        query_dict.update({'project': project, 'center': center, 'date__range': [date_list[0], date_list[-1]],\
+            'sub_project': packet_1,'work_packet': packet_2, 'sub_packet': packet_3})
+        field = 'sub_packet'                
+    elif (packet_1 == '') and (packet_2 != '') and (packet_3 == ''):
+        query_params_dict.update({'project': project, 'center': center, 'date__range': [date_list[0], date_list[-1]], 'work_packet': packet_2})
+        query_field = 'work_packet'
+    elif (packet_1 == '') and (packet_2 != '') and (packet_3 != ''):
+        query_params_dict.update({'project': project, 'center': center, 'date__range': [date_list[0], date_list[-1]], 'work_packet': packet_2, \
+            'sub_packet': packet_3})
+        query_field = 'sub_packet'
+
+    return query_params_dict, query_field        
     
+
 def generate_dates(date_list, prj_id, center):
 
     dates = []

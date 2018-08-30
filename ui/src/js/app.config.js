@@ -94,9 +94,10 @@
             });
 
             if (window.location.href.indexOf('page1') > 0) {
-                var host = window.location.host;
-                var hash = window.location.hash;
-                self.landing_url = 'http://'+ host + '/' + hash;
+                var host             = window.location.host;
+                var hash             = window.location.hash;
+                self.landing_url     = 'http://'+ host + '/' + hash;
+                window.location.href = self.landing_url;
             }
 
             $rootScope.$on(AUTH_EVENTS.loginSuccess, function () {
