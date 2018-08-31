@@ -29,7 +29,12 @@ def error_timeline_min_max(min_max_dict):
 def errors_week_calcuations(week_names,internal_accuracy_timeline,final_internal_accuracy_timeline):
     for prodct_key, prodct_value in internal_accuracy_timeline.iteritems():
         for vol_key, vol_values in prodct_value.iteritems():
-            error_pers = [i for i in vol_values if i != 'NA']
+            error_pers = []
+            if vol_values != 'NA':
+                error_pers.append(vol_values)
+            else:
+                error_pers.append(100)
+
             if len(error_pers) > 0:
                 int_errors = float(sum(error_pers)) / len(error_pers)
                 int_errors = float('%.2f' % round(int_errors, 2))
@@ -51,10 +56,10 @@ def errors_week_calcuations(week_names,internal_accuracy_timeline,final_internal
                         final_internal_accuracy_timeline[vol_key] = [vol_values]
                 for prod_key, prod_values in final_internal_accuracy_timeline.iteritems():
                     if prod_key not in internal_accuracy_timeline[prod_week_num].keys():
-                        final_internal_accuracy_timeline[prod_key].append(0)
+                        final_internal_accuracy_timeline[prod_key].append(100)
             else:
                 for vol_key, vol_values in final_internal_accuracy_timeline.iteritems():
-                    final_internal_accuracy_timeline[vol_key].append(0)
+                    final_internal_accuracy_timeline[vol_key].append(100)
     return final_internal_accuracy_timeline
 
 
@@ -119,8 +124,7 @@ def graph_data_alignment_other(volumes_data, work_packets, name_key):
         return productivity_series_list
 
 
-def volume_status_week(week_names,productivity_list,final_productivity):
-
+def volume_status_week(week_names,productivity_list,final_productivity):    
     final_productivity =  OrderedDict()
     for final_key, final_value in productivity_list.iteritems():
         for week_key, week_value in final_value.iteritems():
@@ -147,8 +151,9 @@ def volume_status_week(week_names,productivity_list,final_productivity):
                     final_productivity[prod_key].append(0)
         else:
             for vol_key, vol_values in final_productivity.iteritems():
-                final_productivity[vol_key].append(0)
+                final_productivity[vol_key].append(0)    
     return final_productivity
+
 
 
 def received_volume_week(week_names,productivity_list,final_productivity):            
@@ -185,6 +190,7 @@ def received_volume_week(week_names,productivity_list,final_productivity):
             final_productivity['Received'] = [0]    
     
     return final_productivity
+
 
 
 def prod_volume_prescan_week_util(week_names,productivity_list,final_productivity):
