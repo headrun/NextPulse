@@ -66,10 +66,10 @@ class Customer(models.Model):
     center  = models.ManyToManyField(Center, null=True, db_index=True)
     project = models.ManyToManyField(Project, null=True, db_index=True)        
     is_drilldown = models.BooleanField(default=None)
-    is_senior = models.BooleanField(default=None)
-    is_enable_push_email = models.BooleanField(default=None)  
     legends_alignment_choices = (('left','Left'),('right','Right'),('bottom','Bottom'))
-    legends_alignment = models.CharField(max_length=30,choices=legends_alignment_choices,default='bottom') 
+    legends_alignment = models.CharField(max_length=30,choices=legends_alignment_choices,default='bottom')
+    is_senior = models.BooleanField(default=None)
+    is_enable_push_email = models.BooleanField(default=None)	
 
     class Meta:
         db_table = u'customer'
