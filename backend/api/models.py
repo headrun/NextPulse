@@ -28,7 +28,9 @@ class Project(models.Model):
     no_of_packets = models.IntegerField(default=5)
     no_of_agents = models.IntegerField(default=5)
     display_project = models.BooleanField(default = True)
-    
+    external_audit_percentage = models.IntegerField(default=50)
+    is_nextpredict_enable = models.BooleanField(default=False)
+
     class Meta:
         db_table = u'project'
         index_together = (('name', 'center',), ('name', 'sub_project_check', 'center'),)

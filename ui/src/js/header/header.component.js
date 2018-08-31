@@ -23,20 +23,6 @@
                  $state.go("dashboard.page1",{'selpro': item});
                   
                }
-
-               self.agent_data = [ "Madhu Priya",
-                                   "Natasha",
-                                   "Dhanyalakshmi S",
-                                   "Dharani G K",
-                                   "Gomathi K"
-                                  ];
-
-               self.packet_data = [ "Latin America",
-                                    "Europe",
-                                    "DCIW Arabia",
-                                    "North America",
-                                    "Pakistan",
-                                  ];  
                
                self.password = function(new_pa, new_again_pa){
                  if (new_pa === new_again_pa){
@@ -131,6 +117,9 @@
                 if (result.result.role == "team_lead") {
                     if (result.result.list[0] == "none") {
                         $('#select_dropdown').hide();
+                    }
+                    if (result.result.next_predict_enable == true) {
+                      $('.form-sym').show();
                     }
                     var map_list = result.result.list;
 		    self.upload = result.result.upload

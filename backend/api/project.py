@@ -18,7 +18,7 @@ def project(request):
         _project, _center = project_vals[0][0], project_vals[0][1]
     except:
         _project, _center = '', '' 
-    
+
     user_group = request.user.groups.values_list('name', flat=True)[0]
     user_group_id = Group.objects.filter(name=user_group).values_list('id', flat=True)
     list_wid = []
@@ -191,6 +191,7 @@ def project(request):
         user = request.user.id
         user_status = get_permitted_user(_project, _center, user)
         final_values = common_user_data(request, select_list, role, layout_list, new_dates, user_status)
+      
         return json_HttpResponse(final_values)
 
     if 'nextwealth_manager' in user_group:
@@ -283,8 +284,9 @@ def project(request):
             role = 'team_lead'
         else:
             role = 'customer'
-
         final_values = common_user_data(request, select_list, role, layout_list, new_dates, user_status)
+        if role == 'team_lead':
+            final_values['next_predict_enable'] = Project.objects.get(id=project_names[0]).is_nextpredict_enable        
         return json_HttpResponse(final_values)
 
 
