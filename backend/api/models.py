@@ -28,7 +28,9 @@ class Project(models.Model):
     no_of_packets = models.IntegerField(default=5)
     no_of_agents = models.IntegerField(default=5)
     display_project = models.BooleanField(default = True)
-    
+    external_audit_percentage = models.IntegerField(default=50)
+    is_nextpredict_enable = models.BooleanField(default=False)
+
     class Meta:
         db_table = u'project'
         index_together = (('name', 'center',), ('name', 'sub_project_check', 'center'),)
@@ -65,7 +67,9 @@ class Customer(models.Model):
     project = models.ManyToManyField(Project, null=True, db_index=True)        
     is_drilldown = models.BooleanField(default=None)
     legends_alignment_choices = (('left','Left'),('right','Right'),('bottom','Bottom'))
-    legends_alignment = models.CharField(max_length=30,choices=legends_alignment_choices,default='bottom') 
+    legends_alignment = models.CharField(max_length=30,choices=legends_alignment_choices,default='bottom')
+    is_senior = models.BooleanField(default=None)
+    is_enable_push_email = models.BooleanField(default=None)	
 
     class Meta:
         db_table = u'customer'

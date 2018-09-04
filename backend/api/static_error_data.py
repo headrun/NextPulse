@@ -158,15 +158,15 @@ def get_internal_external_packet_accuracy(project, center, thirty_days, sixty_da
 				objs = table.objects.filter(project=project, center=center, date__range=(date_list[-1], date_list[0]), work_packet=packet)
 				total_errors = objs.aggregate(Sum('total_errors'))['total_errors__sum']
 				audited_errors = objs.aggregate(Sum('audited_errors'))['audited_errors__sum']
-				if (audited_errors is not 0) and (audited_errors is not None) and (total_errors is not None):
-					accuracy = round((100 - (float(total_errors)/ float(audited_errors)) * 100), 2)
+				if (audited_errors != 0) and (audited_errors is not None) and (total_errors is not None):
+					accuracy = round(100 -(float(total_errors)/ float(audited_errors)*100), 2)
 				else:
 					# If the accuracy is 0 from the errors table work_done packet is taken from the raw table
 					work_done = RawTable.objects.filter(project=project, center=center, date__range=(date_list[-1], date_list[0]), work_packet=packet, per_day__gt=0)
 					total_work_done = work_done.aggregate(Sum('per_day'))['per_day__sum']
-					accuracy = round((100 - (float(total_errors)/ float(total_work_done)) * 100), 2) if ((total_work_done is not 0) and (total_work_done is not None) and (total_errors is not None)) else 0
-				
-				if accuracy is not 0:
+					accuracy = round(100 -(float(total_errors)/ float(total_work_done)*100), 2) if ((total_work_done != 0) and (total_work_done is not None) and (total_errors is not None)) else 0
+
+				if accuracy != 0.0:
 					packet_accuracy[i][packet] = accuracy
 			
 			i+=1

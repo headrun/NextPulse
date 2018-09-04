@@ -228,6 +228,7 @@ def production_avg_perday(date_list,prj_id,center_obj,level_structure_key, main_
 
     result_dict, dct = {}, {}
     filter_params, _term = getting_required_params(level_structure_key, prj_id, center_obj, date_list)
+
     if _term and filter_params:
         query_values = RawTable.objects.filter(**filter_params)
         pacs = query_values.values_list(_term,flat=True).distinct()
@@ -258,7 +259,7 @@ def production_avg_perday(date_list,prj_id,center_obj,level_structure_key, main_
                             result_dict[pack].append(0)
                         else:
                             result_dict[pack] = [0]
-
+    
     return result_dict
 
 

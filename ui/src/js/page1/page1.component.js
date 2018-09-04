@@ -1,4 +1,3 @@
-
 ;(function (angular) {
   "use strict";
 
@@ -233,7 +232,15 @@
                   today_date = today_date.getMonth()+1+'/'+today_date.getDate()+'/'+today_date.getFullYear();
                   $('#date-selector').data('daterangepicker').setStartDate(today_date);
                   $('#date-selector').data('daterangepicker').setEndDate(today_date);
-                  window.open('/js/page1/sample.html?widget_data='+self.static_widget_data+'&from='+self.start_date+'&to='+self.end_date);
+                  if(new Date(self.end_date) > new Date(self.last)|| new Date(self.start_date) > new Date(self.last)){
+                    swal({
+                      title:"Please select valid date.",
+                      icon:"warning",
+                      text:"latest date: "+ self.last
+                    });
+                  } else {
+                    window.open('/js/page1/intelligence.audit.html?widget_data='+self.static_widget_data+'&from='+self.start_date+'&to='+self.end_date);
+                  }                    
                 });
 
             //Voice Type User
@@ -268,7 +275,7 @@
                 } else if (voiceFilterType == self.filter_list[6]) {
                     chartOptions = self.chartOptions53;
                     chartSeries = result.result[self.filter_list[6]];
-                    chartType = self.chartType[0];
+                    chartType = self.chartType[0];  
                 } else if (voiceFilterType == self.filter_list[7]) {
                     chartOptions = self.chartOptions54;
                     chartSeries = result.result[self.filter_list[7]];
@@ -541,7 +548,7 @@
                                     var layout = 'horizontal';
                                 }
 
-                                
+                                var graph_name = 'self.chartOptions17';
                                 angular.extend(self.chartOptions17, {
                                     xAxis: {
                                         categories: date_list,
@@ -700,7 +707,7 @@
                                     var ver_align = 'bottom';
                                     var layout = 'horizontal';
                                 }
-                                
+                                var graph_name = "self.chartOptions18";
                                 angular.extend(self.chartOptions18, {
                                     xAxis: {
                                         categories: date_list,
@@ -1674,7 +1681,7 @@
                             angular.extend(self.chartOptions31.yAxis,{
                                min:result.result.min_max.min_value,
                                max:result.result.min_max.max_value
-                            });
+                            })
 
                             angular.extend(self.chartOptions31, {
                                 xAxis: {
@@ -2139,7 +2146,7 @@
                            })
        
                                     });
-                                    }(series));
+                                   }(series));
                                 }
                                 }
                               }  
@@ -2312,7 +2319,7 @@
                                                         value_data.redraw(name, visibility);
                                                     });                                                    
                                                     if (chart_name.indexOf(name) >= 0) {
-                                                        $(document).find('.widget-11a').children(".widget-11b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 1);
+                                                        $(document).find('.widget-11a').children(".widget-11b").find('.annotation-marker[seies-name="'+name+'"]').css("opacity", 1);
                                                     }
                                                 }
                                             }
@@ -2489,7 +2496,7 @@
                        })
                       }
                     }
-                
+
                     self.main_prod = function(final_work, type, name) {
 
                         if (type == undefined) {
@@ -2644,8 +2651,8 @@
                                                       if (chart_name.indexOf(name) >= 0) {
                                                         self._value.forEach(function(value_data){
                                                           value_data.redraw(name, visibility);
-                                                        });                                                    
-                                                        $(document).find('.widget-6a').children(".widget-6b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 0);
+                                                          $(document).find('.widget-6a').children(".widget-6b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 0);
+                                                        });                                                                                                  
                                                       }
                                                     }
                                                 },
@@ -2657,8 +2664,8 @@
                                                       if (chart_name.indexOf(name) >= 0) {
                                                         self._value.forEach(function(value_data){
                                                           value_data.redraw(name, visibility);
-                                                        });                                                                                                            
-                                                        $(document).find('.widget-6a').children(".widget-6b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 1);
+                                                          $(document).find('.widget-6a').children(".widget-6b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 1);
+                                                        });                                                                                                                                                                    
                                                       }
                                                     }
                                                 }
@@ -2726,7 +2733,7 @@
                                     if(self.list_object.productivity_chart.legends_align == 'bottom') {
                                     
                                         var align = 'center';
-                                        var ver_align = 'bottom';
+                                       var ver_align = 'bottom';
                                         var layout = 'horizontal';
                                 
                                     }
@@ -2808,8 +2815,8 @@
                                                         if (chart_name.indexOf(name) >= 0) {
                                                           self.anno_data.forEach(function(value_data){
                                                               value_data.redraw(name, visibility);
-                                                          });                                                    
-                                                          $(document).find('.widget-1a').children(".widget-1b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 0);
+                                                              $(document).find('.widget-1a').children(".widget-1b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 0);
+                                                          });                                                                                                          
                                                         }
                                                       }
                                                 },
@@ -2821,8 +2828,8 @@
                                                         if (chart_name.indexOf(name) >= 0) {
                                                           self.anno_data.forEach(function(value_data){
                                                             value_data.redraw(name, visibility);
-                                                          });                                                    
-                                                          $(document).find('.widget-1a').children(".widget-1b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 1);
+                                                            $(document).find('.widget-1a').children(".widget-1b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 1);
+                                                          });                                                                                                              
                                                         }
                                                       }
                                                 }
@@ -3044,7 +3051,7 @@
                                       },
                                       allowPointSelect: true,
                                       cursor: 'pointer',
-                                        point: {
+                                       point: {
                                           events:{
                                             contextmenu: function() {
                                                  if (self.role_for_perm == 'customer') {
@@ -3237,7 +3244,7 @@
                             $('.widget-22a').removeClass('widget-loader-show');
                             $('.widget-22b').removeClass('widget-data-hide');
 
-                            if (self.list_object.agent_wise_external_pareto_analysis != undefined) {
+                           if (self.list_object.agent_wise_external_pareto_analysis != undefined) {
 
                                 if (self.list_object.agent_wise_external_pareto_analysis.display_value === true) {
 
@@ -3511,6 +3518,675 @@
                         });
                     }
 
+  function isEmpty(obj){
+    for (var key in obj){
+      if(obj.hasOwnProperty(key)){
+        return false;
+      }
+    }
+    return true;
+  }
+
+  function* enumerate(obj){
+    var i =0;
+    for (var key in obj){
+      yield [i, key];
+      i++;
+    }
+  }
+
+
+  self.static_internal_external_agent_errors= function(){
+    var error_data = '/api/static_internal_external_agent_errors/?'+self.static_widget_data;
+    return $http({method:"GET", url: error_data }).success(function(result){
+      if(isEmpty(result['result'].thirty_days_data.internalerrors)&&isEmpty(result['result'].sixty_days_data.internalerrors)&&isEmpty(result['result'].ninty_days_data.internalerrors)){
+        var table_html = '<div style="font-size:11px; color:#5b5b5b; font-weight:bold;display:flex; justify-content:center; margin-top:100px"><p>No data to display</p></div>';
+        $(".widget-66b highcharts").remove();
+        $('.widget-66b').css('overflow','auto');
+        var $el = $(table_html).appendTo(".widget-body.widget-66b");
+        $compile($el)($scope);
+        $('.widget-66a').removeClass('widget-loader-show');
+        $('.widget-66b').removeClass('widget-data-hide');
+
+      }else{
+        $('.widget-66a').addClass('widget-oader-show');
+        $('.widget-66b').addClass('widget-data-hide');
+        $("#widget-66-agent-error").remove();
+        var thirty_days_internal_agent_data = result['result'].thirty_days_data.internalerrors;
+        var sixty_days_internal_agent_data = result['result'].sixty_days_data.internalerrors;
+        var ninty_days_internal_agent_data = result['result'].ninty_days_data.internalerrors;
+
+        var widget = "<div id='widget-66-agent-error' style='margin-top:20px; display:flex; justify-content:center'>";
+        var card_html_1 = "<div class='card'><div class='card-header'><span class='card-header-text'>30 Days</span></div><div class='card-body'>";
+
+        var card_html_2 = "<div class='card'><div class='card-header'><span class='card-header-text'>60 Days</span></div><div class='card-body'>";
+
+        var card_html_3 = "<div class='card'><div class='card-header'><span class='card-header-text'>90 Days</span></div><div class='card-body'>";
+
+        var cards = [card_html_1, card_html_2, card_html_3];
+        var total_agent_errors = [thirty_days_internal_agent_data, sixty_days_internal_agent_data, ninty_days_internal_agent_data];
+
+        for(var k = 0; k<total_agent_errors.length; k++){
+          var rows = ['', '', '', '', ''];
+          for(var [i, key] of enumerate(total_agent_errors[k])){
+            rows[i]+="<div class='small-card'><h4 class='small-card-body'>"+key+"</h4><p class='badge'>"+total_agent_errors[k][key]+"</p></div>";
+          }
+
+          for(var i =0; i<rows.length; i++)
+            cards[k]+=rows[i];
+          cards[k]+="</div>";
+        }
+
+        card_html_1=cards[0]+"</div>";
+        card_html_2=cards[1]+"</div>";
+        card_html_3=cards[2]+"</div>";
+        widget+=card_html_1+card_html_2+card_html_3+"</div>";
+
+        $(".widget-66b highcharts").remove();
+        $('.widget-66b').css('overflow','auto');
+        var $el = $(widget).appendTo(".widget-body.widget-66b");
+        $compile($el)($scope);
+        $('.widget-66a').removeClass('widget-loader-show');
+        $('.widget-66b').removeClass('widget-data-hide');
+      }
+      // ===================For External Errors =========================
+
+      if(isEmpty(result['result'].thirty_days_data.externalerrors)&&isEmpty(result['result'].sixty_days_data.externalerrors)&&isEmpty(result['result'].ninty_days_data.externalerrors)){
+        var table_html= '<div style="margin-top:100px;font-size:11px; color:#5b5b5b; font-weight:bold; display:flex; justify-content:center;"><span>No data to display</span></div>';
+        $(".widget-67b highcharts").remove();
+        $('.widget-67b').css('overflow','auto');
+        var $el = $(table_html).appendTo(".widget-body.widget-67b");
+        $compile($el)($scope);
+        $('.widget-67a').removeClass('widget-loader-show');
+        $('.widget-67b').removeClass('widget-data-hide');
+
+      }else{
+        $('.widget-67a').addClass('widget-loader-show');
+        $('.widget-67b').addClass('widget-data-hide');
+        $("#widget-67-agent-error").remove();
+        var thirty_days_external_agent_data = result['result'].thirty_days_data.externalerrors;
+        var sixty_days_external_agent_data = result['result'].sixty_days_data.externalerrors;
+        var ninty_days_external_agent_data = result['result'].ninty_days_data.externalerrors;
+
+        var widget_2 = "<div id='widget-67-agent-error' style='margin-top:20px; display:flex; justify-content:center;'>";
+        var card_html_4 = "<div class='card'><div class='card-header'><span class='card-header-text'>30 Days</span></div><div class='card-body'>";
+
+        var card_html_5 = "<div class='card'><div class='card-header'><span class='card-header-text'>60 Days</span></div><div class='card-body'>";
+
+        var card_html_6 = "<div  class='card'><div class='card-header'><span class='card-header-text'>90 Days</span></div><div class='card-body'>";
+
+        var total_agent_errors = [thirty_days_external_agent_data, sixty_days_external_agent_data, ninty_days_external_agent_data];
+
+        var cards_2 = [card_html_4, card_html_5, card_html_6];
+        for(var k = 0; k<total_agent_errors.length; k++){
+          var rows = ['', '', '', '', ''];
+          for(var [i, key] of enumerate(total_agent_errors[k])){
+            rows[i]+="<div class='small-card'><h4 class='small-card-body'>"+key+"</h4><p class='badge'>"+total_agent_errors[k][key]+"</p></div>";
+          }
+
+          for(var i =0; i<rows.length; i++)
+            cards_2[k]+=rows[i];
+          cards_2[k]+="</div>";
+        }
+
+        card_html_4=cards_2[0]+"</div>";
+        card_html_5=cards_2[1]+"</div>";
+        card_html_6=cards_2[2]+"</div>";
+        widget_2+=card_html_4+card_html_5+card_html_6+"</div>";
+        $(".widget-67b highcharts").remove()
+        $('.widget-67b').css('overflow','auto');
+        var $el = $(widget_2).appendTo(".widget-body.widget-67b");
+        $compile($el)($scope);
+
+        $('.widget-67a').removeClass('widget-loader-show');
+        $('.widget-67b').removeClass('widget-data-hide');
+
+      }
+    });
+  };
+
+
+  self.static_internal_external_error_category = function(){
+    var error_category = '/api/static_internal_external_error_category/?'+self.static_widget_data;
+    return $http({method:"GET", url: error_category }).success(function(result){
+      if(isEmpty(result['result'].thirty_days_data.internalerrors) && isEmpty(result['result'].sixty_days_data.internalerrors)&& isEmpty(result['result'].ninty_days_data.internalerrors)){
+        var table_html = '<div style="margin-top:100px;font-size:11px; color:#5b5b5b; font-weight:bold; display:flex; justify-content:center;"><span>No data to display</span></div>';
+        $(".widget-68b highcharts").remove();
+        $('.widget-68b').css('overflow','auto');
+        var $el = $(table_html).appendTo(".widget-body.widget-68b");
+        $compile($el)($scope);
+        $('.widget-68a').removeClass('widget-loader-show');
+        $('.widget-68b').removeClass('widget-data-hide');
+
+      }else{
+        $('.widget-68a').addClass('widget-loader-show');
+        $('.widget-68b').addClass('widget-data-hide');
+
+        $("#widget-68-error-category").remove();
+        var thirty_days_internal_error_category = result['result'].thirty_days_data.internalerrors;
+        var sixty_days_internal_error_category = result['result'].sixty_days_data.internalerrors;
+        var ninty_days_internal_error_category = result['result'].ninty_days_data.internalerrors;
+
+        var widget = "<div id='widget-68-error-category' style='display:flex; justify-content:center'>";
+        var card_html_1 = "<div class='card'><div class='card-header'><span class='card-header-text'>30 Days</span></div><div class='card-body'>";
+
+        var card_html_2 = "<div class='card'><div class='card-header'><span class='card-header-text'>60 Days</span></div><div class='card-body'>";
+
+        var card_html_3 = "<div  class='card'><div class='card-header'><span class='card-header-text'>90 Days</span></div><div class='card-body'>";
+
+        var rows = ['', '', '', '', ''];
+        var total_category_errors = [thirty_days_internal_error_category, sixty_days_internal_error_category, ninty_days_internal_error_category];
+
+        var cards = [card_html_1, card_html_2, card_html_3];
+        for(var k = 0; k < total_category_errors.length; k++){
+          var rows = ['', '', '', '', ''];
+          for(var [i, key] of enumerate(total_category_errors[k])){
+            rows[i]+="<div class='small-card'><h4 class='small-card-body'>"+key+"</h4><p class='badge'>"+total_category_errors[k][key]+"</p></div>";
+          }
+
+          for(var i =0; i<rows.length; i++)
+            cards[k]+=rows[i];
+          cards[k]+="</div>";
+        }
+
+        card_html_1=cards[0]+"</div>";
+        card_html_2=cards[1]+"</div>";
+        card_html_3=cards[2]+"</div>";
+        widget+=card_html_1+card_html_2+card_html_3+"</div>";
+
+        $(".widget-68b highcharts").remove();
+        $('.widget-68b').css('overflow','auto');
+        var $el = $(widget).appendTo(".widget-body.widget-68b");
+
+        $compile($el)($scope);
+        $('.widget-68a').removeClass('widget-loader-show');
+        $('.widget-68b').removeClass('widget-data-hide');
+      }
+
+     // ===================For External Errors =========================
+
+      if(isEmpty(result['result'].thirty_days_data.externalerrors)&&isEmpty(result['result'].sixty_days_data.externalerrors)&&isEmpty(result['result'].ninty_days_data.externalerrors)){
+
+        var table_html = '<div style="margin-top:100px;font-size:11px; color:#5b5b5b; font-weight:bold; display:flex; justify-content:center;"><span>No data to display</span></div>';
+        $(".widget-69b highcharts").remove();
+        $('.widget-69b').css('overflow','auto');
+        var $el = $(table_html).appendTo(".widget-body.widget-69b");
+        $compile($el)($scope);
+        $('.widget-69a').removeClass('widget-loader-show');
+        $('.widget-69b').removeClass('widget-data-hide');
+      }else{
+        $('.widget-69a').addClass('widget-loader-show');
+        $('.widget-69b').addClass('widget-data-hide');
+        $("#widget-69-error-category").remove();
+
+        var thirty_days_external_error_category = result['result'].thirty_days_data.externalerrors;
+        var sixty_days_external_error_category = result['result'].sixty_days_data.externalerrors;
+        var ninty_days_external_error_category = result['result'].ninty_days_data.externalerrors;
+
+        var widget_2 = "<div id='widget-69-error-category' style='display:flex; justify-content:center;'>";
+
+        var card_html_4 = "<div class='card'><div class='card-header'><span class='card-header-text'>30 Days</span></div><div class='card-body'>";
+
+        var card_html_5 = "<div class='card'><div class='card-header'><span class='card-header-text'>60 Days</span></div><div class='card-body'>";
+
+        var card_html_6 = "<div  class='card'><div class='card-header'><span class='card-header-text'>90 Days</span></div><div class='card-body'>";
+
+        var cards_2 = [card_html_4, card_html_5, card_html_6];
+
+        var total_category_errors = [thirty_days_external_error_category, sixty_days_external_error_category, ninty_days_external_error_category];
+
+        for(var k = 0; k < total_category_errors.length; k++){
+          var rows = ['', '', '', '', ''];
+          for(var [i, key] of enumerate(total_category_errors[k])){
+            rows[i]+="<div class='small-card'><h4 class='small-card-body'>"+key+"</h4><p class='badge'>"+total_category_errors[k][key]+"</p></div>";
+          }
+          for(var i =0; i<rows.length; i++)
+            cards_2[k]+=rows[i];
+          cards_2[k]+="</div>";
+        }
+
+        card_html_4=cards_2[0]+"</div>";
+        card_html_5=cards_2[1]+"</div>";
+        card_html_6=cards_2[2]+"</div>";
+
+        widget_2+=card_html_4+card_html_5+card_html_6+"</div>";
+
+        $(".widget-69b highcharts").remove()
+        $('.widget-69b').css('overflow','auto');
+        var $el = $(widget_2).appendTo(".widget-body.widget-69b");
+        $compile($el)($scope);
+
+        $('.widget-69a').removeClass('widget-loader-show');
+        $('.widget-69b').removeClass('widget-data-hide');
+
+      }
+    });
+  };
+
+  self.static_internal_external_packet_errors = function() {
+    var error_data = '/api/static_internal_external_packet_errors/?'+self.static_widget_data
+    return $http({method:"GET", url: error_data }).success(function(result){
+      if(isEmpty(result['result'].thirty_days_data.internalerrors)&&isEmpty(result['result'].sixty_days_data.internalerrors)&&isEmpty(result['result'].ninty_days_data.internalerrors)){
+
+        var table_html = '<div style="margin-top:100px;font-size:11px; color:#5b5b5b; font-weight:bold; display:flex; justify-content:center;"><span>No data to display</span></div>';
+        $(".widget-70b highcharts").remove();
+        $('.widget-70b').css('overflow','auto');
+        var $el = $(table_html).appendTo(".widget-body.widget-70b");
+        $compile($el)($scope);
+        $('.widget-70a').removeClass('widget-loader-show');
+        $('.widget-70b').removeClass('widget-data-hide');
+      }else{
+        $('.widget-70a').addClass('widget-loader-show');
+        $('.widget-70b').addClass('widget-data-hide');
+        $("#widget-70-packet-wise-error").remove();
+        var thirty_days_packet_wise_data = result['result'].thirty_days_data.internalerrors;
+        var sixty_days_packet_wise_data = result['result'].sixty_days_data.internalerrors;
+        var ninty_days_packet_wise_data = result['result'].ninty_days_data.internalerrors;
+
+        var widget = "<div id='widget-70-packet-wise-error' style='margin-top:20px; display:flex;justify-content:center'>";
+        var card_html_1 = "<div class='card'><div class='card-header'><span class='card-header-text'>30 Days</span></div><div class='card-body'>";
+        var card_html_2 = "<div class='card'><div class='card-header'><span class='card-header-text'>60 Days</span></div><div class='card-body'>";
+        var card_html_3 = "<div  class='card'><div class='card-header'><span class='card-header-text'>90 Days</span></div><div class='card-body'>";
+        var cards = [card_html_1, card_html_2, card_html_3];
+
+        var total_packet_wise_errors = [thirty_days_packet_wise_data, sixty_days_packet_wise_data, ninty_days_packet_wise_data];
+
+        for(var k = 0; k < total_packet_wise_errors.length; k++){
+          var rows = ['', '', '', '', ''];
+          for(var [i, key] of enumerate(total_packet_wise_errors[k])){
+            rows[i]+="<div class='small-card'><h4 class='small-card-body'>"+key+"</h4><p class='badge'>"+total_packet_wise_errors[k][key]+"</p></div>";
+          }
+          for(var i =0; i<rows.length; i++)
+            cards[k]+=rows[i];
+          cards[k]+="</div>";
+        }
+
+        card_html_1=cards[0]+"</div>";
+        card_html_2=cards[1]+"</div>";
+        card_html_3=cards[2]+"</div>";
+        widget+=card_html_1+card_html_2+card_html_3+"</div>";
+
+        $(".widget-70b highcharts").remove();
+        $('.widget-70b').css('overflow','auto');
+        var $el = $(widget).appendTo(".widget-body.widget-70b");
+
+        $compile($el)($scope);
+
+        $('.widget-70a').removeClass('widget-loader-show');
+        $('.widget-70b').removeClass('widget-data-hide');
+      }
+
+      // For external packets
+
+      if(isEmpty(result['result'].thirty_days_data.externalerrors) && isEmpty(result['result'].sixty_days_data.externalerrors)&& isEmpty(result['result'].ninty_days_data.externalerrors)){
+        var table_html = '<div style="margin-top:100px;font-size:11px; color:#5b5b5b; font-weight:bold; display:flex; justify-content:center;"><span>No data to display</span></div>';
+        $(".widget-71b highcharts").remove();
+        $('.widget-71b').css('overflow','auto');
+        var $el = $(table_html).appendTo(".widget-body.widget-71b");
+        $compile($el)($scope);
+        $('.widget-71a').removeClass('widget-loader-show');
+        $('.widget-71b').removeClass('widget-data-hide');
+      }else{
+        $('.widget-71a').addClass('widget-loader-show');
+        $('.widget-71b').addClass('widget-data-hide');
+        $("#widget-71-packet-wise-error").remove();
+        var thirty_days_packet_wise_data = result['result'].thirty_days_data.externalerrors;
+        var sixty_days_packet_wise_data = result['result'].sixty_days_data.externalerrors;
+        var ninty_days_packet_wise_data = result['result'].ninty_days_data.externalerrors;
+
+        var widget_2 = "<div id='widget-71-packet-wise-error' style='margin-top:20px; display:flex; justify-content:center;'>";
+        var card_html_4 = "<div class='card'><div class='card-header'><span class='card-header-text'>30 Days</span></div><div class='card-body'>";
+        var card_html_5 = "<div class='card'><div class='card-header'><span class='card-header-text'>60 Days</span></div><div class='card-body'>";
+        var card_html_6 = "<div  class='card'><div class='card-header'><span class='card-header-text'>90 Days</span></div><div class='card-body'>";
+        var cards_2 = [card_html_4, card_html_5, card_html_6];
+
+        var total_packet_wise_errors = [thirty_days_packet_wise_data, sixty_days_packet_wise_data, ninty_days_packet_wise_data];
+
+        for(var k = 0; k < total_packet_wise_errors.length; k++){
+          var rows = ['', '', '', '', ''];
+          for(var [i, key] of enumerate(total_packet_wise_errors[k])){
+            rows[i]+="<div class='small-card'><h4 class='small-card-body'>"+key+"</h4><p class='badge'>"+total_packet_wise_errors[k][key]+"</p></div>";
+          }
+
+          for(var i =0; i<rows.length; i++)
+            cards_2[k]+=rows[i];
+          cards_2[k]+="</div>";
+        }
+
+        card_html_4=cards_2[0]+"</div>";
+        card_html_5=cards_2[1]+"</div>";
+        card_html_6=cards_2[2]+"</div>";
+
+        widget_2+=card_html_4+card_html_5+card_html_6+"</div>";
+
+        $(".widget-71b highcharts").remove();
+        $('.widget-71b').css('overflow','auto');
+        var $el = $(widget_2).appendTo(".widget-body.widget-71b");
+        $compile($el)($scope);
+        $('.widget-71a').removeClass('widget-loader-show');
+        $('.widget-71b').removeClass('widget-data-hide');
+      }
+    });
+  };
+
+  self.static_internal_external_packet_accuracy = function(){
+    var url = '/api/static_internal_external_packet_accuracy/?'+self.static_widget_data;
+    return $http({'method':'GET', 'url':url}).success(function(result){
+      if(isEmpty(result['result'].thirty_days_data.internalerrors)&&isEmpty(result['result'].sixty_days_data.internalerrors)&&isEmpty(result['result'].ninty_days_data.internalerrors)){
+        var table_html = '<div style="margin-top:100px;font-size:11px; color:#5b5b5b; font-weight:bold; display:flex; justify-content:center;"><span>No data to display</span></div>';
+        $(".widget-72b highcharts").remove();
+        $('.widget-72b').css('overflow','auto');
+        var $el = $(table_html).appendTo(".widget-body .widget-72b");
+        $compile($el)($scope);
+        $('.widget-72a').removeClass('widget-loader-show');
+        $('.widget-72b').removeClass('widget-data-hide');
+      }else{
+        $('.widget-72a').addClass('widget-loader-show');
+        $('.widget-72b').addClass('widget-data-hide');
+        $("#widget-72-packet-accuracy").remove();
+        var thirty_days_internal_packet_accuracy = result['result'].thirty_days_data.internalerrors;
+        var sixty_days_internal_packet_accuracy = result['result'].sixty_days_data.internalerrors;
+        var ninty_days_internal_packet_accuracy = result['result'].ninty_days_data.internalerrors;
+        var widget = "<div id='widget-72-packet-accuracy' style='margin-top:20px; display:flex; justify-content:center'>";
+        var card_html_1 = "<div class='card'><div class='card-header'><span class='card-header-text'>30 Days</span></div><div class='card-body'>";
+
+        var card_html_2 = "<div class='card'><div class='card-header'><span class='card-header-text'>60 Days</span></div><div class='card-body'>";
+
+        var card_html_3 = "<div  class='card'><div class='card-header'><span class='card-header-text'>90 Days</span></div><div class='card-body'>";
+
+        var cards = [card_html_1, card_html_2, card_html_3];
+        var total_packet_accuracy = [thirty_days_internal_packet_accuracy, sixty_days_internal_packet_accuracy, ninty_days_internal_packet_accuracy];
+
+        for(var k = 0; k<total_packet_accuracy.length; k++){
+          var rows = ['', '', '', '', ''];
+          for(var [i, key] of enumerate(total_packet_accuracy[k])){
+            rows[i]+="<div class='small-card'><h4 class='small-card-body'>"+key+"</h4><p class='badge'>"+total_packet_accuracy[k][key]+"</p></div>";
+          }
+
+          for(var i =0; i<rows.length; i++)
+            cards[k]+=rows[i];
+          cards[k]+="</div>";
+        }
+
+        card_html_1=cards[0]+"</div>";
+        card_html_2=cards[1]+"</div>";
+        card_html_3=cards[2]+"</div>";
+        widget+=card_html_1+card_html_2+card_html_3+"</div>";
+
+        $(".widgt-72b highcharts").remove();
+        $('.widget-72b').css('overflow','auto');
+        var $el = $(widget).appendTo(".widget-body.widget-72b");
+        $compile($el)($scope);
+        $('.widget-72a').removeClass('widget-loader-show');
+        $('.widget-72b').removeClass('widget-data-hide');
+      }
+
+      // ===================For External Errors =========================
+
+      if(isEmpty(result['result'].thirty_days_data.externalerrors)&&isEmpty(result['result'].sixty_days_data.externalerrors)&&isEmpty(result['result'].ninty_days_data.externalerrors)){
+        var table_html= '<div style="margin-top:100px;font-size:11px; color:#5b5b5b; font-weight:bold; display:flex; justify-content:center;"><span>No data to display</span></div>';
+        $(".widget-73b highcharts").remove();
+        $('.widget-73b').css('overflow','auto');
+        var $el = $(table_html).appendTo(".widget-body.widget-73b");
+        $compile($el)($scope);
+        $('.widget-73a').removeClass('widget-loader-show');
+        $('.widget-73b').removeClass('widget-data-hide');
+
+      }else{
+        $('.widget-73a').addClass('widget-loader-show');
+        $('.widget-73b').addClass('widget-data-hide');
+        $("#widget-73-packet-accuracy").remove();
+        var thirty_days_external_packet_accuracy = result['result'].thirty_days_data.externalerrors;
+        var sixty_days_external_packet_accuracy = result['result'].sixty_days_data.externalerrors;
+        var ninty_days_external_packet_accuracy = result['result'].ninty_days_data.externalerrors;
+        var widget_2 = "<div id='widget-73-packet-accuracy' style='margin-top:20px; display:flex; justify-content:center;'>";
+        var card_html_4 = "<div class='card'><div class='card-header'><span class='card-header-text'>30 Days</span></div><div class='card-body'>";
+
+        var card_html_5 = "<div class='card'><div class='card-header'><span class='card-header-text'>60 Days</span></div><div class='card-body'>";
+
+        var card_html_6 = "<div  class='card'><div class='card-header'><span class='card-header-text'>90 Days</span></div><div class='card-body'>";
+
+        var total_packet_accuracy = [thirty_days_external_packet_accuracy, sixty_days_external_packet_accuracy, ninty_days_external_packet_accuracy];
+
+        var cards_2 = [card_html_4, card_html_5, card_html_6];
+        for(var k = 0; k<total_packet_accuracy.length; k++){
+          var rows = ['', '', '', '', ''];
+          for(var [i, key] of enumerate(total_packet_accuracy[k])){
+            rows[i]+=rows[i]+="<div class='small-card'><h4 class='small-card-body'>"+key+"</h4><p class='badge'>"+total_packet_accuracy[k][key]+"</p></div>";
+          }
+
+          for(var i =0; i<rows.length; i++)
+              cards_2[k]+=rows[i];
+          cards_2[k]+="</div>";
+        }
+
+        card_html_4=cards_2[0]+"</div>";
+        card_html_5=cards_2[1]+"</div>";
+        card_html_6=cards_2[2]+"</div>";
+        widget_2+=card_html_4+card_html_5+card_html_6+"</div>";
+        $(".widget-73b highcharts").remove()
+        $('.widget-73b').css('overflow','auto');
+        var $el = $(widget_2).appendTo(".widget-body.widget-73b");
+        $compile($el)($scope);
+
+        $('.widget-73a').removeClass('widget-loader-show');
+        $('.widget-73b').removeClass('widget-data-hide');
+
+      }
+    });
+  };
+
+    self.static_internal_external_agent_accuracy = function(){
+    var url = '/api/static_internal_external_agent_accuracy/?'+self.static_widget_data;
+    return $http({'method':'GET', 'url':url}).success(function(result){
+      if(isEmpty(result['result'].thirty_days_data.internalerrors)&&isEmpty(result['result'].sixty_days_data.internalerrors)&&isEmpty(result['result'].ninty_days_data.internalerrors)){
+        var table_html = '<div style="margin-top:100px;font-size:11px; color:#5b5b5b; font-weight:bold;display:flex; justify-content:center;"><span>No data to display</span></div>';
+        $(".widget-74b highcharts").remove();
+        $('.widget-74b').css('overflow','auto');
+        var $el = $(table_html).appendTo(".widget-body.widget-74b");
+        $compile($el)($scope);
+        $('.widget-74a').removeClass('widget-loader-show');
+        $('.widget-74b').removeClass('widget-data-hide');
+
+      }else{
+        $('.widget-74a').addClass('widget-loader-show');
+        $('.widget-74b').addClass('widget-data-hide');
+        $("#widget-74-agent-accuracy").remove();
+        var thirty_days_internal_agent_accuracy = result['result'].thirty_days_data.internalerrors;
+        var sixty_days_internal_agent_accuracy = result['result'].sixty_days_data.internalerrors;
+        var ninty_days_internal_agent_accuracy = result['result'].ninty_days_data.internalerrors;
+        var widget = "<div id='widget-74-agent-accuracy' style='margin-top:20px; display:flex; justify-content:center;'>";
+        var card_html_1 = "<div class='card'><div class='card-header'><span class='card-header-text'>30 Days</span></div><div class='card-body'>";
+
+        var card_html_2 = "<div class='card'><div class='card-header'><span class='card-header-text'>60 Days</span></div><div class='card-body'>";
+
+        var card_html_3 = "<div  class='card'><div class='card-header'><span class='card-header-text'>90 Days</span></div><div class='card-body'>";
+
+        var cards = [card_html_1, card_html_2, card_html_3];
+        var total_agent_accuracy = [thirty_days_internal_agent_accuracy, sixty_days_internal_agent_accuracy, ninty_days_internal_agent_accuracy];
+
+        for(var k = 0; k<total_agent_accuracy.length; k++){
+          var rows = ['', '', '', '', ''];
+          for(var [i, key] of enumerate(total_agent_accuracy[k])){
+              rows[i]+="<div class='small-card'><h4 class='small-card-body'>"+key+"</h4><p class='badge'>"+total_agent_accuracy[k][key]+"</p></div>";
+          }
+
+          for(var i =0; i<rows.length; i++)
+            cards[k]+=rows[i];
+          cards[k]+="</div>";
+        }
+
+        card_html_1=cards[0]+"</div>";
+        card_html_2=cards[1]+"</div>";
+        card_html_3=cards[2]+"</div>";
+        widget+=card_html_1+card_html_2+card_html_3+"</div>";
+
+        $(".widget-74b highcharts").remove();
+        $('.widget-74b').css('overflow','auto');
+        var $el = $(widget).appendTo(".widget-body.widget-74b");
+        $compile($el)($scope);
+        $('.widget-74a').removeClass('widget-loader-show');
+        $('.widget-74b').removeClass('widget-data-hide');
+      }
+      // ===================For External Errors =========================
+
+      if(isEmpty(result['result'].thirty_days_data.externalerrors)&&isEmpty(result['result'].sixty_days_data.externalerrors)&&isEmpty(result['result'].ninty_days_data.externalerrors)){
+        var table_html= '<div style="margin-top:100px;font-size:11px; color:#5b5b5b; font-weight:bold; display:flex; justify-content:center;"><span>No data to display</span></div>';
+        $(".widget-75b highcharts").remove();
+        $('.widget-75b').css('overflow','auto');
+        var $el = $(table_html).appendTo(".widget-body.widget-75b");
+        $compile($el)($scope);
+        $('.widget-75a').removeClass('widget-loader-show');
+        $('.widget-75b').removeClass('widget-data-hide');
+
+      }else{
+        $('.widget-75a').addClass('widget-loader-show');
+        $('.widget-75b').addClass('widget-data-hide');
+        $("#widget-75-agent-accuracy").remove();
+        var thirty_days_external_agent_accuracy = result['result'].thirty_days_data.externalerrors;
+        var sixty_days_external_agent_accuracy = result['result'].sixty_days_data.externalerrors;
+        var ninty_days_external_agent_accuracy = result['result'].ninty_days_data.externalerrors;
+        var widget_2 = "<div id='widget-75-agent-accuracy' style='margin-top:20px; display:flex; justify-content:center;'>";
+        var card_html_4 = "<div class='card'><div class='card-header'><span class='card-header-text'>30 Days</span></div><div class='card-body'>";
+
+        var card_html_5 = "<div class='card'><div class='card-header'><span class='card-header-text'>60 Days</span></div><div class='card-body'>";
+
+        var card_html_6 = "<div  class='card'><div class='card-header'><span class='card-header-text'>90 Days</span></div><div class='card-body'>"
+
+        var total_agent_accuracy = [thirty_days_external_agent_accuracy, sixty_days_external_agent_accuracy, ninty_days_external_agent_accuracy];
+
+        var cards_2 = [card_html_4, card_html_5, card_html_6];
+        for(var k = 0; k<total_agent_accuracy.length; k++){
+          var rows = ['', '', '', '', ''];
+          for(var [i, key] of enumerate(total_agent_accuracy[k])){
+            rows[i]+=rows[i]+="<div class='small-card'><h4 class='small-card-body'>"+key+"</h4><p class='badge'>"+total_agent_accuracy[k][key]+"</p></div>";
+          }
+
+          for(var i =0; i<rows.length; i++)
+            cards_2[k]+=rows[i];
+          cards_2[k]+="</div>";
+        }
+
+        card_html_4=cards_2[0]+"</div>";
+        card_html_5=cards_2[1]+"</div>";
+        card_html_6=cards_2[2]+"</div>";
+        widget_2+=card_html_4+card_html_5+card_html_6+"</div>";
+        $(".widget-75b highcharts").remove()
+        $('.widget-75b').css('overflow','auto');
+        var $el = $(widget_2).appendTo(".widget-body.widget-75b");
+        $compile($el)($scope);
+
+        $('.widget-75a').removeClass('widget-loader-show');
+        $('.widget-75b').removeClass('widget-data-hide');
+      }
+    });
+  };
+
+    self.static_internal_external_unaudited_packet = function(){
+    var url = '/api/unaudited_packet/?'+self.static_widget_data;
+    return $http({'method':'GET', 'url':url}).success(function(result){
+      if(isEmpty(result['result'].thirty_days_data.internalerrors)&&isEmpty(result['result'].sixty_days_data.internalerrors)&&isEmpty(result['result'].ninty_days_data.internalerrors)){
+        var table_html = '<div style="margin-top:100px;font-size:11px; color:#5b5b5b; font-weight:bold; display:flex; justify-content:center;"><span>No data to display</span></div>';
+        $(".widget-76b highcharts").remove();
+        $('.widget-76b').css('overflow','auto');
+        var $el = $(table_html).appendTo(".widget-body.widget-76b");
+        $compile($el)($scope);
+        $('.widget-76a').removeClass('widget-loader-show');
+        $('.widget-76b').removeClass('widget-data-hide');
+      }else{
+        $('.widget-76a').addClass('widget-loader-show');
+        $('.widget-76b').addClass('widget-data-hide');
+        $("#widget-76-unaudited-packets").remove();
+        var thirty_days_internal_unaudited_packet = result['result'].thirty_days_data.internalerrors;
+        var sixty_days_internal_unaudited_packet = result['result'].sixty_days_data.internalerrors;
+        var ninty_days_internal_unaudited_packet = result['result'].ninty_days_data.internalerrors;
+        var widget = "<div id='widget-76-unaudited-packets' style='margin-top:20px; display:flex; justify-content:center;'>";
+        var card_html_1 = "<div class='card'><div class='card-header'><span class='card-header-text'>30 Days</span></div><div class='card-body'>";
+
+        var card_html_2 = "<div class='card'><div class='card-header'><span class='card-header-text'>60 Days</span></div><div class='card-body'>";
+
+        var card_html_3 = "<div  class='card'><div class='card-header'><span class='card-header-text'>90 Days</span></div><div class='card-body'>";
+
+        var cards = [card_html_1, card_html_2, card_html_3];
+        var total_unaudited_packet = [thirty_days_internal_unaudited_packet, sixty_days_internal_unaudited_packet, ninty_days_internal_unaudited_packet];
+
+        for(var k = 0; k<total_unaudited_packet.length; k++){
+          var rows = ['', '', '', '', ''];
+          for(var [i, key] of enumerate(total_unaudited_packet[k])){
+            rows[i]+="<div class='small-card'><h4 class='small-card-body'>"+key+"</h4><p class='badge'>"+total_unaudited_packet[k][key]+"</p></div>";
+          }
+
+          for(var i =0; i<rows.length; i++)
+            cards[k]+=rows[i];
+          cards[k]+="</div>";
+        }
+
+        card_html_1=cards[0]+"</div>";
+        card_html_2=cards[1]+"</div>";
+        card_html_3=cards[2]+"</div>";
+        widget+=card_html_1+card_html_2+card_html_3+"</div>";
+
+        $(".widget-76b highcharts").remove();
+        $('.widget-76b').css('overflow','auto');
+        var $el = $(widget).appendTo(".widget-body.widget-76b");
+        $compile($el)($scope);
+        $('.widget-76a').removeClass('widget-loader-show');
+        $('.widget-76b').removeClass('widget-data-hide');
+      }
+
+     // ===================For External Errors =========================
+
+      if(isEmpty(result['result'].thirty_days_data.externalerrors)&&isEmpty(result['result'].sixty_days_data.externalerrors)&&isEmpty(result['result'].ninty_days_data.externalerrors)){
+        var table_html= '<div style="margin-top:100px;font-size:11px; color:#5b5b5b; font-weight:bold;display:flex; justify-content:center;"><span>No data to display</span></div>';
+        $(".widget-77b highcharts").remove();
+        $('.widget-77b').css('overflow','auto');
+        var $el = $(table_html).appendTo(".widget-body.widget-77b");
+        $compile($el)($scope);
+        $('.widget-77a').removeClass('widget-loader-show');
+        $('.widget-77b').removeClass('widget-data-hide');
+
+      }else{
+        $('.widget-77a').addClass('widget-loader-show');
+        $('.widget-77b').addClass('widget-data-hide');
+        $("#widget-77-unaudited-packets").remove();
+        var thirty_days_external_unaudited_packet = result['result'].thirty_days_data.externalerrors;
+        var sixty_days_external_unaudited_packet = result['result'].sixty_days_data.externalerrors;
+        var ninty_days_external_unaudited_packet = result['result'].ninty_days_data.externalerrors;
+        var widget_2 = "<div id='widget-77-unaudited-packets' style='margin-top:20px; display:flex; justify-content:center;'>";
+        var card_html_4 = "<div class='card'><div class='card-header'><span class='card-header-text'>30 Days</span></div><div class='card-body'>";
+
+        var card_html_5 = "<div class='card'><div class='card-header'><span class='card-header-text'>60 Days</span></div><div class='card-body'>";
+
+        var card_html_6 = "<div  class='card'><div class='card-header'><span class='card-header-text'>90 Days</span></div><div class='card-body'>";
+
+        var total_unaudited_packet = [thirty_days_external_unaudited_packet, sixty_days_external_unaudited_packet, ninty_days_external_unaudited_packet];
+
+        var cards_2 = [card_html_4, card_html_5, card_html_6];
+        for(var k = 0; k<total_unaudited_packet.length; k++){
+          var rows = ['', '', '', '', ''];
+          for(var [i, key] of enumerate(total_unaudited_packet[k])){
+            rows[i]+=rows[i]+="<div class='small-card'><h4 class='small-card-body'>"+key+"</h4><p class='badge'>"+total_unaudited_packet[k][key]+"</p></div>";
+          }
+
+          for(var i =0; i<rows.length; i++)
+            cards_2[k]+=rows[i];
+          cards_2[k]+="</div>";
+        }
+
+        card_html_4=cards_2[0]+"</div>";
+        card_html_5=cards_2[1]+"</div>";
+        card_html_6=cards_2[2]+"</div>";
+        widget_2+=card_html_4+card_html_5+card_html_6+"</div>";
+        $(".widget-77b highcharts").remove()
+        $('.widget-77b').css('overflow','auto');
+        var $el = $(widget_2).appendTo(".widget-body.widget-77b");
+        $compile($el)($scope);
+
+        $('.widget-77a').removeClass('widget-loader-show');
+        $('.widget-77b').removeClass('widget-data-hide');
+      }
+    });
+  };
 
                     self.No_of_agents_AHT = function(final_work,type) {
 
@@ -3597,7 +4273,7 @@
                                                     var work_pack = self.data_to_show.split('&')[6].split('=')[1];
                                                     var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
                                                   }
-                                                    var str = '63<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
+                                                    var str = '63<##>'+self.type+'<##>'+sub_proj+'<##>'+workpack+'<##>'+sub_pack;
                                                     this['project_live'] = self.project_live;
                                                     this['center_live'] = self.center_live;
                                                     return new Annotation(str, $(self.chartOptions68.chart.renderTo),this.series.chart, this);
@@ -3749,7 +4425,7 @@
                                                     this['project_live'] = self.project_live;
                                                     this['center_live'] = self.center_live;
                                                     return new Annotation(str, $(self.chartOptions69.chart.renderTo),this.series.chart, this);
-                                                    }
+                                                   }
                                                   }
                                                 }
                                             }
@@ -3958,7 +4634,7 @@
                                self._pre_data.push(series.name);
                                self.annot_perm();
                                }
-                           })
+                          })
                                     });
                                     }(series));
                                 }
@@ -4113,7 +4789,7 @@
                         })
                     }
 
-                   self.overall_exce = function(final_work, type) {
+                    self.overall_exce = function(final_work, type) {
 
                         if (type == undefined) {
                             type = 'day'
@@ -4322,7 +4998,7 @@
                                                 var work_pack = '';
                                                 var sub_pack = '';
                                               }
-                                              else {
+                                             else {
                                                 var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
                                                 var work_pack = self.data_to_show.split('&')[6].split('=')[1];
                                                 var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
@@ -4528,7 +5204,7 @@
                                                 var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
                                               }
                                                 var str = '39<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
-                                                this['project'] = self.project_live;
+                                               this['project'] = self.project_live;
                                                 this['center'] = self.center_live;
                                                 this['from'] = self.start_date;
                                                 this['to'] = self.end_date;
@@ -4826,7 +5502,7 @@
                             
                                 if (self.list_object.external_accuracy_timeline != undefined) {
 
-                                    if (self.list_object.external_accuracy_timeline.display_value === true) {
+                                    if (self.list_object.external_accuracy_timeline.display_vaue === true) {
 
                                         var value = true;
                                     }
@@ -5010,7 +5686,7 @@
                                                   }
                                                 }
                                             },
-                                            events: {
+                                           events: {
                                                 hide: function() {
                                                     var name  = this.name;
                                                     var visibility = this.visible;
@@ -5183,8 +5859,7 @@
                     var ver_align4 = "bottom";
                     var layout4 = "horizontal";
             
-                }
-            
+           	} 
                 else if(self.list_object.Static_Daily_Production_Bar.legends_align == 'left'){
             
                     var align4 = "left";
@@ -5380,6 +6055,7 @@
                 });
             }
         }
+                                
             self.work_list = [];
             self.stacti_list = [];
             self.prod_list = [];
@@ -5419,6 +6095,18 @@
                          self.main_prod(undefined, undefined, undefined)
                     } else if (val == 'performance_summary') {
                         self.performance(undefined, undefined,undefined)
+                    } else if (val == 'internal_agent_error_data'){
+                      self.static_internal_external_agent_errors()
+                    } else if (val == 'static_internal_error_category'){
+                      self.static_internal_external_error_category()
+                    } else if(val == 'internal_packet_wise_error_data'){
+                      self.static_internal_external_packet_errors()
+                    } else if(val == 'internal_packet_accuracy') {
+                      self.static_internal_external_packet_accuracy()
+                    } else if(val =='internal_agent_accuracy'){
+                      self.static_internal_external_agent_accuracy()
+                    } else if(val =='internal_unaudited_packets'){
+                      self.static_internal_external_unaudited_packet()
                     } else if (val == 'no_of_agents_AHT_daywise') {
                          self.No_of_agents_AHT(undefined)
                     } else if (val == 'percentage_people_67_and_99_achieved') {
@@ -5571,7 +6259,6 @@
                     "self.chartOptions69":self.chartOptions69,
                     "self.chartOptions70":self.chartOptions70
                   };
-
 
                 self.final_layout_list = [];
                 for (var single in self.layout_list){
@@ -5744,7 +6431,7 @@
                                             widgetB = '.widget-49b';
                                             type_check = 'outbound';
                                         } else if (type == self.filter_list[8]) {
-                                            widgetA = '.widget-50a';
+                                           widgetA = '.widget-50a';
                                             widgetB = '.widget-50b';
                                             type_check = 'inbound';
                                         } else if (type == self.filter_list[9]) {
@@ -5864,7 +6551,7 @@
                         self.drop_list = [];
 
                         self.top_employee_details =  result.data.result.top_five_employee_details;
-                        self.top_five = result.data.result.only_top_five;
+                        self.top_five = result.data.resultonly_top_five;
                         self.volume_graphs = result.data.result.volumes_graphs_details;
                         self.drop_list =  result.data.result.drop_value;
                         self.sub_pro_sel = document.getElementById("0");
@@ -6084,7 +6771,7 @@
                     self.call_back.push(from);
                     self.call_back.push(to);                                                                                                                               var pro_cen_nam = $state.params.selpro;                                                                                                                self.location = pro_cen_nam.split('-')[0].replace(' ','') + ' - '
                     var project_check = pro_cen_nam.split('-')[1].replace(' ','');
-                    var project_val = project_check.search('&');
+                   var project_val = project_check.search('&');
                     if (project_val != -1) {
                         self.project = pro_cen_nam.split('-')[1].split('&')[0].replace(' ','');    
                     }
@@ -6174,17 +6861,44 @@
                                                 self.drop_work_pack;
 
                        self.main_widget_function(self.call_back, final_work);
-                       if ((self.drop_sub_proj == 'undefined') || (self.drop_sub_proj == '')) {
-                            $('#0').val(self.drop_work_pack);
-                            $('#1').val(self.drop_sub_pack);
-                       } else if ((self.drop_sub_pack == 'undefined') || (self.drop_sub_pack == '')) {
-                            $('#0').val(self.drop_sub_proj);
-                            $('#1').val(self.drop_work_pack);
-                       } else {
-                            $('#0').val(self.drop_sub_proj);
-                            $('#1').val(self.drop_work_pack);
-                            $('#2').val(self.drop_sub_pack);
-                       }
+                if ((self.drop_sub_proj == '') && (self.drop_work_pack != '') && (self.drop_sub_pack != '')) {
+                    $('#0').val(self.drop_work_pack);
+                    var x = document.getElementById('1');
+                    var sub_packets = Object.keys(result.data.result.drop_value[self.drop_work_pack]);
+                    for (var packet of sub_packets) {
+                      var option = document.createElement('option');
+                      option.text = packet;
+                      x.add(option);
+                    }
+                  
+                    $('#1').val(self.drop_sub_pack);
+
+                } else if ((self.drop_sub_pack == '') && (self.drop_work_pack != '') && (self.drop_sub_proj == '')) {
+                    //$('#0').val(self.drop_sub_proj);
+                    $('#0').val(self.drop_work_pack);
+                } else {
+                    $('#0').val(self.drop_sub_proj);
+                    var x = document.getElementById('1');
+                    var work_packets = Object.keys(result.data.result.drop_value[self.drop_sub_proj]);
+                    var sub_packets = result.data.result.drop_value[self.drop_sub_proj][self.drop_work_pack];
+          
+                    for (var packet of work_packets) {
+                      var option = document.createElement('option');
+                      option.text = packet;
+                      x.add(option);
+                    }
+
+                    var y = document.getElementById('2');
+                    for (var packet of sub_packets) {
+                      var option = document.createElement('option');
+                      option.text = packet;
+                      y.add(option);
+                    }
+                    $('#1').val(self.drop_work_pack);
+                    
+                    $('#2').val(self.drop_sub_pack);
+                    
+                  }
                 }           
                 else {
                     self.main_widget_function(self.call_back, '');
@@ -6197,7 +6911,7 @@
                 self.dateType = function(key,all_data,name,button_clicked){
 
                 self.call_back = callback;
-                
+
                 var obj = {
                     "self.chartOptions10":self.chartOptions10,
                     "self.chartOptions17":self.chartOptions17,
@@ -6215,7 +6929,7 @@
                     "self.chartOptions5":self.chartOptions5,
                     "self.chartOptions5_2":self.chartOptions5_2,
                     "self.chartOptions29":self.chartOptions29,
-                    "self.chartOptions30":self.chartOptions30,
+                   "self.chartOptions30":self.chartOptions30,
                     "self.chartOptions27":self.chartOptions27,
                     "self.chartOptions28":self.chartOptions28,
                     "self.chartOptions":self.chartOptions,
@@ -6452,7 +7166,7 @@
                         self.prod_avg(final_work, key);
 
                         $('.widget-26a').addClass('widget-loader-show');
-                        $('.widget-26b').addClass('widget-data-hide');
+                        $('.widget-2b').addClass('widget-data-hide');
 
                         self.tat_data(final_work, key);
 
@@ -6610,7 +7324,7 @@
                     'self.chartOptions41':self.chartOptions41,
                     'self.chartOptions42':self.chartOptions42,
                     'self.chartOptions43':self.chartOptions43,
-                    'self.chartOptions44':self.chartOptions44,
+                    'self.chartOptions44':self.chartOptios44,
                     'self.chartOptions45':self.chartOptions45,
                     'self.chartOptions46':self.chartOptions46,
                     'self.chartOptions47':self.chartOptions47,
@@ -6740,7 +7454,7 @@
                 angular.extend(self.packet_hierarchy_list, result.result.level);
              })
 
-            self.chartOptions = {
+              self.chartOptions = {
                 chart : {
                  backgroundColor: "transparent",
                  reflow: false
@@ -6909,7 +7623,7 @@
                 type: 'column',
                 backgroundColor: "transparent",
                 reflow: false
-             },
+            },
             yAxis: {
                 gridLineColor: 'a2a2a2',
                 min: 0,
@@ -6924,7 +7638,7 @@
                              return "<small>" + this.x + "</small><br/>" +
                                     "<b>" + this.series.name + "</b> : " + Highcharts.numberFormat(this.y, null, null, ",");
                            }
-               },    
+               }    
             };
 
             self.chartOptions68 = {
@@ -7119,7 +7833,7 @@
             },
             };
 
-            self.chartOptions44 = {
+          self.chartOptions44 = {
             chart: {
                 type: 'column',
                 backgroundColor: "transparent",
@@ -7214,7 +7928,7 @@
                     pointFormat: '<b>{point.y}</b>'
                   },
                 plotOptions: {
-                    pie: {
+                   pie: {
                         allowPointSelect: true,
                         point: {
                            events:{
@@ -7576,7 +8290,7 @@
                 },  
                                yAxis: {
                 gridLineColor: 'a2a2a2',
-                min: 0,
+               min: 0,
                 title: {
                  text: '',
                  align: 'high'
@@ -7877,7 +8591,7 @@ self.chartOptions64 = {
                     pointFormat: '<b>{point.y}</b>'
                   },
                 plotOptions: {
-                    pie: {
+                   pie: {
                         allowPointSelect: true,
                         point: {
                            events:{
@@ -8309,7 +9023,7 @@ self.chartOptions64 = {
             self.chartOptions16 = {
                 chart : {
                  backgroundColor: "transparent",
-                 reflow: false
+                reflow: false
                 },
                                yAxis: {
                 gridLineColor: 'a2a2a2',
@@ -8606,7 +9320,7 @@ self.chartOptions64 = {
                credits: {
                 enabled: false
                },
-            };
+           };
 
     self.chartOptions34 = {
                 chart : {
