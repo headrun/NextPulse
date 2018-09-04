@@ -239,7 +239,7 @@
                       text:"latest date: "+ self.last
                     });
                   } else {
-                    window.open('/js/page1/sample.html?widget_data='+self.static_widget_data+'&from='+self.start_date+'&to='+self.end_date);
+                    window.open('/js/page1/intelligence.audit.html?widget_data='+self.static_widget_data+'&from='+self.start_date+'&to='+self.end_date);
                   }                    
                 });
 
