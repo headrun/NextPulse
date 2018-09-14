@@ -23,7 +23,7 @@ class CustomerAdmin(admin.ModelAdmin):
 admin.site.register(Customer,CustomerAdmin)
 
 class HeadcountAdmin(admin.ModelAdmin):
-    list_display = ['project','work_packet','sub_packet','date']
+    list_display = ['project','sub_project','work_packet','sub_packet','date']
     list_filter = ['project','center']
 admin.site.register(Headcount,HeadcountAdmin)
 
