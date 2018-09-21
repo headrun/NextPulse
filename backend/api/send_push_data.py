@@ -70,9 +70,9 @@ def send_push_notification(request):
 
                 if metric:
                     header = {"Content-Type": "application/json; charset=utf-8",
-                              "Authorization": "Basic MWNhMjliMjAtNzAxMy00N2Y4LWIxYTUtYzdjNjQzMDkzOTZk"}
+                              "Authorization": "Basic ZmY4OTRiNTgtOTU2MS00NGQwLWJmZTMtMzkzNTAwZDBjYWNj"}
 
-                    payload = {"app_id": "d0d6000e-27ee-459b-be52-d65ed4b3d025",
+                    payload = {"app_id": "ee77f4b2-7803-4161-ab9a-8ee3ea03a0b4",
                                "include_player_ids": [device_id],
                                "contents": {"en": data},
                                "web_push_topic": project_name}
@@ -80,7 +80,7 @@ def send_push_notification(request):
                     url     = "https://onesignal.com/api/v1/notifications"                    
                     request = requests.post(url, headers=header, data=json.dumps(payload))                    
             else:
-                payload = {}        
+                payload = {}                
     else:
         payload = {}
     return json_HttpResponse(payload)
