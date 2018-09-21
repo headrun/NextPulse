@@ -46,6 +46,69 @@
                 week: false,
                 month: false
              };   
+             
+             var OneSignal = window.OneSignal || [];
+
+                OneSignal.push(["init", {  
+                  appId: "d0d6000e-27ee-459b-be52-d65ed4b3d025",
+                  autoRegister: true, 
+                  notifyButton: {
+                    enable: true, /* Set to false to hide */
+                    size: 'medium', /* One of 'small', 'medium', or 'large' */
+                    theme: 'default', /* One of 'default' (red-white) or 'inverse" (white-red) */
+                    position: 'bottom-left', /* Either 'bottom-left' or 'bottom-right' */
+                    title: 'NextPulse', 
+                    offset: {
+                        bottom: '0px',
+                        left: '0px', /* Only applied if bottom-left */
+                        right: '0px' /* Only applied if bottom-right */
+                    },
+                    text: {
+                        'dialog.main.title': 'NextPulse',
+                    },
+                  },
+                  prenotify: true,
+                  showCredit: false,
+                  httpPermissionRequest: {
+                    enable: false
+                  },
+                  welcomeNotification: {
+                    "title": "NextPulse",
+                    "message": "Thanks for subscribing!",
+                    // "url": "" /* Leave commented for the notification to not open a window on Chrome and Firefox (on Safari, it opens to your webpage) */
+                  },
+                  displayPredicate: function() {
+                    return OneSignal.isPushNotificationsEnabled()
+                        .then(function(isPushEnabled) {
+                            /* The user is subscribed, so we want to return "false" to hide the Subscription Bell */
+                            return !isPushEnabled;
+                        });
+                 },
+                 promptOptions: {
+                    siteName: 'NextPulse',
+                    /* actionMessage limited to 90 characters */
+                    actionMessage: "We'd like to show you notifications for the latest news and updates.",
+                    /* acceptButtonText limited to 15 characters */
+                    acceptButtonText: "ALLOW",
+                    /* cancelButtonText limited to 15 characters */
+                    cancelButtonText: "NO THANKS"
+                 }
+                }]);
+                OneSignal.push(function() {
+                OneSignal.getUserId().then(function(userId) {
+                    console.log("OneSignal User ID:", userId);
+                    var user = userId;
+                    var data = {};
+                   data['userid'] = user;
+                   $.ajax({url: '/api/notification/',
+                           method: 'POST',
+                           data: data,
+                           'success': function(response) {
+                            console.log(response);      
+                        }
+                    });
+                });
+            });
 
              $scope.checkResults = [];
 
