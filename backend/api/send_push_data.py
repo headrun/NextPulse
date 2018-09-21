@@ -2,6 +2,7 @@
 import datetime
 import json
 import urllib2
+import requests
 
 from django.db.models import Sum,Max
 from django.contrib.auth.models import User
@@ -14,44 +15,45 @@ from api.generate_accuracy_values import *
 
 def send_push_notification(request):
     
-    date = str(datetime.datetime.now().date())
-    user_group = request.user.groups.values_list('name', flat=True)[0]
+    user_group        = request.user.groups.values_list('name', flat=True)[0]
     if user_group in ['team_lead', 'customer']:
-        player_id = request.POST.get('userid', '')
-        user = request.user.id
-        user_group = request.user.groups.values_list('name', flat=True)[0]
+        player_id     = request.POST.get('userid', '')
+        user          = request.user.id
+        user_group    = request.user.groups.values_list('name', flat=True)[0]
         if user_group == 'team_lead':
             table_name = TeamLead
-            is_senior = True       
+            is_senior  = True       
         elif user_group == 'customer':
-            table_name = Customer
+            table_name  = Customer
             customer_data = Customer.objects.filter(name=user).values_list('is_senior','is_enable_push_email')
             is_senior = customer_data[0][0]
             is_send_push = customer_data[0][1] 
         projects = table_name.objects.filter(name = user).values_list('project',flat=True)
         
         for project in projects:
-            check_data = OneSignal.objects.filter(user_id=user).values_list('device_id', flat=True)
+            check_data   = json.dumps(list(OneSignal.objects.filter(user_id=user).values_list('device_id', flat=True)))
             project_data = Project.objects.filter(id=project).values_list('name','is_enable_push')
+            date_query = RawTable.objects.filter(project_id=project).aggregate(Max('date'))
+            date = str(date_query['date__max'])
             is_send_mail = project_data[0][1]
             project_name = project_data[0][0]
             if is_send_mail:
                 if check_data:
-                    user = user
+                    user      = user
                     device_id = player_id
                 else:
-                    details = OneSignal(user_id = user, device_id = player_id)
+                    details   = OneSignal(user_id = user, device_id = player_id)
                     details.save()
-                    device_id = OneSignal.objects.filter(user_id = user).values_list('device_id', flat=True)
-                values = generate_targets_data(project,user_group,is_senior)
+                    device_id = json.dumps(list(OneSignal.objects.filter(user_id = user).values_list('device_id', flat=True)))
+                values        = generate_targets_data(project,user_group,is_senior,date)
                 
-                if user_group == 'customer' and is_senior:
-                    push_data = get_senior_customer_data(values)
+                if user_group   == 'customer' and is_senior:
+                    push_data   = get_senior_customer_data(values)
                 elif user_group == 'customer':
-                    push_data = get_customer_data(values)
+                    push_data   = get_customer_data(values)
                 else:
-                    push_data = values
-                _keys = push_data.keys()
+                    push_data   = values
+                _keys  = push_data.keys()
                 data_1 = project_name + "\n" + date+ "\n"
                 if (('production' in _keys) and ('aht' in _keys) and ('productivity' in _keys) and ('sla' in _keys)) or\
                     (('production' in _keys) and ('sla' in _keys) and ('productivity' in _keys)) or \
@@ -65,7 +67,6 @@ def send_push_notification(request):
                 elif (('production' in _keys) or ('sla' in _keys) or ('productivity' in _keys) \
                     or ('aht' in _keys) or ('kpi' in _keys)):
                     metric = get_individual_fields_for_push(push_data)
-                
                 data = data_1 + metric
                 if metric:
                     header = {"Content-Type": "application/json; charset=utf-8",
@@ -76,11 +77,12 @@ def send_push_notification(request):
                                "contents": {"en": data},
                                "web_push_topic": project_name}
                         
-                    url = "https://onesignal.com/api/v1/notifications"
-                    opener = urllib2.build_opener(urllib2.HTTPHandler)
-                    request = urllib2.Request(url, data=json.dumps(payload))
-                    request.add_header("Content-Type", "application/json; charset=utf-8") #Header, Value
-                    request.add_header("Authorization", "Basic MWNhMjliMjAtNzAxMy00N2Y4LWIxYTUtYzdjNjQzMDkzOTZk")                                                                               
+                    url     = "https://onesignal.com/api/v1/notifications"
+                    #opener  = urllib2.build_opener(urllib2.HTTPHandler)
+                    #request = urllib2.Request(url, data=json.dumps(payload))
+                    #request.add_header("Content-Type", "application/json; charset=utf-8") #Header, Value
+                    #request.add_header("Authorization", "Basic MWNhMjliMjAtNzAxMy00N2Y4LWIxYTUtYzdjNjQzMDkzOTZk")
+                    request = requests.post(url, headers=header, data=json.dumps(payload))                    
                     
     else:
         payload = {}

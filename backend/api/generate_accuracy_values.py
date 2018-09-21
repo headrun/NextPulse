@@ -49,12 +49,10 @@ def send_mail_data(user_details, user, user_group):
     return "success"
 
 
-def generate_targets_data(project,user_group,is_senior):
+def generate_targets_data(project,user_group,is_senior,last_date):
 
     common_dict = {}
 
-    date_query = RawTable.objects.filter(project_id=project).aggregate(Max('date'))
-    last_date = str(date_query['date__max'])
     target_query = Targets.objects.filter(project=project,from_date__lte=last_date, to_date__gte=last_date).\
                     values_list('target_type','target_method').distinct()
 
