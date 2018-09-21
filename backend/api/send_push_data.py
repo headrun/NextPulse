@@ -27,9 +27,8 @@ def send_push_notification(request):
             table_name  = Customer
             customer_data = Customer.objects.filter(name=user).values_list('is_senior','is_enable_push_email')
             is_senior = customer_data[0][0]
-            is_send_push = customer_data[0][1] 
+            is_send_push = customer_data[0][1]
         projects = table_name.objects.filter(name = user).values_list('project',flat=True)
-        
         for project in projects:
             check_data   = json.dumps(list(OneSignal.objects.filter(user_id=user).values_list('device_id', flat=True)))
             project_data = Project.objects.filter(id=project).values_list('name','is_enable_push')
@@ -68,6 +67,7 @@ def send_push_notification(request):
                     or ('aht' in _keys) or ('kpi' in _keys)):
                     metric = get_individual_fields_for_push(push_data)
                 data = data_1 + metric
+
                 if metric:
                     header = {"Content-Type": "application/json; charset=utf-8",
                               "Authorization": "Basic MWNhMjliMjAtNzAxMy00N2Y4LWIxYTUtYzdjNjQzMDkzOTZk"}
@@ -77,13 +77,10 @@ def send_push_notification(request):
                                "contents": {"en": data},
                                "web_push_topic": project_name}
                         
-                    url     = "https://onesignal.com/api/v1/notifications"
-                    #opener  = urllib2.build_opener(urllib2.HTTPHandler)
-                    #request = urllib2.Request(url, data=json.dumps(payload))
-                    #request.add_header("Content-Type", "application/json; charset=utf-8") #Header, Value
-                    #request.add_header("Authorization", "Basic MWNhMjliMjAtNzAxMy00N2Y4LWIxYTUtYzdjNjQzMDkzOTZk")
+                    url     = "https://onesignal.com/api/v1/notifications"                    
                     request = requests.post(url, headers=header, data=json.dumps(payload))                    
-                    
+            else:
+                payload = {}        
     else:
         payload = {}
     return json_HttpResponse(payload)
