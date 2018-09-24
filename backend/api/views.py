@@ -54,6 +54,7 @@ from api.voice_widgets import *
 from api.aht_graph import *
 from api.send_push_data import *
 from api.sample_algorithm import *
+from api.customer_data import *
 #From api.location import *
 #from api.basic import *
 
