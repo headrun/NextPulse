@@ -38,7 +38,7 @@
              self.project_live = ''
              self.center_live = ''
 
-             $scope.singleModel = 1; 
+             $scope.singleModel = 1;
 
              $scope.radioModel = 'Day';
 
@@ -46,21 +46,21 @@
                 day: true,
                 week: false,
                 month: false
-             };   
+             };
 
              $scope.checkResults = [];
 
-             $scope.$watchCollection('checkModel', function () { 
+             $scope.$watchCollection('checkModel', function () {
                 $scope.checkResults = [];
                 angular.forEach($scope.checkModel, function (value, key) {
                     if (value) {
                         $scope.checkResults.push(key);
 
                     }
-                });  
-             });            
+                });
+             });
 
-             
+
              self.annotations_data = {};
 
              self.add_loader = function() {
@@ -130,6 +130,9 @@
                     $('.widget-64b').addClass('widget-data-hide');
                     $('.widget-65a').addClass('widget-loader-show');
                     $('.widget-65b').addClass('widget-data-hide');
+                    $('.widget-78a').addClass('widget-loader-show');
+                    $('.widget-78b').addClass('widget-data-hide');
+
              }
 
              self.apply_class = function(){
@@ -151,8 +154,8 @@
                         $('.day2').siblings().removeClass('active btn-success');
                         $('.day').addClass('active btn-success');
                         $('.day').siblings().removeClass('active btn-success');
-                    }            
-            }               
+                    }
+            }
 
             self.checkScroll = function() {
                 if($('.scroll').scrollTop() == 0) {
@@ -161,7 +164,7 @@
                     $('.fa-arrow-circle-o-up').removeClass('hide');
                 }
             }
- 
+
              $('#annotation_button').click(function(){
 
                 var hasAnnotations = $("body").hasClass("add_annotation");
@@ -181,7 +184,7 @@
                 self.start = start.format('YYYY-MM-DD');
                 self.end = end.format('YYYY-MM-DD');
                 $('.input-sm').prop('selectedIndex',0);
-              
+
                 self.add_loader();
 
                 callback.push.apply(callback, [self.start, self.end, self.center_live, self.project_live])
@@ -221,7 +224,7 @@
 
                });
 
-                
+
                 $('#date-selector').daterangepicker({
                     'autoApply':true,
                 }, function(start, end){
@@ -372,7 +375,7 @@
              }
 
              self.main_widget_function = function(callback, packet) {
-                    
+
                     self.center_live = callback[2];
 
                     self.project_live = callback[3];
@@ -390,7 +393,7 @@
                         });
                         window.location = window.location.origin;
                     }
-                   
+
                     self.data_to_show = '?&project='+callback[3]+'&center='+callback[2]+'&from='+ callback[0]+'&to='+ callback[1]+packet+'&type=';
                     self.aht_data_to_show = '?&project='+callback[3]+'&center='+callback[2]+'&from='+ callback[0]+'&to='+ callback[1] + '&type=';
                     self.static_widget_data = '&project='+callback[3]+'&center='+callback[2]
@@ -408,7 +411,7 @@
                       $http({method: "GET", url: self.pro_landing_url}).success(function(result){
 
                         self.role_for_perm = result.result.role;
-                        
+
                       });
                     }
 
@@ -456,7 +459,7 @@
                         var allo_and_comp = '/api/alloc_and_compl/'+self.data_to_show + type + final_work+'&chart_name=17&chart_name=13';
 
                         return $http({method:"GET", url: allo_and_comp}).success(function(result){
-                           var is_annotation = result.result.is_annotation; 
+                           var is_annotation = result.result.is_annotation;
                            if ((name == "self.chartOptions17") || (name == "")) {
                                 $('.widget-17a').removeClass('widget-loader-show');
                                 $('.widget-17b').removeClass('widget-data-hide');
@@ -465,7 +468,7 @@
                                 $('.widget-13a').removeClass('widget-loader-show');
                                 $('.widget-13b').removeClass('widget-data-hide');
                             }
-                            
+
                             if (type == 'day' && final_work == '') {
                                 if (result.result.type == 'day') {
                                     $('.day2').addClass('active btn-success');
@@ -473,7 +476,7 @@
                                     $('.day').addClass('active btn-success');
                                     $('.day').siblings().removeClass('active btn-success');
                                 }
-                               
+
                                 if (result.result.type == 'week') {
                                     $('.week2').addClass('active btn-success');
                                     $('.week2').siblings().removeClass('active btn-success');
@@ -497,13 +500,13 @@
                                 if (self.list_object.volume_bar_graph != undefined) {
 
                                     if(self.list_object.volume_bar_graph.display_value === true) {
-                                    
+
                                         var value = true;
 
                                     }
 
                                     else {
-                                        var value = false;    
+                                        var value = false;
                                     }
                                 }
 
@@ -514,7 +517,7 @@
                                 if (self.list_object.volume_bar_graph != undefined) {
 
                                     if(self.list_object.volume_bar_graph.legends_align == 'bottom') {
-                                    
+
                                         var align = 'center';
                                         var ver_align = 'bottom';
                                         var layout = 'horizontal';
@@ -541,7 +544,7 @@
                                     var layout = 'horizontal';
                                 }
 
-                                
+
                                 angular.extend(self.chartOptions17, {
                                     xAxis: {
                                         categories: date_list,
@@ -563,7 +566,7 @@
                                           cursor: 'pointer',
                                           point: {
                                               events:{
-                                                
+
                                                 contextmenu: function() {
                                                  if (self.role_for_perm == 'customer') {
 
@@ -571,7 +574,7 @@
                                                  }
                                                  else {
 
-                                                  if (self.data_to_show.split('&').length == 6) { 
+                                                  if (self.data_to_show.split('&').length == 6) {
                                                     var sub_proj = '';
                                                     var work_pack = '';
                                                     var sub_pack = '';
@@ -616,7 +619,7 @@
                                                 }
                                             }
                                         }
-                                    },   
+                                    },
                                     series: data_list_bar,
                                     onComplete: function(chart){
                                     if (is_annotation) {
@@ -629,7 +632,7 @@
                                             (function(series){
                                             $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
                       self.type+'&chart_name=17&project='+self.project_live+'&center='+
-                      self.center_live+'&from='+self.start_date+'&to='+self.end_date}).success(function(annotations){ 
+                      self.center_live+'&from='+self.start_date+'&to='+self.end_date}).success(function(annotations){
                                 annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                                 $.each(annotations, function(j, annotation){
 
@@ -641,9 +644,9 @@
                                         chart, point, annotation);
                                    self.annotObj.push(a);
                                    window.annotObj = a;
-                                   self.bar_series_name.push(series.name);  
+                                   self.bar_series_name.push(series.name);
                                    self.annot_perm();
-                                   
+
                                 }
                                })
                                         });
@@ -659,12 +662,12 @@
                                 if (self.list_object.volume_productivity_graph != undefined) {
 
                                     if(self.list_object.volume_productivity_graph.display_value === true) {
-                                    
+
                                         var value = true;
 
                                     }
                                     else {
-                                        var value = false;    
+                                        var value = false;
                                     }
                                 }
 
@@ -674,33 +677,33 @@
                                 if (self.list_object.volume_productivity_graph != undefined) {
 
                                     if(self.list_object.volume_productivity_graph.legends_align == 'bottom') {
-                                    
+
                                         var align = 'center';
                                         var ver_align = 'bottom';
                                         var layout = 'horizontal';
-                                
+
                                     }
-                                
+
                                     else if(self.list_object.volume_bar_graph.legends_align == 'left'){
-                                
+
                                         var align ='left';
                                         var ver_align = 'top';
                                         var layout = 'vertical';
                                     }
-                                
+
                                     else {
                                         var align = 'right';
                                         var ver_align = 'top';
                                         var layout = 'vertical';
                                     }
                                 }
-                                
+
                                 else {
                                     var align = 'center';
                                     var ver_align = 'bottom';
                                     var layout = 'horizontal';
                                 }
-                                
+
                                 angular.extend(self.chartOptions18, {
                                     xAxis: {
                                         categories: date_list,
@@ -758,7 +761,7 @@
                                                         value_data.redraw(name, visibility);
                                                     });
                                                     if (chart_name.indexOf(name) >=0 ) {
-                                                        $(document).find('.widget-13a').children(".widget-13b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 0);   
+                                                        $(document).find('.widget-13a').children(".widget-13b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 0);
                                                     }
                                                 },
                                                 show: function() {
@@ -769,7 +772,7 @@
                                                         value_data.redraw(name, visibility);
                                                     });
                                                     if (chart_name.indexOf(name) >=0 ) {
-                                                        $(document).find('.widget-13a').children(".widget-13b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 1);   
+                                                        $(document).find('.widget-13a').children(".widget-13b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 1);
                                                     }
                                                 }
                                             }
@@ -828,7 +831,7 @@
                         if (name == undefined) {
                             name = ''
                         }
-            
+
                         self.type = type;
 
                         if ((self.utili_list.length == 1) || (type == 'week') || (type == 'month') || (self.button_clicked == "day_yes")) {
@@ -851,15 +854,15 @@
                             angular.extend(self.chartOptions24.yAxis,{
                                 min:result.result.min_utilization_fte_details,
                                 max:result.result.max_utilization_fte_details
-                            });      
+                            });
 
                             angular.extend(self.chartOptions15.yAxis,{
                                 min:result.result.min_original_utilization_graph,
                                 max:result.result.max_original_utilization_graph
-                            });      
+                            });
 
                             if ((name == "self.chartOptions25") || (name == "")) {
-                                
+
                                 if (self.list_object.operational_utilization != undefined) {
 
                                     if (self.list_object.operational_utilization.display_value === true) {
@@ -868,7 +871,7 @@
                                     }
 
                                     else {
-                                    
+
                                         var value = false;
                                     }
 
@@ -880,27 +883,27 @@
                                 if (self.list_object.operational_utilization != undefined) {
 
                                     if(self.list_object.operational_utilization.legends_align == 'bottom') {
-                                    
+
                                         var align = 'center';
                                         var ver_align = 'bottom';
                                         var layout = 'horizontal';
-                                
+
                                     }
-                                
+
                                     else if(self.list_object.operational_utilization.legends_align == 'left'){
-                                
+
                                         var align ='left';
                                         var ver_align = 'top';
                                         var layout = 'vertical';
                                     }
-                                
+
                                     else {
                                         var align = 'right';
                                         var ver_align = 'top';
                                         var layout = 'vertical';
                                     }
                                 }
-                                
+
                                 else {
                                     var align = 'center';
                                     var ver_align = 'bottom';
@@ -916,7 +919,7 @@
                                         verticalAlign:ver_align,
                                         layout: layout
                                     },
-                            
+
                                     plotOptions: {
                                         series: {
                                           dataLabels: {
@@ -966,7 +969,7 @@
                                         (function(series){
                                           $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
                       self.type+'&chart_name=20&project='+self.project_live+'&center='+
-                      self.center_live+'&from='+self.start_date+'&to='+self.end_date}).success(function(annotations){ 
+                      self.center_live+'&from='+self.start_date+'&to='+self.end_date}).success(function(annotations){
                                annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                                $.each(annotations, function(j, annotation){
 
@@ -985,13 +988,13 @@
                                         }(series));
                                     }
                                     }
-                                   } 
+                                   }
                                 });
-                            
+
                                 $('.widget-20a').removeClass('widget-loader-show');
                                 $('.widget-20b').removeClass('widget-data-hide');
                             }
-                            
+
                             if ((name == "self.chartOptions24") || (name == "")) {
 
                                 if (self.list_object.fte_utilization != undefined) {
@@ -1003,7 +1006,7 @@
 
                                     else {
 
-                                        var value = false;    
+                                        var value = false;
                                     }
                                 }
                                 else {
@@ -1013,27 +1016,27 @@
                             if (self.list_object.fte_utilization != undefined) {
 
                                     if(self.list_object.fte_utilization.legends_align == 'bottom') {
-                                    
+
                                         var align = 'center';
                                         var ver_align = 'bottom';
                                         var layout = 'horizontal';
-                                
+
                                     }
-                                
+
                                     else if(self.list_object.fte_utilization.legends_align == 'left'){
-                                
+
                                         var align ='left';
                                         var ver_align = 'top';
                                         var layout = 'vertical';
                                     }
-                                
+
                                     else {
                                         var align = 'right';
                                         var ver_align = 'top';
                                         var layout = 'vertical';
                                     }
                                 }
-                                
+
                                 else {
                                     var align = 'center';
                                     var ver_align = 'bottom';
@@ -1049,15 +1052,15 @@
                                         verticalAlign:ver_align,
                                         layout: layout
                                     },
-                            
+
                                     plotOptions: {
                                         series: {
                                           dataLabels: {
                                             enabled: value,
-                                          },  
+                                          },
                                           allowPointSelect: true,
                                           cursor: 'pointer',
-                                            point: { 
+                                            point: {
                                               events:{
                                                 contextmenu: function() {
                                                  if (self.role_for_perm == 'customer') {
@@ -1119,7 +1122,7 @@
                                         }(series));
                                     }
                                     }
-                                  }  
+                                  }
                                 });
                                 $('.widget-19a').removeClass('widget-loader-show');
                                 $('.widget-19b').removeClass('widget-data-hide');
@@ -1134,7 +1137,7 @@
                                         var value = true;
                                     }
                                     else {
-                                        var value = false;    
+                                        var value = false;
                                     }
                                 }
                                 else {
@@ -1143,27 +1146,27 @@
                                 if (self.list_object.utilisation_wrt_work_packet != undefined) {
 
                                     if(self.list_object.utilisation_wrt_work_packet.legends_align == 'bottom') {
-                                    
+
                                         var align = 'center';
                                         var ver_align = 'bottom';
                                         var layout = 'horizontal';
-                                
+
                                     }
-                                
+
                                     else if(self.list_object.utilisation_wrt_work_packet.legends_align == 'left'){
-                                
+
                                         var align ='left';
                                         var ver_align = 'top';
                                         var layout = 'vertical';
                                     }
-                                
+
                                     else {
                                         var align = 'right';
                                         var ver_align = 'top';
                                         var layout = 'vertical';
                                     }
                                 }
-                                
+
                                 else {
                                     var align = 'center';
                                     var ver_align = 'bottom';
@@ -1185,7 +1188,7 @@
                                        },
                                        allowPointSelect: true,
                                        cursor: 'pointer',
-                                         point: { 
+                                         point: {
                                            events:{
                                          contextmenu: function() {
                                          if (self.role_for_perm == 'customer') {
@@ -1222,7 +1225,7 @@
                                     if (is_annotation) {
                                     var series = null;
                                     var chart_data = chart.series;
-       
+
                                     for(var i in chart_data){
                                         series = chart_data[i];
                                         (function(series){
@@ -1231,18 +1234,18 @@
                       self.center_live+'&from='+self.start_date+'&to='+self.end_date}).success(function(annotations){
                                annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                                $.each(annotations, function(j, annotation){
-       
+
                                  var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
-       
+
                                  point = point[0];
-       
+
                                  if(annotation.epoch){
                                    var a = new Annotation("9", $(self.chartOptions15.chart.renderTo),
                                         chart, point, annotation);
-                                   self.annot_perm();   
+                                   self.annot_perm();
                                    }
                                })
-       
+
                                         });
                                         }(series));
                                     }
@@ -1253,9 +1256,9 @@
                                $('.widget-9b').removeClass('widget-data-hide');
                             }
                         })
-                      }  
+                      }
                     }
-                    
+
                     self.productivity = function(final_work, type) {
 
                         if (type == undefined) {
@@ -1274,7 +1277,7 @@
 
                             var date_list = result.result.date;
                             var productivity = result.result.productivity;
-                            var is_annotation = result.result.is_annotation;                            
+                            var is_annotation = result.result.is_annotation;
 
                             if (self.list_object.productivity_trends != undefined) {
 
@@ -1283,8 +1286,8 @@
                                     var value = true;
                                 }
                                 else {
-                                    
-                                    var value = false;    
+
+                                    var value = false;
                                 }
                             }
                             else {
@@ -1293,27 +1296,27 @@
                             if (self.list_object.productivity_trends != undefined) {
 
                                 if(self.list_object.productivity_trends.legends_align == 'bottom') {
-                                
+
                                     var align = 'center';
                                     var ver_align = 'bottom';
                                     var layout = 'horizontal';
-                            
+
                                 }
-                            
+
                                 else if(self.list_object.productivity_trends.legends_align == 'left'){
-                            
+
                                     var align ='left';
                                     var ver_align = 'top';
                                     var layout = 'vertical';
                                 }
-                            
+
                                 else {
                                     var align = 'right';
                                     var ver_align = 'top';
                                     var layout = 'vertical';
                                 }
                             }
-                            
+
                             else {
                                 var align = 'center';
                                 var ver_align = 'bottom';
@@ -1404,7 +1407,7 @@
                                         (function(series){
                                           $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
                       self.type+'&chart_name=14&project='+self.project_live+'&center='+
-                      self.center_live+'&from='+self.start_date+'&to='+self.end_date}).success(function(annotations){ 
+                      self.center_live+'&from='+self.start_date+'&to='+self.end_date}).success(function(annotations){
                                annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                                $.each(annotations, function(j, annotation){
 
@@ -1420,7 +1423,7 @@
                                    self._productivity_data.push(series.name);
                                    self.annot_perm();
                                    }
-                               })   
+                               })
 
                                         });
                                         }(series));
@@ -1433,8 +1436,11 @@
                         })
                     }
 
-                    self.prod_avg = function(final_work, type) {
- 
+
+
+
+                    self.Valid_cust_approv = function(final_work, type) {
+
                         if (type == undefined) {
                             type = 'day'
                         }
@@ -1442,7 +1448,1831 @@
                         if (final_work == undefined) {
                             final_work = ''
                         }
- 
+
+                        self.type = type;
+
+                        var valid_cust = '/api/ivr_valid_cust_approv/'+self.data_to_show + type + final_work + '&chart_name=78';
+
+                        return $http({method:"GET", url: valid_cust}).success(function(result){
+
+                            var date_list = result.result.date;
+                            var ivr_data = result.result.valid_customer_approve;
+                            var is_annotation = result.result.is_annotation;
+
+                            if (self.list_object.valid_customer_approved != undefined) {
+
+                                if (self.list_object.valid_customer_approved.display_value === true) {
+
+                                    var value = true;
+                                }
+                                else {
+
+                                    var value = false;
+                                }
+                            }
+                            else {
+                                var value = false;
+                            }
+                            if (self.list_object.valid_customer_approved != undefined) {
+
+                                if(self.list_object.valid_customer_approved.legends_align == 'bottom') {
+
+                                    var align = 'center';
+                                    var ver_align = 'bottom';
+                                    var layout = 'horizontal';
+
+                                }
+
+                                else if(self.list_object.valid_customer_approved.legends_align == 'left'){
+
+                                    var align ='left';
+                                    var ver_align = 'top';
+                                    var layout = 'vertical';
+                                }
+
+                                else {
+                                    var align = 'right';
+                                    var ver_align = 'top';
+                                    var layout = 'vertical';
+                                }
+                            }
+
+                            else {
+                                var align = 'center';
+                                var ver_align = 'bottom';
+                                var layout = 'horizontal';
+                            }
+
+                            angular.extend(self.chartOptions83.yAxis,{
+                                min:result.result.min_max.min_value,
+                                max:result.result.min_max.max_value
+                            });
+
+                            angular.extend(self.chartOptions83, {
+                                xAxis: {
+                                    categories: date_list,
+                                },
+                                legend: {
+                                    align: align,
+                                    verticalAlign:ver_align,
+                                    layout: layout
+                                },
+                                    plotOptions: {
+                                        series: {
+                                            dataLabels: {
+                                            enabled: value,
+                                            format: '{y} %',
+                                            valueDecimals: 2
+                                            },
+                                          allowPointSelect: true,
+                                          cursor: 'pointer',
+                                            point: {
+                                              events:{
+                                                contextmenu: function() {
+                                                 if (self.role_for_perm == 'customer') {
+
+                                                    console.log('he is customer');
+                                                 }
+                                                 else {
+
+                                                  if (self.data_to_show.split('&').length == 6) {
+                                                    var sub_proj = '';
+                                                    var work_pack = '';
+                                                    var sub_pack = '';
+                                                  }
+                                                  else {
+                                                    var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
+                                                    var work_pack = self.data_to_show.split('&')[6].split('=')[1];
+                                                    var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
+                                                  }
+                                                    var str = '78<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
+                                                    this['project'] = self.project_live;
+                                                    this['center'] = self.center_live;
+                                                    this['from'] = self.start_date;
+                                                    this['to'] = self.end_date;
+                                                    return new Annotation(str, $(self.chartOptions83.chart.renderTo),this.series.chart, this);
+                                                    }
+                                                  }
+                                                }
+                                            },
+                                            events: {
+                                                hide: function() {
+                                                    var name = this.name;
+                                                    var visibility = this.visible;
+                                                    var chart_name = self._ivr_data;
+                                                    self.data_anno.forEach(function(value_data){
+                                                        value_data.redraw(name, visibility);
+                                                    });
+                                                    if (chart_name.indexOf(name) >= 0) {
+                                                        $(document).find('.widget-78a').children(".widget-78b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 0);
+                                                    }
+                                                },
+                                                show: function() {
+                                                    var name = this.name;
+                                                    var visibility = this.visible;
+                                                    var chart_name = self._ivr_data;
+                                                    self.data_anno.forEach(function(value_data){
+                                                        value_data.redraw(name, visibility);
+                                                    });
+                                                    if (chart_name.indexOf(name) >= 0) {
+                                                        $(document).find('.widget-78a').children(".widget-78b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 1);
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+
+                                series: ivr_data,
+                                    onComplete: function(chart){
+                                    if (is_annotation) {
+                                    var series = null;
+                                    var chart_data = chart.series;
+                                    self.data_anno = [];
+                                    self._ivr_data = [];
+                                    for(var i in chart_data){
+                                        series = chart_data[i];
+                                        (function(series){
+                                          $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
+                      self.type+'&chart_name=78&project='+self.project_live+'&center='+
+                      self.center_live+'&from='+self.start_date+'&to='+self.end_date}).success(function(annotations){
+                               annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
+                               $.each(annotations, function(j, annotation){
+
+                                 var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
+
+                                 point = point[0];
+
+                                 if(annotation.epoch){
+                                   var a = new Annotation("78", $(self.chartOptions83.chart.renderTo),
+                                        chart, point, annotation);
+                                   window.data_anno = a;
+                                   self.data_anno.push(a);
+                                   self._ivr_data.push(series.name);
+                                   self.annot_perm();
+                                   }
+                               })
+
+                                        });
+                                        }(series));
+                                    }
+                                    }
+                                }
+                            });
+                            $('.widget-78a').removeClass('widget-loader-show');
+                            $('.widget-78b').removeClass('widget-data-hide');
+                        })
+                    }
+
+
+                    self.Invalid_cust_reject = function(final_work, type) {
+
+                        if (type == undefined) {
+                            type = 'day'
+                        }
+
+                        if (final_work == undefined) {
+                            final_work = ''
+                        }
+
+                        self.type = type;
+
+                        var invalid_cust = '/api/ivr_invalid_cust_rejec/'+self.data_to_show + type + final_work + '&chart_name=79';
+
+                        return $http({method:"GET", url: invalid_cust}).success(function(result){
+
+                            var date_list = result.result.date;
+                            var ivr_invalid = result.result.invalid_customer_reject;
+                            var is_annotation = result.result.is_annotation;
+
+                            if (self.list_object.invalid_customer_reject != undefined) {
+
+                                if (self.list_object.invalid_customer_reject.display_value === true) {
+
+                                    var value = true;
+                                }
+                                else {
+
+                                    var value = false;
+                                }
+                            }
+                            else {
+                                var value = false;
+                            }
+                            if (self.list_object.invalid_customer_reject != undefined) {
+
+                                if(self.list_object.invalid_customer_reject.legends_align == 'bottom') {
+
+                                    var align = 'center';
+                                    var ver_align = 'bottom';
+                                    var layout = 'horizontal';
+
+                                }
+
+                                else if(self.list_object.invalid_customer_reject.legends_align == 'left'){
+
+                                    var align ='left';
+                                    var ver_align = 'top';
+                                    var layout = 'vertical';
+                                }
+
+                                else {
+                                    var align = 'right';
+                                    var ver_align = 'top';
+                                    var layout = 'vertical';
+                                }
+                            }
+
+                            else {
+                                var align = 'center';
+                                var ver_align = 'bottom';
+                                var layout = 'horizontal';
+                            }
+
+                            angular.extend(self.chartOptions84.yAxis,{
+                                min:result.result.min_max.min_value,
+                                max:result.result.min_max.max_value
+                            });
+
+                            angular.extend(self.chartOptions84, {
+                                xAxis: {
+                                    categories: date_list,
+                                },
+                                legend: {
+                                    align: align,
+                                    verticalAlign:ver_align,
+                                    layout: layout
+                                },
+                                    plotOptions: {
+                                        series: {
+                                            dataLabels: {
+                                            enabled: value,
+                                            format: '{y} %',
+                                            valueDecimals: 2
+                                            },
+                                          allowPointSelect: true,
+                                          cursor: 'pointer',
+                                            point: {
+                                              events:{
+                                                contextmenu: function() {
+                                                 if (self.role_for_perm == 'customer') {
+
+                                                    console.log('he is customer');
+                                                 }
+                                                 else {
+
+                                                  if (self.data_to_show.split('&').length == 6) {
+                                                    var sub_proj = '';
+                                                    var work_pack = '';
+                                                    var sub_pack = '';
+                                                  }
+                                                  else {
+                                                    var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
+                                                    var work_pack = self.data_to_show.split('&')[6].split('=')[1];
+                                                    var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
+                                                  }
+                                                    var str = '79<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
+                                                    this['project'] = self.project_live;
+                                                    this['center'] = self.center_live;
+                                                    this['from'] = self.start_date;
+                                                    this['to'] = self.end_date;
+                                                    return new Annotation(str, $(self.chartOptions84.chart.renderTo),this.series.chart, this);
+                                                    }
+                                                  }
+                                                }
+                                            },
+                                            events: {
+                                                hide: function() {
+                                                    var name = this.name;
+                                                    var visibility = this.visible;
+                                                    var chart_name = self._ivr_invalid_data;
+                                                    self.data_anno.forEach(function(value_data){
+                                                        value_data.redraw(name, visibility);
+                                                    });
+                                                    if (chart_name.indexOf(name) >= 0) {
+                                                        $(document).find('.widget-79a').children(".widget-79b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 0);
+                                                    }
+                                                },
+                                                show: function() {
+                                                    var name = this.name;
+                                                    var visibility = this.visible;
+                                                    var chart_name = self._ivr_invalid_data;
+                                                    self.data_anno.forEach(function(value_data){
+                                                        value_data.redraw(name, visibility);
+                                                    });
+                                                    if (chart_name.indexOf(name) >= 0) {
+                                                        $(document).find('.widget-79a').children(".widget-79b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 1);
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+
+                                series: ivr_invalid,
+                                    onComplete: function(chart){
+                                    if (is_annotation) {
+                                    var series = null;
+                                    var chart_data = chart.series;
+                                    self.data_anno = [];
+                                    self._ivr_invalid_data = [];
+                                    for(var i in chart_data){
+                                        series = chart_data[i];
+                                        (function(series){
+                                          $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
+                      self.type+'&chart_name=79&project='+self.project_live+'&center='+
+                      self.center_live+'&from='+self.start_date+'&to='+self.end_date}).success(function(annotations){
+                               annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
+                               $.each(annotations, function(j, annotation){
+
+                                 var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
+
+                                 point = point[0];
+
+                                 if(annotation.epoch){
+                                   var a = new Annotation("79", $(self.chartOptions84.chart.renderTo),
+                                        chart, point, annotation);
+                                   window.data_anno = a;
+                                   self.data_anno.push(a);
+                                   self._ivr_invalid_data.push(series.name);
+                                   self.annot_perm();
+                                   }
+                               })
+
+                                        });
+                                        }(series));
+                                    }
+                                    }
+                                }
+                            });
+                            $('.widget-79a').removeClass('widget-loader-show');
+                            $('.widget-79b').removeClass('widget-data-hide');
+                        })
+                    }
+
+
+                    self.Data_Entry_Volume = function(final_work, type) {
+
+                        if (type == undefined) {
+                            type = 'day'
+                        }
+
+                        if (final_work == undefined) {
+                            final_work = ''
+                        }
+
+                        self.type = type;
+
+                        var cust_data_volu = '/api/cust_data_entry_vol/'+self.data_to_show + type + final_work + '&chart_name=81';
+
+                        return $http({method:"GET", url: cust_data_volu}).success(function(result){
+
+                            var date_list  = result.result.date;
+                            var data_entry_v = result.result.data_ent_vol;
+                            var is_annotation = result.result.is_annotation;
+
+
+                            if (self.list_object.data_entry_volume != undefined) {
+
+                                if (self.list_object.data_entry_volume.display_value === true) {
+
+                                    var value = true;
+                                }
+                                else {
+                                    var value = false;
+                                }
+                            }
+                            else {
+                                var value = false;
+                            }
+
+                            if (self.list_object.data_entry_volume!= undefined) {
+
+                                if(self.list_object.data_entry_volume.legends_align == 'bottom') {
+
+                                    var align = 'center';
+                                    var ver_align = 'bottom';
+                                    var layout = 'horizontal';
+
+                                }
+
+                                else if(self.list_object.data_entry_volume.legends_align == 'left'){
+
+                                    var align ='left';
+                                    var ver_align = 'top';
+                                    var layout = 'vertical';
+                                }
+
+                                else {
+                                    var align = 'right';
+                                    var ver_align = 'top';
+                                    var layout = 'vertical';
+                                }
+                            }
+
+                            else {
+                                var align = 'center';
+                                var ver_align = 'bottom';
+                                var layout = 'horizontal';
+                            }
+
+                            angular.extend(self.chartOptions86, {
+                                xAxis: {
+                                    categories: date_list,
+                                },
+                                legend: {
+                                    align: align,
+                                    verticalAlign:ver_align,
+                                    layout: layout
+                                },
+                                    plotOptions: {
+                                        series: {
+                                        dataLabels: {
+                                            enabled: value,
+                                        },
+                                          allowPointSelect: true,
+                                          cursor: 'pointer',
+                                            point: {
+                                              events:{
+                                                contextmenu: function() {
+                                                 if (self.role_for_perm == 'customer') {
+
+                                                    console.log('he is customer');
+                                                 }
+                                                 else {
+
+                                                  if (self.data_to_show.split('&').length == 6) {
+                                                    var sub_proj = '';
+                                                    var work_pack = '';
+                                                    var sub_pack = '';
+                                                  }
+                                                  else {
+                                                    var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
+                                                    var work_pack = self.data_to_show.split('&')[6].split('=')[1];
+                                                    var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
+                                                  }
+                                                    var str = '81<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
+                                                    this['project'] = self.project_live;
+                                                    this['center'] = self.center_live;
+                                                    this['from'] = self.start_date;
+                                                    this['to'] = self.end_date;
+                                                    return new Annotation(str, $(self.chartOptions86.chart.renderTo),this.series.chart, this);
+                                                    }
+                                                  }
+                                                }
+                                            },
+                                            events: {
+                                                hide: function() {
+                                                    var name = this.name;
+                                                    var visibility = this.visible;
+                                                    var chart_name = self.data_entry_vol;
+                                                    self.annotation.forEach(function(value_data){
+                                                        value_data.redraw(name, visibility);
+                                                    });
+                                                    if (chart_name.indexOf(name) >= 0) {
+                                                        $(document).find('.widget-86a').children(".widget-86b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 0);
+                                                    }
+                                                },
+                                                show: function() {
+                                                    var name = this.name;
+                                                    var visibility = this.visible;
+                                                    var chart_name = self.data_entry_vol;
+                                                    self.annotation.forEach(function(value_data){
+                                                        value_data.redraw(name, visibility);
+                                                    });
+                                                    if (chart_name.indexOf(name) >= 0) {
+                                                        $(document).find('.widget-86a').children(".widget-86b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 1);
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                series: data_entry_v,
+                                onComplete: function(chart){
+                                if (is_annotation) {
+                                var series = null;
+                                var chart_data = chart.series;
+                                self.annotation = [];
+                                self.data_entry_vol = [];
+                                for(var i in chart_data){
+                                    series = chart_data[i];
+                                    (function(series){
+                                      $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
+                      self.type+'&chart_name=81&project='+self.project_live+'&center='+
+                          self.center_live+'&from='+self.start_date+'&to='+self.end_date}).success(function(annotations){
+                           annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
+                           $.each(annotations, function(j, annotation){
+
+                             var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
+
+                             point = point[0];
+
+                             if(annotation.epoch){
+                               var a = new Annotation("81", $(self.chartOptions86.chart.renderTo),
+                                    chart, point, annotation);
+                               window.annotation = a;
+                               self.annotation.push(a);
+                               self.data_entry_vol.push(series.name);
+                               self.annot_perm();
+                               }
+                           })
+
+                                    });
+                                    }(series));
+                                }
+                                }
+                              }
+                            });
+                            $('.widget-81a').removeClass('widget-loader-show');
+                            $('.widget-81b').removeClass('widget-data-hide');
+                        })
+                    }
+
+
+
+                    self.Data_Entry_AHT = function(final_work, type) {
+
+                        if (type == undefined) {
+                            type = 'day'
+                        }
+
+                        if (final_work == undefined) {
+                            final_work = ''
+                        }
+
+                        self.type = type;
+
+                        var data_entry = '/api/cust_data_entry_aht/'+self.data_to_show + type + final_work + '&chart_name=80';
+
+                        return $http({method:"GET", url: data_entry}).success(function(result){
+
+                            var date_list = result.result.date;
+                            var data_aht = result.result.data_entry_details;
+                            var is_annotation = result.result.is_annotation;
+
+                            if (self.list_object.data_entry_done_aht != undefined) {
+
+                                if (self.list_object.data_entry_done_aht.display_value === true) {
+
+                                    var value = true;
+                                }
+                                else {
+
+                                    var value = false;
+                                }
+                            }
+                            else {
+                                var value = false;
+                            }
+                            if (self.list_object.data_entry_done_aht != undefined) {
+
+                                if(self.list_object.data_entry_done_aht.legends_align == 'bottom') {
+
+                                    var align = 'center';
+                                    var ver_align = 'bottom';
+                                    var layout = 'horizontal';
+
+                                }
+
+                                else if(self.list_object.data_entry_done_aht.legends_align == 'left'){
+
+                                    var align ='left';
+                                    var ver_align = 'top';
+                                    var layout = 'vertical';
+                                }
+
+                                else {
+                                    var align = 'right';
+                                    var ver_align = 'top';
+                                    var layout = 'vertical';
+                                }
+                            }
+
+                            else {
+                                var align = 'center';
+                                var ver_align = 'bottom';
+                                var layout = 'horizontal';
+                            }
+
+
+
+                            angular.extend(self.chartOptions85, {
+                                xAxis: {
+                                    categories: date_list,
+                                },
+                                legend: {
+                                    align: align,
+                                    verticalAlign:ver_align,
+                                    layout: layout
+                                },
+                                    plotOptions: {
+                                        series: {
+                                            dataLabels: {
+                                            enabled: value,
+                                            format: '{y}',
+                                            valueDecimals: 2
+                                            },
+                                          allowPointSelect: true,
+                                          cursor: 'pointer',
+                                            point: {
+                                              events:{
+                                                contextmenu: function() {
+                                                 if (self.role_for_perm == 'customer') {
+
+                                                    console.log('he is customer');
+                                                 }
+                                                 else {
+
+                                                  if (self.data_to_show.split('&').length == 6) {
+                                                    var sub_proj = '';
+                                                    var work_pack = '';
+                                                    var sub_pack = '';
+                                                  }
+                                                  else {
+                                                    var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
+                                                    var work_pack = self.data_to_show.split('&')[6].split('=')[1];
+                                                    var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
+                                                  }
+                                                    var str = '80<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
+                                                    this['project'] = self.project_live;
+                                                    this['center'] = self.center_live;
+                                                    this['from'] = self.start_date;
+                                                    this['to'] = self.end_date;
+                                                    return new Annotation(str, $(self.chartOptions85.chart.renderTo),this.series.chart, this);
+                                                    }
+                                                  }
+                                                }
+                                            },
+                                            events: {
+                                                hide: function() {
+                                                    var name = this.name;
+                                                    var visibility = this.visible;
+                                                    var chart_name = self._cust_data_aht;
+                                                    self.data_anno.forEach(function(value_data){
+                                                        value_data.redraw(name, visibility);
+                                                    });
+                                                    if (chart_name.indexOf(name) >= 0) {
+                                                        $(document).find('.widget-80a').children(".widget-80b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 0);
+                                                    }
+                                                },
+                                                show: function() {
+                                                    var name = this.name;
+                                                    var visibility = this.visible;
+                                                    var chart_name = self._cust_data_aht;
+                                                    self.data_anno.forEach(function(value_data){
+                                                        value_data.redraw(name, visibility);
+                                                    });
+                                                    if (chart_name.indexOf(name) >= 0) {
+                                                        $(document).find('.widget-80a').children(".widget-80b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 1);
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+
+                                series: data_aht,
+                                    onComplete: function(chart){
+                                    if (is_annotation) {
+                                    var series = null;
+                                    var chart_data = chart.series;
+                                    self.data_anno = [];
+                                    self._cust_data_aht = [];
+                                    for(var i in chart_data){
+                                        series = chart_data[i];
+                                        (function(series){
+                                          $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
+                      self.type+'&chart_name=80&project='+self.project_live+'&center='+
+                      self.center_live+'&from='+self.start_date+'&to='+self.end_date}).success(function(annotations){
+                               annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
+                               $.each(annotations, function(j, annotation){
+
+                                 var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
+
+                                 point = point[0];
+
+                                 if(annotation.epoch){
+                                   var a = new Annotation("80", $(self.chartOptions85.chart.renderTo),
+                                        chart, point, annotation);
+                                   window.data_anno = a;
+                                   self.data_anno.push(a);
+                                   self._cust_data_aht.push(series.name);
+                                   self.annot_perm();
+                                   }
+                               })
+
+                                        });
+                                        }(series));
+                                    }
+                                    }
+                                }
+                            });
+                            $('.widget-80a').removeClass('widget-loader-show');
+                            $('.widget-80b').removeClass('widget-data-hide');
+                        })
+                    }
+
+
+                    self.Customer_AHT_Comparison = function(final_work, type) {
+
+                        if (type == undefined) {
+                            type = 'day'
+                        }
+
+                        if (final_work == undefined) {
+                            final_work = ''
+                        }
+
+                        self.type = type;
+
+                        var cust_aht_comp = '/api/custo_aht_comp/'+self.data_to_show + type + final_work + '&chart_name=84';
+
+                        return $http({method:"GET", url: cust_aht_comp}).success(function(result){
+
+                            var date_list  = result.result.date;
+                            var custo_aht = result.result.custo_aht_comparison;
+                            var is_annotation = result.result.is_annotation;
+
+
+                            if (self.list_object.aht_comparison != undefined) {
+
+                                if (self.list_object.aht_comparison.display_value === true) {
+
+                                    var value = true;
+                                }
+                                else {
+                                    var value = false;
+                                }
+                            }
+                            else {
+                                var value = false;
+                            }
+
+                            if (self.list_object.aht_comparison!= undefined) {
+
+                                if(self.list_object.aht_comparison.legends_align == 'bottom') {
+
+                                    var align = 'center';
+                                    var ver_align = 'bottom';
+                                    var layout = 'horizontal';
+
+                                }
+
+                                else if(self.list_object.aht_comparison.legends_align == 'left'){
+
+                                    var align ='left';
+                                    var ver_align = 'top';
+                                    var layout = 'vertical';
+                                }
+
+                                else {
+                                    var align = 'right';
+                                    var ver_align = 'top';
+                                    var layout = 'vertical';
+                                }
+                            }
+
+                            else {
+                                var align = 'center';
+                                var ver_align = 'bottom';
+                                var layout = 'horizontal';
+                            }
+
+                            angular.extend(self.chartOptions89, {
+                                xAxis: {
+                                    categories: date_list,
+                                },
+                                legend: {
+                                    align: align,
+                                    verticalAlign:ver_align,
+                                    layout: layout
+                                },
+                                    plotOptions: {
+                                        series: {
+                                        dataLabels: {
+                                            enabled: value,
+                                        },
+                                          allowPointSelect: true,
+                                          cursor: 'pointer',
+                                            point: {
+                                              events:{
+                                                contextmenu: function() {
+                                                 if (self.role_for_perm == 'customer') {
+
+                                                    console.log('he is customer');
+                                                 }
+                                                 else {
+
+                                                  if (self.data_to_show.split('&').length == 6) {
+                                                    var sub_proj = '';
+                                                    var work_pack = '';
+                                                    var sub_pack = '';
+                                                  }
+                                                  else {
+                                                    var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
+                                                    var work_pack = self.data_to_show.split('&')[6].split('=')[1];
+                                                    var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
+                                                  }
+                                                    var str = '84<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
+                                                    this['project'] = self.project_live;
+                                                    this['center'] = self.center_live;
+                                                    this['from'] = self.start_date;
+                                                    this['to'] = self.end_date;
+                                                    return new Annotation(str, $(self.chartOptions89.chart.renderTo),this.series.chart, this);
+                                                    }
+                                                  }
+                                                }
+                                            },
+                                            events: {
+                                                hide: function() {
+                                                    var name = this.name;
+                                                    var visibility = this.visible;
+                                                    var chart_name = self.cust_aht_lst;
+                                                    self.annotation.forEach(function(value_data){
+                                                        value_data.redraw(name, visibility);
+                                                    });
+                                                    if (chart_name.indexOf(name) >= 0) {
+                                                        $(document).find('.widget-84a').children(".widget-84b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 0);
+                                                    }
+                                                },
+                                                show: function() {
+                                                    var name = this.name;
+                                                    var visibility = this.visible;
+                                                    var chart_name = self.cust_aht_lst;
+                                                    self.annotation.forEach(function(value_data){
+                                                        value_data.redraw(name, visibility);
+                                                    });
+                                                    if (chart_name.indexOf(name) >= 0) {
+                                                        $(document).find('.widget-84a').children(".widget-84b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 1);
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                series: custo_aht,
+                                onComplete: function(chart){
+                                if (is_annotation) {
+                                var series = null;
+                                var chart_data = chart.series;
+                                self.annotation = [];
+                                self.cust_aht_lst = [];
+                                for(var i in chart_data){
+                                    series = chart_data[i];
+                                    (function(series){
+                                      $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
+                      self.type+'&chart_name=84&project='+self.project_live+'&center='+
+                          self.center_live+'&from='+self.start_date+'&to='+self.end_date}).success(function(annotations){
+                           annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
+                           $.each(annotations, function(j, annotation){
+
+                             var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
+
+                             point = point[0];
+
+                             if(annotation.epoch){
+                               var a = new Annotation("84", $(self.chartOptions89.chart.renderTo),
+                                    chart, point, annotation);
+                               window.annotation = a;
+                               self.annotation.push(a);
+                               self.cust_aht_lst.push(series.name);
+                               self.annot_perm();
+                               }
+                           })
+
+                                    });
+                                    }(series));
+                                }
+                                }
+                              }
+                            });
+                            $('.widget-84a').removeClass('widget-loader-show');
+                            $('.widget-84b').removeClass('widget-data-hide');
+                        })
+                    }
+
+
+                    self.Customer_Volume_Comparison = function(final_work, type) {
+
+                        if (type == undefined) {
+                            type = 'day'
+                        }
+
+                        if (final_work == undefined) {
+                            final_work = ''
+                        }
+
+                        self.type = type;
+
+                        var cust_volume_comp = '/api/custo_volume_comp/'+self.data_to_show + type + final_work + '&chart_name=85';
+
+                        return $http({method:"GET", url: cust_volume_comp}).success(function(result){
+
+                            var date_list  = result.result.date;
+                            var custo_volume = result.result.custo_volume_comparison;
+                            var is_annotation = result.result.is_annotation;
+
+
+
+                            if (self.list_object.volume_comparison != undefined) {
+
+                                if (self.list_object.volume_comparison.display_value === true) {
+
+                                    var value = true;
+                                }
+                                else {
+                                    var value = false;
+                                }
+                            }
+                            else {
+                                var value = false;
+                            }
+
+                            if (self.list_object.volume_comparison!= undefined) {
+
+                                if(self.list_object.volume_comparison.legends_align == 'bottom') {
+
+                                    var align = 'center';
+                                    var ver_align = 'bottom';
+                                    var layout = 'horizontal';
+
+                                }
+
+                                else if(self.list_object.volume_comparison.legends_align == 'left'){
+
+                                    var align ='left';
+                                    var ver_align = 'top';
+                                    var layout = 'vertical';
+                                }
+
+                                else {
+                                    var align = 'right';
+                                    var ver_align = 'top';
+                                    var layout = 'vertical';
+                                }
+                            }
+
+                            else {
+                                var align = 'center';
+                                var ver_align = 'bottom';
+                                var layout = 'horizontal';
+                            }
+
+                            angular.extend(self.chartOptions90, {
+                                xAxis: {
+                                    categories: date_list,
+                                },
+                                legend: {
+                                    align: align,
+                                    verticalAlign:ver_align,
+                                    layout: layout
+                                },
+                                    plotOptions: {
+                                        series: {
+                                        dataLabels: {
+                                            enabled: value,
+                                        },
+                                          allowPointSelect: true,
+                                          cursor: 'pointer',
+                                            point: {
+                                              events:{
+                                                contextmenu: function() {
+                                                 if (self.role_for_perm == 'customer') {
+
+                                                    console.log('he is customer');
+                                                 }
+                                                 else {
+
+                                                  if (self.data_to_show.split('&').length == 6) {
+                                                    var sub_proj = '';
+                                                    var work_pack = '';
+                                                    var sub_pack = '';
+                                                  }
+                                                  else {
+                                                    var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
+                                                    var work_pack = self.data_to_show.split('&')[6].split('=')[1];
+                                                    var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
+                                                  }
+                                                    var str = '85<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
+                                                    this['project'] = self.project_live;
+                                                    this['center'] = self.center_live;
+                                                    this['from'] = self.start_date;
+                                                    this['to'] = self.end_date;
+                                                    return new Annotation(str, $(self.chartOptions90.chart.renderTo),this.series.chart, this);
+                                                    }
+                                                  }
+                                                }
+                                            },
+                                            events: {
+                                                hide: function() {
+                                                    var name = this.name;
+                                                    var visibility = this.visible;
+                                                    var chart_name = self.cust_volume_lst;
+                                                    self.annotation.forEach(function(value_data){
+                                                        value_data.redraw(name, visibility);
+                                                    });
+                                                    if (chart_name.indexOf(name) >= 0) {
+                                                        $(document).find('.widget-85a').children(".widget-85b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 0);
+                                                    }
+                                                },
+                                                show: function() {
+                                                    var name = this.name;
+                                                    var visibility = this.visible;
+                                                    var chart_name = self.cust_volume_lst;
+                                                    self.annotation.forEach(function(value_data){
+                                                        value_data.redraw(name, visibility);
+                                                    });
+                                                    if (chart_name.indexOf(name) >= 0) {
+                                                        $(document).find('.widget-85a').children(".widget-85b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 1);
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                series: custo_volume,
+                                onComplete: function(chart){
+                                if (is_annotation) {
+                                var series = null;
+                                var chart_data = chart.series;
+                                self.annotation = [];
+                                self.cust_volume_lst = [];
+                                for(var i in chart_data){
+                                    series = chart_data[i];
+                                    (function(series){
+                                      $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
+                      self.type+'&chart_name=85&project='+self.project_live+'&center='+
+                          self.center_live+'&from='+self.start_date+'&to='+self.end_date}).success(function(annotations){
+                           annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
+                           $.each(annotations, function(j, annotation){
+
+                             var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
+
+                             point = point[0];
+
+                             if(annotation.epoch){
+                               var a = new Annotation("85", $(self.chartOptions90.chart.renderTo),
+                                    chart, point, annotation);
+                               window.annotation = a;
+                               self.annotation.push(a);
+                               self.cust_aht_lst.push(series.name);
+                               self.annot_perm();
+                               }
+                           })
+
+                                    });
+                                    }(series));
+                                }
+                                }
+                              }
+                            });
+                            $('.widget-85a').removeClass('widget-loader-show');
+                            $('.widget-85b').removeClass('widget-data-hide');
+                        })
+                    }
+
+
+                    self.Time_Busy_Percentage = function(final_work, type) {
+
+                        if (type == undefined) {
+                            type = 'day'
+                        }
+
+                        if (final_work == undefined) {
+                            final_work = ''
+                        }
+
+                        self.type = type;
+
+                        var cust_time_comp = '/api/cust_time_busy_percentage/'+self.data_to_show + type + final_work + '&chart_name=86';
+
+                        return $http({method:"GET", url: cust_time_comp}).success(function(result){
+
+                            var date_list  = result.result.date;
+                            var custo_time = result.result.custo_time_busy;
+                            var is_annotation = result.result.is_annotation;
+
+                            angular.extend(self.chartOptions91.yAxis,{
+                                min:result.result.min_max.min_value,
+                                max:result.result.min_max.max_value
+                            });
+
+                            if (self.list_object.time_busy_percentage != undefined) {
+
+                                if (self.list_object.time_busy_percentage.display_value === true) {
+
+                                    var value = true;
+                                }
+                                else {
+                                    var value = false;
+                                }
+                            }
+                            else {
+                                var value = false;
+                            }
+
+                            if (self.list_object.time_busy_percentage!= undefined) {
+
+                                if(self.list_object.time_busy_percentage.legends_align == 'bottom') {
+
+                                    var align = 'center';
+                                    var ver_align = 'bottom';
+                                    var layout = 'horizontal';
+
+                                }
+
+                                else if(self.list_object.time_busy_percentage.legends_align == 'left'){
+
+                                    var align ='left';
+                                    var ver_align = 'top';
+                                    var layout = 'vertical';
+                                }
+
+                                else {
+                                    var align = 'right';
+                                    var ver_align = 'top';
+                                    var layout = 'vertical';
+                                }
+                            }
+
+                            else {
+                                var align = 'center';
+                                var ver_align = 'bottom';
+                                var layout = 'horizontal';
+                            }
+
+                            angular.extend(self.chartOptions91, {
+                                xAxis: {
+                                    categories: date_list,
+                                },
+                                legend: {
+                                    align: align,
+                                    verticalAlign:ver_align,
+                                    layout: layout
+                                },
+                                    plotOptions: {
+                                        series: {
+                                            dataLabels: {
+                                            enabled: value,
+                                            format: '{y} %',
+                                            valueDecimals: 2
+                                            },
+                                          allowPointSelect: true,
+                                          cursor: 'pointer',
+                                            point: {
+                                              events:{
+                                                contextmenu: function() {
+                                                 if (self.role_for_perm == 'customer') {
+
+                                                    console.log('he is customer');
+                                                 }
+                                                 else {
+
+                                                  if (self.data_to_show.split('&').length == 6) {
+                                                    var sub_proj = '';
+                                                    var work_pack = '';
+                                                    var sub_pack = '';
+                                                  }
+                                                  else {
+                                                    var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
+                                                    var work_pack = self.data_to_show.split('&')[6].split('=')[1];
+                                                    var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
+                                                  }
+                                                    var str = '86<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
+                                                    this['project'] = self.project_live;
+                                                    this['center'] = self.center_live;
+                                                    this['from'] = self.start_date;
+                                                    this['to'] = self.end_date;
+                                                    return new Annotation(str, $(self.chartOptions91.chart.renderTo),this.series.chart, this);
+                                                    }
+                                                  }
+                                                }
+                                            },
+                                            events: {
+                                                hide: function() {
+                                                    var name = this.name;
+                                                    var visibility = this.visible;
+                                                    var chart_name = self.cust_volume_lst;
+                                                    self.annotation.forEach(function(value_data){
+                                                        value_data.redraw(name, visibility);
+                                                    });
+                                                    if (chart_name.indexOf(name) >= 0) {
+                                                        $(document).find('.widget-86a').children(".widget-86b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 0);
+                                                    }
+                                                },
+                                                show: function() {
+                                                    var name = this.name;
+                                                    var visibility = this.visible;
+                                                    var chart_name = self.cust_time_lst;
+                                                    self.annotation.forEach(function(value_data){
+                                                        value_data.redraw(name, visibility);
+                                                    });
+                                                    if (chart_name.indexOf(name) >= 0) {
+                                                        $(document).find('.widget-86a').children(".widget-86b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 1);
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                series: custo_time,
+                                onComplete: function(chart){
+                                if (is_annotation) {
+                                var series = null;
+                                var chart_data = chart.series;
+                                self.annotation = [];
+                                self.cust_time_lst = [];
+                                for(var i in chart_data){
+                                    series = chart_data[i];
+                                    (function(series){
+                                      $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
+                      self.type+'&chart_name=86&project='+self.project_live+'&center='+
+                          self.center_live+'&from='+self.start_date+'&to='+self.end_date}).success(function(annotations){
+                           annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
+                           $.each(annotations, function(j, annotation){
+
+                             var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
+
+                             point = point[0];
+
+                             if(annotation.epoch){
+                               var a = new Annotation("86", $(self.chartOptions91.chart.renderTo),
+                                    chart, point, annotation);
+                               window.annotation = a;
+                               self.annotation.push(a);
+                               self.cust_time_lst.push(series.name);
+                               self.annot_perm();
+                               }
+                           })
+
+                                    });
+                                    }(series));
+                                }
+                                }
+                              }
+                            });
+                            $('.widget-86a').removeClass('widget-loader-show');
+                            $('.widget-86b').removeClass('widget-data-hide');
+                        })
+                    }
+
+
+
+                    self.Time_Ready_Percentage = function(final_work, type) {
+
+                        if (type == undefined) {
+                            type = 'day'
+                        }
+
+                        if (final_work == undefined) {
+                            final_work = ''
+                        }
+
+                        self.type = type;
+
+                        var cust_time_ready = '/api/cust_time_ready_percentage/'+self.data_to_show + type + final_work + '&chart_name=87';
+
+                        return $http({method:"GET", url: cust_time_ready}).success(function(result){
+
+                            var date_list  = result.result.date;
+                            var custo_time_ready = result.result.custo_time_ready;
+                            var is_annotation = result.result.is_annotation;
+
+                            angular.extend(self.chartOptions92.yAxis,{
+                                min:result.result.min_max.min_value,
+                                max:result.result.min_max.max_value
+                            });
+
+                            if (self.list_object.time_ready_percentage != undefined) {
+
+                                if (self.list_object.time_ready_percentage.display_value === true) {
+
+                                    var value = true;
+                                }
+                                else {
+                                    var value = false;
+                                }
+                            }
+                            else {
+                                var value = false;
+                            }
+
+                            if (self.list_object.time_ready_percentage!= undefined) {
+
+                                if(self.list_object.time_ready_percentage.legends_align == 'bottom') {
+
+                                    var align = 'center';
+                                    var ver_align = 'bottom';
+                                    var layout = 'horizontal';
+
+                                }
+
+                                else if(self.list_object.time_ready_percentage.legends_align == 'left'){
+
+                                    var align ='left';
+                                    var ver_align = 'top';
+                                    var layout = 'vertical';
+                                }
+
+                                else {
+                                    var align = 'right';
+                                    var ver_align = 'top';
+                                    var layout = 'vertical';
+                                }
+                            }
+
+                            else {
+                                var align = 'center';
+                                var ver_align = 'bottom';
+                                var layout = 'horizontal';
+                            }
+
+                            angular.extend(self.chartOptions92, {
+                                xAxis: {
+                                    categories: date_list,
+                                },
+                                legend: {
+                                    align: align,
+                                    verticalAlign:ver_align,
+                                    layout: layout
+                                },
+                                    plotOptions: {
+                                        series: {
+                                            dataLabels: {
+                                            enabled: value,
+                                            format: '{y} %',
+                                            valueDecimals: 2
+                                            },
+                                          allowPointSelect: true,
+                                          cursor: 'pointer',
+                                            point: {
+                                              events:{
+                                                contextmenu: function() {
+                                                 if (self.role_for_perm == 'customer') {
+
+                                                    console.log('he is customer');
+                                                 }
+                                                 else {
+
+                                                  if (self.data_to_show.split('&').length == 6) {
+                                                    var sub_proj = '';
+                                                    var work_pack = '';
+                                                    var sub_pack = '';
+                                                  }
+                                                  else {
+                                                    var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
+                                                    var work_pack = self.data_to_show.split('&')[6].split('=')[1];
+                                                    var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
+                                                  }
+                                                    var str = '87<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
+                                                    this['project'] = self.project_live;
+                                                    this['center'] = self.center_live;
+                                                    this['from'] = self.start_date;
+                                                    this['to'] = self.end_date;
+                                                    return new Annotation(str, $(self.chartOptions92.chart.renderTo),this.series.chart, this);
+                                                    }
+                                                  }
+                                                }
+                                            },
+                                            events: {
+                                                hide: function() {
+                                                    var name = this.name;
+                                                    var visibility = this.visible;
+                                                    var chart_name = self.cust_ready_lst;
+                                                    self.annotation.forEach(function(value_data){
+                                                        value_data.redraw(name, visibility);
+                                                    });
+                                                    if (chart_name.indexOf(name) >= 0) {
+                                                        $(document).find('.widget-87a').children(".widget-87b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 0);
+                                                    }
+                                                },
+                                                show: function() {
+                                                    var name = this.name;
+                                                    var visibility = this.visible;
+                                                    var chart_name = self.cust_ready_lst;
+                                                    self.annotation.forEach(function(value_data){
+                                                        value_data.redraw(name, visibility);
+                                                    });
+                                                    if (chart_name.indexOf(name) >= 0) {
+                                                        $(document).find('.widget-87a').children(".widget-87b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 1);
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                series: custo_time_ready,
+                                onComplete: function(chart){
+                                if (is_annotation) {
+                                var series = null;
+                                var chart_data = chart.series;
+                                self.annotation = [];
+                                self.cust_ready_lst = [];
+                                for(var i in chart_data){
+                                    series = chart_data[i];
+                                    (function(series){
+                                      $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
+                      self.type+'&chart_name=87&project='+self.project_live+'&center='+
+                          self.center_live+'&from='+self.start_date+'&to='+self.end_date}).success(function(annotations){
+                           annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
+                           $.each(annotations, function(j, annotation){
+
+                             var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
+
+                             point = point[0];
+
+                             if(annotation.epoch){
+                               var a = new Annotation("87", $(self.chartOptions92.chart.renderTo),
+                                    chart, point, annotation);
+                               window.annotation = a;
+                               self.annotation.push(a);
+                               self.cust_ready_lst.push(series.name);
+                               self.annot_perm();
+                               }
+                           })
+
+                                    });
+                                    }(series));
+                                }
+                                }
+                              }
+                            });
+                            $('.widget-87a').removeClass('widget-loader-show');
+                            $('.widget-87b').removeClass('widget-data-hide');
+                        })
+                    }
+
+
+
+
+                    self.Pre_Populated_Volume = function(final_work, type) {
+
+                        if (type == undefined) {
+                            type = 'day'
+                        }
+
+                        if (final_work == undefined) {
+                            final_work = ''
+                        }
+
+                        self.type = type;
+
+                        var cust_pop_volu = '/api/custo_pop_volume/'+self.data_to_show + type + final_work + '&chart_name=83';
+
+                        return $http({method:"GET", url: cust_pop_volu}).success(function(result){
+
+                            var date_list  = result.result.date;
+                            var pre_pop_vlu = result.result.pre_pop_vol_details;
+                            var is_annotation = result.result.is_annotation;
+
+
+                            if (self.list_object.pre_populated_volume != undefined) {
+
+                                if (self.list_object.pre_populated_volume.display_value === true) {
+
+                                    var value = true;
+                                }
+                                else {
+                                    var value = false;
+                                }
+                            }
+                            else {
+                                var value = false;
+                            }
+
+                            if (self.list_object.pre_populated_volume!= undefined) {
+
+                                if(self.list_object.pre_populated_volume.legends_align == 'bottom') {
+
+                                    var align = 'center';
+                                    var ver_align = 'bottom';
+                                    var layout = 'horizontal';
+
+                                }
+
+                                else if(self.list_object.pre_populated_volume.legends_align == 'left'){
+
+                                    var align ='left';
+                                    var ver_align = 'top';
+                                    var layout = 'vertical';
+                                }
+
+                                else {
+                                    var align = 'right';
+                                    var ver_align = 'top';
+                                    var layout = 'vertical';
+                                }
+                            }
+
+                            else {
+                                var align = 'center';
+                                var ver_align = 'bottom';
+                                var layout = 'horizontal';
+                            }
+
+                            angular.extend(self.chartOptions88, {
+                                xAxis: {
+                                    categories: date_list,
+                                },
+                                legend: {
+                                    align: align,
+                                    verticalAlign:ver_align,
+                                    layout: layout
+                                },
+                                    plotOptions: {
+                                        series: {
+                                        dataLabels: {
+                                            enabled: value,
+                                        },
+                                          allowPointSelect: true,
+                                          cursor: 'pointer',
+                                            point: {
+                                              events:{
+                                                contextmenu: function() {
+                                                 if (self.role_for_perm == 'customer') {
+
+                                                    console.log('he is customer');
+                                                 }
+                                                 else {
+
+                                                  if (self.data_to_show.split('&').length == 6) {
+                                                    var sub_proj = '';
+                                                    var work_pack = '';
+                                                    var sub_pack = '';
+                                                  }
+                                                  else {
+                                                    var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
+                                                    var work_pack = self.data_to_show.split('&')[6].split('=')[1];
+                                                    var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
+                                                  }
+                                                    var str = '83<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
+                                                    this['project'] = self.project_live;
+                                                    this['center'] = self.center_live;
+                                                    this['from'] = self.start_date;
+                                                    this['to'] = self.end_date;
+                                                    return new Annotation(str, $(self.chartOptions88.chart.renderTo),this.series.chart, this);
+                                                    }
+                                                  }
+                                                }
+                                            },
+                                            events: {
+                                                hide: function() {
+                                                    var name = this.name;
+                                                    var visibility = this.visible;
+                                                    var chart_name = self.pre_pop_vol;
+                                                    self.annotation.forEach(function(value_data){
+                                                        value_data.redraw(name, visibility);
+                                                    });
+                                                    if (chart_name.indexOf(name) >= 0) {
+                                                        $(document).find('.widget-83a').children(".widget-83b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 0);
+                                                    }
+                                                },
+                                                show: function() {
+                                                    var name = this.name;
+                                                    var visibility = this.visible;
+                                                    var chart_name = self.cust_aht_lst;
+                                                    self.annotation.forEach(function(value_data){
+                                                        value_data.redraw(name, visibility);
+                                                    });
+                                                    if (chart_name.indexOf(name) >= 0) {
+                                                        $(document).find('.widget-83a').children(".widget-83b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 1);
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                series: pre_pop_vlu,
+                                onComplete: function(chart){
+                                if (is_annotation) {
+                                var series = null;
+                                var chart_data = chart.series;
+                                self.annotation = [];
+                                self.pre_pop_vol = [];
+                                for(var i in chart_data){
+                                    series = chart_data[i];
+                                    (function(series){
+                                      $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
+                      self.type+'&chart_name=83&project='+self.project_live+'&center='+
+                          self.center_live+'&from='+self.start_date+'&to='+self.end_date}).success(function(annotations){
+                           annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
+                           $.each(annotations, function(j, annotation){
+
+                             var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
+
+                             point = point[0];
+
+                             if(annotation.epoch){
+                               var a = new Annotation("83", $(self.chartOptions88.chart.renderTo),
+                                    chart, point, annotation);
+                               window.annotation = a;
+                               self.annotation.push(a);
+                               self.pre_pop_vol.push(series.name);
+                               self.annot_perm();
+                               }
+                           })
+
+                                    });
+                                    }(series));
+                                }
+                                }
+                              }
+                            });
+                            $('.widget-83a').removeClass('widget-loader-show');
+                            $('.widget-b').removeClass('widget-data-hide');
+                        })
+                    }
+
+
+
+
+
+                    self.Pre_Populated_AHT = function(final_work, type) {
+
+                        if (type == undefined) {
+                            type = 'day'
+                        }
+
+                        if (final_work == undefined) {
+                            final_work = ''
+                        }
+
+                        self.type = type;
+
+                        var pop_aht = '/api/custo_pop_aht/'+self.data_to_show + type + final_work + '&chart_name=82';
+
+                        return $http({method:"GET", url: pop_aht}).success(function(result){
+
+                            var date_list = result.result.date;
+                            var pre_pop_aht = result.result.pre_popul_aht;
+                            var is_annotation = result.result.is_annotation;
+
+                            if (self.list_object.pre_populated_aht != undefined) {
+
+                                if (self.list_object.pre_populated_aht.display_value === true) {
+
+                                    var value = true;
+                                }
+                                else {
+
+                                    var value = false;
+                                }
+                            }
+                            else {
+                                var value = false;
+                            }
+                            if (self.list_object.pre_populated_aht != undefined) {
+
+                                if(self.list_object.pre_populated_aht.legends_align == 'bottom') {
+
+                                    var align = 'center';
+                                    var ver_align = 'bottom';
+                                    var layout = 'horizontal';
+
+                                }
+
+                                else if(self.list_object.pre_populated_aht.legends_align == 'left'){
+
+                                    var align ='left';
+                                    var ver_align = 'top';
+                                    var layout = 'vertical';
+                                }
+
+                                else {
+                                    var align = 'right';
+                                    var ver_align = 'top';
+                                    var layout = 'vertical';
+                                }
+                            }
+
+                            else {
+                                var align = 'center';
+                                var ver_align = 'bottom';
+                                var layout = 'horizontal';
+                            }
+
+
+
+                            angular.extend(self.chartOptions87, {
+                                xAxis: {
+                                    categories: date_list,
+                                },
+                                legend: {
+                                    align: align,
+                                    verticalAlign:ver_align,
+                                    layout: layout
+                                },
+                                    plotOptions: {
+                                        series: {
+                                            dataLabels: {
+                                            enabled: value,
+                                            format: '{y}',
+                                            valueDecimals: 2
+                                            },
+                                          allowPointSelect: true,
+                                          cursor: 'pointer',
+                                            point: {
+                                              events:{
+                                                contextmenu: function() {
+                                                 if (self.role_for_perm == 'customer') {
+
+                                                    console.log('he is customer');
+                                                 }
+                                                 else {
+
+                                                  if (self.data_to_show.split('&').length == 6) {
+                                                    var sub_proj = '';
+                                                    var work_pack = '';
+                                                    var sub_pack = '';
+                                                  }
+                                                  else {
+                                                    var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
+                                                    var work_pack = self.data_to_show.split('&')[6].split('=')[1];
+                                                    var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
+                                                  }
+                                                    var str = '82<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
+                                                    this['project'] = self.project_live;
+                                                    this['center'] = self.center_live;
+                                                    this['from'] = self.start_date;
+                                                    this['to'] = self.end_date;
+                                                    return new Annotation(str, $(self.chartOptions87.chart.renderTo),this.series.chart, this);
+                                                    }
+                                                  }
+                                                }
+                                            },
+                                            events: {
+                                                hide: function() {
+                                                    var name = this.name;
+                                                    var visibility = this.visible;
+                                                    var chart_name = self.cust_pop_aht;
+                                                    self.data_anno.forEach(function(value_data){
+                                                        value_data.redraw(name, visibility);
+                                                    });
+                                                    if (chart_name.indexOf(name) >= 0) {
+                                                        $(document).find('.widget-82a').children(".widget-82b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 0);
+                                                    }
+                                                },
+                                                show: function() {
+                                                    var name = this.name;
+                                                    var visibility = this.visible;
+                                                    var chart_name = self.cust_pop_aht;
+                                                    self.data_anno.forEach(function(value_data){
+                                                        value_data.redraw(name, visibility);
+                                                    });
+                                                    if (chart_name.indexOf(name) >= 0) {
+                                                        $(document).find('.widget-82a').children(".widget-82b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 1);
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+
+                                series: pre_pop_aht,
+                                    onComplete: function(chart){
+                                    if (is_annotation) {
+                                    var series = null;
+                                    var chart_data = chart.series;
+                                    self.data_anno = [];
+                                    self.cust_pop_aht = [];
+                                    for(var i in chart_data){
+                                        series = chart_data[i];
+                                        (function(series){
+                                          $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
+                      self.type+'&chart_name=82&project='+self.project_live+'&center='+
+                      self.center_live+'&from='+self.start_date+'&to='+self.end_date}).success(function(annotations){
+                               annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
+                               $.each(annotations, function(j, annotation){
+
+                                 var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
+
+                                 point = point[0];
+
+                                 if(annotation.epoch){
+                                   var a = new Annotation("82", $(self.chartOptions87.chart.renderTo),
+                                        chart, point, annotation);
+                                   window.data_anno = a;
+                                   self.data_anno.push(a);
+                                   self.cust_pop_aht.push(series.name);
+                                   self.annot_perm();
+                                   }
+                               })
+
+                                        });
+                                        }(series));
+                                    }
+                                    }
+                                }
+                            });
+                            $('.widget-82a').removeClass('widget-loader-show');
+                            $('.widget-82b').removeClass('widget-data-hide');
+                        })
+                    }
+
+
+
+
+                    self.prod_avg = function(final_work, type) {
+
+                        if (type == undefined) {
+                            type = 'day'
+                        }
+
+                        if (final_work == undefined) {
+                            final_work = ''
+                        }
+
                         self.type = type;
 
                         var prod_avg = '/api/prod_avg_perday/'+self.data_to_show + type + final_work + '&chart_name=33';
@@ -1451,7 +3281,7 @@
 
                            var date_list = result.result.date;
                            var prod_avg_data = result.result.production_avg_details;
-                           var is_annotation = result.result.is_annotation; 
+                           var is_annotation = result.result.is_annotation;
 
                             if (self.list_object.production_avg_perday != undefined) {
 
@@ -1460,7 +3290,7 @@
                                     var value = true;
                                 }
                                 else {
-                                    var value = false;   
+                                    var value = false;
                                 }
                             }
                             else {
@@ -1469,27 +3299,27 @@
                             if (self.list_object.production_avg_perday != undefined) {
 
                                 if(self.list_object.production_avg_perday.legends_align == 'bottom') {
-                                
+
                                     var align = 'center';
                                     var ver_align = 'bottom';
                                     var layout = 'horizontal';
-                            
+
                                 }
-                            
+
                                 else if(self.list_object.production_avg_perday.legends_align == 'left'){
-                            
+
                                     var align ='left';
                                     var ver_align = 'top';
                                     var layout = 'vertical';
                                 }
-                            
+
                                 else {
                                     var align = 'right';
                                     var ver_align = 'top';
                                     var layout = 'vertical';
                                 }
                             }
-                            
+
                             else {
                                 var align = 'center';
                                 var ver_align = 'bottom';
@@ -1581,7 +3411,7 @@
                       self.center_live+'&from='+self.start_date+'&to='+self.end_date}).success(function(annotations){
                            annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                            $.each(annotations, function(j, annotation){
-       
+
                              var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
 
                              point = point[0];
@@ -1600,11 +3430,11 @@
                                     }(series));
                                 }
                                 }
-                              }  
+                              }
                             });
                             $('.widget-33a').removeClass('widget-loader-show');
                             $('.widget-33b').removeClass('widget-data-hide');
-                       }) 
+                       })
                     }
 
                     self.tat_data = function(final_work, type) {
@@ -1625,12 +3455,12 @@
 
                             var date_list = result.result.date;
                             var tat_values = result.result.tat_graph_details;
-                            var is_annotation = result.result.is_annotation;                            
+                            var is_annotation = result.result.is_annotation;
 
                             if (self.list_object.tat_graph != undefined) {
 
                                 if (self.list_object.tat_graph.display_value === true) {
-                                      
+
                                     var value = true
                                 }
                                 else {
@@ -1638,33 +3468,33 @@
                                 }
                             }
                             else {
-                                
+
                                 var value = false
                             }
                             if (self.list_object.tat_graph != undefined) {
 
                                 if(self.list_object.tat_graph.legends_align == 'bottom') {
-                                
+
                                     var align = 'center';
                                     var ver_align = 'bottom';
                                     var layout = 'horizontal';
-                            
+
                                 }
-                            
+
                                 else if(self.list_object.tat_graph.legends_align == 'left'){
-                            
+
                                     var align ='left';
                                     var ver_align = 'top';
                                     var layout = 'vertical';
                                 }
-                            
+
                                 else {
                                     var align = 'right';
                                     var ver_align = 'top';
                                     var layout = 'vertical';
                                 }
                             }
-                            
+
                             else {
                                 var align = 'center';
                                 var ver_align = 'bottom';
@@ -1684,7 +3514,7 @@
                                     align: align,
                                     verticalAlign:ver_align,
                                     layout: layout
-                                },                        
+                                },
                                 plotOptions: {
                                     series: {
                                         dataLabels: {
@@ -1760,7 +3590,7 @@
                                         (function(series){
                                           $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
                                                 self.type+'&chart_name=26&project='+self.project_live+'&center='+
-                                                self.center_live+'&from='+self.start_date+'&to='+self.end_date}).success(function(annotations){ 
+                                                self.center_live+'&from='+self.start_date+'&to='+self.end_date}).success(function(annotations){
                                                     annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                                                      $.each(annotations, function(j, annotation){
 
@@ -1776,7 +3606,7 @@
                                                          self._tat_data.push(series.name);
                                                          self.annot_perm();
                                                          }
-                                                     })   
+                                                     })
 
                                                 });
                                         }(series));
@@ -1808,46 +3638,46 @@
 
                             var date_list = result.result.date;
                             var aht_data = result.result.aht_team_data;
-                            var is_annotation = result.result.is_annotation;                            
+                            var is_annotation = result.result.is_annotation;
 
                             if (self.list_object.aht_team_grpah != undefined) {
 
                                 if (self.list_object.aht_team_grpah.display_value === true) {
-     
-                                    var value = true 
+
+                                    var value = true
                                 }
                                 else {
                                     var value = false
                                 }
                             }
                             else {
-     
+
                                 var value = false
                             }
                             if (self.list_object.aht_team_grpah != undefined) {
 
                                 if(self.list_object.aht_team_grpah.legends_align == 'bottom') {
-                                
+
                                     var align = 'center';
                                     var ver_align = 'bottom';
                                     var layout = 'horizontal';
-                            
+
                                 }
-                            
+
                                 else if(self.list_object.aht_team_grpah.legends_align == 'left'){
-                            
+
                                     var align ='left';
                                     var ver_align = 'top';
                                     var layout = 'vertical';
                                 }
-                            
+
                                 else {
                                     var align = 'right';
                                     var ver_align = 'top';
                                     var layout = 'vertical';
                                 }
                             }
-                            
+
                             else {
                                 var align = 'center';
                                 var ver_align = 'bottom';
@@ -1867,7 +3697,7 @@
                                     verticalAlign:ver_align,
                                     layout: layout
                                 },
-                        
+
                                 plotOptions: {
                                     series: {
                                         dataLabels: {
@@ -1943,7 +3773,7 @@
                                         (function(series){
                                           $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
                                                 self.type+'&chart_name=60&project='+self.project_live+'&center='+
-                                                self.center_live+'&from='+self.start_date+'&to='+self.end_date}).success(function(annotations){ 
+                                                self.center_live+'&from='+self.start_date+'&to='+self.end_date}).success(function(annotations){
                                                     annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                                                      $.each(annotations, function(j, annotation){
 
@@ -1959,7 +3789,7 @@
                                                          self._aht_data.push(series.name);
                                                          self.annot_perm();
                                                          }
-                                                     })   
+                                                     })
 
                                                 });
                                         }(series));
@@ -1994,7 +3824,7 @@
                             var is_annotation = result.result.is_annotation;
 
                             if (self.list_object.monthly_volume_widget != undefined) {
-                            
+
                                 if (self.list_object.monthly_volume_widget.display_value === true) {
 
                                     var value = true;
@@ -2010,27 +3840,27 @@
                             if (self.list_object.monthly_volume_widget != undefined) {
 
                                 if(self.list_object.monthly_volume_widget.legends_align == 'bottom') {
-                                
+
                                     var align = 'center';
                                     var ver_align = 'bottom';
                                     var layout = 'horizontal';
-                            
+
                                 }
-                            
+
                                 else if(self.list_object.monthly_volume_widget.legends_align == 'left'){
-                            
+
                                     var align ='left';
                                     var ver_align = 'top';
                                     var layout = 'vertical';
                                 }
-                            
+
                                 else {
                                     var align = 'right';
                                     var ver_align = 'top';
                                     var layout = 'vertical';
                                 }
                             }
-                            
+
                             else {
                                 var align = 'center';
                                 var ver_align = 'bottom';
@@ -2045,7 +3875,7 @@
                                     align: align,
                                     verticalAlign:ver_align,
                                     layout: layout
-                                },                                
+                                },
                                     plotOptions: {
                                         series: {
                                         dataLabels: {
@@ -2054,7 +3884,7 @@
                                           allowPointSelect: true,
                                           cursor: 'pointer',
                                             point: {
-                                              events:{ 
+                                              events:{
                                                 contextmenu: function() {
                                                  if (self.role_for_perm == 'customer') {
 
@@ -2123,11 +3953,11 @@
                           self.center_live+'&from='+self.start_date+'&to='+self.end_date}).success(function(annotations){
                            annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                            $.each(annotations, function(j, annotation){
-       
+
                              var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
-       
+
                              point = point[0];
-       
+
                              if(annotation.epoch){
                                var a = new Annotation("21", $(self.chartOptions26.chart.renderTo),
                                     chart, point, annotation);
@@ -2137,12 +3967,12 @@
                                self.annot_perm();
                                }
                            })
-       
+
                                     });
                                     }(series));
                                 }
                                 }
-                              }  
+                              }
                             });
                             $('.widget-21a').removeClass('widget-loader-show');
                             $('.widget-21b').removeClass('widget-data-hide');
@@ -2170,7 +4000,7 @@
                         var fte_graphs = '/api/fte_graphs/'+self.data_to_show + type + final_work + '&chart_name=11&chart_name=12';
 
                         return $http({method:"GET", url: fte_graphs}).success(function(result){
-    
+
                             if (type == 'day' && final_work == '') {
                                 if (result.result.type == 'day') {
                                     $('.day2').addClass('active btn-success');
@@ -2178,7 +4008,7 @@
                                     $('.day').addClass('active btn-success');
                                     $('.day').siblings().removeClass('active btn-success');
                                 }
-                               
+
                                 if (result.result.type == 'week') {
                                     $('.week2').addClass('active btn-success');
                                     $('.week2').siblings().removeClass('active btn-success');
@@ -2197,14 +4027,14 @@
                             var work_packet_fte = result.result.fte_calc_data.fte_scope;
                             var total_fte = result.result.fte_calc_data.fte_trend;
                             var is_annotation = result.result.is_annotation;
-                            
+
                             if ((name == "self.chartOptions16") || (name == "")) {
 
                                 if (self.list_object.total_fte != undefined) {
-                            
-                                    if (self.list_object.total_fte.display_value === true) { 
 
-                                        var value = true;   
+                                    if (self.list_object.total_fte.display_value === true) {
+
+                                        var value = true;
                                     }
                                     else {
                                         var value = false;
@@ -2213,31 +4043,31 @@
                                 else {
                                     var value = false;
                                 }
-                                 
+
                                 if (self.list_object.total_fte != undefined) {
 
                                     if(self.list_object.total_fte.legends_align == 'bottom') {
-                                    
+
                                         var align = 'center';
                                         var ver_align = 'bottom';
                                         var layout = 'horizontal';
-                                
+
                                     }
-                                
+
                                     else if(self.list_object.total_fte.legends_align == 'left'){
-                                
+
                                         var align ='left';
                                         var ver_align = 'top';
                                         var layout = 'vertical';
                                     }
-                                
+
                                     else {
                                         var align = 'right';
                                         var ver_align = 'top';
                                         var layout = 'vertical';
                                     }
                                 }
-                                
+
                                 else {
                                     var align = 'center';
                                     var ver_align = 'bottom';
@@ -2310,7 +4140,7 @@
                                                     var chart_name = self._fte_data;
                                                     self._data.forEach(function(value_data){
                                                         value_data.redraw(name, visibility);
-                                                    });                                                    
+                                                    });
                                                     if (chart_name.indexOf(name) >= 0) {
                                                         $(document).find('.widget-11a').children(".widget-11b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 1);
                                                     }
@@ -2352,7 +4182,7 @@
                                         }(series));
                                     }
                                     }
-                                  }  
+                                  }
                                 });
                                 $('.widget-11a').removeClass('widget-loader-show');
                                 $('.widget-11b').removeClass('widget-data-hide');
@@ -2364,7 +4194,7 @@
 
                                     if (self.list_object.sum_total_fte.display_value === true) {
 
-                                        var value = true;   
+                                        var value = true;
                                     }
                                     else {
                                         var value = false;
@@ -2377,27 +4207,27 @@
                             if (self.list_object.sum_total_fte != undefined) {
 
                                 if(self.list_object.sum_total_fte.legends_align == 'bottom') {
-                                
+
                                     var align = 'center';
                                     var ver_align = 'bottom';
                                     var layout = 'horizontal';
-                            
+
                                 }
-                            
+
                                 else if(self.list_object.sum_total_fte.legends_align == 'left'){
-                            
+
                                     var align ='left';
                                     var ver_align = 'top';
                                     var layout = 'vertical';
                                 }
-                            
+
                                 else {
                                     var align = 'right';
                                     var ver_align = 'top';
                                     var layout = 'vertical';
                                 }
                             }
-                            
+
                             else {
                                 var align = 'center';
                                 var ver_align = 'bottom';
@@ -2421,7 +4251,7 @@
                                           allowPointSelect: true,
                                           cursor: 'pointer',
                                             point: {
-                                              events:{ 
+                                              events:{
                                                 contextmenu: function() {
                                                  if (self.role_for_perm == 'customer') {
 
@@ -2446,7 +4276,7 @@
                                                     this['to'] = self.end_date;
                                                     return new Annotation(str, $(self.chartOptions16_2.chart.renderTo),this.series.chart, this);
                                                     }
-                                                  }  
+                                                  }
                                                 }
                                             }
                                         }
@@ -2461,7 +4291,7 @@
                                         (function(series){
                                           $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
                                           self.type+'&chart_name=12&project='+self.project_live+'&center='+
-                      self.center_live+'&from='+self.start_date+'&to='+self.end_date}).success(function(annotations){ 
+                      self.center_live+'&from='+self.start_date+'&to='+self.end_date}).success(function(annotations){
                                annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                                $.each(annotations, function(j, annotation){
 
@@ -2474,7 +4304,7 @@
                                    if(annotation.text == 'undefined') {
                                     $('.arrow').hide();
                                    }
-                                   self.annot_perm();  
+                                   self.annot_perm();
                                    }
                                })
 
@@ -2489,7 +4319,7 @@
                        })
                       }
                     }
-                
+
                     self.main_prod = function(final_work, type, name) {
 
                         if (type == undefined) {
@@ -2511,7 +4341,7 @@
                         var main_prod = '/api/main_prod/'+self.data_to_show + type + final_work + '&chart_name=1&chart_name=6';
 
                         return $http({method:"GET", url: main_prod}).success(function(result){
-            
+
                             if (type == 'day' && final_work == '') {
                                 if (result.result.type == 'day') {
                                     $('.day2').addClass('active btn-success');
@@ -2519,7 +4349,7 @@
                                     $('.day').addClass('active btn-success');
                                     $('.day').siblings().removeClass('active btn-success');
                                 }
-                               
+
                                 if (result.result.type == 'week') {
                                     $('.week2').addClass('active btn-success');
                                     $('.week2').siblings().removeClass('active btn-success');
@@ -2537,11 +4367,11 @@
                             var date_list = result.result.date;
                             var main_prod_data = result.result.productivity_data;
                             var is_annotation = result.result.is_annotation;
-                            
+
                             if ((name == "self.chartOptions10") || (name == "")) {
-                                                                
+
                                 if (self.list_object.productivity_bar_graph != undefined) {
-                                
+
                                     if (self.list_object.productivity_bar_graph.display_value === true) {
 
                                         var value = true;
@@ -2556,27 +4386,27 @@
                                 if (self.list_object.productivity_bar_graph != undefined) {
 
                                     if(self.list_object.productivity_bar_graph.legends_align == 'bottom') {
-                                    
+
                                         var align = 'center';
                                         var ver_align = 'bottom';
                                         var layout = 'horizontal';
-                                
+
                                     }
-                                
+
                                     else if(self.list_object.productivity_bar_graph.legends_align == 'left'){
-                                
+
                                         var align ='left';
                                         var ver_align = 'top';
                                         var layout = 'vertical';
                                     }
-                                
+
                                     else {
                                         var align = 'right';
                                         var ver_align = 'top';
                                         var layout = 'vertical';
                                     }
                                 }
-                                
+
                                 else {
                                     var align = 'center';
                                     var ver_align = 'bottom';
@@ -2586,16 +4416,16 @@
 
                                 angular.extend(self.chartOptions10, {
                                    chart:{
-                                        type:'column',                                        
+                                        type:'column',
                                    },
                                    xAxis: {
                                         categories: date_list,
                                     },
-                                    legend: {                                        
+                                    legend: {
                                         align: align,
                                         verticalAlign:ver_align,
                                         layout: layout
-                                    },                                    
+                                    },
                                     plotOptions: {
                                         series: {
                                           dataLabels: {
@@ -2606,7 +4436,7 @@
                                           },
                                           allowPointSelect: true,
                                           cursor: 'pointer',
-                                            point: { 
+                                            point: {
                                               events:{
                                                 contextmenu: function() {
                                                  if (self.role_for_perm == 'customer') {
@@ -2644,7 +4474,7 @@
                                                       if (chart_name.indexOf(name) >= 0) {
                                                         self._value.forEach(function(value_data){
                                                           value_data.redraw(name, visibility);
-                                                        });                                                    
+                                                        });
                                                         $(document).find('.widget-6a').children(".widget-6b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 0);
                                                       }
                                                     }
@@ -2657,7 +4487,7 @@
                                                       if (chart_name.indexOf(name) >= 0) {
                                                         self._value.forEach(function(value_data){
                                                           value_data.redraw(name, visibility);
-                                                        });                                                                                                            
+                                                        });
                                                         $(document).find('.widget-6a').children(".widget-6b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 1);
                                                       }
                                                     }
@@ -2672,7 +4502,7 @@
                                     var chart_data = chart.series;
                                     self._value = [];
                                     self._main_prod = [];
-                                    for(var i in chart_data){  
+                                    for(var i in chart_data){
                                         series = chart_data[i];
                                         (function(series){
                                           $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
@@ -2724,27 +4554,27 @@
                                 if (self.list_object.productivity_chart != undefined) {
 
                                     if(self.list_object.productivity_chart.legends_align == 'bottom') {
-                                    
+
                                         var align = 'center';
                                         var ver_align = 'bottom';
                                         var layout = 'horizontal';
-                                
+
                                     }
-                                
+
                                     else if(self.list_object.productivity_chart.legends_align == 'left'){
-                                
+
                                         var align ='left';
                                         var ver_align = 'top';
                                         var layout = 'vertical';
                                     }
-                                
+
                                     else {
                                         var align = 'right';
                                         var ver_align = 'top';
                                         var layout = 'vertical';
                                     }
                                 }
-                                
+
                                 else {
                                     var align = 'center';
                                     var ver_align = 'bottom';
@@ -2760,7 +4590,7 @@
                                         verticalAlign:ver_align,
                                         layout: layout
                                     },
-                            
+
                                     plotOptions: {
                                         series: {
                                             dataLabels: {
@@ -2772,7 +4602,7 @@
                                         allowPointSelect: true,
                                         cursor: 'pointer',
                                         point: {
-                                           events:{ 
+                                           events:{
                                             contextmenu: function() {
                                                 if (self.role_for_perm == 'customer') {
 
@@ -2796,7 +4626,7 @@
                                                             this['to'] = self.end_date;
                                                     return new Annotation(str, $(self.chartOptions.chart.renderTo),this.series.chart, this);
                                                 }
-                                            } 
+                                            }
                                             }
                                          },
                                          events: {
@@ -2808,12 +4638,12 @@
                                                         if (chart_name.indexOf(name) >= 0) {
                                                           self.anno_data.forEach(function(value_data){
                                                               value_data.redraw(name, visibility);
-                                                          });                                                    
+                                                          });
                                                           $(document).find('.widget-1a').children(".widget-1b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 0);
                                                         }
                                                       }
                                                 },
-                                                show: function() {    
+                                                show: function() {
                                                       var name = this.name;
                                                       var visibility = this.visible;
                                                       var chart_name = self._main_prod_line;
@@ -2821,7 +4651,7 @@
                                                         if (chart_name.indexOf(name) >= 0) {
                                                           self.anno_data.forEach(function(value_data){
                                                             value_data.redraw(name, visibility);
-                                                          });                                                    
+                                                          });
                                                           $(document).find('.widget-1a').children(".widget-1b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 1);
                                                         }
                                                       }
@@ -2842,7 +4672,7 @@
                                         (function(series){
                                           $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
                       self.type+'&chart_name=1&project='+self.project_live+'&center='+
-                      self.center_live+'&from='+self.start_date+'&to='+self.end_date}).success(function(annotations){  
+                      self.center_live+'&from='+self.start_date+'&to='+self.end_date}).success(function(annotations){
                                annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                                $.each(annotations, function(j, annotation){
 
@@ -2864,15 +4694,15 @@
                                         }(series));
                                     }
                                     }
-                                  }  
-                                });     
+                                  }
+                                });
                                 $('.widget-1a').removeClass('widget-loader-show');
                                 $('.widget-1b').removeClass('widget-data-hide');
-                           }  
+                           }
                         })
-                      }  
+                      }
                     }
-        
+
                     self.category_error = function(cate_error){
 
                         if (self.cate_pie.length == 1) {
@@ -2923,7 +4753,7 @@
                             else {
                                 var value = false;
                             }
-    
+
                             angular.extend(self.chartOptions29, {
                                 xAxis: {
                                     categories: result.result.internal_error_category.category_name,
@@ -2966,7 +4796,7 @@
                                                 return new Annotation(str, $(self.chartOptions29.chart.renderTo),this.series.chart, this);
                                                 }
                                             }
-                                           } 
+                                           }
                                         },
                                         events: {
                                             hide: function() {
@@ -2980,7 +4810,7 @@
                                         }
                                     }
                                 },
-    
+
                                series: result.result.internal_error_category.category_pareto,
                                     onComplete: function(chart){
                                     if (is_annotation) {
@@ -2991,7 +4821,7 @@
                                         (function(series){
                                           $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
                           self.type+'&chart_name=24&project='+self.project_live+'&center='+
-                      self.center_live+'&from='+self.start_date+'&to='+self.end_date+'&chart_type=bar'}).success(function(annotations){ 
+                      self.center_live+'&from='+self.start_date+'&to='+self.end_date+'&chart_type=bar'}).success(function(annotations){
                                annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                                $.each(annotations, function(j, annotation){
 
@@ -3053,7 +4883,7 @@
                                                  }
                                                  else {
 
-                                              if (self.data_to_show.split('&').length == 6) { 
+                                              if (self.data_to_show.split('&').length == 6) {
                                                 var sub_proj = '';
                                                 var work_pack = '';
                                                 var sub_pack = '';
@@ -3071,7 +4901,7 @@
                                                 this['chart_type'] = 'bar';
                                                 return new Annotation(str, $(self.chartOptions30.chart.renderTo),this.series.chart, this);
                                                 }
-                                               } 
+                                               }
                                             }
                                         },
                                         events: {
@@ -3085,7 +4915,7 @@
                                             }
                                         }
                                     }
-                                },                            
+                                },
                                series: result.result.external_error_category.category_pareto,
                                     onComplete: function(chart){
                                     if (is_annotation) {
@@ -3097,7 +4927,7 @@
                                         (function(series){
                                           $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
                       self.type+'&chart_name=25&project='+self.project_live+'&center='+
-                      self.center_live+'&from='+self.start_date+'&to='+self.end_date+'&chart_type=bar'}).success(function(annotations){ 
+                      self.center_live+'&from='+self.start_date+'&to='+self.end_date+'&chart_type=bar'}).success(function(annotations){
                                annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                                $.each(annotations, function(j, annotation){
 
@@ -3117,16 +4947,16 @@
                                         }(series));
                                     }
                                     }
-                                 }   
+                                 }
                             });
                             $('.widget-25a').removeClass('widget-loader-show');
                             $('.widget-25b').removeClass('widget-data-hide');
                        })
                  }
            }
-          
+
         self.agent_category_error = function(agent_cate_error){
-                        
+
                        if (self.agent_pareto.length == 1) {
                        return $http({method:"GET", url: agent_cate_error + '&chart_name=22&chart_name=23' }).success(function(result){
                             var is_annotation = result.result.is_annotation;
@@ -3143,7 +4973,7 @@
                             else {
                                 var value = false;
                             }
-    
+
                             angular.extend(self.chartOptions27, {
                                 xAxis: {
                                     categories: result.result.pareto_data.category_name,
@@ -3212,7 +5042,7 @@
                                         (function(series){
                                           $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
                           self.type+'&chart_name=22&project='+self.project_live+'&center='+
-                          self.center_live+'&from='+self.start_date+'&to='+self.end_date+'&chart_type=bar'}).success(function(annotations){ 
+                          self.center_live+'&from='+self.start_date+'&to='+self.end_date+'&chart_type=bar'}).success(function(annotations){
                                annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                                $.each(annotations, function(j, annotation){
 
@@ -3319,7 +5149,7 @@
                                         (function(series){
                                           $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
                       self.type+'&chart_name=23&project='+self.project_live+'&center='+
-                      self.center_live+'&from='+self.start_date+'&to='+self.end_date+'&chart_type=bar'}).success(function(annotations){ 
+                      self.center_live+'&from='+self.start_date+'&to='+self.end_date+'&chart_type=bar'}).success(function(annotations){
                                annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                                $.each(annotations, function(j, annotation){
 
@@ -3342,7 +5172,7 @@
                             });
                             $('.widget-23a').removeClass('widget-loader-show');
                             $('.widget-23b').removeClass('widget-data-hide');
-                       }) 
+                       })
                 }
          }
 
@@ -3354,19 +5184,19 @@
                         if (final_work == undefined) {
                             final_work = ''
                         }
-                        
+
                         if (date_key == undefined){
                             var performance_summary = '/api/performance_summary/'+self.data_to_show + type + final_work;
                         }
                         else{
                             date_key = date_key.split('@')
-                            var performance_summary = '/api/performance_summary/'+self.data_to_show + type + final_work+"&key_from_date="+date_key[0]+"&key_to_date="+date_key[1];   
+                            var performance_summary = '/api/performance_summary/'+self.data_to_show + type + final_work+"&key_from_date="+date_key[0]+"&key_to_date="+date_key[1];
                         }
 
-                        
+
                         self.type = type;
 
-                        
+
                         return $http({method:"GET", url: performance_summary + '&chart_name=64' }).success(function(result){
 
                             $('.widget-62a').addClass('widget-loader-show');
@@ -3395,84 +5225,84 @@
 
                             for (var ij =0;ij < res["current_date"].length;ij++){
                                  table_html = table_html + "<th>"+res['current_date'][ij]+"</th>";
-                                 
+
                                  if (res['production'][res['current_date'][ij]]){
-                                    production_count = production_count + "<td class='info'>" +res['production'][res['current_date'][ij]] +"</td>" 
+                                    production_count = production_count + "<td class='info'>" +res['production'][res['current_date'][ij]] +"</td>"
                                     prod_count = prod_count + res['production'][res['current_date'][ij]]
                                     counter_var[0]++;
                                  }
                                  else{
-                                    production_count = production_count + "<td class='info'> NA </td>" 
+                                    production_count = production_count + "<td class='info'> NA </td>"
                                  }
 
                                  if (res['audit_count'][res['current_date'][ij]]){
-                                    Audit_Count = Audit_Count + "<td class='info'>" +res['audit_count'][res['current_date'][ij]] +"</td>" 
+                                    Audit_Count = Audit_Count + "<td class='info'>" +res['audit_count'][res['current_date'][ij]] +"</td>"
                                     aud_count = aud_count + res['audit_count'][res['current_date'][ij]]
                                     counter_var[1]++;
                                  }
                                  else{
-                                    Audit_Count = Audit_Count + "<td class='info'> NA </td>" 
+                                    Audit_Count = Audit_Count + "<td class='info'> NA </td>"
                                  }
-                                 
+
                                  if(res['audit_errors'][res['current_date'][ij]]){
-                                    Error_Count = Error_Count + "<td class='info'>" +res['audit_errors'][res['current_date'][ij]] +"</td>" 
+                                    Error_Count = Error_Count + "<td class='info'>" +res['audit_errors'][res['current_date'][ij]] +"</td>"
                                     err_count = err_count + res['audit_errors'][res['current_date'][ij]]
                                     counter_var[2]++;
                                  }
                                  else{
-                                    Error_Count = Error_Count + "<td class='info'> NA </td>" 
+                                    Error_Count = Error_Count + "<td class='info'> NA </td>"
                                  }
-                                 
+
                                  if(res['accuracy'][res['current_date'][ij]]){
-                                    Accuracy = Accuracy + "<td class='info'>" +res['accuracy'][res['current_date'][ij]] +"% </td>" 
+                                    Accuracy = Accuracy + "<td class='info'>" +res['accuracy'][res['current_date'][ij]] +"% </td>"
                                     acc_count = acc_count + res['accuracy'][res['current_date'][ij]]
                                     counter_var[3]++;
                                  }
                                  else{
-                                    
-                                    Accuracy = Accuracy + "<td class='info'> NA </td>" 
+
+                                    Accuracy = Accuracy + "<td class='info'> NA </td>"
                                  }
-                                 
+
                                  if(res['AHT_avg'][res['current_date'][ij]]){
-                                    AHT_Avg = AHT_Avg + "<td class='info'>" +res['AHT_avg'][res['current_date'][ij]] +"</td>" 
+                                    AHT_Avg = AHT_Avg + "<td class='info'>" +res['AHT_avg'][res['current_date'][ij]] +"</td>"
                                     aht_count = aht_count + res['AHT_avg'][res['current_date'][ij]]
                                     counter_var[4]++;
                                  }
                                  else{
-                                    AHT_Avg = AHT_Avg + "<td class='info'> NA </td>" 
+                                    AHT_Avg = AHT_Avg + "<td class='info'> NA </td>"
                                  }
-                                                                  
+
                                  if(res['AHT_count'][res['current_date'][ij]] != undefined){
-                                    No_of_Logins = No_of_Logins + "<td class='info'>" +res['AHT_count'][res['current_date'][ij]] +"</td>" 
+                                    No_of_Logins = No_of_Logins + "<td class='info'>" +res['AHT_count'][res['current_date'][ij]] +"</td>"
                                     login_count = login_count + res['AHT_count'][res['current_date'][ij]]
                                     counter_var[5]++;
                                  }
                                  else{
-                                    No_of_Logins = No_of_Logins + "<td class='info'> NA </td>" 
+                                    No_of_Logins = No_of_Logins + "<td class='info'> NA </td>"
                                  }
                             }
-                            
+
                             if (counter_var[0] >0) {
                                 production_count = production_count + '<td class="success">'+prod_count+'</td><td class="success">'+res["pre_main_result"]["Pre_Production_Count"]+'</td><td class="success">'+(prod_count/counter_var[0]).toFixed(0)+'</td></tr>'
                             }
                             else{
-                             production_count = production_count + '<td class="success"> NA </td><td class="success"> NA </td><td class="success"> NA </td></tr>'   
+                             production_count = production_count + '<td class="success"> NA </td><td class="success"> NA </td><td class="success"> NA </td></tr>'
                             }
-                            
+
                             if (counter_var[1] >0){
-                                Audit_Count = Audit_Count + '<td class="success">'+aud_count+'</td><td class="success">'+res["pre_main_result"]["Pre_Audit_Count"]+'</td><td class="success">'+(aud_count)+'</td></tr>'    
+                                Audit_Count = Audit_Count + '<td class="success">'+aud_count+'</td><td class="success">'+res["pre_main_result"]["Pre_Audit_Count"]+'</td><td class="success">'+(aud_count)+'</td></tr>'
                             }
                             else{
                                 Audit_Count = Audit_Count + '<td class="success"> NA </td><td class="success">'+res["pre_main_result"]["Pre_Audit_Count"]+'</td><td class="success"> NA </td></tr>'
                             }
-                            
+
                             if(counter_var[2] > 0){
                                 Error_Count = Error_Count + '<td class="success">'+err_count+'</td><td class="success">'+res["pre_main_result"]["Pre_Error_Count"]+'</td><td class="success">'+(err_count)+'</td></tr>'
                             }
                             else{
                                 Error_Count = Error_Count + '<td class="success"> NA </td><td class="success">'+res["pre_main_result"]["Pre_Error_Count"]+'</td><td class="success"> NA </td></tr>'
                             }
-                            
+
                             if(counter_var[3] > 0){
                                 Accuracy = Accuracy + '<td class="success">'+(acc_count / counter_var[3]).toFixed(2)+'% </td><td class="success">'+res["pre_main_result"]["Pre_Accuracy"]+'</td><td class="success">'+(acc_count/counter_var[3]).toFixed(2)+'% </td></tr>'
                             }
@@ -3481,7 +5311,7 @@
                             }
 
                             if (counter_var[4] > 0){
-                                AHT_Avg = AHT_Avg + '<td class="success">'+(aht_count/counter_var[4]).toFixed(2)+'</td><td class="success">'+res["pre_main_result"]["Pre_Aht_Avg"]+'</td><td class="success">'+(aht_count/counter_var[4]).toFixed(2)+'</td></tr>'    
+                                AHT_Avg = AHT_Avg + '<td class="success">'+(aht_count/counter_var[4]).toFixed(2)+'</td><td class="success">'+res["pre_main_result"]["Pre_Aht_Avg"]+'</td><td class="success">'+(aht_count/counter_var[4]).toFixed(2)+'</td></tr>'
                             }
                             else{
                                 AHT_Avg = AHT_Avg + '<td class="success"> NA </td><td class="success">'+res["pre_main_result"]["Pre_Aht_Avg"]+'</td><td class="success"> NA </td></tr>'
@@ -3493,10 +5323,10 @@
                             else{
                                 No_of_Logins = No_of_Logins + '<td class="success"> NA </td><td class="success">'+res["pre_main_result"]["Pre_login_count"]+'</td><td class="success"> NA </td></tr>'
                             }
-                            
+
 
                             table_html = table_html + '<th>'+ curdate +'</th><th>'+ predate +'</th><th>'+ curdate +'</th></tr></thead><tbody class="info">';
-                            
+
 
                             table_html = table_html + production_count + Audit_Count + Error_Count + Accuracy + AHT_Avg + No_of_Logins + "</tbody></table></div>";
                             $(".widget-62b highcharts").remove()
@@ -3505,7 +5335,7 @@
                             $compile($el)($scope);
 
 
-                            
+
                             $('.widget-62a').removeClass('widget-loader-show');
                             $('.widget-62b').removeClass('widget-data-hide');
                         });
@@ -3519,7 +5349,7 @@
                         }
 
                         self.type = type;
-                        
+
                         var aht_var = '/api/no_of_agents_AHT/'+self.aht_data_to_show + type + '&chart_name=63';
 
                         return $http({method:"GET", url: aht_var}).success(function(result){
@@ -3527,32 +5357,32 @@
                             var date_list = result.result.date;
                             var agent_count = result.result.aht_Num_data;
                             var is_annotation = result.result.is_annotation;
-                            
-                            
+
+
                             if (self.list_object.no_of_agents_AHT_daywise != undefined) {
 
                                 if(self.list_object.no_of_agents_AHT_daywise.legends_align == 'bottom') {
-                                
+
                                     var align = 'center';
                                     var ver_align = 'bottom';
                                     var layout = 'horizontal';
-                            
+
                                 }
-                            
+
                                 else if(self.list_object.no_of_agents_AHT_daywise.legends_align == 'left'){
-                            
+
                                     var align ='left';
                                     var ver_align = 'top';
                                     var layout = 'vertical';
                                 }
-                            
+
                                 else {
                                     var align = 'ight';
                                     var ver_align = 'top';
                                     var layout = 'vertical';
                                 }
                             }
-                            
+
                             else {
                                 var align = 'center';
                                 var ver_align = 'bottom';
@@ -3578,7 +5408,7 @@
                                           },
                                           allowPointSelect: true,
                                           cursor: 'pointer',
-                                            point: { 
+                                            point: {
                                               events:{
                                                 contextmenu: function() {
                                                  if (self.role_for_perm == 'customer') {
@@ -3613,7 +5443,7 @@
                                     var series = null;
                                     var chart_data = chart.series;
 
-                                    for(var i in chart_data){  
+                                    for(var i in chart_data){
                                         series = chart_data[i];
                                         (function(series){
                                           $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
@@ -3647,8 +5477,8 @@
                     }
 
 
-                    
-                    
+
+
                     self.Percentage_less_aht = function(final_work, type) {
 
                         if (type == undefined) {
@@ -3668,7 +5498,7 @@
                             var date_list = result.result.date;
                             var agent_count = result.result.aht_percentage;
                             var is_annotation = result.result.is_annotation;
- 
+
                             angular.extend(self.chartOptions69.yAxis,{
                                 min:result.result.min_max.min_value,
                                 max:result.result.min_max.max_value
@@ -3676,27 +5506,27 @@
                           if (self.list_object.percentage_people_67_and_99_achieved != undefined) {
 
                                 if(self.list_object.percentage_people_67_and_99_achieved.legends_align == 'bottom') {
-                                
+
                                     var align = 'center';
                                     var ver_align = 'bottom';
                                     var layout = 'horizontal';
-                            
+
                                 }
-                            
+
                                 else if(self.list_object.percentage_people_67_and_99_achieved.legends_align == 'left'){
-                            
+
                                     var align ='left';
                                     var ver_align = 'top';
                                     var layout = 'vertical';
                                 }
-                            
+
                                 else {
                                     var align = 'right';
                                     var ver_align = 'top';
                                     var layout = 'vertical';
                                 }
                             }
-                            
+
                             else {
                                 var align = 'center';
                                 var ver_align = 'bottom';
@@ -3712,8 +5542,8 @@
                                         align: align,
                                         verticalAlign:ver_align,
                                         layout: layout
-                                    }, 
-                              
+                                    },
+
                                     plotOptions: {
                                         series: {
                                           dataLabels: {
@@ -3726,7 +5556,7 @@
                                           },
                                           allowPointSelect: true,
                                           cursor: 'pointer',
-                                            point: { 
+                                            point: {
                                               events:{
                                                 contextmenu: function() {
                                                  if (self.role_for_perm == 'customer') {
@@ -3761,7 +5591,7 @@
                                     var series = null;
                                     var chart_data = chart.series;
 
-                                    for(var i in chart_data){  
+                                    for(var i in chart_data){
                                         series = chart_data[i];
                                         (function(series){
                                           $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
@@ -3812,9 +5642,9 @@
                             var date_list  = result.result.date;
                             var pre_scan_details = result.result.pre_scan_exception_data;
                             var is_annotation = result.result.is_annotation;
-                
+
                             if (self.list_object.pre_scan_exception_chart != undefined) {
-                        
+
                                 if (self.list_object.pre_scan_exception_chart.display_value === true) {
 
                                     var value = true;
@@ -3829,27 +5659,27 @@
                             if (self.list_object.pre_scan_exception_chart != undefined) {
 
                                 if(self.list_object.pre_scan_exception_chart.legends_align == 'bottom') {
-                                
+
                                     var align = 'center';
                                     var ver_align = 'bottom';
                                     var layout = 'horizontal';
-                            
+
                                 }
-                            
+
                                 else if(self.list_object.pre_scan_exception_chart.legends_align == 'left'){
-                            
+
                                     var align ='left';
                                     var ver_align = 'top';
                                     var layout = 'vertical';
                                 }
-                            
+
                                 else {
                                     var align = 'right';
                                     var ver_align = 'top';
                                     var layout = 'vertical';
                                 }
                             }
-                            
+
                             else {
                                 var align = 'center';
                                 var ver_align = 'bottom';
@@ -3884,7 +5714,7 @@
                                              }
                                              else {
 
-                                              if (self.data_to_show.split('&').length == 6) { 
+                                              if (self.data_to_show.split('&').length == 6) {
                                                 var sub_proj = '';
                                                 var work_pack = '';
                                                 var sub_pack = '';
@@ -3911,7 +5741,7 @@
                                                 var chart_name = self._pre_data;
                                                 self.data_value.forEach(function(value_data){
                                                     value_data.redraw(name, visibility);
-                                                });                                                
+                                                });
                                                 if (chart_name.indexOf(name) >= 0) {
                                                     $(document).find('.widget-35a').children(".widget-35b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 0);
                                                 }
@@ -3922,7 +5752,7 @@
                                                 var chart_name = self._pre_data;
                                                 self.data_value.forEach(function(value_data){
                                                     value_data.redraw(name, visibility);
-                                                });                                                
+                                                });
                                                 if (chart_name.indexOf(name) >= 0) {
                                                     $(document).find('.widget-35a').children(".widget-35b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 1);
                                                 }
@@ -3963,13 +5793,13 @@
                                     }(series));
                                 }
                                 }
-                              }  
+                              }
                             });
                             $('.widget-35a').removeClass('widget-loader-show');
                             $('.widget-35b').removeClass('widget-data-hide');
-                        }) 
+                        })
                     }
-        
+
                    self.nw_exce = function(final_work, type) {
 
                         if (type == undefined) {
@@ -3984,7 +5814,7 @@
                         var nw_exce = '/api/nw_exce/'+self.data_to_show + type + final_work + '&chart_name=37';
 
                         return $http({method:"GET", url: nw_exce}).success(function(result){
-                                                                    
+
                             var date_list  = result.result.date;
                             var nw_details = result.result.nw_exception_details;
                             var is_annotation = result.result.is_annotation;
@@ -3997,7 +5827,7 @@
                                 }
                                 else {
                                     var value = false;
-                                }   
+                                }
                             }
                             else {
                                 var value = false;
@@ -4043,7 +5873,7 @@
                                                 this['to'] = self.end_date;
                                                 return new Annotation(str, $(self.chartOptions42.chart.renderTo),this.series.chart, this);
                                                 }
-                                              }  
+                                              }
                                             }
                                         },
                                         events: {
@@ -4053,7 +5883,7 @@
                                                 var chart_name = self._nw_data;
                                                 self.Obj.forEach(function(value_data){
                                                     value_data.redraw(name, visibility);
-                                                });                                                
+                                                });
                                                 if (chart_name.indexOf(name) >= 0) {
                                                     $(document).find('.widget-37a').children(".widget-37b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 0);
                                                 }
@@ -4064,7 +5894,7 @@
                                                 var chart_name = self._nw_data;
                                                 self.Obj.forEach(function(value_data){
                                                     value_data.redraw(name, visibility);
-                                                });                                                
+                                                });
                                                 if (chart_name.indexOf(name) >= 0) {
                                                     $(document).find('.widget-37a').children(".widget-37b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 1);
                                                 }
@@ -4085,7 +5915,7 @@
                                     (function(series){
                                       $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
                       self.type+'&chart_name=37&project='+self.project_live+'&center='+
-                      self.center_live+'&from='+self.start_date+'&to='+self.end_date}).success(function(annotations){ 
+                      self.center_live+'&from='+self.start_date+'&to='+self.end_date}).success(function(annotations){
                            annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                            $.each(annotations, function(j, annotation){
 
@@ -4106,7 +5936,7 @@
                                     }(series));
                                 }
                                 }
-                              }  
+                              }
                             });
                             $('.widget-37a').removeClass('widget-loader-show');
                             $('.widget-37b').removeClass('widget-data-hide');
@@ -4117,7 +5947,7 @@
 
                         if (type == undefined) {
                             type = 'day'
-                        }   
+                        }
 
                         if (final_work == undefined) {
                             final_work = ''
@@ -4128,13 +5958,13 @@
                         var overall_exce = '/api/overall_exce/'+self.data_to_show + type + final_work + '&chart_name=36';
 
                         return $http({method:"GET", url: overall_exce}).success(function(result){
-                                                                    
+
                             var date_list  = result.result.date;
                             var overall_details = result.result.overall_exception_details;
                             var is_annotation = result.result.is_annotation;
 
                             if (self.list_object.overall_exception_chart != undefined) {
-                                
+
                                 if (self.list_object.overall_exception_chart.display_value === true) {
 
                                     var value = true;
@@ -4198,7 +6028,7 @@
                                                 var chart_name = self._overall;
                                                 self.Obj_val.forEach(function(value_data){
                                                     value_data.redraw(name, visibility);
-                                                });                                                
+                                                });
                                                 if (chart_name.indexOf(name) >= 0) {
                                                     $(document).find('.widget-36a').children(".widget-36b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 0);
                                                 }
@@ -4209,7 +6039,7 @@
                                                 var chart_name = self._overall;
                                                 self.Obj_val.forEach(function(value_data){
                                                     value_data.redraw(name, visibility);
-                                                });                                                
+                                                });
                                                 if (chart_name.indexOf(name) >= 0) {
                                                     $(document).find('.widget-36a').children(".widget-36b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 1);
                                                 }
@@ -4230,7 +6060,7 @@
                                     (function(series){
                                       $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
                       self.type+'&chart_name=36&project='+self.project_live+'&center='+
-                      self.center_live+'&from='+self.start_date+'&to='+self.end_date}).success(function(annotations){ 
+                      self.center_live+'&from='+self.start_date+'&to='+self.end_date}).success(function(annotations){
                            annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                            $.each(annotations, function(j, annotation){
 
@@ -4257,7 +6087,7 @@
                             $('.widget-36b').removeClass('widget-data-hide');
                         })
                     }
-                
+
                     self.upload_acc = function(final_work, type) {
 
                         if (type == undefined) {
@@ -4281,10 +6111,10 @@
                             if (self.list_object.target_upload_graph != undefined) {
 
                                 if (self.list_object.target_upload_graph.display_value === true) {
-                                    
+
                                     var value = true;
                                 }
-                                
+
                                 else {
                                     var value = false;
                                 }
@@ -4334,7 +6164,7 @@
                                                 this['to'] = self.end_date;
                                                 return new Annotation(str, $(self.chartOptions39.chart.renderTo),this.series.chart, this);
                                                 }
-                                              }  
+                                              }
                                             }
                                         }
                                     }
@@ -4351,7 +6181,7 @@
                                     (function(series){
                                       $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
                       self.type+'&chart_name=34&project='+self.project_live+'&center='+
-                      self.center_live+'&from='+self.start_date+'&to='+self.end_date}).success(function(annotations){ 
+                      self.center_live+'&from='+self.start_date+'&to='+self.end_date}).success(function(annotations){
                            annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                            $.each(annotations, function(j, annotation){
 
@@ -4375,7 +6205,7 @@
                             $('.widget-34b').removeClass('widget-data-hide');
                         })
                     }
-                
+
             self.error_field_graph = function(err_field_graph){
 
                        if (self.err_field.length == 1) {
@@ -4395,14 +6225,14 @@
                                 }
                                 else {
                                     var value = false;
-                                }                                       
+                                }
                             }
                             else {
                                 var value = false;
                             }
 
                            angular.extend(self.chartOptions43,{
-                                plotOptions: { 
+                                plotOptions: {
                                     series: {
                                       dataLabels: {
                                         enabled: value,
@@ -4457,7 +6287,7 @@
                                     (function(series){
                                       $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
                       self.type+'&chart_name=38&project='+self.project_live+'&center='+
-                      self.center_live+'&from='+self.start_date+'&to='+self.end_date+'&chart_type=bar'}).success(function(annotations){  
+                      self.center_live+'&from='+self.start_date+'&to='+self.end_date+'&chart_type=bar'}).success(function(annotations){
                            annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                            $.each(annotations, function(j, annotation){
 
@@ -4470,12 +6300,12 @@
                                     chart, point, annotation);
                                self.annot_perm();
                                }
-                           })   
+                           })
                                     });
                                     }(series));
                                 }
                                 }
-                              }  
+                              }
                            });
                             $('.widget-38a').removeClass('widget-loader-show');
                             $('.widget-38b').removeClass('widget-data-hide');
@@ -4491,7 +6321,7 @@
 
                                     var value = true;
                                 }
-                                
+
                                 else {
                                     var value = false;
                                 }
@@ -4501,7 +6331,7 @@
                             }
 
                            angular.extend(self.chartOptions44,{
-                                plotOptions: { 
+                                plotOptions: {
                                     series: {
                                       dataLabels: {
                                          enabled: value,
@@ -4536,7 +6366,7 @@
                                                 return new Annotation(str, $(self.chartOptions44.chart.renderTo),this.series.chart, this);
                                                 }
                                             }
-                                           } 
+                                           }
                                         }
                                     }
                                 },
@@ -4556,7 +6386,7 @@
                                     (function(series){
                                       $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
                       self.type+'&chart_name=39&project='+self.project_live+'&center='+
-                      self.center_live+'&from='+self.start_date+'&to='+self.end_date+'&chart_type=bar'}).success(function(annotations){  
+                      self.center_live+'&from='+self.start_date+'&to='+self.end_date+'&chart_type=bar'}).success(function(annotations){
                            annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                            $.each(annotations, function(j, annotation){
 
@@ -4570,7 +6400,7 @@
                                window.annotObj = a;
                                self.annot_perm();
                                }
-                           })   
+                           })
                                     });
                                     }(series));
                                 }
@@ -4584,7 +6414,7 @@
             }
 
             self.error_bar_graph = function(error_bar_graph){
-                            
+
                            if (self.bar_acc.length == 1) {
                            return $http({method:"GET", url: error_bar_graph + '&chart_name=2&chart_name=3'}).success(function(result){
                             var is_annotation = result.result.is_annotation;
@@ -4664,7 +6494,7 @@
                                     (function(series){
                                       $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
                       self.type+'&chart_name=2&project='+self.project_live+'&center='+
-                      self.center_live+'&from='+self.start_date+'&to='+self.end_date+'&chart_type=bar'}).success(function(annotations){  
+                      self.center_live+'&from='+self.start_date+'&to='+self.end_date+'&chart_type=bar'}).success(function(annotations){
                            annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                            $.each(annotations, function(j, annotation){
 
@@ -4683,7 +6513,7 @@
                                     }(series));
                                 }
                                 }
-                              }   
+                              }
                            });
                            $('.widget-2a').removeClass('widget-loader-show');
                            $('.widget-2b').removeClass('widget-data-hide');
@@ -4766,7 +6596,7 @@
                                     (function(series){
                                       $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
                       self.type+'&chart_name=3&project='+self.project_live+'&center='+
-                      self.center_live+'&from='+self.start_date+'&to='+self.end_date+'&chart_type='+'bar'}).success(function(annotations){  
+                      self.center_live+'&from='+self.start_date+'&to='+self.end_date+'&chart_type='+'bar'}).success(function(annotations){
                            annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                            $.each(annotations, function(j, annotation){
 
@@ -4786,7 +6616,7 @@
                                     }(series));
                                 }
                                 }
-                              }  
+                              }
                            });
                            $('.widget-3a').removeClass('widget-loader-show');
                            $('.widget-3b').removeClass('widget-data-hide');
@@ -4823,7 +6653,7 @@
                             var is_annotation = result.result.is_annotation;
 
                             if ((name == "self.chartOptions9_2") || (name == "")) {
-                            
+
                                 if (self.list_object.external_accuracy_timeline != undefined) {
 
                                     if (self.list_object.external_accuracy_timeline.display_value === true) {
@@ -4832,7 +6662,7 @@
                                     }
                                     else {
                                         var value = false;
-                                    }  
+                                    }
                                 }
                                 else {
                                     var value = false;
@@ -4882,7 +6712,7 @@
                                                     this['to'] = self.end_date;
                                                     return new Annotation(str, $(self.chartOptions9_2.chart.renderTo),this.series.chart, this);
                                                     }
-                                                  }  
+                                                  }
                                                 }
                                             },
                                             events: {
@@ -4892,7 +6722,7 @@
                                                     var chart_name = self._accuracy_lines;
                                                     self.Obj_data.forEach(function(value_data){
                                                         value_data.redraw(name, visibility);
-                                                    });                                                    
+                                                    });
                                                     if (chart_name.indexOf(name) >= 0) {
                                                         $(document).find('.widget-7a').children(".widget-7b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 0);
                                                     }
@@ -4903,7 +6733,7 @@
                                                     var chart_name = self._accuracy_lines;
                                                     self.Obj_data.forEach(function(value_data){
                                                         value_data.redraw(name, visibility);
-                                                    });                                                    
+                                                    });
                                                     if (chart_name.indexOf(name) >= 0) {
                                                         $(document).find('.widget-7a').children(".widget-7b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 1);
                                                     }
@@ -4982,7 +6812,7 @@
                                           allowPointSelect: true,
                                           cursor: 'pointer',
                                             point: {
-                                              events:{ 
+                                              events:{
                                                 contextmenu: function() {
                                                  if (self.role_for_perm == 'customer') {
 
@@ -5017,7 +6847,7 @@
                                                     var chart_name = self._accu_intrnl;
                                                     self.annotObj.forEach(function(value_data){
                                                         value_data.redraw(name, visibility);
-                                                    });                                                    
+                                                    });
                                                     if (chart_name.indexOf(name) >= 0) {
                                                         $(document).find('.widget-8a').children(".widget-8b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 0);
                                                     }
@@ -5028,7 +6858,7 @@
                                                     var chart_name = self._accu_intrnl;
                                                     self.annotObj.forEach(function(value_data){
                                                         value_data.redraw(name, visibility);
-                                                    });                                                    
+                                                    });
                                                     if (chart_name.indexOf(name) >= 0) {
                                                         $(document).find('.widget-8a').children(".widget-8b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 1);
                                                     }
@@ -5049,7 +6879,7 @@
                                         self.annotObj = [];
                                         (function(series){
                                           $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+self.type+'&chart_name=8&project='+self.project_live+'&center='+
-                                           self.center_live+'&from='+self.start_date+'&to='+self.end_date}).success(function(annotations){  
+                                           self.center_live+'&from='+self.start_date+'&to='+self.end_date}).success(function(annotations){
                                annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
                                $.each(annotations, function(j, annotation){
 
@@ -5071,7 +6901,7 @@
                                         }(series));
                                     }
                                     }
-                                  }  
+                                  }
                                 });
                                 $('.widget-8a').removeClass('widget-loader-show');
                                 $('.widget-8b').removeClass('widget-data-hide');
@@ -5084,121 +6914,121 @@
 
         var static_ajax = static_data + self.static_widget_data;
         self.static_data_call = function(static_ajax){
-                
+
             if (self.list_object.Static_Monthly_Production_Trend != undefined) {
 
                 if(self.list_object.Static_Monthly_Production_Trend.legends_align == 'bottom') {
-                
-                    var align1 = "center";                    
+
+                    var align1 = "center";
                     var ver_align1 = "bottom";
                     var layout1 = "horizontal";
-            
+
                 }
-            
+
                 else if(self.list_object.Static_Monthly_Production_Trend.legends_align == 'left'){
-            
+
                     var align1 = "left";
                     var ver_align1 = "top";
                     var layout1 = "vertical";
                 }
-            
+
                 else {
                     var align1 = "right";
                     var ver_align1 = "top";
                     var layout1 = "vertical";
                 }
             }
-            
+
             else {
                 var align1 = "center";
                 var ver_align1 = "bottom";
                 var layout1 = "horizontal";
-            }  
-            
+            }
+
             if (self.list_object.Static_Weekly_Production_Trend != undefined) {
 
                 if(self.list_object.Static_Weekly_Production_Trend.legends_align == 'bottom') {
-                
+
                     var align2 = "center";
                     var ver_align2 = "bottom";
                     var layout2 = "horizontal";
-            
+
                 }
-            
+
                 else if(self.list_object.Static_Weekly_Production_Trend.legends_align == 'left'){
-            
+
                     var align2 = "left";
                     var ver_align2 = "top";
                     var layout2 = "vertical";
                 }
-            
+
                 else {
                     var align2 = "right";
                     var ver_align2 = "top";
                     var layout2 = "vertical";
                 }
             }
-            
+
             else {
                 var align2 = "center";
                 var ver_align2 = "bottom";
                 var layout2 = "horizontal";
             }
-            
+
             if (self.list_object.Static_Daily_Production_Trend != undefined) {
 
                 if(self.list_object.Static_Daily_Production_Trend.legends_align == 'bottom') {
-                
+
                     var align3 = "center";
                     var ver_align3 = "bottom";
                     var layout3 = "horizontal";
-            
+
                 }
-            
+
                 else if(self.list_object.Static_Daily_Production_Trend.legends_align == 'left'){
-            
+
                     var align3 = "left";
                     var ver_align3 = "top";
                     var layout3 = "vertical";
                 }
-            
+
                 else {
                     var align3 = "right";
                     var ver_align3 = "top";
                     var layout3 = "vertical";
                 }
             }
-            
+
             else {
                 var align3 = "center";
                 var ver_align3 = "bottom";
                 var layout3 = "horizontal";
             }
-            
+
             if (self.list_object.Static_Daily_Production_Bar != undefined) {
 
                 if(self.list_object.Static_Daily_Production_Bar.legends_align == 'bottom') {
-                
+
                     var align4 = "center";
                     var ver_align4 = "bottom";
                     var layout4 = "horizontal";
-            
+
                 }
-            
+
                 else if(self.list_object.Static_Daily_Production_Bar.legends_align == 'left'){
-            
+
                     var align4 = "left";
                     var ver_align4 = "top";
                     var layout4 = "vertical";
                 }
-            
+
                 else {
                     var align4 = "right";
                     var ver_align4 = "top";
                     var layout4 = "vertical";
                 }
             }
-            
+
             else {
                 var align4 = "center";
                 var ver_align4 = "bottom";
@@ -5208,27 +7038,27 @@
             if (self.list_object.Static_Weekly_Production_Bar != undefined) {
 
                 if(self.list_object.Static_Weekly_Production_Bar.legends_align == 'bottom') {
-                
+
                     var align5 = "center";
                     var ver_align5 = "bottom";
                     var layout5 = "horizontal";
-            
+
                 }
-            
+
                 else if(self.list_object.Static_Weekly_Production_Bar.legends_align == 'left'){
-            
+
                     var align5 = "left";
                     var ver_align5 = "top";
                     var layout5 = "vertical";
                 }
-            
+
                 else {
                     var align5 = "right";
                     var ver_align5 = "top";
                     var layout5 = "vertical";
                 }
             }
-            
+
             else {
                 var align5 = "center";
                 var ver_align5 = "bottom";
@@ -5238,34 +7068,34 @@
             if (self.list_object.Static_Monthly_Production_Bar != undefined) {
 
                 if(self.list_object.Static_Monthly_Production_Bar.legends_align == 'bottom') {
-                
+
                     var align6 = "center";
                     var ver_align6 = "bottom";
                     var layout6 = "horizontal";
-            
+
                 }
-            
+
                 else if(self.list_object.Static_Monthly_Production_Bar.legends_align == 'left'){
-            
+
                     var align6 = "left";
                     var ver_align6 = "top";
                     var layout6 = "vertical";
                 }
-            
+
                 else {
                     var align6 = "right";
                     var ver_align6 = "top";
                     var layout6 = "vertical";
                 }
             }
-            
+
             else {
                 var align6 = "center";
                 var ver_align6 = "bottom";
                 var layout6 = "horizontal";
             }
             if (self.stacti_list.length == 1) {
-                
+
                 $http({method:"GET", url:static_ajax}).success(function(result){
                     angular.extend(self.chartOptions32, {
                         xAxis: {
@@ -5278,11 +7108,11 @@
                             verticalAlign:ver_align1,
                             layout: layout1
                         },
-                
+
                        },
 
                        series: result.result.month_productivity_data.data
-                    });                   
+                    });
                     $('.widget-27a').removeClass('widget-loader-show');
                     $('.widget-27b').removeClass('widget-data-hide');
 
@@ -5370,7 +7200,7 @@
                             verticalAlign:ver_align6,
                             layout: layout6
                         },
-                       
+
 
                        series: result.result.month_productivity_data.data
                     });
@@ -5393,12 +7223,12 @@
             self.utili_list = [];
             if (self.is_voice_flag == false) {
                 var sort_array = [];
-                var final_array = []; 
+                var final_array = [];
                 for (var key in self.list_object) {
                      sort_array.push({key:key,value:self.list_object[key].widget_priority});
                 }
-                
-                
+
+
                sort_array.sort(function(x,y){return x.value - y.value});
                 var values_array = [];
                 sort_array.forEach( function (eachObj){
@@ -5406,12 +7236,12 @@
                         values_array.push(eachObj.key);
                     }
                 });
- 
+
                  var names = values_array;
                  var uniqueNames = [];
                  $.each(names, function(i, el){
                      if($.inArray(el, uniqueNames) === -1) uniqueNames.push(el);
-                 }); 
+                 });
 
                 $.each(uniqueNames, function (key, val) {
                     if ((val == 'productivity_chart') || (val == 'productivity_bar_graph')) {
@@ -5449,6 +7279,26 @@
                          self.error_bar_graph(error_bar_graph)
                     } else if (val == 'productivity_trends') {
                          self.productivity(undefined, undefined)
+                    } else if (val == 'valid_customer_approved') {
+                         self.Valid_cust_approv(undefined, undefined)
+                    } else if (val == 'invalid_customer_reject') {
+                         self.Invalid_cust_reject(undefined, undefined)
+                    } else if (val == 'data_entry_done_aht') {
+                         self.Data_Entry_AHT(undefined, undefined)
+                    } else if (val == 'data_entry_volume') {
+                         self.Data_Entry_Volume(undefined, undefined)
+                    } else if (val == 'pre_populated_aht') {
+                         self.Pre_Populated_AHT(undefined, undefined)
+                    } else if (val == 'pre_populated_volume') {
+                         self.Pre_Populated_Volume(undefined, undefined)
+                    } else if (val == 'aht_comparison') {
+                         self.Customer_AHT_Comparison(undefined, undefined)
+                    } else if (val == 'volume_comparison') {
+                         self.Customer_Volume_Comparison(undefined, undefined)
+                    } else if (val == 'time_busy_percentage') {
+                         self.Time_Busy_Percentage(undefined, undefined)
+                    } else if (val == 'time_ready_percentage') {
+                         self.Time_Ready_Percentage(undefined, undefined)
                     } else if (val == 'monthly_volume_widget') {
                          self.mont_volume(undefined, undefined)
                     } else if (val == 'production_avg_perday') {
@@ -5478,7 +7328,7 @@
         }
 
              self.packet_data = $http.get(self.pro_landing_url).then(function(result){
-                
+
                 self.list_object = result.data.result.lay[0];
                 self.layout_list = result.data.result.lay[1].layout;
                 self.user_status = result.data.result.user_status;
@@ -5491,10 +7341,10 @@
                 self.voice_skill = result.data.result.skill;
                 self.voice_disposition = result.data.result.disposition;
 
-                var pro_cen_nam = $state.params.selpro;                                                                                           
+                var pro_cen_nam = $state.params.selpro;
                 self.call_back = [];
 
-                self.first = result.data.result.dates.from_date;                                                                                       
+                self.first = result.data.result.dates.from_date;
                 self.last = result.data.result.dates.to_date;
 
                 self.start = self.first;
@@ -5569,7 +7419,18 @@
                     'self.chartOptions65':self.chartOptions65,
                     "self.chartOptions68":self.chartOptions68,
                     "self.chartOptions69":self.chartOptions69,
-                    "self.chartOptions70":self.chartOptions70
+                    "self.chartOptions70":self.chartOptions70,
+                    "self.chartOptions83":self.chartOptions83,
+                    "self.chartOptions84":self.chartOptions84,
+                    "self.chartOptions85":self.chartOptions85,
+                    "self.chartOptions86":self.chartOptions86,
+                    "self.chartOptions87":self.chartOptions87,
+                    "self.chartOptions88":self.chartOptions88,
+                    "self.chartOptions89":self.chartOptions89,
+                    "self.chartOptions90":self.chartOptions90,
+                    "self.chartOptions91":self.chartOptions91,
+                    "self.chartOptions92":self.chartOptions92,
+
                   };
 
 
@@ -5594,7 +7455,7 @@
                 }
                 self.call_back.push(self.location);
                 self.call_back.push(self.project);
-             
+
                 return self.call_back;
 
            }).then(function(callback){
@@ -5602,7 +7463,7 @@
                                                                 self.drop_work_pack;
                     self.voiceTypeFilter = function(key, make_ajax) {
                         if (key != '') {
-                            self.voiceProjectType = key; 
+                            self.voiceProjectType = key;
                         }
                         var myElement = document.querySelector("#cal_data");
                         myElement.style.marginTop = "25px";
@@ -5627,7 +7488,7 @@
                             $http.get(packet_url).then(function(result) {
                                 self.chartProcess(result);
                                 self.checkScroll();
-                            }) 
+                            })
                         }
                     }
 
@@ -5690,7 +7551,7 @@
                                     self.locationValue = self.voice_location;
                                     self.skillValue = self.voice_skill;
                                     self.dispositionValue = self.voice_disposition;
-                                    
+
                                 } else {
                                     self.locationValue = 'All';
                                     self.skillValue = 'All';
@@ -5789,7 +7650,7 @@
                                             if(type_check == 'outbound') {
                                                 $(widgetA).parent().hide();
                                             } else {
-                                                $(widgetA).parent().show();    
+                                                $(widgetA).parent().show();
                                             }
                                         }
                                         if (self.voiceProjectType == 'outbound') {
@@ -5877,7 +7738,7 @@
                             if (result.data.result.fin.sub_project) {
                                 console.log('sub_projet_exist');
                             }
-                            else {   
+                            else {
                                 $('#2').hide();
                                 if (result.data.result.fin.work_packet) {
                                     console.log('work_packet_exist');
@@ -5894,7 +7755,7 @@
                                 }
                             else {
                                     $('#2').hide();
-                              }   
+                              }
 
                         for (var sub_pro in self.drop_list) {
                             self.sub_pro_sel.options[self.sub_pro_sel.options.length] = new Option(sub_pro, sub_pro);
@@ -5940,7 +7801,7 @@
 
                 if ((result.data.result.fin.sub_project) && (result.data.result.fin.work_packet)){
                 $('#0').on('change', function(){
-                    self.apply_class();   
+                    self.apply_class();
                     self.add_loader();
                     self.drop_sub_proj = this.value;
                     self.drop_work_pack = self.wor_pac_sel.value;
@@ -5956,10 +7817,10 @@
                     var project_check = pro_cen_nam.split('-')[1].replace(' ','');
                     var project_val = project_check.search('&');
                     if (project_val != -1) {
-                        self.project = pro_cen_nam.split('-')[1].split('&')[0].replace(' ','');    
-                    }               
+                        self.project = pro_cen_nam.split('-')[1].split('&')[0].replace(' ','');
+                    }
                     else {
-                        self.project = pro_cen_nam.split('-')[1].replace(' ','');    
+                        self.project = pro_cen_nam.split('-')[1].replace(' ','');
                     }
                     self.call_back.push(self.location);
                     self.call_back.push(self.project);
@@ -5987,10 +7848,10 @@
                     var project_check = pro_cen_nam.split('-')[1].replace(' ','');
                     var project_val = project_check.search('&');
                     if (project_val != -1) {
-                        self.project = pro_cen_nam.split('-')[1].split('&')[0].replace(' ','');    
+                        self.project = pro_cen_nam.split('-')[1].split('&')[0].replace(' ','');
                     }
                     else {
-                        self.project = pro_cen_nam.split('-')[1].replace(' ','');    
+                        self.project = pro_cen_nam.split('-')[1].replace(' ','');
                     }
                     self.call_back.push(self.location);
                     self.call_back.push(self.project);
@@ -6019,10 +7880,10 @@
                     var project_check = pro_cen_nam.split('-')[1].replace(' ','');
                     var project_val = project_check.search('&');
                     if (project_val != -1) {
-                        self.project = pro_cen_nam.split('-')[1].split('&')[0].replace(' ','');    
+                        self.project = pro_cen_nam.split('-')[1].split('&')[0].replace(' ','');
                     }
                     else {
-                         self.project = pro_cen_nam.split('-')[1].replace(' ','');    
+                         self.project = pro_cen_nam.split('-')[1].replace(' ','');
                     }
                     self.call_back.push(self.location);
                     self.call_back.push(self.project);
@@ -6040,7 +7901,7 @@
 
                 $('#0').on('change', function(){
 
-                    self.apply_class();                        
+                    self.apply_class();
                     self.add_loader();
                     self.drop_work_pack = this.value;
                     self.drop_sub_proj = 'undefined';
@@ -6056,10 +7917,10 @@
                     var project_check = pro_cen_nam.split('-')[1].replace(' ','');
                     var project_val = project_check.search('&');
                     if (project_val != -1) {
-                        self.project = pro_cen_nam.split('-')[1].split('&')[0].replace(' ','');    
+                        self.project = pro_cen_nam.split('-')[1].split('&')[0].replace(' ','');
                     }
                     else {
-                         self.project = pro_cen_nam.split('-')[1].replace(' ','');    
+                         self.project = pro_cen_nam.split('-')[1].replace(' ','');
                     }
                     self.call_back.push(self.location);
                     self.call_back.push(self.project);
@@ -6070,7 +7931,7 @@
                 });
 
                 $('#1').on('change', function(){
-                    self.apply_class();   
+                    self.apply_class();
                     self.add_loader();
                     self.drop_sub_pack = this.value;
                     self.drop_sub_proj = 'undefined';
@@ -6086,10 +7947,10 @@
                     var project_check = pro_cen_nam.split('-')[1].replace(' ','');
                     var project_val = project_check.search('&');
                     if (project_val != -1) {
-                        self.project = pro_cen_nam.split('-')[1].split('&')[0].replace(' ','');    
+                        self.project = pro_cen_nam.split('-')[1].split('&')[0].replace(' ','');
                     }
                     else {
-                         self.project = pro_cen_nam.split('-')[1].replace(' ','');    
+                         self.project = pro_cen_nam.split('-')[1].replace(' ','');
                     }
                     self.call_back.push(self.location);
                     self.call_back.push(self.project);
@@ -6099,8 +7960,8 @@
                 });
                 }
                 else {
-                if (result.data.result.fin.work_packet){ 
-                    $('#0').on('change', function(){ 
+                if (result.data.result.fin.work_packet){
+                    $('#0').on('change', function(){
                         self.apply_class();
                         self.add_loader();
                         self.drop_work_pack = this.value;
@@ -6110,7 +7971,7 @@
                         dateEntered = dateEntered.replace(' to ','to');
                         var from = dateEntered.split('to')[0].replace(' ','');
                         var to = dateEntered.split('to')[1].replace(' ','');
-                        var placeholder = '' 
+                        var placeholder = ''
                         self.call_back = [];
                         self.call_back.push(from);
                         self.call_back.push(to);
@@ -6118,15 +7979,15 @@
                         var project_check = pro_cen_nam.split('-')[1].replace(' ','');
                         var project_val = project_check.search('&');
                         if (project_val != -1) {
-                            self.project = pro_cen_nam.split('-')[1].split('&')[0].replace(' ','');    
+                            self.project = pro_cen_nam.split('-')[1].split('&')[0].replace(' ','');
                         }
                         else {
-                             self.project = pro_cen_nam.split('-')[1].replace(' ','');    
+                             self.project = pro_cen_nam.split('-')[1].replace(' ','');
                         }
                         self.call_back.push(self.location);
                         self.call_back.push(self.project);
 
-                        var final_work =  '&sub_project=' + self.drop_sub_proj + '&sub_packet=' + self.drop_sub_pack + '&work_packet=' + 
+                        var final_work =  '&sub_project=' + self.drop_sub_proj + '&sub_packet=' + self.drop_sub_pack + '&work_packet=' +
                                             self.drop_work_pack;
                         self.main_widget_function(self.call_back, final_work);
 
@@ -6142,7 +8003,7 @@
                     self.drop_sub_pack = 'undefined';
                 }
              }
-                    
+
                 if((self.work_packet != '') || (self.sub_packet != '') || (self.sub_project != '')) {
                     self.apply_class();
                     self.add_loader();
@@ -6185,7 +8046,7 @@
                             $('#1').val(self.drop_work_pack);
                             $('#2').val(self.drop_sub_pack);
                        }
-                }           
+                }
                 else {
                     self.main_widget_function(self.call_back, '');
                 }
@@ -6197,7 +8058,7 @@
                 self.dateType = function(key,all_data,name,button_clicked){
 
                 self.call_back = callback;
-                
+
                 var obj = {
                     "self.chartOptions10":self.chartOptions10,
                     "self.chartOptions17":self.chartOptions17,
@@ -6247,14 +8108,24 @@
                     'self.chartOptions65':self.chartOptions65,
                     'self.chartOptions68':self.chartOptions68,
                     "self.chartOptions69":self.chartOptions69,
-                    "self.chartOptions70":self.chartOptions70
+                    "self.chartOptions70":self.chartOptions70,
+                    "self.chartOptions83":self.chartOptions83,
+                    "self.chartOptions84":self.chartOptions84,
+                    "self.chartOptions85":self.chartOptions85,
+                    "self.chartOptions86":self.chartOptions86,
+                    "self.chartOptions87":self.chartOptions87,
+                    "self.chartOptions88":self.chartOptions88,
+                    "self.chartOptions89":self.chartOptions89,
+                    "self.chartOptions90":self.chartOptions90,
+                    "self.chartOptions91":self.chartOptions91,
+                    "self.chartOptions92":self.chartOptions92,
                 }
 
                 self.render_data = obj[all_data];
 
                 self.button_clicked = button_clicked;
 
-                var final_work =  '&sub_project=' + self.drop_sub_proj + '&sub_packet=' + self.drop_sub_pack + '&work_packet=' + 
+                var final_work =  '&sub_project=' + self.drop_sub_proj + '&sub_packet=' + self.drop_sub_pack + '&work_packet=' +
                                   self.drop_work_pack + '&is_clicked=' + self.button_clicked;
 
                 if ((name == 'chartOptions17') || (name == 'chartOptions18')) {
@@ -6267,7 +8138,7 @@
                         $('.widget-13a').addClass('widget-loader-show');
                         $('.widget-13b').addClass('widget-data-hide');
                     }
-                    self.allo_and_comp(final_work, key, all_data); 
+                    self.allo_and_comp(final_work, key, all_data);
                 }
                 if ((name == 'chartOptions25') || (name == 'chartOptions15') || (name == 'chartOptions24')) {
                     if (name == 'chartOptions25') {
@@ -6305,7 +8176,7 @@
                     $('.widget-21b').addClass('widget-data-hide');
                     self.mont_volume(final_work, key);
                 }
-                
+
                 if ((name == 'chartOptions16') || (name == 'chartOptions16_2')) {
                     if (name == 'chartOptions16') {
                         $('.widget-11a').addClass('widget-loader-show');
@@ -6332,13 +8203,13 @@
                 if ((name == 'chartOptions9_2') || (name == 'chartOptions9')) {
                     if (name == 'chartOptions9') {
                        $('.widget-8a').addClass('widget-loader-show');
-                       $('.widget-8b').addClass('widget-data-hide');        
+                       $('.widget-8b').addClass('widget-data-hide');
                     }
                     if (name == 'chartOptions9_2') {
                     $('.widget-7a').addClass('widget-loader-show');
                     $('.widget-7b').addClass('widget-data-hide');
                     }
-                        self.from_to(final_work, key, all_data);        
+                        self.from_to(final_work, key, all_data);
                 }
 
                 if (name == 'chartOptions40') {
@@ -6376,6 +8247,72 @@
                     $('.widget-64b').addClass('widget-data-hide');
                     self.Percentage_less_aht(final_work, key);
                 }
+
+                if (name == 'chartOptions83') {
+                    $('.widget-78a').addClass('widget-loader-show');
+                    $('.widget-78b').addClass('widget-data-hide');
+                    self.Valid_cust_approv(final_work, key);
+                }
+
+                if (name == 'chartOptions84') {
+                    $('.widget-79a').addClass('widget-loader-show');
+                    $('.widget-79b').addClass('widget-data-hide');
+                    self.Invalid_cust_reject(final_work, key);
+                }
+
+                if (name == 'chartOptions85') {
+                    $('.widget-80a').addClass('widget-loader-show');
+                    $('.widget-80b').addClass('widget-data-hide');
+                    self.Data_Entry_AHT(final_work, key);
+                }
+
+                if (name == 'chartOptions87') {
+                    $('.widget-82a').addClass('widget-loader-show');
+                    $('.widget-82b').addClass('widget-data-hide');
+                    self.Pre_Populated_AHT(final_work, key);
+                }
+
+                if (name == 'chartOptions86') {
+                    $('.widget-81a').addClass('widget-loader-show');
+                    $('.widget-81b').addClass('widget-data-hide');
+                    self.Data_Entry_Volume(final_work, key);
+                }
+
+                if (name == 'chartOptions88') {
+                    $('.widget-83a').addClass('widget-loader-show');
+                    $('.widget-83b').addClass('widget-data-hide');
+                    self.Pre_Populated_Volume(final_work, key);
+                }
+
+                if (name == 'chartOptions89') {
+                    $('.widget-84a').addClass('widget-loader-show');
+                    $('.widget-84b').addClass('widget-data-hide');
+                    self.Customer_AHT_Comparison(final_work, key);
+                }
+
+                if (name == 'chartOptions90') {
+                    $('.widget-85a').addClass('widget-loader-show');
+                    $('.widget-85b').addClass('widget-data-hide');
+                    self.Customer_Volume_Comparison(final_work, key);
+                }
+
+                if (name == 'chartOptions91') {
+                    $('.widget-86a').addClass('widget-loader-show');
+                    $('.widget-86b').addClass('widget-data-hide');
+                    self.Time_Busy_Percentage(final_work, key);
+                }
+
+                if (name == 'chartOptions92') {
+                    $('.widget-87a').addClass('widget-loader-show');
+                    $('.widget-87b').addClass('widget-data-hide');
+                    self.Time_Ready_Percentage(final_work, key);
+                }
+
+
+
+
+
+
                 var chart_type_map = {};
                 chart_type_map = { 'chartOptions47' : self.filter_list[0], 'chartOptions48' : self.filter_list[1] , 'chartOptions49' : self.filter_list[2], 'chartOptions50' : self.filter_list[3], 'chartOptions51' : self.filter_list[4], 'chartOptions52' : self.filter_list[5], 'chartOptions53' : self.filter_list[6], 'chartOptions54' : self.filter_list[7], 'chartOptions55' : self.filter_list[8], 'chartOptions56' : self.filter_list[9], 'chartOptions57' : self.filter_list[10], 'chartOptions58' : self.filter_list[11], 'chartOptions59': self.filter_list[12], 'chartOptions60': self.filter_list[13], 'chartOptions61': self.filter_list[14], 'chartOptions62': self.filter_list[15], 'chartOptions63': self.filter_list[16], 'chartOptions64': self.filter_list[17] };
                 if( self.is_voice_flag ) {
@@ -6383,11 +8320,11 @@
                             self.ajaxVoiceFilter(chart_type_map[name], key);
                         }
                     }
-             }                    
+             }
 
              self.active_filters = function(key,button_clicked){
                 self.button_clicked = button_clicked;
-                var some = '' 
+                var some = ''
                 if (key == 'day') { some = 'Day';}
                 if (key == 'week') { some = 'Week';}
                 if (key == 'month') { some = 'Month';}
@@ -6414,39 +8351,39 @@
                         self.day_type = key;
                         voice_filter_calls();
                     } else {
-                
-                        $('.widget-17a').addClass('widget-loader-show');    
+
+                        $('.widget-17a').addClass('widget-loader-show');
                         $('.widget-17b').addClass('widget-data-hide');
-                        $('.widget-13a').addClass('widget-loader-show');        
+                        $('.widget-13a').addClass('widget-loader-show');
                         $('.widget-13b').addClass('widget-data-hide');
 
                         self.allo_and_comp(final_work, key);
 
-                        $('.widget-20a').addClass('widget-loader-show');    
+                        $('.widget-20a').addClass('widget-loader-show');
                         $('.widget-20b').addClass('widget-data-hide');
-                        $('.widget-19a').addClass('widget-loader-show');    
+                        $('.widget-19a').addClass('widget-loader-show');
                         $('.widget-19b').addClass('widget-data-hide');
-                        $('.widget-9a').addClass('widget-loader-show');    
+                        $('.widget-9a').addClass('widget-loader-show');
                         $('.widget-9b').addClass('widget-data-hide');
 
                         self.utill_all(final_work, key);
 
-                        $('.widget-14a').addClass('widget-loader-show');     
+                        $('.widget-14a').addClass('widget-loader-show');
                         $('.widget-14b').addClass('widget-data-hide');
 
                         self.productivity(final_work, key);
 
-                        $('.widget-63a').addClass('widget-loader-show');     
+                        $('.widget-63a').addClass('widget-loader-show');
                         $('.widget-63b').addClass('widget-data-hide');
 
                         self.No_of_agents_AHT(final_work, key);
 
-                        $('.widget-64a').addClass('widget-loader-show');     
+                        $('.widget-64a').addClass('widget-loader-show');
                         $('.widget-64b').addClass('widget-data-hide');
 
                         self.Percentage_less_aht(final_work, key);
 
-                        $('.widget-33a').addClass('widget-loader-show');   
+                        $('.widget-33a').addClass('widget-loader-show');
                         $('.widget-33b').addClass('widget-data-hide');
 
                         self.prod_avg(final_work, key);
@@ -6456,62 +8393,114 @@
 
                         self.tat_data(final_work, key);
 
-                        
+
                         $('.widget-60a').addClass('widget-loader-show');
                         $('.widget-60b').addClass('widget-data-hide');
-                    
+
                         self.aht_data(final_work, key);
-            
-                        $('.widget-21a').addClass('widget-loader-show');     
+
+                        $('.widget-21a').addClass('widget-loader-show');
                         $('.widget-21b').addClass('widget-data-hide');
 
                         self.mont_volume(final_work, key);
 
-                        $('.widget-11a').addClass('widget-loader-show');    
+                        $('.widget-11a').addClass('widget-loader-show');
                         $('.widget-11b').addClass('widget-data-hide');
-                        $('.widget-12a').addClass('widget-loader-show');   
+                        $('.widget-12a').addClass('widget-loader-show');
                         $('.widget-12b').addClass('widget-data-hide');
 
                         self.fte_graphs(final_work, key);
-         
-                        $('.widget-6a').addClass('widget-loader-show');   
+
+                        $('.widget-6a').addClass('widget-loader-show');
                         $('.widget-6b').addClass('widget-data-hide');
-                        $('.widget-1a').addClass('widget-loader-show');   
+                        $('.widget-1a').addClass('widget-loader-show');
                         $('.widget-1b').addClass('widget-data-hide');
 
                         self.main_prod(final_work, key);
 
-                        $('.widget-8a').addClass('widget-loader-show');    
+                        $('.widget-8a').addClass('widget-loader-show');
                         $('.widget-8b').addClass('widget-data-hide');
-                        $('.widget-7a').addClass('widget-loader-show');   
+                        $('.widget-7a').addClass('widget-loader-show');
                         $('.widget-7b').addClass('widget-data-hide');
 
                         self.from_to(final_work, key)
 
-                        $('.widget-35a').addClass('widget-loader-show');    
+                        $('.widget-35a').addClass('widget-loader-show');
                         $('.widget-35b').addClass('widget-data-hide');
 
                         self.pre_scan(final_work, key);
 
-                        $('.widget-37a').addClass('widget-loader-show');   
+                        $('.widget-37a').addClass('widget-loader-show');
                         $('.widget-37b').addClass('widget-data-hide');
 
                         self.nw_exce(final_work, key);
 
-                        $('.widget-36a').addClass('widget-loader-show');   
+                        $('.widget-36a').addClass('widget-loader-show');
                         $('.widget-36b').addClass('widget-data-hide');
 
                         self.overall_exce(final_work, key);
 
-                        $('.widget-34a').addClass('widget-loader-show');   
+                        $('.widget-34a').addClass('widget-loader-show');
                         $('.widget-34b').addClass('widget-data-hide');
 
                         self.upload_acc(final_work, key);
+
+                        $('.widget-78a').addClass('widget-loader-show');
+                        $('.widget-78b').addClass('widget-data-hide');
+
+                        self.Valid_cust_approv(final_work, key);
+
+                        $('.widget-79a').addClass('widget-loader-show');
+                        $('.widget-79b').addClass('widget-data-hide');
+
+                        self.Invalid_cust_reject(final_work, key);
+
+                        $('.widget-80a').addClass('widget-loader-show');
+                        $('.widget-80b').addClass('widget-data-hide');
+
+                        self.Data_Entry_AHT(final_work, key);
+
+                        $('.widget-82a').addClass('widget-loader-show');
+                        $('.widget-82b').addClass('widget-data-hide');
+
+                        self.Pre_Populated_AHT(final_work, key);
+
+                        $('.widget-81a').addClass('widget-loader-show');
+                        $('.widget-81b').addClass('widget-data-hide');
+
+                        self.Data_Entry_Volume(final_work, key);
+
+                        $('.widget-83a').addClass('widget-loader-show');
+                        $('.widget-83b').addClass('widget-data-hide');
+
+                        self.Pre_Populated_Volume(final_work, key);
+
+                        $('.widget-84a').addClass('widget-loader-show');
+                        $('.widget-84b').addClass('widget-data-hide');
+
+                        self.Customer_AHT_Comparison(final_work, key);
+
+                        $('.widget-85a').addClass('widget-loader-show');
+                        $('.widget-85b').addClass('widget-data-hide');
+
+                        self.Customer_Volume_Comparison(final_work, key);
+
+                        $('.widget-86a').addClass('widget-loader-show');
+                        $('.widget-86b').addClass('widget-data-hide');
+
+                        self.Time_Busy_Percentage(final_work, key);
+
+                        $('.widget-87a').addClass('widget-loader-show');
+                        $('.widget-87b').addClass('widget-data-hide');
+
+                        self.Time_Ready_Percentage(final_work, key);
+
+
                     }
-                }  
-             }  
+                }
+             }
             })
-                                
+
              var unWatch;
 
              this.$onInit = function () {
@@ -6539,17 +8528,17 @@
                         }
                         var url_to_call = 'api/project/?name=' + newVal;
                         $http({method:"GET", url:url_to_call}).success(function(result){
-                                                        
+
                             var pro_cen_nam = self.location + self.project.replace(' - ','');
                             self.useful_layout = [];
                             self.list_object = result.result.lay[0];
                             console.log('he');
                 if((result.result.role === 'customer') || (result.result.role === 'team_lead') || (result.result.role === 'center_manager') || (result.result.role === 'nextwealth_manager'))
-                {   
+                {
                     $('#emp_widget').hide();
                     $('#volume_table').hide();
                     self.first = result.result.dates.from_date;
-                    
+
                     self.lastDate = self.first;
                     self.last = result.result.dates.to_date;
                     self.firstDate = self.last;
@@ -6632,6 +8621,16 @@
                     "self.chartOptions63":self.chartOptions63,
                     "self.chartOptions64":self.chartOptions64,
                     'self.chartOptions65':self.chartOptions65,
+                    'self.chartOptions83':self.chartOptions83,
+                    'self.chartOptions84':self.chartOptions84,
+                    'self.chartOptions85':self.chartOptions85,
+                    "self.chartOptions86":self.chartOptions86,
+                    'self.chartOptions87':self.chartOptions87,
+                    'self.chartOptions88':self.chartOptions88,
+                    "self.chartOptions89":self.chartOptions89,
+                    "self.chartOptions90":self.chartOptions90,
+                    "self.chartOptions91":self.chartOptions91,
+                    "self.chartOptions92":self.chartOptions92,
                     };
                     var final_layout_list = [];
                     for (var single in self.layout_list){
@@ -6727,7 +8726,7 @@
 
                 self.last = self.firstDate;
                 self.first = self.lastDate;
- 
+
             self.get_date = function(){
                 var dateEntered = document.getElementById('select').value;
                 dateEntered = dateEntered.replace(' to ','to');
@@ -6771,7 +8770,7 @@
                 enabled: false
                },
             };
-      
+
            self.chartOptions39 = {
                 chart : {
                  backgroundColor: "transparent",
@@ -6903,7 +8902,7 @@
                credits: {
                 enabled: false
                },
-            }; 
+            };
             self.chartOptions10 = {
             chart: {
                 type: 'column',
@@ -6924,7 +8923,7 @@
                              return "<small>" + this.x + "</small><br/>" +
                                     "<b>" + this.series.name + "</b> : " + Highcharts.numberFormat(this.y, null, null, ",");
                            }
-               },    
+               },
             };
 
             self.chartOptions68 = {
@@ -7237,28 +9236,28 @@
                 type: 'column',
                 backgroundColor: "transparent",
                 reflow: false
-             },   
+             },
             title: {
                 text: ''
-            },   
+            },
             subtitle: {
                 text: ''
-            },   
+            },
             yAxis: {
                 gridLineColor: 'a2a2a2',
                 min: 0,
                 title: {
                     text: ''
                 }
-            },   
+            },
             tooltip: {
                 valueSuffix: '',
 
-                formatter: function () { 
+                formatter: function () {
                              return "<small>" + this.x + "</small><br/>" +
                                     "<b>" + this.series.name + "</b> : " + Highcharts.numberFormat(this.y, null, null, ",");
                            }
-               },   
+               },
             plotOptions:{
                 series:{
                     allowPointSelect: true,
@@ -7365,27 +9364,27 @@
                     type: 'column',
                     backgroundColor: "transparent",
                     reflow: false
-                },   
+                },
                 title: {
                     text: ''
-                 },   
+                 },
                 subtitle: {
                     text: ''
-                },   
+                },
                 yAxis: {
                     gridLineColor: 'a2a2a2',
                     min: 0,
                     title: {
                         text: ''
                     }
-                },   
+                },
                 tooltip: {
                     valueSuffix: '',
-                    formatter: function () { 
+                    formatter: function () {
                              return "<small>" + this.x + "</small><br/>" +
                                     "<b>" + this.series.name + "</b> : " + Highcharts.numberFormat(this.y, null, null, ",");
                            }
-               },   
+               },
                 plotOptions: {
                     column: {
                         stacking: 'normal',
@@ -7396,7 +9395,7 @@
                     }
                 }
             };
-    
+
             self.chartOptions51 = {
                 chart: {
                     backgroundColor: "transparent",
@@ -7470,13 +9469,13 @@
                 type: 'column',
                 backgroundColor: "transparent",
                 reflow: false
-             },    
+             },
             title: {
                 text: ''
             },
             subtitle: {
                 text: ''
-            },     
+            },
             yAxis: {
                 gridLineColor: 'a2a2a2',
                 min: 0,
@@ -7491,12 +9490,12 @@
                              return "<small>" + this.x + "</small><br/>" +
                                     "<b>" + this.series.name + "</b> : " + Highcharts.numberFormat(this.y, null, null, ",");
                            }
-               },  
+               },
             plotOptions:{
                 series:{
                     allowPointSelect: true,
                     cursor: 'pointer',
-                point: {   
+                point: {
                     events:{
                     }
                 }
@@ -7573,7 +9572,7 @@
                 chart : {
                  backgroundColor: "transparent",
                  reflow: false
-                },  
+                },
                                yAxis: {
                 gridLineColor: 'a2a2a2',
                 min: 0,
@@ -7581,7 +9580,7 @@
                  text: '',
                  align: 'high'
                 },
-                labels: { 
+                labels: {
                  overflow: 'justify'
                 }
                },
@@ -7814,8 +9813,8 @@ self.chartOptions64 = {
                 width: 3,
                 zIndex: 10
             }],
-            opposite: true        
-        
+            opposite: true
+
         }],
         tooltip: {
             shared: true
@@ -8041,7 +10040,7 @@ self.chartOptions64 = {
                     formatter: function () {
                              return "<small>" + this.x + "</small><br/>" +
                                     "<b>" + this.series.name + "</b> : " + Highcharts.numberFormat(this.y, null, null, ",");
-                           } 
+                           }
                 },
                 credits: {
                     enabled: false
@@ -8087,7 +10086,7 @@ self.chartOptions64 = {
                 value: 80,
                 width: 3,
                 zIndex: 10
-            }], 
+            }],
             opposite: true
         },],
         tooltip: {
@@ -8099,7 +10098,7 @@ self.chartOptions64 = {
                }
         },
     }
-            
+
         self.chartOptions28 = {
             chart: {
             zoomType: 'xy',
@@ -8140,7 +10139,7 @@ self.chartOptions64 = {
                 value: 80,
                 width: 3,
                 zIndex: 10
-            }], 
+            }],
             opposite: true
         },],
         tooltip: {
@@ -8152,7 +10151,7 @@ self.chartOptions64 = {
                }
         },
     }
-            
+
         self.chartOptions29 = {
             chart: {
             zoomType: 'xy',
@@ -8192,7 +10191,7 @@ self.chartOptions64 = {
                 value: 80,
                 width: 3,
                 zIndex: 10
-            }], 
+            }],
             opposite: true
         },],
         tooltip: {
@@ -8227,7 +10226,7 @@ self.chartOptions64 = {
                credits: {
                 enabled: false
                },
-            }; 
+            };
 
         self.chartOptions30 = {
             chart: {
@@ -8347,7 +10346,7 @@ self.chartOptions64 = {
                },
                tooltip: {
                 valueSuffix: ''
-               }, 
+               },
                 plotOptions : {
                 series : {
                     dataLabels: {
@@ -8418,7 +10417,7 @@ self.chartOptions64 = {
                },
                tooltip: {
                 valueSuffix: '',
-                
+
                 formatter: function () {
                              return "<small>" + this.x + "</small><br/>" +
                                     "<b>" + this.series.name + "</b> : " + Highcharts.numberFormat(this.y, null, null, ",");
@@ -8495,7 +10494,7 @@ self.chartOptions64 = {
         legend: {
               itemStyle: {
                     'color' : '#717171',
-               } 
+               }
         },
     }
 
@@ -8701,7 +10700,7 @@ self.chartOptions64 = {
                 }
                 }
             }
-         };         
+         };
 
     self.chartOptions37 = {
             chart: {
@@ -8751,7 +10750,7 @@ self.chartOptions64 = {
                 },
                 labels: {
                     overflow: 'justify'
-                }   
+                }
            },
            tooltip: {
                valueSuffix: '',
@@ -8760,6 +10759,264 @@ self.chartOptions64 = {
                enabled: false
            },
         };
+
+        self.chartOptions83 = {
+            chart : {
+             backgroundColor: "transparent",
+             reflow: false
+            },
+                           yAxis: {
+            gridLineColor: 'a2a2a2',
+            min: 0,
+            title: {
+             text: '',
+             align: 'high'
+            },
+            labels: {
+             overflow: 'justify'
+            }
+           },
+
+           tooltip: {
+            valueSuffix: '%'
+           },
+           credits: {
+            enabled: false
+           },
+        };
+
+        self.chartOptions84 = {
+            chart : {
+             backgroundColor: "transparent",
+             reflow: false
+            },
+                           yAxis: {
+            gridLineColor: 'a2a2a2',
+            min: 0,
+            title: {
+             text: '',
+             align: 'high'
+            },
+            labels: {
+             overflow: 'justify'
+            }
+           },
+
+           tooltip: {
+            valueSuffix: '%'
+           },
+           credits: {
+            enabled: false
+           },
+        };
+
+        self.chartOptions85 = {
+            chart : {
+             backgroundColor: "transparent",
+             reflow: false
+            },
+                           yAxis: {
+            gridLineColor: 'a2a2a2',
+            min: 0,
+            title: {
+             text: '',
+             align: 'high'
+            },
+            labels: {
+             overflow: 'justify'
+            }
+           },
+
+           tooltip: {
+            valueSuffix: ''
+           },
+           credits: {
+            enabled: false
+           },
+        };
+
+        self.chartOptions87 = {
+            chart : {
+             backgroundColor: "transparent",
+             reflow: false
+            },
+                           yAxis: {
+            gridLineColor: 'a2a2a2',
+            min: 0,
+            title: {
+             text: '',
+             align: 'high'
+            },
+            labels: {
+             overflow: 'justify'
+            }
+           },
+
+           tooltip: {
+            valueSuffix: ''
+           },
+           credits: {
+            enabled: false
+           },
+        };
+
+        self.chartOptions86 = {
+            chart : {
+             type: 'column',
+             backgroundColor: "transparent",
+             reflow: false
+            },
+                           yAxis: {
+            gridLineColor: 'a2a2a2',
+            min: 0,
+            title: {
+             text: '',
+             align: 'high'
+            },
+            labels: {
+             overflow: 'justify'
+            }
+           },
+
+           tooltip: {
+            valueSuffix: ''
+           },
+           credits: {
+            enabled: false
+           },
+        };
+
+        self.chartOptions88 = {
+            chart : {
+             type: 'column',
+             backgroundColor: "transparent",
+             reflow: false
+            },
+                           yAxis: {
+            gridLineColor: 'a2a2a2',
+            min: 0,
+            title: {
+             text: '',
+             align: 'high'
+            },
+            labels: {
+             overflow: 'justify'
+            }
+           },
+
+           tooltip: {
+            valueSuffix: ''
+           },
+           credits: {
+            enabled: false
+           },
+        };
+
+        self.chartOptions90 = {
+            chart : {
+             type: 'column',
+             backgroundColor: "transparent",
+             reflow: false
+            },
+                           yAxis: {
+            gridLineColor: 'a2a2a2',
+            min: 0,
+            title: {
+             text: '',
+             align: 'high'
+            },
+            labels: {
+             overflow: 'justify'
+            }
+           },
+
+           tooltip: {
+
+           },
+           credits: {
+            enabled: false
+           },
+        };
+
+
+        self.chartOptions91 = {
+            chart : {
+             type: 'column',
+             backgroundColor: "transparent",
+             reflow: false
+            },
+                           yAxis: {
+            gridLineColor: 'a2a2a2',
+            min: 0,
+            title: {
+             text: '',
+             align: 'high'
+            },
+            labels: {
+             overflow: 'justify'
+            }
+           },
+
+           tooltip: {
+            valueSuffix: ' %'
+           },
+           credits: {
+            enabled: false
+           },
+        };
+
+        self.chartOptions92 = {
+            chart : {
+             type: 'column',
+             backgroundColor: "transparent",
+             reflow: false
+            },
+                           yAxis: {
+            gridLineColor: 'a2a2a2',
+            min: 0,
+            title: {
+             text: '',
+             align: 'high'
+            },
+            labels: {
+             overflow: 'justify'
+            }
+           },
+
+           tooltip: {
+            valueSuffix: ' %'
+           },
+           credits: {
+            enabled: false
+           },
+        };
+
+        self.chartOptions89 = {
+            chart : {
+             type: 'column',
+             backgroundColor: "transparent",
+             reflow: false
+            },
+                           yAxis: {
+            gridLineColor: 'a2a2a2',
+            min: 0,
+            title: {
+             text: '',
+             align: 'high'
+            },
+            labels: {
+             overflow: 'justify'
+            }
+           },
+
+           tooltip: {
+
+           },
+           credits: {
+            enabled: false
+           },
+        };
+
 
 
     Highcharts.Pointer.prototype.onContainerMouseDown = function (e) {
