@@ -96,8 +96,8 @@
 
                  state = state || {};
                  this.tab = this.pages[pageName];
-
-                 this.tab.state = state;
+                 if (this.tab != undefined)
+                  this.tab.state = state;
                  this.tab.stateStr = JSON.stringify(state);
 
                  this.setActivePage(pageName);

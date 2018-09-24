@@ -24,21 +24,73 @@
     border-radius: 0;
 }
 
-/*table {
-
-    margin : 0 auto;
-    border: 1px solid #323232;
- }
-.table-responsive {
-    border: 1px solid #ccc;
-    background-color:#ffffff;
-    margin: 5px;
-    padding-right: 10px;
-    padding-left: 10px;
+.card{
+    width:280px;
+    height:fit-content;
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+    transition: 0.3s;
+    margin:5px 5px;
 }
-thead {
-    border: 1px solid black;
-}*/
+.card:hover{
+     box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+}
+.card-header{
+    font-size:20px;
+    height:30px;
+    background-color: #454f68;
+}
+.card-header-text{
+    display: block;
+    margin:0px; 
+    color:white;
+    text-align:center;
+}
+
+.card-body{
+    background-color: #d3d3d3;
+}
+.small-card{
+    display: flex;
+    justify-content: space-between;
+    width:inherit;
+    height:fit-content;
+    margin-top:5px;
+    background-color:white;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+.small-card-body{
+    width:fit-content;
+    margin:0px;
+    padding:9px 10px;
+    font-size: 15px;
+    color:#454f68;
+}
+.badge{
+    color:white;
+    background: #454f68;
+    border-radius: 5px;
+    padding: 3px 5px;
+    margin:7px 5px;
+    height:fit-content;
+}
+
+.w3-card:active{
+    opacity: .6;
+    border:2px solid grey;
+    
+}
+.w3-card:hover{
+    background-color: #e5e5e5;
+    box-shadow: 0 0 0 0;
+    transition: .1s;
+}
+
+.gu-mirror {
+  position: fixed !important;
+  margin: 0 !important;
+  z-index: 9999 !important;
+  padding: 1em;
+}
 
 div.content {
     overflow: hidden;
@@ -48,8 +100,6 @@ div.content {
   background: rgba( 255, 255, 255, .8 ) url('http://sampsonresume.com/labs/pIkfp.gif') 50% 50% no-repeat;
 }
 
-.widget-loader-hide {
-}
 
 .widget-data-hide {
   display: none;    

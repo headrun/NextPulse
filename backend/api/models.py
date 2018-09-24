@@ -24,10 +24,10 @@ class Project(models.Model):
     sub_project_check = models.BooleanField(default=None)
     is_voice = models.BooleanField(default = False)
     display_value = models.BooleanField(default = False)
-    user = models.ManyToManyField(User,null=True)    
+    user = models.ManyToManyField(User,null=True)
     display_project = models.BooleanField(default = True)
-    
-    
+
+
 
     class Meta:
         db_table = u'project'
@@ -902,7 +902,7 @@ class IVR_VCR_authoring(models.Model):
     work_packet = models.CharField(max_length=255, blank=True)
     sub_packet = models.CharField(max_length=255, blank=True)
     center = models.ForeignKey(Center)
-    project = models.ForeignKey(Project)   
+    project = models.ForeignKey(Project)
     approved_verified = models.CharField(max_length=255, blank=True)
     grossed_up_one = models.CharField(max_length=255, blank=True)
     grossed_up_two = models.CharField(max_length=255, blank=True)
@@ -925,7 +925,7 @@ class Risk(models.Model):
     data_entry_done_aht = models.FloatField()
     low_volume = models.IntegerField()
     medium_volume = models.IntegerField()
-    high_volume = models.IntegerField()    
+    high_volume = models.IntegerField()
     low_aht = models.FloatField()
     medium_aht = models.FloatField()
     high_aht = models.FloatField()
