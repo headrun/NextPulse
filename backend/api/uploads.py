@@ -11,6 +11,7 @@ from xlrd import open_workbook
 from api.commons import data_dict
 from voice_service.voice_uploads import *
 from voice_service.models import *
+from datetime import time
 from common.utils import getHttpResponse as json_HttpResponse
 
 def upload_new(request):
@@ -33,31 +34,27 @@ def upload_new(request):
             open_book = open_workbook(filename=None, file_contents=fname.read())
         except:
             return json_HttpResponse("Invalid File")
-        excel_sheet_names = open_book.sheet_names()        
+        excel_sheet_names = open_book.sheet_names()
         file_sheet_names = Authoringtable.objects.filter(project=prj_obj,center=center_obj).\
                             values_list('sheet_name',flat=True).distinct()
 
         sheet_names, raw_table_mapping, internal_error_mapping = {}, {}, {}
         external_error_mapping, worktrack_mapping, headcount_mapping = {}, {}, {}
         target_mapping, tat_mapping, upload_mapping, incoming_error_mapping, authoring_dates = {}, {}, {}, {}, {}
-        aht_individual_mapping, aht_team_mapping = {}, {}
+        aht_individual_mapping, aht_team_mapping, ivr_vcr_mapping, risk_mapping, time_mapping = {}, {}, {}, {}, {}
 
         ignorablable_fields, other_fileds = [], []
-        #for sub_project_check functionality
-        #sub_project_boolean_check = Project.objects.filter(id=prj_id).values_list('sub_project_check',flat=True)[0]
         voice_check = prj_obj.is_voice
         if voice_check == True:
             voice_data = voice_upload(request, prj_obj, center_obj, open_book)
-        
+
         sub_project_boolean_check =  prj_obj.sub_project_check
         if sub_project_boolean_check == True:
             project_names = sub_project_names(request, open_book)
-            #prj_obj = prj_obj
-            #center_obj = center_obj
-        
+
         mapping_ignores = ['project_id','center_id','_state','sheet_name','id','total_errors_require']
         raw_table_map_query = Authoring_mapping(prj_obj,center_obj,'RawtableAuthoring')
-        #import pdb;pdb.set_trace()
+
         for map_key,map_value in raw_table_map_query.iteritems():
             if map_key == 'sheet_name':
                 sheet_names['raw_table_sheet'] = map_value
@@ -74,7 +71,7 @@ def upload_new(request):
             if map_key == 'sheet_name':
                 sheet_names['internal_error_sheet'] = map_value
             if map_key == 'total_errors_require':
-                intrnl_error_check = map_value 
+                intrnl_error_check = map_value
             if map_value != '' and map_key not in mapping_ignores:
                 internal_error_mapping[map_key]= map_value.lower()
                 if map_key == 'date':
@@ -166,16 +163,44 @@ def upload_new(request):
                 if map_key == 'date':
                     authoring_dates['aht_team_date'] = map_value.lower()
 
+        IVR_VCR_map_query = Authoring_mapping(prj_obj,center_obj,'IVR_VCR_authoring')
+        for map_key, map_value in IVR_VCR_map_query.iteritems():
+            if map_key == 'sheet_name':
+                sheet_names['IVR_VCR_sheet'] = map_value
+            if map_value != '' and map_key not in mapping_ignores:
+                ivr_vcr_mapping[map_key] = map_value.lower()
+                if map_key == 'date':
+                    authoring_dates['IVR_VCR_date'] = map_value.lower()
+
+        risk_map_query = Authoring_mapping(prj_obj,center_obj,'Risk_authoring')
+        for map_key, map_value in risk_map_query.iteritems():
+            if map_key == 'sheet_name':
+                sheet_names['Risk_sheet'] = map_value
+            if map_value != '' and map_key not in mapping_ignores:
+                risk_mapping[map_key] = map_value.lower()
+                if map_key == 'date':
+                    authoring_dates['Risk_date'] = map_value.lower()
+
+        time_map_query = Authoring_mapping(prj_obj,center_obj,'Time_authoring')
+        for map_key, map_value in time_map_query.iteritems():
+            if map_key == 'sheet_name':
+                sheet_names['Time_sheet'] = map_value
+            if map_value != '' and map_key not in mapping_ignores:
+                time_mapping[map_key] = map_value.lower()
+                if map_key == 'date':
+                    authoring_dates['Time_date'] = map_value.lower()
+
+
         other_fileds = filter(None, other_fileds)
         file_sheet_names = sheet_names.values()
         sheet_index_dict = {}
         for sh_name in file_sheet_names:
             if sh_name in excel_sheet_names:
-                sheet_index_dict[sh_name] = open_book.sheet_names().index(sh_name)
+                sheet_index_dict[sh_name] = open_book.sheet_names().index(sh_name) # sheet_index_dict['IVR-VCR'] = 6
         db_check = str(Project.objects.filter(name=prj_obj,center=center_obj).values_list('project_db_handling',flat=True))
-        raw_table_dataset, internal_error_dataset, external_error_dataset, work_track_dataset,headcount_dataset = {}, {}, {}, {},{}
-        target_dataset, tats_table_dataset, upload_table_dataset, incoming_error_dataset = {}, {}, {}, {}
-        aht_individual_dataset, aht_team_dataset = {}, {}
+        raw_table_dataset, internal_error_dataset, external_error_dataset, work_track_dataset, headcount_dataset = {}, {}, {}, {},{}
+        target_dataset, tats_table_dataset, upload_table_dataset, incoming_error_dataset, ivr_vcr_dataset = {}, {}, {}, {}, {}
+        aht_individual_dataset, aht_team_dataset, risk_dataset, time_dataset = {}, {}, {}, {}
 
         for key,value in sheet_index_dict.iteritems():
             one_sheet_data, mapping_table = {}, {}
@@ -194,6 +219,7 @@ def upload_new(request):
                         customer_data[column] = ''.join(cell_data)
                     elif column != "date" :
                         customer_data[column] = ''.join(cell_data)
+
                 if key == sheet_names['raw_table_sheet']:
                     date_name = authoring_dates['raw_table_date']
                     if not raw_table_dataset.has_key(customer_data[date_name]):
@@ -322,7 +348,7 @@ def upload_new(request):
                                     if customer_data.get(internal_error_mapping['type_error']) != '':
                                         error_count = customer_data[external_error_mapping['error_count']]
                                         if error_count == '':
-                                            error_count = 0
+                                           error_count = 0
                                         local_externalerror_data['sub_errors']={}
                                         type_key = customer_data[raw_value].replace(' ','_') +'_' + customer_data['error category'].replace(' ','_')
                                         local_externalerror_data['sub_errors'][type_key] = error_count
@@ -628,8 +654,9 @@ def upload_new(request):
                                             aht_individual_dataset[str(customer_data[date_name])][emp_key][key] = value + dataset_value
                                         elif db_check == 'update':
                                             aht_individual_dataset[str(customer_data[date_name])][emp_key][key] = value + dataset_value
-                        else: 
-                            aht_individual_dataset[str(customer_data[date_name])][emp_key] = local_aht_individual_data                               
+                        else:
+                            aht_individual_dataset[str(customer_data[date_name])][emp_key] = local_aht_individual_data
+
                 if key == sheet_names.get('aht_team_sheet', ''):
                     date_name = authoring_dates['aht_team_date']
                     if not aht_team_dataset.has_key(customer_data[date_name]):
@@ -663,7 +690,124 @@ def upload_new(request):
                         else:
                             aht_team_dataset[str(customer_data[date_name])][emp_key] = local_aht_team_data
 
-        #sub_prj_check = Project.objects.filter(id=prj_id).values_list('sub_project_check',flat=True)[0]    
+
+                if key == sheet_names.get('IVR_VCR_sheet', ''):
+                    date_name = authoring_dates['IVR_VCR_date']
+                    if not ivr_vcr_dataset.has_key(customer_data[date_name]):
+                        ivr_vcr_dataset[str(customer_data[date_name])]={}
+                    local_raw_data = {}
+                    for ivr_key,ivr_value in ivr_vcr_mapping.iteritems():
+                        local_raw_data[ivr_key] = customer_data[ivr_value]
+
+                    emp_key = '{0}_{1}_{2}'.format(local_raw_data.get('sub_project', 'NA'),
+                                                       local_raw_data.get('work_packet', 'NA'),
+                                                       local_raw_data.get('sub_packet', 'NA'))
+
+
+                    if 'not_applicable' not in local_raw_data.values():
+                        if ivr_vcr_dataset.has_key(str(customer_data[date_name])):
+                            if ivr_vcr_dataset[str(customer_data[date_name])].has_key(emp_key):
+                                for pdct_key,pdct_value in local_raw_data.iteritems():
+                                    if pdct_key not in ivr_vcr_dataset[str(customer_data[date_name])][emp_key].keys():
+                                        ivr_vcr_dataset[str(customer_data[date_name])][emp_key][pdct_key] = pdct_value
+                                    else:
+                                        if (pdct_key in ['Approved Verified','Grossed Up 1','Grossed Up 2','Count']) :
+                                            try:
+                                                pdct_value = int(float(pdct_value))
+                                            except:
+                                                pdct_value = 0
+                                            try:
+                                                dataset_value = int(float(ivr_vcr_dataset[str(customer_data[date_name])][emp_key][pdct_key]))
+                                            except:
+                                                dataset_value =0
+                                            if db_check == 'aggregate':
+                                                ivr_vcr_dataset[str(customer_data[date_name])][emp_key][pdct_key] = pdct_value + dataset_value
+                                            elif db_check == 'update':
+                                                ivr_vcr_dataset[str(customer_data[date_name])][emp_key][pdct_key] = pdct_value
+                            else:
+                                ivr_vcr_dataset[str(customer_data[date_name])][emp_key] = local_raw_data
+
+                if key == sheet_names.get('Risk_sheet', ''):
+                    date_name = authoring_dates['Risk_date']
+                    if not risk_dataset.has_key(customer_data[date_name]):
+                        risk_dataset[str(customer_data[date_name])]={}
+                    local_raw_data = {}
+                    for ivr_key,ivr_value in risk_mapping.iteritems():
+                        local_raw_data[ivr_key] = customer_data[ivr_value]
+
+                    emp_key = '{0}_{1}_{2}'.format(local_raw_data.get('sub_project', 'NA'),
+                                                       local_raw_data.get('work_packet', 'NA'),
+                                                       local_raw_data.get('sub_packet', 'NA'))
+
+
+                    if 'not_applicable' not in local_raw_data.values():
+                        if risk_dataset.has_key(str(customer_data[date_name])):
+                            if risk_dataset[str(customer_data[date_name])].has_key(emp_key):
+                                for pdct_key,pdct_value in local_raw_data.iteritems():
+                                    if pdct_key not in risk_dataset[str(customer_data[date_name])][emp_key].keys():
+                                        risk_dataset[str(customer_data[date_name])][emp_key][pdct_key] = pdct_value
+                                    else:
+                                        if (pdct_key in ['data entry Volume','data entry done AHT','HIGH Volume','LOW Volume','MEDIUM Volume','HIGH AHT','LOW AHT','MEDIUM AHT','Pre Populated Volume','Pre Populated AHT']) :
+                                            try:
+                                                pdct_value = int(float(pdct_value))
+                                            except:
+                                                pdct_value = 0
+                                            try:
+                                                dataset_value = int(float(risk_dataset[str(customer_data[date_name])][emp_key][pdct_key]))
+                                            except:
+                                                dataset_value =0
+                                            if db_check == 'aggregate':
+                                                risk_dataset[str(customer_data[date_name])][emp_key][pdct_key] = pdct_value + dataset_value
+                                            elif db_check == 'update':
+                                                risk_dataset[str(customer_data[date_name])][emp_key][pdct_key] = pdct_value
+                            else:
+                                risk_dataset[str(customer_data[date_name])][emp_key] = local_raw_data
+
+
+
+                if key == sheet_names.get('Time_sheet', ''):
+                    date_name = authoring_dates['Time_date']
+                    if not time_dataset.has_key(customer_data[date_name]):
+                        time_dataset[str(customer_data[date_name])]={}
+                    local_raw_data = {}
+                    for time_key,time_value in time_mapping.iteritems():
+                        local_raw_data[time_key] = customer_data[time_value]
+
+                    emp_key = '{0}_{1}_{2}_{3}'.format(local_raw_data.get('sub_project', 'NA'),
+                                                       local_raw_data.get('work_packet', 'NA'),
+                                                       local_raw_data.get('sub_packet', 'NA'),
+                                                       local_raw_data.get('emp_name','NA'))
+
+
+                    if 'not_applicable' not in local_raw_data.values():
+                        if time_dataset.has_key(str(customer_data[date_name])):
+                            if time_dataset[str(customer_data[date_name])].has_key(emp_key):
+                                for pdct_key,pdct_value in local_raw_data.iteritems():
+                                    if pdct_key not in time_dataset[str(customer_data[date_name])][emp_key].keys():
+                                        time_dataset[str(customer_data[date_name])][emp_key][pdct_key] = float(pdct_value)
+                                    else:
+                                        if (pdct_key in ['Busy','Ready','Total']) :
+                                            try:
+                                                pdct_value = float(pdct_value)
+                                            except:
+                                                pdct_value = 0
+                                            try:
+                                                dataset_value = float(time_dataset[str(customer_data[date_name])][emp_key][pdct_key])
+                                            except:
+                                                dataset_value =0
+                                            if db_check == 'aggregate':
+                                                pass
+                                            elif db_check == 'update':
+                                                time_dataset[str(customer_data[date_name])][emp_key][pdct_key] = pdct_value
+                            else:
+                                time_dataset[str(customer_data[date_name])][emp_key] = local_raw_data
+
+
+
+
+
+
+        #sub_prj_check = Project.objects.filter(id=prj_id).values_list('sub_project_check',flat=True)[0]
         sub_prj_check = prj_obj.sub_project_check
         #teamleader_obj = TeamLead.objects.filter(name_id=request.user.id).values_list('project_id','center_id')[0]
 
@@ -760,6 +904,18 @@ def upload_new(request):
             for emp_key, emp_value in value.iteritems():
                 aht_team_data_insert = aht_team_query_insertion(emp_value, prj_obj, center_obj, teamleader_obj_name,db_check)
 
+        for key, value in ivr_vcr_dataset.iteritems():
+            for emp_key, emp_value in value.iteritems():
+                ivr_vcr_data_insert = ivr_vcr_query_insertion(emp_value, prj_obj, center_obj, teamleader_obj_name,db_check)
+
+        for key, value in risk_dataset.iteritems():
+            for emp_key, emp_value in value.iteritems():
+                risk_data_insert = risk_query_insertion(emp_value, prj_obj, center_obj, teamleader_obj_name,db_check)
+
+        for key, value in time_dataset.iteritems():
+            for emp_key, emp_value in value.iteritems():
+                time_data_insert = time_query_insertion(emp_value, prj_obj, center_obj, teamleader_obj_name,db_check)
+
         for date_key,date_value in raw_table_dataset.iteritems():
             for emp_key,emp_value in date_value.iteritems():
                 try:
@@ -773,7 +929,7 @@ def upload_new(request):
                     proje_obj = Project.objects.filter(name = proje_id)[0]
                     raw_table_insert = raw_table_query_insertion(emp_value, proje_obj, center_obj, teamleader_obj_name,per_day_value, db_check)
                     #prj_obj = prj_obj
-                    raw_table_insert = raw_table_query_insertion(emp_value, prj_obj, center_obj, teamleader_obj_name,per_day_value, db_check) 
+                    raw_table_insert = raw_table_query_insertion(emp_value, prj_obj, center_obj, teamleader_obj_name,per_day_value, db_check)
                 #else:
                 #    prj_obj = prj_obj
                 #    center_obj = center_obj
@@ -900,6 +1056,6 @@ def upload_acc(request):
         pre_final_data['data'] = final_data['data']
         final_data['data'] = [pre_final_data]
         final_dict['upload_target_data'] = final_data
-    final_dict['type'] = main_data_dict['type']    
+    final_dict['type'] = main_data_dict['type']
     final_dict['is_annotation'] = annotation_check(request)
     return json_HttpResponse(final_dict)
