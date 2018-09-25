@@ -176,7 +176,7 @@ def headcount_query_insertion(customer_data, prj_obj, center_obj,teamleader_obj_
                 new_can.save()
             except:
 		        pass
-    else:    
+    else:
         if db_check == 'aggregate':
             billable_hc = billable_hc + float(check_query[0]['billable_hc'])
             billable_agents = billable_agents + float(check_query[0]['billable_agents'])
@@ -297,7 +297,7 @@ def aht_individual_query_insertion(customer_data, prj_obj, center_obj, teamleade
         aht = 0
     if len(check_query) == 0:
         new_can = AHTIndividual(sub_project=customer_data.get('sub_project', ''), work_packet=customer_data.get('work_packet',''),
-                                sub_packet=customer_data.get('sub_packet', ''), 
+                                sub_packet=customer_data.get('sub_packet', ''),
                                 emp_name = customer_data.get('emp_name', ''), date=customer_data['date'],
                                 AHT = aht, project= prj_obj, center = center_obj)
         if new_can:
@@ -314,7 +314,7 @@ def aht_individual_query_insertion(customer_data, prj_obj, center_obj, teamleade
 def aht_team_query_insertion(customer_data, prj_obj, center_obj, teamleader_obj_name, db_check):
     aht_team_date = customer_data['date']
     check_query = AHTTeam.objects.filter(project = prj_obj, sub_project = customer_data.get('sub_project', ''),
-                                         work_packet = customer_data.get('work_packet',''), 
+                                         work_packet = customer_data.get('work_packet',''),
                                          sub_packet = customer_data.get('sub_packet',''),
                                          date = customer_data['date'], center=center_obj).values('AHT')
     try:
@@ -398,6 +398,7 @@ def raw_table_query_insertion(customer_data,prj_obj,center_obj,teamleader_obj_na
 
     return prod_date_list
 
+
 def internalerror_query_insertion(customer_data, prj_obj, center_obj,teamleader_obj_name, db_check):
     internal_date_list = customer_data['date']
     check_query = Internalerrors.objects.filter(project=prj_obj, sub_project=customer_data.get('sub_project', ''),
@@ -442,6 +443,7 @@ def internalerror_query_insertion(customer_data, prj_obj, center_obj,teamleader_
         elif db_check == 'update':
             new_can_upd = Internalerrors.objects.filter(id=int(check_query[0]['id'])).update(audited_errors=audited_count,total_errors=total_errors)
     return internal_date_list
+
 
 def externalerror_query_insertion(customer_data, prj_obj, center_obj,teamleader_obj_name, db_check):
     external_date_list = customer_data['date']
@@ -489,6 +491,7 @@ def externalerror_query_insertion(customer_data, prj_obj, center_obj,teamleader_
 
     return external_date_list
 
+
 def target_table_query_insertion(customer_data,prj_obj,center_obj,teamleader_obj_name,db_check):
     prod_date_list = customer_data['from_date']
     new_can = 0
@@ -522,7 +525,7 @@ def target_table_query_insertion(customer_data,prj_obj,center_obj,teamleader_obj
                            to_date=customer_data['to_date'],
                            target_value = target_value,
                            target_type =customer_data['target_type'],
-                           target_method=customer_data.get('target_method', ''), 
+                           target_method=customer_data.get('target_method', ''),
                            target=target,fte_target=fte_target,center=center_obj)
         if new_can:
             try:
@@ -537,5 +540,214 @@ def target_table_query_insertion(customer_data,prj_obj,center_obj,teamleader_obj
             new_can_agr = Targets.objects.filter(id=int(check_query[0]['id'])).update(targer=target,fte_target=fte_target,target_value=target_value)
         elif db_check == 'update':
             new_can_upd = Targets.objects.filter(id=int(check_query[0]['id'])).update(targer=target,fte_target=fte_target,target_value=target_value)
+
+    return prod_date_list
+
+
+
+def ivr_vcr_query_insertion(customer_data,prj_obj,center_obj,teamleader_obj_name,db_check):
+    prod_date_list = customer_data['date']
+    new_can = 0
+    check_query = IVR_VCR.objects.filter(project=prj_obj, sub_project=customer_data.get('sub_project', ''),
+                                         work_packet=customer_data.get('work_packet', ''),
+                                         sub_packet=customer_data.get('sub_packet', ''),
+                                         date=customer_data['date'],
+                                         approved_verified= int(float(customer_data['approved_verified'])),
+                                         grossed_up_one=int(float(customer_data['grossed_up_one'])),
+                                         grossed_up_two=int(float(customer_data['grossed_up_two'])),
+                                         count = int(float(customer_data['count'])),
+                                         center=center_obj).values('approved_verified','grossed_up_one','grossed_up_two','count')
+
+
+    try:
+        approved_verified= int(float(customer_data['approved_verified']))
+    except:
+        approved_verified = 0
+    try:
+        grossed_up_one = int(float(customer_data['grossed_up_one']))
+    except:
+        grossed_up_one = 0
+    try:
+        grossed_up_two = int(float(customer_data['grossed_up_two']))
+    except:
+        grossed_up_two = 0
+    try:
+        count = int(float(customer_data['count']))
+    except:
+        count = 0
+
+    if len(check_query) == 0:
+        new_can = IVR_VCR(project=prj_obj, sub_project=customer_data.get('sub_project', ''),
+                           work_packet=customer_data.get('work_packet', ''),
+                           sub_packet=customer_data.get('sub_packet', ''),
+                           date=customer_data['date'],
+                           approved_verified= approved_verified,
+                           grossed_up_one=grossed_up_one,
+                           grossed_up_two=grossed_up_two,
+                           count = count,
+                           center=center_obj)
+        if new_can:
+            try:
+                new_can.save()
+            except:
+		pass
+    if len(check_query) > 0:
+        if db_check == 'aggregate':
+            approv_verified = approved_verified + int(check_query[0]['approved_verified'])
+            grossed_up_one = grossed_up_one + int(check_query[0]['grossed_up_one'])
+            grossed_up_two = grossed_up_two + int(check_query[0]['grossed_up_two'])
+            count = count + int(check_query[0]['count'])
+            new_can_agr = IVR_VCR.objects.filter(id=int(check_query[0]['id'])).update(approved_verified=approv_verified,grossed_up_one=grossed_up_one,grossed_up_two=grossed_up_two,count=count)
+        elif db_check == 'update':
+            new_can_update = IVR_VCR.objects.filter(id=int(check_query[0]['id'])).update(approved_verified=approved_verified,grossed_up_one=grossed_up_one,grossed_up_two=grossed_up_two,count=count)
+
+    return prod_date_list
+
+
+
+def risk_query_insertion(customer_data,prj_obj,center_obj,teamleader_obj_name,db_check):
+    prod_date_list = customer_data['date']
+    new_can = 0
+
+    try:
+        data_entry_volume= int(float(customer_data['data_entry_volume']))
+    except:
+        data_entry_volume = 0
+    try:
+        data_entry_done_aht = float(customer_data['data_entry_done_aht'])
+    except:
+        data_entry_done_aht = 0
+    try:
+        low_volume = int(float(customer_data['low_volume']))
+    except:
+        low_volume = 0
+    try:
+        medium_volume = int(float(customer_data['medium_volume']))
+    except:
+        medium_volume = 0
+    try:
+        high_volume = int(float(customer_data['high_volume']))
+    except:
+        high_volume = 0
+    try:
+        high_aht = float(customer_data['high_aht'])
+    except:
+        high_aht = 0
+    try:
+        low_aht = float(customer_data['low_aht'])
+    except:
+        low_aht = 0
+    try:
+        medium_aht = float(customer_data['medium_aht'])
+    except:
+        medium_aht = 0
+    try:
+        pre_populated_volume = int(float(customer_data['pre_populated_volume']))
+    except:
+        pre_populated_volume = 0
+    try:
+        pre_populated_aht = float(customer_data['pre_populated_aht'])
+    except:
+        pre_populated_aht = 0
+
+
+    check_query = Risk.objects.filter(project=prj_obj, sub_project=customer_data.get('sub_project', ''),
+                                         work_packet=customer_data.get('work_packet', ''),
+                                         sub_packet=customer_data.get('sub_packet', ''),
+                                         date=customer_data['date'],
+                                         data_entry_volume= data_entry_volume,
+                                         data_entry_done_aht=data_entry_done_aht,
+                                         low_volume=low_volume,
+                                         medium_volume= medium_volume,
+                                         high_volume= high_volume,
+                                         high_aht= high_aht,
+                                         low_aht= low_aht,
+                                         medium_aht= medium_aht,
+                                         pre_populated_volume= pre_populated_volume,
+                                         pre_populated_aht= pre_populated_aht,
+                                         center=center_obj).values('data_entry_volume','data_entry_done_aht','medium_volume','high_volume','low_volume','high_aht','low_aht','medium_aht','pre_populated_volume','pre_populated_aht')
+    if len(check_query) == 0:
+        new_can = Risk(project=prj_obj, sub_project=customer_data.get('sub_project', ''),
+                                         work_packet=customer_data.get('work_packet', ''),
+                                         sub_packet=customer_data.get('sub_packet', ''),
+                                         date=customer_data['date'],
+                                         data_entry_volume= int(float(customer_data['data_entry_volume'])),
+                                         data_entry_done_aht=float(customer_data['data_entry_done_aht']),
+                                         low_volume=int(float(customer_data['low_volume'])),
+                                         medium_volume= int(float(customer_data['medium_volume'])),
+                                         high_volume= int(float(customer_data['high_volume'])),
+                                         high_aht= float(customer_data['high_aht']),
+                                         low_aht= float(customer_data['low_aht']),
+                                         medium_aht= float(customer_data['medium_aht']),
+                                         pre_populated_volume= int(float(customer_data['pre_populated_volume'])),
+                                         pre_populated_aht= float(customer_data['pre_populated_aht']),
+                                         center=center_obj)
+        if new_can:
+            try:
+                new_can.save()
+            except:
+		pass
+    if len(check_query) > 0:
+        if db_check == 'aggregate':
+            data_entry_volume = data_entry_volume + int(check_query[0]['data_entry_volume'])
+            data_entry_done_aht = data_entry_done_aht + int(check_query[0]['data_entry_done_aht'])
+            low_volume = low_volume + int(check_query[0]['low_volume'])
+            medium_volume = medium_volume + int(check_query[0]['medium_volume'])
+            high_volume = high_volume + int(check_query[0]['high_volume'])
+            high_aht = high_aht + int(check_query[0]['high_aht'])
+            low_aht = low_aht + int(check_query[0]['low_aht'])
+            medium_aht = medium_aht + int(check_query[0]['medium_aht'])
+            pre_populated_volume = pre_populated_volume + int(check_query[0]['pre_populated_volume'])
+            pre_populated_aht = pre_populated_aht + int(check_query[0]['pre_populated_aht'])
+            new_can_agr = Risk.objects.filter(id=int(check_query[0]['id'])).update(data_entry_volume= data_entry_volume,data_entry_done_aht=data_entry_done_aht,low_volume=low_volume,medium_volume= medium_volume,high_volume= high_volume,high_aht= high_aht,low_aht= low_aht,medium_aht= medium_aht,pre_populated_volume= pre_populated_volume,pre_populated_aht= pre_populated_aht)
+        elif db_check == 'update':
+            new_can_upd = Risk.objects.filter(id=int(check_query[0]['id'])).update(data_entry_volume= data_entry_volume,data_entry_done_aht=data_entry_done_aht,low_volume=low_volume,medium_volume= medium_volume,high_volume= high_volume,high_aht= high_aht,low_aht= low_aht,medium_aht= medium_aht,pre_populated_volume= pre_populated_volume,pre_populated_aht= pre_populated_aht)
+    return prod_date_list
+
+
+
+def time_query_insertion(customer_data,prj_obj,center_obj,teamleader_obj_name,db_check):
+    from datetime import time
+    prod_date_list = customer_data['date']
+    new_can = 0
+
+    try:
+        i = int(float(customer_data['busy'])*24*3600)
+        Busy = str(time(i//3600, (i%3600)//60, i%60))
+    except:
+        Busy = str("0:0:0")
+    try:
+        j = int(float(customer_data['ready'])*24*3600)
+        Ready = str(time(j//3600, (j%3600)//60, j%60))
+    except:
+        Ready = str("0:0:0")
+    try:
+        k = int(float(customer_data['total'])*24*3600)
+        Total = str(time(k//3600, (k%3600)//60, k%60))
+    except:
+        Total = str("0:0:0")
+
+    check_query = Time.objects.filter(project=prj_obj, sub_project=customer_data.get('sub_project', ''), work_packet=customer_data.get('work_packet', ''), date=customer_data['date'], busy= Busy, ready=Ready, total=Total, center=center_obj, emp_name=customer_data.get('emp_name','')).values('busy','ready','total')
+
+    if len(check_query) == 0:
+        new_can = Time(project=prj_obj, sub_project=customer_data.get('sub_project', ''),
+                                         work_packet=customer_data.get('work_packet', ''),
+                                         sub_packet=customer_data.get('sub_packet', ''),
+                                         date=customer_data['date'],
+                                         busy= Busy,
+                                         ready=Ready,
+                                         total=Total,
+                                         center=center_obj,
+                                         emp_name=customer_data.get('emp_name',''))
+        if new_can:
+            try:
+                new_can.save()
+            except:
+		pass
+    if len(check_query) > 0:
+        if db_check == 'aggregate':
+            pass
+        elif db_check == 'update':
+            Time.objects.filter(id=check_query[0].id).update(busy=Busy, ready=Ready, total=Total)
 
     return prod_date_list
