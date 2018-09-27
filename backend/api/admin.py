@@ -179,6 +179,36 @@ class ReviewMembersAdmin(admin.ModelAdmin):
     list_filter = ['review', 'member']
 admin.site.register(ReviewMembers, ReviewMembersAdmin)
 
+class IVR_VCRAdmin(admin.ModelAdmin):
+    list_display = ['date', 'center','project']
+    list_filter = ['center', 'project']
+admin.site.register(IVR_VCR, IVR_VCRAdmin)
+
+class IVR_VCR_authoringAdmin(admin.ModelAdmin):
+    list_display = ["date","center","project"]
+    list_filter = ['center', 'project']
+admin.site.register(IVR_VCR_authoring, IVR_VCR_authoringAdmin)
+
+class RiskAdmin(admin.ModelAdmin):
+    list_display = ['date', 'center','project']
+    list_filter = ['center', 'project']
+admin.site.register(Risk, RiskAdmin )
+
+class Risk_authoringAdmin(admin.ModelAdmin):
+    list_display = ["date","center","project"]
+    list_filter = ['center', 'project']
+admin.site.register(Risk_authoring, Risk_authoringAdmin)
+
+class TimeAdmin(admin.ModelAdmin):
+    list_display = ['date', 'center','project']
+    list_filter = ['center', 'project']
+admin.site.register(Time, TimeAdmin )
+
+class Time_authoringAdmin(admin.ModelAdmin):
+    list_display = ["date","center","project"]
+    list_filter = ['center', 'project']
+admin.site.register(Time_authoring, Time_authoringAdmin)
+
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.contrib.auth.admin import UserAdmin
