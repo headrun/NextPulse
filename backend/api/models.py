@@ -25,7 +25,12 @@ class Project(models.Model):
     is_voice = models.BooleanField(default = False)
     display_value = models.BooleanField(default = False)
     user = models.ManyToManyField(User,null=True)
+    is_enable_push = models.BooleanField(default = False)
+    no_of_packets = models.IntegerField(default=5)
+    no_of_agents = models.IntegerField(default=5)
     display_project = models.BooleanField(default = True)
+    external_audit_percentage = models.IntegerField(default=50)
+    is_nextpredict_enable = models.BooleanField(default=False)
 
 
 
