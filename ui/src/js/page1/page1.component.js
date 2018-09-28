@@ -3142,7 +3142,7 @@
                               }
                             });
                             $('.widget-83a').removeClass('widget-loader-show');
-                            $('.widget-b').removeClass('widget-data-hide');
+                            $('.widget-83b').removeClass('widget-data-hide');
                         })
                     }
 
