@@ -24,12 +24,15 @@ class Project(models.Model):
     sub_project_check = models.BooleanField(default=None)
     is_voice = models.BooleanField(default = False)
     display_value = models.BooleanField(default = False)
+    user = models.ManyToManyField(User,null=True)
     is_enable_push = models.BooleanField(default = False)
     no_of_packets = models.IntegerField(default=5)
     no_of_agents = models.IntegerField(default=5)
     display_project = models.BooleanField(default = True)
     external_audit_percentage = models.IntegerField(default=50)
     is_nextpredict_enable = models.BooleanField(default=False)
+
+
 
     class Meta:
         db_table = u'project'
@@ -43,6 +46,7 @@ class TeamLead(models.Model):
     project = models.ManyToManyField(Project, null=True)
     center = models.ManyToManyField(Center, null=True)
     display_upload = models.BooleanField(default = True)
+    business_logic_upload = models.BooleanField(default = False)
 
     class Meta:
         db_table = u'agent'
@@ -107,6 +111,7 @@ class Widgets_group(models.Model):
     display_value = models.BooleanField(default = True)
     legends_alignment_choices = (('left','Left'),('right','Right'),('bottom','Bottom'))
     legends_alignment = models.CharField(max_length=30,choices=legends_alignment_choices,default='bottom') 
+
 
     class Meta:
         db_table = u'Widgets_group'
@@ -879,3 +884,125 @@ class OneSignal(models.Model):
 
     class Meta:
         db_table = u'onesignal_deviceid'
+
+
+class IVR_VCR(models.Model):
+    date = models.DateField()
+    sub_project = models.CharField(max_length=255, blank=True)
+    work_packet = models.CharField(max_length=255, blank=True)
+    sub_packet = models.CharField(max_length=255, blank=True)
+    center = models.ForeignKey(Center)
+    project = models.ForeignKey(Project)
+    approved_verified = models.IntegerField()
+    grossed_up_one = models.IntegerField()
+    grossed_up_two = models.IntegerField()
+    count = models.IntegerField()
+
+    class Meta:
+        db_table = u'Customer_IVR_VCR'
+        verbose_name_plural = 'C_IVR_VCR'
+
+
+class IVR_VCR_authoring(models.Model):
+    date = models.CharField(max_length=255)
+    sub_project = models.CharField(max_length=255, blank=True)
+    work_packet = models.CharField(max_length=255, blank=True)
+    sub_packet = models.CharField(max_length=255, blank=True)
+    center = models.ForeignKey(Center)
+    project = models.ForeignKey(Project)
+    approved_verified = models.CharField(max_length=255, blank=True)
+    grossed_up_one = models.CharField(max_length=255, blank=True)
+    grossed_up_two = models.CharField(max_length=255, blank=True)
+    count = models.CharField(max_length=255, blank=True)
+    sheet_name = models.CharField(max_length=255, default='IVR-VCR')
+
+    class Meta:
+        db_table = u'Customer_IVR_VCR_authoring'
+        verbose_name_plural = 'C_IVR_VCR_authoring'
+
+
+class Risk(models.Model):
+    date = models.DateField()
+    sub_project = models.CharField(max_length=255, blank=True)
+    work_packet = models.CharField(max_length=255, blank=True)
+    sub_packet = models.CharField(max_length=255, blank=True)
+    center = models.ForeignKey(Center)
+    project = models.ForeignKey(Project)
+    data_entry_volume = models.IntegerField()
+    data_entry_done_aht = models.FloatField()
+    low_volume = models.IntegerField()
+    medium_volume = models.IntegerField()
+    high_volume = models.IntegerField()
+    low_aht = models.FloatField()
+    medium_aht = models.FloatField()
+    high_aht = models.FloatField()
+    pre_populated_volume = models.IntegerField()
+    pre_populated_aht = models.FloatField()
+
+    class Meta:
+        db_table = u'Customer_risk_table'
+        verbose_name_plural = 'C_Risk'
+
+
+class Risk_authoring(models.Model):
+    date = models.CharField(max_length=255)
+    sub_project = models.CharField(max_length=255, blank=True)
+    work_packet = models.CharField(max_length=255, blank=True)
+    sub_packet = models.CharField(max_length=255, blank=True)
+    center = models.ForeignKey(Center)
+    project = models.ForeignKey(Project)
+    data_entry_volume = models.CharField(max_length=255, blank=True)
+    data_entry_done_aht = models.CharField(max_length=255, blank=True)
+    low_volume = models.CharField(max_length=255, blank=True)
+    medium_volume = models.CharField(max_length=255, blank=True)
+    high_volume = models.CharField(max_length=255, blank=True)
+    low_aht = models.CharField(max_length=255, blank=True)
+    medium_aht = models.CharField(max_length=255, blank=True)
+    high_aht = models.CharField(max_length=255, blank=True)
+    pre_populated_volume = models.CharField(max_length=255, blank=True)
+    pre_populated_aht = models.CharField(max_length=255, blank=True)
+    sheet_name = models.CharField(max_length=255, default='Risk')
+
+    class Meta:
+        db_table = u'Customer_risk_authoring'
+        verbose_name_plural = 'C_Risk_authoring'
+
+
+class Time(models.Model):
+    date = models.DateField()
+    sub_project = models.CharField(max_length=255, blank=True)
+    work_packet = models.CharField(max_length=255, blank=True)
+    sub_packet = models.CharField(max_length=255, blank=True)
+    emp_name = models.CharField(max_length=255, blank=True)
+    center = models.ForeignKey(Center)
+    project = models.ForeignKey(Project)
+    busy = models.TimeField(auto_now=False)
+    ready = models.TimeField(auto_now=False)
+    total = models.TimeField(auto_now=False)
+
+    class Meta:
+        db_table = u'Customer_time_table'
+        verbose_name_plural = 'C_Time'
+
+
+class Time_authoring(models.Model):
+    date = models.CharField(max_length=255, blank=True)
+    sub_project = models.CharField(max_length=255, blank=True)
+    work_packet = models.CharField(max_length=255, blank=True)
+    sub_packet = models.CharField(max_length=255, blank=True)
+    emp_name = models.CharField(max_length=255, blank=True)
+    center = models.ForeignKey(Center)
+    project = models.ForeignKey(Project)
+    busy = models.CharField(max_length=255, blank=True)
+    ready = models.CharField(max_length=255, blank=True)
+    total = models.CharField(max_length=255, blank=True)
+    sheet_name = models.CharField(max_length=255, default='Time')
+
+    class Meta:
+        db_table = u'Customer_time_authoring'
+        verbose_name_plural = 'C_Time_authoring'
+
+
+
+
+
