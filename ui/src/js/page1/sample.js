@@ -326,9 +326,9 @@ app.controller('sampleCtrl', function($scope, $http){
 
         var center = $scope.sa_url_split[2].split('=')[1]
         var project = $scope.sa_url_split[1].split('=')[1]
-        project = project.replace(/%20/g, ' ');
+        $scope.project = project.replace(/%20/g, ' ');
         var url = "/api/packet_agent_audit_random/";
-        var data = {'packets':packets_data, 'agents':agents_data, 'audit':$scope.audit_per, 'random':$scope.random_per, 'audit_value':$scope.audit_value,'random_value':$scope.random_value, 'total_production':$scope.total_production,'from':$scope.start_date, 'to':$scope.end_date, 'project':project, 'center':center, 'remaining_packets':$scope.rem_packets, 'remaining_agents':$scope.rem_agents};
+        var data = {'packets':packets_data, 'agents':agents_data, 'audit':$scope.audit_per, 'random':$scope.random_per, 'audit_value':$scope.audit_value,'random_value':$scope.random_value, 'total_production':$scope.total_production,'from':$scope.start_date, 'to':$scope.end_date, 'project':$scope.project, 'center':center, 'remaining_packets':$scope.rem_packets, 'remaining_agents':$scope.rem_agents};
 
 
         $http({method:'POST', url:url, data:data, headers:{'Content-Type':'application/x-www-form-urlencoded;charset=utf-8;'}}).then(function(result){
@@ -350,7 +350,7 @@ app.controller('sampleCtrl', function($scope, $http){
 
     $scope.download_excel = function(){
         var url = "/api/download_audit_excel/";
-        var data = {'excel_data':$scope.excel_data, 'packet_details':$scope.packet_details, 'agent_details':$scope.agent_details}
+        var data = {'excel_data':$scope.excel_data, 'packet_details':$scope.packet_details, 'agent_details':$scope.agent_details, 'project':$scope.project, 'date':$scope.start_date}
         $http({method:'POST', url:url, data:data, responseType: "blob", headers:{'Content-Type':'application/x-www-form-urlencoded;charset=utf-8;'}}).then(function(result){
 
           const url = window.URL.createObjectURL(new Blob([result.data]));
