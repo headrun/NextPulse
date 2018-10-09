@@ -46,6 +46,7 @@
                 week: false,
                 month: false
              };   
+
              
              var OneSignal = window.OneSignal || [];
 
@@ -96,7 +97,7 @@
                 }]);
                 OneSignal.push(function() {
                 OneSignal.getUserId().then(function(userId) {
-                    console.log("OneSignal User ID:", userId);
+                    console.log("OneSignal User ID for page1:", userId);
                     var user = userId;
                     var data = {};
                    data['userid'] = user;
@@ -109,6 +110,8 @@
                     });
                 });
             });
+
+
 
              $scope.checkResults = [];
 

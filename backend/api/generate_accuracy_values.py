@@ -118,7 +118,7 @@ def get_production_data(project,date,_type):
 
 
 def generate_target_calculations(project,date):
-
+    
     query_dict = {}
     target_query = Targets.objects.filter(project=project,from_date__lte=date,to_date__gte=date,
                         target_type='FTE Target')
@@ -191,7 +191,6 @@ def get_productivity_data(project,date,_type):
     work_done = work_done['per_day__sum']
     billable_agents = Headcount.objects.filter(project=project,date=date).aggregate(Sum('billable_agents'))
     billable_agents = billable_agents['billable_agents__sum']
-    
     if billable_agents == None:
         billable_agents = 0
 
