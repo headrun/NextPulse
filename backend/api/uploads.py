@@ -784,24 +784,24 @@ def upload_new(request):
                             if time_dataset[str(customer_data[date_name])].has_key(emp_key):
                                 for pdct_key,pdct_value in local_raw_data.iteritems():
                                     if pdct_key not in time_dataset[str(customer_data[date_name])][emp_key].keys():
-                                        time_dataset[str(customer_data[date_name])][emp_key][pdct_key] = float(pdct_value)
+                                        con_value = convert_excel_time(float(pdct_value))                                        
+                                        time_dataset[str(customer_data[date_name])][emp_key][pdct_key] = con_value
                                     else:
-                                        if (pdct_key in ['Busy','Ready','Total']) :
+                                        if (pdct_key in ['busy','ready','total']) :
+                                            con_value = convert_excel_time(float(pdct_value))                                            
                                             try:
-                                                pdct_value = float(pdct_value)
+                                                pdct_value = con_value
                                             except:
-                                                pdct_value = 0
-                                            try:
-                                                dataset_value = float(time_dataset[str(customer_data[date_name])][emp_key][pdct_key])
-                                            except:
-                                                dataset_value =0
+                                                pdct_value = float(0)
+                                            
                                             if db_check == 'aggregate':
-                                                pass
+                                                time_dataset[str(customer_data[date_name])][emp_key][pdct_key] = pdct_value + dataset_value  
                                             elif db_check == 'update':
                                                 time_dataset[str(customer_data[date_name])][emp_key][pdct_key] = pdct_value
                             else:
                                 time_dataset[str(customer_data[date_name])][emp_key] = local_raw_data
 
+                
 
 
 

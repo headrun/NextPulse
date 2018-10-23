@@ -3,6 +3,26 @@ import datetime
 from api.models import *
 from common.utils import getHttpResponse as json_HttpResponse
 
+
+def convert_excel_time(t, hour_24=True):
+    t =  float(t)
+    if t != None:           
+        if t > 1:
+            t = t%1
+        else:
+            pass
+    elif t == None :
+        t = float(0)
+    
+    seconds = round(t*86400)
+    minutes, seconds = divmod(seconds, 60)
+    hours, minutes = divmod(minutes, 60)    
+    time_obj = datetime.time(int(hours),int(minutes),int(seconds))
+    time_in_seconds = float(datetime.timedelta(hours=time_obj.hour, minutes=time_obj.minute, seconds=time_obj.second).total_seconds())    
+    return time_in_seconds
+
+
+
 def accuracy_query_generations(pro_id,cen_id,date,main_work_packet):
     accuracy_query_set = {}
     accuracy_query_set['project'] = pro_id
@@ -712,23 +732,25 @@ def time_query_insertion(customer_data,prj_obj,center_obj,teamleader_obj_name,db
     new_can = 0
 
     try:
-        i = int(float(customer_data['busy'])*24*3600)
-        Busy = str(time(i//3600, (i%3600)//60, i%60))
+        Busy = customer_data["busy"]        
+        Busy = convert_excel_time(Busy)                
     except:
-        Busy = str("0:0:0")
+        Busy = float(0)
+    try:        
+        Ready = customer_data["ready"]
+        Ready = convert_excel_time(Ready)
+    except:
+        Ready = float(0)
     try:
-        j = int(float(customer_data['ready'])*24*3600)
-        Ready = str(time(j//3600, (j%3600)//60, j%60))
+        Total = customer_data["total"]  
+        Total = convert_excel_time(Total)      
     except:
-        Ready = str("0:0:0")
-    try:
-        k = int(float(customer_data['total'])*24*3600)
-        Total = str(time(k//3600, (k%3600)//60, k%60))
-    except:
-        Total = str("0:0:0")
+        Total = float(0)
 
+    
     check_query = Time.objects.filter(project=prj_obj, sub_project=customer_data.get('sub_project', ''), work_packet=customer_data.get('work_packet', ''), date=customer_data['date'], busy= Busy, ready=Ready, total=Total, center=center_obj, emp_name=customer_data.get('emp_name','')).values('busy','ready','total')
 
+    
     if len(check_query) == 0:
         new_can = Time(project=prj_obj, sub_project=customer_data.get('sub_project', ''),
                                          work_packet=customer_data.get('work_packet', ''),
@@ -746,6 +768,7 @@ def time_query_insertion(customer_data,prj_obj,center_obj,teamleader_obj_name,db
 		pass
     if len(check_query) > 0:
         if db_check == 'aggregate':
+            # Time.objects.filter(id=check_query[0].id).update(busy=check_query[0]['busy']+Busy, ready=check_query[0]['ready']+Ready, total=check_query[0]['total']+Total)
             pass
         elif db_check == 'update':
             Time.objects.filter(id=check_query[0].id).update(busy=Busy, ready=Ready, total=Total)
