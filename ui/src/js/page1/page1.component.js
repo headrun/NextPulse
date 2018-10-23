@@ -5571,6 +5571,21 @@
                             var agent_count = result.result.aht_Num_data;
                             var is_annotation = result.result.is_annotation;
 
+                            if (self.list_object.no_of_agents_AHT_daywise != undefined) {
+
+                                if (self.list_object.no_of_agents_AHT_daywise.display_value === true) {
+
+                                    var value = true;
+                                }
+                                else {
+                                    var value = false;
+                                }
+                            }
+                            else {
+                                var value = false;
+                            }
+
+
 
                             if (self.list_object.no_of_agents_AHT_daywise != undefined) {
 
@@ -5615,7 +5630,7 @@
                                     plotOptions: {
                                         series: {
                                           dataLabels: {
-                                            enabled: false,
+                                            enabled: value,
                                             valueDecimals: 2,
 
                                           },
@@ -5716,6 +5731,24 @@
                                 min:result.result.min_max.min_value,
                                 max:result.result.min_max.max_value
                             });
+
+                          
+                            if (self.list_object.percentage_people_67_and_99_achieved != undefined) {
+
+                                if (self.list_object.percentage_people_67_and_99_achieved.display_value === true) {
+
+                                    var value = true;
+                                }
+                                else {
+                                    var value = false;
+                                }
+                                   }
+                            else {
+                                    var value = false;
+                              }
+  
+
+                          
                           if (self.list_object.percentage_people_67_and_99_achieved != undefined) {
 
                                 if(self.list_object.percentage_people_67_and_99_achieved.legends_align == 'bottom') {
@@ -5760,7 +5793,7 @@
                                     plotOptions: {
                                         series: {
                                           dataLabels: {
-                                            enabled: false,
+                                            enabled: value,
                                             format: '{y} %',
                                             valueDecimals: 2,
                                             formatter: function () {

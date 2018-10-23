@@ -46,7 +46,7 @@ class TeamLead(models.Model):
     project = models.ManyToManyField(Project, null=True)
     center = models.ManyToManyField(Center, null=True)
     display_upload = models.BooleanField(default = True)
-    business_logic_upload = models.BooleanField(default = False)
+    
 
     class Meta:
         db_table = u'agent'
