@@ -339,8 +339,9 @@ def agent_required(request):
             date = date + value
     dates = {'date' : date}
     agent_data = actual_required_hourly(project, dates, table_name, location, skill, disposition)
-    agent_data['date'] = agent_data['date']
-    agent_data['agent_required'] = agent_graph_data(agent_data)
+    if agent_data:
+        agent_data['date'] = agent_data['date']
+        agent_data['agent_required'] = agent_graph_data(agent_data)
     return json_HttpResponse(agent_data)
    
 

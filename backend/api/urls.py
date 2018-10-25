@@ -83,14 +83,10 @@ urlpatterns = [
     url(r'^mylivechat_details', apiviews.MyLiveChat),
     url(r'^ivr_valid_cust_approv', apiviews.Valid_customer_approved),
     url(r'^ivr_invalid_cust_rejec', apiviews.Invalid_customer_reject),
-    url(r'^custo_aht_comp', apiviews.Customer_AHT_Comparison),
-    url(r'^cust_data_entry_aht', apiviews.data_entry_aht),
-    url(r'^cust_data_entry_vol', apiviews.data_entry_vol),
-    url(r'^custo_pop_volume', apiviews.pre_pop_vol),
-    url(r'^custo_pop_aht', apiviews.pre_pop_aht),
-    url(r'^custo_volume_comp', apiviews.Customer_Volume_Comparison),
-    url(r'^cust_time_busy_percentage', apiviews.Cutomer_Time_Busy),
-    url(r'^cust_time_ready_percentage', apiviews.Cutomer_Time_Ready),
-
+    url(r'^cust_busy_ready_percentage', apiviews.Cutomer_Time_Ready_Busy),
+    url(r'^identity_aht_comp',apiviews.AHT_Comparison_identity),
+    url(r'^aht_comp_id',apiviews.AHT_Comparison_id),
+    url(r'^comp_volume_identity',apiviews.Volume_identity_verif),
+    url(r'^volume_comp_id',apiviews.Volume_Comparison_id),
 
 ]
