@@ -11,3 +11,4 @@ backend/backend/static/*
 .idea
 .idea/
 backend/backend/config.ini
+.sql
