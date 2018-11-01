@@ -64,6 +64,10 @@ def graph_data_alignment_color(volumes_data,name_key,level_structure_key,prj_id,
             vol_values = float('%.2f' % round(vol_values, 2))
         prod_dict = {}
         prod_dict['name'] = vol_name.replace('NA_','').replace('_NA','')
+	if str(vol_name).find('Busy %') > 0:
+            prod_dict['stack'] = str(vol_name).split(' Busy %')[0]
+        if str(vol_name).find('Ready %') > 0:
+            prod_dict['stack'] = str(vol_name).split(' Ready %')[0]
         if new_pkt_names.has_key(prod_dict['name']):
             prod_dict['name'] = new_pkt_names[prod_dict['name']]
         if vol_name in['total_utilization','total_workdone','total_prodictivity']:

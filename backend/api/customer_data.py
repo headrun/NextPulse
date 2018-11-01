@@ -386,61 +386,67 @@ def Invalid_Customer_Reject(main_dates ,prj_id, center_obj, level_structure_key,
 
 def Time_Busy_Percentage(main_dates ,prj_id, center_obj, level_structure_key, dates_list, request, _type):
     result = {}
-    if _type == 'day':            
-        time_full_query = Time.objects.filter(project=prj_id,center=center_obj,date__range=[main_dates[0], main_dates[-1]])
-        date_pack = time_full_query.order_by('date').values_list('date',flat=True).distinct()
-        pack_list = time_full_query.values_list('sub_project',flat=True).distinct()
-        def concat(x): return str(x+" Busy %")
-        pack_list = list(map(concat, pack_list))
-        time_data = time_full_query.order_by('date').values_list('date','sub_project').annotate(busy=Sum('busy'),total=Sum('total'))
-        time_data = filter(lambda t: t[1] != u'', time_data)
-        if time_data:
-            for date in date_pack:
-                packet_list = []
-                for time_v in time_data:
-                    if date == time_v[0]:
-                        if time_v[2] > 0:                                
-                            b_t_per = (time_v[3]/time_v[2])*100
-                            b_t_per = float(100 - float(b_t_per))
-                            b_t_per = float('%.2f'% round(b_t_per, 2))
-                        else:
-                            b_t_per = 0
-                        if not result.has_key(time_v[1]+" Busy %"):
-                            result[time_v[1]+" Busy %"] = [b_t_per]
-                        else:
-                            result[time_v[1]+" Busy %"].append(b_t_per)
-                        packet_list.append(time_v[1]+" Busy %")
+    if _type == 'day':
+        filter_params, _term = getting_required_params(level_structure_key, prj_id, center_obj, dates_list)
+        if filter_params and _term:
+            time_full_query = Time.objects.filter(project=prj_id,center=center_obj,date__range=[main_dates[0], main_dates[-1]])
+            time_query = Time.objects.filter(**filter_params)
+            date_pack = time_query.order_by('date').values_list('date',flat=True).distinct()
+            pack_list = time_full_query.values_list(_term,flat=True).distinct()
+            def concat(x): return str(x+" Busy %")
+            pack_list = list(map(concat, pack_list))
+            time_data = time_query.order_by('date').values_list('date',_term).annotate(busy=Sum('busy'),total=Sum('total'))
+            time_data = filter(lambda t: t[1] != u'', time_data)
+            if time_data:
+                for date in date_pack:
+                    packet_list = []
+                    for time_v in time_data:
+                        if date == time_v[0]:
+                            if time_v[2] > 0:                                
+                                b_t_per = (time_v[3]/time_v[2])*100
+                                b_t_per = float(100 - float(b_t_per))
+                                b_t_per = float('%.2f'% round(b_t_per, 2))
+                            else:
+                                b_t_per = 0
+                            if not result.has_key(time_v[1]+" Busy %"):
+                                result[time_v[1]+" Busy %"] = [b_t_per]                            
+                            else:
+                                result[time_v[1]+" Busy %"].append(b_t_per)
+                            packet_list.append(time_v[1]+" Busy %")
 
-                for pack in pack_list:
-                    if pack not in packet_list:
-                        if not result.has_key(pack):
-                            result[pack] = [0]
-                        else:
-                            result[pack].append(0)
+                    for pack in pack_list:
+                        if pack not in packet_list:
+                            if not result.has_key(pack):
+                                result[pack] = [0]
+                            else:
+                                result[pack].append(0)
 
     elif _type in ["week","month"]:
-        result = {} 
-        time_query = Time.objects.filter(project=prj_id,center=center_obj, date__range=[dates_list[0],dates_list[-1]])           
-        time_busy = time_query.values_list('sub_project').annotate(grs_one=Sum('busy'), app_vrf=Sum('total'))
-        time_busy = filter(lambda v: v[0] != u'', time_busy)
-        pack_list = time_query.values_list('sub_project',flat=True).distinct()
-        def concat(x): return str(x+" Busy %")
-        pack_list = list(map(concat, pack_list))
-        packets = []
-        if time_busy:
-            for val in time_busy:
-                if val[2] > 0:
-                    lid_app = float(val[1]/val[2])*100
-                    lid_app = 100 - float(lid_app)
-                    lid_app = float('%.2f' % round(lid_app, 2))
-                else:
-                    lid_app = 0
-                result[val[0]+" Busy %"] = lid_app
-                packets.append(val[0]+" Busy %")
-            if len(packets) > 0:
-                for pack in pack_list:
-                    if pack not in packets:
-                        result[pack] = 0
+        result = {}
+        filter_params, _term = getting_required_params(level_structure_key, prj_id, center_obj, dates_list)
+        if filter_params and _term:
+            time_query = Time.objects.filter(project=prj_id,center=center_obj, date__range=[dates_list[0],dates_list[-1]])           
+            time_query = Time.objects.filter(**filter_params)
+            time_busy = time_query.values_list(_term).annotate(grs_one=Sum('busy'), app_vrf=Sum('total'))
+            time_busy = filter(lambda v: v[0] != u'', time_busy)
+            pack_list = time_query.values_list('sub_project',flat=True).distinct()
+            def concat(x): return str(x+" Busy %")
+            pack_list = list(map(concat, pack_list))
+            packets = []
+            if time_busy:
+                for val in time_busy:
+                    if val[2] > 0:
+                        lid_app = float(val[1]/val[2])*100
+                        lid_app = 100 - float(lid_app)
+                        lid_app = float('%.2f' % round(lid_app, 2))
+                    else:
+                        lid_app = 0
+                    result[val[0]+" Busy %"] = lid_app
+                    packets.append(val[0]+" Busy %")
+                if len(packets) > 0:
+                    for pack in pack_list:
+                        if pack not in packets:
+                            result[pack] = 0
     return result
 
 
@@ -448,62 +454,67 @@ def Time_Busy_Percentage(main_dates ,prj_id, center_obj, level_structure_key, da
 
 def Time_Ready_Percentage(main_dates ,prj_id, center_obj, level_structure_key, dates_list, request, _type):
     result = {}
-    if _type == 'day':        
-        time_full_query = Time.objects.filter(project=prj_id,center=center_obj,date__range=[main_dates[0], main_dates[-1]])
-        date_pack = time_full_query.order_by('date').values_list('date',flat=True).distinct()
-        pack_list = time_full_query.values_list('sub_project',flat=True).distinct()
-        def concat(x): return str(x+" Ready %")
-        pack_list = list(map(concat, pack_list))
-        time_data = time_full_query.order_by('date').values_list('date','sub_project').annotate(ready=Sum('ready'),total=Sum('total'))
-        time_data = filter(lambda t: t[1] != u'', time_data)
-        if time_data:
-            for date in date_pack:
-                packet_list = []
-                for time_v in time_data:
-                    if date == time_v[0]:
-                        if time_v[3] > 0:
-                            a_t_per = (time_v[2]/time_v[3])*100
-                            a_t_per = float(100 - float(a_t_per))
-                            a_t_per = float('%.2f'% round(a_t_per, 2))
-                        else:
-                            a_t_per = 0
-                        if not result.has_key(time_v[1]+" Ready %"):
-                            result[time_v[1]+" Ready %"] = [a_t_per]                            
-                        else:
-                            result[time_v[1]+" Ready %"].append(a_t_per)
-                        packet_list.append(time_v[1]+" Ready %")
+    if _type == 'day':
+        filter_params, _term = getting_required_params(level_structure_key, prj_id, center_obj, dates_list)
+        if filter_params and _term:
+            time_full_query = Time.objects.filter(project=prj_id,center=center_obj,date__range=[main_dates[0], main_dates[-1]])
+            time_query = Time.objects.filter(**filter_params)
+            date_pack = time_query.order_by('date').values_list('date',flat=True).distinct()
+            pack_list = time_full_query.values_list(_term,flat=True).distinct()
+            def concat(x): return str(x+" Ready %")
+            pack_list = list(map(concat, pack_list))
+            time_data = time_query.order_by('date').values_list('date',_term).annotate(ready=Sum('ready'),total=Sum('total'))
+            time_data = filter(lambda t: t[1] != u'', time_data)
+            if time_data:
+                for date in date_pack:
+                    packet_list = []
+                    for time_v in time_data:
+                        if date == time_v[0]:
+                            if time_v[3] > 0:
+                                a_t_per = (time_v[2]/time_v[3])*100
+                                a_t_per = float(100 - float(a_t_per))
+                                a_t_per = float('%.2f'% round(a_t_per, 2))
+                            else:
+                                a_t_per = 0
+                            if not result.has_key(time_v[1]+" Ready %"):
+                                result[time_v[1]+" Ready %"] = [a_t_per]                            
+                            else:
+                                result[time_v[1]+" Ready %"].append(a_t_per)
+                            packet_list.append(time_v[1]+" Ready %")
 
-                for pack in pack_list:
-                    if pack not in packet_list:
-                        if not result.has_key(pack):
-                            result[pack] = [0]
-                        else:
-                            result[pack].append(0)
+                    for pack in pack_list:
+                        if pack not in packet_list:
+                            if not result.has_key(pack):
+                                result[pack] = [0]
+                            else:
+                                result[pack].append(0)
 
     elif _type in ["week","month"]:
         result = {} 
-        time_full_query = Time.objects.filter(project=prj_id,center=center_obj, date__range=[dates_list[0],dates_list[-1]])
-        time_query = Time.objects.filter(project=prj_id,center=center_obj, date__range=[dates_list[0],dates_list[-1]])               
-        time_ready = time_full_query.values_list('sub_project').annotate(grs_one=Sum('ready'), app_vrf=Sum('total'))
-        time_ready = filter(lambda v: v[0] != u'', time_ready)            
-        pack_list = time_query.values_list('sub_project',flat=True).distinct()
-        def concat(x): return str(x+" Ready %")
-        pack_list = list(map(concat, pack_list))
-        packets = []
-        if time_ready:
-            for val in time_ready:
-                if val[2] > 0:
-                    lid_app = float(val[1]/val[2])*100
-                    lid_app = 100 - float(lid_app)
-                    lid_app = float('%.2f' % round(lid_app, 2))
-                else:
-                    lid_app = 0
-                result[val[0]+" Ready %"] = lid_app
-                packets.append(val[0]+" Ready %")
-            
-            for pack in pack_list:
-                if pack not in packets:
-                    result[pack] = 0
+        filter_params, _term = getting_required_params(level_structure_key, prj_id, center_obj, dates_list)
+        if filter_params and _term:
+            time_full_query = Time.objects.filter(project=prj_id,center=center_obj, date__range=[dates_list[0],dates_list[-1]])
+            time_query = Time.objects.filter(**filter_params)               
+            time_ready = time_query.values_list(_term).annotate(grs_one=Sum('ready'), app_vrf=Sum('total'))
+            time_ready = filter(lambda v: v[0] != u'', time_ready)            
+            pack_list = time_full_query.values_list(_term,flat=True).distinct()
+            def concat(x): return str(x+" Ready %")
+            pack_list = list(map(concat, pack_list))
+            packets = []
+            if time_ready:
+                for val in time_ready:
+                    if val[2] > 0:
+                        lid_app = float(val[1]/val[2])*100
+                        lid_app = 100 - float(lid_app)
+                        lid_app = float('%.2f' % round(lid_app, 2))
+                    else:
+                        lid_app = 0
+                    result[val[0]+" Ready %"] = lid_app
+                    packets.append(val[0]+" Ready %")
+                
+                for pack in pack_list:
+                    if pack not in packets:
+                        result[pack] = 0
 
     return result
 
@@ -511,14 +522,14 @@ def Time_Ready_Percentage(main_dates ,prj_id, center_obj, level_structure_key, d
 
 def Time_Ready_Busy_Percentage(main_dates ,prj_id, center_obj, level_structure_key, dates_list, request, _type):        
     if _type == 'day':
-        ready_dict = Time_Ready_Percentage(main_dates ,prj_id, center_obj, level_structure_key, dates_list, request, _type)
-        busy_dict = Time_Busy_Percentage(main_dates ,prj_id, center_obj, level_structure_key, dates_list, request, _type)
+        ready_dict = Time_Ready_Percentage(main_dates ,prj_id, center_obj, level_structure_key, dates_list, request, _type)        
+        busy_dict = Time_Busy_Percentage(main_dates ,prj_id, center_obj, level_structure_key, dates_list, request, _type)        
         result = ready_dict.copy()
         result.update(busy_dict)
 
     elif _type in ["week","month"]:
-        ready_dict = Time_Ready_Percentage(main_dates ,prj_id, center_obj, level_structure_key, dates_list, request, _type)
-        busy_dict = Time_Busy_Percentage(main_dates ,prj_id, center_obj, level_structure_key, dates_list, request, _type)
+        ready_dict = Time_Ready_Percentage(main_dates ,prj_id, center_obj, level_structure_key, dates_list, request, _type)        
+        busy_dict = Time_Busy_Percentage(main_dates ,prj_id, center_obj, level_structure_key, dates_list, request, _type)        
         result = ready_dict.copy()
         result.update(busy_dict)        
 

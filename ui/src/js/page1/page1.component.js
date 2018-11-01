@@ -205,6 +205,8 @@
                     $('.widget-83b').addClass('widget-data-hide');
                     $('.widget-84a').addClass('widget-loader-show');
                     $('.widget-84b').addClass('widget-data-hide');
+                    $('.widget-85a').addClass('widget-loader-show');
+                    $('.widget-85b').addClass('widget-data-hide');
 
              }
 
@@ -482,6 +484,7 @@
                     var error_bar_graph = '/api/error_bar_graph/'+self.common_for_all;
                     var err_field_graph = '/api/err_field_graph/'+self.common_for_all;
                     var cate_error = '/api/cate_error/'+self.common_for_all;
+                    var External_cate_jumio = '/api/cate_error_jumio/'+self.common_for_all;
                     var pareto_cate_error = '/api/pareto_cate_error/'+self.common_for_all;
                     var agent_cate_error = '/api/agent_cate_error/'+self.common_for_all;
                     var nw_exce = '/api/nw_exce/'+self.common_for_all;
@@ -2689,14 +2692,19 @@
                                     plotOptions: {
                                         
                                         column: {
-                                            stacking: 'percent'
+                                            stacking: 'normal'
                                         },
                                         
                                         series: {
                                             dataLabels: {
                                             enabled: value,
+                                            rotation: -90,                                            
                                             format: '{y} %',
-                                            valueDecimals: 2
+                                            valueDecimals: 2,
+                                            
+                                            style: {
+                                                "color": "#374356", "fontSize": "12px", "fontWeight": "bold", "textOutline": "0px" 
+                                            }
                                             },
                                           allowPointSelect: true,
                                           cursor: 'pointer',
@@ -4272,6 +4280,25 @@
                             })
                         }
                     }
+
+                    self.category_error_jumio = function(External_cate_jumio){
+                        
+                        return $http({method:"GET", url: External_cate_jumio }).success(function(result){
+
+                        angular.extend(self.chartOptions90,{
+                            series: [{
+                                name: '',
+                                colorByPoint: true,
+                                cursor: 'pointer',
+                                data: result.result.external_errors_types
+                            }]
+                        });
+                        $('.widget-85a').removeClass('widget-loader-show');
+                        $('.widget-85b').removeClass('widget-data-hide');                        
+                        
+                            })
+                        }
+                    
 
         self.pareto_category_error = function(pareto_cate_error){
 
@@ -7551,6 +7578,8 @@
                         self.AHT_Comparison_identity(undefined, undefined)
                     } else if (val == 'timewidget') {
                         self.Time_Ready_Busy_Percentage(undefined, undefined)
+                    } else if (val == 'external_error_pie_jumio') {
+                        self.category_error_jumio(External_cate_jumio)
                     } else if (val == 'monthly_volume_widget') {
                          self.mont_volume(undefined, undefined)
                     } else if (val == 'production_avg_perday') {
@@ -7679,6 +7708,7 @@
                     "self.chartOptions87":self.chartOptions87,
                     "self.chartOptions88":self.chartOptions88,
                     "self.chartOptions89":self.chartOptions89,
+                    "self.chartOptions90":self.chartOptions90,
                     
 
                   };
@@ -8364,6 +8394,7 @@
                     "self.chartOptions87":self.chartOptions87,
                     "self.chartOptions88":self.chartOptions88,
                     "self.chartOptions89":self.chartOptions89,
+                    "self.chartOptions90":self.chartOptions90,
                     
                 }
 
@@ -8838,6 +8869,7 @@
                     'self.chartOptions87':self.chartOptions87,
                     'self.chartOptions88':self.chartOptions88,
                     "self.chartOptions89":self.chartOptions89,
+                    "self.chartOptions90":self.chartOptions90,
                     
                     };
                     var final_layout_list = [];
@@ -11149,6 +11181,39 @@ self.chartOptions64 = {
            },
         };
 
+        self.chartOptions90 = {
+            chart: {
+                backgroundColor: "transparent",
+                plotBackgroundColor: null,
+                plotBorderWidth: null,
+                plotShadow: false,
+                type: 'pie',
+                reflow: false
+              },
+            title: {
+                text: ''
+              },
+            tooltip: {
+                pointFormat: '<b>{point.y}</b>'
+              },
+            plotOptions: {
+                pie: {
+                    allowPointSelect: true,
+                    point: {
+                       events:{
+                       }
+                    },
+                    cursor: 'pointer',
+                    dataLabels: {
+                        enabled: true,
+                        format: '<b>{point.name}</b>: {point.y} ',
+                        style: {
+                            color:(Highcharts.theme && Highcharts.theme.background2) || '#696969'
+                           }
+                        }
+                    }
+                },
+            };
 
 
     Highcharts.Pointer.prototype.onContainerMouseDown = function (e) {
