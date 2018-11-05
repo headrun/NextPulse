@@ -145,6 +145,7 @@ def get_packet_details(request):
         raw_master_set = RawTable.objects.filter(\
                          project=main_data_dict['pro_cen_mapping'][0][0], center=main_data_dict['pro_cen_mapping'][1][0], \
                          date__range=dates)
+        
     sub_pro_level = filter(None, raw_master_set.values_list('sub_project',flat=True).distinct())
     sub_project_level = [i for i in sub_pro_level]
     if sub_project_level:
