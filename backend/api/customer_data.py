@@ -313,7 +313,10 @@ def Valid_Customer_Approved_id(main_dates ,prj_id, center_obj, level_structure_k
             for dat in date_pack:
                 for tar_v in target:
                     if tar_v['from_date'] <= dat and tar_v['to_date'] >= dat:
-                        dict_t['Target_cust'].append(tar_v['target']*100)                        
+                        if tar_v['target'] != None:
+                            dict_t['Target_cust'].append(tar_v['target']*100)                        
+                        else:
+                            dict_t['Target_cust'].append(0)                        
                 
 
     elif _type in ["week","month"]:
@@ -325,7 +328,7 @@ def Valid_Customer_Approved_id(main_dates ,prj_id, center_obj, level_structure_k
         if target['target'] == None:
             target = 0
         else:
-            pass
+            target = target['target']
         pack_list = IVR_VCR.objects.filter(project=prj_id,center=center_obj, date__range=[main_dates[0],main_dates[-1]],sub_project__icontains='ID Verification').values_list('sub_project',flat=True).distinct()
         packets = []
         if valid_approv:
@@ -343,7 +346,7 @@ def Valid_Customer_Approved_id(main_dates ,prj_id, center_obj, level_structure_k
                     if pack not in packets:
                         dict_t[pack] = 0
 
-        dict_t['Target_cust'] = target['target']*100
+            dict_t['Target_cust'] = target*100
                         
     return dict_t
 
@@ -386,7 +389,10 @@ def Valid_Customer_Approved_iden(main_dates ,prj_id, center_obj, level_structure
             for dat in date_pack:
                 for tar_v in target:
                     if tar_v['from_date'] <= dat and tar_v['to_date'] >= dat:
-                        dict_t['Target_cust'].append(tar_v['target']*100)                        
+                        if tar_v['target'] != None:
+                            dict_t['Target_cust'].append(tar_v['target']*100)                        
+                        else:
+                            dict_t['Target_cust'].append(0)                      
                 
 
     elif _type in ["week","month"]:
@@ -398,7 +404,7 @@ def Valid_Customer_Approved_iden(main_dates ,prj_id, center_obj, level_structure
         if target['target'] == None:
             target = 0
         else:
-            pass
+            target = target['target']
         pack_list = IVR_VCR.objects.filter(project=prj_id,center=center_obj, date__range=[main_dates[0],main_dates[-1]],sub_project__icontains='Identity Verification').values_list('sub_project',flat=True).distinct()
         packets = []
         if valid_approv:
@@ -416,7 +422,7 @@ def Valid_Customer_Approved_iden(main_dates ,prj_id, center_obj, level_structure
                     if pack not in packets:
                         dict_t[pack] = 0
 
-        dict_t['Target_cust'] = target['target']*100
+            dict_t['Target_cust'] = target*100
                         
     return dict_t
 
@@ -460,7 +466,10 @@ def Invalid_Customer_Reject_id(main_dates ,prj_id, center_obj, level_structure_k
             for dat in date_pack:
                 for tar_v in target:
                     if tar_v['from_date'] <= dat and tar_v['to_date'] >= dat:
-                        dict_t['Target_cust'].append(tar_v['target']*100)
+                        if tar_v['target'] != None:
+                            dict_t['Target_cust'].append(tar_v['target']*100)                        
+                        else:
+                            dict_t['Target_cust'].append(0)
 
 
     elif _type in ["week","month"]:
@@ -472,7 +481,7 @@ def Invalid_Customer_Reject_id(main_dates ,prj_id, center_obj, level_structure_k
         if target['target'] == None:
             target = 0
         else:
-            pass
+            target = target['target']
         pack_list = IVR_VCR.objects.filter(project=prj_id,center=center_obj, date__range=[main_dates[0],main_dates[-1]], sub_project__icontains='ID Verification').values_list('sub_project',flat=True).distinct()            
         packets = []
         if invalid_reject:
@@ -491,7 +500,7 @@ def Invalid_Customer_Reject_id(main_dates ,prj_id, center_obj, level_structure_k
                     if pack not in packets:
                         dict_t[pack] = 0
 
-            dict_t['Target_cust'] = target['target']*100
+            dict_t['Target_cust'] = target*100
                 
     return dict_t
 
@@ -534,7 +543,10 @@ def Invalid_Customer_Reject_iden(main_dates ,prj_id, center_obj, level_structure
             for dat in date_pack:
                 for tar_v in target:
                     if tar_v['from_date'] <= dat and tar_v['to_date'] >= dat:
-                        dict_t['Target_cust'].append(tar_v['target']*100)
+                        if tar_v['target'] != None:
+                            dict_t['Target_cust'].append(tar_v['target']*100)                        
+                        else:
+                            dict_t['Target_cust'].append(0)
 
 
     elif _type in ["week","month"]:
@@ -546,7 +558,7 @@ def Invalid_Customer_Reject_iden(main_dates ,prj_id, center_obj, level_structure
         if target['target'] == None:
             target = 0
         else:
-            pass
+            target = target['target']
         pack_list = IVR_VCR.objects.filter(project=prj_id,center=center_obj, date__range=[main_dates[0],main_dates[-1]], sub_project__icontains='Identity Verification').values_list('sub_project',flat=True).distinct()            
         packets = []
         if invalid_reject:
@@ -565,7 +577,7 @@ def Invalid_Customer_Reject_iden(main_dates ,prj_id, center_obj, level_structure
                     if pack not in packets:
                         dict_t[pack] = 0
 
-            dict_t['Target_cust'] = target['target']*100
+            dict_t['Target_cust'] = target*100
                 
     return dict_t
 

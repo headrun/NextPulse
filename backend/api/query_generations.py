@@ -529,9 +529,9 @@ def target_table_query_insertion(customer_data,prj_obj,center_obj,teamleader_obj
     except:
         target = 0
     try:
-        target_value = int(float(customer_data['target_value']))
+        target_value = float(customer_data['target_value'])
     except:
-        target_value = 0
+        target_value = float(0)
     try:
         fte_target = int(float(customer_data['fte_target']))
     except:
