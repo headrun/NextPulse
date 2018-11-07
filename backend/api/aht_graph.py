@@ -16,7 +16,7 @@ def aht_team_calculations(date_list, project, center, level_structure_key, main_
     
     filter_params, _term = getting_required_params(level_structure_key, project, center, date_list)
     if _term  and filter_params:
-        query_data = AHTTeam.objects.filter(**filter_params)
+        query_data = AHTTeam.objects.filter(**filter_params).exclude(sub_project="overall")
         aht_values = query_data.values_list('date',_term,'AHT')
         packets = query_data.values_list(_term,flat=True).distinct() 
         raw_dates = RawTable.objects.filter(project=project, center=center, date__range=[date_list[0],date_list[-1]]).\
