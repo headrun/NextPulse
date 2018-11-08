@@ -22,7 +22,7 @@ class Project(models.Model):
     project_db_handlings_choices = (('update','Update'),('aggregate','Aggregate'),('ignore','Ignore'),)
     project_db_handling = models.CharField(max_length=30,choices=project_db_handlings_choices,default='ignore',) 
     sub_project_check = models.BooleanField(default=None)
-    is_voice = models.BooleanField(default = False)
+    is_voice = models.BooleanField(default = False)    
     display_value = models.BooleanField(default = False)
     user = models.ManyToManyField(User,null=True)
     is_enable_push = models.BooleanField(default = False)
@@ -46,7 +46,7 @@ class TeamLead(models.Model):
     project = models.ManyToManyField(Project, null=True)
     center = models.ManyToManyField(Center, null=True)
     display_upload = models.BooleanField(default = True)
-    business_logic_upload = models.BooleanField(default = False)
+    
 
     class Meta:
         db_table = u'agent'
@@ -386,7 +386,7 @@ class Targets(models.Model):
     target      = models.IntegerField()
     fte_target  = models.IntegerField(default=0)
     target_type = models.CharField(max_length=255, blank=True, db_index=True)
-    target_value = models.IntegerField(default=0)
+    target_value = models.FloatField(default=0.0)
     target_method = models.CharField(max_length=125, blank=True, db_index=True)
     center = models.ForeignKey(Center, null=True)
     project = models.ForeignKey(Project, null=True,db_index=True)
@@ -901,6 +901,11 @@ class IVR_VCR(models.Model):
     class Meta:
         db_table = u'Customer_IVR_VCR'
         verbose_name_plural = 'C_IVR_VCR'
+        index_together = (('project', 'center', 'date'), ('project', 'center', 'work_packet', 'date'),
+                            ('project', 'center', 'sub_project', 'work_packet', 'date'),
+                            ('project', 'center', 'sub_project', 'work_packet', 'sub_packet', 'date'), )
+
+
 
 
 class IVR_VCR_authoring(models.Model):
@@ -942,6 +947,10 @@ class Risk(models.Model):
     class Meta:
         db_table = u'Customer_risk_table'
         verbose_name_plural = 'C_Risk'
+        index_together = (('project', 'center', 'date'), ('project', 'center', 'work_packet', 'date'),
+                            ('project', 'center', 'sub_project', 'work_packet', 'date'),
+                            ('project', 'center', 'sub_project', 'work_packet', 'sub_packet', 'date'), )
+
 
 
 class Risk_authoring(models.Model):
@@ -976,13 +985,20 @@ class Time(models.Model):
     emp_name = models.CharField(max_length=255, blank=True)
     center = models.ForeignKey(Center)
     project = models.ForeignKey(Project)
-    busy = models.TimeField(auto_now=False)
-    ready = models.TimeField(auto_now=False)
-    total = models.TimeField(auto_now=False)
+    busy = models.FloatField()
+    ready = models.FloatField()
+    total = models.FloatField()
 
     class Meta:
         db_table = u'Customer_time_table'
         verbose_name_plural = 'C_Time'
+        index_together = (('project', 'center', 'date'), ('project', 'center', 'work_packet', 'date'),
+                            ('project', 'center', 'sub_project', 'work_packet', 'date'), ('project', 'center', 'date', 'emp_name'),
+                            ('project', 'center', 'sub_project', 'work_packet', 'sub_packet', 'date'), 
+                            ('project', 'center', 'date', 'work_packet', 'emp_name'),
+                            ('project', 'center', 'date', 'work_packet', 'sub_packet', 'emp_name'),
+                            ('project', 'center', 'date', 'sub_project', 'work_packet', 'sub_packet', 'emp_name'), )
+
 
 
 class Time_authoring(models.Model):
