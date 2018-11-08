@@ -38,13 +38,13 @@ def historical_packet_agent_data(request):
     result['packets']           = packet_data['packets']
     result['packet_value']      = packet_data['packetsvalue']
     result['packet_details']    = packet_data['packets_details']
-    
+
     agents_result, agent_data   = get_the_packet_and_agent_data(agents,dates,project_id,center_id,filter_type='agents')
     result['config_agents']     = agents_result
     result['agents']            = agent_data['agents']
     result['agent_value']       = agent_data['agentsvalue']
     result['agent_details']     = agent_data['agents_details']
-
+    
     result['total_production']  = total_production
     return JsonResponse(result) 
 
@@ -99,7 +99,7 @@ def generate_accuracy_for_packet_and_agent(required_data,project_id,center_id,da
             external_check       = external_sub_query.values_list(query_field,flat=True).distinct()
             
             audit_value, error_value, external_audit_value, external_error_value = 0, 0, 0, 0
-            
+
             if (name in internal_check):
                 error_value          = internal_errors['total_errors__sum'] if internal_errors['total_errors__sum'] is not None else 0
                 audit_value          = internal_audits['audited_errors__sum'] if internal_audits['audited_errors__sum'] is not None else 0
@@ -174,11 +174,10 @@ def generate_required_dates(dates, required_dates):
     
     check_date  = date(*map(int, dates.split('-')))
     dates_lists = [list(), list(), list(), list()]
-    
+
     for index, date_value in enumerate(required_dates):
         for day in range(0, date_value):
             dates_lists[index].append((check_date - dt.timedelta(day)).strftime('%Y-%m-%d'))
-    
     return dates_lists
     
 
@@ -392,13 +391,19 @@ def generate_excel_for_audit_data(request):
 
     ##=====generates agents and packets data in excel=====##
     if request.method == 'POST':
+        
         data           = ast.literal_eval(request.POST.keys()[0])['excel_data']
         packet_details = ast.literal_eval(request.POST.keys()[0])['packet_details']
         agent_details  = ast.literal_eval(request.POST.keys()[0])['agent_details']
+        project        = ast.literal_eval(request.POST.keys()[0])['project']
+        start_date     = ast.literal_eval(request.POST.keys()[0])['date']
+        end_date       = (date(*map(int, start_date.split('-'))) - dt.timedelta(90)).strftime('%Y-%m-%d')
         workbook       = xlsxwriter.Workbook('audit_data.xlsx')                                                                                                                                                                                                                                                                                                                                                                                            
         bold           = workbook.add_format({'bold': True})
         worksheet      = workbook.add_worksheet('audit_data')
         worksheet_1    = workbook.add_worksheet('calculation')
+        worksheet_2    = workbook.add_worksheet('External')
+        worksheet_3    = workbook.add_worksheet('Internal')
         audit_dict     = data.get('audit','')
         random_dict    = data.get('random','')
         audit_headers  = ['Date','Emp Name','Sub Project','Work Packet','Sub Packet','Audit count']
@@ -517,6 +522,53 @@ def generate_excel_for_audit_data(request):
                 for random_name, letter in zip(random_sample_data, auidt_letters):
                     worksheet.write(letter+str(t), data[random_name])
                 t += 1
+    
+        if audit_dict and random_dict:
+            err_agent_details = set([value['agent'] for value in audit_dict.values()])
+            err_agent_details.update(set([value['agent'] for value in random_dict.values()]))
+
+        elif audit_dict:
+            err_agent_details = set([value['agent'] for value in audit_dict.values()])
+
+        elif random_dict:
+            err_agent_details = set([value['agent'] for value in random_dict.values()])
+        
+        agent_error_details = generate_agent_internal_external_error_details(project,start_date,end_date,err_agent_details)
+        if agent_error_details:     
+            internal_details = agent_error_details['internal']
+            external_details = agent_error_details['external']
+            error_headers = ['Date','Emp Name','Sub Project','Work Packet','Sub Packet','Audited Count','Total Errors','Error Category','Error Count']
+            error_cols = ['A','B','C','D','E','F','G','H','I']
+            for col, header in zip(error_cols, error_headers):
+                worksheet_2.write(col+str(1), header, bold)
+                worksheet_3.write(col+str(1), header, bold)
+
+            internal_cnt, external_cnt = 2, 2
+            for value in external_details.values():
+                worksheet_2.write('A'+str(external_cnt),value['date'])
+                worksheet_2.write('B'+str(external_cnt),value['employee_id'])
+                worksheet_2.write('C'+str(external_cnt),value['sub_project'])
+                worksheet_2.write('D'+str(external_cnt),value['work_packet'])
+                worksheet_2.write('E'+str(external_cnt),value['sub_packet'])
+                worksheet_2.write('F'+str(external_cnt),value['audited_errors'])
+                worksheet_2.write('G'+str(external_cnt),value['total_errors'])
+                worksheet_2.write('H'+str(external_cnt),value['error_types'])
+                worksheet_2.write('I'+str(external_cnt),value['error_values'])
+
+                external_cnt += 1
+
+            for value in internal_details.values():
+                worksheet_3.write('A'+str(internal_cnt),value['date'])
+                worksheet_3.write('B'+str(internal_cnt),value['employee_id'])
+                worksheet_3.write('C'+str(internal_cnt),value['sub_project'])
+                worksheet_3.write('D'+str(internal_cnt),value['work_packet'])
+                worksheet_3.write('E'+str(internal_cnt),value['sub_packet'])
+                worksheet_3.write('F'+str(internal_cnt),value['audited_errors'])
+                worksheet_3.write('G'+str(internal_cnt),value['total_errors'])
+                worksheet_3.write('H'+str(internal_cnt),value['error_types'])
+                worksheet_3.write('I'+str(internal_cnt),value['error_values'])
+
+                internal_cnt += 1
 
         workbook.close()
         with open('audit_data.xlsx', 'rb')as xl:
@@ -527,3 +579,67 @@ def generate_excel_for_audit_data(request):
         return response
     else:
         return HttpResponse('Please use the post method to send the data.')
+
+
+def generate_agent_internal_external_error_details(project,start_date,end_date,err_agent_details):
+
+    result, internal_dict, external_dict = {}, {}, {}
+    intrnl_cnt, extrnl_cnt = 0, 0
+
+    project_id  = Project.objects.get(name=project).id
+    agent_names = err_agent_details
+    
+    for agent in agent_names:
+        internal_data = Internalerrors.objects.filter(project=project_id,date__range=[end_date,start_date],employee_id=agent).\
+                        filter(error_values__gt=0)
+        external_data = Externalerrors.objects.filter(project=project_id,date__range=[end_date,start_date],employee_id=agent).\
+                        filter(error_values__gt=0)
+
+        if external_data:
+            external_values = external_data.values_list('date','sub_project','work_packet','sub_packet','total_errors','audited_errors','error_types','error_values')
+            for value in external_values:
+                if '#<>#' not in value[6]:
+                    external_dict.update({extrnl_cnt: {'employee_id':agent,'date':str(value[0]),'sub_project':value[1],'work_packet':value[2],'sub_packet':value[3],\
+                        'total_errors':value[4],'audited_errors':value[5],'error_types':value[6],'error_values':value[7]}})
+                    extrnl_cnt += 1
+                else:
+                    error_names = value[6].split('#<>#')
+                    error_count = value[7].split('#<>#')
+                    error_cnt = 0
+                    for name, count in zip(error_names, error_count):
+                        if name != 'no_data' and error_cnt >= 1:
+                            external_dict.update({extrnl_cnt: {'employee_id':agent,'date':str(value[0]),'sub_project':value[1],'work_packet':value[2],'sub_packet':value[3],\
+                                'total_errors':'','audited_errors':value[5],'error_types':name,'error_values':count}})
+                        elif name != 'no_data':
+                            external_dict.update({extrnl_cnt: {'employee_id':agent,'date':str(value[0]),'sub_project':value[1],'work_packet':value[2],'sub_packet':value[3],\
+                                'total_errors':value[4],'audited_errors':value[5],'error_types':name,'error_values':count}})        
+                        extrnl_cnt += 1
+                        error_cnt += 1
+        if internal_data:
+            internal_values = internal_data.values_list('date','sub_project','work_packet','sub_packet','total_errors','audited_errors','error_types','error_values')
+            for value in internal_values:
+                if '#<>#' not in value[6]:
+                    internal_dict.update({intrnl_cnt: {'employee_id':agent,'date':str(value[0]),'sub_project':value[1],'work_packet':value[2],'sub_packet':value[3],\
+                        'total_errors':value[4],'audited_errors':value[5],'error_types':value[6],'error_values':value[7]}})
+                    intrnl_cnt += 1                 
+                else:
+                    error_names = value[6].split('#<>#')
+                    error_count = value[7].split('#<>#')
+                    error_cnt = 0
+                    for name, count in zip(error_names, error_count):
+                        if name != 'no_data' and error_cnt >= 1:
+                            internal_dict.update({intrnl_cnt: {'employee_id':agent,'date':str(value[0]),'sub_project':value[1],'work_packet':value[2],'sub_packet':value[3],\
+                            'total_errors':'','audited_errors':value[5],'error_types':name,'error_values':count}})
+                        elif name != 'no_data':
+                            internal_dict.update({intrnl_cnt: {'employee_id':agent,'date':str(value[0]),'sub_project':value[1],'work_packet':value[2],'sub_packet':value[3],\
+                            'total_errors':value[4],'audited_errors':value[5],'error_types':name,'error_values':count}})
+                        intrnl_cnt += 1
+                        error_cnt += 1
+
+    result['internal'] = internal_dict
+    result['external'] = external_dict
+    return result
+
+
+
+

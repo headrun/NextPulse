@@ -16,7 +16,7 @@ def aht_team_calculations(date_list, project, center, level_structure_key, main_
     
     filter_params, _term = getting_required_params(level_structure_key, project, center, date_list)
     if _term  and filter_params:
-        query_data = AHTTeam.objects.filter(**filter_params)
+        query_data = AHTTeam.objects.filter(**filter_params).exclude(sub_project="overall")
         aht_values = query_data.values_list('date',_term,'AHT')
         packets = query_data.values_list(_term,flat=True).distinct() 
         raw_dates = RawTable.objects.filter(project=project, center=center, date__range=[date_list[0],date_list[-1]]).\
@@ -47,39 +47,72 @@ def aht_team_target_data(date_list,project,center,_term,dates,packets,main_dates
 
     result = {}
     target_line = []
+    sub_proj = request.GET.get('sub_project','')    
+    work_pac = request.GET.get('work_packet','')
+    sub_pac = request.GET.get('sub_packet','')
     if _term == 'sub_project':
         packet = request.GET.get('sub_project', '')
+        
         main_packets = AHTTeam.objects.filter(project=project,date__range=[main_dates[0], main_dates[-1]],\
                         sub_project=packet).values_list(_term,flat=True).distinct()
+        
     elif _term == 'work_packet':
         packet = request.GET.get('work_packet', '')
+        
         if packet != '' and packet != 'All':
             main_packets = AHTTeam.objects.filter(project=project,date__range=[main_dates[0], main_dates[-1]],work_packet=packet).\
                 values_list(_term,flat=True).distinct()
         else:
             main_packets = AHTTeam.objects.filter(project=project,date__range=[main_dates[0], main_dates[-1]]).\
                 values_list(_term,flat=True).distinct()
+        
     elif _term == 'sub_packet':
         packet = request.GET.get('sub_packet', '')
         main_packets = AHTTeam.objects.filter(project=project,date__range=[main_dates[0], main_dates[-1]],sub_packet=packet).\
-                values_list(_term,flat=True).distinct()
+                values_list(_term,flat=True).distinct()    
     
     if len(main_packets) == 1:
+        if _term == "work_packet":
+            packet = sub_proj
+            _term = "sub_project"
+        else:
+            pass
         target_query = Targets.objects.filter(project=project,center=center,from_date__lte=date_list[0],\
                        to_date__gte=date_list[-1],target_type='AHT').\
-                        values_list('from_date','to_date','target_value',_term)
+                        values_list('from_date','to_date','target_value',_term)        
         if target_query:
             target_query = target_query
         else:
             target_query = Targets.objects.filter(project=project,center=center,from_date__gte=date_list[0],\
                        to_date__lte=date_list[-1],target_type='AHT').\
                         values_list('from_date','to_date','target_value',_term)
+        targ_dict = {}
+        for target in target_query:
+            if not targ_dict.has_key(str(target[0])+"_"+str(target[1])+"_"+target[3]):
+                targ_dict[str(target[0])+"_"+str(target[1])+"_"+target[3]] = []
+            else:
+                targ_dict[str(target[0])+"_"+str(target[1])+"_"+target[3]].append(target[2])
+
+        targ_lst = []
+        for tar_k, tar_v in targ_dict.iteritems():            
+            tg = (sum(tar_v)/len(tar_v))
+            g = tar_k.split('_')
+            st_tup = (g[0],g[1],tg,g[2])
+            targ_lst.append(st_tup)        
+
         for date in dates:
-            for target in target_query:
-                if (target[3] in packets) and (str(target[0]) <= str(date)) and (str(target[1]) >= str(date)):
+            for target in targ_lst:
+                if (target[3].lower() in packet.lower() ) and (str(target[0]) <= str(date)) and (str(target[1]) >= str(date)):
                     target_line.append(target[2])
+        
+        d_len = len(dates)
+        if target_line:
+            target_line = target_line[0:d_len]
+                        
         result['target_line'] = target_line
+        
     return result
+
 
 
 def tat_graph(date_list, project, center, level_structure_key, main_dates, request):

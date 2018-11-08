@@ -44,6 +44,27 @@ def error_charts(request, name, function_name, internal_name, external_name, ter
     return final_dict
 
 
+def error_chart(request, name, function_name, external_name, term):
+
+    final_dict = {}
+    main_data_dict = data_dict(request.GET)
+    work_packet = main_data_dict['work_packet']
+    sub_project = main_data_dict['sub_project']
+    sub_packet = main_data_dict['sub_packet']
+    project_center = main_data_dict['pro_cen_mapping']
+    project = main_data_dict['pro_cen_mapping'][0][0]
+    center = main_data_dict['pro_cen_mapping'][1][0]
+    date_list = main_data_dict['dates']
+    level_structure_key = get_level_structure_key(work_packet, sub_project, sub_packet, project_center)    
+    _external_data = function_name(date_list, project, center, level_structure_key, "External",term)    
+    final_dict[external_name] = graph_data_alignment_color(_external_data,'y',level_structure_key,project,center,'')
+    final_dict['external_min_max'] = min_max_bar_graph(_external_data)    
+    final_dict['is_annotation'] = annotation_check(request)
+    return final_dict
+
+
+
+
 def min_max_bar_graph(int_value_range):
     min_max_dict = {}
     if len(int_value_range) > 0:
@@ -94,6 +115,18 @@ def cate_error(request):
     
     result = error_charts(request, name, function_name, internal_name, external_name, term)
     return json_HttpResponse(result)
+
+
+def external_error_jum(request):    
+      
+    external_name = 'external_errors_types'
+    name = 'pie_charts'
+    term = ''
+    function_name = extrnal_error_types_jumio
+    
+    result = error_chart(request, name, function_name, external_name, term)
+    return json_HttpResponse(result)
+
 
 
 def pareto_cate_error(request):
@@ -267,3 +300,28 @@ def agent_errors(total_error_types):
     return new_all_errors
 
 
+
+def extrnal_error_types_jumio(date_list,prj_id,center_obj,level_structure_key,error_type,term):
+    
+    final_dict = {}      
+    params = get_query_parameters(level_structure_key, prj_id, center_obj, date_list)    
+    if params:
+        if term == 'agent':
+            error_query = Externalerrors.objects.filter(**params).filter(total_errors__gt=0).values('error_types','error_values')
+        else:
+            error_query = Externalerrors.objects.filter(**params).values('error_types','error_values')        
+        if term == '' or term == 'sub_error':
+            values = different_error_type(error_query)
+        elif term == 'agent':
+            values = agent_errors(error_query)        
+        for key, value in values.iteritems():
+            if key != 'no_data':
+                if final_dict.has_key(key):
+                    final_dict[key].append(value)
+                else:
+                    final_dict[key] = value   
+    n = 10
+    mydict = {}
+    my_dict={key: final_dict[key] for key in sorted(final_dict, key=final_dict.get, reverse=True)[:n]}    
+    
+    return my_dict

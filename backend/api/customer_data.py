@@ -47,13 +47,13 @@ def generate_day_week_month_format(request, result_name, function_name, model_na
 
     elif main_data_dict['dwm_dict'].has_key('week') and main_data_dict['type'] == 'week':
         dates_list = main_data_dict['dwm_dict']['week']
-        if function_name in [Valid_Customer_Approved, Invalid_Customer_Reject,Time_Busy_Percentage,Time_Ready_Percentage]:
+        if function_name in [Valid_Customer_Approved_id,Valid_Customer_Approved_iden, Invalid_Customer_Reject_id, Invalid_Customer_Reject_iden, Time_Ready_Busy_Percentage]:
             volume_week = week_month_data_acculate(main_dates ,prj_id, center, level_structure_key, dates_list, request, _type, function_name)
             final_dict[result_name] = graph_data_alignment_color(volume_week, 'data', level_structure_key, \
                                         prj_id, center, result_name)
             final_dict['min_max'] = min_max_num(volume_week,result_name)
 
-        elif function_name in [AHT_Comparison, Volume_Comparison,Pre_Populated_Vol, Data_Entry_AHT, Data_Entry_Vol, Pre_Populated_AHT]:
+        elif function_name in [AHT_Comp_id, AHT_Comp_identity,Comparison_identity_verif, Comparison_ID_verif]:
             week_data = week_calculations(dates_list, prj_id, center, level_structure_key, function_name, main_dates,request)
             final_dict[result_name] = graph_data_alignment_color(week_data, 'data', level_structure_key, \
                                         prj_id, center, result_name)
@@ -62,13 +62,13 @@ def generate_day_week_month_format(request, result_name, function_name, model_na
 
     elif main_data_dict['dwm_dict'].has_key('month') and main_data_dict['type'] == 'month':
         dates_list = main_data_dict['dwm_dict']['month']
-        if function_name in [Valid_Customer_Approved, Invalid_Customer_Reject,Time_Busy_Percentage, Time_Ready_Percentage]:
+        if function_name in [Valid_Customer_Approved_id,Valid_Customer_Approved_iden, Invalid_Customer_Reject_id, Invalid_Customer_Reject_iden, Time_Ready_Busy_Percentage]:
             volume_month = week_month_data_acculate(main_dates ,prj_id, center, level_structure_key, dates_list, request, _type, function_name)
             final_dict[result_name] = graph_data_alignment_color(volume_month, 'data', level_structure_key, \
                                         prj_id, center, result_name)
             final_dict['min_max'] = min_max_num(volume_month,result_name)
 
-        elif function_name in [AHT_Comparison, Volume_Comparison,Pre_Populated_Vol,Data_Entry_AHT,Data_Entry_Vol, Pre_Populated_AHT]:
+        elif function_name in [AHT_Comp_id, AHT_Comp_identity, Comparison_identity_verif, Comparison_ID_verif]:
             month_data = month_calculations(dates_list, prj_id, center, level_structure_key, function_name, main_dates,request)
             final_dict[result_name] = graph_data_alignment_color(month_data, 'data', level_structure_key, \
                                         prj_id, center, result_name)
@@ -94,7 +94,7 @@ def week_calculations(dates, project, center, level_structure_key, function_name
         week_dict[week_name] = data
     if function_name in []:
         result = prod_volume_week_util(project, week_names, week_dict, {}, 'week')
-    elif function_name in [AHT_Comparison,Data_Entry_AHT, Pre_Populated_AHT]:
+    elif function_name in [AHT_Comp_id, AHT_Comp_identity]:
         result = prod_volume_week_util_headcount(week_names, week_dict, {})
     else:
        result = prod_volume_week(week_names, week_dict, {})
@@ -114,7 +114,7 @@ def month_calculations(dates, project, center, level_structure_key, function_nam
         month_dict[month_name] = data
     if function_name in []:
         result = prod_volume_week_util(project, month_names, month_dict, {}, 'month')
-    elif function_name in [AHT_Comparison, Data_Entry_AHT, Pre_Populated_AHT]:
+    elif function_name in [AHT_Comp_id, AHT_Comp_identity]:
         result = prod_volume_week_util_headcount(month_names, month_dict, {})
     else:
         result = prod_volume_week(month_names, month_dict, {})
@@ -175,7 +175,7 @@ def Customer_week_fn(week_names,productivity_list,final_productivity):
 
 def min_max_num(int_value_range, result_name):
     min_max_dict = {}
-    if len(int_value_range) > 0 and (result_name in ['valid_customer_approve','invalid_customer_reject','custo_time_busy','custo_time_ready']):
+    if len(int_value_range) > 0 and (result_name in ['valid_customer_approve_id','invalid_customer_reject_id','valid_customer_approve_iden','invalid_customer_reject_iden','custo_time_busy','custo_time_ready']):
         values_list = []
         data = int_value_range.values()
         for value in data:
@@ -194,330 +194,392 @@ def min_max_num(int_value_range, result_name):
 
 
 
-def Valid_customer_approved(request):
+def valid_customer_approved_id(request):
 
-    result_name = 'valid_customer_approve'
-    function_name = Valid_Customer_Approved
+    result_name = 'valid_customer_approve_id'
+    function_name = Valid_Customer_Approved_id
     model_name = 'IVR_VCR'
     result = generate_day_week_month_format(request, result_name, function_name, model_name)
     return result
 
 
-def Invalid_customer_reject(request):
+def invalid_customer_reject_id(request):
 
-    result_name = 'invalid_customer_reject'
-    function_name = Invalid_Customer_Reject
+    result_name = 'invalid_customer_reject_id'
+    function_name = Invalid_Customer_Reject_id
     model_name = 'IVR_VCR'
     result = generate_day_week_month_format(request, result_name, function_name, model_name)
     return result
 
 
-def Customer_AHT_Comparison(request):
+def valid_customer_approved_iden(request):
 
-    result_name = 'custo_aht_comparison'
-    function_name = AHT_Comparison
-    model_name = 'Risk'
+    result_name = 'valid_customer_approve_iden'
+    function_name = Valid_Customer_Approved_iden
+    model_name = 'IVR_VCR'
     result = generate_day_week_month_format(request, result_name, function_name, model_name)
     return result
 
 
-def Customer_Volume_Comparison(request):
+def invalid_customer_reject_iden(request):
 
-    result_name = 'custo_volume_comparison'
-    function_name = Volume_Comparison
-    model_name = 'Risk'
+    result_name = 'invalid_customer_reject_iden'
+    function_name = Invalid_Customer_Reject_iden
+    model_name = 'IVR_VCR'
     result = generate_day_week_month_format(request, result_name, function_name, model_name)
     return result
 
 
-def Cutomer_Time_Busy(request):
+def Cutomer_Time_Ready_Busy(request):
 
-    result_name = 'custo_time_busy'
-    function_name = Time_Busy_Percentage
+    result_name = 'custo_time_ready_busy'
+    function_name = Time_Ready_Busy_Percentage
     model_name = 'Time'
     result = generate_day_week_month_format(request, result_name, function_name, model_name)
     return result
 
 
-def Cutomer_Time_Ready(request):
+def Volume_identity_verif(request):
 
-    result_name = 'custo_time_ready'
-    function_name = Time_Ready_Percentage
-    model_name = 'Time'
-    result = generate_day_week_month_format(request, result_name, function_name, model_name)
-    return result
-
-
-def data_entry_aht(request):
-
-    result_name = 'data_entry_details'
-    function_name = Data_Entry_AHT
+    result_name = 'comp_volume_identity'
+    function_name = Comparison_identity_verif
     model_name = 'Risk'
     result = generate_day_week_month_format(request, result_name, function_name, model_name)
     return result
 
 
+def Volume_Comparison_id(request):
 
-def pre_pop_vol(request):
-
-    result_name = 'pre_pop_vol_details'
-    function_name = Pre_Populated_Vol
+    result_name = 'volume_comp_id'
+    function_name = Comparison_ID_verif
     model_name = 'Risk'
     result = generate_day_week_month_format(request, result_name, function_name, model_name)
     return result
 
 
+def AHT_Comparison_id(request):
 
-def pre_pop_aht(request):
-
-    result_name = 'pre_popul_aht'
-    function_name = Pre_Populated_AHT
+    result_name = 'aht_comp_id'
+    function_name = AHT_Comp_id
     model_name = 'Risk'
     result = generate_day_week_month_format(request, result_name, function_name, model_name)
     return result
 
 
+def AHT_Comparison_identity(request):
 
-def data_entry_vol(request):
-
-    result_name = 'data_ent_vol'
+    result_name = 'identity_aht_comp'
+    function_name = AHT_Comp_identity
     model_name = 'Risk'
-    function_name = Data_Entry_Vol
     result = generate_day_week_month_format(request, result_name, function_name, model_name)
     return result
 
 
-
-def Valid_Customer_Approved(main_dates ,prj_id, center_obj, level_structure_key, dates_list, request, _type):
+def Valid_Customer_Approved_id(main_dates ,prj_id, center_obj, level_structure_key, dates_list, request, _type):
     dict_t, date_pack = {}, []
-    if _type == 'day':
-        filter_params, _term = getting_required_params(level_structure_key, prj_id, center_obj, dates_list)
-        if filter_params and _term :
-            ivr_query = IVR_VCR.objects.filter(**filter_params)
-            valid_approv = ivr_query.values_list('date',_term).annotate(grs_one=Sum('grossed_up_one'), app_vrf=Sum('approved_verified'))
-            valid_approv = filter(lambda v: v[1] != u'', valid_approv)
-            full_ivr_query = IVR_VCR.objects.filter(project=prj_id,center=center_obj, date__range=[main_dates[0],main_dates[-1]])
-            date_pack = full_ivr_query.order_by('date').values_list('date',flat=True).distinct()
-            pack_list = full_ivr_query.values_list(_term,flat=True).distinct()
-            if valid_approv:
-                for date in date_pack:
-                    packets = []
-                    for val in valid_approv:
-                        if date == val[0]:
-                            if val[3] > 0:
-                                lid_app = float(val[2]/val[3])*100
-                                lid_app = 100 - float(lid_app)
-                                lid_app = float('%.2f' % round(lid_app, 2))
-                            else:
-                                lid_app = 0
-                            if not dict_t.has_key(val[1]):
-                                dict_t[val[1]] = [lid_app]
-                            else:
-                                dict_t[val[1]].append(lid_app)
-                            packets.append(val[1])
-
-                    if len(packets) > 0:
-                        for pack in pack_list:
-                            if pack not in packets:
-                                if not dict_t.has_key(pack):
-                                    dict_t[pack] = [0]
-                                else:
-                                    dict_t[pack].append(0)
-
-    elif _type in ["week","month"]:
-        dict_t = {}
-        filter_params, _term = getting_required_params(level_structure_key, prj_id, center_obj, dates_list)
-        if filter_params and _term :
-            ivr_query = IVR_VCR.objects.filter(**filter_params)
-            valid_approv = ivr_query.values_list(_term).annotate(grs_one=Sum('grossed_up_one'), app_vrf=Sum('approved_verified'))
-            valid_approv = filter(lambda v: v[0] != u'', valid_approv)
-            pack_list = IVR_VCR.objects.filter(project=prj_id,center=center_obj, date__range=[main_dates[0],main_dates[-1]]).values_list(_term,flat=True).distinct()
-            packets = []
-            if valid_approv:
+    if _type == 'day':      
+        ivr_query = IVR_VCR.objects.filter(project=prj_id, center=center_obj, date__range=[dates_list[0],dates_list[-1]],sub_project__icontains='ID Verification')
+        target = Targets.objects.filter(project=prj_id,center=center_obj,from_date__lte=dates_list[0], to_date__gte=dates_list[-1], sub_project__icontains="ID Verification",target_type="VCA Approved").values('from_date','to_date').annotate(target=Sum('target_value'))
+        valid_approv = ivr_query.values_list('date','sub_project').annotate(grs_one=Sum('grossed_up_one'), app_vrf=Sum('approved_verified'))
+        valid_approv = filter(lambda v: v[1] != u'', valid_approv)        
+        date_pack = ivr_query.order_by('date').values_list('date',flat=True).distinct()
+        pack_list = ivr_query.values_list('sub_project',flat=True).distinct()
+        if valid_approv:
+            for date in date_pack:
+                packets = []
                 for val in valid_approv:
-                    if val[2] > 0:
-                        lid_app = float(val[1]/val[2])*100
-                        lid_app = 100 - float(lid_app)
-                        lid_app = float('%.2f' % round(lid_app, 2))
-                    else:
-                        lid_app = 0
-                    dict_t[val[0]] = lid_app
-                    packets.append(val[0])
+                    if date == val[0]:
+                        if val[3] > 0:
+                            lid_app = float(val[2]/val[3])*100
+                            lid_app = 100 - float(lid_app)
+                            lid_app = float('%.2f' % round(lid_app, 2))
+                        else:
+                            lid_app = 0
+                        if not dict_t.has_key(val[1]):
+                            dict_t[val[1]] = [lid_app]
+                        else:
+                            dict_t[val[1]].append(lid_app)
+                        packets.append(val[1])
+
                 if len(packets) > 0:
                     for pack in pack_list:
                         if pack not in packets:
-                            dict_t[pack] = 0
-    return dict_t
-
-
-
-
-def Invalid_Customer_Reject(main_dates ,prj_id, center_obj, level_structure_key, dates_list, request, _type):
-    dict_t, date_pack = {}, []
-    if _type == 'day':
-        filter_params, _term = getting_required_params(level_structure_key, prj_id, center_obj, dates_list)
-        if filter_params and _term :
-            ivr_query = IVR_VCR.objects.filter(**filter_params)
-            invalid_reject = ivr_query.order_by('date').values_list('date',_term).annotate(grs_two=Sum('grossed_up_two'), count=Sum('count'))
-            invalid_reject = filter(lambda v: v[1] != u'', invalid_reject)
-            full_ivr_query = IVR_VCR.objects.filter(project=prj_id,center=center_obj, date__range=[main_dates[0],main_dates[-1]])
-            date_pack = full_ivr_query.order_by('date').values_list('date',flat=True).distinct()
-            pack_list = full_ivr_query.values_list(_term,flat=True).distinct()
-            if invalid_reject:
-                for date in date_pack:
-                    packets = []
-                    for val in invalid_reject:
-                        if date == val[0]:
-                            if (val[3] + val[2]) > 0:
-                                lid_app = float(val[2]/(val[3]+val[2]))*100
-                                lid_app =float(lid_app)
-                                lid_app = float('%.2f' % round(lid_app, 2))
+                            if not dict_t.has_key(pack):
+                                dict_t[pack] = [0]
                             else:
-                                lid_app = 0
-                            if not dict_t.has_key(val[1]):
-                                dict_t[val[1]] = [lid_app]
-                            else:
-                                dict_t[val[1]].append(lid_app)
-                            packets.append(val[1])
+                                dict_t[pack].append(0)
 
-                    if len(packets) > 0:
-                        for pack in pack_list:
-                            if pack not in packets:
-                                if not dict_t.has_key(pack):
-                                    dict_t[pack] = [0]
-                                else:
-                                    dict_t[pack].append(0)
+            dict_t['Target_cust'] = []
+            for dat in date_pack:
+                for tar_v in target:
+                    if tar_v['from_date'] <= dat and tar_v['to_date'] >= dat:
+                        if tar_v['target'] != None:
+                            dict_t['Target_cust'].append(tar_v['target']*100)                        
+                        else:
+                            dict_t['Target_cust'].append(0)                        
+                
 
     elif _type in ["week","month"]:
-        dict_t = {}
-        filter_params, _term = getting_required_params(level_structure_key, prj_id, center_obj, dates_list)
-        if filter_params and _term :
-            ivr_query = IVR_VCR.objects.filter(**filter_params)
-            invalid_reject = ivr_query.values_list(_term).annotate(grs_two=Sum('grossed_up_two'), count=Sum('count'))
-            invalid_reject = filter(lambda v: v[0] != u'', invalid_reject)
-            pack_list = IVR_VCR.objects.filter(project=prj_id,center=center_obj, date__range=[main_dates[0],main_dates[-1]]).values_list(_term,flat=True).distinct()
-            packets = []
-            if invalid_reject:
-                for val in invalid_reject:
-                    if (val[2] + val[1]) > 0:
-                        lid_app = float(val[1]/(val[1]+val[2]))*100
-                        lid_app = float(lid_app)
-                        lid_app = float('%.2f' % round(lid_app, 2))
-                    else:
-                        lid_app = 0
-                    dict_t[val[0]] = lid_app
-                    packets.append(val[0])
+        dict_t = {}                
+        ivr_query = IVR_VCR.objects.filter(project=prj_id,center=center_obj, date__range=[dates_list[0],dates_list[-1]],sub_project__icontains='ID Verification')
+        valid_approv = ivr_query.values_list('sub_project').annotate(grs_one=Sum('grossed_up_one'), app_vrf=Sum('approved_verified'))            
+        valid_approv = filter(lambda v: v[0] != u'', valid_approv)
+        target = Targets.objects.filter(project=prj_id,center=center_obj,from_date__lte=dates_list[0], to_date__gte=dates_list[-1], sub_project__icontains="ID Verification",target_type="VCA Approved").aggregate(target=Sum('target_value'))
+        if target['target'] == None:
+            target = 0
+        else:
+            target = target['target']
+        pack_list = IVR_VCR.objects.filter(project=prj_id,center=center_obj, date__range=[main_dates[0],main_dates[-1]],sub_project__icontains='ID Verification').values_list('sub_project',flat=True).distinct()
+        packets = []
+        if valid_approv:
+            for val in valid_approv:
+                if val[2] > 0:
+                    lid_app = float(val[1]/val[2])*100
+                    lid_app = 100 - float(lid_app)
+                    lid_app = float('%.2f' % round(lid_app, 2))
+                else:
+                    lid_app = 0
+                dict_t[val[0]] = lid_app
+                packets.append(val[0])
+            if len(packets) > 0:
+                for pack in pack_list:
+                    if pack not in packets:
+                        dict_t[pack] = 0
+
+            dict_t['Target_cust'] = target*100
+                        
+    return dict_t
+
+
+def Valid_Customer_Approved_iden(main_dates ,prj_id, center_obj, level_structure_key, dates_list, request, _type):
+    dict_t, date_pack = {}, []
+    if _type == 'day':      
+        ivr_query = IVR_VCR.objects.filter(project=prj_id, center=center_obj, date__range=[dates_list[0],dates_list[-1]],sub_project__icontains='Identity Verification')
+        target = Targets.objects.filter(project=prj_id,center=center_obj,from_date__lte=dates_list[0], to_date__gte=dates_list[-1], sub_project__icontains="Identity Verification",target_type="VCA Approved").values('from_date','to_date').annotate(target=Sum('target_value'))
+        valid_approv = ivr_query.values_list('date','sub_project').annotate(grs_one=Sum('grossed_up_one'), app_vrf=Sum('approved_verified'))
+        valid_approv = filter(lambda v: v[1] != u'', valid_approv)        
+        date_pack = ivr_query.order_by('date').values_list('date',flat=True).distinct()
+        pack_list = ivr_query.values_list('sub_project',flat=True).distinct()
+        if valid_approv:
+            for date in date_pack:
+                packets = []
+                for val in valid_approv:
+                    if date == val[0]:
+                        if val[3] > 0:
+                            lid_app = float(val[2]/val[3])*100
+                            lid_app = 100 - float(lid_app)
+                            lid_app = float('%.2f' % round(lid_app, 2))
+                        else:
+                            lid_app = 0
+                        if not dict_t.has_key(val[1]):
+                            dict_t[val[1]] = [lid_app]
+                        else:
+                            dict_t[val[1]].append(lid_app)
+                        packets.append(val[1])
+
                 if len(packets) > 0:
                     for pack in pack_list:
                         if pack not in packets:
-                            dict_t[pack] = 0
+                            if not dict_t.has_key(pack):
+                                dict_t[pack] = [0]
+                            else:
+                                dict_t[pack].append(0)
+
+            dict_t['Target_cust'] = []
+            for dat in date_pack:
+                for tar_v in target:
+                    if tar_v['from_date'] <= dat and tar_v['to_date'] >= dat:
+                        if tar_v['target'] != None:
+                            dict_t['Target_cust'].append(tar_v['target']*100)                        
+                        else:
+                            dict_t['Target_cust'].append(0)                      
+                
+
+    elif _type in ["week","month"]:
+        dict_t = {}                
+        ivr_query = IVR_VCR.objects.filter(project=prj_id,center=center_obj, date__range=[dates_list[0],dates_list[-1]],sub_project__icontains='Identity Verification')
+        valid_approv = ivr_query.values_list('sub_project').annotate(grs_one=Sum('grossed_up_one'), app_vrf=Sum('approved_verified'))            
+        valid_approv = filter(lambda v: v[0] != u'', valid_approv)
+        target = Targets.objects.filter(project=prj_id,center=center_obj,from_date__lte=dates_list[0], to_date__gte=dates_list[-1], sub_project__icontains="Identity Verification",target_type="VCA Approved").aggregate(target=Sum('target_value'))
+        if target['target'] == None:
+            target = 0
+        else:
+            target = target['target']
+        pack_list = IVR_VCR.objects.filter(project=prj_id,center=center_obj, date__range=[main_dates[0],main_dates[-1]],sub_project__icontains='Identity Verification').values_list('sub_project',flat=True).distinct()
+        packets = []
+        if valid_approv:
+            for val in valid_approv:
+                if val[2] > 0:
+                    lid_app = float(val[1]/val[2])*100
+                    lid_app = 100 - float(lid_app)
+                    lid_app = float('%.2f' % round(lid_app, 2))
+                else:
+                    lid_app = 0
+                dict_t[val[0]] = lid_app
+                packets.append(val[0])
+            if len(packets) > 0:
+                for pack in pack_list:
+                    if pack not in packets:
+                        dict_t[pack] = 0
+
+            dict_t['Target_cust'] = target*100
+                        
     return dict_t
 
 
 
-
-def AHT_Comparison(main_dates ,prj_id, center_obj, level_structure_key, dates_list, request, _type):
-    result = {}
-    filter_params, _term = getting_required_params(level_structure_key, prj_id, center_obj, dates_list)
-    if filter_params and _term:
-        risk_query = Risk.objects.filter(**filter_params)
-        risk_data = risk_query.order_by('date').values_list('date',_term).annotate(high=Sum('high_aht'), medium=Sum('medium_aht'), low=Sum('low_aht'))
-        risk_data = filter(lambda v: v[1] != u'', risk_data)
-        full_risk_query = Risk.objects.filter(project=prj_id,center=center_obj, date__range=[main_dates[0],main_dates[-1]])
-        date_pack = full_risk_query.order_by('date').values_list('date', flat=True).distinct()
-        pack_list = full_risk_query.values_list(_term, flat=True).distinct()
-        if risk_data:
+def Invalid_Customer_Reject_id(main_dates ,prj_id, center_obj, level_structure_key, dates_list, request, _type):
+    dict_t, date_pack = {}, []
+    if _type == 'day':            
+        ivr_query = IVR_VCR.objects.filter(project=prj_id,center=center_obj,date__range=[dates_list[0], dates_list[-1]],sub_project__icontains='ID Verification')
+        invalid_reject = ivr_query.order_by('date').values_list('date','sub_project').annotate(grs_two=Sum('grossed_up_two'), count=Sum('count'))
+        invalid_reject = filter(lambda v: v[1] != u'', invalid_reject)
+        target = Targets.objects.filter(project=prj_id,center=center_obj,from_date__lte=dates_list[0], to_date__gte=dates_list[-1], sub_project__icontains="ID Verification",target_type="ICR Rejected").values('from_date','to_date').annotate(target=Sum('target_value'))
+        date_pack = ivr_query.order_by('date').values_list('date',flat=True).distinct()
+        pack_list = ivr_query.values_list('sub_project',flat=True).distinct()
+        if invalid_reject:
             for date in date_pack:
-                packet_list = []
-                for risk_v in risk_data:
-                    if date == risk_v[0]:
-                        high = float('%.2f' % round(risk_v[2], 2))
-                        medium = float('%.2f' % round(risk_v[3], 2))
-                        low = float('%.2f' % round(risk_v[4], 2))
-                        if not result.has_key(str(risk_v[1])+"_High AHT"):
-                            result[str(risk_v[1])+"_High AHT"] = [high]
+                packets = []
+                for val in invalid_reject:
+                    if date == val[0]:
+                        if (val[3] + val[2]) > 0:
+                            lid_app = float(val[2]/(val[3]+val[2]))*100
+                            lid_app =float(lid_app)
+                            lid_app = float('%.2f' % round(lid_app, 2))
                         else:
-                            result[str(risk_v[1])+"_High AHT"].append(high)
-                        if not result.has_key(str(risk_v[1])+"_Medium AHT"):
-                            result[str(risk_v[1])+"_Medium AHT"] = [medium]
+                            lid_app = 0
+                        if not dict_t.has_key(val[1]):
+                            dict_t[val[1]] = [lid_app]
                         else:
-                            result[str(risk_v[1])+"_Medium AHT"].append(medium)
-                        if not result.has_key(str(risk_v[1])+"_Low AHT"):
-                            result[str(risk_v[1])+"_Low AHT"] = [low]
-                        else:
-                            result[str(risk_v[1])+"_Low AHT"].append(low)
-                        packet_list.append(risk_v[1])
+                            dict_t[val[1]].append(lid_app)
+                        packets.append(val[1])
 
-                if len(packet_list) > 0:
+                if len(packets) > 0:
                     for pack in pack_list:
-                        if pack not in packet_list:
-                            if not result.has_key(str(risk_v[1])+"_High AHT"):
-                                result[str(risk_v[1])+"_High AHT"] = [0]
+                        if pack not in packets:
+                            if not dict_t.has_key(pack):
+                                dict_t[pack] = [0]
                             else:
-                                result[str(risk_v[1])+"_High AHT"].append(0)
-                            if not result.has_key(str(risk_v[1])+"_Medium AHT"):
-                                result[str(risk_v[1])+"_Medium AHT"] = [0]
-                            else:
-                                result[str(risk_v[1])+"_Medium AHT"].append(0)
-                            if not result.has_key(str(risk_v[1])+"_Low AHT"):
-                                result[str(risk_v[1])+"_Low AHT"] = [0]
-                            else:
-                                result[str(risk_v[1])+"_Low AHT"].append(0)
+                                dict_t[pack].append(0)
 
-    return result
-
+            dict_t['Target_cust'] = []
+            for dat in date_pack:
+                for tar_v in target:
+                    if tar_v['from_date'] <= dat and tar_v['to_date'] >= dat:
+                        if tar_v['target'] != None:
+                            dict_t['Target_cust'].append(tar_v['target']*100)                        
+                        else:
+                            dict_t['Target_cust'].append(0)
 
 
+    elif _type in ["week","month"]:
+        dict_t = {}       
+        ivr_query = IVR_VCR.objects.filter(project=prj_id,center=center_obj,date__range=[dates_list[0],dates_list[-1]],sub_project__icontains='ID Verification')
+        invalid_reject = ivr_query.values_list('sub_project').annotate(grs_two=Sum('grossed_up_two'), count=Sum('count'))
+        invalid_reject = filter(lambda v: v[0] != u'', invalid_reject)
+        target = Targets.objects.filter(project=prj_id,center=center_obj,from_date__lte=dates_list[0], to_date__gte=dates_list[-1], sub_project__icontains="ID Verification",target_type="ICR Rejected").aggregate(target=Sum('target_value'))
+        if target['target'] == None:
+            target = 0
+        else:
+            target = target['target']
+        pack_list = IVR_VCR.objects.filter(project=prj_id,center=center_obj, date__range=[main_dates[0],main_dates[-1]], sub_project__icontains='ID Verification').values_list('sub_project',flat=True).distinct()            
+        packets = []
+        if invalid_reject:
+            for val in invalid_reject:
+                if (val[2] + val[1]) > 0:
+                    lid_app = float(val[1]/(val[1]+val[2]))*100
+                    lid_app = float(lid_app)
+                    lid_app = float('%.2f' % round(lid_app, 2))
+                else:
+                    lid_app = 0
+                dict_t[val[0]] = lid_app
+                packets.append(val[0])
 
-def Volume_Comparison(main_dates ,prj_id, center_obj, level_structure_key, dates_list, request, _type):
-    result = {}
-    filter_params, _term = getting_required_params(level_structure_key, prj_id, center_obj, dates_list)
-    if filter_params and _term:
-        risk_query = Risk.objects.filter(**filter_params)
-        risk_data = risk_query.order_by('date').values_list('date',_term).annotate(high=Sum('high_volume'), medium=Sum('medium_volume'), low=Sum('low_volume'))
-        risk_data = filter(lambda v: v[1] != u'', risk_data)
-        full_risk_query = Risk.objects.filter(project=prj_id,center=center_obj, date__range=[main_dates[0],main_dates[-1]])
-        date_pack = full_risk_query.order_by('date').values_list('date', flat=True).distinct()
-        pack_list = full_risk_query.values_list(_term, flat=True).distinct()
-        if risk_data:
+            if len(packets) > 0:
+                for pack in pack_list:
+                    if pack not in packets:
+                        dict_t[pack] = 0
+
+            dict_t['Target_cust'] = target*100
+                
+    return dict_t
+
+
+def Invalid_Customer_Reject_iden(main_dates ,prj_id, center_obj, level_structure_key, dates_list, request, _type):
+    dict_t, date_pack = {}, []
+    if _type == 'day':            
+        ivr_query = IVR_VCR.objects.filter(project=prj_id,center=center_obj,date__range=[dates_list[0], dates_list[-1]],sub_project__icontains='Identity Verification')
+        invalid_reject = ivr_query.order_by('date').values_list('date','sub_project').annotate(grs_two=Sum('grossed_up_two'), count=Sum('count'))
+        invalid_reject = filter(lambda v: v[1] != u'', invalid_reject)
+        target = Targets.objects.filter(project=prj_id,center=center_obj,from_date__lte=dates_list[0], to_date__gte=dates_list[-1], sub_project__icontains="Identity Verification",target_type="ICR Rejected").values('from_date','to_date').annotate(target=Sum('target_value'))
+        date_pack = ivr_query.order_by('date').values_list('date',flat=True).distinct()
+        pack_list = ivr_query.values_list('sub_project',flat=True).distinct()
+        if invalid_reject:
             for date in date_pack:
-                packet_list = []
-                for risk_v in risk_data:
-                    if date == risk_v[0]:
-                        high = float('%.2f' % round(risk_v[2], 2))
-                        medium = float('%.2f' % round(risk_v[3], 2))
-                        low = float('%.2f' % round(risk_v[4], 2))
-                        if not result.has_key(str(risk_v[1])+"_High Volume"):
-                            result[str(risk_v[1])+"_High Volume"] = [high]
+                packets = []
+                for val in invalid_reject:
+                    if date == val[0]:
+                        if (val[3] + val[2]) > 0:
+                            lid_app = float(val[2]/(val[3]+val[2]))*100
+                            lid_app =float(lid_app)
+                            lid_app = float('%.2f' % round(lid_app, 2))
                         else:
-                            result[str(risk_v[1])+"_High Volume"].append(high)
-                        if not result.has_key(str(risk_v[1])+"_Medium Volume"):
-                            result[str(risk_v[1])+"_Medium Volume"] = [medium]
+                            lid_app = 0
+                        if not dict_t.has_key(val[1]):
+                            dict_t[val[1]] = [lid_app]
                         else:
-                            result[str(risk_v[1])+"_Medium Volume"].append(medium)
-                        if not result.has_key(str(risk_v[1])+"_Low Volume"):
-                            result[str(risk_v[1])+"_Low Volume"] = [low]
-                        else:
-                            result[str(risk_v[1])+"_Low Volume"].append(low)
-                        packet_list.append(risk_v[1])
+                            dict_t[val[1]].append(lid_app)
+                        packets.append(val[1])
 
-                if len(packet_list) > 0:
+                if len(packets) > 0:
                     for pack in pack_list:
-                        if pack not in packet_list:
-                            if not result.has_key(str(risk_v[1])+"_High Volume"):
-                                result[str(risk_v[1])+"_High Volume"] = [0]
+                        if pack not in packets:
+                            if not dict_t.has_key(pack):
+                                dict_t[pack] = [0]
                             else:
-                                result[str(risk_v[1])+"_High Volume"].append(0)
-                            if not result.has_key(str(risk_v[1])+"_Medium Volume"):
-                                result[str(risk_v[1])+"_Medium Volume"] = [0]
-                            else:
-                                result[str(risk_v[1])+"_Medium Volume"].append(0)
-                            if not result.has_key(str(risk_v[1])+"_Low Volume"):
-                                result[str(risk_v[1])+"_Low Volume"] = [0]
-                            else:
-                                result[str(risk_v[1])+"_Low Volume"].append(0)
-    return result
+                                dict_t[pack].append(0)
 
+            dict_t['Target_cust'] = []
+            for dat in date_pack:
+                for tar_v in target:
+                    if tar_v['from_date'] <= dat and tar_v['to_date'] >= dat:
+                        if tar_v['target'] != None:
+                            dict_t['Target_cust'].append(tar_v['target']*100)                        
+                        else:
+                            dict_t['Target_cust'].append(0)
+
+
+    elif _type in ["week","month"]:
+        dict_t = {}       
+        ivr_query = IVR_VCR.objects.filter(project=prj_id,center=center_obj,date__range=[dates_list[0],dates_list[-1]],sub_project__icontains='Identity Verification')
+        invalid_reject = ivr_query.values_list('sub_project').annotate(grs_two=Sum('grossed_up_two'), count=Sum('count'))
+        invalid_reject = filter(lambda v: v[0] != u'', invalid_reject)
+        target = Targets.objects.filter(project=prj_id,center=center_obj,from_date__lte=dates_list[0], to_date__gte=dates_list[-1], sub_project__icontains="Identity Verification",target_type="ICR Rejected").aggregate(target=Sum('target_value'))
+        if target['target'] == None:
+            target = 0
+        else:
+            target = target['target']
+        pack_list = IVR_VCR.objects.filter(project=prj_id,center=center_obj, date__range=[main_dates[0],main_dates[-1]], sub_project__icontains='Identity Verification').values_list('sub_project',flat=True).distinct()            
+        packets = []
+        if invalid_reject:
+            for val in invalid_reject:
+                if (val[2] + val[1]) > 0:
+                    lid_app = float(val[1]/(val[1]+val[2]))*100
+                    lid_app = float(lid_app)
+                    lid_app = float('%.2f' % round(lid_app, 2))
+                else:
+                    lid_app = 0
+                dict_t[val[0]] = lid_app
+                packets.append(val[0])
+
+            if len(packets) > 0:
+                for pack in pack_list:
+                    if pack not in packets:
+                        dict_t[pack] = 0
+
+            dict_t['Target_cust'] = target*100
+                
+    return dict_t
 
 
 
@@ -526,10 +588,12 @@ def Time_Busy_Percentage(main_dates ,prj_id, center_obj, level_structure_key, da
     if _type == 'day':
         filter_params, _term = getting_required_params(level_structure_key, prj_id, center_obj, dates_list)
         if filter_params and _term:
-            time_query = Time.objects.filter(**filter_params)
             time_full_query = Time.objects.filter(project=prj_id,center=center_obj,date__range=[main_dates[0], main_dates[-1]])
-            date_pack = time_full_query.order_by('date').values_list('date',flat=True).distinct()
+            time_query = Time.objects.filter(**filter_params)
+            date_pack = time_query.order_by('date').values_list('date',flat=True).distinct()
             pack_list = time_full_query.values_list(_term,flat=True).distinct()
+            def concat(x): return str(x+" Busy %")
+            pack_list = list(map(concat, pack_list))
             time_data = time_query.order_by('date').values_list('date',_term).annotate(busy=Sum('busy'),total=Sum('total'))
             time_data = filter(lambda t: t[1] != u'', time_data)
             if time_data:
@@ -537,17 +601,17 @@ def Time_Busy_Percentage(main_dates ,prj_id, center_obj, level_structure_key, da
                     packet_list = []
                     for time_v in time_data:
                         if date == time_v[0]:
-                            if time_v[2] > 0:
+                            if time_v[2] > 0:                                
                                 b_t_per = (time_v[3]/time_v[2])*100
                                 b_t_per = float(100 - float(b_t_per))
                                 b_t_per = float('%.2f'% round(b_t_per, 2))
                             else:
                                 b_t_per = 0
-                            if not result.has_key(time_v[1]):
-                                result[time_v[1]] = [b_t_per]
+                            if not result.has_key(time_v[1]+" Busy %"):
+                                result[time_v[1]+" Busy %"] = [b_t_per]                            
                             else:
-                                result[time_v[1]].append(b_t_per)
-                            packet_list.append(time_v[1])
+                                result[time_v[1]+" Busy %"].append(b_t_per)
+                            packet_list.append(time_v[1]+" Busy %")
 
                     for pack in pack_list:
                         if pack not in packet_list:
@@ -559,11 +623,14 @@ def Time_Busy_Percentage(main_dates ,prj_id, center_obj, level_structure_key, da
     elif _type in ["week","month"]:
         result = {}
         filter_params, _term = getting_required_params(level_structure_key, prj_id, center_obj, dates_list)
-        if filter_params and _term :
+        if filter_params and _term:
+            time_query = Time.objects.filter(project=prj_id,center=center_obj, date__range=[dates_list[0],dates_list[-1]])           
             time_query = Time.objects.filter(**filter_params)
             time_busy = time_query.values_list(_term).annotate(grs_one=Sum('busy'), app_vrf=Sum('total'))
             time_busy = filter(lambda v: v[0] != u'', time_busy)
-            pack_list = Time.objects.filter(project=prj_id,center=center_obj, date__range=[main_dates[0],main_dates[-1]]).values_list(_term,flat=True).distinct()
+            pack_list = time_query.values_list('sub_project',flat=True).distinct()
+            def concat(x): return str(x+" Busy %")
+            pack_list = list(map(concat, pack_list))
             packets = []
             if time_busy:
                 for val in time_busy:
@@ -573,8 +640,8 @@ def Time_Busy_Percentage(main_dates ,prj_id, center_obj, level_structure_key, da
                         lid_app = float('%.2f' % round(lid_app, 2))
                     else:
                         lid_app = 0
-                    result[val[0]] = lid_app
-                    packets.append(val[0])
+                    result[val[0]+" Busy %"] = lid_app
+                    packets.append(val[0]+" Busy %")
                 if len(packets) > 0:
                     for pack in pack_list:
                         if pack not in packets:
@@ -589,10 +656,12 @@ def Time_Ready_Percentage(main_dates ,prj_id, center_obj, level_structure_key, d
     if _type == 'day':
         filter_params, _term = getting_required_params(level_structure_key, prj_id, center_obj, dates_list)
         if filter_params and _term:
-            time_query = Time.objects.filter(**filter_params)
             time_full_query = Time.objects.filter(project=prj_id,center=center_obj,date__range=[main_dates[0], main_dates[-1]])
-            date_pack = time_full_query.order_by('date').values_list('date',flat=True).distinct()
+            time_query = Time.objects.filter(**filter_params)
+            date_pack = time_query.order_by('date').values_list('date',flat=True).distinct()
             pack_list = time_full_query.values_list(_term,flat=True).distinct()
+            def concat(x): return str(x+" Ready %")
+            pack_list = list(map(concat, pack_list))
             time_data = time_query.order_by('date').values_list('date',_term).annotate(ready=Sum('ready'),total=Sum('total'))
             time_data = filter(lambda t: t[1] != u'', time_data)
             if time_data:
@@ -606,11 +675,11 @@ def Time_Ready_Percentage(main_dates ,prj_id, center_obj, level_structure_key, d
                                 a_t_per = float('%.2f'% round(a_t_per, 2))
                             else:
                                 a_t_per = 0
-                            if not result.has_key(time_v[1]):
-                                result[time_v[1]] = [a_t_per]
+                            if not result.has_key(time_v[1]+" Ready %"):
+                                result[time_v[1]+" Ready %"] = [a_t_per]                            
                             else:
-                                result[time_v[1]].append(a_t_per)
-                            packet_list.append(time_v[1])
+                                result[time_v[1]+" Ready %"].append(a_t_per)
+                            packet_list.append(time_v[1]+" Ready %")
 
                     for pack in pack_list:
                         if pack not in packet_list:
@@ -620,13 +689,16 @@ def Time_Ready_Percentage(main_dates ,prj_id, center_obj, level_structure_key, d
                                 result[pack].append(0)
 
     elif _type in ["week","month"]:
-        result = {}
+        result = {} 
         filter_params, _term = getting_required_params(level_structure_key, prj_id, center_obj, dates_list)
-        if filter_params and _term :
-            time_query = Time.objects.filter(**filter_params)
+        if filter_params and _term:
+            time_full_query = Time.objects.filter(project=prj_id,center=center_obj, date__range=[dates_list[0],dates_list[-1]])
+            time_query = Time.objects.filter(**filter_params)               
             time_ready = time_query.values_list(_term).annotate(grs_one=Sum('ready'), app_vrf=Sum('total'))
-            time_ready = filter(lambda v: v[0] != u'', time_ready)
-            pack_list = Time.objects.filter(project=prj_id,center=center_obj, date__range=[main_dates[0],main_dates[-1]]).values_list(_term,flat=True).distinct()
+            time_ready = filter(lambda v: v[0] != u'', time_ready)            
+            pack_list = time_full_query.values_list(_term,flat=True).distinct()
+            def concat(x): return str(x+" Ready %")
+            pack_list = list(map(concat, pack_list))
             packets = []
             if time_ready:
                 for val in time_ready:
@@ -636,146 +708,188 @@ def Time_Ready_Percentage(main_dates ,prj_id, center_obj, level_structure_key, d
                         lid_app = float('%.2f' % round(lid_app, 2))
                     else:
                         lid_app = 0
-                    result[val[0]] = lid_app
-                    packets.append(val[0])
-                if len(packets) > 0:
-                    for pack in pack_list:
-                        if pack not in packets:
-                            result[pack] = 0
+                    result[val[0]+" Ready %"] = lid_app
+                    packets.append(val[0]+" Ready %")
+                
+                for pack in pack_list:
+                    if pack not in packets:
+                        result[pack] = 0
 
     return result
 
 
 
+def Time_Ready_Busy_Percentage(main_dates ,prj_id, center_obj, level_structure_key, dates_list, request, _type):        
+    if _type == 'day':
+        ready_dict = Time_Ready_Percentage(main_dates ,prj_id, center_obj, level_structure_key, dates_list, request, _type)        
+        busy_dict = Time_Busy_Percentage(main_dates ,prj_id, center_obj, level_structure_key, dates_list, request, _type)        
+        result = ready_dict.copy()
+        result.update(busy_dict)
 
-def Data_Entry_AHT(date_list,prj_id,center_obj,level_structure_key, main_dates, request,_type):
-    result_dict = {}
-    filter_params, _term = getting_required_params(level_structure_key, prj_id, center_obj, date_list)
-    if filter_params and _term:
-        query_values = Risk.objects.filter(**filter_params)
-        data_values = query_values.values_list('date',_term).annotate(total=Sum('data_entry_done_aht'))
-        data_values = filter(lambda v: v[1] != u'',data_values)
-        risk_full_query = Risk.objects.filter(project=prj_id,center=center_obj,date__range=[main_dates[0],main_dates[-1]])
-        dates = risk_full_query.order_by('date').values_list('date',flat=True).distinct()
-        packets = risk_full_query.values_list(_term,flat=True).distinct()
-        if data_values:
-            for date in dates:
-                _dict_packets = []
-                for val in data_values:
-                    if str(date) == str(val[0]):
-                        if result_dict.has_key(val[1]):
-                            result_dict[val[1]].append(round(val[2],2))
-                        else:
-                            result_dict[val[1]] = [round(val[2],2)]
-                        _dict_packets.append(val[1])
+    elif _type in ["week","month"]:
+        ready_dict = Time_Ready_Percentage(main_dates ,prj_id, center_obj, level_structure_key, dates_list, request, _type)        
+        busy_dict = Time_Busy_Percentage(main_dates ,prj_id, center_obj, level_structure_key, dates_list, request, _type)        
+        result = ready_dict.copy()
+        result.update(busy_dict)        
 
-                for pack in packets:
-                    if pack not in _dict_packets:
-                        if result_dict.has_key(pack):
-                            result_dict[pack].append(0)
-                        else:
-                            result_dict[pack]=[0]
-
-    return result_dict
+    return result
 
 
 
+def Comparison_ID_verif(main_dates ,prj_id, center_obj, level_structure_key, dates_list, request, _type):
+    result = {}     
+    risk_query = Risk.objects.filter(project=prj_id, center=center_obj, date__range=[dates_list[0],dates_list[-1]],sub_project__contains="ID Verification")
+    risk_data = risk_query.order_by('date').values_list('date').annotate(high=Sum('high_volume'), medium=Sum('medium_volume'), low=Sum('low_volume'))        
+    full_risk_query = Risk.objects.filter(project=prj_id,center=center_obj, date__range=[main_dates[0],main_dates[-1]])
+    date_pack = risk_query.order_by('date').values_list('date', flat=True).distinct()    
+    if risk_data:
+        for date in date_pack:            
+            for risk_v in risk_data:
+                if date == risk_v[0]:
+                    if risk_v[1]:
+                        high = float('%.2f' % round(risk_v[1], 2))
+                    else:
+                        high = 0
+                    if risk_v[2]:
+                        medium = float('%.2f' % round(risk_v[2], 2))
+                    else:
+                        medium = 0
+                    if risk_v[3]:
+                        low = float('%.2f' % round(risk_v[3], 2))
+                    else:
+                        low = 0                     
+                    if not result.has_key("High Volume"):
+                        result["High Volume"] = [high]
+                    else:
+                        result["High Volume"].append(high)
+                    if not result.has_key("Medium Volume"):
+                        result["Medium Volume"] = [medium]
+                    else:
+                        result["Medium Volume"].append(medium)
+                    if not result.has_key("Low Volume"):
+                        result["Low Volume"] = [low]
+                    else:
+                        result["Low Volume"].append(low)
+              
+    
+    return result
+    
+    
 
-def Pre_Populated_Vol(date_list,prj_id,center_obj,level_structure_key, main_dates, request,_type):
-    result_dict = {}
-    filter_params, _term = getting_required_params(level_structure_key, prj_id, center_obj, date_list)
-    if filter_params and _term:
-        query_values = Risk.objects.filter(**filter_params)
-        data_values = query_values.values_list('date',_term).annotate(total=Sum('pre_populated_volume'))
-        data_values = filter(lambda v: v[1] != u'',data_values)
-        risk_full_query = Risk.objects.filter(project=prj_id,center=center_obj,date__range=[main_dates[0],main_dates[-1]])
-        dates = risk_full_query.order_by('date').values_list('date',flat=True).distinct()
-        packets = risk_full_query.values_list(_term,flat=True).distinct()
-        if data_values:
-            for date in dates:
-                _dict_packets = []
-                for val in data_values:
-                    if str(date) == str(val[0]):
-                        if result_dict.has_key(val[1]):
-                            result_dict[val[1]].append(round(val[2],2))
-                        else:
-                            result_dict[val[1]] = [round(val[2],2)]
-                        _dict_packets.append(val[1])
-
-                for pack in packets:
-                    if pack not in _dict_packets:
-                        if result_dict.has_key(pack):
-                            result_dict[pack].append(0)
-                        else:
-                            result_dict[pack]=[0]
-
-    return result_dict
-
-
-
-def Data_Entry_Vol(dates_list,prj_id,center_obj,level_structure_key, main_dates, request,_type):
-    result_dict = {}
-    filter_params, _term = getting_required_params(level_structure_key, prj_id, center_obj, dates_list)
-    if _term and filter_params:
-        query_values = Risk.objects.filter(**filter_params)
-        pacs = query_values.values_list(_term,flat=True).order_by('date').distinct()
-        data_values = query_values.values_list('date',_term,'data_entry_volume')
-        data_values = filter(lambda v: v[1] != u'',data_values)
-        risk_full_query = Risk.objects.filter(project=prj_id,center=center_obj,date__range=[main_dates[0],main_dates[-1]])
-        packets = risk_full_query.values_list(_term,flat=True).distinct()
-        dates = risk_full_query.order_by('date').values_list('date',flat=True).distinct()
-        if data_values:
-            for date in dates:
-                _dict_packets = []
-                for value in data_values:
-                    if str(date) == str(value[0]):
-                        if value[1] != "":
-                            if result_dict.has_key(value[1]):
-                                result_dict[value[1]].append(value[2])
-                            else:
-                                result_dict[value[1]] = [value[2]]
-                            _dict_packets.append(value[1])
-
-                for pack in packets:
-                    if pack not in _dict_packets:
-                        if result_dict.has_key(pack):
-                            result_dict[pack].append(0)
-                        else:
-                            result_dict[pack] = [0]
-
-    return result_dict
+def Comparison_identity_verif(main_dates ,prj_id, center_obj, level_structure_key, dates_list, request, _type):
+    result = {}     
+    risk_query = Risk.objects.filter(project=prj_id, center=center_obj, date__range=[dates_list[0],dates_list[-1]],sub_project__contains="Identity Verification")
+    risk_data = risk_query.order_by('date').values_list('date').annotate(high=Sum('high_volume'), medium=Sum('medium_volume'), low=Sum('low_volume'))        
+    date_pack = risk_query.order_by('date').values_list('date', flat=True).distinct()    
+    if risk_data:
+        for date in date_pack:            
+            for risk_v in risk_data:
+                if date == risk_v[0]:
+                    if risk_v[1]:
+                        high = float('%.2f' % round(risk_v[1], 2))
+                    else:
+                        high = 0
+                    if risk_v[2]:
+                        medium = float('%.2f' % round(risk_v[2], 2))
+                    else:
+                        medium = 0
+                    if risk_v[3]:
+                        low = float('%.2f' % round(risk_v[3], 2))
+                    else:
+                        low = 0   
+                    if not result.has_key("High Volume"):
+                        result["High Volume"] = [high]
+                    else:
+                        result["High Volume"].append(high)
+                    if not result.has_key("Medium Volume"):
+                        result["Medium Volume"] = [medium]
+                    else:
+                        result["Medium Volume"].append(medium)
+                    if not result.has_key("Low Volume"):
+                        result["Low Volume"] = [low]
+                    else:
+                        result["Low Volume"].append(low)     
+    
+    return result     
+    
 
 
+def AHT_Comp_id(main_dates ,prj_id, center_obj, level_structure_key, dates_list, request, _type):
+    result = {}    
+    risk_query = Risk.objects.filter(project=prj_id, center=center_obj, date__range=[dates_list[0],dates_list[-1]],sub_project__contains="ID Verification")
+    risk_data = risk_query.order_by('date').values_list('date').annotate(high=Sum('high_aht'), medium=Sum('medium_aht'), low=Sum('low_aht'))            
+    date_pack = risk_query.order_by('date').values_list('date', flat=True).distinct()    
+    if risk_data:
+        for date in date_pack:
+            packet_list = []
+            for risk_v in risk_data:
+                if date == risk_v[0]:
+                    if risk_v[1]:
+                        high = float('%.2f' % round(risk_v[1], 2))
+                    else:
+                        high = 0
+                    if risk_v[2]:
+                        medium = float('%.2f' % round(risk_v[2], 2))
+                    else:
+                        medium = 0
+                    if risk_v[3]:
+                        low = float('%.2f' % round(risk_v[3], 2))
+                    else:
+                        low = 0
+                    if not result.has_key("High AHT"):
+                        result["High AHT"] = [high]
+                    else:
+                        result["High AHT"].append(high)
+                    if not result.has_key("Medium AHT"):
+                        result["Medium AHT"] = [medium]
+                    else:
+                        result["Medium AHT"].append(medium)
+                    if not result.has_key("Low AHT"):
+                        result["Low AHT"] = [low]
+                    else:
+                        result["Low AHT"].append(low)                    
+            
+    return result
 
 
-def Pre_Populated_AHT(dates_list,prj_id,center_obj,level_structure_key, main_dates, request, _type):
-    result_dict = {}
-    filter_params, _term = getting_required_params(level_structure_key, prj_id, center_obj, dates_list)
-    if _term and filter_params:
-        query_values = Risk.objects.filter(**filter_params)
-        pacs = query_values.values_list(_term,flat=True).order_by('date').distinct()
-        data_values = query_values.values_list('date',_term,'pre_populated_aht')
-        data_values = filter(lambda v: v[1] != u'',data_values)
-        risk_full_query = Risk.objects.filter(project=prj_id,center=center_obj,date__range=[main_dates[0],main_dates[-1]])
-        packets = risk_full_query.values_list(_term,flat=True).distinct()
-        dates = risk_full_query.order_by('date').values_list('date',flat=True).distinct()
-        if data_values:
-            for date in dates:
-                _dict_packets = []
-                for value in data_values:
-                    if str(date) == str(value[0]):
-                        if value[1] != "":
-                            if result_dict.has_key(value[1]):
-                                result_dict[value[1]].append(round(value[2],2))
-                            else:
-                                result_dict[value[1]] = [round(value[2],2)]
-                            _dict_packets.append(value[1])
 
-                for pack in packets:
-                    if pack not in _dict_packets:
-                        if result_dict.has_key(pack):
-                            result_dict[pack].append(0)
-                        else:
-                            result_dict[pack] = [0]
+def AHT_Comp_identity(main_dates ,prj_id, center_obj, level_structure_key, dates_list, request, _type):
+    result = {}    
+    risk_query = Risk.objects.filter(project=prj_id, center=center_obj, date__range=[dates_list[0],dates_list[-1]],sub_project="Identity Verification")
+    risk_data = risk_query.order_by('date').values_list('date').annotate(high=Sum('high_aht'), medium=Sum('medium_aht'), low=Sum('low_aht'))            
+    date_pack = risk_query.order_by('date').values_list('date', flat=True).distinct()    
+    if risk_data:
+        for date in date_pack:
+            packet_list = []
+            for risk_v in risk_data:
+                if date == risk_v[0]:
+                    if risk_v[1]:
+                        high = float('%.2f' % round(risk_v[1], 2))
+                    else:
+                        high = 0
+                    if risk_v[2]:
+                        medium = float('%.2f' % round(risk_v[2], 2))
+                    else:
+                        medium = 0
+                    if risk_v[3]:
+                        low = float('%.2f' % round(risk_v[3], 2))
+                    else:
+                        low = 0                     
+                    if not result.has_key("High AHT"):
+                        result["High AHT"] = [high]
+                    else:
+                        result["High AHT"].append(high)
+                    if not result.has_key("Medium AHT"):
+                        result["Medium AHT"] = [medium]
+                    else:
+                        result["Medium AHT"].append(medium)
+                    if not result.has_key("Low AHT"):
+                        result["Low AHT"] = [low]
+                    else:
+                        result["Low AHT"].append(low)                    
+            
+    return result
 
-    return result_dict
+                                
+
+
