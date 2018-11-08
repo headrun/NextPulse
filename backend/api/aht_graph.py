@@ -97,11 +97,11 @@ def aht_team_target_data(date_list,project,center,_term,dates,packets,main_dates
         for tar_k, tar_v in targ_dict.iteritems():            
             tg = (sum(tar_v)/len(tar_v))
             g = tar_k.split('_')
-            st_tup = (g[0],g[1],g[2],tg)
+            st_tup = (g[0],g[1],tg,g[2])
             targ_lst.append(st_tup)        
 
         for date in dates:
-            for target in target_query:
+            for target in targ_lst:
                 if (target[3].lower() in packet.lower() ) and (str(target[0]) <= str(date)) and (str(target[1]) >= str(date)):
                     target_line.append(target[2])
         
