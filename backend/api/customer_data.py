@@ -278,8 +278,8 @@ def AHT_Comparison_identity(request):
 def Valid_Customer_Approved_id(main_dates ,prj_id, center_obj, level_structure_key, dates_list, request, _type):
     dict_t, date_pack = {}, []
     if _type == 'day':      
-        ivr_query = IVR_VCR.objects.filter(project=prj_id, center=center_obj, date__range=[dates_list[0],dates_list[-1]],sub_project__icontains='ID Verification')
-        target = Targets.objects.filter(project=prj_id,center=center_obj,from_date__lte=dates_list[0], to_date__gte=dates_list[-1], sub_project__icontains="ID Verification",target_type="VCA Approved").values('from_date','to_date').annotate(target=Sum('target_value'))
+        ivr_query = IVR_VCR.objects.filter(project=prj_id, center=center_obj, date__range=[dates_list[0],dates_list[-1]],sub_project='ID Verification')
+        target = Targets.objects.filter(project=prj_id,center=center_obj,from_date__lte=dates_list[0], to_date__gte=dates_list[-1], sub_project="ID Verification",target_type="VCA Approved").values('from_date','to_date').annotate(target=Sum('target_value'))
         valid_approv = ivr_query.values_list('date','sub_project').annotate(grs_one=Sum('grossed_up_one'), app_vrf=Sum('approved_verified'))
         valid_approv = filter(lambda v: v[1] != u'', valid_approv)        
         date_pack = ivr_query.order_by('date').values_list('date',flat=True).distinct()
@@ -310,26 +310,29 @@ def Valid_Customer_Approved_id(main_dates ,prj_id, center_obj, level_structure_k
                                 dict_t[pack].append(0)
 
             dict_t['Target_cust'] = []
-            for dat in date_pack:
-                for tar_v in target:
-                    if tar_v['from_date'] <= dat and tar_v['to_date'] >= dat:
-                        if tar_v['target'] != None:
-                            dict_t['Target_cust'].append(tar_v['target']*100)                        
-                        else:
-                            dict_t['Target_cust'].append(0)                        
-                
+            if target:
+                for dat in date_pack:
+                    for tar_v in target:
+                        if tar_v['from_date'] <= dat and tar_v['to_date'] >= dat:
+                            if tar_v['target'] != None:
+                                dict_t['Target_cust'].append(tar_v['target']*100)                        
+                            else:
+                                dict_t['Target_cust'].append(0)                        
+            else:
+                for dat in date_pack:
+                    dict_t['Target_cust'].append(0)
 
     elif _type in ["week","month"]:
         dict_t = {}                
-        ivr_query = IVR_VCR.objects.filter(project=prj_id,center=center_obj, date__range=[dates_list[0],dates_list[-1]],sub_project__icontains='ID Verification')
+        ivr_query = IVR_VCR.objects.filter(project=prj_id,center=center_obj, date__range=[dates_list[0],dates_list[-1]],sub_project='ID Verification')
         valid_approv = ivr_query.values_list('sub_project').annotate(grs_one=Sum('grossed_up_one'), app_vrf=Sum('approved_verified'))            
         valid_approv = filter(lambda v: v[0] != u'', valid_approv)
-        target = Targets.objects.filter(project=prj_id,center=center_obj,from_date__lte=dates_list[0], to_date__gte=dates_list[-1], sub_project__icontains="ID Verification",target_type="VCA Approved").aggregate(target=Sum('target_value'))
+        target = Targets.objects.filter(project=prj_id,center=center_obj,from_date__lte=dates_list[0], to_date__gte=dates_list[-1], sub_project="ID Verification",target_type="VCA Approved").aggregate(target=Sum('target_value'))
         if target['target'] == None:
             target = 0
         else:
             target = target['target']
-        pack_list = IVR_VCR.objects.filter(project=prj_id,center=center_obj, date__range=[main_dates[0],main_dates[-1]],sub_project__icontains='ID Verification').values_list('sub_project',flat=True).distinct()
+        pack_list = IVR_VCR.objects.filter(project=prj_id,center=center_obj, date__range=[main_dates[0],main_dates[-1]],sub_project='ID Verification').values_list('sub_project',flat=True).distinct()
         packets = []
         if valid_approv:
             for val in valid_approv:
@@ -354,8 +357,8 @@ def Valid_Customer_Approved_id(main_dates ,prj_id, center_obj, level_structure_k
 def Valid_Customer_Approved_iden(main_dates ,prj_id, center_obj, level_structure_key, dates_list, request, _type):
     dict_t, date_pack = {}, []
     if _type == 'day':      
-        ivr_query = IVR_VCR.objects.filter(project=prj_id, center=center_obj, date__range=[dates_list[0],dates_list[-1]],sub_project__icontains='Identity Verification')
-        target = Targets.objects.filter(project=prj_id,center=center_obj,from_date__lte=dates_list[0], to_date__gte=dates_list[-1], sub_project__icontains="Identity Verification",target_type="VCA Approved").values('from_date','to_date').annotate(target=Sum('target_value'))
+        ivr_query = IVR_VCR.objects.filter(project=prj_id, center=center_obj, date__range=[dates_list[0],dates_list[-1]],sub_project='Identity Verification')
+        target = Targets.objects.filter(project=prj_id,center=center_obj,from_date__lte=dates_list[0], to_date__gte=dates_list[-1], sub_project="Identity Verification",target_type="VCA Approved").values('from_date','to_date').annotate(target=Sum('target_value'))
         valid_approv = ivr_query.values_list('date','sub_project').annotate(grs_one=Sum('grossed_up_one'), app_vrf=Sum('approved_verified'))
         valid_approv = filter(lambda v: v[1] != u'', valid_approv)        
         date_pack = ivr_query.order_by('date').values_list('date',flat=True).distinct()
@@ -386,26 +389,30 @@ def Valid_Customer_Approved_iden(main_dates ,prj_id, center_obj, level_structure
                                 dict_t[pack].append(0)
 
             dict_t['Target_cust'] = []
-            for dat in date_pack:
-                for tar_v in target:
-                    if tar_v['from_date'] <= dat and tar_v['to_date'] >= dat:
-                        if tar_v['target'] != None:
-                            dict_t['Target_cust'].append(tar_v['target']*100)                        
-                        else:
-                            dict_t['Target_cust'].append(0)                      
+            if target:
+                for dat in date_pack:
+                    for tar_v in target:
+                        if tar_v['from_date'] <= dat and tar_v['to_date'] >= dat:
+                            if tar_v['target'] != None:
+                                dict_t['Target_cust'].append(tar_v['target']*100)                        
+                            else:
+                                dict_t['Target_cust'].append(0)                        
+            else:
+                for dat in date_pack:
+                    dict_t['Target_cust'].append(0)               
                 
 
     elif _type in ["week","month"]:
         dict_t = {}                
-        ivr_query = IVR_VCR.objects.filter(project=prj_id,center=center_obj, date__range=[dates_list[0],dates_list[-1]],sub_project__icontains='Identity Verification')
+        ivr_query = IVR_VCR.objects.filter(project=prj_id,center=center_obj, date__range=[dates_list[0],dates_list[-1]],sub_project='Identity Verification')
         valid_approv = ivr_query.values_list('sub_project').annotate(grs_one=Sum('grossed_up_one'), app_vrf=Sum('approved_verified'))            
         valid_approv = filter(lambda v: v[0] != u'', valid_approv)
-        target = Targets.objects.filter(project=prj_id,center=center_obj,from_date__lte=dates_list[0], to_date__gte=dates_list[-1], sub_project__icontains="Identity Verification",target_type="VCA Approved").aggregate(target=Sum('target_value'))
+        target = Targets.objects.filter(project=prj_id,center=center_obj,from_date__lte=dates_list[0], to_date__gte=dates_list[-1], sub_project="Identity Verification",target_type="VCA Approved").aggregate(target=Sum('target_value'))
         if target['target'] == None:
             target = 0
         else:
             target = target['target']
-        pack_list = IVR_VCR.objects.filter(project=prj_id,center=center_obj, date__range=[main_dates[0],main_dates[-1]],sub_project__icontains='Identity Verification').values_list('sub_project',flat=True).distinct()
+        pack_list = IVR_VCR.objects.filter(project=prj_id,center=center_obj, date__range=[main_dates[0],main_dates[-1]],sub_project='Identity Verification').values_list('sub_project',flat=True).distinct()
         packets = []
         if valid_approv:
             for val in valid_approv:
@@ -431,10 +438,10 @@ def Valid_Customer_Approved_iden(main_dates ,prj_id, center_obj, level_structure
 def Invalid_Customer_Reject_id(main_dates ,prj_id, center_obj, level_structure_key, dates_list, request, _type):
     dict_t, date_pack = {}, []
     if _type == 'day':            
-        ivr_query = IVR_VCR.objects.filter(project=prj_id,center=center_obj,date__range=[dates_list[0], dates_list[-1]],sub_project__icontains='ID Verification')
+        ivr_query = IVR_VCR.objects.filter(project=prj_id,center=center_obj,date__range=[dates_list[0], dates_list[-1]],sub_project='ID Verification')
         invalid_reject = ivr_query.order_by('date').values_list('date','sub_project').annotate(grs_two=Sum('grossed_up_two'), count=Sum('count'))
         invalid_reject = filter(lambda v: v[1] != u'', invalid_reject)
-        target = Targets.objects.filter(project=prj_id,center=center_obj,from_date__lte=dates_list[0], to_date__gte=dates_list[-1], sub_project__icontains="ID Verification",target_type="ICR Rejected").values('from_date','to_date').annotate(target=Sum('target_value'))
+        target = Targets.objects.filter(project=prj_id,center=center_obj,from_date__lte=dates_list[0], to_date__gte=dates_list[-1], sub_project="ID Verification",target_type="ICR Rejected").values('from_date','to_date').annotate(target=Sum('target_value'))
         date_pack = ivr_query.order_by('date').values_list('date',flat=True).distinct()
         pack_list = ivr_query.values_list('sub_project',flat=True).distinct()
         if invalid_reject:
@@ -463,26 +470,29 @@ def Invalid_Customer_Reject_id(main_dates ,prj_id, center_obj, level_structure_k
                                 dict_t[pack].append(0)
 
             dict_t['Target_cust'] = []
-            for dat in date_pack:
-                for tar_v in target:
-                    if tar_v['from_date'] <= dat and tar_v['to_date'] >= dat:
-                        if tar_v['target'] != None:
-                            dict_t['Target_cust'].append(tar_v['target']*100)                        
-                        else:
-                            dict_t['Target_cust'].append(0)
-
+            if target:
+                for dat in date_pack:
+                    for tar_v in target:
+                        if tar_v['from_date'] <= dat and tar_v['to_date'] >= dat:
+                            if tar_v['target'] != None:
+                                dict_t['Target_cust'].append(tar_v['target']*100)                        
+                            else:
+                                dict_t['Target_cust'].append(0)                        
+            else:
+                for dat in date_pack:
+                    dict_t['Target_cust'].append(0)
 
     elif _type in ["week","month"]:
         dict_t = {}       
-        ivr_query = IVR_VCR.objects.filter(project=prj_id,center=center_obj,date__range=[dates_list[0],dates_list[-1]],sub_project__icontains='ID Verification')
+        ivr_query = IVR_VCR.objects.filter(project=prj_id,center=center_obj,date__range=[dates_list[0],dates_list[-1]],sub_project='ID Verification')
         invalid_reject = ivr_query.values_list('sub_project').annotate(grs_two=Sum('grossed_up_two'), count=Sum('count'))
         invalid_reject = filter(lambda v: v[0] != u'', invalid_reject)
-        target = Targets.objects.filter(project=prj_id,center=center_obj,from_date__lte=dates_list[0], to_date__gte=dates_list[-1], sub_project__icontains="ID Verification",target_type="ICR Rejected").aggregate(target=Sum('target_value'))
+        target = Targets.objects.filter(project=prj_id,center=center_obj,from_date__lte=dates_list[0], to_date__gte=dates_list[-1], sub_project="ID Verification",target_type="ICR Rejected").aggregate(target=Sum('target_value'))
         if target['target'] == None:
             target = 0
         else:
             target = target['target']
-        pack_list = IVR_VCR.objects.filter(project=prj_id,center=center_obj, date__range=[main_dates[0],main_dates[-1]], sub_project__icontains='ID Verification').values_list('sub_project',flat=True).distinct()            
+        pack_list = IVR_VCR.objects.filter(project=prj_id,center=center_obj, date__range=[main_dates[0],main_dates[-1]], sub_project='ID Verification').values_list('sub_project',flat=True).distinct()            
         packets = []
         if invalid_reject:
             for val in invalid_reject:
@@ -508,10 +518,10 @@ def Invalid_Customer_Reject_id(main_dates ,prj_id, center_obj, level_structure_k
 def Invalid_Customer_Reject_iden(main_dates ,prj_id, center_obj, level_structure_key, dates_list, request, _type):
     dict_t, date_pack = {}, []
     if _type == 'day':            
-        ivr_query = IVR_VCR.objects.filter(project=prj_id,center=center_obj,date__range=[dates_list[0], dates_list[-1]],sub_project__icontains='Identity Verification')
+        ivr_query = IVR_VCR.objects.filter(project=prj_id,center=center_obj,date__range=[dates_list[0], dates_list[-1]],sub_project='Identity Verification')
         invalid_reject = ivr_query.order_by('date').values_list('date','sub_project').annotate(grs_two=Sum('grossed_up_two'), count=Sum('count'))
         invalid_reject = filter(lambda v: v[1] != u'', invalid_reject)
-        target = Targets.objects.filter(project=prj_id,center=center_obj,from_date__lte=dates_list[0], to_date__gte=dates_list[-1], sub_project__icontains="Identity Verification",target_type="ICR Rejected").values('from_date','to_date').annotate(target=Sum('target_value'))
+        target = Targets.objects.filter(project=prj_id,center=center_obj,from_date__lte=dates_list[0], to_date__gte=dates_list[-1], sub_project="Identity Verification",target_type="ICR Rejected").values('from_date','to_date').annotate(target=Sum('target_value'))
         date_pack = ivr_query.order_by('date').values_list('date',flat=True).distinct()
         pack_list = ivr_query.values_list('sub_project',flat=True).distinct()
         if invalid_reject:
@@ -540,26 +550,30 @@ def Invalid_Customer_Reject_iden(main_dates ,prj_id, center_obj, level_structure
                                 dict_t[pack].append(0)
 
             dict_t['Target_cust'] = []
-            for dat in date_pack:
-                for tar_v in target:
-                    if tar_v['from_date'] <= dat and tar_v['to_date'] >= dat:
-                        if tar_v['target'] != None:
-                            dict_t['Target_cust'].append(tar_v['target']*100)                        
-                        else:
-                            dict_t['Target_cust'].append(0)
+            if target:
+                for dat in date_pack:
+                    for tar_v in target:
+                        if tar_v['from_date'] <= dat and tar_v['to_date'] >= dat:
+                            if tar_v['target'] != None:
+                                dict_t['Target_cust'].append(tar_v['target']*100)                        
+                            else:
+                                dict_t['Target_cust'].append(0)                        
+            else:
+                for dat in date_pack:
+                    dict_t['Target_cust'].append(0)
 
 
     elif _type in ["week","month"]:
         dict_t = {}       
-        ivr_query = IVR_VCR.objects.filter(project=prj_id,center=center_obj,date__range=[dates_list[0],dates_list[-1]],sub_project__icontains='Identity Verification')
+        ivr_query = IVR_VCR.objects.filter(project=prj_id,center=center_obj,date__range=[dates_list[0],dates_list[-1]],sub_project='Identity Verification')
         invalid_reject = ivr_query.values_list('sub_project').annotate(grs_two=Sum('grossed_up_two'), count=Sum('count'))
         invalid_reject = filter(lambda v: v[0] != u'', invalid_reject)
-        target = Targets.objects.filter(project=prj_id,center=center_obj,from_date__lte=dates_list[0], to_date__gte=dates_list[-1], sub_project__icontains="Identity Verification",target_type="ICR Rejected").aggregate(target=Sum('target_value'))
+        target = Targets.objects.filter(project=prj_id,center=center_obj,from_date__lte=dates_list[0], to_date__gte=dates_list[-1], sub_project="Identity Verification",target_type="ICR Rejected").aggregate(target=Sum('target_value'))
         if target['target'] == None:
             target = 0
         else:
             target = target['target']
-        pack_list = IVR_VCR.objects.filter(project=prj_id,center=center_obj, date__range=[main_dates[0],main_dates[-1]], sub_project__icontains='Identity Verification').values_list('sub_project',flat=True).distinct()            
+        pack_list = IVR_VCR.objects.filter(project=prj_id,center=center_obj, date__range=[main_dates[0],main_dates[-1]], sub_project='Identity Verification').values_list('sub_project',flat=True).distinct()            
         packets = []
         if invalid_reject:
             for val in invalid_reject:

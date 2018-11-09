@@ -108,7 +108,12 @@ def aht_team_target_data(date_list,project,center,_term,dates,packets,main_dates
         d_len = len(dates)
         if target_line:
             target_line = target_line[0:d_len]
-                        
+        else:
+            dst = []
+            for dat in dates:
+                dst.append(dat)
+            target_line = dst  
+                          
         result['target_line'] = target_line
         
     return result
