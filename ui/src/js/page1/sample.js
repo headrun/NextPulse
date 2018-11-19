@@ -326,8 +326,7 @@ app.controller('sampleCtrl', function($scope, $http){
 
         var center = $scope.sa_url_split[2].split('=')[1]
         var project = $scope.sa_url_split[1].split('=')[1]
-        $scope.project = project.replace(/%20/g, ' ');
-        console.log(center);
+        $scope.project = project.replace(/%20/g, ' ');        
         $scope.center = center.replace(/%20/g, ' ');
         var url = "/api/packet_agent_audit_random/";
         var data = {'packets':packets_data, 'agents':agents_data, 'audit':$scope.audit_per, 'random':$scope.random_per, 'audit_value':$scope.audit_value,'random_value':$scope.random_value, 'total_production':$scope.total_production,'from':$scope.start_date, 'to':$scope.end_date, 'project':$scope.project, 'center':$scope.center, 'remaining_packets':$scope.rem_packets, 'remaining_agents':$scope.rem_agents};
