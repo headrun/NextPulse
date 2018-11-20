@@ -12,6 +12,7 @@ from api.basics import *
 from api.commons import data_dict
 from api.models import Project, Center, RawTable, Internalerrors
 from django.utils.encoding import smart_str
+from random import *
 
 
 def historical_packet_agent_data(request):
@@ -353,9 +354,6 @@ def generate_or_case_calculation_for_intelligent_audit(audited_value,and_case_va
 def generate_random_data(random_dict,random_value):
 
     ###==== Random data generation ====###
-
-    from random import *
-
     _dict, final_dict = OrderedDict(), OrderedDict()
     
     prev_value = 0
