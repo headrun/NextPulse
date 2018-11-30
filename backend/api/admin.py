@@ -1,6 +1,38 @@
 from django.contrib import admin
-# Register your models here.
-from .models import *
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.admin import UserAdmin
+from django.contrib.auth.models import User
+from django import forms
+from django.utils.translation import ugettext_lazy as _
+from api.models import *
+
+
+class ProfileInline(admin.StackedInline):
+    model = UserProfile
+    can_delete = False
+    verbose_name_plural = 'UserProfile'
+    fk_name = 'user'
+
+
+class CustomUserAdmin(UserAdmin):
+    inlines = (ProfileInline, )
+    list_display = ["username","email","first_name","last_name",'get_phone_no',"is_active"]
+    list_select_related = ('userprofile', )
+
+    def get_phone_no(self, instance):
+        return instance.userprofile.phone_number
+    get_phone_no.short_description = 'Phone No'
+
+    def get_inline_instances(self, request, obj=None):
+        if not obj:
+            return list()
+        return super(CustomUserAdmin, self).get_inline_instances(request, obj)
+
+
+admin.site.unregister(User)
+admin.site.register(User, CustomUserAdmin)
+
+
 
 class ProjectAdmin(admin.ModelAdmin):
     list_display = ['name']
@@ -209,12 +241,7 @@ class Time_authoringAdmin(admin.ModelAdmin):
     list_filter = ['center', 'project']
 admin.site.register(Time_authoring, Time_authoringAdmin)
 
-from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.models import User
-from django.contrib.auth.admin import UserAdmin
-from django import forms
-from django.utils.translation import ugettext_lazy as _
-from django.contrib import admin
+
 
 class UserCreationFormExtended(UserCreationForm): 
     def __init__(self, *args, **kwargs): 
@@ -231,6 +258,7 @@ UserAdmin.add_fieldsets = (
     }),
 )
 
-admin.site.unregister(User)
-admin.site.register(User, UserAdmin)
+
 admin.site.register(ChartType)
+
+
