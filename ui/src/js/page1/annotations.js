@@ -573,13 +573,13 @@
                             that.showAlert('Your annotation has been saved successfully');
                         }
 
-                        let fetch_date_type = data['graph_name'].split('<##>')[1];                        
-                        if (fetch_date_type == "month"){
-                            $(".widget-body.widget-"+data['widget_id']+"b #Month")[0].click();    
-                        } else {
-                            $(".widget-body.widget-"+data['widget_id']+"b #"+fetch_date_type)[0].click();
-                        }
-                        
+                        // let fetch_date_type = data['graph_name'].split('<##>')[1];                        
+                        // if (fetch_date_type == "month"){
+                        //     $(".widget-body.widget-"+data['widget_id']+"b #Month")[0].click();    
+                        // } else {
+                        //     $(".widget-body.widget-"+data['widget_id']+"b #"+fetch_date_type)[0].click();
+                        // }
+                        document.getElementById('annotation-'+data.id).id="annotation-"+resp.annotation_id;                      
                         
 
                     }).fail(function(){
