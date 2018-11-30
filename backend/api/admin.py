@@ -33,11 +33,21 @@ admin.site.unregister(User)
 admin.site.register(User, CustomUserAdmin)
 
 
+def enable_mail_notifications(modeladmin, request, queryset):
+    queryset.update(is_enable_push=True)
+enable_mail_notifications.short_description = "Enable mail for selected ones"
+
+
+def disable_mail_notifications(modeladmin, request, queryset):
+    queryset.update(is_enable_push=False)
+disable_mail_notifications.short_description = "Disable mail for selected ones"
+
 
 class ProjectAdmin(admin.ModelAdmin):
-    list_display = ['name']
+    list_display = ['id','name','display_project','is_voice','is_enable_push']
+    list_filter = ['center']
+    actions = [enable_mail_notifications, disable_mail_notifications]
 admin.site.register(Project,ProjectAdmin)
-
 class AnnotationAdmin(admin.ModelAdmin):
     list_display = ['project','created_by','dt_created','chart_id','text','epoch','start_date','end_date','id']
 admin.site.register(Annotation,AnnotationAdmin)
