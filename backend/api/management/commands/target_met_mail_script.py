@@ -5,15 +5,12 @@ from django.core.mail import EmailMessage
 from django.db.models import Max, Sum
 from django.core.management.base import BaseCommand, CommandError
 from django.contrib.auth.models import User
-
 import os
 import datetime
-
 from itertools import chain
-from email.MIMEImage import MIMEImage
-
 from api.generate_accuracy_values import *
 from api.models import *
+from django.db.models import *
 
 
 class Command(BaseCommand):
@@ -25,33 +22,31 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        nw_managers = Nextwealthmanager.objects.all()
-        center_managers = Centermanager.objects.all()
-        customers = Customer.objects.all()
-        tls = TeamLead.objects.all()
+        nw_managers = Nextwealthmanager.objects.filter(name__is_active=True)                       
+        center_managers = Centermanager.objects.filter(name__is_active=True)                               
+        customers = Customer.objects.filter(name__is_active=True, project__is_enable_push=True, project__is_voice=False, project__display_project=True, is_enable_push_email=True)                
+        tls = TeamLead.objects.filter(name__is_active=True, project__is_voice=False, project__display_project=True, project__is_enable_push=True)        
         
         for customer in customers:
-            customer_details = Customer.objects.filter(id=customer.id).\
-            values_list('project', flat=True)
-            send_mail_data(customer_details, customer, 'customer')
+            customer_details = Customer.objects.filter(id=customer.id, project__is_enable_push=True).values_list('project', flat=True).distinct()            
+            if len(customer_details) > 0:
+                send_mail_data(customer_details, customer, 'customer')
 
         for tl in tls:
-            tl_details = TeamLead.objects.filter(id=tl.id, project__isnull = False).\
-                values_list('project',flat=True)
-            send_mail_data(tl_details, tl, 'team_lead')
+            tl_details = TeamLead.objects.filter(id=tl.id,project__is_enable_push=True).values_list('project',flat=True).distinct()            
+            if tl_details:
+                send_mail_data(tl_details, tl, 'team_lead')
 
         for nw_manager in nw_managers:
-            projects = Project.objects.all()
-            projects_list = []
-            for project in projects:
-                project = project.id
-                projects_list.append(project)
-            send_mail_data(projects_list, nw_manager, 'NW_manager')
+            projects_list = Project.objects.filter(is_voice=False ,display_project=True, is_enable_push=True).values_list('id', flat=True).distinct()            
+            if projects_list:
+                send_mail_data(projects_list, nw_manager, 'NW_manager')
         
         for cm_manager in center_managers:
             center = Centermanager.objects.get(id=cm_manager.id).center_id
-            projects = Project.objects.filter(center=center).values_list('id', flat=True)
-            send_mail_data(projects, cm_manager, 'C_manager')
+            projects = Project.objects.filter(center=center, display_project=True, is_voice=False, is_enable_push=True).values_list('id', flat=True).distinct()
+            if projects_list:
+                send_mail_data(projects, cm_manager, 'C_manager')
 
 
         
