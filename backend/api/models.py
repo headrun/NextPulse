@@ -2,7 +2,26 @@ from __future__ import unicode_literals
 from django.contrib.auth.models import User
 from django.db import models
 from django.contrib.auth.models import Group
-#from datetime import datetime
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.core.validators import RegexValidator
+
+
+
+class UserProfile(models.Model):    
+    user = models.OneToOneField(User, on_delete=models.CASCADE)    
+    phone_regex = RegexValidator(regex=r'^\+?1?\d{10}$', message="Only Indian Numbers can be used & 10 digits only allowed.")
+    phone_number = models.CharField(validators=[phone_regex], max_length=17, blank=True) # validators should be a list
+
+    def __str__(self):  # __unicode__ for Python 2
+        return self.user.username
+
+@receiver(post_save, sender=User)
+def create_or_update_user_profile(sender, instance, created, **kwargs):
+    if created:
+        user = UserProfile.objects.create(user=instance)
+    instance.userprofile.save()
+
 
 
 class Center(models.Model):
@@ -31,8 +50,6 @@ class Project(models.Model):
     display_project = models.BooleanField(default = True)
     external_audit_percentage = models.IntegerField(default=50)
     is_nextpredict_enable = models.BooleanField(default=False)
-
-
 
     class Meta:
         db_table = u'project'
