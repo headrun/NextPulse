@@ -57,12 +57,20 @@ class CenterAdmin(admin.ModelAdmin):
 admin.site.register(Center,CenterAdmin)
 
 class TeamleadAdmin(admin.ModelAdmin):
-    list_display = ['name']
+    list_display = ['name', 'get_projects']
+    def get_projects(self, obj):
+        return ", \n".join([p.name for p in obj.project.all()])
+    get_projects.short_description = "Projects"
+
 admin.site.register(TeamLead,TeamleadAdmin)
 
 class CustomerAdmin(admin.ModelAdmin):
-    list_display = ['name']
+    list_display = ['name','get_projects']
+    def get_projects(self, obj):
+        return ", \n".join([p.name for p in obj.project.all()])
+    get_projects.short_description = "Projects"
 admin.site.register(Customer,CustomerAdmin)
+
 
 class HeadcountAdmin(admin.ModelAdmin):
     list_display = ['project','sub_project','work_packet','sub_packet','date']
