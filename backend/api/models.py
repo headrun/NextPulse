@@ -63,6 +63,7 @@ class TeamLead(models.Model):
     project = models.ManyToManyField(Project, null=True)
     center = models.ManyToManyField(Center, null=True)
     display_upload = models.BooleanField(default = True)
+    enable_push_email = models.BooleanField(default=None)
     
 
     class Meta:
@@ -188,6 +189,7 @@ class HeadcountAuthoring(models.Model):
 class Centermanager(models.Model):
     name    = models.ForeignKey(User, null=True,db_index=True)
     center  = models.ForeignKey(Center, null=True,db_index=True)
+    enable_push_email = models.BooleanField(default=None)
 
     class Meta:
         db_table = u'center_manager'
@@ -199,6 +201,7 @@ class Centermanager(models.Model):
 class Nextwealthmanager(models.Model):
     name    = models.ForeignKey(User, null=True, db_index=True)
     center  = models.ManyToManyField(Center)
+    enable_push_email = models.BooleanField(default=None)
 
     class Meta:
         db_table = u'nextwealthmanager'
