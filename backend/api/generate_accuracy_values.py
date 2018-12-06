@@ -52,77 +52,38 @@ def send_mail_data(user_details, user, user_group):
     return "success"
 
 
-def generate_targets_data(project,user_group,is_senior,last_date):
-
-    common_dict = {}    
-    last_date = last_date['date__max']
-    target_query = Targets.objects.filter(project=project, to_date=last_date).values_list('target_type','target_method').distinct()    
-    
-    for _type in  target_query:
-        if (_type[0] == 'FTE Target') or (_type[0] == 'Target') :
-            production = get_production_data(project,last_date,_type[0])
-            production['prod_target_method'] = _type[1]
-            common_dict['production'] = production
-            
-        elif _type[1] == 'SLA' and 'Accuracy' in _type[0]:
-            table_name = Externalerrors
-            sla = get_accuracy_data(project,last_date,_type,table_name)
-            sla['sla_target_method'] = _type[1]
-            common_dict['sla'] = sla
-    
-        elif _type[1] == 'KPI' and 'Accuracy' in _type[0]:
-            table_name = Internalerrors
-            kpi = get_accuracy_data(project,last_date,_type,table_name)
-            kpi['kpi_target_method'] = _type[1]
-            common_dict['kpi'] = kpi
-        
-        elif (_type[0] == 'Productivity') or (_type[0] == 'Productivity%'):
-            productivity = get_productivity_data(project,last_date,_type[0])
-            productivity['productivity_target_method'] = _type[1]
-            common_dict['productivity'] = productivity
-        
-        elif _type[0] == 'AHT':
-            aht = get_aht_data(project,last_date)
-            aht['aht_target_method'] = _type[1]
-            common_dict['aht'] = aht
-            
-        elif _type[0] == 'TAT':
-            tat = get_tat_data(project,last_date)    
-            tat['tat_target_method'] = _type[1]
-            common_dict['tat'] = tat
-
-    return common_dict
-
-
 def get_production_data(project,date,_type):
 
     result = {}
     work_done = RawTable.objects.filter(project=project,date=date).aggregate(Sum('per_day'))    
     work_done = work_done['per_day__sum']
-    
+    if work_done:
+        work_done = int(work_done)
+    else:
+        pass    
     billable_agents = Headcount.objects.filter(project=project,date=date).aggregate(Sum('billable_agents'))
-    billable_agents = billable_agents['billable_agents__sum']
-    
+    billable_agents = billable_agents['billable_agents__sum']    
     if _type == 'FTE Target':
         actual_target = generate_target_calculations(project,date)
-
     else:
         target = Targets.objects.filter(project=project,to_date=date,target_type=_type).\
             aggregate(Sum('target_value'))
         actual_target = target['target_value__sum']
-    
+
+
+    if actual_target != 'None':
+        actual_target = int(actual_target)    
+
     color = 'black'
     if actual_target > work_done:
         color = 'Red'
     result['production_target'] = actual_target
     result['workdone'] = work_done
-    result['prod_color'] = color
-    # print "result:",result
+    result['prod_color'] = color    
     return result
 
 
 def generate_target_calculations(project,date):
-
     query_dict = {}
     target_query = Targets.objects.filter(project=project,to_date=date,
                         target_type='FTE Target')    
@@ -130,11 +91,9 @@ def generate_target_calculations(project,date):
     if packet_check[0]['sub_project'] != '':
         packet_check = 'sub_project'
     elif packet_check[0]['work_packet'] != '':
-        packet_check = 'work_packet'
-    # print packet_check
+        packet_check = 'work_packet'    
     total_target, pack_target, hc_billable = 0, 0, 0
-    target_packets = target_query.values_list(packet_check,flat=True).distinct()
-        
+    target_packets = target_query.values_list(packet_check,flat=True).distinct()        
     for packet in target_packets:
         packet_params = {packet_check: packet}
         target_value = target_query.filter(**packet_params).values_list('target_value',flat=True).distinct()                    
@@ -147,8 +106,8 @@ def generate_target_calculations(project,date):
         else:
             hc_billable = 0
         total_target += pack_target*hc_billable
-
     total_target = float('%.2f'% round(total_target,2))
+    total_target = int(total_target)
     return total_target
 
 
@@ -168,8 +127,9 @@ def get_accuracy_data(project,date,_type,table_name):
         if audit_data:
             accuracy = (float(error_data[0][1])/float(audit_data))*100
             accuracy =  100 - round(accuracy,2)
+            accuracy = str(accuracy) + " %"
         else:
-            accuracy = 0
+            accuracy = str(0)
     else:
         accuracy = 'No data'
     
@@ -184,7 +144,7 @@ def get_accuracy_data(project,date,_type,table_name):
     if target > accuracy:
         color = 'Red'
     result[_type[1]+'_'+'accuracy'] = accuracy
-    result[_type[1]+'_'+'target'] = target *100
+    result[_type[1]+'_'+'target'] = str(target *100) + "%"
     result[_type[1]+'_'+'color'] = color    
     return result
 
@@ -272,7 +232,7 @@ def get_aht_data(project,date):
     if target > aht:
         color = 'Red'
     result['aht_color'] = color
-    result['aht_target'] = target
+    result['aht_target'] = int(target)
     result['aht'] = aht
 
     return result
@@ -300,7 +260,7 @@ def get_tat_data(project,date):
 
     result['tat_color'] = color
     result['tat'] = tat
-    result['tat_target'] = target
+    result['tat_target'] = int(target)
 
     return result
 

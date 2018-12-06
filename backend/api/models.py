@@ -63,6 +63,7 @@ class TeamLead(models.Model):
     project = models.ManyToManyField(Project, null=True)
     center = models.ManyToManyField(Center, null=True)
     display_upload = models.BooleanField(default = True)
+    enable_push_email = models.BooleanField(default=None)
     
 
     class Meta:
@@ -90,7 +91,7 @@ class Customer(models.Model):
     legends_alignment_choices = (('left','Left'),('right','Right'),('bottom','Bottom'))
     legends_alignment = models.CharField(max_length=30,choices=legends_alignment_choices,default='bottom')
     is_senior = models.BooleanField(default=None)
-    is_enable_push_email = models.BooleanField(default=None)	
+    enable_push_email = models.BooleanField(default=None)	
 
     class Meta:
         db_table = u'customer'
@@ -188,6 +189,7 @@ class HeadcountAuthoring(models.Model):
 class Centermanager(models.Model):
     name    = models.ForeignKey(User, null=True,db_index=True)
     center  = models.ForeignKey(Center, null=True,db_index=True)
+    enable_push_email = models.BooleanField(default=None)
 
     class Meta:
         db_table = u'center_manager'
@@ -199,6 +201,7 @@ class Centermanager(models.Model):
 class Nextwealthmanager(models.Model):
     name    = models.ForeignKey(User, null=True, db_index=True)
     center  = models.ManyToManyField(Center)
+    enable_push_email = models.BooleanField(default=None)
 
     class Meta:
         db_table = u'nextwealthmanager'
@@ -215,7 +218,7 @@ class RawTable(models.Model):
     sub_packet  = models.CharField(max_length=255, blank=True,db_index=True)
     per_hour    = models.IntegerField(max_length=255, default=0)
     per_day     = models.IntegerField(max_length=255, default=0,db_index=True)
-    date = models.DateField()
+    date        = models.DateField()
     norm        = models.IntegerField(blank=True)
     created_at  = models.DateTimeField(auto_now_add=True, null=True)
     modified_at = models.DateTimeField(auto_now=True,null=True)
