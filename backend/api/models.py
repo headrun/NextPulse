@@ -91,7 +91,7 @@ class Customer(models.Model):
     legends_alignment_choices = (('left','Left'),('right','Right'),('bottom','Bottom'))
     legends_alignment = models.CharField(max_length=30,choices=legends_alignment_choices,default='bottom')
     is_senior = models.BooleanField(default=None)
-    is_enable_push_email = models.BooleanField(default=None)	
+    enable_push_email = models.BooleanField(default=None)	
 
     class Meta:
         db_table = u'customer'
@@ -218,7 +218,7 @@ class RawTable(models.Model):
     sub_packet  = models.CharField(max_length=255, blank=True,db_index=True)
     per_hour    = models.IntegerField(max_length=255, default=0)
     per_day     = models.IntegerField(max_length=255, default=0,db_index=True)
-    date = models.DateField()
+    date        = models.DateField()
     norm        = models.IntegerField(blank=True)
     created_at  = models.DateTimeField(auto_now_add=True, null=True)
     modified_at = models.DateTimeField(auto_now=True,null=True)
