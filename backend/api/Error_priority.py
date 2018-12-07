@@ -94,7 +94,7 @@ def week_calculations(dates, project, center, level_structure_key, function_name
         week_dict[week_name] = data
     if function_name in []:
         result = prod_volume_week_util(project, week_names, week_dict, {}, 'week')
-    elif function_name in [external_count_cal]:
+    elif function_name in []:
         result = prod_volume_week_util_headcount(week_names, week_dict, {})
     else:
        result = prod_volume_week(week_names, week_dict, {})
@@ -114,9 +114,8 @@ def month_calculations(dates, project, center, level_structure_key, function_nam
         month_dict[month_name] = data
     if function_name in []:
         result = prod_volume_week_util(project, month_names, month_dict, {}, 'month')
-    elif function_name in [external_count_cal]:
+    elif function_name in []:
         result = prod_volume_week_util_headcount(month_names, month_dict, {})
-        print result
     else:
         result = prod_volume_week(month_names, month_dict, {})
     return result
@@ -232,7 +231,7 @@ def external_count_cal(main_dates, prj_id, center, level_structure_key, dates_li
                             result[ext_v[1].lower()].append(ext_out)
                         packet_list.append(ext_v[1].lower())                       
 
-                print packet_list
+
                 if len(packet_list):
                     for pack in pack_list:
                         if pack.lower() not in packet_list:
