@@ -209,18 +209,14 @@ def External_Error_proj(request):
 
 def external_count_cal(main_dates, prj_id, center, level_structure_key, dates_list, request, _type):
     result = {}
-    result_dup = {}    
     filter_params, _term = getting_required_params(level_structure_key, prj_id, center, dates_list)
     if filter_params and _term:
         ext_full_query = Externalerrors.objects.filter(project=prj_id,center=center,date__range=[main_dates[0], main_dates[-1]])
         ext_query = Externalerrors.objects.filter(**filter_params)
         date_pack = ext_query.order_by('date').values_list('date',flat=True).distinct()
-        # print date_pack
-        pack_list = ext_query.values_list('error_types',flat=True).distinct()                        
-        print "pack_list:",pack_list
+        pack_list = ext_query.values_list('error_types',flat=True).distinct()
         ext_data = ext_query.order_by('date').filter(error_values__gt=0).values_list('date','error_types').annotate(total_errors=Sum('error_values'))                                        
-        # ext_data = filter(lambda t: t[1] != u'', ext_data)
-        # print ext_data          
+        ext_data = filter(lambda t: t[1] != u'', ext_data)
         if ext_data:
             for date in date_pack:
                 packet_list = []
@@ -244,8 +240,6 @@ def external_count_cal(main_dates, prj_id, center, level_structure_key, dates_li
                                 result[pack.lower()] = [0]
                             else:
                                 result[pack.lower()].append(0)
-
-    print "________________________________CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC___________________"
     
     return result
 
