@@ -91,5 +91,5 @@ urlpatterns = [
     url(r'^aht_comp_id',apiviews.AHT_Comparison_id),
     url(r'^comp_volume_identity',apiviews.Volume_identity_verif),
     url(r'^volume_comp_id',apiviews.Volume_Comparison_id),
-
+        url(r'^error_cate_count', apiviews.External_Error_proj)
 ]
