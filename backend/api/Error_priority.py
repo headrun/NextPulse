@@ -15,9 +15,9 @@ from common.utils import getHttpResponse as json_HttpResponse
 
 def customer_data_date_generation(project, center, date_lt, model_name):
     model_class = apps.get_model('api',model_name)
-    date_lt = model_class.objects.filter(project=project,center=center, date__range=[date_lt[0], date_lt[-1]]).\
+    date_lt = model_class.objects.filter(project=project,center=center, date__range=[date_lt[0], date_lt[-1]], error_values__gt=0).\
                                     order_by('date').values_list('date', flat=True).distinct()
-    date_lt = map(str, date_lt)
+    date_lt = map(str, date_lt)    
     return date_lt
 
 
@@ -47,13 +47,13 @@ def generate_day_week_month_format(request, result_name, function_name, model_na
 
     elif main_data_dict['dwm_dict'].has_key('week') and main_data_dict['type'] == 'week':
         dates_list = main_data_dict['dwm_dict']['week']
-        if function_name in []:
+        if function_name in [external_count_cal]:
             volume_week = week_month_data_acculate(main_dates ,prj_id, center, level_structure_key, dates_list, request, _type, function_name)
             final_dict[result_name] = graph_data_alignment_color(volume_week, 'data', level_structure_key, \
                                         prj_id, center, result_name)
             final_dict['min_max'] = min_max_num(volume_week,result_name)
 
-        elif function_name in [external_count_cal]:
+        elif function_name in []:
             week_data = week_calculations(dates_list, prj_id, center, level_structure_key, function_name, main_dates,request)
             final_dict[result_name] = graph_data_alignment_color(week_data, 'data', level_structure_key, \
                                         prj_id, center, result_name)
@@ -62,13 +62,13 @@ def generate_day_week_month_format(request, result_name, function_name, model_na
 
     elif main_data_dict['dwm_dict'].has_key('month') and main_data_dict['type'] == 'month':
         dates_list = main_data_dict['dwm_dict']['month']
-        if function_name in []:
+        if function_name in [external_count_cal]:
             volume_month = week_month_data_acculate(main_dates ,prj_id, center, level_structure_key, dates_list, request, _type, function_name)
             final_dict[result_name] = graph_data_alignment_color(volume_month, 'data', level_structure_key, \
                                         prj_id, center, result_name)
             final_dict['min_max'] = min_max_num(volume_month,result_name)
 
-        elif function_name in [external_count_cal]:
+        elif function_name in []:
             month_data = month_calculations(dates_list, prj_id, center, level_structure_key, function_name, main_dates,request)
             final_dict[result_name] = graph_data_alignment_color(month_data, 'data', level_structure_key, \
                                         prj_id, center, result_name)
@@ -133,7 +133,7 @@ def week_month_data_acculate(main_dates , prj_id, center_obj, level_structure_ke
             week_num = week_num + 1
             data = func_name(main_dates ,prj_id, center_obj, level_structure_key, date,request,_type)
             week_dict[week_name] = data
-        final_result = Customer_week_fn(week_names, week_dict, {})
+        final_result = Customer_week_fn(week_names, week_dict, {})        
     elif _type == 'month':
         month_dict = {}
         month_names = []
@@ -175,12 +175,11 @@ def Customer_week_fn(week_names,productivity_list,final_productivity):
 
 def min_max_num(int_value_range, result_name):
     min_max_dict = {}    
-    if len(int_value_range) > 0 and (result_name in ["external_error_count"]):
+    if len(int_value_range) > 0 and (result_name in ["external_error_count"]):        
         values_list = []
         data = int_value_range.values()
         for value in data:
-            values_list = values_list + value
-        
+            values_list = values_list + value        
         if (min(values_list) > 2):
             min_value = (min(values_list) - 2)
             max_value = (max(values_list) + 2)
@@ -194,8 +193,6 @@ def min_max_num(int_value_range, result_name):
     return min_max_dict
 
 
-
-
 def External_Error_proj(request):
 
     result_name = 'external_error_count'
@@ -207,38 +204,73 @@ def External_Error_proj(request):
 
 
 def external_count_cal(main_dates, prj_id, center, level_structure_key, dates_list, request, _type):
-    result = {}
+    result = {}    
     filter_params, _term = getting_required_params(level_structure_key, prj_id, center, dates_list)
-    if filter_params and _term:
-        ext_full_query = Externalerrors.objects.filter(project=prj_id,center=center,date__range=[main_dates[0], main_dates[-1]])
-        ext_query = Externalerrors.objects.filter(**filter_params)
-        date_pack = ext_query.order_by('date').values_list('date',flat=True).distinct()
-        pack_list = ext_full_query.values_list('error_types',flat=True).distinct()
-        ext_data = ext_query.order_by('date').filter(error_values__gt=0).values_list('date','error_types').annotate(total_errors=Sum('error_values'))                                        
-        ext_data = filter(lambda t: t[1] != u'', ext_data)
-        if ext_data:
-            for date in date_pack:
-                packet_list = []
-                for ext_v in ext_data:
-                    if date == ext_v[0]:
-                        if ext_v[2] != 'None':
-                            ext_out = int(ext_v[2])                            
-                        else:
-                            ext_out = 0                            
-                        if not result.has_key(ext_v[1].lower()):
-                            result[ext_v[1].lower()] = [ext_out]                            
-                        else:   
-                            result[ext_v[1].lower()].append(ext_out)
-                        packet_list.append(ext_v[1].lower())                       
+    if _type == "day":
+        if filter_params and _term:
+            ext_full_query = Externalerrors.objects.filter(project=prj_id,center=center,date__range=[main_dates[0], main_dates[-1]])
+            ext_query = Externalerrors.objects.filter(**filter_params)
+            date_pack = ext_full_query.order_by('date').values_list('date',flat=True).distinct()
+            pack_list = ext_query.values_list('error_types',flat=True).distinct()
+            ext_data = ext_query.order_by('date').filter(error_values__gt=0).values_list('date','error_types').annotate(total_errors=Sum('error_values'))                                                    
+            ext_data = filter(lambda t: t[1] != u'', ext_data)
+            if ext_data:
+                for date in date_pack:
+                    packet_list = []
+                    content_list = []
+                    for ext_v in ext_data:
+                        if date == ext_v[0]:
+                            if ext_v[2] != 'None':
+                                ext_out = int(ext_v[2])                            
+                            else:
+                                ext_out = 0                            
+                            if not result.has_key(ext_v[1].lower()):
+                                result[ext_v[1].lower()] = [ext_out]                            
+                            else:   
+                                result[ext_v[1].lower()].append(ext_out)
+                            packet_list.append(ext_v[1].lower())                       
+                            content_list.append(ext_out)
 
 
-                if len(packet_list):
-                    for pack in pack_list:
-                        if pack.lower() not in packet_list:
+                    if len(packet_list) > 0:
+                        for pack in pack_list:
+                            if pack.lower() not in packet_list:
+                                if not result.has_key(pack.lower()):
+                                    result[pack.lower()] = [0]
+                                else:
+                                    result[pack.lower()].append(0)
+                    
+                    if len(content_list)==0:
+                        for pack in pack_list:
                             if not result.has_key(pack.lower()):
                                 result[pack.lower()] = [0]
                             else:
-                                result[pack.lower()].append(0)
-    
+                                result[pack.lower()].append(0)                    
+
+
+    elif _type in ["week","month"]:
+        ext_full_query = Externalerrors.objects.filter(project=prj_id,center=center,date__range=[main_dates[0], main_dates[-1]])
+        ext_query = Externalerrors.objects.filter(**filter_params)
+        ext_qy = ext_query.values_list('error_types').annotate(total_errors=Sum('error_values'))        
+        pack_lst = ext_query.values_list('error_types', flat=True).distinct()
+        ext_qy = filter(lambda t: t[1] != u'', ext_qy)
+        if ext_qy:
+            packet_list = []
+            for ext_q in ext_qy:
+                if not result.has_key(ext_q[0].lower()):
+                    result[ext_q[0].lower()] = [ext_q[1]]
+                else:
+                    result[ext_q[0].lower()].append(ext_q[1])
+                packet_list.append(ext_q[0].lower())
+            
+            for val,res in result.iteritems():
+                result[val] = sum(res)
+
+            if len(packet_list) > 0:
+                for pack in pack_lst:
+                    if pack.lower() not in packet_list:            
+                        result[pack.lower()] = 0
+
     return result
+
 
