@@ -211,6 +211,8 @@
                     $('.widget-86b').addClass('widget-data-hide');
                     $('.widget-87a').addClass('widget-loader-show');
                     $('.widget-87b').addClass('widget-data-hide');
+                    $('.widget-88a').addClass('widget-loader-show');
+                    $('.widget-88b').addClass('widget-data-hide');
 
 
              }
@@ -6110,6 +6112,195 @@
 
 
 
+                    self.Error_Count_Category = function(final_work, type) {
+
+                        if (type == undefined) {
+                            type = 'day'
+                        }
+
+                        if (final_work == undefined) {
+                            final_work = ''
+                        }
+
+                        self.type = type;
+
+                        var err_cnt_cate = '/api/error_cate_count/'+self.data_to_show + type + final_work + '&chart_name=88';
+
+                        return $http({method:"GET", url: err_cnt_cate}).success(function(result){
+
+                            var date_list = result.result.date;
+                            var err_cate = result.result.external_error_count;
+                            var is_annotation = result.result.is_annotation;
+
+                            if (self.list_object.external_error_count_widget != undefined) {
+
+                                if (self.list_object.external_error_count_widget.display_value === true) {
+
+                                    var value = true;
+                                }
+                                else {
+
+                                    var value = false;
+                                }
+                            }
+                            else {
+                                var value = false;
+                            }
+                            if (self.list_object.external_error_count_widget != undefined) {
+
+                                if(self.list_object.external_error_count_widget.legends_align == 'bottom') {
+
+                                    var align = 'center';
+                                    var ver_align = 'bottom';
+                                    var layout = 'horizontal';
+
+                                }
+
+                                else if(self.list_object.external_error_count_widget.legends_align == 'left'){
+
+                                    var align ='left';
+                                    var ver_align = 'top';
+                                    var layout = 'vertical';
+                                }
+
+                                else {
+                                    var align = 'right';
+                                    var ver_align = 'top';
+                                    var layout = 'vertical';
+                                }
+                            }
+
+                            else {
+                                var align = 'center';
+                                var ver_align = 'bottom';
+                                var layout = 'horizontal';
+                            }
+
+                            angular.extend(self.chartOptions93.yAxis,{
+                                min:result.result.min_max.min_value,
+                                max:result.result.min_max.max_value
+                            });
+
+                            angular.extend(self.chartOptions93, {
+                                xAxis: {
+                                    categories: date_list,
+                                },
+                                legend: {
+                                    align: align,
+                                    verticalAlign:ver_align,
+                                    layout: layout
+                                },
+                                    plotOptions: {
+                                        series: {
+                                            dataLabels: {
+                                            enabled: value,
+                                            format: '{y}',
+                                            valueDecimals: 2
+                                            },
+                                          allowPointSelect: true,
+                                          cursor: 'pointer',
+                                            point: {
+                                              events:{
+                                                contextmenu: function() {
+                                                 if (self.role_for_perm == 'customer') {
+
+                                                    console.log('he is customer');
+                                                 }
+                                                 else {
+
+                                                  if (self.data_to_show.split('&').length == 6) {
+                                                    var sub_proj = '';
+                                                    var work_pack = '';
+                                                    var sub_pack = '';
+                                                  }
+                                                  else {
+                                                    var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
+                                                    var work_pack = self.data_to_show.split('&')[6].split('=')[1];
+                                                    var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
+                                                  }
+                                                    var str = '88<##>'+self.type+'<##>'+sub_proj+'<##>'+work_pack+'<##>'+sub_pack;
+                                                    this['project'] = self.project_live;
+                                                    this['center'] = self.center_live;
+                                                    this['from'] = self.start_date;
+                                                    this['to'] = self.end_date;
+                                                    return new Annotation(str, $(self.chartOptions93.chart.renderTo),this.series.chart, this);
+                                                    }
+                                                  }
+                                                }
+                                            },
+                                            events: {
+                                                hide: function() {
+                                                    var name = this.name;
+                                                    var visibility = this.visible;
+                                                    var chart_name = self._ivr_invalid_data;
+                                                    self.data_anno.forEach(function(value_data){
+                                                        value_data.redraw(name, visibility);
+                                                    });
+                                                    if (chart_name.indexOf(name) >= 0) {
+                                                        $(document).find('.widget-88a').children(".widget-88b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 0);
+                                                    }
+                                                },
+                                                show: function() {
+                                                    var name = this.name;
+                                                    var visibility = this.visible;
+                                                    var chart_name = self._internal_data;
+                                                    self.data_anno.forEach(function(value_data){
+                                                        value_data.redraw(name, visibility);
+                                                    });
+                                                    if (chart_name.indexOf(name) >= 0) {
+                                                        $(document).find('.widget-88a').children(".widget-88b").find('.annotation-marker[series-name="'+name+'"]').css("opacity", 1);
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+
+                                series: err_cate,
+                                    onComplete: function(chart){
+                                    if (is_annotation) {
+                                    var series = null;
+                                    var chart_data = chart.series;
+                                    self.data_anno = [];
+                                    self._internal_data = [];
+                                    for(var i in chart_data){
+                                        series = chart_data[i];
+                                        (function(series){
+                                          $http({method:"GET", url:"/api/annotations/?series_name="+series.name+'&type='+
+                      self.type+'&chart_name=88&project='+self.project_live+'&center='+
+                      self.center_live+'&from='+self.start_date+'&to='+self.end_date}).success(function(annotations){
+                               annotations = _.sortBy(annotations.result, function(annotation){ return annotation.epoch });
+                               $.each(annotations, function(j, annotation){
+
+                                 var point = _.filter(series.points, function(point){ return point.category == annotation.epoch});
+
+                                 point = point[0];
+
+                                 if(annotation.epoch){
+                                   var a = new Annotation("88", $(self.chartOptions93.chart.renderTo),
+                                        chart, point, annotation);
+                                   window.data_anno = a;
+                                   self.data_anno.push(a);
+                                   self._internal_data.push(series.name);
+                                   self.annot_perm();
+                                   }
+                               })
+
+                                        });
+                                        }(series));
+                                    }
+                                    }
+                                }
+                            });
+                            $('.widget-88a').removeClass('widget-loader-show');
+                            $('.widget-88b').removeClass('widget-data-hide');
+                        })
+                    }
+
+
+
+
+
+
                     self.Percentage_less_aht = function(final_work, type) {
 
                         if (type == undefined) {
@@ -7958,6 +8149,8 @@
                         self.AHT_Comparison_identity(undefined, undefined)
                     } else if (val == 'timewidget') {
                         self.Time_Ready_Busy_Percentage(undefined, undefined)
+                    } else if (val == 'external_error_count_widget') {
+                        self.Error_Count_Category(undefined, undefined)
                     } else if (val == 'external_error_pie_jumio') {
                         self.category_error_jumio(External_cate_jumio)
                     } else if (val == 'monthly_volume_widget') {
@@ -8091,6 +8284,7 @@
                     "self.chartOptions90":self.chartOptions90,
                     "self.chartOptions91":self.chartOptions91,
                     "self.chartOptions92":self.chartOptions92,
+                    "self.chartOptions93":self.chartOptions93,
                     
 
                   };
@@ -8779,6 +8973,7 @@
                     "self.chartOptions90":self.chartOptions90,
                     "self.chartOptions91":self.chartOptions91,
                     "self.chartOptions92":self.chartOptions92,
+                    "self.chartOptions93":self.chartOptions93,
                     
                 }
 
@@ -8963,6 +9158,11 @@
                     self.Valid_cust_approv_iden(final_work, key);
                 }
 
+                if (name == 'chartOptions93') {
+                    $('.widget-88a').addClass('widget-loader-show');
+                    $('.widget-88b').addClass('widget-data-hide');
+                    self.Error_Count_Category(final_work, key);
+                }
 
 
 
@@ -9144,6 +9344,10 @@
 
                         self.Invalid_cust_reject_iden(final_work, key);
 
+                        $('.widget-88a').addClass('widget-loader-show');
+                        $('.widget-88b').addClass('widget-data-hide');
+
+                        self.Error_Count_Category(final_work, key);
                     }
                 }
              }
@@ -9279,6 +9483,7 @@
                     "self.chartOptions90":self.chartOptions90,
                     "self.chartOptions91":self.chartOptions91,
                     "self.chartOptions92":self.chartOptions92,
+                    "self.chartOptions93":self.chartOptions93,
 
                     
                     };
@@ -11677,6 +11882,32 @@ self.chartOptions64 = {
                },
             };
     
+            self.chartOptions93 = {
+                chart : {
+               
+                 backgroundColor: "transparent",
+                 reflow: false
+                },
+                               yAxis: {
+                gridLineColor: 'a2a2a2',
+                
+                title: {
+                 text: '',
+                 align: 'high'
+                },
+                labels: {
+                 overflow: 'justify'
+                }
+               },
+    
+               tooltip: {
+    
+               },
+               credits: {
+                enabled: false
+               },
+            };
+
     
 
     Highcharts.Pointer.prototype.onContainerMouseDown = function (e) {
