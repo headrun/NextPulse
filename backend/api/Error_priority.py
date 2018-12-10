@@ -11,6 +11,7 @@ from django.apps import apps
 from api.voice_widgets import date_function
 from api.graph_settings import graph_data_alignment_color
 from common.utils import getHttpResponse as json_HttpResponse
+from api.monthly_graph import get_target_query_format
 
 
 def customer_data_date_generation(project, center, date_lt, model_name):
@@ -175,7 +176,7 @@ def Customer_week_fn(week_names,productivity_list,final_productivity):
 
 def min_max_num(int_value_range, result_name):
     min_max_dict = {}    
-    if len(int_value_range) > 0 and (result_name in ["external_error_count"]):        
+    if len(int_value_range) > 0 and (result_name in ["external_error_count","produc_vs_targ"]):        
         values_list = []
         data = int_value_range.values()
         for value in data:
@@ -270,7 +271,113 @@ def external_count_cal(main_dates, prj_id, center, level_structure_key, dates_li
                 for pack in pack_lst:
                     if pack.lower() not in packet_list:            
                         result[pack.lower()] = 0
-
     return result
 
 
+def Production_vs_Target(request):
+    final_dict = {}
+    new_date_list = []
+    main_data_dict = data_dict(request.GET)
+    prj_id = main_data_dict['pro_cen_mapping'][0][0]
+    center = main_data_dict['pro_cen_mapping'][1][0]
+    work_packet = main_data_dict['work_packet']
+    sub_project = main_data_dict['sub_project']
+    sub_packet = main_data_dict['sub_packet']
+    pro_center = main_data_dict['pro_cen_mapping']
+    _type = main_data_dict['type']
+    main_dates = main_data_dict['dates']
+    level_structure_key = get_level_structure_key(work_packet, sub_project, sub_packet, pro_center)
+    result_name = 'produc_vs_targ'
+    function_name = Production_target       
+    result = Production_target(main_dates, prj_id, center, level_structure_key, main_dates, request, _type)
+    final_dict[result_name] = graph_data_alignment_color(result['data'], 'data', level_structure_key, prj_id, center)
+    final_dict['date'] = result['date']    
+    final_dict['min_max'] = min_max_num(result['data'],result_name)
+    final_dict['type'] = main_data_dict['type']
+    final_dict['is_annotation'] = annotation_check(request)
+    return json_HttpResponse(final_dict)    
+
+
+
+def Production_target(main_dates, prj_id, center, level_structure_key, dates_list, request, _type):
+    result, prod_dict, targ_dict = {}, {}, {}
+    prod_val, packets, targ_val = [], [], []
+    filter_params, _term = getting_required_params(level_structure_key, prj_id, center, dates_list)
+    targets, targ_query, raw_query, raw_data, _type, targ_term = get_target_query_format(level_structure_key, prj_id, center, dates_list)            
+    if ((filter_params and targ_query) and (targ_term and _term)):
+        prod_full_query = RawTable.objects.filter(project=prj_id,center=center,date__range=[main_dates[0],main_dates[-1]])
+        prod_query = RawTable.objects.filter(**filter_params)
+        dates = prod_full_query.values_list('date',flat=True).distinct()
+        prod_packet = prod_query.values_list(_term, flat=True).distinct()
+        prod_values = prod_query.values_list(_term).annotate(Work_done=Sum('per_day'))        
+        prod_values = filter(lambda x:x[0] != '', prod_values)            
+        tar_pack = targ_query.values_list(_term, flat=True).distinct()
+        tar_pack = filter(lambda x:x != '', tar_pack)
+        def lower(x): return x.lower().title()
+        tar_pack = map(lower, tar_pack)
+        prod_packet = map(lower, prod_packet)
+        full_packet = prod_packet + tar_pack        
+        if prod_values:
+            for val in prod_values:
+                pack = val[0].lower().title()
+                if prod_dict.has_key(pack):
+                    prod_dict[pack].append(val[1])
+                else:
+                    prod_dict[pack] = [val[1]]
+
+            for pack in full_packet:
+                if pack not in prod_dict.keys():                                        
+                    prod_dict[pack] = [0]
+                        
+            prod_dict = collections.OrderedDict(sorted(prod_dict.items()))            
+            for key, val in prod_dict.iteritems():
+                packets.append(key)                                
+                val = sum(val)
+                prod_val.append(val)
+
+        if targ_query:
+            targ_values = targ_query.values_list(targ_term).annotate(target=Sum('target_value'))            
+            targ_values = filter(lambda x:x[0] != '', targ_values)
+            headc_query = Headcount.objects.filter(**filter_params).values_list(_term).annotate(head_c=Sum('billable_agents'))            
+            if _type == "FTE Target": 
+                for head_c in headc_query:
+                    for tal in targ_values:
+                        pack = tal[0].lower().title()
+                        pack1 = head_c[0].lower().title()
+                        if pack == pack1:
+                            tar_val = tal[1] * head_c[1]
+                            tar_val = float("%.2f"%round(tar_val))
+                            if targ_dict.has_key(pack):
+                                targ_dict[pack].append(tar_val)
+                            else:
+                                targ_dict[pack] = [tar_val]
+
+            else:
+                for tal in targ_values:
+                    pack = tal[0].lower().title()
+                    targ_val = float("%.2f"%round(tal[1]))
+                    if targ_dict.has_key(pack):
+                        targ_dict[pack].append(tar_val)
+                    else:
+                        targ_dict[pack] = [tar_val]
+
+
+            for pack in full_packet:
+                if pack not in targ_dict.keys():
+                    targ_dict[pack] = [0]
+
+            targ_dict = collections.OrderedDict(sorted(targ_dict.items()))     
+            for key, val in targ_dict.iteritems():
+                packets.append(key)                                
+                val = sum(val)
+                targ_val.append(val)   
+                
+
+    result_temp = {}
+    result_temp['Production'] = prod_val
+    result_temp['Target'] = targ_val
+    result['data'] = result_temp
+    result['date'] = list(set(packets))
+    
+
+    return result

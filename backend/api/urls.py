@@ -93,4 +93,5 @@ urlpatterns = [
     url(r'^volume_comp_id',apiviews.Volume_Comparison_id),
     url(r'^error_cate_count', apiviews.External_Error_proj),
     url(r'^head_count', apiviews.head_count),
+    url(r'^produc_vs_target',apiviews.Production_vs_Target),
 ]
