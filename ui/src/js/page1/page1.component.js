@@ -3758,7 +3758,7 @@
                                                             self.anno_obj.forEach(function (value_data) {
                                                                 value_data.redraw(name, visibility);
                                                             });
-                                                            $(document).find('  a').children(".widget-89b").find('.annotation-marker[series-name="' + name + '"]').css("opacity", 0);
+                                                            $(document).find('.widget-89a').children(".widget-89b").find('.annotation-marker[series-name="' + name + '"]').css("opacity", 0);
                                                         }
                                                     }                                                    
                                                 },
