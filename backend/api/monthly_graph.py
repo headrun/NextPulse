@@ -21,58 +21,116 @@ def volume_cumulative_data(date_list, prj_id, center, level_structure_key,main_d
     data_list, final_target, final_done_value, volume_list = [], [], [], []
     tar_count, done_value = 0, 0 
 
-    targets, raw_query, _type = get_target_query_format(level_structure_key, prj_id, center, date_list)
+    targets, targ_query, raw_query, raw_data,  _type, _term = get_target_query_format(level_structure_key, prj_id, center, date_list)
     data_values = raw_query
+	
+    g = {}
+    for i in raw_data:
+        if g.has_key(i['date']):
+            if g.get(i["date"], {}).has_key(i['employee_id']):
+                g[i["date"]][i["employee_id"]][i[_term]]=i["count"]
+            else:
+                g[i["date"]][i["employee_id"]]={}
+                g[i["date"]][i["employee_id"]][i[_term]]=i["count"]
+        else:
+            g[i["date"]]={}
+            g[i["date"]][i["employee_id"]]={i[_term]:i["count"]}        
+    
+    count3 = {} 
+    for k,v in g.iteritems():
+        for k1,v1 in v.iteritems():
+            for k2,v2 in v1.iteritems():
+                if count3.has_key(k):
+                    if count3[k].has_key(k2):
+                        if len(v1)>1:
+                            count3[k][k2].append(float(1/len(v1)))
+                        else:
+                            count3[k][k2].append(1)
+                    else:
+                        count3[k][k2]=[1]
+                else:
+                    count3[k] = {k2:[1]}                 
+    
+    sum_count = {}
+    for k,v in count3.iteritems():
+        for k1,v1 in v.iteritems():                  
+            if sum_count.has_key(k):                
+                sum_count[k][k1] = sum(v1)                           
+            else:
+                sum_count[k] = {}  
+                sum_count[k][k1] = sum(v1)      
+
     if raw_query:
-        prod_packets = [value[1] for value in data_values]
+        prod_packets = [value[1] for value in data_values]        
         dates = raw_query.values_list('date',flat=True).distinct()
-        packets = set(prod_packets)
+        packets = set(prod_packets)    
     else:
         dates = []
 
     for date in dates:
-        for target in targets:
-            if (target[2] in packets) and (str(target[0]) <= str(date) and str(target[1]) >= str(date)):
+        _dict_packet = []
+        for target in targets:                                            
+            if (target[2] in packets) and (str(target[0]) <= str(date) and str(target[1]) >= str(date)):                                
+                target_val = float('%.2f' % round(target[3]))
                 if _targets_list.has_key(target[2]):
-                    _targets_list[target[2]].append(target[3])
+                    _targets_list[target[2]].append(target_val)                    
                 else:
-                    _targets_list[target[2]] = [target[3]]
+                    _targets_list[target[2]] = [target_val]   
+                _dict_packet.append(target[2])
+                
+        for pact in packets:            
+            if pact not in _dict_packet:               
+                if _targets_list.has_key(pact):
+                    _targets_list[pact].append(0)                    
+                else:
+                    _targets_list[pact] = [0]
 
     for date in dates:
         _dict_packets = []
         for value in data_values:
             if str(date) == str(value[0]):
                 if date_values.has_key(value[1]):
-                    date_values[value[1]].append(value[3])
-                    emp_dict[value[1]].append(value[2])
+                    date_values[value[1]].append(value[3])                    
                 else:
-                    date_values[value[1]] = [value[3]]
-                    emp_dict[value[1]] = [value[2]]
+                    date_values[value[1]] = [value[3]]                   
                 _dict_packets.append(value[1])
-
+        
         for pack in packets:
             if pack not in _dict_packets:
                 if date_values.has_key(pack):
-                    date_values[pack].append(0)
-                    emp_dict[pack].append(0)
+                    date_values[pack].append(0)                    
                 else:
-                    date_values[pack] = [0]
-                    emp_dict[pack] = [0]
-
-
+                    date_values[pack] = [0]                       
+    
+    emp_data1 = {}
+    for k,v in sum_count.iteritems():
+        _dict_pack = []
+        for k1,v1 in v.iteritems():
+            if emp_data1.has_key(k1):
+                emp_data1[k1].append(v1)
+            else:
+                emp_data1[k1] = [v1] 
+            _dict_pack.append(k1)    
+        
+        for pac in packets:            
+            if pac not in _dict_pack:               
+                if emp_data1.has_key(pac):                    
+                    emp_data1[pac].append(0)
+                else:                    
+                    emp_data1[pac] = [0]       
+    
     import collections
-    if _type == 'FTE Target':
-        emp_data = collections.OrderedDict(sorted(emp_dict.items()))
+    if _type == 'FTE Target':              
         target_data = collections.OrderedDict(sorted(_targets_list.items()))
-
         target_dict = {}
-        for key, value in target_data.iteritems():
-            value = zip(target_data[key], emp_data[key])
+        for key, value in target_data.iteritems():                               
+            value = zip(target_data[key], emp_data1[key])            
             target_dict[key] = [tar*val for tar, val in value]
         _targets_list = target_dict
+        
     else:
-        _targets_list = _targets_list
-
+        _targets_list = _targets_list       
+        
     total = 0
     wp_lenght = date_values.keys()
     if len(wp_lenght)>0:
@@ -90,21 +148,25 @@ def volume_cumulative_data(date_list, prj_id, center, level_structure_key,main_d
         total = total + 1
     volumes_dict = final_values
     new_dict = previous_sum(volumes_dict)
+    
     result = 0
-    if len(_targets_list)>0:
-        first_key = _targets_list[_targets_list.keys()[0]]
+    if len(_targets_list)>0:           
+        key_max = max(_targets_list, key= lambda x: len((_targets_list[x])))         
+        first_key =  _targets_list[key_max]                  
     else:
         first_key = ''
+    
     for i in xrange(len(first_key)):
         packet_sum = 0
         for key in _targets_list.keys():
             try:
-                packet_sum += _targets_list[key][i]
+                packet_sum += _targets_list[key][i]                
             except:
-                packet_sum = packet_sum
+                packet_sum = packet_sum        
         final_targets['total'].append(packet_sum)
         result = result + 1
     total_target = previous_sum(final_targets)
+   
     new_total_target = {}
     for tr_key, tr_value in total_target.iteritems():
         new_total_target[tr_key + '_target'] = tr_value
@@ -112,12 +174,14 @@ def volume_cumulative_data(date_list, prj_id, center, level_structure_key,main_d
     return new_dict
 
 
+
 def get_target_query_format(level_structure_key, prj_id, center, date_list):
     
     query, raw_data = {}, {}
     pro_query, pro_data = {}, {}
     _term = ''
-    _type = Targets.objects.filter(project=prj_id, center=center).values_list('target_type',flat=True).distinct()
+    _type = Targets.objects.filter(project=prj_id, center=center).values_list('target_type',flat=True).distinct()    
+
     if 'FTE Target' in _type:
         query.update({'from_date__lte':date_list[0],'to_date__gte':date_list[-1],'target_type':'FTE Target',\
                         'project':prj_id,'center':center})
@@ -179,18 +243,23 @@ def get_target_query_format(level_structure_key, prj_id, center, date_list):
             pro_query.update({'work_packet':level_structure_key['work_packet']})
             raw_data.update({'work_packet':level_structure_key['work_packet']})
             _term = 'work_packet'
-    if _term != "":
-        targets = Targets.objects.filter(**query).values_list('from_date','to_date',_term).\
+    if _term != "":        
+        targets = Targets.objects.filter(**pro_query).values_list('from_date','to_date',_term).\
                   annotate(target=Sum('target_value'))
+        targ_query = Targets.objects.filter(**pro_query)
         if targets:
             targets = targets
-        else:
-            targets = Targets.objects.filter(**pro_query).values_list('from_date','to_date',_term).\
+        else:        
+            targets = Targets.objects.filter(**query).values_list('from_date','to_date',_term).\
                         annotate(target=Sum('target_value'))
-        raw_query = RawTable.objects.filter(**raw_data).values_list('date',_term).annotate(total=Sum('per_day'),count=Count('employee_id'))
+            targ_query = Targets.objects.filter(**query)
+        raw_query = RawTable.objects.filter(**raw_data).values_list('date',_term).annotate(total=Sum('per_day'),count=Count('employee_id'))        
+        E_data = RawTable.objects.filter(**raw_data).values(_term,'employee_id','date').annotate(count=Count('employee_id'))                                     
     else:
         targets, raw_query, _type = {}, {}, {}
-    return targets, raw_query, _type
+    
+    return targets, targ_query, raw_query, E_data, _type, _term
+
 
 
 def productivity_day(date_list, prj_id, center_obj, level_structure_key, main_dates,request):
