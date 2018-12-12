@@ -52,6 +52,49 @@ def send_mail_data(user_details, user, user_group):
     return "success"
 
 
+def generate_targets_data(project, user_group, is_senior, last_date):
+    common_dict = {}
+    last_date = last_date['date__max']
+    target_query = Targets.objects.filter(project=project, to_date=last_date).values_list('target_type',
+                                                                                          'target_method').distinct()
+
+    for _type in target_query:
+        if (_type[0] == 'FTE Target') or (_type[0] == 'Target'):
+            production = get_production_data(project, last_date, _type[0])
+            production['prod_target_method'] = _type[1]
+            common_dict['production'] = production
+
+        elif _type[1] == 'SLA' and 'Accuracy' in _type[0]:
+            table_name = Externalerrors
+            sla = get_accuracy_data(project, last_date, _type, table_name)
+            sla['sla_target_method'] = _type[1]
+            common_dict['sla'] = sla
+
+        elif _type[1] == 'KPI' and 'Accuracy' in _type[0]:
+            table_name = Internalerrors
+            kpi = get_accuracy_data(project, last_date, _type, table_name)
+            kpi['kpi_target_method'] = _type[1]
+            common_dict['kpi'] = kpi
+
+        elif (_type[0] == 'Productivity') or (_type[0] == 'Productivity%'):
+            productivity = get_productivity_data(project, last_date, _type[0])
+            productivity['productivity_target_method'] = _type[1]
+            common_dict['productivity'] = productivity
+
+        elif _type[0] == 'AHT':
+            aht = get_aht_data(project, last_date)
+            aht['aht_target_method'] = _type[1]
+            common_dict['aht'] = aht
+
+        elif _type[0] == 'TAT':
+            tat = get_tat_data(project, last_date)
+            tat['tat_target_method'] = _type[1]
+            common_dict['tat'] = tat
+
+    return common_dict
+
+
+
 def get_production_data(project,date,_type):
 
     result = {}
@@ -71,7 +114,7 @@ def get_production_data(project,date,_type):
         actual_target = target['target_value__sum']
 
 
-    if actual_target != 'None':
+    if actual_target != None:
         actual_target = int(actual_target)    
 
     color = 'black'
