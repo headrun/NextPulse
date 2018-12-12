@@ -113,6 +113,7 @@ admin.site.register(Centermanager,CentermanagerAdmin)
 
 class NextwealthmanagerAdmin(admin.ModelAdmin):
     list_display = ['name','enable_push_email']
+    actions = [enable_mail_notifications, disable_mail_notifications]
 admin.site.register(Nextwealthmanager,NextwealthmanagerAdmin)
 
 
