@@ -57,7 +57,7 @@ def get_production_data(project,date,_type):
     result = {}
     work_done = RawTable.objects.filter(project=project,date=date).aggregate(Sum('per_day'))    
     work_done = work_done['per_day__sum']
-    if work_done:
+    if work_done != None:
         work_done = int(work_done)
     else:
         pass    
@@ -129,7 +129,7 @@ def get_accuracy_data(project,date,_type,table_name):
             accuracy =  100 - round(accuracy,2)
             accuracy = str(accuracy) + " %"
         else:
-            accuracy = str(0)
+            accuracy = str(0) + " %"
     else:
         accuracy = 'No data'
     
@@ -144,7 +144,7 @@ def get_accuracy_data(project,date,_type,table_name):
     if target > accuracy:
         color = 'Red'
     result[_type[1]+'_'+'accuracy'] = accuracy
-    result[_type[1]+'_'+'target'] = str(target *100) + "%"
+    result[_type[1]+'_'+'target'] = str(target *100) + " %"
     result[_type[1]+'_'+'color'] = color    
     return result
 
