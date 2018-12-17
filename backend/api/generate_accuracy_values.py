@@ -31,7 +31,7 @@ def send_mail_data(user_details, user, user_group):
                         is_enable_mail = True
                     if is_enable_mail:                    
                         date = RawTable.objects.filter(project=project).aggregate(Max('date'))                    
-                        result = generate_targets_data(project,user_group,is_senior,date)                       
+                        result = generate_targetks_data(project,user_group,is_senior,date)
                         project_name = Project.objects.get(id=project).name                
                         mail_table_data = generate_mail_table_format(result,project,date,user_group,is_senior)                    
                         if mail_table_data != '':
