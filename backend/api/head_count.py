@@ -261,26 +261,25 @@ def overall_production_fn(date_list,prj_id,center_obj,level_structure_key, main_
             elif _type == "FTE Target":                                 
                 targ_value = targ_query.values('from_date','to_date').annotate(total=Sum('target_value'), targ_count = Count('target_value'))                
                 if len(targ_value) > 0:
-                    targ_value = targ_value.annotate(target=ExpressionWrapper(F('total')/F('targ_count'), output_field=FloatField()))                                        
+                    targ_value = targ_value.aggregate(target=ExpressionWrapper(F('total')/F('targ_count'), output_field=FloatField()))
+                    targ_value = targ_value['target']                    
                 else:
-                    targ_value = []                                                             
+                    targ_value = 0                           
                 head_count = Headcount.objects.filter(**filter_params).values('date').annotate(headc=Sum('billable_agents'))
                 for date in dates:
                     content_list = []
                     for head_v in head_count:
-                        for t_val in targ_value:
-                            if date == head_v['date']:                                
-                                if t_val['from_date'] <= date and t_val['to_date'] >= date:
-                                    if head_v['headc'] != None and t_val['target'] != None:
-                                        target = t_val['target'] * head_v['headc']
-                                        target = float("%.2f"%round(target))
-                                    else:
-                                        target = 0
-                                    if not result_dict.has_key("Target"):
-                                        result_dict['Target'] = [target]
-                                    else:
-                                        result_dict['Target'].append(target)
-                                    content_list.append(target)                                
+                        if date == head_v['date']:                                
+                            if head_v['headc'] != None and targ_value != None :
+                                target = targ_value * head_v['headc']
+                                target = float("%.2f"%round(target))
+                            else:
+                                target = 0
+                            if not result_dict.has_key("Target"):
+                                result_dict['Target'] = [target]
+                            else:
+                                result_dict['Target'].append(target)
+                            content_list.append(target)                                
                     
                     if len(content_list) == 0:
                         if not result_dict.has_key("Target"):
