@@ -9,20 +9,27 @@ from api.utils import *
 from common.utils import getHttpResponse as json_HttpResponse
 
 
-def generate_dates(date_list, prj_id, center):
+# def generate_dates(date_list, prj_id, center):
 
-    dates = []
-    date_values = Headcount.objects.filter(\
-                       project=prj_id, center=center, date__range=[date_list[0], date_list[-1]]).\
-                       values_list('date',flat=True).distinct() 
-    for date in date_values:
-        dates.append(str(date))
-    return dates
+#     dates = []
+#     date_values = Headcount.objects.filter(\
+#                        project=prj_id, center=center, date__range=[date_list[0], date_list[-1]]).\
+#                        values_list('date',flat=True).distinct() 
+#     for date in date_values:
+#         dates.append(str(date))
+#     return dates
+
+def customer_data_date_generation(project, center, date_lt, model_name):
+    model_class = apps.get_model('api',model_name)
+    date_lt = model_class.objects.filter(project=project,center=center, date__range=[date_lt[0], date_lt[-1]]).\
+                                    order_by('date').values_list('date', flat=True).distinct()
+    date_lt = map(str, date_lt)    
+    return date_lt
 
 
 
 
-def generate_day_week_month_format(request, result_name, function_name):
+def generate_day_week_month_format(request, result_name, function_name, model_name):
     final_dict = {}
     new_date_list = []
     main_data_dict = data_dict(request.GET)
@@ -38,7 +45,7 @@ def generate_day_week_month_format(request, result_name, function_name):
     
     if main_data_dict['dwm_dict'].has_key('day') and main_data_dict['type'] == 'day':
         date_list = main_data_dict['dates']        
-        new_date_list = generate_dates(date_list, prj_id, center) 
+        new_date_list = customer_data_date_generation(prj_id, center, date_list, model_name)        
         data = function_name(date_list, prj_id, center, level_structure_key, main_dates, request)
         final_dict[result_name] = graph_data_alignment_color(data, 'data', level_structure_key, prj_id, center)
         final_dict['date'] = new_date_list
@@ -122,23 +129,25 @@ def min_max_num(int_value_range, widget_name):
 def head_count(request):
     result_name = 'head_value'
     function_name = head_func
-    result = generate_day_week_month_format(request, result_name, function_name)
+    model_name = 'Headcount'
+    result = generate_day_week_month_format(request, result_name, function_name, model_name)
     return result
 
 
 def Overall_headcount(request):
     result_name = 'overall_head_count'
     function_name = overall_head_fn
-    result = generate_day_week_month_format(request, result_name, function_name)
+    model_name = 'Headcount'
+    result = generate_day_week_month_format(request, result_name, function_name, model_name)
     return result
 
 
 def Overall_production(request):
     result_name = 'overall_prod'
     function_name = overall_production_fn
-    result = generate_day_week_month_format(request, result_name, function_name)
+    model_name = 'RawTable'
+    result = generate_day_week_month_format(request, result_name, function_name, model_name)
     return result
-
 
 
 def head_func(date_list,prj_id,center_obj,level_structure_key, main_dates, request):
