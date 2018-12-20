@@ -79,7 +79,7 @@ def week_calculations(dates, project, center, level_structure_key, function_name
         week_dict[week_name] = data
     if function_name in []:
         result = prod_volume_week_util(project, week_names, week_dict, {}, 'week')
-    elif function_name in [head_func, overall_head_fn, overall_production_fn]:
+    elif function_name in [head_func, overall_head_fn]:
         result = prod_volume_week_util_headcount(week_names, week_dict, {})    
     else:
        result = prod_volume_week(week_names, week_dict, {}) 
@@ -98,7 +98,7 @@ def month_calculations(dates, project, center, level_structure_key, function_nam
         month_dict[month_name] = data
     if function_name in []:
         result = prod_volume_week_util(project, month_names, month_dict, {}, 'month')
-    elif function_name in [head_func,overall_head_fn, overall_production_fn]:
+    elif function_name in [head_func,overall_head_fn]:
         result = prod_volume_week_util_headcount(month_names, month_dict, {})    
     else:
         result = prod_volume_week(month_names, month_dict, {})
@@ -224,76 +224,145 @@ def overall_head_fn(date_list,prj_id,center_obj,level_structure_key, main_dates,
     return result_dict
 
 
-
-
-def overall_production_fn(date_list,prj_id,center_obj,level_structure_key, main_dates, request):
+def overall_production_fn(date_list, prj_id, center_obj, level_structure_key, main_dates, request):
     result_dict, dct = {}, {}
-    filter_params, _term = getting_required_params(level_structure_key, prj_id, center_obj, date_list)    
+    filter_params, _term = getting_required_params(level_structure_key, prj_id, center_obj, date_list)
     if filter_params and _term:
-        query_values = RawTable.objects.filter(**filter_params)        
-        data_values = query_values.values_list('date').annotate(total=Sum('per_day'))        
-        dates = RawTable.objects.filter(**filter_params).values_list('date',flat=True).distinct()     
-        targets, targ_query, raw_query, E_data, _type, _term = get_target_query_format(level_structure_key, prj_id, center_obj, date_list)
-        for date in dates:                
+        query_values = RawTable.objects.filter(**filter_params)
+        data_values = query_values.values_list('date').annotate(total=Sum('per_day'))
+        dates = RawTable.objects.filter(project=prj_id, center=center_obj, date__range=[date_list[0], date_list[-1]]) \
+            .values_list('date', flat=True).distinct()
+        targets, targ_query, raw_query, E_data, _type, _term = get_target_query_format(level_structure_key, prj_id,
+                                                                                       center_obj, date_list)
+        for date in dates:
             content_list = []
             for value in data_values:
                 if str(date) == str(value[0]):
                     if result_dict.has_key('Production'):
                         result_dict['Production'].append(value[1])
                     else:
-                        result_dict['Production'] = [value[1]]                        
+                        result_dict['Production'] = [value[1]]
                     content_list.append(value[1])
-        
+
             if len(content_list) == 0:
                 if result_dict.has_key('Production'):
                     result_dict['Production'].append(0)
                 else:
-                    result_dict['Production'] = [0]                                        
+                    result_dict['Production'] = [0]
 
-        
         if not all("All" in x for x in level_structure_key.values()):
             if _type == "Target":
-                targ_value = targ_query.aggregate(target=Sum('target_value'))
-                for date in dates:                    
-                    if targ_value["target"] != None :
-                        target = targ_value["target"] 
-                        target = float("%.2f"%round(target))
-                    else:
-                        target = 0
-                    if not result_dict.has_key("Target"):
-                        result_dict['Target'] = [target]
-                    else:
-                        result_dict['Target'].append(target)
-                                        
-         
-
-            elif _type == "FTE Target":                                 
-                targ_value = targ_query.values('from_date','to_date').annotate(total=Sum('target_value'), targ_count = Count('target_value'))                
-                if len(targ_value) > 0:
-                    targ_value = targ_value.aggregate(target=ExpressionWrapper(F('total')/F('targ_count'), output_field=FloatField()))
-                    targ_value = targ_value['target']                    
-                else:
-                    targ_value = 0                           
-                head_count = Headcount.objects.filter(**filter_params).values('date').annotate(headc=Sum('billable_agents'))
-                for date in dates:
-                    content_list = []
-                    for head_v in head_count:
-                        if date == head_v['date']:                                
-                            if head_v['headc'] != None and targ_value != None :
-                                target = targ_value * head_v['headc']
-                                target = float("%.2f"%round(target))
-                            else:
-                                target = 0
-                            if not result_dict.has_key("Target"):
-                                result_dict['Target'] = [target]
-                            else:
+                Date_type = targ_query.filter(from_date=F('to_date'))
+                if (len(targ_query) > 0 and len(Date_type) > 0) or len(targ_query) == 0:
+                    targ_value = targ_query.values('from_date', 'to_date').annotate(target=Sum('target_value'))
+                    for date in dates:
+                        content_list = []
+                        for targ_v in targ_value:
+                            if date == targ_v['from_date'] and date == targ_v['to_date']:
+                                if targ_v["target"] != None:
+                                    target = targ_v["target"]
+                                    target = float("%.2f" % round(target))
+                                else:
+                                    target = 0
+                                if not result_dict.has_key("Target"):
+                                    result_dict['Target'] = [target]
                                 result_dict['Target'].append(target)
-                            content_list.append(target)                                
-                    
-                    if len(content_list) == 0:
-                        if not result_dict.has_key("Target"):
-                            result_dict['Target'] = [0]
+                                content_list.append(target)
+
+                        if len(content_list) == 0:
+                            if not result_dict.has_key("Target"):
+                                result_dict['Target'] = [0]
+                            else:
+                                result_dict['Target'].append(0)
+
+                elif len(targ_query) > 0 and len(Date_type) == 0:
+                    targ_value = targ_query.values('from_date', 'to_date').annotate(total=Sum('target_value'),
+                                                                                    targ_count=Count('target_value'))
+                    if len(targ_value) > 0:
+                        targ_value = targ_value.aggregate(
+                            target=ExpressionWrapper(F('total') / F('targ_count'), output_field=FloatField()))
+                        targ_value = targ_value['target']
+                    else:
+                        targ_value = 0
+                    for date in dates:
+                        if targ_value != None:
+                            target = targ_value
+                            target = float("%.2f" % round(target))
                         else:
-                            result_dict['Target'].append(0)
+                            target = 0
+                        if not result_dict.has_key("Target"):
+                            result_dict['Target'] = [target]
+                        result_dict['Target'].append(target)
+
+
+            elif _type == "FTE Target":
+                Date_type = targ_query.filter(from_date=F('to_date'))
+                if (len(targ_query) > 0 and len(Date_type) == 0) or len(targ_query) == 0:
+                    targ_value = targ_query.values('from_date', 'to_date').annotate(total=Sum('target_value'),
+                                                                                    targ_count=Count('target_value'))
+                    if len(targ_value) > 0:
+                        targ_value = targ_value.aggregate(
+                            target=ExpressionWrapper(F('total') / F('targ_count'), output_field=FloatField()))
+                        targ_value = targ_value['target']
+                    else:
+                        targ_value = 0
+                    head_count = Headcount.objects.filter(**filter_params).values('date').annotate(
+                        headc=Sum('billable_agents'))
+                    for date in dates:
+                        content_list = []
+                        for head_v in head_count:
+                            if date == head_v['date']:
+                                if head_v['headc'] != None and targ_value != None:
+                                    target = targ_value * head_v['headc']
+                                    target = float("%.2f" % round(target))
+                                else:
+                                    target = 0
+                                if not result_dict.has_key("Target"):
+                                    result_dict['Target'] = [target]
+                                else:
+                                    result_dict['Target'].append(target)
+                                content_list.append(target)
+
+                        if len(content_list) == 0:
+                            if not result_dict.has_key("Target"):
+                                result_dict['Target'] = [0]
+                            else:
+                                result_dict['Target'].append(0)
+
+                elif len(targ_query) > 0 and len(Date_type) > 0:
+                    targ_value = targ_query.values('from_date', 'to_date').annotate(target=Sum('target_value'))
+                    head_count = Headcount.objects.filter(**filter_params).values('date').annotate(
+                        headc=Sum('billable_agents'))
+                    for date in dates:
+                        content_list = []
+                        for targ_v in targ_value:
+                            for head_v in head_count:
+                                if date == targ_v['from_date'] and date == targ_v['to_date'] and date == head_v["date"]:
+                                    if targ_v["target"] != None:
+                                        target = targ_v["target"] * head_v["headc"]
+                                        target = float("%.2f" % round(target))
+                                    else:
+                                        target = 0
+                                    if not result_dict.has_key("Target"):
+                                        result_dict['Target'] = [target]
+                                    result_dict['Target'].append(target)
+                                    content_list.append(target)
+
+                        if len(content_list) == 0:
+                            if not result_dict.has_key("Target"):
+                                result_dict['Target'] = [0]
+                            else:
+                                result_dict['Target'].append(0)
+
+        if result_dict.has_key('Production') and result_dict.has_key('Target'):
+            result = result_dict.copy()
+            result_dict['Production'], result_dict['Target'] = [], []
+            for prod_val, targ_val in zip(result['Production'], result['Target']):
+                if prod_val > 0:
+                    result_dict['Production'].append(prod_val)
+                    result_dict['Target'].append(targ_val)
+                else:
+                    result_dict['Production'].append(0)
+                    result_dict['Target'].append(0)
 
     return result_dict
