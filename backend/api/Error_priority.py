@@ -40,7 +40,6 @@ def generate_day_week_month_format(request, result_name, function_name, model_na
     if main_data_dict['dwm_dict'].has_key('day') and main_data_dict['type'] == 'day':
         dates_list = main_data_dict['dwm_dict']['day']
         date_lst = customer_data_date_generation(prj_id, center, main_dates, model_name)
-
         data= function_name(main_dates, prj_id, center, level_structure_key, dates_list, request, _type)
         final_dict[result_name] = graph_data_alignment_color(data, 'data', level_structure_key, prj_id, center)
         final_dict['date'] = date_lst
@@ -48,7 +47,7 @@ def generate_day_week_month_format(request, result_name, function_name, model_na
 
     elif main_data_dict['dwm_dict'].has_key('week') and main_data_dict['type'] == 'week':
         dates_list = main_data_dict['dwm_dict']['week']
-        if function_name in [external_count_cal]:
+        if function_name in [external_count_cal, external_accur_trends]:
             volume_week = week_month_data_acculate(main_dates ,prj_id, center, level_structure_key, dates_list, request, _type, function_name)
             final_dict[result_name] = graph_data_alignment_color(volume_week, 'data', level_structure_key, \
                                         prj_id, center, result_name)
@@ -63,7 +62,7 @@ def generate_day_week_month_format(request, result_name, function_name, model_na
 
     elif main_data_dict['dwm_dict'].has_key('month') and main_data_dict['type'] == 'month':
         dates_list = main_data_dict['dwm_dict']['month']
-        if function_name in [external_count_cal]:
+        if function_name in [external_count_cal, external_accur_trends]:
             volume_month = week_month_data_acculate(main_dates ,prj_id, center, level_structure_key, dates_list, request, _type, function_name)
             final_dict[result_name] = graph_data_alignment_color(volume_month, 'data', level_structure_key, \
                                         prj_id, center, result_name)
@@ -134,7 +133,7 @@ def week_month_data_acculate(main_dates , prj_id, center_obj, level_structure_ke
             week_num = week_num + 1
             data = func_name(main_dates ,prj_id, center_obj, level_structure_key, date,request,_type)
             week_dict[week_name] = data
-        final_result = Customer_week_fn(week_names, week_dict, {})        
+        final_result = Customer_week_fn(week_names, week_dict, {}, func_name)        
     elif _type == 'month':
         month_dict = {}
         month_names = []
@@ -145,16 +144,18 @@ def week_month_data_acculate(main_dates , prj_id, center_obj, level_structure_ke
             month_names.append(month_name)
             data = func_name(main_dates ,prj_id, center_obj, level_structure_key, month_dates, request, _type)
             month_dict[month_name] = data
-        final_result = Customer_week_fn(month_names, month_dict, {})
+        final_result = Customer_week_fn(month_names, month_dict, {},func_name)
     return final_result
 
 
 
-def Customer_week_fn(week_names,productivity_list,final_productivity):
+def Customer_week_fn(week_names,productivity_list,final_productivity, function_name):
+    
     for final_key, final_value in productivity_list.iteritems():
         for week_key, week_value in final_value.iteritems():
             if week_key not in final_productivity.keys():
-                final_productivity[week_key] = []
+                final_productivity[week_key] = []    
+    
     for prod_week_num in week_names:
         if productivity_list.has_key(prod_week_num):
             if len(productivity_list[prod_week_num]) > 0:
@@ -166,10 +167,17 @@ def Customer_week_fn(week_names,productivity_list,final_productivity):
 
                 for prod_key, prod_values in final_productivity.iteritems():
                     if prod_key not in productivity_list[prod_week_num].keys():
-                        final_productivity[prod_key].append(0)
+                        if function_name in [external_accur_trends]:
+                            final_productivity[prod_key].append(100)
+                        else:
+                            final_productivity[prod_key].append(0)
             else:
                 for vol_key, vol_values in final_productivity.iteritems():
-                    final_productivity[vol_key].append(0)
+                    if function_name in [external_accur_trends]:
+                        final_productivity[prod_key].append(100)
+                    else:
+                        final_productivity[prod_key].append(0)                            
+
     return final_productivity
 
 
@@ -180,13 +188,16 @@ def min_max_num(int_value_range, result_name):
         values_list = []
         data = int_value_range.values()
         for value in data:
-            values_list = values_list + value        
-        if (min(values_list) > 2):
-            min_value = (min(values_list) - 2)
-            max_value = (max(values_list) + 2)
+            values_list = values_list + value  
+        if len(values_list) > 0:
+            if (min(values_list) > 2):
+                min_value = (min(values_list) - 2)
+                max_value = (max(values_list) + 4)
+            else:
+                min_value = (min(values_list) - 0)
+                max_value = (max(values_list) + 4)
         else:
-            min_value = (min(values_list) - 0)
-            max_value = (max(values_list) + 2)
+            min_value, max_value = 0, 0
     else:
         min_value, max_value = 0, 0
     min_max_dict['min_value'] = min_value
@@ -194,10 +205,42 @@ def min_max_num(int_value_range, result_name):
     return min_max_dict
 
 
+
 def External_Error_proj(request):
 
     result_name = 'external_error_count'
     function_name = external_count_cal
+    model_name = 'Externalerrors'
+    result = generate_day_week_month_format(request, result_name, function_name, model_name)
+    return result
+
+
+def Production_vs_Target(request):
+    final_dict = {}
+    main_data_dict = data_dict(request.GET)
+    prj_id = main_data_dict['pro_cen_mapping'][0][0]
+    center = main_data_dict['pro_cen_mapping'][1][0]
+    work_packet = main_data_dict['work_packet']
+    sub_project = main_data_dict['sub_project']
+    sub_packet = main_data_dict['sub_packet']
+    pro_center = main_data_dict['pro_cen_mapping']
+    _type = main_data_dict['type']
+    main_dates = main_data_dict['dates']
+    level_structure_key = get_level_structure_key(work_packet, sub_project, sub_packet, pro_center)
+    result_name = 'produc_vs_targ'
+    result = Production_target(main_dates, prj_id, center, level_structure_key, main_dates, request, _type)
+    final_dict[result_name] = graph_data_alignment_color(result['data'], 'data', level_structure_key, prj_id, center)
+    final_dict['date'] = result['date']    
+    final_dict['min_max'] = min_max_num(result['data'],result_name)
+    final_dict['type'] = main_data_dict['type']
+    final_dict['is_annotation'] = annotation_check(request)
+    return json_HttpResponse(final_dict)    
+
+
+def External_Accur_Trnds(request):
+
+    result_name = 'external_error_acc'
+    function_name = external_accur_trends
     model_name = 'Externalerrors'
     result = generate_day_week_month_format(request, result_name, function_name, model_name)
     return result
@@ -224,29 +267,34 @@ def external_count_cal(main_dates, prj_id, center, level_structure_key, dates_li
                             if ext_v[2] != 'None':
                                 ext_out = int(ext_v[2])                            
                             else:
-                                ext_out = 0                            
-                            if not result.has_key(ext_v[1].lower()):
-                                result[ext_v[1].lower()] = [ext_out]                            
+                                ext_out = 0
+                            pack = ext_v[1].lower().title()
+
+                            if not result.has_key(pack):
+                                result[pack] = [ext_out]
                             else:   
-                                result[ext_v[1].lower()].append(ext_out)
-                            packet_list.append(ext_v[1].lower())                       
+                                result[pack].append(ext_out)
+                            packet_list.append(pack)
                             content_list.append(ext_out)
 
 
                     if len(packet_list) > 0:
                         for pack in pack_list:
-                            if pack.lower() not in packet_list:
-                                if not result.has_key(pack.lower()):
-                                    result[pack.lower()] = [0]
+                            pack = pack.lower().title()
+                            if pack.lower().title() not in packet_list:
+                                if not result.has_key(pack.lower().title()):
+                                    result[pack.lower().title()] = [0]
                                 else:
-                                    result[pack.lower()].append(0)
+                                    result[pack.lower().title()].append(0)
                     
                     if len(content_list)==0:
                         for pack in pack_list:
-                            if not result.has_key(pack.lower()):
-                                result[pack.lower()] = [0]
+                            pack = pack.lower().title()
+
+                            if not result.has_key(pack):
+                                result[pack] = [0]
                             else:
-                                result[pack.lower()].append(0)                    
+                                result[pack].append(0)
 
 
     elif _type in ["week","month"]:
@@ -274,33 +322,11 @@ def external_count_cal(main_dates, prj_id, center, level_structure_key, dates_li
     return result
 
 
-def Production_vs_Target(request):
-    final_dict = {}
-    new_date_list = []
-    main_data_dict = data_dict(request.GET)
-    prj_id = main_data_dict['pro_cen_mapping'][0][0]
-    center = main_data_dict['pro_cen_mapping'][1][0]
-    work_packet = main_data_dict['work_packet']
-    sub_project = main_data_dict['sub_project']
-    sub_packet = main_data_dict['sub_packet']
-    pro_center = main_data_dict['pro_cen_mapping']
-    _type = main_data_dict['type']
-    main_dates = main_data_dict['dates']
-    level_structure_key = get_level_structure_key(work_packet, sub_project, sub_packet, pro_center)
-    result_name = 'produc_vs_targ'
-    function_name = Production_target       
-    result = Production_target(main_dates, prj_id, center, level_structure_key, main_dates, request, _type)
-    final_dict[result_name] = graph_data_alignment_color(result['data'], 'data', level_structure_key, prj_id, center)
-    final_dict['date'] = result['date']    
-    final_dict['min_max'] = min_max_num(result['data'],result_name)
-    final_dict['type'] = main_data_dict['type']
-    final_dict['is_annotation'] = annotation_check(request)
-    return json_HttpResponse(final_dict)    
 
 
 
 def Production_target(main_dates, prj_id, center, level_structure_key, dates_list, request, _type):
-    result, prod_dict, targ_dict = {}, {}, {}
+    result, prod_dict, targ_dict = OrderedDict(), OrderedDict(), OrderedDict()
     prod_val, packets, targ_val = [], [], []
     filter_params, _term = getting_required_params(level_structure_key, prj_id, center, dates_list)
     targets, targ_query, raw_query, raw_data, _type, targ_term = get_target_query_format(level_structure_key, prj_id, center, dates_list)            
@@ -309,12 +335,12 @@ def Production_target(main_dates, prj_id, center, level_structure_key, dates_lis
         prod_query = RawTable.objects.filter(**filter_params)
         dates = prod_full_query.values_list('date',flat=True).distinct()
         prod_packet = prod_query.values_list(_term, flat=True).distinct()
-        prod_values = prod_query.values_list(_term).annotate(Work_done=Sum('per_day'))        
+        prod_values = prod_query.order_by(_term).values_list(_term).annotate(Work_done=Sum('per_day'))        
         prod_values = filter(lambda x:x[0] != '', prod_values)            
-        tar_pack = targ_query.values_list(_term, flat=True).distinct()
-        tar_pack = filter(lambda x:x != '', tar_pack)
+        tar_pack = targ_query.order_by(_term).values_list(_term, flat=True).distinct()        
+        tar_pack = filter(lambda x:x != '', tar_pack)        
         def lower(x): return x.lower().title()
-        tar_pack = map(lower, tar_pack)
+        tar_pack = map(lower, tar_pack)        
         prod_packet = map(lower, prod_packet)
         full_packet = prod_packet + tar_pack        
         if prod_values:
@@ -336,7 +362,7 @@ def Production_target(main_dates, prj_id, center, level_structure_key, dates_lis
                 prod_val.append(val)
 
         if targ_query:
-            targ_values = targ_query.values_list(targ_term).annotate(target=Sum('target_value'))            
+            targ_values = targ_query.values_list(targ_term).annotate(target=Sum('target_value'))                        
             targ_values = filter(lambda x:x[0] != '', targ_values)
             headc_query = Headcount.objects.filter(**filter_params).values_list(_term).annotate(head_c=Sum('billable_agents'))            
             if _type == "FTE Target": 
@@ -366,7 +392,7 @@ def Production_target(main_dates, prj_id, center, level_structure_key, dates_lis
                 if pack not in targ_dict.keys():
                     targ_dict[pack] = [0]
 
-            targ_dict = collections.OrderedDict(sorted(targ_dict.items()))     
+            targ_dict = collections.OrderedDict(sorted(targ_dict.items()))                 
             for key, val in targ_dict.iteritems():
                 packets.append(key)                                
                 val = sum(val)
@@ -375,9 +401,222 @@ def Production_target(main_dates, prj_id, center, level_structure_key, dates_lis
 
     result_temp = {}
     result_temp['Production'] = prod_val
-    result_temp['Target'] = targ_val
+    result_temp['Target'] = targ_val    
     result['data'] = result_temp
     result['date'] = list(set(packets))
-    
-
     return result
+
+
+
+def external_accur_trends(main_dates, prj_id, center, level_structure_key, dates_list, request, _type):
+    result_dict = {}
+    filter_params, _term = getting_required_params(level_structure_key, prj_id, center, dates_list)
+    if _term and filter_params:
+        if _type == "day":
+            exter_acc_query = Externalerrors.objects.filter(project=prj_id,center=center,date__range=[main_dates[0],main_dates[-1]])
+            dates = exter_acc_query.values_list('date',flat=True).distinct()
+            query_values =  Externalerrors.objects.filter(**filter_params)
+            if all('All' in x for x in level_structure_key.values()):                    
+                data_values = query_values.values_list('date',_term).annotate(total=Sum('total_errors'), audit=Sum('audited_errors'))                                    
+                data_values = filter(lambda e:e[1]!=u'',data_values)
+                rawtable = RawTable.objects.filter(**filter_params)
+                raw_packets = rawtable.values_list('date', _term).annotate(prod=Sum('per_day'))                
+                packets = exter_acc_query.values_list(_term,flat=True).distinct()
+                if data_values:
+                    for date in dates:
+                        packet_list = []
+                        data_list = []
+                        for data in data_values:
+                            if date == data[0]:                            
+                                pack = data[1].lower().title()
+                                if data[2] > 0:
+                                    value = (float(data[3])/float(data[2])) * 100
+                                    accuracy = 100 - float('%.2f' % round(value, 2))
+                                elif data[2] == 0:
+                                    for prod_val in raw_packets:
+                                        if data[0] == prod_val[0] and data[1] == prod_val[1]:
+                                            value = float((data[3])/float(prod_val[2]))*100
+                                            accuracy = 100 - float('%.2f' % round(value,2))
+                                        else:
+                                            accuracy = 100
+                                
+                                if not result_dict.has_key(pack):
+                                    result_dict[pack] = [accuracy]
+                                else:
+                                    result_dict[pack].append(accuracy)
+                                packet_list.append(pack)
+                                data_list.append(accuracy)
+
+                        if len(packet_list) > 0:
+                            packet_list = sorted(list(set(packet_list)))
+                            packet_list = map(str, packet_list)
+                            for pack in packets:
+                                pack = pack.lower().title()
+                                if pack not in packet_list:
+                                    if not result_dict.has_key(pack):
+                                        result_dict[pack] = [100]
+                                    else:
+                                        result_dict[pack].append(100)
+                        
+                        if len(data_list) == 0:
+                            for pack in packet_list:
+                                pack = pack.lower().title()
+                                if not result_dict.has_key(pack):
+                                    result_dict[pack] = [100]
+                                else:
+                                    result_dict[pack].append(100)
+
+
+
+            else:                            
+                if len(level_structure_key)>2:
+                    keyorder = ['sub_project','work_packet','sub_packet']
+                    level_order = sorted(level_structure_key.items(), key=lambda i:keyorder.index(i[0]))                
+                    for k in level_order:
+                        if k[1] != 'All':
+                            level = k[0]
+
+                elif len(level_structure_key) == 2:  
+                    if level_structure_key.has_key('sub_project'):
+                        keyorder = ['sub_project','work_packet']
+                        level_order = sorted(level_structure_key.items(), key=lambda i:keyorder.index(i[0]))
+                        for k in level_order:
+                            if k[1] != "All":
+                                level = k[0]
+
+                    else:
+                        keyorder = ['work_packet','sub_packet']
+                        level_order = sorted(level_structure_key.items(), key=lambda i:keyorder.index(i[0]))
+                        for k in level_order:
+                            if k[1] != "All":
+                                level = k[0]
+
+                else:
+                    for k, v in level_structure_key.iteritems():
+                        if v != "All":
+                            level = k
+
+                data_values = query_values.values_list('date', level).annotate(total=Sum('total_errors'), audit=Sum('audited_errors'))                
+                data_values = filter(lambda e:e[1]!=u'',data_values)
+                rawtable = RawTable.objects.filter(**filter_params)
+                raw_packets = rawtable.values_list('date', level).annotate(prod=Sum('per_day'))
+                packets = query_values.values_list(level,flat=True).distinct()                           
+                if data_values:
+                    for date in dates:
+                        data_list = []
+                        for data in data_values:
+                            if date == data[0]:                            
+                                pack = data[1].lower().title()
+                                if data[2] > 0:
+                                    value = (float(data[3])/float(data[2])) * 100
+                                    accuracy = 100 - float('%.2f' % round(value, 2))
+                                elif data[2] == 0:
+                                    for prod_val in raw_packets:
+                                        if data[0] == prod_val[0] and data[1] == prod_val[1]:
+                                            value = float((data[3])/float(prod_val[2]))*100
+                                            accuracy = 100 - float('%.2f' % round(value,2))
+                                        else:
+                                            accuracy = 100
+                                if not result_dict.has_key(pack):
+                                    result_dict[pack] = [accuracy]
+                                else:
+                                    result_dict[pack].append(accuracy)
+                                data_list.append(accuracy)
+
+                        if len(data_list) == 0:
+                            for pack in packets:
+                                pack = pack.lower().title()
+                                if not result_dict.has_key(pack):
+                                    result_dict[pack] = [100]
+                                else:
+                                    result_dict[pack].append(100)
+
+
+        elif _type in ["week","month"]:
+            ext_full_query = Externalerrors.objects.filter(project=prj_id,center=center,date__range=[main_dates[0], main_dates[-1]])
+            ext_query = Externalerrors.objects.filter(**filter_params)
+            rawtable = RawTable.objects.filter(**filter_params)                      
+            if all('All' in x for x in level_structure_key.values()):
+                raw_packets = rawtable.values_list(_term).annotate(prod=Sum('per_day'))
+                ext_qy = ext_query.values_list(_term).annotate(audited_errors=Sum('audited_errors'),total_errors=Sum('total_errors'))                                        
+                pack_lst = ext_query.values_list(_term, flat=True).distinct()
+                ext_qy = filter(lambda t: t[1] != u'', ext_qy)
+                if ext_qy:
+                    packet_list = []
+                    for data in ext_qy:
+                        pack = data[0].lower().title()
+                        if data[2] > 0:
+                            value = (float(data[1])/float(data[2])) * 100
+                            accuracy = 100 - float('%.2f' % round(value, 2))
+                        elif data[2] == 0:
+                            for prod_val in raw_packets:
+                                if data[0] == prod_val[0]:
+                                    value = (float(data[2])/float(prod_val[1]))*100
+                                    accuracy = 100 - float('%.2f' % round(value,2))
+                                else:
+                                    accuracy = 100
+                        else:
+                            accuracy = 100                        
+
+                        result_dict[pack] = accuracy                                              
+                        packet_list.append(pack)                                     
+
+                    if len(packet_list) > 0:
+                        for pack in pack_lst:
+                            pack = pack.lower().title()
+                            if pack not in packet_list:            
+                                result_dict[pack] = [100]
+                                
+                                
+
+            else:
+                if len(level_structure_key)>2:
+                    keyorder = ['sub_project','work_packet','sub_packet']
+                    level_order = sorted(level_structure_key.items(), key=lambda i:keyorder.index(i[0]))                
+                    for k in level_order:
+                        if k[1] != 'All':
+                            level = k[0]
+
+                elif len(level_structure_key) == 2:  
+                    if level_structure_key.has_key('sub_project'):
+                        keyorder = ['sub_project','work_packet']
+                        level_order = sorted(level_structure_key.items(), key=lambda i:keyorder.index(i[0]))
+                        for k in level_order:
+                            if k[1] != "All":
+                                level = k[0]
+
+                    else:
+                        keyorder = ['work_packet','sub_packet']
+                        level_order = sorted(level_structure_key.items(), key=lambda i:keyorder.index(i[0]))
+                        for k in level_order:
+                            if k[1] != "All":
+                                level = k[0]
+
+                else:
+                    for k, v in level_structure_key.iteritems():
+                        if v != "All":
+                            level = k                
+
+                raw_packets = rawtable.values_list(level).annotate(prod=Sum('per_day'))
+                ext_qy = ext_query.values_list(level).annotate(audited_errors=Sum('audited_errors'),total_errors=Sum('total_errors'))        
+                pack_lst = ext_full_query.values_list(level, flat=True).distinct()
+                ext_qy = filter(lambda t: t[1] != u'', ext_qy)
+                if ext_qy:                    
+                    for data in ext_qy:
+                        pack = data[0].lower().title()
+                        if data[1] > 0:
+                            value = (float(data[2])/float(data[1])) * 100
+                            accuracy = 100 - float('%.2f' % round(value, 2))
+                        elif data[1] == 0:
+                            for prod_val in raw_packets:
+                                if data[0] == prod_val[0]:
+                                    value = (float(data[2])/float(prod_val[1])) * 100
+                                    accuracy = 100 - float('%.2f' % round(value,2))
+                                else:
+                                    accuracy = 100
+                        else:
+                            accuracy = 100                        
+                        result_dict[pack] = accuracy            
+        
+                            
+        return result_dict
