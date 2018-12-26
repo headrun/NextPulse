@@ -7277,6 +7277,13 @@
                                     var ver_align = 'bottom';
                                     var layout = 'horizontal';
                                 }
+
+                                angular.extend(self.chartOptions98.yAxis, {
+                                    min: result.result.min_max.min_value,
+                                    max: result.result.min_max.max_value
+                                });
+
+
                                 angular.extend(self.chartOptions98, {
                                     xAxis: {
                                         categories: date_list,
@@ -7290,9 +7297,8 @@
                                         series: {
                                             dataLabels: {
                                                 enabled: value,
-                                                formatter: function () {
-                                                    return Highcharts.numberFormat(this.y, null, null, ",");
-                                                },
+                                                format: '{y} %',
+                                                valueDecimals: 2
                                             },
                                             allowPointSelect: true,
                                             cursor: 'pointer',
@@ -13254,12 +13260,9 @@
                     };
 
                     self.chartOptions98 = {
-                        chart: {                            
+                        chart: {
                             backgroundColor: "transparent",
                             reflow: false
-                        },
-                        lang: {
-                            thousandsSeparator: ','
                         },
                         yAxis: {
                             gridLineColor: 'a2a2a2',
@@ -13269,23 +13272,17 @@
                                 align: 'high'
                             },
                             labels: {
-                                overflow: 'justify',
-
+                                overflow: 'justify'
                             }
                         },
-                        tooltip: {
-                            valueSuffix: '',
 
-                            formatter: function () {
-                                return "<small>" + this.x + "</small><br/>" +
-                                    "<b>" + this.series.name + "</b> : " + Highcharts.numberFormat(this.y, null, null, ",");
-                            }
+                        tooltip: {
+                            valueSuffix: '%'
                         },
                         credits: {
                             enabled: false
                         },
                     };
-
 
                     Highcharts.Pointer.prototype.onContainerMouseDown = function (e) {
                         e = this.normalize(e);
