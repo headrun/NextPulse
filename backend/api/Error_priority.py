@@ -175,9 +175,9 @@ def Customer_week_fn(week_names,productivity_list,final_productivity, function_n
             else:
                 for vol_key, vol_values in final_productivity.iteritems():
                     if function_name in [external_accur_trends]:
-                        final_productivity[prod_key].append(100)
+                        final_productivity[vol_key].append(100)
                     else:
-                        final_productivity[prod_key].append(0)                            
+                        final_productivity[vol_key].append(0)                            
 
     return final_productivity
 
