@@ -13,7 +13,6 @@ from api.graph_settings import graph_data_alignment_color
 from common.utils import getHttpResponse as json_HttpResponse
 
 
-
 def from_to(request):
 
     internal_name = "internal_accuracy_timeline"
@@ -179,6 +178,7 @@ def error_line_charts(request, name, function_name, internal_name, external_name
     return final_dict
 
 
+
 def accuracy_line_graphs(date_list,prj_id,center_obj,level_structure_key,error_type,_term):
     final_dict , data_dict = {} , {}
     if error_type == 'Internal':
@@ -235,6 +235,7 @@ def accuracy_line_graphs(date_list,prj_id,center_obj,level_structure_key,error_t
     return final_dict
 
 
+
 def accuracy_line_week_month(date_list,prj_id,center_obj,level_structure_key,error_type,_term, combined_list):
     _dict = {}
     if error_type == 'Internal':
@@ -244,13 +245,13 @@ def accuracy_line_week_month(date_list,prj_id,center_obj,level_structure_key,err
     filter_params, _term = getting_required_params(level_structure_key, prj_id, center_obj, date_list)
     if filter_params and _term:
         query_values = table_name.objects.filter(**filter_params)
+        rawtable = RawTable.objects.filter(**filter_params)
         filter_params.update({'date__range': [combined_list[0], combined_list[-1]]})
         full_query = table_name.objects.filter(**filter_params)
         packets = full_query.values_list(_term, flat=True).distinct()
-        error_data = query_values.values_list(_term).annotate(total=Sum('total_errors'), audit=Sum('audited_errors'))
-        error_data = filter(lambda e: e[0] != u'', error_data)
-        rawtable = RawTable.objects.filter(**filter_params)
-        raw_packets = rawtable.values_list(_term).annotate(prod=Sum('per_day'))
+        error_data = query_values.values_list(_term).annotate(total=Sum('total_errors'), audit=Sum('audited_errors'))        
+        error_data = filter(lambda e: e[0] != u'', error_data)        
+        raw_packets = rawtable.values_list(_term).annotate(prod=Sum('per_day'))           
         raw_packets = filter(lambda e: e[0] != u'', raw_packets)
         packet_list = []
         content_list = []
@@ -259,14 +260,15 @@ def accuracy_line_week_month(date_list,prj_id,center_obj,level_structure_key,err
                 accuracy = 0
                 if data[1] > 0:
                     value = (float(data[2])/float(data[1])) * 100
-                    accuracy = 100-float('%.2f' % round(value, 2))
+                    accuracy = 100- value
+                    accuracy = float('%.2f'%round(accuracy, 2))
                 elif data[1] == 0:
                     for prod_val in raw_packets:
                         if data[0] == prod_val[0]:
                             value = (float(data[2])/float(prod_val[1])) * 100
-                            accuracy = 100-float('%.2f' % round(value, 2))
-                else:
-                    accuracy = 100
+                            accuracy = 100- value
+                            accuracy = float('%.2f'%round(accuracy, 2))
+                
                 _dict[data[0]] = accuracy
                 packet_list.append(data[0])
                 content_list.append(accuracy)
@@ -281,6 +283,7 @@ def accuracy_line_week_month(date_list,prj_id,center_obj,level_structure_key,err
                 _dict[pack] = 100
 
     return _dict
+
 
 
 def adding_min_max(high_chart_key,values_dict):
