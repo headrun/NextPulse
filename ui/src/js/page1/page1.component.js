@@ -222,6 +222,8 @@
                         $('.widget-91b').addClass('widget-data-hide');
                         $('.widget-92a').addClass('widget-loader-show');
                         $('.widget-92b').addClass('widget-data-hide');
+                        $('.widget-93a').addClass('widget-loader-show');
+                        $('.widget-93b').addClass('widget-data-hide');
 
 
                     }
