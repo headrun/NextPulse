@@ -523,7 +523,7 @@ def external_accur_trends(main_dates, prj_id, center, level_structure_key, dates
                                     accuracy = float('%.2f' % round(accuracy, 2))
                                 elif data[2] == 0:
                                     for prod_val in raw_packets:
-                                        if date == prod_val[0] and data[1] == prod_val[1]:
+                                        if date == prod_val[0] and pack == prod_val[1].lower().title():
                                             value = (float(data[3]) / float(prod_val[2])) * 100
                                             accuracy = 100 - value
                                             accuracy = float('%.2f' % round(accuracy, 2))
@@ -567,7 +567,7 @@ def external_accur_trends(main_dates, prj_id, center, level_structure_key, dates
                             accuracy = float('%.2f' % round(accuracy, 2))
                         elif data[2] == 0:
                             for prod_val in raw_packets:
-                                if data[0] == prod_val[0]:
+                                if pack == prod_val[0].lower().title():
                                     value = (float(data[1]) / float(prod_val[1])) * 100
                                     accuracy = 100 - value
                                     accuracy = float('%.2f' % round(accuracy, 2))
