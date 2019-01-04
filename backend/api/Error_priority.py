@@ -48,7 +48,7 @@ def generate_day_week_month_format(request, result_name, function_name, model_na
 
     elif main_data_dict['dwm_dict'].has_key('week') and main_data_dict['type'] == 'week':
         dates_list = main_data_dict['dwm_dict']['week']
-        if function_name in [external_count_cal, overall_external_accur_trends, overall_ext_count, overall_internal_accur_trends]:
+        if function_name in [external_count_cal, overall_external_accur_trends, overall_ext_count, overall_internal_accur_trends, overall_tat_graph]:
             volume_week = week_month_data_acculate(main_dates ,prj_id, center, level_structure_key, dates_list, request, _type, function_name)
             final_dict[result_name] = graph_data_alignment_color(volume_week, 'data', level_structure_key, \
                                         prj_id, center, result_name)
@@ -63,7 +63,7 @@ def generate_day_week_month_format(request, result_name, function_name, model_na
 
     elif main_data_dict['dwm_dict'].has_key('month') and main_data_dict['type'] == 'month':
         dates_list = main_data_dict['dwm_dict']['month']
-        if function_name in [external_count_cal, overall_external_accur_trends, overall_ext_count ,overall_internal_accur_trends]:
+        if function_name in [external_count_cal, overall_external_accur_trends, overall_ext_count ,overall_internal_accur_trends, overall_tat_graph]:
             volume_month = week_month_data_acculate(main_dates ,prj_id, center, level_structure_key, dates_list, request, _type, function_name)
             final_dict[result_name] = graph_data_alignment_color(volume_month, 'data', level_structure_key, \
                                         prj_id, center, result_name)
@@ -168,13 +168,13 @@ def Customer_week_fn(week_names,productivity_list,final_productivity, function_n
 
                 for prod_key, prod_values in final_productivity.iteritems():
                     if prod_key not in productivity_list[prod_week_num].keys():
-                        if function_name in [external_accur_trends]:
+                        if function_name in [overall_external_accur_trends, overall_internal_accur_trends]:
                             final_productivity[prod_key].append(100)
                         else:
                             final_productivity[prod_key].append(0)
             else:
                 for vol_key, vol_values in final_productivity.iteritems():
-                    if function_name in [external_accur_trends]:
+                    if function_name in [overall_external_accur_trends, overall_internal_accur_trends]:
                         final_productivity[vol_key].append(100)
                     else:
                         final_productivity[vol_key].append(0)                            
@@ -185,7 +185,7 @@ def Customer_week_fn(week_names,productivity_list,final_productivity, function_n
 
 def min_max_num(int_value_range, result_name):
     min_max_dict = {}    
-    if len(int_value_range) > 0 and (result_name in ["external_error_count","produc_vs_targ", "external_error_acc","overall_external_count","internal_error_acc"]):        
+    if len(int_value_range) > 0 and (result_name in ["external_error_count","produc_vs_targ", "external_error_acc","overall_external_count","internal_error_acc", "overall_tat"]):        
         values_list = []
         data = int_value_range.values()
         for value in data:
@@ -292,6 +292,14 @@ def Overall_internal_accur(request):
     result_name = 'internal_error_acc'
     function_name = overall_internal_accur_trends
     model_name = 'Internalerrors'
+    result = generate_day_week_month_format(request, result_name, function_name, model_name)
+    return result
+
+
+def Overall_TAT(request):
+    result_name = 'overall_tat'
+    function_name = overall_tat_graph
+    model_name = 'TatTable'
     result = generate_day_week_month_format(request, result_name, function_name, model_name)
     return result
 
@@ -777,7 +785,7 @@ def overall_internal_accur_trends(main_dates, prj_id, center, level_structure_ke
                                     accuracy = float('%.2f' % round(accuracy, 2))
                                 elif data[2] == 0:
                                     for prod_val in raw_packets:
-                                        if date == prod_val[0] and data[1] == prod_val[1]:
+                                        if date == prod_val[0] and pack == prod_val[1].lower().title():
                                             value = (float(data[3]) / float(prod_val[2])) * 100
                                             accuracy = 100 - value
                                             accuracy = float('%.2f' % round(accuracy, 2))
@@ -819,14 +827,14 @@ def overall_internal_accur_trends(main_dates, prj_id, center, level_structure_ke
                     tot = []
                     audit = []                    
                     for data in ext_qy:
-                        pck = data[0].lower().title()
+                        pack = data[0].lower().title()
                         if data[2] > 0:
                             tot.append(data[1])
                             audit.append(data[2])
                         elif data[2] == 0:
                             if pack in raw_list:
                                 for prod_val in raw_packets:
-                                    if data[0] == prod_val[0]:
+                                    if pack == prod_val[0].lower().title():
                                         tot.append(data[1])
                                         audit.append(prod_val[1])
                             else:
@@ -873,3 +881,51 @@ def overall_internal_accur_trends(main_dates, prj_id, center, level_structure_ke
                         result_dict[pack] = accuracy        
         
         return result_dict
+
+
+
+def overall_tat_graph(main_dates, prj_id, center, level_structure_key, dates_list, request, _type):
+
+    result = {}
+    filter_params, _term = getting_required_params(level_structure_key, prj_id, center, dates_list)    
+    if _term and filter_params:
+        query_data = TatTable.objects.filter(**filter_params)
+        if _type == "day" :
+            query_values = query_data.values_list('date').annotate(Met=Sum('met_count'),Not_met=Sum('non_met_count'))                
+            if query_values:
+                raw_dates = TatTable.objects.filter(project=prj_id, center=center, date__range=[main_dates[0],main_dates[-1]]).\
+                            values_list('date', flat=True).distinct()
+                for date in raw_dates:
+                    for data in query_values:
+                        if date == data[0]:
+                            if data[1]+data[2]>0:
+                                value = (float(data[1])/float(data[2]+data[1]))*100
+                                if result.has_key('TAT Value'):
+                                    result['TAT Value'].append(round(value, 2))
+                                else:
+                                    result['TAT Value'] = [round(value, 2)]
+                            else:
+                                if result.has_key('TAT Value'):
+                                    result['TAT Value'].append(0)
+                                else:
+                                    result['TAT Value'] = [0]
+
+        elif _type in ["week", "month"]:
+            query_values = query_data.aggregate(Met=Sum('met_count'),Not_met=Sum('non_met_count'))                            
+            if query_values['Met'] != None:
+                met_count = query_values['Met']
+            else:
+                met_count = 0
+            if query_values['Not_met'] != None:
+                not_met_count = query_values['Not_met']
+            else:
+                not_met_count = 0
+            total_count = met_count + not_met_count
+            if total_count > 0:                
+                tat_per_val = (met_count/total_count) * 100
+                tat_per_val = float('%.2f'%round(tat_per_val,2))
+            else:
+                tat_per_val = 0
+            result['TAT Value'] = tat_per_val
+
+    return result
