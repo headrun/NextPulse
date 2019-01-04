@@ -48,7 +48,7 @@ def generate_day_week_month_format(request, result_name, function_name, model_na
 
     elif main_data_dict['dwm_dict'].has_key('week') and main_data_dict['type'] == 'week':
         dates_list = main_data_dict['dwm_dict']['week']
-        if function_name in [external_count_cal, external_accur_trends]:
+        if function_name in [external_count_cal, external_accur_trends, overall_ext_count]:
             volume_week = week_month_data_acculate(main_dates ,prj_id, center, level_structure_key, dates_list, request, _type, function_name)
             final_dict[result_name] = graph_data_alignment_color(volume_week, 'data', level_structure_key, \
                                         prj_id, center, result_name)
@@ -63,7 +63,7 @@ def generate_day_week_month_format(request, result_name, function_name, model_na
 
     elif main_data_dict['dwm_dict'].has_key('month') and main_data_dict['type'] == 'month':
         dates_list = main_data_dict['dwm_dict']['month']
-        if function_name in [external_count_cal, external_accur_trends]:
+        if function_name in [external_count_cal, external_accur_trends, overall_ext_count ]:
             volume_month = week_month_data_acculate(main_dates ,prj_id, center, level_structure_key, dates_list, request, _type, function_name)
             final_dict[result_name] = graph_data_alignment_color(volume_month, 'data', level_structure_key, \
                                         prj_id, center, result_name)
@@ -185,7 +185,7 @@ def Customer_week_fn(week_names,productivity_list,final_productivity, function_n
 
 def min_max_num(int_value_range, result_name):
     min_max_dict = {}    
-    if len(int_value_range) > 0 and (result_name in ["external_error_count","produc_vs_targ", "external_error_acc"]):        
+    if len(int_value_range) > 0 and (result_name in ["external_error_count","produc_vs_targ", "external_error_acc","overall_external_count"]):        
         values_list = []
         data = int_value_range.values()
         for value in data:
@@ -195,7 +195,7 @@ def min_max_num(int_value_range, result_name):
                 min_value = (min(values_list) - 2)
                 max_value = (max(values_list) + 2)
             else:
-                min_value = (min(values_list) - 0)
+                min_value = 0
                 max_value = (max(values_list) + 2)
         else:
             min_value, max_value = 0, 0
@@ -238,7 +238,6 @@ def Level_Order(level_structure_key):
 
 
 
-
 def External_Error_proj(request):
 
     result_name = 'external_error_count'
@@ -270,6 +269,7 @@ def Production_vs_Target(request):
     return json_HttpResponse(final_dict)    
 
 
+
 def External_Accur_Trnds(request):
 
     result_name = 'external_error_acc'
@@ -277,6 +277,18 @@ def External_Accur_Trnds(request):
     model_name = 'Externalerrors'
     result = generate_day_week_month_format(request, result_name, function_name, model_name)
     return result
+
+
+def Overall_External_Error(request):
+
+    result_name = 'overall_external_count'
+    function_name = overall_ext_count
+    model_name = 'Externalerrors'
+    result = generate_day_week_month_format(request, result_name, function_name, model_name)
+    return result
+
+
+
 
 
 
@@ -613,3 +625,43 @@ def external_accur_trends(main_dates, prj_id, center, level_structure_key, dates
         return result_dict
 
 
+def overall_ext_count(main_dates, prj_id, center, level_structure_key, dates_list, request, _type):
+    result = {}    
+    filter_params, _term = getting_required_params(level_structure_key, prj_id, center, dates_list)
+    if filter_params and _term:
+        if _type == "day":
+            ext_full_query = Externalerrors.objects.filter(project=prj_id,center=center,date__range=[main_dates[0], main_dates[-1]])
+            ext_query = Externalerrors.objects.filter(**filter_params)
+            date_pack = ext_full_query.order_by('date').values_list('date',flat=True).distinct()
+            ext_data = ext_query.order_by('date').filter(error_values__gt=0).values_list('date').annotate(total_errors=Sum('total_errors'))
+            data = []                
+            ext_data = filter(lambda t: t[1] != u'', ext_data)
+            if ext_data:
+                for date in date_pack:                    
+                    content_list = []
+                    for ext_v in ext_data:
+                        if date == ext_v[0]:
+                            if ext_v[1] != 'None':                      
+                                if not result.has_key('Error Count'):
+                                    result['Error Count'] = [ext_v[1]]
+                                else:
+                                    result['Error Count'].append(ext_v[1])
+                                content_list.append(ext_v[1])
+
+                    if len(content_list) == 0:
+                        if not result.has_key('Error Count'):
+                            result['Error Count'] = [0]
+                        else:
+                            result['Error Count'].append(0)
+
+        elif _type in ["week","month"]:
+            ext_full_query = Externalerrors.objects.filter(project=prj_id,center=center,date__range=[main_dates[0], main_dates[-1]])
+            ext_query = Externalerrors.objects.filter(**filter_params)
+            ext_qy = ext_query.aggregate(total_errors=Sum('total_errors'))
+            result = {}
+            if ext_qy['total_errors'] != None:
+                result['Error Count'] = ext_qy['total_errors']
+            else:
+                result['Error Count'] = 0
+
+    return result
