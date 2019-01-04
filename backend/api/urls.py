@@ -97,4 +97,5 @@ urlpatterns = [
     url(r'^overall_head_count',apiviews.Overall_headcount),
     url(r'^overall_product',apiviews.Overall_production),
     url(r'^external_acc_trn',apiviews.External_Accur_Trnds),
+    url(r'^ext_error_count',apiviews.Overall_External_Error),
 ]
