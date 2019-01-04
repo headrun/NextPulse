@@ -3722,9 +3722,9 @@
                                         series: {
                                             dataLabels: {
                                                 enabled: value,
-                                                formatter: function () {
-                                                    return Highcharts.numberFormat(this.y, null, null, ",");
-                                                },
+                                                // formatter: function () {
+                                                //     return Highcharts.numberFormat(this.y, null, null, ",");
+                                                // },
                                             },
                                             allowPointSelect: true,
                                             cursor: 'pointer',
@@ -13572,10 +13572,10 @@
                         tooltip: {
                             valueSuffix: '',
 
-                            formatter: function () {
-                                return "<small>" + this.x + "</small><br/>" +
-                                    "<b>" + this.series.name + "</b> : " + Highcharts.numberFormat(this.y, null, null, ",");
-                            }
+                            // formatter: function () {
+                            //     return "<small>" + this.x + "</small><br/>" +
+                            //         "<b>" + this.series.name + "</b> : " + Highcharts.numberFormat(this.y, null, null, ",");
+                            // }
                         },
                         credits: {
                             enabled: false
