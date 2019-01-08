@@ -12,6 +12,7 @@ from api.voice_widgets import date_function
 from api.graph_settings import graph_data_alignment_color
 from common.utils import getHttpResponse as json_HttpResponse
 from api.monthly_graph import get_target_query_format
+from itertools import chain
 
 
 def customer_data_date_generation(project, center, date_lt, model_name):
