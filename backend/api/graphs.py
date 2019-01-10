@@ -226,11 +226,11 @@ def work_track_data(date_list,prj_id,center_obj,level_structure_key):
     filter_params = get_query_parameters(level_structure_key, prj_id, center_obj, date_list)
     if filter_params:
         track_query = Worktrack.objects.filter(**filter_params)
-        query_data = track_query.values_list('date').annotate(open_val=Sum('opening'), \
+        query_data = track_query.order_by('date').values_list('date').annotate(open_val=Sum('opening'), \
                      receive=Sum('received'), hold=Sum('non_workable_count'), done=Sum('completed'), \
                      balance=Sum('closing_balance'))          
-        dates_l = track_query.values_list('date', flat=True).distinct()
-        
+        dates_l = track_query.order_by('date').values_list('date', flat=True).distinct()
+        dates_l = map(str, dates_l)
         for value in query_data:
             if _dict.has_key('Opening'):
                 _dict['Opening'].append(value[4])
