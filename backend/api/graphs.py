@@ -40,6 +40,7 @@ def generate_day_type_formats_multiple(request, result_name, function_name, sub_
                                                             level_structure_key,prj_id,center,'operational_utilization')
             final_dict['original_utilization_graph'] = graph_data_alignment_color(data['Overall Utilization'],'data',\
                                                        level_structure_key,prj_id,center,'utilisation_wrt_work_packet')        
+            final_dict['date'] = new_date_list
         else:
             data = function_name(date_list, prj_id, center, level_structure_key)                                    
             if data:
@@ -50,7 +51,7 @@ def generate_day_type_formats_multiple(request, result_name, function_name, sub_
                 sub_result2 = data[sub_name2]
                 final_dict[result_name][sub_name1] = graph_data_alignment_color(sub_result1,'data',level_structure_key,prj_id,center,config_1)
                 final_dict[result_name][sub_name2] = graph_data_alignment_color(sub_result2,'data',level_structure_key,prj_id,center,config_2)        
-        final_dict['date'] = new_date_list
+            final_dict['date'] = data["date_l"]
        
     elif main_data_dict['dwm_dict'].has_key('week') and main_data_dict['type'] == 'week':
         dates_list = main_data_dict['dwm_dict']['week']
@@ -227,7 +228,8 @@ def work_track_data(date_list,prj_id,center_obj,level_structure_key):
         track_query = Worktrack.objects.filter(**filter_params)
         query_data = track_query.values_list('date').annotate(open_val=Sum('opening'), \
                      receive=Sum('received'), hold=Sum('non_workable_count'), done=Sum('completed'), \
-                     balance=Sum('closing_balance'))        
+                     balance=Sum('closing_balance'))          
+        dates_l = track_query.values_list('date', flat=True).distinct()
         
         for value in query_data:
             if _dict.has_key('Opening'):
@@ -252,6 +254,7 @@ def work_track_data(date_list,prj_id,center_obj,level_structure_key):
                 line_dict['Opening'] = [value[4]]
         volume_graph_data['bar_data'] = _dict
         volume_graph_data['line_data'] = line_dict
+        volume_graph_data['date_l'] = dates_l
     return volume_graph_data
 
 
@@ -338,6 +341,8 @@ def timework(date_list,date_key):
             da_arr2.append(t_del.strftime("%Y-%m-%d"));
 
         return {"current":da_arr1,"previous":da_arr2};
+
+
 
 def performance_summary(request):
     main_data_dict = data_dict(request.GET)
