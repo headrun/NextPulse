@@ -266,7 +266,8 @@ def overall_production_fn(date_list, prj_id, center_obj, level_structure_key, ma
                                     target = 0
                                 if not result_dict.has_key("Target"):
                                     result_dict['Target'] = [target]
-                                result_dict['Target'].append(target)
+                                else:
+                                    result_dict['Target'].append(target)
                                 content_list.append(target)
 
                         if len(content_list) == 0:
