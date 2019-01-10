@@ -230,7 +230,7 @@ def work_track_data(date_list,prj_id,center_obj,level_structure_key):
                      receive=Sum('received'), hold=Sum('non_workable_count'), done=Sum('completed'), \
                      balance=Sum('closing_balance'))          
         dates_l = track_query.values_list('date', flat=True).distinct()
-        
+        dates_l = map(str, dates_l)
         for value in query_data:
             if _dict.has_key('Opening'):
                 _dict['Opening'].append(value[4])
