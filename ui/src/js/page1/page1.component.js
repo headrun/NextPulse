@@ -230,6 +230,8 @@
                         $('.widget-95b').addClass('widget-data-hide');
                         $('.widget-96a').addClass('widget-loader-show');
                         $('.widget-96b').addClass('widget-data-hide');
+                        $('.widget-100a').addClass('widget-loader-show');
+                        $('.widget-100b').addClass('widget-data-hide');
 
                     }
 
@@ -7987,6 +7989,198 @@
 
 
 
+                        self.Probe_overall_ext_accracy = function (final_work, type) {
+
+                            if (type == undefined) {
+                                type = 'day'
+                            }
+                        
+                            if (final_work == undefined) {
+                                final_work = ''
+                            }
+                        
+                            self.type = type;
+                        
+                            var prb_ext_url = '/api/prob_ovr_ext_acc/' + self.data_to_show + type + final_work + '&chart_name=100';
+                        
+                            return $http({ method: "GET", url: prb_ext_url }).success(function (result) {
+                        
+                                var date_list = result.result.date;
+                                var result_pr_over = result.result.prb_overall_ext;
+                                var is_annotation = result.result.is_annotation;
+                                
+                                if (self.list_object.probe_overall_external_accuracy != undefined) {
+                        
+                                    if (self.list_object.probe_overall_external_accuracy.display_value === true) {
+                        
+                                        var value = true;
+                                    }
+                                    else {
+                        
+                                        var value = false;
+                                    }
+                                }
+                                else {
+                                    var value = false;
+                                }
+                                if (self.list_object.probe_overall_external_accuracy != undefined) {
+                        
+                                    if (self.list_object.probe_overall_external_accuracy.legends_align == 'bottom') {
+                        
+                                        var align = 'center';
+                                        var ver_align = 'bottom';
+                                        var layout = 'horizontal';
+                        
+                                    }
+                        
+                                    else if (self.list_object.probe_overall_external_accuracy.legends_align == 'left') {
+                        
+                                        var align = 'left';
+                                        var ver_align = 'top';
+                                        var layout = 'vertical';
+                                    }
+                        
+                                    else {
+                                        var align = 'right';
+                                        var ver_align = 'top';
+                                        var layout = 'vertical';
+                                    }
+                                }
+                        
+                                else {
+                                    var align = 'center';
+                                    var ver_align = 'bottom';
+                                    var layout = 'horizontal';
+                                }
+                        
+                                angular.extend(self.chartOptions105.yAxis, {
+                                    min: result.result.min_max.min_value,
+                                    max: result.result.min_max.max_value
+                                });
+                        
+                                angular.extend(self.chartOptions105, {
+                                    xAxis: {
+                                        categories: date_list,
+                                    },
+                                    legend: {
+                                        align: align,
+                                        verticalAlign: ver_align,
+                                        layout: layout
+                                    },
+                                    plotOptions: {
+                                        series: {
+                                            dataLabels: {
+                                                enabled: value,
+                                                format: '{y} %',
+                                                valueDecimals: 2
+                                            },
+                                            allowPointSelect: true,
+                                            cursor: 'pointer',
+                                            point: {
+                                                events: {
+                                                    contextmenu: function () {
+                                                        if (self.role_for_perm == 'customer') {
+                        
+                                                            console.log('he is customer');
+                                                        }
+                                                        else {
+                        
+                                                            if (self.data_to_show.split('&').length == 6) {
+                                                                var sub_proj = '';
+                                                                var work_pack = '';
+                                                                var sub_pack = '';
+                                                            }
+                                                            else {
+                                                                var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
+                                                                var work_pack = self.data_to_show.split('&')[6].split('=')[1];
+                                                                var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
+                                                            }
+                                                            var str = '100<##>' + self.type + '<##>' + sub_proj + '<##>' + work_pack + '<##>' + sub_pack;
+                                                            this['project'] = self.project_live;
+                                                            this['center'] = self.center_live;
+                                                            this['from'] = self.start_date;
+                                                            this['to'] = self.end_date;
+                                                            return new Annotation(str, $(self.chartOptions105.chart.renderTo), this.series.chart, this);
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                            events: {
+                                                hide: function () {
+                                                    var name = this.name;
+                                                    var visibility = this.visible;
+                                                    var chart_name = self._pr_ext_acc;
+                                                    if (self.data_anno) {
+                                                        if (chart_name.indexOf(name) >= 0) {
+                                                            self.data_anno.forEach(function (value_data) {
+                                                                value_data.redraw(name, visibility);
+                                                            });
+                                                            $(document).find('.widget-100a').children(".widget-100b").find('.annotation-marker[series-name="' + name + '"]').css("opacity", 0);
+                                                        }
+                                                    }
+                                                },
+                                                show: function () {
+                                                    var name = this.name;
+                                                    var visibility = this.visible;
+                                                    var chart_name = self._pr_ext_acc;
+                                                    if (self.data_anno) {
+                                                        if (chart_name.indexOf(name) >= 0) {
+                                                            self.data_anno.forEach(function (value_data) {
+                                                                value_data.redraw(name, visibility);
+                                                            });
+                                                            $(document).find('.widget-100a').children(".widget-100b").find('.annotation-marker[series-name="' + name + '"]').css("opacity", 1);
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                        
+                                    series: result_pr_over,
+                                    onComplete: function (chart) {
+                                        if (is_annotation) {
+                                            var series = null;
+                                            var chart_data = chart.series;
+                                            self.data_anno = [];
+                                            self._pr_ext_acc = [];
+                                            for (var i in chart_data) {
+                                                series = chart_data[i];
+                                                (function (series) {
+                                                    $http({
+                                                        method: "GET", url: "/api/annotations/?series_name=" + series.name + '&type=' +
+                                                            self.type + '&chart_name=100&project=' + self.project_live + '&center=' +
+                                                            self.center_live + '&from=' + self.start_date + '&to=' + self.end_date
+                                                    }).success(function (annotations) {
+                                                        annotations = _.sortBy(annotations.result, function (annotation) { return annotation.epoch });
+                                                        $.each(annotations, function (j, annotation) {
+                        
+                                                            var point = _.filter(series.points, function (point) { return point.category == annotation.epoch });
+                        
+                                                            point = point[0];
+                        
+                                                            if (annotation.epoch) {
+                                                                var a = new Annotation("100", $(self.chartOptions105.chart.renderTo),
+                                                                    chart, point, annotation);
+                                                                window.data_anno = a;
+                                                                self.data_anno.push(a);
+                                                                self._pr_ext_acc.push(series.name);
+                                                                self.annot_perm();
+                                                            }
+                                                        })
+                        
+                                                    });
+                                                }(series));
+                                            }
+                                        }
+                                    }
+                                });
+                                $('.widget-100a').removeClass('widget-loader-show');
+                                $('.widget-100b').removeClass('widget-data-hide');
+                            })
+                        }
+
+
+
 
                         self.Percentage_less_aht = function (final_work, type) {
 
@@ -9914,6 +10108,8 @@
                                     self.Int_Acc_Trend(undefined, undefined)
                                 }else if (val == 'tat_date') {
                                     self.Tat_Date_Wise(undefined, undefined)
+                                }else if (val == 'probe_overall_external_accuracy') {
+                                    self.Probe_overall_ext_accracy(undefined, undefined)
                                 }else if ((val == 'Static_Daily_Production_Trend') || (val == 'Static_Weekly_Production_Trend') || (val == 'Static_Monthly_Production_Trend') || (val == 'Static_Daily_Production_Bar') || (val == 'Static_Weekly_Production_Bar') || (val == 'Static_Monthly_Production_Bar')) {
                                     self.stacti_list.push('static')
                                     self.static_data_call(static_ajax)
@@ -10038,6 +10234,7 @@
                             "self.chartOptions99": self.chartOptions99,
                             "self.chartOptions100": self.chartOptions100,
                             "self.chartOptions101": self.chartOptions101,
+                            "self.chartOptions105": self.chartOptions105,
 
                         };
 
@@ -10734,6 +10931,7 @@
                                 "self.chartOptions99": self.chartOptions99,
                                 "self.chartOptions100": self.chartOptions100,
                                 "self.chartOptions101": self.chartOptions101,
+                                "self.chartOptions105": self.chartOptions105,
 
                             }
 
@@ -10974,6 +11172,12 @@
                                 self.Tat_Date_Wise(final_work, key);
                             }
 
+                            if (name == 'chartOptions105') {
+                                $('.widget-100a').addClass('widget-loader-show');
+                                $('.widget-100b').addClass('widget-data-hide');
+                                self.Probe_overall_ext_accracy(final_work, key);
+                            }
+
                             var chart_type_map = {};
                             chart_type_map = { 'chartOptions47': self.filter_list[0], 'chartOptions48': self.filter_list[1], 'chartOptions49': self.filter_list[2], 'chartOptions50': self.filter_list[3], 'chartOptions51': self.filter_list[4], 'chartOptions52': self.filter_list[5], 'chartOptions53': self.filter_list[6], 'chartOptions54': self.filter_list[7], 'chartOptions55': self.filter_list[8], 'chartOptions56': self.filter_list[9], 'chartOptions57': self.filter_list[10], 'chartOptions58': self.filter_list[11], 'chartOptions59': self.filter_list[12], 'chartOptions60': self.filter_list[13], 'chartOptions61': self.filter_list[14], 'chartOptions62': self.filter_list[15], 'chartOptions63': self.filter_list[16], 'chartOptions64': self.filter_list[17] };
                             if (self.is_voice_flag) {
@@ -11190,6 +11394,11 @@
                                     $('.widget-96b').addClass('widget-data-hide');
 
                                     self.Tat_Date_Wise(final_work, key);
+
+                                    $('.widget-100a').addClass('widget-loader-show');
+                                    $('.widget-100b').addClass('widget-data-hide');
+
+                                    self.Probe_overall_ext_accracy(final_work, key);
                                 }
                             }
                         }
@@ -11333,6 +11542,7 @@
                                                 "self.chartOptions99": self.chartOptions99,
                                                 "self.chartOptions100": self.chartOptions100,
                                                 "self.chartOptions101": self.chartOptions101,
+                                                "self.chartOptions105": self.chartOptions105,
 
                                             };
                                             var final_layout_list = [];
@@ -13992,6 +14202,30 @@
                         },
                     };
 
+                    self.chartOptions105 = {
+                        chart: {                    
+                            backgroundColor: "transparent",
+                            reflow: false
+                        },
+                        yAxis: {
+                            gridLineColor: 'a2a2a2',
+                    
+                            title: {
+                                text: '',
+                                align: 'high'
+                            },
+                            labels: {
+                                overflow: 'justify'
+                            }
+                        },
+                    
+                        tooltip: {
+                            valueSuffix: '%'
+                        },
+                        credits: {
+                            enabled: false
+                        },
+                    };
 
                     Highcharts.Pointer.prototype.onContainerMouseDown = function (e) {
                         e = this.normalize(e);
