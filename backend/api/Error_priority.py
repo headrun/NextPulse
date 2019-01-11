@@ -169,13 +169,13 @@ def Customer_week_fn(week_names, productivity_list, final_productivity, function
 
                 for prod_key, prod_values in final_productivity.iteritems():
                     if prod_key not in productivity_list[prod_week_num].keys():
-                        if function_name in [overall_external_accur_trends, overall_internal_accur_trends]:
+                        if function_name in [overall_external_accur_trends, overall_internal_accur_trends,Probe_overall_accuracy]:
                             final_productivity[prod_key].append(100)
                         else:
                             final_productivity[prod_key].append(0)
             else:
                 for vol_key, vol_values in final_productivity.iteritems():
-                    if function_name in [overall_external_accur_trends, overall_internal_accur_trends]:
+                    if function_name in [overall_external_accur_trends, overall_internal_accur_trends,Probe_overall_accuracy ]:
                         final_productivity[vol_key].append(100)
                     else:
                         final_productivity[vol_key].append(0)
