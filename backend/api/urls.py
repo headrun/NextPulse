@@ -100,4 +100,5 @@ urlpatterns = [
     url(r'^int_acc_trend',apiviews.Overall_internal_accur),
     url(r'^ext_error_count',apiviews.Overall_External_Error),
     url(r'^tat_graph_date',apiviews.Overall_TAT),
+    url(r'^prob_ovr_ext_acc', apiviews.Probe_overall_external_accur)
 ]

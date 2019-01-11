@@ -41,7 +41,7 @@ def generate_day_type_formats_multiple(request, result_name, function_name, sub_
             final_dict['original_utilization_graph'] = graph_data_alignment_color(data['Overall Utilization'],'data',\
                                                        level_structure_key,prj_id,center,'utilisation_wrt_work_packet')        
             final_dict['date'] = new_date_list
-        else:
+        elif function_name == work_track_data:
             data = function_name(date_list, prj_id, center, level_structure_key)                                    
             if data:
                 sub_result1 = data[sub_name1]
@@ -52,7 +52,15 @@ def generate_day_type_formats_multiple(request, result_name, function_name, sub_
                 final_dict[result_name][sub_name1] = graph_data_alignment_color(sub_result1,'data',level_structure_key,prj_id,center,config_1)
                 final_dict[result_name][sub_name2] = graph_data_alignment_color(sub_result2,'data',level_structure_key,prj_id,center,config_2)        
             final_dict['date'] = data["date_l"]
-       
+        else:
+            data = function_name(date_list, prj_id, center, level_structure_key)                                    
+            if data:
+                sub_result1 = data[sub_name1]                
+                sub_result2 = data[sub_name2]
+                final_dict[result_name][sub_name1] = graph_data_alignment_color(sub_result1,'data',level_structure_key,prj_id,center,config_1)
+                final_dict[result_name][sub_name2] = graph_data_alignment_color(sub_result2,'data',level_structure_key,prj_id,center,config_2)        
+            final_dict['date'] = new_date_list
+            
     elif main_data_dict['dwm_dict'].has_key('week') and main_data_dict['type'] == 'week':
         dates_list = main_data_dict['dwm_dict']['week']
         if function_name == headcount_widgets:
@@ -94,6 +102,7 @@ def generate_day_type_formats_multiple(request, result_name, function_name, sub_
     final_dict['type'] = main_data_dict['type']
     final_dict['is_annotation'] = annotation_check(request)
     return json_HttpResponse(final_dict)
+
 
 
 def fte_graphs(request):
