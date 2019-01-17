@@ -234,8 +234,8 @@
                         $('.widget-97b').addClass('widget-data-hide');
                         $('.widget-98a').addClass('widget-loader-show');
                         $('.widget-98b').addClass('widget-data-hide');
-                        $('.widget-99a').addClass('widget-loader-show');
-                        $('.widget-99b').addClass('widget-data-hide');
+//                        $('.widget-99a').addClass('widget-loader-show');
+//                        $('.widget-99b').addClass('widget-data-hide');
                         $('.widget-100a').addClass('widget-loader-show');
                         $('.widget-100b').addClass('widget-data-hide');
 
@@ -10630,7 +10630,7 @@
                             "self.chartOptions101": self.chartOptions101,
                             "self.chartOptions102": self.chartOptions102,
                             "self.chartOptions103": self.chartOptions103,
-                            "self.chartOptions104": self.chartOptions104,
+//                            "self.chartOptions104": self.chartOptions104,
                             "self.chartOptions105": self.chartOptions105,
 
                         };
@@ -11330,7 +11330,7 @@
                                 "self.chartOptions101": self.chartOptions101,
                                 "self.chartOptions102": self.chartOptions102,
                                 "self.chartOptions103": self.chartOptions103,
-                                "self.chartOptions104": self.chartOptions104,
+//                                "self.chartOptions104": self.chartOptions104,
                                 "self.chartOptions105": self.chartOptions105,
 
                             }
@@ -11971,7 +11971,7 @@
                                                 "self.chartOptions101": self.chartOptions101,
                                                 "self.chartOptions102": self.chartOptions102,
                                                 "self.chartOptions103": self.chartOptions103,
-                                                "self.chartOptions104": self.chartOptions104,
+//                                                "self.chartOptions104": self.chartOptions104,
                                                 "self.chartOptions105": self.chartOptions105,
 
                                             };
@@ -14711,31 +14711,31 @@
                         },
                     };
 
-                    self.chartOptions104 = {
-                        chart: {
-                            type: 'column',
-                            backgroundColor: "transparent",
-                            reflow: false
-                        },
-                        yAxis: {
-                            gridLineColor: 'a2a2a2',
-                            min: 0,
-                            title: {
-                                text: '',
-                                align: 'high'
-                            },
-                            labels: {
-                                overflow: 'justify'
-                            }
-                        },
-
-                        tooltip: {
-                            valueSuffix: ''
-                        },
-                        credits: {
-                            enabled: false
-                        },
-                    };
+//                    self.chartOptions104 = {
+//                        chart: {
+//                            type: 'column',
+//                            backgroundColor: "transparent",
+//                            reflow: false
+//                        },
+//                        yAxis: {
+//                            gridLineColor: 'a2a2a2',
+//                            min: 0,
+//                            title: {
+//                                text: '',
+//                                align: 'high'
+//                            },
+//                            labels: {
+//                                overflow: 'justify'
+//                            }
+//                        },
+//
+//                        tooltip: {
+//                            valueSuffix: ''
+//                        },
+//                        credits: {
+//                            enabled: false
+//                        },
+//                    };
 
 
                 
