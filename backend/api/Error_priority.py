@@ -187,7 +187,7 @@ def min_max_num(int_value_range, result_name):
     min_max_dict = {}
     if len(int_value_range) > 0 and (
         result_name in ["external_error_count", "produc_vs_targ", "external_error_acc", "overall_external_count",
-                        "internal_error_acc", "overall_tat", "prb_overall_ext"]):
+                        "internal_error_acc", "overall_tat", "prb_overall_ext","ext_acc_agent_details","int_acc_agent_details"]):
         values_list = []
         data = int_value_range.values()
         for value in data:
@@ -314,8 +314,52 @@ def hash_remover(x):
         r = x.split("#<>#")
     else:
         r = [x]
-
     return r
+
+
+def Internal_Acc_Agents(request):
+    final_dict = {}
+    main_data_dict = data_dict(request.GET)
+    prj_id = main_data_dict['pro_cen_mapping'][0][0]
+    center = main_data_dict['pro_cen_mapping'][1][0]
+    work_packet = main_data_dict['work_packet']
+    sub_project = main_data_dict['sub_project']
+    sub_packet = main_data_dict['sub_packet']
+    pro_center = main_data_dict['pro_cen_mapping']
+    _type = main_data_dict['type']
+    main_dates = main_data_dict['dates']    
+    level_structure_key = get_level_structure_key(work_packet, sub_project, sub_packet, pro_center)    
+    result_name = 'int_acc_agent_details'
+    result = agent_int_acc(main_dates, prj_id, center, level_structure_key, request, _type)
+    final_dict[result_name] = graph_data_alignment_color(result['data'], 'data', level_structure_key, prj_id, center)
+    final_dict['date'] = result['date']    
+    final_dict['min_max'] = min_max_num(result['data'],result_name)
+    final_dict['type'] = main_data_dict['type']
+    final_dict['is_annotation'] = annotation_check(request)
+    return json_HttpResponse(final_dict)
+
+
+def External_Acc_Agents(request):
+    final_dict = {}
+    main_data_dict = data_dict(request.GET)
+    prj_id = main_data_dict['pro_cen_mapping'][0][0]
+    center = main_data_dict['pro_cen_mapping'][1][0]
+    work_packet = main_data_dict['work_packet']
+    sub_project = main_data_dict['sub_project']
+    sub_packet = main_data_dict['sub_packet']
+    pro_center = main_data_dict['pro_cen_mapping']
+    _type = main_data_dict['type']
+    main_dates = main_data_dict['dates']
+    level_structure_key = get_level_structure_key(work_packet, sub_project, sub_packet, pro_center)
+    result_name = 'ext_acc_agent_details'
+    result = agent_ext_acc(main_dates, prj_id, center, level_structure_key, request, _type)
+    final_dict[result_name] = graph_data_alignment_color(result['data'], 'data', level_structure_key, prj_id, center)
+    final_dict['date'] = result['date']    
+    final_dict['min_max'] = min_max_num(result['data'],result_name)
+    final_dict['type'] = main_data_dict['type']
+    final_dict['is_annotation'] = annotation_check(request)
+    return json_HttpResponse(final_dict)
+
 
 
 def external_count_cal(main_dates, prj_id, center, level_structure_key, dates_list, request, _type):
@@ -866,10 +910,7 @@ def overall_internal_accur_trends(main_dates, prj_id, center, level_structure_ke
                 packets = query_values.values_list(level, flat=True).distinct()
                 r_dates = rawtable.values_list('date', flat=True).distinct()
                 r_packets = rawtable.values_list(level, flat=True).distinct()
-
-                def low(x):
-                    return x.lower().title()
-
+                def low(x): return x.lower().title()
                 r_packets = map(low, r_packets)
                 if data_values and raw_packets:
                     for date in dates:
@@ -918,6 +959,7 @@ def overall_internal_accur_trends(main_dates, prj_id, center, level_structure_ke
                 raw_packets = rawtable.values_list(_term).annotate(prod=Sum('per_day'))
                 ext_qy = ext_query.values_list(_term).annotate(audited_errors=Sum('audited_errors'),
                                                                total_errors=Sum('total_errors'))
+                
                 pack_lst = ext_query.values_list(_term, flat=True).distinct()
                 raw_list = rawtable.values_list(_term, flat=True).distinct()
 
@@ -962,20 +1004,21 @@ def overall_internal_accur_trends(main_dates, prj_id, center, level_structure_ke
                 raw_packets = rawtable.values_list(level).annotate(prod=Sum('per_day'))
                 ext_qy = ext_query.values_list(level).annotate(audited_errors=Sum('audited_errors'),
                                                                total_errors=Sum('total_errors'))
+                
                 pack_lst = ext_full_query.values_list(level, flat=True).distinct()
                 ext_qy = filter(lambda t: t[1] != u'', ext_qy)
                 raw_packets = filter(lambda e: e[1] != u'', raw_packets)
                 raw_list = rawtable.values_list(_term, flat=True).distinct()
-
+                
                 def case(x):
                     return x.lower().title()
 
                 raw_list = map(case, raw_list)
                 if ext_qy and raw_packets:
                     for data in ext_qy:
-                        pack = data[0].lower().title()
+                        pack = data[0].lower().title()                        
                         if data[2] > 0:
-                            value = (float(data[1]) / float(data[2])) * 100
+                            value = (float(data[1]) / float(data[2])) * 100                            
                             accuracy = 100 - value
                             accuracy = float('%.2f' % round(accuracy, 2))
                         elif data[2] == 0:
@@ -1262,3 +1305,99 @@ def Probe_overall_accuracy(main_dates, prj_id, center, level_structure_key, date
     return result_dict
 
 
+
+
+def agent_int_acc(main_dates, prj_id, center, level_structure_key, request, _type):
+    result_temp, result = {}, {}
+    filter_params, _term = getting_required_params(level_structure_key, prj_id, center, main_dates)    
+    if filter_params and _term:
+        int_acc_full_query = Internalerrors.objects.filter(project=prj_id, center=center,
+                                                        date__range=[main_dates[0], main_dates[-1]])
+        dates = int_acc_full_query.values_list('date', flat=True).distinct()
+        query_values = Internalerrors.objects.filter(**filter_params)
+        rawtable = RawTable.objects.filter(**filter_params)
+        data_values = query_values.order_by('employee_id').values_list('employee_id').annotate(
+                    total=Sum('total_errors'), audit=Sum('audited_errors'))
+        data_value = query_values.order_by('employee_id').values('employee_id').annotate(
+                    total=Sum('total_errors'), audit=Sum('audited_errors'))
+        table_values = rawtable.order_by('employee_id').values_list('employee_id').annotate(prod=Sum('per_day'))
+        prod_values = filter(lambda x:x[0] != '', table_values)
+        r_agents = rawtable.values_list('employee_id', flat=True).distinct()
+        def case(x): return x.lower().title()
+        raw_list = map(case, r_agents)
+        acc = []
+        acc_val = []
+        for pack in data_values:
+            key = pack[0].lower().title()
+            if pack[1]>0:
+                value = (float(pack[2]) / float(pack[1])) * 100
+                accuracy = 100 - value
+                accuracy = float('%.2f' % round(accuracy, 2))
+            elif pack[1] == 0:
+                if key in r_agents:
+                    for val in table_values:                    
+                            if key == val[0].lower().title():
+                                value = (float(pack[2]) / float(val[1]))
+                                accuracy = 100 - value
+                                accuracy = float('%.2f' % round(accuracy, 2))
+                else:
+                    accuracy = 100
+            else:
+                accuracy = 100
+            acc.append(accuracy)
+            acc_val.append(key)                   
+
+        result_out = {}
+        result_out['Internal Accuracy'] = acc
+        result['data'] = result_out
+        result['date'] = acc_val
+
+    return result
+
+
+def agent_ext_acc(main_dates, prj_id, center, level_structure_key, request, _type):
+    result_temp, result = {}, {}
+    filter_params, _term = getting_required_params(level_structure_key, prj_id, center, main_dates)    
+    if filter_params and _term:
+        int_acc_full_query = Externalerrors.objects.filter(project=prj_id, center=center,
+                                                        date__range=[main_dates[0], main_dates[-1]])
+        dates = int_acc_full_query.values_list('date', flat=True).distinct()
+        query_values = Externalerrors.objects.filter(**filter_params)
+        rawtable = RawTable.objects.filter(**filter_params)
+        data_values = query_values.order_by('employee_id').values_list('employee_id').annotate(
+                    total=Sum('total_errors'), audit=Sum('audited_errors'))
+        data_value = query_values.order_by('employee_id').values('employee_id').annotate(
+                    total=Sum('total_errors'), audit=Sum('audited_errors'))
+        table_values = rawtable.order_by('employee_id').values_list('employee_id').annotate(prod=Sum('per_day'))
+        prod_values = filter(lambda x:x[0] != '', table_values)
+        r_agents = rawtable.values_list('employee_id', flat = True).distinct()
+        def lower(x): return x.lower().title()
+        r_agents = map(lower, r_agents)
+        acc = []
+        acc_val = []
+        for pack in data_values:
+            key = pack[0].lower().title()
+            if pack[1]>0:
+                value = (float(pack[2]) / float(pack[1])) * 100
+                accuracy = 100 - value
+                accuracy = float('%.2f' % round(accuracy, 2))
+            elif pack[1] == 0:
+                if key in r_agents:
+                    for val in table_values:
+                        if key == val[0].lower().title():
+                            value = (float(pack[2]) / float(val[1]))
+                            accuracy = 100 - value
+                            accuracy = float('%.2f' % round(accuracy, 2))
+                else:
+                    accuracy = 100
+            else:
+                accuracy = 100
+            acc.append(accuracy)
+            acc_val.append(key)                    
+
+        result_out = {}
+        result_out['External Accuracy'] = acc
+        result['data'] = result_out
+        result['date'] = acc_val
+
+    return result
