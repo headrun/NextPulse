@@ -529,7 +529,7 @@ def Production_target(main_dates, prj_id, center, level_structure_key, dates_lis
 
 
 def overall_external_accur_trends(main_dates, prj_id, center, level_structure_key, dates_list, request, _type):
-    result_dict = {}
+    result_dict, produc_lst = {}, []
     filter_params, _term = getting_required_params(level_structure_key, prj_id, center, dates_list)
     if _term and filter_params:
         if _type == "day":
@@ -595,10 +595,9 @@ def overall_external_accur_trends(main_dates, prj_id, center, level_structure_ke
                             accuracy = float('%.2f' % round(accuracy, 2))
                         else:
                             accuracy = 100
-                        if not result_dict.has_key('Accuracy'):
-                            result_dict['Accuracy'] = [accuracy]
-                        else:
-                            result_dict['Accuracy'].append(accuracy)
+                        produc_lst.append(accuracy)
+                    
+                result_dict['External Accuracy'] = produc_lst
 
             else:
                 level = Level_Order(level_structure_key)
@@ -699,7 +698,7 @@ def overall_external_accur_trends(main_dates, prj_id, center, level_structure_ke
                         accuracy = float('%.2f' % round(accuracy, 2))
                     else:
                         accuracy = 100
-                    result_dict['Accuracy'] = accuracy
+                    result_dict['External Accuracy'] = accuracy
 
             else:
                 level = Level_Order(level_structure_key)
@@ -786,7 +785,7 @@ def overall_ext_count(main_dates, prj_id, center, level_structure_key, dates_lis
 
 
 def overall_internal_accur_trends(main_dates, prj_id, center, level_structure_key, dates_list, request, _type):
-    result_dict = {}
+    result_dict, produc_lst = {}, []
     filter_params, _term = getting_required_params(level_structure_key, prj_id, center, dates_list)
     if _term and filter_params:
         if _type == "day":
@@ -851,11 +850,10 @@ def overall_internal_accur_trends(main_dates, prj_id, center, level_structure_ke
                             accuracy = 100 - value
                             accuracy = float('%.2f' % round(accuracy, 2))
                         else:
-                            accuracy = 100
-                        if not result_dict.has_key('Accuracy'):
-                            result_dict['Accuracy'] = [accuracy]
-                        else:
-                            result_dict['Accuracy'].append(accuracy)
+                            accuracy = 100                        
+                        produc_lst.append(accuracy)
+
+                result_dict['Internal Accuracy'] = produc_lst
 
             else:
                 level = Level_Order(level_structure_key)
@@ -957,7 +955,7 @@ def overall_internal_accur_trends(main_dates, prj_id, center, level_structure_ke
                         accuracy = float('%.2f' % round(accuracy, 2))
                     else:
                         accuracy = 100
-                    result_dict['Accuracy'] = accuracy
+                    result_dict['Internal Accuracy'] = accuracy
 
             else:
                 level = Level_Order(level_structure_key)
@@ -1046,7 +1044,7 @@ def overall_tat_graph(main_dates, prj_id, center, level_structure_key, dates_lis
 
 def Probe_overall_accuracy(main_dates, prj_id, center, level_structure_key, dates_list, request, _type):
     result = OrderedDict()
-    result_dict = {}
+    result_dict, product_lst = {}, []
     filter_params, _term = getting_required_params(level_structure_key, prj_id, center, dates_list)
     if _term and filter_params:
         if _type == "day":
@@ -1102,10 +1100,9 @@ def Probe_overall_accuracy(main_dates, prj_id, center, level_structure_key, date
                             accuracy = float("%.2f" % round(acc_v, 2))
                         else:
                             accuracy = 100
-                        if not result_dict.has_key("Accuracy"):
-                            result_dict['Accuracy'] = [accuracy]
-                        else:
-                            result_dict['Accuracy'].append(accuracy)
+                        produc_lst.append(accuracy)
+
+                result_dict['External Accuracy'] = produc_lst
             else:
                 level = Level_Order(level_structure_key)
                 data_values = query_values.values_list('date', level).annotate(total=Sum('total_errors'),
@@ -1224,7 +1221,7 @@ def Probe_overall_accuracy(main_dates, prj_id, center, level_structure_key, date
                     else:
                         accuracy = 100
 
-                    result_dict['Accuracy'] = accuracy
+                    result_dict['External Accuracy'] = accuracy
 
             else:
                 level = Level_Order(level_structure_key)
