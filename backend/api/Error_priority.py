@@ -1143,9 +1143,9 @@ def Probe_overall_accuracy(main_dates, prj_id, center, level_structure_key, date
                             accuracy = float("%.2f" % round(acc_v, 2))
                         else:
                             accuracy = 100
-                        produc_lst.append(accuracy)
+                        product_lst.append(accuracy)
 
-                result_dict['External Accuracy'] = produc_lst
+                result_dict['External Accuracy'] = product_lst
             else:
                 level = Level_Order(level_structure_key)
                 data_values = query_values.values_list('date', level).annotate(total=Sum('total_errors'),
