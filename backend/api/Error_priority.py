@@ -309,6 +309,29 @@ def Overall_TAT(request):
     return result
 
 
+def Agent_wise_production(request):
+    final_dict = {}
+    main_data_dict = data_dict(request.GET)
+    prj_id = main_data_dict['pro_cen_mapping'][0][0]
+    center = main_data_dict['pro_cen_mapping'][1][0]
+    work_packet = main_data_dict['work_packet']
+    sub_project = main_data_dict['sub_project']
+    sub_packet = main_data_dict['sub_packet']
+    pro_center = main_data_dict['pro_cen_mapping']
+    _type = main_data_dict['type']
+    main_dates = main_data_dict['dates']
+    level_structure_key = get_level_structure_key(work_packet, sub_project, sub_packet, pro_center)
+    result_name = 'agent_wise_production'
+    result = agentwise_production(main_dates, prj_id, center, level_structure_key, request, _type)
+    final_dict[result_name] = graph_data_alignment_color(result['data'], 'data', level_structure_key, prj_id, center)
+    final_dict['date'] = result['date'] 
+    final_dict['min_max'] = min_max_num(result['data'],result_name)
+    final_dict['type'] = main_data_dict['type']
+    final_dict['is_annotation'] = annotation_check(request)
+    return json_HttpResponse(final_dict)
+
+
+
 def hash_remover(x):
     if "#<>#" in x:
         r = x.split("#<>#")
@@ -590,10 +613,7 @@ def overall_external_accur_trends(main_dates, prj_id, center, level_structure_ke
                 raw_packets = filter(lambda e: e[1] != u'', raw_packets)
                 packets = exter_acc_query.values_list(_term, flat=True).distinct()
                 r_packets = rawtable.values_list(_term, flat=True).distinct()
-
-                def low(x):
-                    return x.lower().title()
-
+                def low(x):  return x.lower().title()
                 r_packets = map(low, r_packets)
                 r_dates = rawtable.values_list('date', flat=True).distinct()
                 if data_values and raw_packets:
@@ -1401,3 +1421,23 @@ def agent_ext_acc(main_dates, prj_id, center, level_structure_key, request, _typ
         result['date'] = acc_val
 
     return result
+
+
+
+def agentwise_production(date_list, prj_id, center_obj, level_structure_key, main_dates, request):
+    result = OrderedDict()
+    content_list,prod_list = [],[]
+    filter_params, _term = getting_required_params(level_structure_key, prj_id, center_obj, date_list)
+    if filter_params and _term:                        
+        query_values = RawTable.objects.filter(**filter_params)
+        data_values = query_values.order_by('employee_id').values_list('employee_id').annotate(total=Sum('per_day'))                                
+        for i in data_values:                                    
+            content_list.append(i[0])  
+            prod_list.append(i[1])                  
+    
+    result_temp = {}  
+    result_temp['Production']  =  prod_list
+    result['data'] = result_temp    
+    result['date'] = content_list 
+    
+    return result       
