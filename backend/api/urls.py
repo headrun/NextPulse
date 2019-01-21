@@ -102,5 +102,6 @@ urlpatterns = [
     url(r'^tat_graph_date',apiviews.Overall_TAT),
     url(r'^prob_ovr_ext_acc', apiviews.Probe_overall_external_accur),
     url(r'^int_acc_agent',apiviews.Internal_Acc_Agents),
-    url(r'^ext_acc_agent',apiviews.External_Acc_Agents),
+    url(r'^ext_acc_agent',apiviews.External_Acc_Agents),    
+    url(r'^agent_wise_production',apiviews.Agent_wise_production),
 ]
