@@ -12,6 +12,7 @@ from api.voice_widgets import date_function
 from api.monthly_graph import *
 from api.aht_graph import *
 from common.utils import getHttpResponse as json_HttpResponse
+import operator
 
 
 def generate_day_week_month_format(request, result_name, function_name):
@@ -259,7 +260,9 @@ def production_avg_perday(date_list,prj_id,center_obj,level_structure_key, main_
                             result_dict[pack].append(0)
                         else:
                             result_dict[pack] = [0]
-    
+
+        result_dict = OrderedDict(sorted(result_dict.items(), key=operator.itemgetter(0)))
+
     return result_dict
 
 
