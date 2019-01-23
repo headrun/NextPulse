@@ -7,6 +7,7 @@ from django.db.models import Max
 from collections import OrderedDict
 from api.basics import *
 from common.utils import getHttpResponse as json_HttpResponse
+import operator
 
 def error_timeline_min_max(min_max_dict):
     int_timeline_min_max = []
@@ -283,6 +284,7 @@ def prod_volume_week(week_names,productivity_list,final_productivity):
         else:
             for vol_key, vol_values in final_productivity.iteritems():
                 final_productivity[vol_key].append(0)
+    final_productivity = OrderedDict(sorted(final_productivity.items(), key=operator.itemgetter(0)))
     return final_productivity
 
 
