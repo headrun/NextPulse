@@ -772,7 +772,7 @@ def overall_external_accur_trends(main_dates, prj_id, center, level_structure_ke
                 pack_lst = ext_full_query.values_list(level, flat=True).distinct()
                 ext_qy = filter(lambda t: t[1] != u'', ext_qy)
                 raw_packets = filter(lambda e: e[1] != u'', raw_packets)
-                raw_list = rawtable.values_list(_term, flat=True).distinct()
+                raw_list = rawtable.values_list(level, flat=True).distinct()
 
                 def case(x):
                     return x.lower().title()
@@ -1028,7 +1028,7 @@ def overall_internal_accur_trends(main_dates, prj_id, center, level_structure_ke
                 pack_lst = ext_full_query.values_list(level, flat=True).distinct()
                 ext_qy = filter(lambda t: t[1] != u'', ext_qy)
                 raw_packets = filter(lambda e: e[1] != u'', raw_packets)
-                raw_list = rawtable.values_list(_term, flat=True).distinct()
+                raw_list = rawtable.values_list(level, flat=True).distinct()
                 
                 def case(x):
                     return x.lower().title()
