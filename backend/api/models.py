@@ -44,7 +44,9 @@ class Project(models.Model):
     is_voice = models.BooleanField(default = False)    
     display_value = models.BooleanField(default = False)
     user = models.ManyToManyField(User,null=True)
+    is_enable_mail = models.BooleanField(default = False)
     is_enable_push = models.BooleanField(default = False)
+    is_enable_sms = models.BooleanField(default = False)
     no_of_packets = models.IntegerField(default=5)
     no_of_agents = models.IntegerField(default=5)
     display_project = models.BooleanField(default = True)
@@ -63,7 +65,9 @@ class TeamLead(models.Model):
     project = models.ManyToManyField(Project, null=True)
     center = models.ManyToManyField(Center, null=True)
     display_upload = models.BooleanField(default = True)
-    enable_push_email = models.BooleanField(default=None)
+    enable_push = models.BooleanField(default=None)
+    enable_mail = models.BooleanField(default=None)
+    enable_sms = models.BooleanField(default=None)
     
 
     class Meta:
@@ -91,7 +95,9 @@ class Customer(models.Model):
     legends_alignment_choices = (('left','Left'),('right','Right'),('bottom','Bottom'))
     legends_alignment = models.CharField(max_length=30,choices=legends_alignment_choices,default='bottom')
     is_senior = models.BooleanField(default=None)
-    enable_push_email = models.BooleanField(default=None)	
+    enable_push = models.BooleanField(default=None)
+    enable_mail = models.BooleanField(default=None)
+    enable_sms = models.BooleanField(default=None)
 
     class Meta:
         db_table = u'customer'
@@ -189,7 +195,9 @@ class HeadcountAuthoring(models.Model):
 class Centermanager(models.Model):
     name    = models.ForeignKey(User, null=True,db_index=True)
     center  = models.ForeignKey(Center, null=True,db_index=True)
-    enable_push_email = models.BooleanField(default=None)
+    enable_push = models.BooleanField(default=None)
+    enable_mail = models.BooleanField(default=None)
+    enable_sms = models.BooleanField(default=None)
 
     class Meta:
         db_table = u'center_manager'
@@ -201,7 +209,9 @@ class Centermanager(models.Model):
 class Nextwealthmanager(models.Model):
     name    = models.ForeignKey(User, null=True, db_index=True)
     center  = models.ManyToManyField(Center)
-    enable_push_email = models.BooleanField(default=None)
+    enable_push = models.BooleanField(default=None)
+    enable_mail = models.BooleanField(default=None)
+    enable_sms = models.BooleanField(default=None)
 
     class Meta:
         db_table = u'nextwealthmanager'
@@ -260,6 +270,7 @@ class RawtableAuthoring(models.Model):
 
 
 class Internalerrors(models.Model):
+    #blank for admin and null for database
     sub_project = models.CharField(max_length=255, blank=True,db_index=True)
     work_packet = models.CharField(max_length=255,db_index=True)
     sub_packet = models.CharField(max_length=255, blank=True,db_index=True)
@@ -273,6 +284,7 @@ class Internalerrors(models.Model):
     employee_id = models.CharField(max_length=255,blank=True)
     center      = models.ForeignKey(Center, null=True,db_index=True)
     project     = models.ForeignKey(Project, null=True,db_index=True)
+    
 
     class Meta:
         db_table = u'internal_error'
