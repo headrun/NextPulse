@@ -24,21 +24,16 @@ def send_mail_data(user_details, user, user_group):
             if upload_date != None:            
                 if upload_date.date() == yesterdays_date.date():
                     if user_group == 'customer':
-                        is_senior = Customer.objects.get(id=user.id).is_senior
-                        is_enable_mail = Customer.objects.get(id=user.id).is_enable_push_email
+                        is_senior = Customer.objects.get(id=user.id).is_senior                        
                     else:
-                        is_senior = False
-                        is_enable_mail = True
-                    if is_enable_mail:                    
-                        date = RawTable.objects.filter(project=project).aggregate(Max('date'))                    
-                        result = generate_targetks_data(project,user_group,is_senior,date)
-                        project_name = Project.objects.get(id=project).name                
-                        mail_table_data = generate_mail_table_format(result,project,date,user_group,is_senior)                    
-                        if mail_table_data != '':
-                            mail_data = mail_data + '<html></br></html>' + "%s"%(project_name) + mail_table_data
-                            prj_count.append(project)
-                    else:
-                        continue
+                        is_senior = False                   
+                    date = RawTable.objects.filter(project=project).aggregate(Max('date'))                    
+                    result = generate_targets_data(project,user_group,is_senior,date)
+                    project_name = Project.objects.get(id=project).name                
+                    mail_table_data = generate_mail_table_format(result,project,date,user_group,is_senior)                    
+                    if mail_table_data != '':
+                        mail_data = mail_data + '<html></br></html>' + "%s"%(project_name) + mail_table_data
+                        prj_count.append(project)                       
 
         if len(prj_count) >= 1:
             dashboard_url = "https://nextpulse.nextwealth.in"
@@ -55,9 +50,7 @@ def send_mail_data(user_details, user, user_group):
 def generate_targets_data(project, user_group, is_senior, last_date):
     common_dict = {}
     last_date = last_date['date__max']
-    target_query = Targets.objects.filter(project=project, to_date=last_date).values_list('target_type',
-                                                                                          'target_method').distinct()
-
+    target_query = Targets.objects.filter(project=project, to_date__gte=last_date).values_list('target_type','target_method').distinct()
     for _type in target_query:
         if (_type[0] == 'FTE Target') or (_type[0] == 'Target'):
             production = get_production_data(project, last_date, _type[0])
@@ -109,7 +102,7 @@ def get_production_data(project,date,_type):
     if _type == 'FTE Target':
         actual_target = generate_target_calculations(project,date)
     else:
-        target = Targets.objects.filter(project=project,to_date=date,target_type=_type).\
+        target = Targets.objects.filter(project=project,to_date__gte=date,target_type=_type).\
             aggregate(Sum('target_value'))
         actual_target = target['target_value__sum']
 
@@ -128,7 +121,7 @@ def get_production_data(project,date,_type):
 
 def generate_target_calculations(project,date):
     query_dict = {}
-    target_query = Targets.objects.filter(project=project,to_date=date,
+    target_query = Targets.objects.filter(project=project,to_date__gte=date,
                         target_type='FTE Target')    
     packet_check = target_query.values('sub_project','work_packet').distinct()    
     if packet_check[0]['sub_project'] != '':
@@ -176,7 +169,7 @@ def get_accuracy_data(project,date,_type,table_name):
     else:
         accuracy = 'No data'
     
-    target = Targets.objects.filter(project=project,to_date=date,target_type=_type[0],\
+    target = Targets.objects.filter(project=project,to_date__gte=date,target_type=_type[0],\
         target_method=_type[1]).values_list('target_value',flat=True)
        
     if target:
@@ -202,7 +195,7 @@ def get_productivity_data(project,date,_type):
         billable_agents = 0    
     
     if _type == 'Productivity':
-        target = Targets.objects.filter(project=project,to_date=date,target_type=_type).\
+        target = Targets.objects.filter(project=project,to_date__gte=date,target_type=_type).\
                     values_list('target_value',flat=True)        
         if target:
             target = target[0]
@@ -215,8 +208,8 @@ def get_productivity_data(project,date,_type):
             productivity = 0
         
     else:
-        target_data = Targets.objects.filter(project=project,to_date=date,target_type=_type)
-        _target_type = Targets.objects.filter(project=project,to_date=date).\
+        target_data = Targets.objects.filter(project=project,to_date__gte=date,target_type=_type)
+        _target_type = Targets.objects.filter(project=project,to_date__gte=date).\
                         values_list('target_type',flat=True).distinct()
         target = target_data.values_list('target_value',flat=True)
         if target:
@@ -225,9 +218,9 @@ def get_productivity_data(project,date,_type):
             target = 'No Data'
 
         if 'FTE Target' in _target_type:
-            target_value = Targets.objects.filter(project=project,to_date=date,\
+            target_value = Targets.objects.filter(project=project,to_date__gte=date,\
                             target_type='FTE Target').aggregate(Sum('target_value'))
-            target_packets = Targets.objects.filter(project=project,to_date=date,\
+            target_packets = Targets.objects.filter(project=project,to_date__gte=date,\
                             target_type='FTE Target').values_list('')
             target_value = target_value['target_value__sum']
             if target_value == None:
@@ -239,7 +232,7 @@ def get_productivity_data(project,date,_type):
             else:
                 productivity = 0 
         else:
-            target_value = Targets.objects.filter(project=project,to_date=date,\
+            target_value = Targets.objects.filter(project=project,to_date__gte=date,\
                             target_type='Target').aggregate(Sum('target_value'))
             target_value = target_value['target_value__sum']
             _target = target_value
@@ -265,7 +258,7 @@ def get_aht_data(project,date):
 
     aht_value = AHTTeam.objects.filter(project=project,date=date).aggregate(Sum('AHT'))
     aht = aht_value['AHT__sum']
-    target = Targets.objects.filter(project=project,to_date=date,target_type='AHT').\
+    target = Targets.objects.filter(project=project,to_date__gte=date,target_type='AHT').\
                 aggregate(Sum('target_value'))
     target = target['target_value__sum']
     if aht != None:
@@ -285,7 +278,7 @@ def get_tat_data(project,date):
 
     result = {}
 
-    target = Targets.objects.filter(project=project,to_date=date,target_type='TAT').\
+    target = Targets.objects.filter(project=project,to_date__gte=date,target_type='TAT').\
                 aggregate(Sum('target_value'))
     target = target['target_value__sum']
 
