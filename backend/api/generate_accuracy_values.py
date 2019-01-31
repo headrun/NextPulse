@@ -69,10 +69,10 @@ def generate_targets_data(project, user_group, is_senior, last_date):
             kpi['kpi_target_method'] = _type[1]
             common_dict['kpi'] = kpi
 
-        elif (_type[0] == 'Productivity') or (_type[0] == 'Productivity%'):
-            productivity = get_productivity_data(project, last_date, _type[0])
-            productivity['productivity_target_method'] = _type[1]
-            common_dict['productivity'] = productivity
+        # elif (_type[0] == 'Productivity') or (_type[0] == 'Productivity%'):
+        #     productivity = get_productivity_data(project, last_date, _type[0])
+        #     productivity['productivity_target_method'] = _type[1]
+        #     common_dict['productivity'] = productivity
 
         elif _type[0] == 'AHT':
             aht = get_aht_data(project, last_date)
@@ -105,7 +105,6 @@ def get_production_data(project,date,_type):
         target = Targets.objects.filter(project=project,to_date__gte=date,target_type=_type).\
             aggregate(Sum('target_value'))
         actual_target = target['target_value__sum']
-
 
     if actual_target != None:
         actual_target = int(actual_target)    
@@ -162,7 +161,8 @@ def get_accuracy_data(project,date,_type,table_name):
         
         if audit_data:
             accuracy = (float(error_data[0][1])/float(audit_data))*100
-            accuracy =  100 - round(accuracy,2)
+            accuracy =  100 - accuracy
+            accuracy = float('%.2f' % round(accuracy, 2))
             accuracy = str(accuracy) + " %"
         else:
             accuracy = str(0) + " %"
