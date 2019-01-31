@@ -64,7 +64,7 @@ def send_mobile_notifications(proj_list, user_obj, user_group):
 
         full_data = full_data +"For more info., https://nextpulse.nextwealth.in/"                 
         if full_data:
-            url = "http://roundsms.com/api/sendhttp.php?authkey=GZhZTA4YTQ4ZTd&mobiles=%s&message=%s&sender=NXTWTH&type=2&route=3"%(phone_no, full_data)                                        
+            url = "http://roundsms.com/api/sendhttp.php?authkey=MGZhZTA4YTQ4ZTd&mobiles=%s&message=%s&sender=NXTWTH&type=2&route=3"%(phone_no, full_data)                                        
             request = requests.post(url)                                                            
             payload = {}   
         else:
