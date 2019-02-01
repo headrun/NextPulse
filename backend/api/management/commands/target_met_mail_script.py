@@ -20,11 +20,10 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        projects_list = Project.objects.filter(is_voice=False ,display_project=True, is_enable_mail=True).values_list('id', flat=True).distinct()                                
         nw_managers = Nextwealthmanager.objects.filter(name__is_active=True, enable_mail=True)                               
         center_managers = Centermanager.objects.filter(name__is_active=True, enable_mail=True)                               
-        customers = Customer.objects.filter(name__is_active=True, project__is_enable_mail=True, project__is_voice=False, project__display_project=True, enable_mail=True)                
-        tls = TeamLead.objects.filter(name__is_active=True, project__is_voice=False, project__display_project=True, project__is_enable_mail=True, enable_mail=True)                
+        customers = Customer.objects.filter(name__is_active=True, project__is_enable_mail=True, project__is_voice=False, project__display_project=True, enable_mail=True).distinct()
+        tls = TeamLead.objects.filter(name__is_active=True, project__is_voice=False, project__display_project=True, project__is_enable_mail=True, enable_mail=True).distinct()
         
         
         for customer in customers:
