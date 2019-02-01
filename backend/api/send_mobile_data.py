@@ -51,7 +51,7 @@ def send_mobile_notifications(proj_list, user_obj, user_group):
                         elif (('production' in _keys) or ('sla' in _keys) or ('productivity' in _keys) \
                             or ('aht' in _keys) or ('kpi' in _keys)):
                             metric = get_individual_fields_for_push(push_data)
-                        data = data_1 + metric+"\n\n"                
+                        data = data_1 + metric+"\n"
                     else:
                         payload = {}                  
 
@@ -62,8 +62,9 @@ def send_mobile_notifications(proj_list, user_obj, user_group):
             else:
                 payload = {}
 
-        full_data = full_data +"For more info., https://nextpulse.nextwealth.in/"                 
+
         if full_data:
+            full_data = full_data + "FMI.,https://nextpulse.nextwealth.in/"
             url = "http://roundsms.com/api/sendhttp.php?authkey=MGZhZTA4YTQ4ZTd&mobiles=%s&message=%s&sender=NXTWTH&type=2&route=3"%(phone_no, full_data)                                        
             request = requests.post(url)                                                            
             payload = {}   
