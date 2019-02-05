@@ -8191,85 +8191,47 @@
                             if (type == undefined) {
                                 type = 'day'
                             }
-
+                        
                             if (final_work == undefined) {
                                 final_work = ''
                             }
-
+                        
                             self.type = type;
-
+                        
                             var int_acc_agent = '/api/int_acc_agent/' + self.data_to_show + type + final_work + '&chart_name=97';
-
+                        
                             return $http({ method: "GET", url: int_acc_agent }).success(function (result) {
-
+                        
                                 var date_list = result.result.date;
                                 var int_acc_agent_data = result.result.int_acc_agent_details;
                                 var is_annotation = result.result.is_annotation;
-
+                        
                                 if (self.list_object.internal_accuracy_agents_wise != undefined) {
-
+                        
                                     if (self.list_object.internal_accuracy_agents_wise.display_value === true) {
-
+                        
                                         var value = true;
                                     }
                                     else {
-
                                         var value = false;
                                     }
                                 }
                                 else {
                                     var value = false;
                                 }
-                                if (self.list_object.internal_accuracy_agents_wise != undefined) {
-
-                                    if (self.list_object.internal_accuracy_agents_wise.legends_align == 'bottom') {
-
-                                        var align = 'center';
-                                        var ver_align = 'bottom';
-                                        var layout = 'horizontal';
-
-                                    }
-
-                                    else if (self.list_object.internal_accuracy_agents_wise.legends_align == 'left') {
-
-                                        var align = 'left';
-                                        var ver_align = 'top';
-                                        var layout = 'vertical';
-                                    }
-
-                                    else {
-                                        var align = 'right';
-                                        var ver_align = 'top';
-                                        var layout = 'vertical';
-                                    }
-                                }
-
-                                else {
-                                    var align = 'center';
-                                    var ver_align = 'bottom';
-                                    var layout = 'horizontal';
-                                }
-
-                                angular.extend(self.chartOptions102.yAxis, {
-                                    min: result.result.min_max.min_value,
-                                    max: result.result.min_max.max_value
-                                });
-
+                        
                                 angular.extend(self.chartOptions102, {
                                     xAxis: {
                                         categories: date_list,
+                                        title: {
+                                            text: '',
+                                        }
                                     },
-                                    legend: {
-                                        align: align,
-                                        verticalAlign: ver_align,
-                                        layout: layout
-                                    },
+                        
                                     plotOptions: {
                                         series: {
                                             dataLabels: {
                                                 enabled: value,
-                                                format: '{y} %',
-                                                valueDecimals: 2
                                             },
                                             allowPointSelect: true,
                                             cursor: 'pointer',
@@ -8277,26 +8239,29 @@
                                                 events: {
                                                     contextmenu: function () {
                                                         if (self.role_for_perm == 'customer') {
-
+                        
                                                             console.log('he is customer');
                                                         }
                                                         else {
-
+                        
                                                             if (self.data_to_show.split('&').length == 6) {
                                                                 var sub_proj = '';
                                                                 var work_pack = '';
                                                                 var sub_pack = '';
                                                             }
                                                             else {
-                                                                var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
-                                                                var work_pack = self.data_to_show.split('&')[6].split('=')[1];
-                                                                var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
+                                                                                                                       
+                                                                var sub_proj = self.data_to_show.split('&')[6].split('=')[1];
+                                                                var work_pack = self.data_to_show.split('&')[7].split('=')[1];
+                                                                var sub_pack = self.data_to_show.split('&')[8].split('=')[1]
                                                             }
+                                                            
                                                             var str = '97<##>' + self.type + '<##>' + sub_proj + '<##>' + work_pack + '<##>' + sub_pack;
                                                             this['project'] = self.project_live;
                                                             this['center'] = self.center_live;
                                                             this['from'] = self.start_date;
                                                             this['to'] = self.end_date;
+                                                            this['chart_type'] = 'bar';
                                                             return new Annotation(str, $(self.chartOptions102.chart.renderTo), this.series.chart, this);
                                                         }
                                                     }
@@ -8304,67 +8269,53 @@
                                             },
                                             events: {
                                                 hide: function () {
-                                                    var name = this.name;
-                                                    var visibility = this.visible;
-                                                    var chart_name = self._internal_agent_data;
-                                                    if (self.data_anno) {
-                                                        if (chart_name.indexOf(name) >= 0) {
-                                                            self.data_anno.forEach(function (value_data) {
-                                                                value_data.redraw(name, visibility);
-                                                            });
-                                                            $(document).find('.widget-97a').children(".widget-97b").find('.annotation-marker[series-name="' + name + '"]').css("opacity", 0);
+                                                    if (self.annotObj) {
+                                                        if (self.annotObj.length > 0) {
+                                                            window.annotObj.redraw(this.name, this.visible);
+                                                            $(document).find('.widget-97a').find('.annotation-marker[series-name="' + this.name + '"]').hide();
                                                         }
                                                     }
                                                 },
                                                 show: function () {
-                                                    var name = this.name;
-                                                    var visibility = this.visible;
-                                                    var chart_name = self._internal_agent_data;
-                                                    if (self.data_anno) {
-                                                        if (chart_name.indexOf(name) >= 0) {
-                                                            self.data_anno.forEach(function (value_data) {
-                                                                value_data.redraw(name, visibility);
-                                                            });
-                                                            $(document).find('.widget-97a').children(".widget-97b").find('.annotation-marker[series-name="' + name + '"]').css("opacity", 1);
+                                                    if (self.annotObj) {
+                                                        if (self.annotObj.length > 0) {
+                                                            window.annotObj.redraw(this.name, this.visible);
+                                                            $(document).find('.widget-97a').find('.annotation-marker[series-name="' + this.name + '"]').show();
                                                         }
                                                     }
                                                 }
                                             }
                                         }
                                     },
-
                                     series: int_acc_agent_data,
                                     onComplete: function (chart) {
                                         if (is_annotation) {
                                             var series = null;
                                             var chart_data = chart.series;
-                                            self.data_anno = [];
-                                            self._internal_agent_data = [];
+                        
                                             for (var i in chart_data) {
                                                 series = chart_data[i];
                                                 (function (series) {
                                                     $http({
                                                         method: "GET", url: "/api/annotations/?series_name=" + series.name + '&type=' +
                                                             self.type + '&chart_name=97&project=' + self.project_live + '&center=' +
-                                                            self.center_live + '&from=' + self.start_date + '&to=' + self.end_date
+                                                            self.center_live + '&from=' + self.start_date + '&to=' + self.end_date + '&chart_type=bar'
                                                     }).success(function (annotations) {
                                                         annotations = _.sortBy(annotations.result, function (annotation) { return annotation.epoch });
                                                         $.each(annotations, function (j, annotation) {
-
+                        
                                                             var point = _.filter(series.points, function (point) { return point.category == annotation.epoch });
-
+                        
                                                             point = point[0];
-
+                        
                                                             if (annotation.epoch) {
                                                                 var a = new Annotation("97", $(self.chartOptions102.chart.renderTo),
                                                                     chart, point, annotation);
-                                                                window.data_anno = a;
-                                                                self.data_anno.push(a);
-                                                                self._internal_data.push(series.name);
+                                                                window.annotObj = a;
                                                                 self.annot_perm();
                                                             }
                                                         })
-
+                        
                                                     });
                                                 }(series));
                                             }
@@ -8375,92 +8326,54 @@
                                 $('.widget-97b').removeClass('widget-data-hide');
                             })
                         }
-            
-
+                        
+                        
                         self.Agent_Wise_External_Accuracy = function (final_work, type) {
-
+                        
                             if (type == undefined) {
                                 type = 'day'
                             }
-
+                        
                             if (final_work == undefined) {
                                 final_work = ''
                             }
-
+                        
                             self.type = type;
-
+                        
                             var ext_acc_agent = '/api/ext_acc_agent/' + self.data_to_show + type + final_work + '&chart_name=98';
-
+                        
                             return $http({ method: "GET", url: ext_acc_agent }).success(function (result) {
-
+                        
                                 var date_list = result.result.date;
                                 var ext_acc_agent_data = result.result.ext_acc_agent_details;
                                 var is_annotation = result.result.is_annotation;
-
+                        
                                 if (self.list_object.external_accuracy_agents_wise != undefined) {
-
+                        
                                     if (self.list_object.external_accuracy_agents_wise.display_value === true) {
-
+                        
                                         var value = true;
                                     }
                                     else {
-
                                         var value = false;
                                     }
                                 }
                                 else {
                                     var value = false;
                                 }
-                                if (self.list_object.external_accuracy_agents_wise != undefined) {
-
-                                    if (self.list_object.external_accuracy_agents_wise.legends_align == 'bottom') {
-
-                                        var align = 'center';
-                                        var ver_align = 'bottom';
-                                        var layout = 'horizontal';
-
-                                    }
-
-                                    else if (self.list_object.external_accuracy_agents_wise.legends_align == 'left') {
-
-                                        var align = 'left';
-                                        var ver_align = 'top';
-                                        var layout = 'vertical';
-                                    }
-
-                                    else {
-                                        var align = 'right';
-                                        var ver_align = 'top';
-                                        var layout = 'vertical';
-                                    }
-                                }
-
-                                else {
-                                    var align = 'center';
-                                    var ver_align = 'bottom';
-                                    var layout = 'horizontal';
-                                }
-
-                                angular.extend(self.chartOptions103.yAxis, {
-                                    min: result.result.min_max.min_value,
-                                    max: result.result.min_max.max_value
-                                });
-
+                        
                                 angular.extend(self.chartOptions103, {
                                     xAxis: {
                                         categories: date_list,
+                                        title: {
+                                            text: '',
+                                        }
                                     },
-                                    legend: {
-                                        align: align,
-                                        verticalAlign: ver_align,
-                                        layout: layout
-                                    },
+                        
                                     plotOptions: {
                                         series: {
                                             dataLabels: {
                                                 enabled: value,
-                                                format: '{y} %',
-                                                valueDecimals: 2
                                             },
                                             allowPointSelect: true,
                                             cursor: 'pointer',
@@ -8468,26 +8381,29 @@
                                                 events: {
                                                     contextmenu: function () {
                                                         if (self.role_for_perm == 'customer') {
-
+                        
                                                             console.log('he is customer');
                                                         }
                                                         else {
-
+                        
                                                             if (self.data_to_show.split('&').length == 6) {
                                                                 var sub_proj = '';
                                                                 var work_pack = '';
                                                                 var sub_pack = '';
                                                             }
                                                             else {
-                                                                var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
-                                                                var work_pack = self.data_to_show.split('&')[6].split('=')[1];
-                                                                var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
+                                                                                                                        
+                                                                var sub_proj = self.data_to_show.split('&')[6].split('=')[1];
+                                                                var work_pack = self.data_to_show.split('&')[7].split('=')[1];
+                                                                var sub_pack = self.data_to_show.split('&')[8].split('=')[1]
                                                             }
+                                                            
                                                             var str = '98<##>' + self.type + '<##>' + sub_proj + '<##>' + work_pack + '<##>' + sub_pack;
                                                             this['project'] = self.project_live;
                                                             this['center'] = self.center_live;
                                                             this['from'] = self.start_date;
                                                             this['to'] = self.end_date;
+                                                            this['chart_type'] = 'bar';
                                                             return new Annotation(str, $(self.chartOptions103.chart.renderTo), this.series.chart, this);
                                                         }
                                                     }
@@ -8495,67 +8411,53 @@
                                             },
                                             events: {
                                                 hide: function () {
-                                                    var name = this.name;
-                                                    var visibility = this.visible;
-                                                    var chart_name = self._external_agent_data;
-                                                    if (self.data_anno) {
-                                                        if (chart_name.indexOf(name) >= 0) {
-                                                            self.data_anno.forEach(function (value_data) {
-                                                                value_data.redraw(name, visibility);
-                                                            });
-                                                            $(document).find('.widget-98a').children(".widget-98b").find('.annotation-marker[series-name="' + name + '"]').css("opacity", 0);
+                                                    if (self.annotObj) {
+                                                        if (self.annotObj.length > 0) {
+                                                            window.annotObj.redraw(this.name, this.visible);
+                                                            $(document).find('.widget-98a').find('.annotation-marker[series-name="' + this.name + '"]').hide();
                                                         }
                                                     }
                                                 },
                                                 show: function () {
-                                                    var name = this.name;
-                                                    var visibility = this.visible;
-                                                    var chart_name = self._external_agent_data;
-                                                    if (self.data_anno) {
-                                                        if (chart_name.indexOf(name) >= 0) {
-                                                            self.data_anno.forEach(function (value_data) {
-                                                                value_data.redraw(name, visibility);
-                                                            });
-                                                            $(document).find('.widget-98a').children(".widget-98b").find('.annotation-marker[series-name="' + name + '"]').css("opacity", 1);
+                                                    if (self.annotObj) {
+                                                        if (self.annotObj.length > 0) {
+                                                            window.annotObj.redraw(this.name, this.visible);
+                                                            $(document).find('.widget-98a').find('.annotation-marker[series-name="' + this.name + '"]').show();
                                                         }
                                                     }
                                                 }
                                             }
                                         }
                                     },
-
                                     series: ext_acc_agent_data,
                                     onComplete: function (chart) {
                                         if (is_annotation) {
                                             var series = null;
                                             var chart_data = chart.series;
-                                            self.data_anno = [];
-                                            self._external_agent_data = [];
+                        
                                             for (var i in chart_data) {
                                                 series = chart_data[i];
                                                 (function (series) {
                                                     $http({
                                                         method: "GET", url: "/api/annotations/?series_name=" + series.name + '&type=' +
                                                             self.type + '&chart_name=98&project=' + self.project_live + '&center=' +
-                                                            self.center_live + '&from=' + self.start_date + '&to=' + self.end_date
+                                                            self.center_live + '&from=' + self.start_date + '&to=' + self.end_date + '&chart_type=bar'
                                                     }).success(function (annotations) {
                                                         annotations = _.sortBy(annotations.result, function (annotation) { return annotation.epoch });
                                                         $.each(annotations, function (j, annotation) {
-
+                        
                                                             var point = _.filter(series.points, function (point) { return point.category == annotation.epoch });
-
+                        
                                                             point = point[0];
-
+                        
                                                             if (annotation.epoch) {
                                                                 var a = new Annotation("98", $(self.chartOptions103.chart.renderTo),
                                                                     chart, point, annotation);
-                                                                window.data_anno = a;
-                                                                self.data_anno.push(a);
-                                                                self._internal_data.push(series.name);
+                                                                window.annotObj = a;
                                                                 self.annot_perm();
                                                             }
                                                         })
-
+                        
                                                     });
                                                 }(series));
                                             }
@@ -8566,33 +8468,32 @@
                                 $('.widget-98b').removeClass('widget-data-hide');
                             })
                         }
-
-
-
-            self.Agent_Wise_Production = function (final_work, type) {
-
-                    if (type == undefined) {
+                        
+                        
+                        
+                    self.Agent_Wise_Production = function (final_work, type) {
+                        
+                        if (type == undefined) {
                         type = 'day'
-                    }
-
-                    if (final_work == undefined) {
+                        }
+                        
+                        if (final_work == undefined) {
                         final_work = ''
-                    }
-
-                    self.type = type;
-
-                    var agent_wise_prod = '/api/agent_wise_production/' + self.data_to_show + type + final_work + '&chart_name=99';
-
-                    return $http({ method: "GET", url: agent_wise_prod }).success(function (result) {
-
+                        }
+                        
+                        self.type = type;
+                        
+                        var agent_wise_prod = '/api/agent_wise_production/' + self.data_to_show + type + final_work + '&chart_name=99';
+                        
+                        return $http({ method: "GET", url: agent_wise_prod }).success(function (result) {
+                        
                         var date_list = result.result.date;
                         var agent_prod_var = result.result.agent_wise_production;
                         var is_annotation = result.result.is_annotation;
-
-                        if (self.list_object.agent_wise_production != undefined) {
-
+                        
+                        if (self.list_object.agent_wise_production != undefined) {                            
                             if (self.list_object.agent_wise_production.display_value === true) {
-
+                        
                                 var value = true;
                             }
                             else {
@@ -8602,51 +8503,19 @@
                         else {
                             var value = false;
                         }
-                        if (self.list_object.agent_wise_production != undefined) {
-
-                            if (self.list_object.agent_wise_production.legends_align == 'bottom') {
-
-                                var align = 'center';
-                                var ver_align = 'bottom';
-                                var layout = 'horizontal';
-
-                            }
-
-                            else if (self.list_object.agent_wise_production.legends_align == 'left') {
-
-                                var align = 'left';
-                                var ver_align = 'top';
-                                var layout = 'vertical';
-                            }
-
-                            else {
-                                var align = 'right';
-                                var ver_align = 'top';
-                                var layout = 'vertical';
-                            }
-                        }
-
-                        else {
-                            var align = 'center';
-                            var ver_align = 'bottom';
-                            var layout = 'horizontal';
-                        }
+                        
                         angular.extend(self.chartOptions104, {
                             xAxis: {
                                 categories: date_list,
+                                title: {
+                                    text: '',
+                                }
                             },
-                            legend: {
-                                align: align,
-                                verticalAlign: ver_align,
-                                layout: layout
-                            },
+                        
                             plotOptions: {
                                 series: {
                                     dataLabels: {
                                         enabled: value,
-                                        formatter: function () {
-                                            return Highcharts.numberFormat(this.y, null, null, ",");
-                                        },
                                     },
                                     allowPointSelect: true,
                                     cursor: 'pointer',
@@ -8654,26 +8523,29 @@
                                         events: {
                                             contextmenu: function () {
                                                 if (self.role_for_perm == 'customer') {
-
+                        
                                                     console.log('he is customer');
                                                 }
                                                 else {
-
+                        
                                                     if (self.data_to_show.split('&').length == 6) {
                                                         var sub_proj = '';
                                                         var work_pack = '';
                                                         var sub_pack = '';
                                                     }
                                                     else {
-                                                        var sub_proj = self.data_to_show.split('&')[5].split('=')[1];
-                                                        var work_pack = self.data_to_show.split('&')[6].split('=')[1];
-                                                        var sub_pack = self.data_to_show.split('&')[7].split('=')[1]
+                                                                                                               
+                                                        var sub_proj = self.data_to_show.split('&')[6].split('=')[1];
+                                                        var work_pack = self.data_to_show.split('&')[7].split('=')[1];
+                                                        var sub_pack = self.data_to_show.split('&')[8].split('=')[1]
                                                     }
+                                                   
                                                     var str = '99<##>' + self.type + '<##>' + sub_proj + '<##>' + work_pack + '<##>' + sub_pack;
                                                     this['project'] = self.project_live;
                                                     this['center'] = self.center_live;
                                                     this['from'] = self.start_date;
                                                     this['to'] = self.end_date;
+                                                    this['chart_type'] = 'bar';
                                                     return new Annotation(str, $(self.chartOptions104.chart.renderTo), this.series.chart, this);
                                                 }
                                             }
@@ -8681,30 +8553,20 @@
                                     },
                                     events: {
                                         hide: function () {
-                                            var name = this.name;
-                                            var visibility = this.visible;
-                                            var chart_name = self._agent_prod;
-                                            if (self.anno_obj) {
-                                                if (chart_name.indexOf(name) >= 0) {
-                                                    self.anno_obj.forEach(function (value_data) {
-                                                        value_data.redraw(name, visibility);
-                                                    });
-                                                    $(document).find('.widget-99a').children(".widget-99b").find('.annotation-marker[series-name="' + name + '"]').css("opacity", 0);
+                                            if (self.annotObj) {
+                                                if (self.annotObj.length > 0) {
+                                                    window.annotObj.redraw(this.name, this.visible);
+                                                    $(document).find('.widget-99a').find('.annotation-marker[series-name="' + this.name + '"]').hide();
                                                 }
-                                            }                                                    
+                                            }
                                         },
                                         show: function () {
-                                            var name = this.name;
-                                            var visibility = this.visible;
-                                            var chart_name = self._agent_prod;
-                                            if (self.anno_obj) {
-                                                if (chart_name.indexOf(name) >= 0) {
-                                                    self.anno_obj.forEach(function (value_data) {
-                                                        value_data.redraw(name, visibility);
-                                                    });
-                                                    $(document).find('.widget-99a').children(".widget-99b").find('.annotation-marker[series-name="' + name + '"]').css("opacity", 1);
+                                            if (self.annotObj) {
+                                                if (self.annotObj.length > 0) {
+                                                    window.annotObj.redraw(this.name, this.visible);
+                                                    $(document).find('.widget-99a').find('.annotation-marker[series-name="' + this.name + '"]').show();
                                                 }
-                                            }                                                    
+                                            }
                                         }
                                     }
                                 }
@@ -8714,33 +8576,30 @@
                                 if (is_annotation) {
                                     var series = null;
                                     var chart_data = chart.series;
-                                    self.anno_obj = [];
-                                    self._agent_prod = [];
+                        
                                     for (var i in chart_data) {
                                         series = chart_data[i];
                                         (function (series) {
                                             $http({
                                                 method: "GET", url: "/api/annotations/?series_name=" + series.name + '&type=' +
                                                     self.type + '&chart_name=99&project=' + self.project_live + '&center=' +
-                                                    self.center_live + '&from=' + self.start_date + '&to=' + self.end_date
+                                                    self.center_live + '&from=' + self.start_date + '&to=' + self.end_date + '&chart_type=bar'
                                             }).success(function (annotations) {
                                                 annotations = _.sortBy(annotations.result, function (annotation) { return annotation.epoch });
                                                 $.each(annotations, function (j, annotation) {
-
+                        
                                                     var point = _.filter(series.points, function (point) { return point.category == annotation.epoch });
-
+                        
                                                     point = point[0];
-
+                        
                                                     if (annotation.epoch) {
                                                         var a = new Annotation("99", $(self.chartOptions104.chart.renderTo),
                                                             chart, point, annotation);
-                                                        window.anno_obj = a;
-                                                        self.anno_obj.push(a);
-                                                        self._agent_prod.push(series.name);
+                                                        window.annotObj = a;
                                                         self.annot_perm();
                                                     }
                                                 })
-
+                        
                                             });
                                         }(series));
                                     }
@@ -8749,11 +8608,9 @@
                         });
                         $('.widget-99a').removeClass('widget-loader-show');
                         $('.widget-99b').removeClass('widget-data-hide');
-                    })
-                
-                }
-
-
+                        })
+                        
+                        }
 
 
                         self.Percentage_less_aht = function (final_work, type) {
