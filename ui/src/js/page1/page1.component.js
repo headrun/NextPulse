@@ -8442,6 +8442,11 @@
                                     xAxis: {
                                         categories: date_list,
                                     },
+                                    legend: {
+                                        align: align,
+                                        verticalAlign: ver_align,
+                                        layout: layout
+                                    },
                         
                                     plotOptions: {
                                         series: {
@@ -8620,6 +8625,11 @@
                             xAxis: {
                                 categories: date_list,
                             },
+                            legend: {
+                                        align: align,
+                                        verticalAlign: ver_align,
+                                        layout: layout
+                                    },
                         
                             plotOptions: {
                                 series: {
