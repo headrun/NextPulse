@@ -8219,19 +8219,59 @@
                                 else {
                                     var value = false;
                                 }
-                        
+
+                                 if (self.list_object.internal_accuracy_agents_wise != undefined) {
+
+                                    if (self.list_object.internal_accuracy_agents_wise.legends_align == 'bottom') {
+
+                                        var align = 'center';
+                                        var ver_align = 'bottom';
+                                        var layout = 'horizontal';
+
+                                    }
+
+                                    else if (self.list_object.internal_accuracy_agents_wise.legends_align == 'left') {
+
+                                        var align = 'left';
+                                        var ver_align = 'top';
+                                        var layout = 'vertical';
+                                    }
+
+                                    else {
+                                        var align = 'right';
+                                        var ver_align = 'top';
+                                        var layout = 'vertical';
+                                    }
+                                }
+
+                                else {
+                                    var align = 'center';
+                                    var ver_align = 'bottom';
+                                    var layout = 'horizontal';
+                                }
+
+                                angular.extend(self.chartOptions102.yAxis, {
+                                    min: result.result.min_max.min_value,
+                                    max: result.result.min_max.max_value
+                                });
+
                                 angular.extend(self.chartOptions102, {
                                     xAxis: {
                                         categories: date_list,
-                                        title: {
-                                            text: '',
-                                        }
+                                    },
+
+                                    legend: {
+                                        align: align,
+                                        verticalAlign: ver_align,
+                                        layout: layout
                                     },
                         
                                     plotOptions: {
                                         series: {
                                             dataLabels: {
                                                 enabled: value,
+                                                format: '{y} %',
+                                                valueDecimals: 2
                                             },
                                             allowPointSelect: true,
                                             cursor: 'pointer',
@@ -8361,19 +8401,55 @@
                                 else {
                                     var value = false;
                                 }
-                        
+
+
+                                if (self.list_object.external_accuracy_agents_wise != undefined) {
+
+                                    if (self.list_object.external_accuracy_agents_wise.legends_align == 'bottom') {
+
+                                        var align = 'center';
+                                        var ver_align = 'bottom';
+                                        var layout = 'horizontal';
+
+                                    }
+
+                                    else if (self.list_object.external_accuracy_agents_wise.legends_align == 'left') {
+
+                                        var align = 'left';
+                                        var ver_align = 'top';
+                                        var layout = 'vertical';
+                                    }
+
+                                    else {
+                                        var align = 'right';
+                                        var ver_align = 'top';
+                                        var layout = 'vertical';
+                                    }
+                                }
+
+                                else {
+                                    var align = 'center';
+                                    var ver_align = 'bottom';
+                                    var layout = 'horizontal';
+                                }
+
+                                angular.extend(self.chartOptions103.yAxis, {
+                                    min: result.result.min_max.min_value,
+                                    max: result.result.min_max.max_value
+                                });
+
                                 angular.extend(self.chartOptions103, {
                                     xAxis: {
                                         categories: date_list,
-                                        title: {
-                                            text: '',
-                                        }
                                     },
                         
                                     plotOptions: {
                                         series: {
                                             dataLabels: {
                                                 enabled: value,
+                                                format: '{y} %',
+                                                valueDecimals: 2
+
                                             },
                                             allowPointSelect: true,
                                             cursor: 'pointer',
@@ -8503,13 +8579,46 @@
                         else {
                             var value = false;
                         }
+
+                         if (self.list_object.agent_wise_production != undefined) {
+
+                           if (self.list_object.agent_wise_production.legends_align == 'bottom') {
+
+                                        var align = 'center';
+                                        var ver_align = 'bottom';
+                                        var layout = 'horizontal';
+
+                                    }
+
+                                    else if (self.list_object.agent_wise_production.legends_align == 'left') {
+
+                                        var align = 'left';
+                                        var ver_align = 'top';
+                                        var layout = 'vertical';
+                                    }
+
+                                    else {
+                                        var align = 'right';
+                                        var ver_align = 'top';
+                                        var layout = 'vertical';
+                                    }
+                                }
+
+                        else {
+                             var align = 'center';
+                             var ver_align = 'bottom';
+                             var layout = 'horizontal';
+                        }
+
+                        angular.extend(self.chartOptions104.yAxis, {
+                           min: result.result.min_max.min_value,
+                           max: result.result.min_max.max_value
+                         });
+
                         
                         angular.extend(self.chartOptions104, {
                             xAxis: {
                                 categories: date_list,
-                                title: {
-                                    text: '',
-                                }
                             },
                         
                             plotOptions: {
