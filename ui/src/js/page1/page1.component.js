@@ -8615,10 +8615,7 @@
                              var layout = 'horizontal';
                         }
 
-                        angular.extend(self.chartOptions104.yAxis, {
-                           min: result.result.min_max.min_value,
-                           max: result.result.min_max.max_value
-                         });
+                        
 
                         
                         angular.extend(self.chartOptions104, {
