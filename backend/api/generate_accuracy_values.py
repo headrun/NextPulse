@@ -715,7 +715,8 @@ def generate_logos_format(dashboard_url):
     _text2 = "<p> For further details on metrics and graphs click on NextPulse link  %s"\
             "<br>\
             <p>Thanks and Regards</p>\
-            <p>NextPulse Team-NextWealth Entrepreneurs Pvt Ltd</p>" % dashboard_url
+            <p>NextPulse Team</p>\
+            <p>NextWealth Entrepreneurs Pvt Ltd</p>" % dashboard_url
 
     logo = "<table class=NormalTable border=0 cellspacing=0 cellpadding=0>\
                 <tbody>\
