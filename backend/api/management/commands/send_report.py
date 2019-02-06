@@ -16,11 +16,7 @@ class Command(BaseCommand):
         from api.models import Project,RawTable
         import datetime
 
-        proj_list = Project.objects.filter(display_project = True)
-
-        not_req = ["Nextgen", "Quarto", "Bridgei2i", "3i VAPP", "E4U", "3i Webtrade", "Future Energie Tech", "Mobius", "Walmart Chittor",
-                    "Ujjivan", "Federal Bank", "IBM DCIW"]
-        proj_list = filter(lambda x: x.name not in not_req, list(proj_list))
+        proj_list = Project.objects.filter(display_project = True).order_by('name').distinct()
 
         details = []
         mail_data = ''
@@ -45,12 +41,12 @@ class Command(BaseCommand):
                 updated_on = 'No Data'
                 project = proj.name
                 details.append({'message':mes, 'last_updated_on':updated_on, 'project':project})
-        details.sort()
+        
         for one in details:
             mail_data += "<h4>"+one['project']+"</h4>"+"<ul>"+"<li>"+one['last_updated_on']+"</li>"+"<li>"+one['message']+"</li></ul>"
 
 
-        to = ['asifa@headrun.com','yatish@headrun.com', 'rishi@headrun.com','kannan.sundar@nextwealth.in','poornima.mitta@nextwealth.in', 'sankar.k@mnxw.org','Jagadish.sh@nextwealth.in']
+        to = ['prabhakaran.k@mnw.co.in','kannan.sundar@nextwealth.in','poornima.mitta@nextwealth.in', 'sankar.k@mnxw.org','Jagadish.sh@nextwealth.in']
 
         msg = EmailMessage("Next Pulse : Sheet upload status" , mail_data, 'nextpulse@nextwealth.in', to)
     
