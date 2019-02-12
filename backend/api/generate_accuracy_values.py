@@ -390,7 +390,7 @@ def generate_mail_table_format(final_data,project,date,user_group,is_senior):
         result = final_data
     _keys = result.keys()
     if (('production' in _keys) and ('aht' in _keys) and ('productivity' in _keys) and ('sla' in _keys)) or \
-        (('production' in _keys) and ('sla' in _keys) and ('productivity' in _keys) and ('kpi' in _keys)):
+        (('production' in _keys) and ('sla' in _keys) and ('kpi' in _keys)):
         result_data = get_prod_sla_productivity(result,date)
         _text = mail_body + headers + result_data 
     elif (('production' in _keys) and ('sla' in _keys) and ('productivity' in _keys)) or (('production' in _keys) and ('sla' in _keys) and ('aht' in _keys))\
@@ -449,7 +449,7 @@ def get_prod_sla_productivity(result,date):
 
         _text = production_data + sla_data + productivity_data + aht_data
 
-    elif ('production' in values) and ('sla' in values) and ('productivity' in values) and ('kpi' in values):
+    elif ('production' in values) and ('sla' in values)  and ('kpi' in values):
         production_data = "<tr>\
             <td>%s</td>\
             <td>Production</td>\
@@ -466,13 +466,13 @@ def get_prod_sla_productivity(result,date):
                 <td>SLA</td>\
             </tr>" % (date, result['sla']['SLA_target'], result['sla']['SLA_color'], result['sla']['SLA_accuracy'])
 
-        productivity_data = "<tr>\
-                <td>%s</td>\
-                <td>Productivity</td>\
-                <td>%s</td>\
-                <td><font color=%s>%s</font></td>\
-                <td>SLA</td>\
-            </tr>" % (date, result['productivity']['productivity_target'], result['productivity']['productivity_color'], result['productivity']['productivity'])
+        # productivity_data = "<tr>\
+        #         <td>%s</td>\
+        #         <td>Productivity</td>\
+        #         <td>%s</td>\
+        #         <td><font color=%s>%s</font></td>\
+        #         <td>SLA</td>\
+        #     </tr>" % (date, result['productivity']['productivity_target'], result['productivity']['productivity_color'], result['productivity']['productivity'])
 
         kpi_data = "<tr>\
             <td>%s</td>\
@@ -482,7 +482,7 @@ def get_prod_sla_productivity(result,date):
             <td>KPI</td>\
             </tr>" % (date, result['kpi']['KPI_target'], result['kpi']['KPI_color'], result['kpi']['KPI_accuracy'])
 
-        _text = production_data + sla_data + productivity_data + kpi_data
+        _text = production_data + sla_data  + kpi_data
 
     elif ('production' in values) and ('sla' in values) and ('productivity' in values):
         production_data = "<tr>\
