@@ -7,7 +7,7 @@ from api.models import *
 
 
 def send_mail_data(user_details, user, user_group):
-
+    
     mail_data = ''
     prj_count = []
     user_data = User.objects.filter(id=user.name_id)
@@ -22,7 +22,7 @@ def send_mail_data(user_details, user, user_group):
             upload_date = RawTable.objects.filter(project=project).aggregate(Max('created_at'))
             upload_date = upload_date['created_at__max']        
             if upload_date != None:            
-                if upload_date.date() == yesterdays_date.date():
+                if upload_date.date() == yesterdays_date.date():                
                     if user_group == 'customer':
                         is_senior = Customer.objects.get(id=user.id).is_senior                        
                     else:
@@ -32,7 +32,7 @@ def send_mail_data(user_details, user, user_group):
                     project_name = Project.objects.get(id=project).name                
                     mail_table_data = generate_mail_table_format(result,project,date,user_group,is_senior)                    
                     if mail_table_data != '':
-                        mail_data = mail_data + '<html></br></html>' + "%s"%(project_name) + mail_table_data
+                        mail_data = mail_data + '<html></br></html>' + '<html><h3>%s</h3></html>'%(project_name) + mail_table_data
                         prj_count.append(project)                       
 
         if len(prj_count) >= 1:
@@ -388,21 +388,21 @@ def generate_mail_table_format(final_data,project,date,user_group,is_senior):
         result = get_customer_data(final_data)
     else:
         result = final_data
-    _keys = result.keys()
+    _keys = result.keys()    
     if (('production' in _keys) and ('aht' in _keys) and ('productivity' in _keys) and ('sla' in _keys)) or \
-        (('production' in _keys) and ('sla' in _keys) and ('kpi' in _keys)):
+        (('production' in _keys) and ('sla' in _keys) and ('productivity' in _keys) and ('kpi' in _keys)):        
         result_data = get_prod_sla_productivity(result,date)
         _text = mail_body + headers + result_data 
     elif (('production' in _keys) and ('sla' in _keys) and ('productivity' in _keys)) or (('production' in _keys) and ('sla' in _keys) and ('aht' in _keys))\
-        or (('aht' in _keys) and ('sla' in _keys) and ('productivity' in _keys)):
-        result_data = get_prod_sla_productivity(result,date)
+        or (('aht' in _keys) and ('sla' in _keys) and ('productivity' in _keys)) or (('production' in _keys) and ('sla' in _keys) and ('kpi' in _keys)):
+        result_data = get_prod_sla_productivity(result,date)        
         _text = mail_body + headers + result_data
     elif ((('production' in _keys) and ('aht' in _keys)) or (('production' in _keys) and ('sla' in _keys))\
-        or (('productivity' in _keys) and ('sla' in _keys)) or (('production' in _keys) and ('productivity' in _keys))):
+        or (('productivity' in _keys) and ('sla' in _keys)) or (('production' in _keys) and ('productivity' in _keys))):        
         result_data = get_fields_data(result,date)
         _text = mail_body + headers + result_data       
     elif (('production' in _keys) or ('sla' in _keys) or ('productivity' in _keys) or ('aht' in _keys)\
-        or ('kpi' in _keys)):
+        or ('kpi' in _keys)):        
         result_data = get_individual_fields(result,date)
         _text = mail_body + headers + result_data            
     else:
@@ -449,7 +449,7 @@ def get_prod_sla_productivity(result,date):
 
         _text = production_data + sla_data + productivity_data + aht_data
 
-    elif ('production' in values) and ('sla' in values)  and ('kpi' in values):
+    elif ('production' in values) and ('sla' in values) and ('productivity' in values) and ('kpi' in values):
         production_data = "<tr>\
             <td>%s</td>\
             <td>Production</td>\
@@ -466,13 +466,13 @@ def get_prod_sla_productivity(result,date):
                 <td>SLA</td>\
             </tr>" % (date, result['sla']['SLA_target'], result['sla']['SLA_color'], result['sla']['SLA_accuracy'])
 
-        # productivity_data = "<tr>\
-        #         <td>%s</td>\
-        #         <td>Productivity</td>\
-        #         <td>%s</td>\
-        #         <td><font color=%s>%s</font></td>\
-        #         <td>SLA</td>\
-        #     </tr>" % (date, result['productivity']['productivity_target'], result['productivity']['productivity_color'], result['productivity']['productivity'])
+        productivity_data = "<tr>\
+                <td>%s</td>\
+                <td>Productivity</td>\
+                <td>%s</td>\
+                <td><font color=%s>%s</font></td>\
+                <td>SLA</td>\
+            </tr>" % (date, result['productivity']['productivity_target'], result['productivity']['productivity_color'], result['productivity']['productivity'])
 
         kpi_data = "<tr>\
             <td>%s</td>\
@@ -480,9 +480,9 @@ def get_prod_sla_productivity(result,date):
             <td>%s</td>\
             <td><font color=%s>%s</font></td>\
             <td>KPI</td>\
-            </tr>" % (date, result['kpi']['KPI_target'], result['kpi']['KPI_color'], result['kpi']['KPI_accuracy'])
+            </tr></table>" % (date, result['kpi']['KPI_target'], result['kpi']['KPI_color'], result['kpi']['KPI_accuracy'])
 
-        _text = production_data + sla_data  + kpi_data
+        _text = production_data + sla_data + productivity_data + kpi_data
 
     elif ('production' in values) and ('sla' in values) and ('productivity' in values):
         production_data = "<tr>\
@@ -533,6 +533,31 @@ def get_prod_sla_productivity(result,date):
                         <td>SLA</td>\
                     </tr></table>" % (date, result['aht']['aht_target'], result['aht']['aht_color'], result['aht']['aht'])        
         _text = production_data + sla_data + aht_data
+
+    elif ('production' in values) and ('sla' in values) and ('kpi' in values):
+        production_data = "<tr>\
+            <td>%s</td>\
+            <td>Production</td>\
+            <td>%s</td>\
+            <td><font color=%s>%s</font></td>\
+            <td>KPI</td>\
+            </tr>" % (date, result['production']['production_target'], result['production']['prod_color'], result['production']['workdone'])
+        sla_data = "<tr>\
+                <td>%s</td>\
+                <td>External Accuracy</td>\
+                <td>%s</td>\
+                <td><font color=%s>%s</font></td>\
+                <td>SLA</td>\
+            </tr>" % (date, result['sla']['SLA_target'], result['sla']['SLA_color'], result['sla']['SLA_accuracy'])
+        aht_data = "<tr>\
+                <td>%s</td>\
+                <td>Internal Accuracy</td>\
+                <td>%s</td>\
+                <td><font color=%s>%s</font></td>\
+                <td>KPI</td>\
+            </tr></table>" % (date, result['kpi']['KPI_target'], result['kpi']['KPI_color'], result['kpi']['KPI_accuracy'])
+        _text = production_data + sla_data + aht_data
+
 
     elif ('productivity' in values) and ('sla' in values) and ('aht' in values):
         productivity_data = "<tr>\
@@ -715,8 +740,7 @@ def generate_logos_format(dashboard_url):
     _text2 = "<p> For further details on metrics and graphs click on NextPulse link  %s"\
             "<br>\
             <p>Thanks and Regards</p>\
-            <p>NextPulse Team</p>\
-            <p>NextWealth Entrepreneurs Pvt Ltd</p>" % dashboard_url
+            <p>NextPulse Team-NextWealth Entrepreneurs Pvt Ltd</p>" % dashboard_url
 
     logo = "<table class=NormalTable border=0 cellspacing=0 cellpadding=0>\
                 <tbody>\
