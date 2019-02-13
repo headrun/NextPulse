@@ -32,7 +32,7 @@ def send_mail_data(user_details, user, user_group):
                     project_name = Project.objects.get(id=project).name                
                     mail_table_data = generate_mail_table_format(result,project,date,user_group,is_senior)                    
                     if mail_table_data != '':
-                        mail_data = mail_data + '<html></br></html>' + '<html><h3>%s</h3></html>'%(project_name) + mail_table_data
+                        mail_data = mail_data + '<html></br></html>' + "%s"%(project_name) + mail_table_data
                         prj_count.append(project)                       
 
         if len(prj_count) >= 1:
@@ -741,7 +741,8 @@ def generate_logos_format(dashboard_url):
     _text2 = "<p> For further details on metrics and graphs click on NextPulse link  %s"\
             "<br>\
             <p>Thanks and Regards</p>\
-            <p>NextPulse Team-NextWealth Entrepreneurs Pvt Ltd</p>" % dashboard_url
+            <p>NextPulse Team</p> \
+            <p>NextWealth Entrepreneurs Pvt Ltd</p>" % dashboard_url
 
     logo = "<table class=NormalTable border=0 cellspacing=0 cellpadding=0>\
                 <tbody>\
