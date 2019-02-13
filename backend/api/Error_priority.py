@@ -663,7 +663,7 @@ def overall_external_accur_trends(main_dates, prj_id, center, level_structure_ke
                                 else:
                                     accuracy = 100
                         produc_lst.append(accuracy)
-                result_dict['External Accuracy'] = produc_lst
+                    result_dict['External Accuracy'] = produc_lst
 
             else:
                 level = Level_Order(level_structure_key)
@@ -726,6 +726,8 @@ def overall_external_accur_trends(main_dates, prj_id, center, level_structure_ke
             if all('All' in x for x in level_structure_key.values()):
                 exter_qy = ext_query.aggregate(audited_errors=Sum('audited_errors'),
                                                total_errors=Sum('total_errors'))
+                if exter_qy.values()[0] == None and  exter_qy.values()[1] == None:
+                    exter_qy = {}
                 dt = ext_query.order_by('date').values_list('date',flat=True).distinct()
                 dt = map(str,dt)
                 filter_params.pop("date__range")
@@ -733,26 +735,27 @@ def overall_external_accur_trends(main_dates, prj_id, center, level_structure_ke
                 rawtable = RawTable.objects.filter(**filter_params)
                 f_pack = rawtable.values_list(_term, flat=True).distinct()
                 e_pack = ext_query.values_list(_term,flat=True).distinct()
-                filter_pack = filter(lambda r: r not in e_pack, f_pack)                
+                filter_pack = filter(lambda r: r not in e_pack, f_pack)
                 q_v = ext_query.filter(audited_errors=0).values_list(_term,flat=True).distinct()
-                fil = list(q_v)+filter_pack                
+                fil = list(q_v)+filter_pack
                 if _term == 'sub_project':
-                    raw_val = rawtable.filter(sub_project__in=fil).aggregate(prod=Sum('per_day'))                     
-                elif _term == 'work_pack':
-                    raw_val = rawtable.filter(work_packet__in=fil).aggregate(prod=Sum('per_day'))                    
-                raw_pack = rawtable.aggregate(prod=Sum('per_day'))                
+                    raw_val = rawtable.filter(sub_project__in=fil).aggregate(prod=Sum('per_day'))
+                elif _term == 'work_packet':
+                    raw_val = rawtable.filter(work_packet__in=fil).aggregate(prod=Sum('per_day'))
+                raw_pack = rawtable.aggregate(prod=Sum('per_day'))
                 if exter_qy and raw_pack:
-                    for data in exter_qy:                        
-                        if exter_qy['audited_errors'] > 0:
-                            value = (float(exter_qy['total_errors'])/float(exter_qy['audited_errors']+raw_val['prod'])) * 100
-                            accuracy = 100 - value
-                            accuracy = float('%.2f' % round(accuracy, 2))
-                        elif exter_qy['audited_errors'] == 0:
-                            value = (float(exter_qy['total_errors'])/float(raw_pack['prod'])) * 100
-                            accuracy = 100 - value
-                            accuracy = float('%.2f' % round(accuracy, 2))
-                        else:
-                            accuracy = 100
+                    if exter_qy['audited_errors'] > 0:
+                        if raw_val['prod'] == None:
+                            raw_val['prod'] = 0
+                        value = (float(exter_qy['total_errors'])/float(exter_qy['audited_errors']+raw_val['prod'])) * 100
+                        accuracy = 100 - value
+                        accuracy = float('%.2f' % round(accuracy, 2))
+                    elif exter_qy['audited_errors'] == 0:
+                        value = (float(exter_qy['total_errors'])/float(raw_pack['prod'])) * 100
+                        accuracy = 100 - value
+                        accuracy = float('%.2f' % round(accuracy, 2))
+                    else:
+                        accuracy = 100
                     result_dict['External Accuracy'] = accuracy
 
             else:
@@ -854,32 +857,31 @@ def overall_internal_accur_trends(main_dates, prj_id, center, level_structure_ke
                 raw_packets = rawtable.order_by('date').values_list('date').annotate(prod=Sum('per_day'))
                 raw_packets = filter(lambda e: e[1] != u'', raw_packets)
                 f_pack = rawtable.values_list(_term, flat=True).distinct()
-                e_pack = query_values.values_list(_term,flat=True).distinct()
+                e_pack = query_values.values_list(_term, flat=True).distinct()
                 filter_pack = filter(lambda r: r not in e_pack, f_pack)
-                
-                q_v = query_values.order_by('date').filter(audited_errors=0).values('date',_term).distinct()
-                
-                if _term=='sub_project':
+
+                q_v = query_values.order_by('date').filter(audited_errors=0).values('date', _term).distinct()
+
+                if _term == 'sub_project':
                     res = {}
                     for dat in dates:
                         val = []
                         for q in q_v:
                             if dat == q['date']:
                                 val.append(q['sub_project'])
-                        out = rawtable.filter(date=dat,sub_project__in=val).aggregate(prod=Sum('per_day'))
+                        out = rawtable.filter(date=dat, sub_project__in=val).aggregate(prod=Sum('per_day'))
                         res[dat] = out['prod']
                     raw_val = rawtable.filter(sub_project__in=filter_pack).distinct()
-                elif _term=='work_packet':
+                elif _term == 'work_packet':
                     res = {}
                     for dat in dates:
                         val = []
                         for q in q_v:
                             if dat == q['date']:
                                 val.append(q['work_packet'])
-                        out = rawtable.filter(date=dat,work_packet__in=val).aggregate(prod=Sum('per_day'))
+                        out = rawtable.filter(date=dat, work_packet__in=val).aggregate(prod=Sum('per_day'))
                         res[dat] = out['prod']
                     raw_val = rawtable.filter(work_packet__in=filter_pack).distinct()
-                
                 if data_values and raw_packets:
                     for date in dates:
                         for data in data_values:
@@ -891,20 +893,20 @@ def overall_internal_accur_trends(main_dates, prj_id, center, level_structure_ke
                                         out['prod'] = 0
                                     if val == None:
                                         val = 0
-                                    out_1 = data[1]+out['prod'] + val
-                                    value = (float(data[2])/float(out_1)) * 100
+                                    out_1 = data[1] + out['prod'] + val
+                                    value = (float(data[2]) / float(out_1)) * 100
                                     accuracy = 100 - value
-                                    accuracy = float('%.2f' % round(accuracy, 2))                                    
+                                    accuracy = float('%.2f' % round(accuracy, 2))
                                 elif data[1] == 0:
                                     for prod_val in raw_packets:
                                         if date == prod_val[0]:
-                                            value = (float(data[2])/float(prod_val[1])) * 100
+                                            value = (float(data[2]) / float(prod_val[1])) * 100
                                             accuracy = 100 - value
                                             accuracy = float('%.2f' % round(accuracy, 2))
                                 else:
                                     accuracy = 100
                         produc_lst.append(accuracy)
-                result_dict['Internal Accuracy'] = produc_lst
+                    result_dict['Internal Accuracy'] = produc_lst
 
             else:
                 level = Level_Order(level_structure_key)
@@ -917,7 +919,10 @@ def overall_internal_accur_trends(main_dates, prj_id, center, level_structure_ke
                 packets = query_values.values_list(level, flat=True).distinct()
                 r_dates = rawtable.values_list('date', flat=True).distinct()
                 r_packets = rawtable.values_list(level, flat=True).distinct()
-                def low(x): return x.lower().title()
+
+                def low(x):
+                    return x.lower().title()
+
                 r_packets = map(low, r_packets)
                 if data_values and raw_packets:
                     for date in dates:
@@ -965,52 +970,58 @@ def overall_internal_accur_trends(main_dates, prj_id, center, level_structure_ke
             if all('All' in x for x in level_structure_key.values()):
                 ext_qy = ext_query.aggregate(audited_errors=Sum('audited_errors'),
                                              total_errors=Sum('total_errors'))
-                dt = ext_query.order_by('date').values_list('date',flat=True).distinct()
-                dt = map(str,dt)                
+                if ext_qy.values()[0] == None and ext_qy.values()[1] == None:
+                    ext_qy = {}
+                dt = ext_query.order_by('date').values_list('date', flat=True).distinct()
+                dt = map(str, dt)
                 filter_params.pop('date__range')
-                filter_params.update({'date__in':dt})
+                filter_params.update({'date__in': dt})
                 rawtable = RawTable.objects.filter(**filter_params)
                 f_pack = rawtable.values_list(_term, flat=True).distinct()
-                e_pack = ext_query.values_list(_term,flat=True).distinct()
-                filter_pack = filter(lambda r: r not in e_pack, f_pack)                
-                q_v = ext_query.filter(audited_errors=0).values_list(_term,flat=True).distinct()
-                fil = list(q_v)+filter_pack                
+                e_pack = ext_query.values_list(_term, flat=True).distinct()
+                filter_pack = filter(lambda r: r not in e_pack, f_pack)
+                q_v = ext_query.filter(audited_errors=0).values_list(_term, flat=True).distinct()
+                fil = list(q_v) + filter_pack
                 if _term == 'sub_project':
-                    raw_val = rawtable.filter(sub_project__in=fil).aggregate(prod=Sum('per_day'))                     
-                elif _term == 'work_pack':
-                    raw_val = rawtable.filter(work_packet__in=fil).aggregate(prod=Sum('per_day'))                    
+                    raw_val = rawtable.filter(sub_project__in=fil).aggregate(prod=Sum('per_day'))
+                elif _term == 'work_packet':
+                    raw_val = rawtable.filter(work_packet__in=fil).aggregate(prod=Sum('per_day'))
                 raw_packets = rawtable.aggregate(prod=Sum('per_day'))
-                raw_packets = filter(lambda e: e[1] != u'', raw_packets)
                 if ext_qy and raw_packets:
-                    for data in ext_qy:
-                        if ext_qy['audited_errors'] > 0:
-                            value = (float(ext_qy['total_errors'])/float(ext_qy['audited_errors']+raw_val['prod'])) * 100
-                            accuracy = 100 - value
-                            accuracy = float('%.2f' % round(accuracy, 2))
-                        elif ext_qy['audited_errors'] == 0:
-                            value = (float(ext_qy['total_errors'])/float(raw_packets['prod'])) * 100
-                            accuracy = 100 - value
-                            accuracy = float('%.2f' % round(accuracy, 2))
-                        else:
-                            accuracy = 100
+                    if ext_qy['audited_errors'] > 0:
+                        if raw_val['prod'] == None:
+                            raw_val['prod'] = 0
+                        value = (
+                                float(ext_qy['total_errors']) / float(ext_qy['audited_errors'] + raw_val['prod'])) * 100
+                        accuracy = 100 - value
+                        accuracy = float('%.2f' % round(accuracy, 2))
+                    elif ext_qy['audited_errors'] == 0:
+                        value = (float(ext_qy['total_errors']) / float(raw_packets['prod'])) * 100
+                        accuracy = 100 - value
+                        accuracy = float('%.2f' % round(accuracy, 2))
+                    else:
+                        accuracy = 100
                     result_dict['Internal Accuracy'] = accuracy
 
             else:
                 level = Level_Order(level_structure_key)
                 raw_packets = rawtable.values_list(level).annotate(prod=Sum('per_day'))
                 ext_qy = ext_query.values_list(level).annotate(audited_errors=Sum('audited_errors'),
-                                                               total_errors=Sum('total_errors'))                
+                                                               total_errors=Sum('total_errors'))
                 pack_lst = ext_full_query.values_list(level, flat=True).distinct()
                 ext_qy = filter(lambda t: t[1] != u'', ext_qy)
                 raw_packets = filter(lambda e: e[1] != u'', raw_packets)
-                raw_list = rawtable.values_list(level, flat=True).distinct()                
-                def case(x): return x.lower().title()
+                raw_list = rawtable.values_list(level, flat=True).distinct()
+
+                def case(x):
+                    return x.lower().title()
+
                 raw_list = map(case, raw_list)
                 if ext_qy and raw_packets:
                     for data in ext_qy:
-                        pack = data[0].lower().title()                        
+                        pack = data[0].lower().title()
                         if data[2] > 0:
-                            value = (float(data[1]) / float(data[2])) * 100                            
+                            value = (float(data[1]) / float(data[2])) * 100
                             accuracy = 100 - value
                             accuracy = float('%.2f' % round(accuracy, 2))
                         elif data[2] == 0:
