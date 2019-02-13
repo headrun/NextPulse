@@ -724,12 +724,13 @@ def get_individual_fields(result,date):
     elif('kpi' in values):
         kpi_data = "<tr>\
                         <td>%s</td>\
-                        <td>Internal Accuracy(%)</td>\
+                        <td>Internal Accuracy</td>\
                         <td>%s</td>\
                         <td><font color=%s>%s</font></td>\
                         <td>KPI</td>\
                     </tr>\
                 </table>" % (date, result['kpi']['KPI_target'], result['kpi']['KPI_color'], result['kpi']['KPI_accuracy'])
+        result = kpi_data
     return result
 
 
