@@ -37,14 +37,14 @@ class Command(BaseCommand):
                 send_mail_data(tl_details, tl, 'team_lead')
 
         for nw_manager in nw_managers:
-            projects_list = Project.objects.filter(is_voice=False ,display_project=True, is_enable_mail=True).values_list('id', flat=True).distinct()                        
+            projects_list = Project.objects.filter(is_voice=False ,display_project=True, is_enable_mail=True).order_by('name').values_list('id', flat=True).distinct()
             if projects_list:
                 send_mail_data(projects_list, nw_manager, 'NW_manager')
         
         for cm_manager in center_managers:
             center = Centermanager.objects.get(id=cm_manager.id).center_id
-            projects = Project.objects.filter(center=center, display_project=True, is_voice=False, is_enable_mail=True).values_list('id', flat=True).distinct()
-            if projects_list:
+            projects = Project.objects.filter(center=center, display_project=True, is_voice=False, is_enable_mail=True).order_by('name').values_list('id', flat=True).distinct()
+            if projects:
                 send_mail_data(projects, cm_manager, 'C_manager')
 
 
