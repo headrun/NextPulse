@@ -420,7 +420,7 @@ def get_prod_sla_productivity(result,date):
             <td>Production</td>\
             <td>%s</td>\
             <td><font color=%s>%s</font></td>\
-            <td>KPI</td>\
+            <td>SLA</td>\
             </tr>" % (date, result['production']['production_target'], result['production']['prod_color'], result['production']['workdone'])
 
         sla_data = "<tr>\
@@ -455,7 +455,7 @@ def get_prod_sla_productivity(result,date):
             <td>Production</td>\
             <td>%s</td>\
             <td><font color=%s>%s</font></td>\
-            <td>KPI</td>\
+            <td>SLA</td>\
             </tr>" % (date, result['production']['production_target'], result['production']['prod_color'], result['production']['workdone'])
 
         sla_data = "<tr>\
@@ -490,7 +490,7 @@ def get_prod_sla_productivity(result,date):
             <td>Production</td>\
             <td>%s</td>\
             <td><font color=%s>%s</font></td>\
-            <td>KPI</td>\
+            <td>SLA</td>\
             </tr>" % (date, result['production']['production_target'], result['production']['prod_color'], result['production']['workdone'])
 
         sla_data = "<tr>\
@@ -516,7 +516,7 @@ def get_prod_sla_productivity(result,date):
             <td>Production</td>\
             <td>%s</td>\
             <td><font color=%s>%s</font></td>\
-            <td>KPI</td>\
+            <td>SLA</td>\
             </tr>" % (date, result['production']['production_target'], result['production']['prod_color'], result['production']['workdone'])
         sla_data = "<tr>\
                 <td>%s</td>\
@@ -540,7 +540,7 @@ def get_prod_sla_productivity(result,date):
             <td>Production</td>\
             <td>%s</td>\
             <td><font color=%s>%s</font></td>\
-            <td>KPI</td>\
+            <td>SLA</td>\
             </tr>" % (date, result['production']['production_target'], result['production']['prod_color'], result['production']['workdone'])
         sla_data = "<tr>\
                 <td>%s</td>\
@@ -619,7 +619,7 @@ def get_fields_data(result,date):
             <td>Production</td>\
             <td>%s</td>\
             <td><font color=%s>%s</font></td>\
-            <td>KPI</td>\
+            <td>SLA</td>\
             </tr>\
             </table>" % (date, result['production']['production_target'], result['production']['prod_color'], result['production']['workdone'])
         _text = sla_data + production_data
@@ -654,7 +654,7 @@ def get_fields_data(result,date):
             <td>Production</td>\
             <td>%s</td>\
             <td><font color=%s>%s</font></td>\
-            <td>KPI</td>\
+            <td>SLA</td>\
             </tr>\
             </table>" % (date, result['production']['production_target'], result['production']['prod_color'], result['production']['workdone'])
         _text = aht_data + production_data
@@ -665,7 +665,7 @@ def get_fields_data(result,date):
                     <td>Production</td>\
                     <td>%s</td>\
                     <td><font color=%s>%s</font></td>\
-                    <td>KPI</td>\
+                    <td>SLA</td>\
                 </tr>" % (date, result['production']['production_target'], result['production']['prod_color'], result['production']['workdone'])
         productivity_data = "<tr>\
                     <td>%s</td>\
@@ -687,7 +687,7 @@ def get_individual_fields(result,date):
                             <td>Production</td>\
                             <td>%s</td>\
                             <td><font color=%s>%s</font></td>\
-                            <td>KPI</td>\
+                            <td>SLA</td>\
                             </tr>\
                         </table>" % (date, result['production']['production_target'], result['production']['prod_color'], result['production']['workdone'])
         result = production_data
