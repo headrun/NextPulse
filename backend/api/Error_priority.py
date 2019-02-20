@@ -727,12 +727,8 @@ def overall_external_accur_trends(main_dates, prj_id, center, level_structure_ke
                 exter_qy = ext_query.aggregate(audited_errors=Sum('audited_errors'),
                                                total_errors=Sum('total_errors'))
                 if exter_qy.values()[0] == None and  exter_qy.values()[1] == None:
-                    exter_qy = {}
-                dt = ext_query.order_by('date').values_list('date',flat=True).distinct()
-                dt = map(str,dt)
-                filter_params.pop("date__range")
-                filter_params.update({'date__in':dt})
-                rawtable = RawTable.objects.filter(**filter_params)
+                    exter_qy = {}                
+                
                 f_pack = rawtable.values_list(_term, flat=True).distinct()
                 e_pack = ext_query.values_list(_term,flat=True).distinct()
                 filter_pack = filter(lambda r: r not in e_pack, f_pack)
@@ -971,12 +967,8 @@ def overall_internal_accur_trends(main_dates, prj_id, center, level_structure_ke
                 ext_qy = ext_query.aggregate(audited_errors=Sum('audited_errors'),
                                              total_errors=Sum('total_errors'))
                 if ext_qy.values()[0] == None and ext_qy.values()[1] == None:
-                    ext_qy = {}
-                dt = ext_query.order_by('date').values_list('date', flat=True).distinct()
-                dt = map(str, dt)
-                filter_params.pop('date__range')
-                filter_params.update({'date__in': dt})
-                rawtable = RawTable.objects.filter(**filter_params)
+                    ext_qy = {}                
+                
                 f_pack = rawtable.values_list(_term, flat=True).distinct()
                 e_pack = ext_query.values_list(_term, flat=True).distinct()
                 filter_pack = filter(lambda r: r not in e_pack, f_pack)
@@ -1037,6 +1029,8 @@ def overall_internal_accur_trends(main_dates, prj_id, center, level_structure_ke
                             accuracy = 100
                         result_dict[pack] = accuracy
         return result_dict
+
+
 
 def overall_tat_graph(main_dates, prj_id, center, level_structure_key, dates_list, request, _type):
     result = {}
