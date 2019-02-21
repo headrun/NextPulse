@@ -40,7 +40,7 @@ def send_mail_data(user_details, user, user_group):
             mail_logos = generate_logos_format(dashboard_url)
             mail_body = _data + mail_data + mail_logos
             to = [user_data[0].email]
-            msg = EmailMessage("NextPulse KPI/SLA Report", mail_body, 'nextpulse@nextwealth.in', to)
+            msg = EmailMessage("NextPulse KPI/SLA Report - Daily Report", mail_body, 'nextpulse@nextwealth.in', to)
             msg.content_subtype = "html"
             msg.send()
     
@@ -91,8 +91,12 @@ def generate_targets_data(project, user_group, is_senior, last_date):
 def get_production_data(project,date,_type):
 
     result = {}
-    work_done = RawTable.objects.filter(project=project,date=date).aggregate(Sum('per_day'))    
-    work_done = work_done['per_day__sum']
+    if project == 1:
+        work_done = Worktrack.objects.filter(project=project,date=date).aggregate(prod=Sum('completed'))
+        work_done = work_done['prod']
+    else:
+        work_done = RawTable.objects.filter(project=project,date=date).aggregate(Sum('per_day'))
+        work_done = work_done['per_day__sum']
     if work_done != None:
         work_done = int(work_done)
     else:
@@ -613,7 +617,7 @@ def get_fields_data(result,date):
                     <td>%s</td>\
                     <td><font color=%s>%s</font></td>\
                     <td>SLA</td>\
-                </tr>" % (date, result['sla']['SLA_target'], result['sla']['SLA_color'], result['sla']['SLA_accuracy'])
+                </tr></table>" % (date, result['sla']['SLA_target'], result['sla']['SLA_color'], result['sla']['SLA_accuracy'])
         production_data = "<tr>\
             <td>%s</td>\
             <td>Production</td>\
@@ -621,8 +625,8 @@ def get_fields_data(result,date):
             <td><font color=%s>%s</font></td>\
             <td>SLA</td>\
             </tr>\
-            </table>" % (date, result['production']['production_target'], result['production']['prod_color'], result['production']['workdone'])
-        _text = sla_data + production_data
+            " % (date, result['production']['production_target'], result['production']['prod_color'], result['production']['workdone'])
+        _text = production_data + sla_data
 
     elif ('sla' in values) and ('aht' in values):
         sla_data = "<tr>\
@@ -648,7 +652,7 @@ def get_fields_data(result,date):
                     <td>%s</td>\
                     <td><font color=%s>%s</font></td>\
                     <td>SLA</td>\
-                </tr>" % (date, result['aht']['aht_target'], result['aht']['aht_color'], result['aht']['aht'])
+                </tr></table>" % (date, result['aht']['aht_target'], result['aht']['aht_color'], result['aht']['aht'])
         production_data = "<tr>\
             <td>%s</td>\
             <td>Production</td>\
@@ -656,8 +660,8 @@ def get_fields_data(result,date):
             <td><font color=%s>%s</font></td>\
             <td>SLA</td>\
             </tr>\
-            </table>" % (date, result['production']['production_target'], result['production']['prod_color'], result['production']['workdone'])
-        _text = aht_data + production_data
+            " % (date, result['production']['production_target'], result['production']['prod_color'], result['production']['workdone'])
+        _text =  production_data + aht_data
 
     elif ('production' in values) and ('productivity' in values):
         production_data = "<tr>\
@@ -674,7 +678,7 @@ def get_fields_data(result,date):
                     <td><font color=%s>%s</font></td>\
                     <td>SLA</td>\
                 </tr></table>" % (date, result['productivity']['productivity_target'], result['productivity']['productivity_color'], result['productivity']['productivity'])
-        _text = sla_data + productivity_data
+        _text = production_data + productivity_data
     return _text    
 
 

@@ -257,7 +257,7 @@ def get_related_user(request):
     if not tl_objs:
         return json_HttpResponse('User is not TeamLead')
 
-    project = tl_objs.values_list('project',flat=True)[0]
+    project = tl_objs.values_list('project',flat=True)
     center = tl_objs.values_list('center',flat=True)[0]
     tl_obj = tl_objs[0]
     result_data = get_all_related_user(project, center, tl_obj)
@@ -266,7 +266,7 @@ def get_related_user(request):
 
 def get_all_related_user(project, center, tl_obj=''):
     result_data = {'name_list' : [], 'id_list' : []}
-    nxtwlth_managers = Nextwealthmanager.objects.all()
+    nxtwlth_managers = Nextwealthmanager.objects.all().distinct()
     if nxtwlth_managers:
         for nxtwlth_manager in nxtwlth_managers:
             _name = nxtwlth_manager.name.first_name + " " + nxtwlth_manager.name.last_name
@@ -274,9 +274,9 @@ def get_all_related_user(project, center, tl_obj=''):
             result_data['id_list'].append(nxtwlth_manager.name.id)
 
     if tl_obj:
-        tls = TeamLead.objects.filter(project__id = project, center__id = center).exclude(id = tl_obj.id)
+        tls = TeamLead.objects.filter(project__id__in = project, center__id = center).exclude(id = tl_obj.id).distinct()
     else:
-        tls = TeamLead.objects.filter(project__id = project, center__id = center)
+        tls = TeamLead.objects.filter(project__id__in = project, center__id = center).distinct()
 
     if tls:
         for tl in tls:
@@ -284,14 +284,14 @@ def get_all_related_user(project, center, tl_obj=''):
             result_data['name_list'].append(_name)
             result_data['id_list'].append(tl.name.id)
 
-    customers = Customer.objects.filter(project__id = project, center__id = center)
+    customers = Customer.objects.filter(project__id__in = project, center__id = center).distinct()
     if customers:
         for customer in customers:
             _name = customer.name.first_name + " " + customer.name.last_name
             result_data['name_list'].append(_name)
             result_data['id_list'].append(customer.name.id)
 
-    centermanagers = Centermanager.objects.filter(center__id = center)
+    centermanagers = Centermanager.objects.filter(center__id = center).distinct()
     if centermanagers:
         for centermanager in centermanagers:
             _name = centermanager.name.first_name + " " + centermanager.name.last_name
