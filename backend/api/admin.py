@@ -67,19 +67,20 @@ def pro_disable_sms_notifications(modeladmin, request, queryset):
         queryset.update(is_enable_sms=False)
 pro_disable_sms_notifications.short_description = "Disable sms for selected ones"
 
-def enable_mail_notifications(modeladmin, request, queryset):
-        queryset.update(enable_push_email=True)
-enable_mail_notifications.short_description = "Enable mail for selected ones"
+def pro_enable_weekly_mail_notifications(modeladmin, request, queryset):
+        queryset.update(is_weekly_mail=True)
+pro_enable_weekly_mail_notifications.short_description = "Enable weekly mail for selected projects"
 
-def disable_mail_notifications(modeladmin, request, queryset):
-        queryset.update(enable_push_email=False)
-disable_mail_notifications.short_description = "Disable mail for selected ones"
+def pro_disable_weekly_mail_notifications(modeladmin, request, queryset):
+        queryset.update(is_weekly_mail=False)
+pro_disable_weekly_mail_notifications.short_description = "Disable weekly mail for selected projects"
+
 
 
 class ProjectAdmin(admin.ModelAdmin):
-    list_display = ['id','name','display_project','is_voice', 'is_enable_mail','is_enable_push','is_enable_sms']
+    list_display = ['id','name','display_project','is_voice', 'is_enable_mail','is_enable_sms','is_weekly_mail','is_enable_push']
     list_filter = ['center']
-    actions = [pro_enable_mail_notifications, pro_disable_mail_notifications,pro_enable_push_notifications,pro_disable_push_notifications,pro_enable_sms_notifications,pro_disable_sms_notifications]
+    actions = [pro_enable_mail_notifications, pro_disable_mail_notifications,pro_enable_push_notifications,pro_disable_push_notifications,pro_enable_sms_notifications,pro_disable_sms_notifications,pro_enable_weekly_mail_notifications,pro_disable_weekly_mail_notifications]
 admin.site.register(Project,ProjectAdmin)
 
 
@@ -117,10 +118,18 @@ def L_disable_sms_notifications(modeladmin, request, queryset):
         queryset.update(enable_sms=False)
 L_disable_sms_notifications.short_description = "Disable sms for selected ones"
 
+def L_enable_weekly_mail_notifications(modeladmin, request, queryset):
+        queryset.update(enable_weekly_mail=True)
+L_enable_weekly_mail_notifications.short_description = "Enable weekly mail for selected ones"
+
+def L_disable_weekly_mail_notifications(modeladmin, request, queryset):
+        queryset.update(enable_weekly_mail=False)
+L_disable_weekly_mail_notifications.short_description = "Disable weekly mail for selected ones"
+
 
 class TeamleadAdmin(admin.ModelAdmin):
-    list_display = ['id','name','get_projects','enable_mail','enable_push','enable_sms']
-    actions = [L_enable_mail_notifications, L_disable_mail_notifications, L_enable_sms_notifications, L_disable_sms_notifications, L_enable_push_notifications, L_disable_push_notifications ]
+    list_display = ['id','name','get_projects','enable_mail','enable_push','enable_sms','enable_weekly_mail']
+    actions = [L_enable_mail_notifications, L_disable_mail_notifications, L_enable_sms_notifications, L_disable_sms_notifications, L_enable_push_notifications, L_disable_push_notifications, L_enable_weekly_mail_notifications, L_disable_weekly_mail_notifications]
     def get_projects(self, obj):
         return ", \n".join([p.name for p in obj.project.all()])
     get_projects.short_description = "Projects"
@@ -128,8 +137,8 @@ admin.site.register(TeamLead,TeamleadAdmin)
 
 
 class CustomerAdmin(admin.ModelAdmin):
-    list_display = ['id','name','get_projects','enable_mail','enable_push','enable_sms']
-    actions = [L_enable_mail_notifications, L_disable_mail_notifications, L_enable_sms_notifications, L_disable_sms_notifications, L_enable_push_notifications, L_disable_push_notifications ]
+    list_display = ['id','name','get_projects','enable_mail','enable_push','enable_sms','enable_weekly_mail']
+    actions = [L_enable_mail_notifications, L_disable_mail_notifications, L_enable_sms_notifications, L_disable_sms_notifications, L_enable_push_notifications, L_disable_push_notifications , L_enable_weekly_mail_notifications, L_disable_weekly_mail_notifications]
     def get_projects(self, obj):
         return ", \n".join([p.name for p in obj.project.all()])
     get_projects.short_description = "Projects"
@@ -143,15 +152,15 @@ admin.site.register(Headcount,HeadcountAdmin)
 
 
 class CentermanagerAdmin(admin.ModelAdmin):
-    list_display = ['name','center','enable_mail','enable_push']
+    list_display = ['name','center','enable_mail','enable_push','enable_weekly_mail']
     list_filter = ['center']
-    actions = [L_enable_mail_notifications, L_disable_mail_notifications, L_enable_push_notifications, L_disable_push_notifications ]
+    actions = [L_enable_mail_notifications, L_disable_mail_notifications, L_enable_push_notifications, L_disable_push_notifications, L_enable_weekly_mail_notifications, L_disable_weekly_mail_notifications ]
 admin.site.register(Centermanager,CentermanagerAdmin)
 
 
 class NextwealthmanagerAdmin(admin.ModelAdmin):
-    list_display = ['name','enable_mail','enable_push']
-    actions = [L_enable_mail_notifications, L_disable_mail_notifications, L_enable_push_notifications, L_disable_push_notifications ]
+    list_display = ['name','enable_mail','enable_push','enable_weekly_mail']
+    actions = [L_enable_mail_notifications, L_disable_mail_notifications, L_enable_push_notifications, L_disable_push_notifications, L_enable_weekly_mail_notifications, L_disable_weekly_mail_notifications ]
 admin.site.register(Nextwealthmanager,NextwealthmanagerAdmin)
 
 
