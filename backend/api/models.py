@@ -47,6 +47,7 @@ class Project(models.Model):
     is_enable_mail = models.BooleanField(default = False)
     is_enable_push = models.BooleanField(default = False)
     is_enable_sms = models.BooleanField(default = False)
+    is_weekly_mail = models.BooleanField(default=False)
     no_of_packets = models.IntegerField(default=5)
     no_of_agents = models.IntegerField(default=5)
     display_project = models.BooleanField(default = True)
@@ -68,6 +69,7 @@ class TeamLead(models.Model):
     enable_push = models.BooleanField(default=None)
     enable_mail = models.BooleanField(default=None)
     enable_sms = models.BooleanField(default=None)
+    enable_weekly_mail = models.BooleanField(default=None)
     
 
     class Meta:
@@ -98,6 +100,7 @@ class Customer(models.Model):
     enable_push = models.BooleanField(default=None)
     enable_mail = models.BooleanField(default=None)
     enable_sms = models.BooleanField(default=None)
+    enable_weekly_mail = models.BooleanField(default=None)
 
     class Meta:
         db_table = u'customer'
@@ -198,6 +201,7 @@ class Centermanager(models.Model):
     enable_push = models.BooleanField(default=None)
     enable_mail = models.BooleanField(default=None)
     enable_sms = models.BooleanField(default=None)
+    enable_weekly_mail = models.BooleanField(default=None)
 
     class Meta:
         db_table = u'center_manager'
@@ -212,6 +216,7 @@ class Nextwealthmanager(models.Model):
     enable_push = models.BooleanField(default=None)
     enable_mail = models.BooleanField(default=None)
     enable_sms = models.BooleanField(default=None)
+    enable_weekly_mail = models.BooleanField(default=None)
 
     class Meta:
         db_table = u'nextwealthmanager'
