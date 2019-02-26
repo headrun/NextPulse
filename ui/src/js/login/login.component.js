@@ -22,6 +22,8 @@
               });
 
               that.forgot_pass = function(mail_id) {
+
+              if (mail_id){
                  $('.modal-content').addClass('widget-loader-show');
                  $http({method:"GET", url:'/api/forgot_password/?email='+mail_id}).success(function(result){
                    if (result.result === 'Cool') {
@@ -37,6 +39,7 @@
                     that.mailid_mes = "Above Email id is not linked with your login";
                    }
                  })
+                }
               };
 
               this.credentials = {

@@ -27,7 +27,11 @@ html {
     margin-left:12%;
 }
 </style>
-<div class="container">
+<script>
+    window.history.forward();
+    function noBack() { window.history.forward(); }
+</script>
+<div class="container" onload="noBack();" onpageshow="if (event.persisted) noBack();" onunload="">
     <form class="form-inline">
         <div class="form-group">
             <label>New Password :</label>
