@@ -31,7 +31,8 @@
                    $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
                    $http.post('api/change_password/', data).then(function(result){
                      if (result.statusText == 'OK') {
-                       self.reset_status = true;
+                      self.reset_status = true;
+                      self.pass_error = false;
                      }
                    });
                  }
