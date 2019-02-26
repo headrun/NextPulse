@@ -49,34 +49,39 @@
           <a id="update" data-toggle="modal" data-target="#forgotpassModal">Forgot Password?</a>
         </div>
       </form>
-      <div class="modal fade" id="forgotpassModal" role="dialog">
-            <div class="modal-dialog">
-              <div class="modal-content widget-loader-show">
-                <div class="modal-header">
-                  <button type="button" class="close" data-dismiss="modal">&times;</button>
-                  <h4 class="modal-title">Forgot Password</h4>
-                </div>
-                <div class="modal-body">
-                  <div class="container-fluid forgot-reset">
-                    <form>
-                      <div class="form-group">
-                        <label>Enter E-mail id</label><br><br>
-                        <input type="text" class="form-control" ng-model="$ctrl.email_id"/><br>
-                      </div>
-                      <button class="btn btn-primary btn-sm" ng-click="$ctrl.forgot_pass($ctrl.email_id)">
-                        Submit
-                      </button><br>
-                      <p ng-if="$ctrl.pass_reset" class="reset"> An email with verfication link is sent to your mail-id.<br>
-                      Please click on that link to reset your password. </p>
-                      <p> {{$ctrl.mailid_mes}}</p>
-                    </form>
+      <div class="modal fade" id="forgotpassModal" role="dialog" tabindex="-1" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content widget-loader-show">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal">&times;</button>
+              <h4 class="modal-title">Forgot Password</h4>
+            </div>
+            <div class="modal-body">
+              <div class="container-fluid forgot-reset" style="width: 100%;">
+                <form style="width: 100%;">
+                  <div class="form-group">
+                    <label>Enter E-mail id</label>
+                    <br>
+                    <br>
+                    <input type="email" pattern="[a-zA-Z0-9.-_]{1,}@[a-zA-Z.-]{2,}[.]{1}[a-zA-Z]{2,}" class="form-control" ng-model="$ctrl.email_id"
+                      style="width: 75%;" required/>
+                    <br>
                   </div>
-                </div>
-                <div class="modal-footer">
-                  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                </div>
+                  <button class="btn btn-primary btn-sm" ng-click="$ctrl.forgot_pass($ctrl.email_id)" id="reset-btn">
+                    Submit
+                  </button>
+                  <br>
+                  <p ng-if="$ctrl.pass_reset" class="reset" style="text-align: center;"> An email with verfication link is sent to your mail-id.
+                    <br> Please click on that link to reset your password. </p>
+                  <p style="text-align: center;" id="err-msg"> {{$ctrl.mailid_mes}}</p>
+                </form>
               </div>
             </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
     <div class="title">

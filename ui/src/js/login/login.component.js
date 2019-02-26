@@ -14,16 +14,27 @@
               that.mailid_mes == '';
               $('.modal-content').removeClass('widget-loader-show');
 
+              $("#forgotpassModal").on("hidden.bs.modal", function() {
+                $('.reset').hide();
+                $('#err-msg').hide();
+                $('form')[1].reset();
+                $("#reset-btn").removeAttr("disabled");
+              });
+
               that.forgot_pass = function(mail_id) {
                  $('.modal-content').addClass('widget-loader-show');
                  $http({method:"GET", url:'/api/forgot_password/?email='+mail_id}).success(function(result){
                    if (result.result === 'Cool') {
                      $('.modal-content').removeClass('widget-loader-show');
                      that.pass_reset = true;
+                    $("#err-msg").hide();
+                    $("#reset-btn").attr("disabled","disabled");
                    }
                    if (result.result === 'Email id not found') {
                      $('.modal-content').removeClass('widget-loader-show'); 
-                     that.mailid_mes = result.result;
+                     that.pass_reset = false;
+                    $("#err-msg").show();
+                    that.mailid_mes = "Above Email id is not linked with your login";
                    }
                  })
               };
