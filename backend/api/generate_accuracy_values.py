@@ -686,6 +686,22 @@ def get_fields_data(result,date):
                     <td>SLA</td>\
                 </tr></table>" % (date, result['productivity']['productivity_target'], result['productivity']['productivity_color'], result['productivity']['productivity'])
         _text = production_data + productivity_data
+    elif ('production' in values) and ('kpi' in values):
+        kpi_data = "<tr>\
+                    <td>%s</td>\
+                    <td>Internal Accuracy</td>\
+                    <td>%s</td>\
+                    <td><font color=%s>%s</font></td>\
+                    <td>KPI</td>\
+                </tr></table>" % (date, result['kpi']['KPI_target'], result['kpi']['KPI_color'], result['kpi']['KPI_accuracy'])
+        production_data = "<tr>\
+                    <td>%s</td>\
+                    <td>Production</td>\
+                    <td>%s</td>\
+                    <td><font color=%s>%s</font></td>\
+                    <td>SLA</td>\
+                </tr>" % (date, result['production']['production_target'], result['production']['prod_color'], result['production']['workdone'])
+        _text =  production_data + kpi_data
     return _text    
 
 
