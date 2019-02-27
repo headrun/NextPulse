@@ -40,7 +40,7 @@ def send_mail_data(user_details, user, user_group):
             mail_logos = generate_logos_format(dashboard_url)
             mail_body = _data + mail_data + mail_logos
             to = [user_data[0].email]
-            msg = EmailMessage("NextPulse KPI/SLA Report - Daily Report", mail_body, 'nextpulse@nextwealth.in', to)
+            msg = EmailMessage("NextPulse High Level Metrics - Daily Report", mail_body, 'nextpulse@nextwealth.in', to)
             msg.content_subtype = "html"
             msg.send()
     
@@ -94,6 +94,9 @@ def get_production_data(project,date,_type):
     if project == 1:
         work_done = Worktrack.objects.filter(project=project,date=date).aggregate(prod=Sum('completed'))
         work_done = work_done['prod']
+    elif project == 28:
+        work_done = UploadDataTable.objects.filter(project=project,date=date).aggregate(prod=Sum('upload'))
+        work_done = work_done['prod']
     else:
         work_done = RawTable.objects.filter(project=project,date=date).aggregate(Sum('per_day'))
         work_done = work_done['per_day__sum']
@@ -106,9 +109,13 @@ def get_production_data(project,date,_type):
     if _type == 'FTE Target':
         actual_target = generate_target_calculations(project,date)
     else:
-        target = Targets.objects.filter(project=project,to_date__gte=date,target_type=_type).\
-            aggregate(Sum('target_value'))
-        actual_target = target['target_value__sum']
+        if project == 28:
+            target = UploadDataTable.objects.filter(project=project,date=date).aggregate(target=Sum('upload'))
+            actual_target = target['target']
+        else:            
+            target = Targets.objects.filter(project=project,to_date__gte=date,target_type=_type).\
+                aggregate(Sum('target_value'))
+            actual_target = target['target_value__sum']
 
     if actual_target != None:
         actual_target = int(actual_target)    
