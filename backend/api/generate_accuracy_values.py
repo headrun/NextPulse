@@ -40,7 +40,7 @@ def send_mail_data(user_details, user, user_group):
             mail_logos = generate_logos_format(dashboard_url)
             mail_body = _data + mail_data + mail_logos
             to = [user_data[0].email]
-            msg = EmailMessage("NextPulse KPI/SLA Report - Daily Report", mail_body, 'nextpulse@nextwealth.in', to)
+            msg = EmailMessage("NextPulse High Level Metrics - Daily Report", mail_body, 'nextpulse@nextwealth.in', to)
             msg.content_subtype = "html"
             msg.send()
     
