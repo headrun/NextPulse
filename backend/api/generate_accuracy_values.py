@@ -409,7 +409,8 @@ def generate_mail_table_format(final_data,project,date,user_group,is_senior):
         result_data = get_prod_sla_productivity(result,date)        
         _text = mail_body + headers + result_data
     elif ((('production' in _keys) and ('aht' in _keys)) or (('production' in _keys) and ('sla' in _keys))\
-        or (('productivity' in _keys) and ('sla' in _keys)) or (('production' in _keys) and ('productivity' in _keys))):        
+        or (('productivity' in _keys) and ('sla' in _keys)) or (('production' in _keys) and ('productivity' in _keys)) or \
+        (('production' in _keys) and ('kpi' in _keys))):        
         result_data = get_fields_data(result,date)
         _text = mail_body + headers + result_data       
     elif (('production' in _keys) or ('sla' in _keys) or ('productivity' in _keys) or ('aht' in _keys)\
