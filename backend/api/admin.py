@@ -235,7 +235,7 @@ admin.site.register(Targets,TargetsAdmin)
 
 
 class TargetsAuthoringAdmin(admin.ModelAdmin):
-    list_display = ['work_packet','sub_project','sub_packet','project']
+    list_display = ['work_packet','sub_project','sub_packet','target_method','target_type','target_value','from_date','to_date']
     list_filter = ['project']
 admin.site.register(TargetsAuthoring,TargetsAuthoringAdmin)
 
