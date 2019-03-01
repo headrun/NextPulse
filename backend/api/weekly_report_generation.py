@@ -139,6 +139,7 @@ def get_production_data(project, from_date, to_date, _type):
         work_done_query = UploadDataTable.objects.filter(project=project, date__range=[from_date, to_date])
         work_done = work_done_query.aggregate(prod_sum=Sum('upload'))  
         work_done = work_done['prod_sum']                
+        worked_dates = work_done_query.values_list('date', flat=True).distinct().count()        
     else:
         work_done_query = RawTable.objects.filter(project=project,date__range=[from_date, to_date])
         work_done = work_done_query.aggregate(Sum('per_day'))    
