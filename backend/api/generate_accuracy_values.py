@@ -12,7 +12,7 @@ def send_mail_data(user_details, user, user_group):
     prj_count = []
     user_data = User.objects.filter(id=user.name_id)
     user_name = user_data[0].first_name
-    _data = "Dear %s, <p>Below is a snapshot of  'Target'  and  'Actual'  values of SLA/KPI.</p>"\
+    _data = "Dear %s, <p>Please find below the high level daily metrics.</p>"\
                     % (user_name)
     yesterdays_date = datetime.datetime.now() - datetime.timedelta(days=1)   
     
@@ -50,10 +50,23 @@ def send_mail_data(user_details, user, user_group):
 def generate_targets_data(project, user_group, is_senior, last_date):
     common_dict = {}
     last_date = last_date['date__max']
+    if project == 1:
+        work_done = Worktrack.objects.filter(project=project,date=last_date).exclude(work_packet="About the Company").aggregate(prod=Sum('completed'))
+        work_done = work_done['prod']
+    elif project == 28:
+        work_done = UploadDataTable.objects.filter(project=project,date=last_date).aggregate(prod=Sum('upload'))
+        work_done = work_done['prod']
+    else:
+        work_done = RawTable.objects.filter(project=project,date=last_date).aggregate(Sum('per_day'))
+        work_done = work_done['per_day__sum']
+    if work_done != None:
+        work_done = int(work_done)
+    else:
+        pass    
     target_query = Targets.objects.filter(project=project, to_date__gte=last_date).values_list('target_type','target_method').distinct()
     for _type in target_query:
-        if (_type[0] == 'FTE Target') or (_type[0] == 'Target'):
-            production = get_production_data(project, last_date, _type[0])
+        if ((_type[0] == 'FTE Target') or (_type[0] == 'Target')) and work_done != None:
+            production = get_production_data(project, last_date, _type[0], work_done)
             production['prod_target_method'] = _type[1]
             common_dict['production'] = production
 
@@ -88,22 +101,9 @@ def generate_targets_data(project, user_group, is_senior, last_date):
 
 
 
-def get_production_data(project,date,_type):
+def get_production_data(project,date,_type, work_done):
 
-    result = {}
-    if project == 1:
-        work_done = Worktrack.objects.filter(project=project,date=date).aggregate(prod=Sum('completed'))
-        work_done = work_done['prod']
-    elif project == 28:
-        work_done = UploadDataTable.objects.filter(project=project,date=date).aggregate(prod=Sum('upload'))
-        work_done = work_done['prod']
-    else:
-        work_done = RawTable.objects.filter(project=project,date=date).aggregate(Sum('per_day'))
-        work_done = work_done['per_day__sum']
-    if work_done != None:
-        work_done = int(work_done)
-    else:
-        pass    
+    result = {}    
     billable_agents = Headcount.objects.filter(project=project,date=date).aggregate(Sum('billable_agents'))
     billable_agents = billable_agents['billable_agents__sum']    
     if _type == 'FTE Target':
@@ -112,6 +112,10 @@ def get_production_data(project,date,_type):
         if project == 28:
             target = UploadDataTable.objects.filter(project=project,date=date).aggregate(target=Sum('upload'))
             actual_target = target['target']
+        elif project == 1:
+            target = Targets.objects.filter(project=project,to_date__gte=date,target_type=_type).exclude(work_packet="About the Company").\
+                aggregate(Sum('target_value'))
+            actual_target = target['target_value__sum']
         else:            
             target = Targets.objects.filter(project=project,to_date__gte=date,target_type=_type).\
                 aggregate(Sum('target_value'))
@@ -413,8 +417,7 @@ def generate_mail_table_format(final_data,project,date,user_group,is_senior):
         (('production' in _keys) and ('kpi' in _keys))):        
         result_data = get_fields_data(result,date)
         _text = mail_body + headers + result_data       
-    elif (('production' in _keys) or ('sla' in _keys) or ('productivity' in _keys) or ('aht' in _keys)\
-        or ('kpi' in _keys)):        
+    elif ('production' in _keys):        
         result_data = get_individual_fields(result,date)
         _text = mail_body + headers + result_data            
     else:
