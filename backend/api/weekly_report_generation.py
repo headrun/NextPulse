@@ -59,11 +59,30 @@ def get_target_query(prj_id, from_date, to_date):
 
 def generate_targets_data(project, user_group, from_date, to_date):    
     common_dict = {}
+    if project == 1:
+        work_done_query = Worktrack.objects.filter(project=project, date__range=[from_date, to_date])
+        work_done = work_done_query.aggregate(prod_sum=Sum('completed'))  
+        work_done = work_done['prod_sum']
+        worked_dates = work_done_query.values_list('date', flat=True).distinct()
+    elif project == 28:
+        work_done_query = UploadDataTable.objects.filter(project=project, date__range=[from_date, to_date])
+        work_done = work_done_query.aggregate(prod_sum=Sum('upload'))  
+        work_done = work_done['prod_sum']                
+        worked_dates = work_done_query.values_list('date', flat=True).distinct()
+    else:
+        work_done_query = RawTable.objects.filter(project=project,date__range=[from_date, to_date])
+        work_done = work_done_query.aggregate(Sum('per_day'))    
+        work_done = work_done['per_day__sum']        
+        worked_dates = work_done_query.values_list('date', flat=True).distinct()    
+    if work_done != None:
+        work_done = int(work_done)
+    else:
+        pass        
     target_filter_query = get_target_query(project, from_date, to_date)
-    target_query = target_filter_query.values_list('target_type','target_method').distinct()                
+    target_query = target_filter_query.values_list('target_type','target_method').distinct()               
     for _type in target_query:
-        if (_type[0] == 'FTE Target') or (_type[0] == 'Target'):
-            production = get_production_data(project, from_date, to_date, _type[0])
+        if (_type[0] == 'FTE Target' or _type[0] == 'Target') and (work_done != None):
+            production = get_production_data(project, from_date, to_date, _type[0], work_done, worked_dates)
             production['prod_target_method'] = "SLA"
             common_dict['production'] = production
 
@@ -97,6 +116,7 @@ def generate_targets_data(project, user_group, from_date, to_date):
     return common_dict
 
 
+
 def get_target_query_format(prj_id, from_date, to_date):    
     query, raw_data = {}, {}
     pro_query, pro_data = {}, {}
@@ -128,27 +148,8 @@ def get_target_query_format(prj_id, from_date, to_date):
     return targets, targ_query, m_count
 
 
-def get_production_data(project, from_date, to_date, _type):
-    result = {}      
-    if project == 1:
-        work_done_query = Worktrack.objects.filter(project=project, date__range=[from_date, to_date])
-        work_done = work_done_query.aggregate(prod_sum=Sum('completed'))  
-        work_done = work_done['prod_sum']
-        worked_dates = work_done_query.values_list('date', flat=True).distinct().count()        
-    elif project == 28:
-        work_done_query = UploadDataTable.objects.filter(project=project, date__range=[from_date, to_date])
-        work_done = work_done_query.aggregate(prod_sum=Sum('upload'))  
-        work_done = work_done['prod_sum']                
-        worked_dates = work_done_query.values_list('date', flat=True).distinct().count()        
-    else:
-        work_done_query = RawTable.objects.filter(project=project,date__range=[from_date, to_date])
-        work_done = work_done_query.aggregate(Sum('per_day'))    
-        work_done = work_done['per_day__sum']
-        worked_dates = work_done_query.values_list('date', flat=True).distinct().count()	    
-    if work_done != None:
-        work_done = int(work_done)
-    else:
-        pass        
+def get_production_data(project, from_date, to_date, _type, work_done, worked_dates):
+    result = {}   
     if _type == 'FTE Target':
         actual_target = generate_target_calculations(project,from_date, to_date, worked_dates)
     else:
@@ -161,7 +162,7 @@ def get_production_data(project, from_date, to_date, _type):
             target = target_query.aggregate(Sum('target_value'))                
             actual_target = target['target_value__sum']         
             if actual_target != None and m_count == 0:
-                actual_target = actual_target * worked_dates
+                actual_target = actual_target * worked_dates.count()
             else:
                 actual_target = actual_target    
                 
@@ -174,38 +175,40 @@ def get_production_data(project, from_date, to_date, _type):
         color = 'Red'
     result['production_target'] = actual_target
     result['workdone'] = work_done
-    result['prod_color'] = color    
+    result['prod_color'] = color     
     return result
 
 
 def generate_target_calculations(project,from_date, to_date, worked_dates):
     query_dict = {}
-    targets, target_query, m_count = get_target_query_format(project, from_date, to_date)        
+    targets, target_query, m_count = get_target_query_format(project, from_date, to_date)     
     packet_check = target_query.values('sub_project','work_packet').distinct()    
     if packet_check[0]['sub_project'] != '':
         packet_check = 'sub_project'
     elif packet_check[0]['work_packet'] != '':
         packet_check = 'work_packet'    
     total_target, pack_target, hc_billable = 0, 0, 0
-    target_packets = target_query.values_list(packet_check,flat=True).distinct()        
+    target_packets = target_query.values_list(packet_check,flat=True).distinct() 
+    total_target = 0     
     for packet in target_packets:
         packet_params = {packet_check: packet}
-        target_value = target_query.filter(**packet_params).values_list('target_value',flat=True).distinct()                    
+        target_value = target_query.filter(**packet_params).values('from_date','to_date').annotate(t_sum=Sum('target_value'))                                    
         hc_params = {'project': project,'date__range': [from_date,to_date], packet_check: packet}
-        hc_value = Headcount.objects.filter(**hc_params).aggregate(Sum('billable_agents'))    
-        if target_value:
-            pack_target = sum(target_value)
-        if hc_value['billable_agents__sum'] != None:
-            hc_billable = hc_value['billable_agents__sum']
-        else:
-            hc_billable = 0
-        total_target += pack_target*hc_billable
-    total_target = float('%.2f'% round(total_target,2))
-    if m_count == 0:
-        total_target = int(total_target) * worked_dates
-    else:
-        total_target = int(total_target)    
-    return total_target
+        hc_value = Headcount.objects.filter(**hc_params).values('date').annotate(head_c=Sum('billable_agents'))                    
+        for dates in worked_dates:            
+            for trg_val in target_value:
+                for hc_val in hc_value:
+                    if m_count == 0:
+                        if trg_val['from_date'] <= hc_val['date'] and trg_val['to_date'] >= hc_val['date'] and hc_val['date'] == dates:
+                            targ_value = trg_val['t_sum'] * hc_val['head_c']
+                            total_target += targ_value                                  
+                    else:
+                        if trg_val['from_date'] == hc_val['date'] and trg_val['from_date'] == dates:
+                            targ_value = trg_val['t_sum'] * hc['head_c'] 
+                            total_target += targ_value 
+                            
+    total_target = float("%.2f"%round(total_target,2))
+    return total_target     
 
 
 def get_target_query_type(prj_id, from_date, to_date, acc_type):    
@@ -496,8 +499,7 @@ def generate_mail_table_format(final_data,project,from_date,to_date,user_group):
             or (('production'in _keys) and ('kpi' in _keys))):        
         result_data = get_fields_data(result)
         _text = mail_body + headers + result_data       
-    elif (('production' in _keys) or ('sla' in _keys) or ('productivity' in _keys) or ('aht' in _keys)\
-        or ('kpi' in _keys)):        
+    elif 'production' in _keys:        
         result_data = get_individual_fields(result)
         _text = mail_body + headers + result_data            
     else:
