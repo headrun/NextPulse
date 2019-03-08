@@ -63,7 +63,10 @@ def generate_targets_data(project, user_group, is_senior, last_date):
         work_done = int(work_done)
     else:
         pass    
-    target_query = Targets.objects.filter(project=project, to_date__gte=last_date).values_list('target_type','target_method').distinct()
+    if project == 1:
+       target_query = Targets.objects.filter(project=project, to_date__gte=last_date).exclude(work_packet="About the Company").values_list('target_type','target_method').distinct()
+    else:
+       target_query = Targets.objects.filter(project=project, to_date__gte=last_date).values_list('target_type','target_method').distinct()
     for _type in target_query:
         if ((_type[0] == 'FTE Target') or (_type[0] == 'Target')) and work_done != None:
             production = get_production_data(project, last_date, _type[0], work_done)
