@@ -1088,24 +1088,26 @@ def Probe_overall_accuracy(main_dates, prj_id, center, level_structure_key, date
             exter_acc_query = Externalerrors.objects.filter(project=prj_id, center=center,
                                                             date__range=[main_dates[0], main_dates[-1]])
             dates = exter_acc_query.values_list('date', flat=True).distinct()
-            query_values = Externalerrors.objects.filter(**filter_params)
+            query_values = Externalerrors.objects.filter(**filter_params)            
             rawtable = RawTable.objects.filter(**filter_params)
             if all('All' in x for x in level_structure_key.values()):
                 data_values = query_values.exclude(
                     work_packet__in=["BIFR", "CompanyCoordinates", "CreditRating", "Defaulter", "RPES", "Legal and CDR",
-                                     "Auditor", "Financials", "PAN"]) \
+                                     "Auditor", "Financials", "PAN","Manupatra","Compliance"]) \
                     .order_by('date').values_list('date').annotate(total=Sum('total_errors') \
                                                                    , audit=Sum('audited_errors'))
-
-                if data_values:
+                
+                if query_values:
                     group_val1 = query_values.filter(
                         work_packet__in=["BIFR", "CompanyCoordinates", "CreditRating", "Defaulter", "RPES",
-                                         "Legal and CDR"]). \
+                                         "Legal and CDR","Manupatra","Compliance"]). \
                         order_by('date').values_list('date'). \
                         annotate(total=Sum('total_errors'), audit=Avg('audited_errors'))
+                    
                     group_val2 = query_values.filter(work_packet__in=["Auditor", "Financials", "PAN"]). \
                         order_by('date').values_list('date'). \
                         annotate(total=Sum('total_errors'), audit=Avg('audited_errors'))
+                    
                     r = query_values.values_list(_term, flat=True).distinct()
                     pac_dict = {}
                     if len(group_val1) > 0:
@@ -1119,16 +1121,33 @@ def Probe_overall_accuracy(main_dates, prj_id, center, level_structure_key, date
                                         pass
                     if len(group_val2) > 0:
                         for e_val in data_values:
-                            for grp1_v in group_val1:
-                                if e_val[0] == grp1_v[0]:
-                                    if not result.has_key(e_val[0]):
-                                        result[e_val[0]] = {"total": e_val[2] + grp1_v[2],
-                                                            "audited": e_val[1] + grp1_v[1]}
+                            for grp2_v in group_val2:
+                                if e_val[0] == grp2_v[0]:
+                                    if result.has_key(e_val[0]):
+                                        result[e_val[0]] = {"total": result[e_val[0]]["total"] + grp2_v[2],
+                                                            "audited": result[e_val[0]]["audited"] + grp2_v[1]}
                                     else:
-                                        pass
+                                        result[e_val[0]] = {"total": e_val[2] + grp2_v[2],
+                                                            "audited": e_val[1] + grp2_v[1]}
                     if len(group_val1) == 0 and len(group_val2) == 0:
                         for e_val in data_values:
                             result[e_val[0]] = {"total": e_val[2], "audited": e_val[1]}
+
+                    if len(data_values) == 0:
+                        if len(group_val1) > 0:                                                    
+                            for grp1_v in group_val1:                                
+                                if not result.has_key(grp1_v[0]):
+                                    result[grp1_v[0]] = {"total":  grp1_v[2],"audited":  grp1_v[1]}
+
+                        if len(group_val2) > 0:                    
+                            for grp2_v in group_val2:                            
+                                if result.has_key(grp2_v[0]):
+                                    result[grp2_v[0]] = {"total": result[grp2_v[0]]["total"] + grp2_v[2],
+                                                        "audited": result[grp2_v[0]]["audited"] + grp2_v[1]}
+                                else:
+                                    result[grp2_v[0]] = {"total": grp2_v[2], "audited": grp2_v[1]}
+                            
+
 
                     for date, values in result.iteritems():
                         if values['audited'] > 0:
@@ -1150,10 +1169,7 @@ def Probe_overall_accuracy(main_dates, prj_id, center, level_structure_key, date
                 raw_packets = filter(lambda e: e[1] != u'', raw_packets)
                 packets = query_values.values_list(level, flat=True).distinct()
                 r_packets = rawtable.values_list(level, flat=True).distinct()
-
-                def low(x):
-                    return x.lower().title()
-
+                def low(x): return x.lower().title()
                 r_packets = map(low, r_packets)
                 r_dates = rawtable.values_list('date', flat=True).distinct()
                 if data_values and raw_packets:
@@ -1202,14 +1218,14 @@ def Probe_overall_accuracy(main_dates, prj_id, center, level_structure_key, date
             if all('All' in x for x in level_structure_key.values()):
                 data_values = query_values.exclude(
                     work_packet__in=["BIFR", "CompanyCoordinates", "CreditRating", "Defaulter", "RPES", "Legal and CDR",
-                                     "Auditor", "Financials", "PAN"]) \
+                                     "Auditor", "Financials", "PAN","Manupatra","Compliance"]) \
                     .order_by('date').values_list('date').annotate(total=Sum('total_errors') \
                                                                    , audit=Sum('audited_errors'))
 
-                if data_values:
+                if query_values:
                     group_val1 = query_values.filter(
                         work_packet__in=["BIFR", "CompanyCoordinates", "CreditRating", "Defaulter", "RPES",
-                                         "Legal and CDR"]). \
+                                         "Legal and CDR","Manupatra","Compliance"]). \
                         order_by('date').values_list('date'). \
                         annotate(total=Sum('total_errors'), audit=Avg('audited_errors'))
 
@@ -1230,16 +1246,32 @@ def Probe_overall_accuracy(main_dates, prj_id, center, level_structure_key, date
                                         pass
                     if len(group_val2) > 0:
                         for e_val in data_values:
-                            for grp1_v in group_val1:
-                                if e_val[0] == grp1_v[0]:
-                                    if not result.has_key(e_val[0]):
-                                        result[e_val[0]] = {"total": e_val[2] + grp1_v[2],
-                                                            "audited": e_val[1] + grp1_v[1]}
+                            for grp2_v in group_val2:
+                                if e_val[0] == grp2_v[0]:
+                                    if result.has_key(e_val[0]):
+                                        result[e_val[0]] = {"total": result[e_val[0]]["total"] + grp2_v[2],
+                                                            "audited": result[e_val[0]]["audited"] + grp2_v[1]}
                                     else:
-                                        pass
+                                        result[e_val[0]] = {"total": e_val[2] + grp2_v[2],
+                                                        "audited": e_val[1] + grp2_v[1]}
+
                     if len(group_val1) == 0 and len(group_val2) == 0:
                         for e_val in data_values:
                             result[e_val[0]] = {"total": e_val[2], "audited": e_val[1]}
+                    
+                    if len(data_values) == 0:
+                        if len(group_val1) > 0:                                                    
+                            for grp1_v in group_val1:                                
+                                if not result.has_key(grp1_v[0]):
+                                    result[grp1_v[0]] = {"total":  grp1_v[2],"audited":  grp1_v[1]}
+
+                        if len(group_val2) > 0:                    
+                            for grp2_v in group_val2:                            
+                                if result.has_key(grp2_v[0]):
+                                    result[grp2_v[0]] = {"total": result[grp2_v[0]]["total"] + grp2_v[2],
+                                                        "audited": result[grp2_v[0]]["audited"] + grp2_v[1]}
+                                else:
+                                    result[grp2_v[0]] = {"total": grp2_v[2], "audited": grp2_v[1]}
 
                     pac_week = {}
                     pac_week['total'], pac_week['audit'] = [], []
