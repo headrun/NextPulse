@@ -1222,7 +1222,7 @@ def Probe_overall_accuracy(main_dates, prj_id, center, level_structure_key, date
                     .order_by('date').values_list('date').annotate(total=Sum('total_errors') \
                                                                    , audit=Sum('audited_errors'))
 
-                if data_values:
+                if query_values:
                     group_val1 = query_values.filter(
                         work_packet__in=["BIFR", "CompanyCoordinates", "CreditRating", "Defaulter", "RPES",
                                          "Legal and CDR","Manupatra","Compliance"]). \
@@ -1258,6 +1258,20 @@ def Probe_overall_accuracy(main_dates, prj_id, center, level_structure_key, date
                     if len(group_val1) == 0 and len(group_val2) == 0:
                         for e_val in data_values:
                             result[e_val[0]] = {"total": e_val[2], "audited": e_val[1]}
+                    
+                    if len(data_values) == 0:
+                        if len(group_val1) > 0:                                                    
+                            for grp1_v in group_val1:                                
+                                if not result.has_key(grp1_v[0]):
+                                    result[grp1_v[0]] = {"total":  grp1_v[2],"audited":  grp1_v[1]}
+
+                        if len(group_val2) > 0:                    
+                            for grp2_v in group_val2:                            
+                                if result.has_key(grp2_v[0]):
+                                    result[grp2_v[0]] = {"total": result[grp2_v[0]]["total"] + grp2_v[2],
+                                                        "audited": result[grp2_v[0]]["audited"] + grp2_v[1]}
+                                else:
+                                    result[grp2_v[0]] = {"total": grp2_v[2], "audited": grp2_v[1]}
 
                     pac_week = {}
                     pac_week['total'], pac_week['audit'] = [], []
