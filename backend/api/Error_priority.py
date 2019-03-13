@@ -272,7 +272,7 @@ def Production_vs_Target(request):
 def Overall_external_accur(request):
     result_name = 'external_error_acc'
     function_name = overall_external_accur_trends
-    model_name = 'Externalerrors'
+    model_name = 'RawTable'
     result = generate_day_week_month_format(request, result_name, function_name, model_name)
     return result
 
@@ -296,7 +296,7 @@ def Overall_External_Error(request):
 def Overall_internal_accur(request):
     result_name = 'internal_error_acc'
     function_name = overall_internal_accur_trends
-    model_name = 'Internalerrors'
+    model_name = 'RawTable'
     result = generate_day_week_month_format(request, result_name, function_name, model_name)
     return result
 
@@ -638,30 +638,34 @@ def overall_external_accur_trends(main_dates, prj_id, center, level_structure_ke
                         out = rawtable.filter(date=dat,work_packet__in=val).aggregate(prod=Sum('per_day'))
                         res[dat] = out['prod']
                     raw_val = rawtable.filter(work_packet__in=filter_pack).distinct()
+                raw_dates = rawtable.order_by('date').values_list('date',flat=True).distinct()
 
                 if data_values and raw_packets:
-                    for date in dates:
-                        for data in data_values:
-                            if date == data[0]:
-                                if data[1] > 0:
-                                    out = raw_val.filter(date=str(data[0])).aggregate(prod=Sum('per_day'))
-                                    val = res[data[0]]
-                                    if out['prod'] == None:
-                                        out['prod'] = 0
-                                    if val == None:
-                                        val = 0
-                                    out_1 = out['prod'] + val + data[1]
-                                    value = (float(data[2])/float(out_1)) * 100
-                                    accuracy = 100 - value
-                                    accuracy = float('%.2f' % round(accuracy, 2))
-                                elif data[1] == 0:
-                                    for prod_val in raw_packets:
-                                        if date == prod_val[0]:
-                                            value = (float(data[2])/float(prod_val[1])) * 100
-                                            accuracy = 100 - value
-                                            accuracy = float('%.2f' % round(accuracy, 2))
-                                else:
-                                    accuracy = 100
+                    for date in raw_dates:
+                        if date in dates:
+                            for data in data_values:
+                                if date == data[0]:
+                                    if data[1] > 0:
+                                        out = raw_val.filter(date=str(data[0])).aggregate(prod=Sum('per_day'))
+                                        val = res[data[0]]
+                                        if out['prod'] == None:
+                                            out['prod'] = 0
+                                        if val == None:
+                                            val = 0
+                                        out_1 = out['prod'] + val + data[1]
+                                        value = (float(data[2])/float(out_1)) * 100
+                                        accuracy = 100 - value
+                                        accuracy = float('%.2f' % round(accuracy, 2))
+                                    elif data[1] == 0:
+                                        for prod_val in raw_packets:
+                                            if date == prod_val[0]:
+                                                value = (float(data[2])/float(prod_val[1])) * 100
+                                                accuracy = 100 - value
+                                                accuracy = float('%.2f' % round(accuracy, 2))
+                                    else:
+                                        accuracy = 100
+                        else:
+                            accuracy = 100
                         produc_lst.append(accuracy)
                     result_dict['External Accuracy'] = produc_lst
 
@@ -878,29 +882,33 @@ def overall_internal_accur_trends(main_dates, prj_id, center, level_structure_ke
                         out = rawtable.filter(date=dat, work_packet__in=val).aggregate(prod=Sum('per_day'))
                         res[dat] = out['prod']
                     raw_val = rawtable.filter(work_packet__in=filter_pack).distinct()
+                raw_dates = rawtable.order_by('date').values_list('date',flat=True).distinct()
                 if data_values and raw_packets:
-                    for date in dates:
-                        for data in data_values:
-                            if date == data[0]:
-                                if data[1] > 0:
-                                    out = raw_val.filter(date=str(data[0])).aggregate(prod=Sum('per_day'))
-                                    val = res[data[0]]
-                                    if out['prod'] == None:
-                                        out['prod'] = 0
-                                    if val == None:
-                                        val = 0
-                                    out_1 = data[1] + out['prod'] + val
-                                    value = (float(data[2]) / float(out_1)) * 100
-                                    accuracy = 100 - value
-                                    accuracy = float('%.2f' % round(accuracy, 2))
-                                elif data[1] == 0:
-                                    for prod_val in raw_packets:
-                                        if date == prod_val[0]:
-                                            value = (float(data[2]) / float(prod_val[1])) * 100
-                                            accuracy = 100 - value
-                                            accuracy = float('%.2f' % round(accuracy, 2))
-                                else:
-                                    accuracy = 100
+                    for date in raw_dates:
+                        if date in dates:
+                            for data in data_values:
+                                if date == data[0]:
+                                    if data[1] > 0:
+                                        out = raw_val.filter(date=str(data[0])).aggregate(prod=Sum('per_day'))
+                                        val = res[data[0]]
+                                        if out['prod'] == None:
+                                            out['prod'] = 0
+                                        if val == None:
+                                            val = 0
+                                        out_1 = data[1] + out['prod'] + val
+                                        value = (float(data[2]) / float(out_1)) * 100
+                                        accuracy = 100 - value
+                                        accuracy = float('%.2f' % round(accuracy, 2))
+                                    elif data[1] == 0:
+                                        for prod_val in raw_packets:
+                                            if date == prod_val[0]:
+                                                value = (float(data[2]) / float(prod_val[1])) * 100
+                                                accuracy = 100 - value
+                                                accuracy = float('%.2f' % round(accuracy, 2))
+                                    else:
+                                        accuracy = 100
+                        else:
+                            accuracy = 100
                         produc_lst.append(accuracy)
                     result_dict['Internal Accuracy'] = produc_lst
 
