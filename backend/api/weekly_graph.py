@@ -210,25 +210,27 @@ def accuracy_line_graphs(date_list,prj_id,center_obj,level_structure_key,error_t
                             if data[0] == prod_val[0] and data[1] == prod_val[1]:
                                 value = float((data[3])/float(prod_val[2]))
                                 accuracy = 100 - float('%.2f' % round(value,2))
-                    else:
-                        accuracy = 100
                     if not data_dict.has_key(data[1]):
                         data_dict[data[1]] = [accuracy]
                     else:
                         data_dict[data[1]].append(accuracy)
                     packet_list.append(data[1])
                     data_list.append(accuracy)
-
             if len(packet_list) > 0:
                 packet_list = sorted(list(set(packet_list)))
                 packet_list = map(str, packet_list)
                 for pack in packets:
-                    if str(pack) not in packet_list:                       
-                            
+                    if str(pack) not in packet_list:
                         if not data_dict.has_key(pack):
                             data_dict[pack] = [100]
                         else:
                             data_dict[pack].append(100)
+            if len(data_list) == 0: 
+                for pack in packets:
+                    if not data_dict.has_key(pack):
+                        data_dict[pack] = [100]
+                    else:
+                        data_dict[pack].append(100)
 
     final_dict['internal_accuracy_timeline'] = data_dict
     final_dict['date'] = date_pack
