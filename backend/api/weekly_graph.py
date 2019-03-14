@@ -192,7 +192,7 @@ def accuracy_line_graphs(date_list,prj_id,center_obj,level_structure_key,error_t
     error_data = filter(lambda e: e[1] != u'', error_data)        
     rawtable = RawTable.objects.filter(**filter_params)
     raw_packets = rawtable.values_list('date', _term).annotate(prod=Sum('per_day'))
-    date_pack = table_name.objects.filter(project=prj_id, center=center_obj, date__range=[date_list[0], date_list[-1]])\
+    date_pack = RawTable.objects.filter(project=prj_id, center=center_obj, date__range=[date_list[0], date_list[-1]])\
                                        .values_list('date', flat=True).distinct()
     date_pack = list(map(str, date_pack))
     if error_data:
