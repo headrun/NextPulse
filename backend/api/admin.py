@@ -126,6 +126,22 @@ def L_disable_weekly_mail_notifications(modeladmin, request, queryset):
         queryset.update(enable_weekly_mail=False)
 L_disable_weekly_mail_notifications.short_description = "Disable weekly mail for selected ones"
 
+def L_enable_daily_metrics(modeladmin, request, queryset):
+    queryset.update(disable_daily_metrics=True)
+L_enable_daily_metrics.short_description = "Disable daily metrics - Active"
+
+def L_disable_daily_metrics(modeladmin, request, queryset):
+    queryset.update(disable_daily_metrics=False)
+L_disable_daily_metrics.short_description = "Disable daily metrics - Inactive"
+
+def L_enable_weekly_metrics(modeladmin, request, queryset):
+    queryset.update(disable_weekly_metrics=True)
+L_enable_weekly_metrics.short_description = "Disable weekly metrics - Active"
+
+def L_disable_weekly_metrics(modeladmin, request, queryset):
+    queryset.update(disable_weekly_metrics=False)
+L_disable_weekly_metrics.short_description = "Disable weekly metrics - Inactive"
+
 
 class TeamleadAdmin(admin.ModelAdmin):
     list_display = ['id','name','get_projects','enable_mail','enable_push','enable_sms','enable_weekly_mail']
@@ -138,7 +154,8 @@ admin.site.register(TeamLead,TeamleadAdmin)
 
 class CustomerAdmin(admin.ModelAdmin):
     list_display = ['id','name','get_projects','enable_mail','enable_push','enable_sms','enable_weekly_mail']
-    actions = [L_enable_mail_notifications, L_disable_mail_notifications, L_enable_sms_notifications, L_disable_sms_notifications, L_enable_push_notifications, L_disable_push_notifications , L_enable_weekly_mail_notifications, L_disable_weekly_mail_notifications]
+    actions = [L_enable_mail_notifications, L_disable_mail_notifications, L_enable_sms_notifications, L_disable_sms_notifications, L_enable_push_notifications, L_disable_push_notifications , L_enable_weekly_mail_notifications, L_disable_weekly_mail_notifications,\
+               L_enable_daily_metrics,L_disable_daily_metrics,L_enable_weekly_metrics,L_disable_weekly_metrics]
     def get_projects(self, obj):
         return ", \n".join([p.name for p in obj.project.all()])
     get_projects.short_description = "Projects"

@@ -101,6 +101,8 @@ class Customer(models.Model):
     enable_mail = models.BooleanField(default=None)
     enable_sms = models.BooleanField(default=None)
     enable_weekly_mail = models.BooleanField(default=None)
+    disable_daily_metrics = models.BooleanField(default = False)
+    disable_weekly_metrics = models.BooleanField(default = False)
 
     class Meta:
         db_table = u'customer'
