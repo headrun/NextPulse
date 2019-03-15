@@ -189,12 +189,13 @@ def accuracy_line_graphs(date_list,prj_id,center_obj,level_structure_key,error_t
     query_values = table_name.objects.filter(**filter_params)
     packets = query_values.values_list(_term, flat=True).distinct()
     error_data = query_values.values_list('date', _term).annotate(total=Sum('total_errors'), audit=Sum('audited_errors'))
-    error_data = filter(lambda e: e[1] != u'', error_data)        
+    error_data = filter(lambda e: e[1] != u'', error_data)
     rawtable = RawTable.objects.filter(**filter_params)
     raw_packets = rawtable.values_list('date', _term).annotate(prod=Sum('per_day'))
     date_pack = RawTable.objects.filter(project=prj_id, center=center_obj, date__range=[date_list[0], date_list[-1]])\
                                        .values_list('date', flat=True).distinct()
     date_pack = list(map(str, date_pack))
+    raw_pack = rawtable.values_list(_term,flat=True).distinct()
     if error_data:
         for date in date_pack:
             packet_list = []
@@ -219,21 +220,30 @@ def accuracy_line_graphs(date_list,prj_id,center_obj,level_structure_key,error_t
             if len(packet_list) > 0:
                 packet_list = sorted(list(set(packet_list)))
                 packet_list = map(str, packet_list)
-                for pack in packets:
+                for pack in raw_pack:
                     if str(pack) not in packet_list:
                         if not data_dict.has_key(pack):
                             data_dict[pack] = [100]
                         else:
                             data_dict[pack].append(100)
-            if len(data_list) == 0: 
+            if len(data_list) == 0:
                 for pack in packets:
                     if not data_dict.has_key(pack):
                         data_dict[pack] = [100]
                     else:
                         data_dict[pack].append(100)
-
+    else:
+        for date in date_pack:
+            for pack in raw_packets:
+                if str(date) == str(pack[0]):
+                    if not data_dict.has_key(pack[1]):
+                        data_dict[pack[1]] = [100]
+                    else:
+                        data_dict[pack[1]].append(100)
+    
     final_dict['internal_accuracy_timeline'] = data_dict
     final_dict['date'] = date_pack
+    
     return final_dict
 
 
@@ -251,12 +261,13 @@ def accuracy_line_week_month(date_list,prj_id,center_obj,level_structure_key,err
         filter_params.update({'date__range': [combined_list[0], combined_list[-1]]})
         full_query = table_name.objects.filter(**filter_params)
         packets = full_query.values_list(_term, flat=True).distinct()
-        error_data = query_values.values_list(_term).annotate(total=Sum('total_errors'), audit=Sum('audited_errors'))        
+        error_data = query_values.values_list(_term).annotate(total=Sum('total_errors'), audit=Sum('audited_errors'))
         error_data = filter(lambda e: e[0] != u'', error_data)        
         raw_packets = rawtable.values_list(_term).annotate(prod=Sum('per_day'))           
         raw_packets = filter(lambda e: e[0] != u'', raw_packets)
         packet_list = []
         content_list = []
+        raw_pack = rawtable.values_list(_term,flat=True).distinct()
         if error_data:
             for data in error_data:
                 accuracy = 0
@@ -274,16 +285,15 @@ def accuracy_line_week_month(date_list,prj_id,center_obj,level_structure_key,err
                 _dict[data[0]] = accuracy
                 packet_list.append(data[0])
                 content_list.append(accuracy)
-
             if len(packet_list) > 0:
-                for pack in packets:
+                for pack in raw_pack:
                     if pack not in packet_list:
                         _dict[pack] = 100
-
-        elif len(packets) > 0:
-            for pack in packets:
-                _dict[pack] = 100
-
+        else:
+            for raw in raw_pack:
+                if not _dict.has_key(raw):
+                    _dict[raw] = 100
+   
     return _dict
 
 
