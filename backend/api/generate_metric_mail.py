@@ -14,13 +14,14 @@ def send_metric_mail(user, customer_details):
         project = data
         upload_date = RawTable.objects.filter(project=project).aggregate(Max('created_at'))
         upload_date = upload_date['created_at__max']
-        if upload_date != None:
+        if upload_date != None:            
             if upload_date.date() == yesterdays_date.date():
                 project_name = Project.objects.get(id=project).name
                 proj.append(project_name)
+
     if len(proj) >= 1:
-        proj_data = ', '.join(proj)
-        _data = "Dear %s, <p>Recent Data has been Uploaded for %s, Please find the Details on NextPulse Dashboard.</p>"\
+        proj_data = ' , '.join(proj)
+        _data = "Dear %s, <p>Recent Data has been Uploaded for following project %s, Please find the Details on NextPulse Dashboard.</p>"\
                         % (user_name, proj_data)
         dashboard_url = "https://nextpulse.nextwealth.in"
         mail_logos = generate_logos_format(dashboard_url)
@@ -49,7 +50,7 @@ def send_weekly_metric_mail(user, customer_details):
         project_name = Project.objects.get(id=project).name
         proj.append(project_name)
     if len(proj) >= 1:
-        proj_name = ', '.join(proj)
+        proj_name = ' , '.join(proj)
         _data = "Dear %s, <p>Recent Data has been Uploaded for %s from %s. Please find the Details on NextPulse Dashboard.</p>"\
                         % (user_name, proj_name, w_dates)
         dashboard_url = "https://nextpulse.nextwealth.in"
