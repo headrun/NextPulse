@@ -541,8 +541,7 @@ def generate_mail_table_format(final_data,project,from_date,to_date,user_group):
                 or (('production'in _keys) and ('kpi' in _keys))):
             result_data = get_fields_data(result)
             _text = mail_body + headers + result_data
-        elif (('production' in _keys) or ('sla' in _keys) or ('productivity' in _keys) or ('aht' in _keys)\
-            or ('kpi' in _keys)):
+        elif (('production' in _keys)):
             result_data = get_individual_fields(result)
             _text = mail_body + headers + result_data
         else:
@@ -561,8 +560,7 @@ def generate_mail_table_format(final_data,project,from_date,to_date,user_group):
                 or (('production'in _keys) and ('kpi' in _keys))):
             result_data = get_fields_data_customer(result)
             _text = mail_body + headers + result_data
-        elif (('production' in _keys) or ('sla' in _keys) or ('productivity' in _keys) or ('aht' in _keys)\
-            or ('kpi' in _keys)):
+        elif (('production' in _keys)):
             result_data = get_individual_fields_customer(result)
             _text = mail_body + headers + result_data
         else:
