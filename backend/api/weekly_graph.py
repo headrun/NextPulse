@@ -209,7 +209,7 @@ def accuracy_line_graphs(date_list,prj_id,center_obj,level_structure_key,error_t
                     elif data[2] == 0:
                         for prod_val in raw_packets:
                             if data[0] == prod_val[0] and data[1] == prod_val[1]:
-                                value = float((data[3])/float(prod_val[2]))
+                                value = float((data[3])/float(prod_val[2])) * 100
                                 accuracy = 100 - float('%.2f' % round(value,2))
                     if not data_dict.has_key(data[1]):
                         data_dict[data[1]] = [accuracy]
@@ -227,7 +227,7 @@ def accuracy_line_graphs(date_list,prj_id,center_obj,level_structure_key,error_t
                         else:
                             data_dict[pack].append(100)
             if len(data_list) == 0:
-                for pack in packets:
+                for pack in raw_pack:
                     if not data_dict.has_key(pack):
                         data_dict[pack] = [100]
                     else:
