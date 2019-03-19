@@ -267,7 +267,7 @@ def get_accuracy_data(project, from_date, to_date, _type, table_name):
         else:
             accuracy = str(0) + " %"
     else:
-        accuracy = 'No data'
+        accuracy = str(100) + " %"
     
     targets, target_query, m_count = get_target_query_type(project, from_date, to_date, table_name)        
     target = target_query.aggregate(acc=Sum('target_value'))   
