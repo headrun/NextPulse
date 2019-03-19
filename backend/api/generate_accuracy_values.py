@@ -185,7 +185,7 @@ def get_accuracy_data(project,date,_type,table_name):
         else:
             accuracy = str(0) + " %"
     else:
-        accuracy = 'No data'
+        accuracy = str(100) + " %"
     
     target = Targets.objects.filter(project=project,to_date__gte=date,target_type=_type[0],\
         target_method=_type[1]).values_list('target_value',flat=True)
