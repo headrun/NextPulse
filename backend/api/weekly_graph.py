@@ -196,50 +196,87 @@ def accuracy_line_graphs(date_list,prj_id,center_obj,level_structure_key,error_t
                                        .values_list('date', flat=True).distinct()
     date_pack = list(map(str, date_pack))
     raw_pack = rawtable.values_list(_term,flat=True).distinct()
-    if error_data:
-        for date in date_pack:
-            packet_list = []
-            data_list = []
-            for data in error_data:
-                accuracy = 0
-                if str(date) == str(data[0]):
-                    if data[2] > 0:
-                        value = (float(data[3])/float(data[2])) * 100
-                        accuracy = 100 - float('%.2f' % round(value, 2))
-                    elif data[2] == 0:
-                        for prod_val in raw_packets:
-                            if data[0] == prod_val[0] and data[1] == prod_val[1]:
-                                value = float((data[3])/float(prod_val[2])) * 100
-                                accuracy = 100 - float('%.2f' % round(value,2))
-                    if not data_dict.has_key(data[1]):
-                        data_dict[data[1]] = [accuracy]
-                    else:
-                        data_dict[data[1]].append(accuracy)
-                    packet_list.append(data[1])
-                    data_list.append(accuracy)
-            if len(packet_list) > 0:
-                packet_list = sorted(list(set(packet_list)))
-                packet_list = map(str, packet_list)
-                for pack in raw_pack:
-                    if str(pack) not in packet_list:
+    if prj_id in [30, 112, 160, 129, 159, 117, 180, 181, 182, 123, 113, 162, 114, 126, 119, 115, 118, 130, 127,
+                    154, 158, 121, 156, 161, 116, 132]:
+        if error_data:
+            for date in date_pack:
+                packet_list = []
+                data_list = []
+                for data in error_data:
+                    accuracy = 0
+                    if str(date) == str(data[0]):
+                        if data[2] > 0:
+                            value = (float(data[3])/float(data[2])) * 100
+                            accuracy = 100 - float('%.2f' % round(value, 2))
+                        elif data[2] == 0:
+                            for prod_val in raw_packets:
+                                if data[0] == prod_val[0] and data[1] == prod_val[1]:
+                                    value = float((data[3])/float(prod_val[2])) * 100
+                                    accuracy = 100 - float('%.2f' % round(value,2))
+                        if not data_dict.has_key(data[1]):
+                            data_dict[data[1]] = [accuracy]
+                        else:
+                            data_dict[data[1]].append(accuracy)
+                        packet_list.append(data[1])
+                        data_list.append(accuracy)
+                if len(packet_list) > 0:
+                    packet_list = sorted(list(set(packet_list)))
+                    packet_list = map(str, packet_list)
+                    for pack in raw_pack:
+                        if str(pack) not in packet_list:
+                            if not data_dict.has_key(pack):
+                                data_dict[pack] = [100]
+                            else:
+                                data_dict[pack].append(100)
+                if len(data_list) == 0:
+                    for pack in raw_pack:
                         if not data_dict.has_key(pack):
                             data_dict[pack] = [100]
                         else:
                             data_dict[pack].append(100)
-            if len(data_list) == 0:
-                for pack in raw_pack:
-                    if not data_dict.has_key(pack):
-                        data_dict[pack] = [100]
-                    else:
-                        data_dict[pack].append(100)
+        else:
+            for date in date_pack:
+                for pack in raw_packets:
+                    if str(date) == str(pack[0]):
+                        if not data_dict.has_key(pack[1]):
+                            data_dict[pack[1]] = [100]
+                        else:
+                            data_dict[pack[1]].append(100)
     else:
-        for date in date_pack:
-            for pack in raw_packets:
-                if str(date) == str(pack[0]):
-                    if not data_dict.has_key(pack[1]):
-                        data_dict[pack[1]] = [100]
-                    else:
-                        data_dict[pack[1]].append(100)
+        if error_data:
+            for date in date_pack:
+                packet_list = []
+                data_list = []
+                for data in error_data:
+                    accuracy = 0
+                    if str(date) == str(data[0]):
+                        if data[2] > 0:
+                            value = (float(data[3])/float(data[2])) * 100
+                            accuracy = 100 - float('%.2f' % round(value, 2))
+                        elif data[2] == 0:
+                            for prod_val in raw_packets:
+                                if data[0] == prod_val[0] and data[1] == prod_val[1]:
+                                    value = float((data[3])/float(prod_val[2]))
+                                    accuracy = 100 - float('%.2f' % round(value,2))
+                        else:
+                            accuracy = 100
+                        if not data_dict.has_key(data[1]):
+                            data_dict[data[1]] = [accuracy]
+                        else:
+                            data_dict[data[1]].append(accuracy)
+                        packet_list.append(data[1])
+                        data_list.append(accuracy)
+
+                if len(packet_list) > 0:
+                    packet_list = sorted(list(set(packet_list)))
+                    packet_list = map(str, packet_list)
+                    for pack in packets:
+                        if str(pack) not in packet_list:
+                                
+                            if not data_dict.has_key(pack):
+                                data_dict[pack] = [100]
+                            else:
+                                data_dict[pack].append(100)
     
     final_dict['internal_accuracy_timeline'] = data_dict
     final_dict['date'] = date_pack
@@ -268,31 +305,60 @@ def accuracy_line_week_month(date_list,prj_id,center_obj,level_structure_key,err
         packet_list = []
         content_list = []
         raw_pack = rawtable.values_list(_term,flat=True).distinct()
-        if error_data:
-            for data in error_data:
-                accuracy = 0
-                if data[1] > 0:
-                    value = (float(data[2])/float(data[1])) * 100
-                    accuracy = 100- value
-                    accuracy = float('%.2f'%round(accuracy, 2))
-                elif data[1] == 0:
-                    for prod_val in raw_packets:
-                        if data[0] == prod_val[0]:
-                            value = (float(data[2])/float(prod_val[1])) * 100
-                            accuracy = 100- value
-                            accuracy = float('%.2f'%round(accuracy, 2))
-                
-                _dict[data[0]] = accuracy
-                packet_list.append(data[0])
-                content_list.append(accuracy)
-            if len(packet_list) > 0:
-                for pack in raw_pack:
-                    if pack not in packet_list:
-                        _dict[pack] = 100
+        if prj_id in [30, 112, 160, 129, 159, 117, 180, 181, 182, 123, 113, 162, 114, 126, 119, 115, 118, 130, 127,
+                    154, 158, 121, 156, 161, 116, 132]:
+            if error_data:
+                for data in error_data:
+                    accuracy = 0
+                    if data[1] > 0:
+                        value = (float(data[2])/float(data[1])) * 100
+                        accuracy = 100- value
+                        accuracy = float('%.2f'%round(accuracy, 2))
+                    elif data[1] == 0:
+                        for prod_val in raw_packets:
+                            if data[0] == prod_val[0]:
+                                value = (float(data[2])/float(prod_val[1])) * 100
+                                accuracy = 100- value
+                                accuracy = float('%.2f'%round(accuracy, 2))
+                    
+                    _dict[data[0]] = accuracy
+                    packet_list.append(data[0])
+                    content_list.append(accuracy)
+                if len(packet_list) > 0:
+                    for pack in raw_pack:
+                        if pack not in packet_list:
+                            _dict[pack] = 100
+            else:
+                for raw in raw_pack:
+                    if not _dict.has_key(raw):
+                        _dict[raw] = 100
         else:
-            for raw in raw_pack:
-                if not _dict.has_key(raw):
-                    _dict[raw] = 100
+            if error_data:
+                for data in error_data:
+                    accuracy = 0
+                    if data[1] > 0:
+                        value = (float(data[2])/float(data[1])) * 100
+                        accuracy = 100- value
+                        accuracy = float('%.2f'%round(accuracy, 2))
+                    elif data[1] == 0:
+                        for prod_val in raw_packets:
+                            if data[0] == prod_val[0]:
+                                value = (float(data[2])/float(prod_val[1])) * 100
+                                accuracy = 100- value
+                                accuracy = float('%.2f'%round(accuracy, 2))
+                    
+                    _dict[data[0]] = accuracy
+                    packet_list.append(data[0])
+                    content_list.append(accuracy)
+
+                if len(packet_list) > 0:
+                    for pack in packets:
+                        if pack not in packet_list:
+                            _dict[pack] = 100
+
+            elif len(packets) > 0:
+                for pack in packets:
+                    _dict[pack] = 100
    
     return _dict
 

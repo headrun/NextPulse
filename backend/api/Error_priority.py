@@ -22,6 +22,13 @@ def customer_data_date_generation(project, center, date_lt, model_name):
     date_lt = map(str, date_lt)
     return date_lt
 
+def customer_data_date_generation_ibm(project, center, date_lt, model_name, level_structure_key):
+    model_class = apps.get_model('api', model_name)
+    filter_params, _term = getting_required_params(level_structure_key, project, center, date_lt)
+    date_lt = model_class.objects.filter(**filter_params).order_by('date').values_list('date', flat=True).distinct()
+    date_lt = map(str, date_lt)
+    return date_lt
+
 
 def generate_day_week_month_format(request, result_name, function_name, model_name):
     final_dict = {}
@@ -39,7 +46,11 @@ def generate_day_week_month_format(request, result_name, function_name, model_na
 
     if main_data_dict['dwm_dict'].has_key('day') and main_data_dict['type'] == 'day':
         dates_list = main_data_dict['dwm_dict']['day']
-        date_lst = customer_data_date_generation(prj_id, center, main_dates, model_name)
+        if prj_id in [30, 112, 160, 129, 159, 117, 180, 181, 182, 123, 113, 162, 114, 126, 119, 115, 118, 130, 127,
+                        154, 158, 121, 156, 161, 116, 132] and function_name in [overall_external_accur_trends,overall_internal_accur_trends]:
+            date_lst = customer_data_date_generation_ibm(prj_id, center, main_dates, model_name, level_structure_key)
+        else:
+            date_lst = customer_data_date_generation(prj_id, center, main_dates, model_name)
         data = function_name(main_dates, prj_id, center, level_structure_key, dates_list, request, _type)
         final_dict[result_name] = graph_data_alignment_color(data, 'data', level_structure_key, prj_id, center)
         final_dict['date'] = date_lst
@@ -637,39 +648,67 @@ def overall_external_accur_trends(main_dates, prj_id, center, level_structure_ke
                         res[dat] = out['prod']
                     raw_val = rawtable.filter(work_packet__in=filter_pack).distinct()
                 raw_dates = rawtable.order_by('date').values_list('date',flat=True).distinct()
-                if raw_packets:
-                    for date in raw_dates:
-                        if date in dates:
+                if prj_id in [30, 112, 160, 129, 159, 117, 180, 181, 182, 123, 113, 162, 114, 126, 119, 115, 118, 130, 127,
+                                154, 158, 121, 156, 161, 116, 132]:
+                    if raw_packets:
+                        for date in raw_dates:
+                            if date in dates:
+                                for data in data_values:
+                                    if date == data[0]:
+                                        if data[1] > 0:
+                                            out = raw_val.filter(date=str(data[0])).aggregate(prod=Sum('per_day'))
+                                            val = res[data[0]]
+                                            if out['prod'] == None:
+                                                out['prod'] = 0
+                                            if val == None:
+                                                val = 0
+                                            out_1 = data[1] + out['prod'] + val
+                                            value = (float(data[2]) / float(out_1)) * 100
+                                            accuracy = 100 - value
+                                            accuracy = float('%.2f' % round(accuracy, 2))
+                                        elif data[1] == 0:
+                                            for prod_val in raw_packets:
+                                                if date == prod_val[0]:
+                                                    value = (float(data[2]) / float(prod_val[1])) * 100
+                                                    accuracy = 100 - value
+                                                    accuracy = float('%.2f' % round(accuracy, 2))
+                                        else:
+                                            accuracy = 100
+                            else:
+                                accuracy = 100
+                            produc_lst.append(accuracy)
+                        result_dict['Internal Accuracy'] = produc_lst
+                else:
+                    if data_values and raw_packets:
+                        for date in dates:
                             for data in data_values:
-                                if date == data[0]:
-                                    if data[1] > 0:
-                                        out = raw_val.filter(date=str(data[0])).aggregate(prod=Sum('per_day'))
-                                        val = res[data[0]]
-                                        if out['prod'] == None:
-                                            out['prod'] = 0
-                                        if val == None:
-                                            val = 0
-                                        out_1 = out['prod'] + val + data[1]
-                                        value = (float(data[2])/float(out_1)) * 100
-                                        accuracy = 100 - value
-                                        accuracy = float('%.2f' % round(accuracy, 2))
-                                    elif data[1] == 0:
-                                        for prod_val in raw_packets:
-                                            if date == prod_val[0]:
-                                                value = (float(data[2])/float(prod_val[1])) * 100
-                                                accuracy = 100 - value
-                                                accuracy = float('%.2f' % round(accuracy, 2))
-                                    else:
-                                        accuracy = 100
-                        else:
-                            accuracy = 100
-                        produc_lst.append(accuracy)
-                    result_dict['External Accuracy'] = produc_lst
+                                    if date == data[0]:
+                                        if data[1] > 0:
+                                            out = raw_val.filter(date=str(data[0])).aggregate(prod=Sum('per_day'))
+                                            val = res[data[0]]
+                                            if out['prod'] == None:
+                                                out['prod'] = 0
+                                            if val == None:
+                                                val = 0
+                                            out_1 = data[1] + out['prod'] + val
+                                            value = (float(data[2]) / float(out_1)) * 100
+                                            accuracy = 100 - value
+                                            accuracy = float('%.2f' % round(accuracy, 2))
+                                        elif data[1] == 0:
+                                            for prod_val in raw_packets:
+                                                if date == prod_val[0]:
+                                                    value = (float(data[2]) / float(prod_val[1])) * 100
+                                                    accuracy = 100 - value
+                                                    accuracy = float('%.2f' % round(accuracy, 2))
+                                        else:
+                                            accuracy = 100
+                            produc_lst.append(accuracy)
+                        result_dict['External Accuracy'] = produc_lst
             else:
                 level = Level_Order(level_structure_key)
                 data_values = query_values.values_list('date', level).annotate(total=Sum('total_errors'),
                                                                                audit=Sum('audited_errors'))
-                data_values = filter(lambda e: e[1] != u'', data_values)                
+                data_values = filter(lambda e: e[1] != u'', data_values)
                 rawtable = RawTable.objects.filter(**filter_params)
                 raw_packets = rawtable.values_list('date', level).annotate(prod=Sum('per_day'))
                 raw_packets = filter(lambda e: e[1] != u'', raw_packets)
@@ -678,41 +717,77 @@ def overall_external_accur_trends(main_dates, prj_id, center, level_structure_ke
                 def low(x):  return x.lower().title()
                 r_packets = map(low, r_packets)
                 r_dates = rawtable.values_list('date', flat=True).distinct()
-                if raw_packets:
-                    for date in dates:
-                        data_list = []
-                        for data in data_values:
-                            if date == data[0]:
-                                pack = data[1].lower().title()
-                                if data[2] > 0:
-                                    value = (float(data[3]) / float(data[2])) * 100
-                                    accuracy = 100 - value
-                                    accuracy = float('%.2f' % round(accuracy, 2))
-                                elif data[2] == 0:
-                                    if (pack in r_packets) and (data[0] in r_dates):
-                                        for prod_val in raw_packets:
-                                            if date == prod_val[0] and pack == prod_val[1].lower().title():
-                                                value = (float(data[3]) / float(prod_val[2])) * 100
-                                                accuracy = 100 - value
-                                                accuracy = float('%.2f' % round(accuracy, 2))
+                if prj_id in [30, 112, 160, 129, 159, 117, 180, 181, 182, 123, 113, 162, 114, 126, 119, 115, 118, 130, 127,
+                                154, 158, 121, 156, 161, 116, 132]:
+                    if raw_packets:
+                        for date in dates:
+                            data_list = []
+                            for data in data_values:
+                                if date == data[0]:
+                                    pack = data[1].lower().title()
+                                    if data[2] > 0:
+                                        value = (float(data[3]) / float(data[2])) * 100
+                                        accuracy = 100 - value
+                                        accuracy = float('%.2f' % round(accuracy, 2))
+                                    elif data[2] == 0:
+                                        if (pack in r_packets) and (data[0] in r_dates):
+                                            for prod_val in raw_packets:
+                                                if date == prod_val[0] and pack == prod_val[1].lower().title():
+                                                    value = (float(data[3]) / float(prod_val[2])) * 100
+                                                    accuracy = 100 - value
+                                                    accuracy = float('%.2f' % round(accuracy, 2))
+                                        else:
+                                            accuracy = 100
                                     else:
                                         accuracy = 100
-                                else:
-                                    accuracy = 100
+                                    if not result_dict.has_key(pack):
+                                        result_dict[pack] = [accuracy]
+                                    else:
+                                        result_dict[pack].append(accuracy)
+                                    data_list.append(accuracy)
+                            if len(data_list) == 0:
+                                for pack in r_packets:
+                                    pack = pack.lower().title()
+                                    if not result_dict.has_key(pack):
+                                        result_dict[pack] = [100]
+                                    else:
+                                        result_dict[pack].append(100)
+                else:
+                    if data_values and raw_packets:
+                        for date in dates:
+                            data_list = []
+                            for data in data_values:
+                                if date == data[0]:
+                                    pack = data[1].lower().title()
+                                    if data[2] > 0:
+                                        value = (float(data[3]) / float(data[2])) * 100
+                                        accuracy = 100 - value
+                                        accuracy = float('%.2f' % round(accuracy, 2))
+                                    elif data[2] == 0:
+                                        if (pack in r_packets) and (data[0] in r_dates):
+                                            for prod_val in raw_packets:
+                                                if date == prod_val[0] and pack == prod_val[1].lower().title():
+                                                    value = (float(data[3]) / float(prod_val[2])) * 100
+                                                    accuracy = 100 - value
+                                                    accuracy = float('%.2f' % round(accuracy, 2))
+                                        else:
+                                            accuracy = 100
+                                    else:
+                                        accuracy = 100
 
-                                if not result_dict.has_key(pack):
-                                    result_dict[pack] = [accuracy]
-                                else:
-                                    result_dict[pack].append(accuracy)
-                                data_list.append(accuracy)
+                                    if not result_dict.has_key(pack):
+                                        result_dict[pack] = [accuracy]
+                                    else:
+                                        result_dict[pack].append(accuracy)
+                                    data_list.append(accuracy)
 
-                        if len(data_list) == 0:
-                            for pack in r_packets:
-                                pack = pack.lower().title()
-                                if not result_dict.has_key(pack):
-                                    result_dict[pack] = [100]
-                                else:
-                                    result_dict[pack].append(100)
+                            if len(data_list) == 0:
+                                for pack in packets:
+                                    pack = pack.lower().title()
+                                    if not result_dict.has_key(pack):
+                                        result_dict[pack] = [100]
+                                    else:
+                                        result_dict[pack].append(100)
 
 
         elif _type in ["week", "month"]:
@@ -736,8 +811,27 @@ def overall_external_accur_trends(main_dates, prj_id, center, level_structure_ke
                 elif _term == 'work_packet':
                     raw_val = rawtable.filter(work_packet__in=fil).aggregate(prod=Sum('per_day'))
                 raw_pack = rawtable.aggregate(prod=Sum('per_day'))
-                if raw_pack:
-                    if exter_qy:
+                if prj_id in [30, 112, 160, 129, 159, 117, 180, 181, 182, 123, 113, 162, 114, 126, 119, 115, 118, 130, 127,
+                                154, 158, 121, 156, 161, 116, 132]:
+                    if raw_pack:
+                        if exter_qy:
+                            if exter_qy['audited_errors'] > 0:
+                                if raw_val['prod'] == None:
+                                    raw_val['prod'] = 0
+                                value = (float(exter_qy['total_errors'])/float(exter_qy['audited_errors']+raw_val['prod'])) * 100
+                                accuracy = 100 - value
+                                accuracy = float('%.2f' % round(accuracy, 2))
+                            elif exter_qy['audited_errors'] == 0:
+                                value = (float(exter_qy['total_errors'])/float(raw_pack['prod'])) * 100
+                                accuracy = 100 - value
+                                accuracy = float('%.2f' % round(accuracy, 2))
+                            else:
+                                accuracy = 100
+                        else:
+                            accuracy = 100
+                        result_dict['External Accuracy'] = accuracy
+                else:
+                    if exter_qy and raw_pack:
                         if exter_qy['audited_errors'] > 0:
                             if raw_val['prod'] == None:
                                 raw_val['prod'] = 0
@@ -750,9 +844,7 @@ def overall_external_accur_trends(main_dates, prj_id, center, level_structure_ke
                             accuracy = float('%.2f' % round(accuracy, 2))
                         else:
                             accuracy = 100
-                    else:
-                        accuracy = 100
-                    result_dict['External Accuracy'] = accuracy
+                        result_dict['External Accuracy'] = accuracy
 
             else:
                 level = Level_Order(level_structure_key)
@@ -765,8 +857,37 @@ def overall_external_accur_trends(main_dates, prj_id, center, level_structure_ke
                 raw_list = rawtable.values_list(level, flat=True).distinct()
                 def case(x): return x.lower().title()
                 raw_list = map(case, raw_list)
-                if raw_packets:
-                    if ext_qy:
+                if prj_id in [30, 112, 160, 129, 159, 117, 180, 181, 182, 123, 113, 162, 114, 126, 119, 115, 118, 130, 127,
+                                154, 158, 121, 156, 161, 116, 132]:
+                    if raw_packets:
+                        if ext_qy:
+                            for data in ext_qy:
+                                pack = data[0].lower().title()
+                                accuracy = 100
+                                if data[2] > 0:
+                                    value = (float(data[1]) / float(data[2])) * 100
+                                    accuracy = 100 - value
+                                    accuracy = float('%.2f' % round(accuracy, 2))
+                                elif data[2] == 0:
+                                    if pack in raw_list:
+                                        for prod_val in raw_packets:
+                                            if pack == prod_val[0].lower().title():
+                                                value = (float(data[1]) / float(prod_val[1])) * 100
+                                                accuracy = 100 - value
+                                                accuracy = float('%.2f' % round(accuracy, 2))
+                                    else:
+                                        accuracy = 100
+                                else:
+                                    accuracy = 100
+
+                            result_dict[pack] = accuracy
+                        else:
+                            for r_pack in raw_packets:
+                                pac_k = r_pack[0].lower().title()
+                                if not result_dict.has_key(pac_k):
+                                    result_dict[pac_k] = 100
+                else:
+                    if ext_qy and raw_packets:
                         for data in ext_qy:
                             pack = data[0].lower().title()
                             accuracy = 100
@@ -786,12 +907,7 @@ def overall_external_accur_trends(main_dates, prj_id, center, level_structure_ke
                             else:
                                 accuracy = 100
 
-                        result_dict[pack] = accuracy
-                    else:
-                        for r_pack in raw_packets:
-                            pac_k = r_pack[0].lower().title()
-                            if not result_dict.has_key(pac_k):
-                                result_dict[pac_k] = 100                    
+                            result_dict[pack] = accuracy
 
         return result_dict
 
@@ -883,34 +999,62 @@ def overall_internal_accur_trends(main_dates, prj_id, center, level_structure_ke
                         res[dat] = out['prod']
                     raw_val = rawtable.filter(work_packet__in=filter_pack).distinct()
                 raw_dates = rawtable.order_by('date').values_list('date',flat=True).distinct()
-                if raw_packets:
-                    for date in raw_dates:
-                        if date in dates:
+                if prj_id in [30, 112, 160, 129, 159, 117, 180, 181, 182, 123, 113, 162, 114, 126, 119, 115, 118, 130, 127,
+                                154, 158, 121, 156, 161, 116, 132]:
+                    if raw_packets:
+                        for date in raw_dates:
+                            if date in dates:
+                                for data in data_values:
+                                    if date == data[0]:
+                                        if data[1] > 0:
+                                            out = raw_val.filter(date=str(data[0])).aggregate(prod=Sum('per_day'))
+                                            val = res[data[0]]
+                                            if out['prod'] == None:
+                                                out['prod'] = 0
+                                            if val == None:
+                                                val = 0
+                                            out_1 = data[1] + out['prod'] + val
+                                            value = (float(data[2]) / float(out_1)) * 100
+                                            accuracy = 100 - value
+                                            accuracy = float('%.2f' % round(accuracy, 2))
+                                        elif data[1] == 0:
+                                            for prod_val in raw_packets:
+                                                if date == prod_val[0]:
+                                                    value = (float(data[2]) / float(prod_val[1])) * 100
+                                                    accuracy = 100 - value
+                                                    accuracy = float('%.2f' % round(accuracy, 2))
+                                        else:
+                                            accuracy = 100
+                            else:
+                                accuracy = 100
+                            produc_lst.append(accuracy)
+                        result_dict['Internal Accuracy'] = produc_lst
+                else:
+                    if data_values and raw_packets:
+                        for date in dates:
                             for data in data_values:
-                                if date == data[0]:
-                                    if data[1] > 0:
-                                        out = raw_val.filter(date=str(data[0])).aggregate(prod=Sum('per_day'))
-                                        val = res[data[0]]
-                                        if out['prod'] == None:
-                                            out['prod'] = 0
-                                        if val == None:
-                                            val = 0
-                                        out_1 = data[1] + out['prod'] + val
-                                        value = (float(data[2]) / float(out_1)) * 100
-                                        accuracy = 100 - value
-                                        accuracy = float('%.2f' % round(accuracy, 2))
-                                    elif data[1] == 0:
-                                        for prod_val in raw_packets:
-                                            if date == prod_val[0]:
-                                                value = (float(data[2]) / float(prod_val[1])) * 100
-                                                accuracy = 100 - value
-                                                accuracy = float('%.2f' % round(accuracy, 2))
-                                    else:
-                                        accuracy = 100
-                        else:
-                            accuracy = 100
-                        produc_lst.append(accuracy)
-                    result_dict['Internal Accuracy'] = produc_lst
+                                    if date == data[0]:
+                                        if data[1] > 0:
+                                            out = raw_val.filter(date=str(data[0])).aggregate(prod=Sum('per_day'))
+                                            val = res[data[0]]
+                                            if out['prod'] == None:
+                                                out['prod'] = 0
+                                            if val == None:
+                                                val = 0
+                                            out_1 = data[1] + out['prod'] + val
+                                            value = (float(data[2]) / float(out_1)) * 100
+                                            accuracy = 100 - value
+                                            accuracy = float('%.2f' % round(accuracy, 2))
+                                        elif data[1] == 0:
+                                            for prod_val in raw_packets:
+                                                if date == prod_val[0]:
+                                                    value = (float(data[2]) / float(prod_val[1])) * 100
+                                                    accuracy = 100 - value
+                                                    accuracy = float('%.2f' % round(accuracy, 2))
+                                        else:
+                                            accuracy = 100
+                            produc_lst.append(accuracy)
+                        result_dict['Internal Accuracy'] = produc_lst
 
             else:
                 level = Level_Order(level_structure_key)
@@ -925,41 +1069,79 @@ def overall_internal_accur_trends(main_dates, prj_id, center, level_structure_ke
                 r_packets = rawtable.values_list(level, flat=True).distinct()
                 def low(x): return x.lower().title()
                 r_packets = map(low, r_packets)
-                if raw_packets:
-                    for date in dates:
-                        data_list = []
-                        for data in data_values:
-                            if date == data[0]:
-                                pack = data[1].lower().title()
-                                if data[2] > 0:
-                                    value = (float(data[3]) / float(data[2])) * 100
-                                    accuracy = 100 - value
-                                    accuracy = float('%.2f' % round(accuracy, 2))
-                                elif data[2] == 0:
-                                    if (pack in r_packets) and (data[0] in r_dates):
-                                        for prod_val in raw_packets:
-                                            if date == prod_val[0] and pack == prod_val[1].lower().title():
-                                                value = (float(data[3]) / float(prod_val[2])) * 100
-                                                accuracy = 100 - value
-                                                accuracy = float('%.2f' % round(accuracy, 2))
+                if prj_id in [30, 112, 160, 129, 159, 117, 180, 181, 182, 123, 113, 162, 114, 126, 119, 115, 118, 130, 127,
+                                154, 158, 121, 156, 161, 116, 132]:
+                    if raw_packets:
+                        for date in dates:
+                            data_list = []
+                            for data in data_values:
+                                if date == data[0]:
+                                    pack = data[1].lower().title()
+                                    if data[2] > 0:
+                                        value = (float(data[3]) / float(data[2])) * 100
+                                        accuracy = 100 - value
+                                        accuracy = float('%.2f' % round(accuracy, 2))
+                                    elif data[2] == 0:
+                                        if (pack in r_packets) and (data[0] in r_dates):
+                                            for prod_val in raw_packets:
+                                                if date == prod_val[0] and pack == prod_val[1].lower().title():
+                                                    value = (float(data[3]) / float(prod_val[2])) * 100
+                                                    accuracy = 100 - value
+                                                    accuracy = float('%.2f' % round(accuracy, 2))
+                                        else:
+                                            accuracy = 100
                                     else:
                                         accuracy = 100
-                                else:
-                                    accuracy = 100
 
-                                if not result_dict.has_key(pack):
-                                    result_dict[pack] = [accuracy]
-                                else:
-                                    result_dict[pack].append(accuracy)
-                                data_list.append(accuracy)
+                                    if not result_dict.has_key(pack):
+                                        result_dict[pack] = [accuracy]
+                                    else:
+                                        result_dict[pack].append(accuracy)
+                                    data_list.append(accuracy)
 
-                        if len(data_list) == 0:
-                            for pack in r_packets:
-                                pack = pack.lower().title()
-                                if not result_dict.has_key(pack):
-                                    result_dict[pack] = [100]
-                                else:
-                                    result_dict[pack].append(100)
+                            if len(data_list) == 0:
+                                for pack in r_packets:
+                                    pack = pack.lower().title()
+                                    if not result_dict.has_key(pack):
+                                        result_dict[pack] = [100]
+                                    else:
+                                        result_dict[pack].append(100)
+                else:
+                    if data_values and raw_packets:
+                        for date in dates:
+                            data_list = []
+                            for data in data_values:
+                                if date == data[0]:
+                                    pack = data[1].lower().title()
+                                    if data[2] > 0:
+                                        value = (float(data[3]) / float(data[2])) * 100
+                                        accuracy = 100 - value
+                                        accuracy = float('%.2f' % round(accuracy, 2))
+                                    elif data[2] == 0:
+                                        if (pack in r_packets) and (data[0] in r_dates):
+                                            for prod_val in raw_packets:
+                                                if date == prod_val[0] and pack == prod_val[1].lower().title():
+                                                    value = (float(data[3]) / float(prod_val[2])) * 100
+                                                    accuracy = 100 - value
+                                                    accuracy = float('%.2f' % round(accuracy, 2))
+                                        else:
+                                            accuracy = 100
+                                    else:
+                                        accuracy = 100
+
+                                    if not result_dict.has_key(pack):
+                                        result_dict[pack] = [accuracy]
+                                    else:
+                                        result_dict[pack].append(accuracy)
+                                    data_list.append(accuracy)
+
+                            if len(data_list) == 0:
+                                for pack in packets:
+                                    pack = pack.lower().title()
+                                    if not result_dict.has_key(pack):
+                                        result_dict[pack] = [100]
+                                    else:
+                                        result_dict[pack].append(100)
 
 
 
@@ -984,13 +1166,32 @@ def overall_internal_accur_trends(main_dates, prj_id, center, level_structure_ke
                 elif _term == 'work_packet':
                     raw_val = rawtable.filter(work_packet__in=fil).aggregate(prod=Sum('per_day'))
                 raw_packets = rawtable.aggregate(prod=Sum('per_day'))
-                if raw_packets:
-                    if ext_qy:
+                if prj_id in [30, 112, 160, 129, 159, 117, 180, 181, 182, 123, 113, 162, 114, 126, 119, 115, 118, 130, 127,
+                                154, 158, 121, 156, 161, 116, 132]:
+                    if raw_packets:
+                        if ext_qy:
+                            if ext_qy['audited_errors'] > 0:
+                                if raw_val['prod'] == None:
+                                    raw_val['prod'] = 0
+                                value = (float(ext_qy['total_errors']) / float(ext_qy['audited_errors'] + raw_val['prod'])) * 100
+                                accuracy = 100 - value
+                                accuracy = float('%.2f' % round(accuracy, 2))
+                            elif ext_qy['audited_errors'] == 0:
+                                value = (float(ext_qy['total_errors']) / float(raw_packets['prod'])) * 100
+                                accuracy = 100 - value
+                                accuracy = float('%.2f' % round(accuracy, 2))
+                            else:
+                                accuracy = 100
+                        else:
+                            accuracy = 100
+
+                        result_dict['Internal Accuracy'] = accuracy
+                else:
+                    if ext_qy and raw_packets:
                         if ext_qy['audited_errors'] > 0:
                             if raw_val['prod'] == None:
                                 raw_val['prod'] = 0
-                            value = (
-                                    float(ext_qy['total_errors']) / float(ext_qy['audited_errors'] + raw_val['prod'])) * 100
+                            value = (float(ext_qy['total_errors']) / float(ext_qy['audited_errors'] + raw_val['prod'])) * 100
                             accuracy = 100 - value
                             accuracy = float('%.2f' % round(accuracy, 2))
                         elif ext_qy['audited_errors'] == 0:
@@ -999,10 +1200,7 @@ def overall_internal_accur_trends(main_dates, prj_id, center, level_structure_ke
                             accuracy = float('%.2f' % round(accuracy, 2))
                         else:
                             accuracy = 100
-                    else:
-                        accuracy = 100
-
-                    result_dict['Internal Accuracy'] = accuracy
+                        result_dict['Internal Accuracy'] = accuracy
 
             else:
                 level = Level_Order(level_structure_key)
@@ -1015,8 +1213,35 @@ def overall_internal_accur_trends(main_dates, prj_id, center, level_structure_ke
                 raw_list = rawtable.values_list(level, flat=True).distinct()
                 def case(x):  return x.lower().title()
                 raw_list = map(case, raw_list)
-                if raw_packets:
-                    if ext_qy:
+                if prj_id in [30, 112, 160, 129, 159, 117, 180, 181, 182, 123, 113, 162, 114, 126, 119, 115, 118, 130, 127,
+                                154, 158, 121, 156, 161, 116, 132]:
+                    if raw_packets:
+                        if ext_qy:
+                            for data in ext_qy:
+                                pack = data[0].lower().title()
+                                if data[2] > 0:
+                                    value = (float(data[1]) / float(data[2])) * 100
+                                    accuracy = 100 - value
+                                    accuracy = float('%.2f' % round(accuracy, 2))
+                                elif data[2] == 0:
+                                    if pack in raw_list:
+                                        for prod_val in raw_packets:
+                                            if pack == prod_val[0].lower().title():
+                                                value = (float(data[1]) / float(prod_val[1])) * 100
+                                                accuracy = 100 - value
+                                                accuracy = float('%.2f' % round(accuracy, 2))
+                                    else:
+                                        accuracy = 100
+                                else:
+                                    accuracy = 100
+                                result_dict[pack] = accuracy
+                        else:
+                            for r_pack in raw_packets:
+                                pac_k = r_pack[0].lower().title()
+                                if not result_dict.has_key(pac_k):
+                                    result_dict[pac_k] = 100
+                else:
+                    if ext_qy and raw_packets:
                         for data in ext_qy:
                             pack = data[0].lower().title()
                             if data[2] > 0:
@@ -1035,11 +1260,6 @@ def overall_internal_accur_trends(main_dates, prj_id, center, level_structure_ke
                             else:
                                 accuracy = 100
                             result_dict[pack] = accuracy
-                    else:
-                        for r_pack in raw_packets:
-                            pac_k = r_pack[0].lower().title()
-                            if not result_dict.has_key(pac_k):
-                                result_dict[pac_k] = 100
 
         return result_dict
 
