@@ -720,7 +720,7 @@ def overall_external_accur_trends(main_dates, prj_id, center, level_structure_ke
                 if prj_id in [30, 112, 160, 129, 159, 117, 180, 181, 182, 123, 113, 162, 114, 126, 119, 115, 118, 130, 127,
                                 154, 158, 121, 156, 161, 116, 132]:
                     if raw_packets:
-                        for date in dates:
+                        for date in r_dates:
                             data_list = []
                             for data in data_values:
                                 if date == data[0]:
@@ -736,8 +736,6 @@ def overall_external_accur_trends(main_dates, prj_id, center, level_structure_ke
                                                     value = (float(data[3]) / float(prod_val[2])) * 100
                                                     accuracy = 100 - value
                                                     accuracy = float('%.2f' % round(accuracy, 2))
-                                        else:
-                                            accuracy = 100
                                     else:
                                         accuracy = 100
                                     if not result_dict.has_key(pack):
@@ -1069,10 +1067,11 @@ def overall_internal_accur_trends(main_dates, prj_id, center, level_structure_ke
                 r_packets = rawtable.values_list(level, flat=True).distinct()
                 def low(x): return x.lower().title()
                 r_packets = map(low, r_packets)
+                r_dates = rawtable.values_list('date', flat=True).distinct()
                 if prj_id in [30, 112, 160, 129, 159, 117, 180, 181, 182, 123, 113, 162, 114, 126, 119, 115, 118, 130, 127,
                                 154, 158, 121, 156, 161, 116, 132]:
                     if raw_packets:
-                        for date in dates:
+                        for date in r_dates:
                             data_list = []
                             for data in data_values:
                                 if date == data[0]:
@@ -1088,8 +1087,6 @@ def overall_internal_accur_trends(main_dates, prj_id, center, level_structure_ke
                                                     value = (float(data[3]) / float(prod_val[2])) * 100
                                                     accuracy = 100 - value
                                                     accuracy = float('%.2f' % round(accuracy, 2))
-                                        else:
-                                            accuracy = 100
                                     else:
                                         accuracy = 100
 
