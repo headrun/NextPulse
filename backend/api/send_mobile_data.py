@@ -27,36 +27,31 @@ def send_mobile_notifications(proj_list, user_obj, user_group):
             if recent_upload_date != None:
                 if yesterdays_date.date() == recent_upload_date.date():                
                     date_query = RawTable.objects.filter(project_id=project).aggregate(Max('date'))
-                    date = str(date_query['date__max'])
-                    is_send_sms = project.is_enable_sms                    
-                    project_name = project.name            
-                    if is_send_sms:             
-                        values = generate_targets_data(project,user_group,is_senior,date_query)                                        
-                        if user_group   == 'customer' and is_senior:
-                            push_data   = get_senior_customer_data(values)
-                        elif user_group == 'customer':
-                            push_data   = get_customer_data(values)
-                        else:
-                            push_data   = values
-                        _keys  = push_data.keys()                        
-                        data_1 = project_name +" - "+ date+ "\n"
-                        if (('production' in _keys) and ('aht' in _keys) and ('productivity' in _keys) and ('sla' in _keys)) or\
-                            (('production' in _keys) and ('sla' in _keys) and ('productivity' in _keys)) or \
-                            (('production' in _keys) and ('sla' in _keys) and ('aht' in _keys)) or (('aht' in _keys) and ('sla' in _keys) and ('productivity' in _keys)):                    
-                            metric = get_required_data_for_notification(push_data)
-                        elif (('production' in _keys) and ('aht' in _keys)) or (('production' in _keys) and ('sla' in _keys)) or\
-                            (('productivity' in _keys) and ('sla' in _keys)) or (('production' in _keys) and ('productivity' in _keys))\
-                            or (('productivity' in _keys) and ('aht' in _keys)):
-                            metric = get_fields_data_for_push(push_data)
-                        elif (('production' in _keys) or ('sla' in _keys) or ('productivity' in _keys) \
-                            or ('aht' in _keys) or ('kpi' in _keys)):
-                            metric = get_individual_fields_for_push(push_data)
-                        data = data_1 + metric+"\n"
+                    date = str(date_query['date__max'])                    
+                    project_name = project.name                                
+                    values = generate_targets_data(project,user_group,is_senior,date_query)                                        
+                    if user_group   == 'customer' and is_senior:
+                        push_data   = get_senior_customer_data(values)
+                    elif user_group == 'customer':
+                        push_data   = get_customer_data(values)
                     else:
-                        payload = {}                  
-
-                    full_data = full_data + data  
-
+                        push_data   = values
+                    _keys  = push_data.keys()                        
+                    data_1 = project_name +" - "+ date+ "\n"
+                    if (('production' in _keys) and ('aht' in _keys) and ('productivity' in _keys) and ('sla' in _keys)) or\
+                        (('production' in _keys) and ('sla' in _keys) and ('productivity' in _keys)) or \
+                            (('production' in _keys) and ('sla' in _keys) and ('kpi' in _keys)) or \                                
+                                (('production' in _keys) and ('sla' in _keys) and ('aht' in _keys)) or\
+                                     (('aht' in _keys) and ('sla' in _keys) and ('productivity' in _keys)):                    
+                        metric = get_required_data_for_notification(push_data)
+                    elif (('production' in _keys) and ('aht' in _keys)) or (('production' in _keys) and ('sla' in _keys)) or\
+                        (('productivity' in _keys) and ('sla' in _keys)) or (('production' in _keys) and ('productivity' in _keys))\
+                        or (('productivity' in _keys) and ('aht' in _keys) or (('production' in _keys) and ('kpi' in _keys))):
+                        metric = get_fields_data_for_push(push_data)
+                    elif (('production' in _keys)):
+                        metric = get_individual_fields_for_push(push_data)
+                    data = data_1 + metric+"\n" 
+                    full_data = full_data + data
                 else:
                     payload = {}           
             else:
@@ -84,27 +79,34 @@ def get_required_data_for_notification(push_data):
         metric_1 = 'Production' + ": " + "Target = " + str(push_data['production']['production_target']) + ",  Actual = " + str(push_data['production']['workdone']) + "\n"
         metric_2 = 'AHT' + ": " + "Target = " + str(push_data['aht']['aht_target']) + ",  Actual = " + str(push_data['aht']['aht']) + "\n"
         metric_3 = 'Productivity' + ": " + "Target = " + str(push_data['productivity']['productivity_target']) + ",  Actual = " + str(push_data['productivity']['productivity']) + "\n"
-        metric_4 = 'SLA' + ": " + "Target = " + str(push_data['sla']['SLA_target']) + ",  Actual = " + str(push_data['sla']['SLA_accuracy'])
+        metric_4 = 'External Accuracy' + ": " + "Target = " + str(push_data['sla']['SLA_target']) + ",  Actual = " + str(push_data['sla']['SLA_accuracy'])
         metric = metric_1 + metric_2 + metric_3 + metric_4 
 
     elif (('production' in _keys) and ('sla' in _keys) and ('productivity' in _keys)):
 
         metric_1 = 'Production' + ": " + "Target = " + str(push_data['production']['production_target']) + ",  Actual = " + str(push_data['production']['workdone']) + "\n"
-        metric_2 = 'SLA' + ": " + "Target = " + str(push_data['sla']['SLA_target']) + ",  Actual = " + str(push_data['sla']['SLA_accuracy']) + "\n"
+        metric_2 = 'External Accuracy' + ": " + "Target = " + str(push_data['sla']['SLA_target']) + ",  Actual = " + str(push_data['sla']['SLA_accuracy']) + "\n"
         metric_3 = 'Productivity' + ": " + "Target = " + str(push_data['productivity']['productivity_target']) + ",  Actual = " + str(push_data['productivity']['productivity'])
+        metric = metric_1 + metric_2 + metric_3
+    
+    elif (('production' in _keys) and ('sla' in _keys) and ('kpi' in _keys)):
+
+        metric_1 = 'Production' + ": " + "Target = " + str(push_data['production']['production_target']) + ",  Actual = " + str(push_data['production']['workdone']) + "\n"
+        metric_2 = 'External Accuracy' + ": " + "Target = " + str(push_data['sla']['SLA_target']) + ",  Actual = " + str(push_data['sla']['SLA_accuracy']) + "\n"
+        metric_3 = 'Internal Accuracy' + ": " + "Target = " + str(push_data['kpi']['KPI_target']) + ",  Actual = " + str(push_data['kpi']['KPI_accuracy'])
         metric = metric_1 + metric_2 + metric_3
 
     elif (('production' in _keys) and ('sla' in _keys) and ('aht' in _keys)):
 
         metric_1 = 'Production' + ": " + "Target = " + str(push_data['production']['production_target']) + ",  Actual = " + str(push_data['production']['workdone']) + "\n"
-        metric_2 = 'SLA' + ": " + "Target = " + str(push_data['sla']['SLA_target']) + ",  Actual = " + str(push_data['sla']['SLA_accuracy']) + "\n"
+        metric_2 = 'External Accuracy' + ": " + "Target = " + str(push_data['sla']['SLA_target']) + ",  Actual = " + str(push_data['sla']['SLA_accuracy']) + "\n"
         metric_3 = 'AHT' + ": " + "Target = " + str(push_data['aht']['aht_target']) + ",  Actual = " + str(push_data['aht']['aht'])
         metric = metric_1 + metric_2 + metric_3
 
     elif (('aht' in _keys) and ('sla' in _keys) and ('productivity' in _keys)):
 
         metric_1 = 'AHT' + ": " + "Target = " + str(push_data['aht']['aht_target']) + ",  Actual = " + str(push_data['aht']['aht']) + "\n"
-        metric_2 = 'SLA' + ": " + "Target = " + str(push_data['sla']['SLA_target']) + ",  Actual = " + str(push_data['sla']['SLA_accuracy']) + "\n"
+        metric_2 = 'External Accuracy' + ": " + "Target = " + str(push_data['sla']['SLA_target']) + ",  Actual = " + str(push_data['sla']['SLA_accuracy']) + "\n"
         metric_3 = 'Productivity' + ": " + "Target = " + str(push_data['productivity']['productivity_target']) + ",  Actual = " + str(push_data['productivity']['productivity'])
         metric = metric_1 + metric_2 + metric_3
 
@@ -124,12 +126,17 @@ def get_fields_data_for_push(push_data):
 
     elif ('production' in _keys) and ('sla' in _keys):
         metric_1 = 'Production' + ": " + "Target = " + str(push_data['production']['production_target']) + ",  Actual = " + str(push_data['production']['workdone']) + "\n"
-        metric_2 = 'SLA' + ": " + "Target = " + str(push_data['sla']['SLA_target']) + ",  Actual = " + str(push_data['sla']['SLA_accuracy'])
+        metric_2 = 'External Accuracy' + ": " + "Target = " + str(push_data['sla']['SLA_target']) + ",  Actual = " + str(push_data['sla']['SLA_accuracy'])
+        metric = metric_1 + metric_2
+
+    elif ('production' in _keys) and ('kpi' in _keys):
+        metric_1 = 'Production' + ": " + "Target = " + str(push_data['production']['production_target']) + ",  Actual = " + str(push_data['production']['workdone']) + "\n"
+        metric_2 = 'Internal Accuracy' + ": " + "Target = " + str(push_data['kpi']['KPI_target']) + ",  Actual = " + str(push_data['kpi']['KPI_accuracy'])
         metric = metric_1 + metric_2
 
     elif ('productivity' in _keys) and ('sla' in _keys):
         metric_1 = 'Productivity' + ": " + "Target = " + str(push_data['productivity']['productivity_target']) + ",  Actual = " + str(push_data['productivity']['productivity']) + "\n"
-        metric_2 = 'SLA' + ": " + "Target = " + str(push_data['sla']['SLA_target']) + ",  Actual = " + str(push_data['sla']['SLA_accuracy'])
+        metric_2 = 'External Accuracy' + ": " + "Target = " + str(push_data['sla']['SLA_target']) + ",  Actual = " + str(push_data['sla']['SLA_accuracy'])
         metric = metric_1 + metric_2
 
     elif ('production' in _keys) and ('productivity' in _keys):
@@ -155,7 +162,7 @@ def get_individual_fields_for_push(push_data):
     if ('production' in _keys):
         metric = 'Production' + ": " + "Target = " + str(push_data['production']['production_target']) + ",  Actual = " + str(push_data['production']['workdone'])
     elif ('sla' in _keys):
-        metric = 'SLA' + ": " + "Target = " + str(push_data['sla']['SLA_target']) + ",  Actual = " + str(push_data['sla']['SLA_accuracy'])
+        metric = 'External Accuracy' + ": " + "Target = " + str(push_data['sla']['SLA_target']) + ",  Actual = " + str(push_data['sla']['SLA_accuracy'])
     elif ('productivity' in _keys):
         metric = 'Productivity' + ": " + "Target = " + str(push_data['productivity']['productivity_target']) + ",  Actual = " + str(push_data['productivity']['productivity'])
     elif ('aht' in _keys):
