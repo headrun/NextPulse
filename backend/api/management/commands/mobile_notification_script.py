@@ -21,16 +21,20 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         
-        customers = Customer.objects.filter(name__is_active=True, enable_sms=True)                
-        tls = TeamLead.objects.filter(name__is_active=True,  enable_sms=True)                      
+        customers = Customer.objects.filter(name__is_active=True, daily_sms=True)                
+        tls = TeamLead.objects.filter(name__is_active=True,  daily_sms=True)                      
         
         for customer in customers:
-            project_list = Customer.objects.filter(id=customer.id, project__is_enable_sms=True, project__is_voice=False, project__display_project=True,).values_list('project', flat=True).distinct()            
+            project_list = Customer.objects.filter(id=customer.id, project__is_daily_sms=True, \
+                project__is_voice=False, project__display_project=True,).\
+                    values_list('project', flat=True).distinct()            
             if len(project_list) > 0:
                 send_mobile_notifications(project_list, customer, 'customer')
 
         for tl in tls:
-            project_list = TeamLead.objects.filter(id=tl.id, project__is_voice=False, project__display_project=True, project__is_enable_sms=True).values_list('project',flat=True).distinct()                                    
+            project_list = TeamLead.objects.filter(id=tl.id, project__is_voice=False,\
+                 project__display_project=True, project__is_daily_sms=True).\
+                     values_list('project',flat=True).distinct()                                    
             if len(project_list) > 0:
                 send_mobile_notifications(project_list, tl, 'team_lead')
             
