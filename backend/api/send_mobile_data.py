@@ -21,14 +21,13 @@ def send_mobile_notifications(proj_list, user_obj, user_group):
             is_senior = customer_data[0]  
         full_data = ""      
         for project in proj_list:
-            project = Project.objects.get(id=project)
             recent_upload_date = RawTable.objects.filter(project=project).aggregate(Max('created_at'))
             recent_upload_date = recent_upload_date['created_at__max']            
             if recent_upload_date != None:
                 if yesterdays_date.date() == recent_upload_date.date():                
                     date_query = RawTable.objects.filter(project_id=project).aggregate(Max('date'))
-                    date = str(date_query['date__max'])                    
-                    project_name = project.name                                
+                    date = str(date_query['date__max'])
+                    project_name = Project.objects.get(id=project).name
                     values = generate_targets_data(project,user_group,is_senior,date_query)                                        
                     if user_group   == 'customer' and is_senior:
                         push_data   = get_senior_customer_data(values)
