@@ -113,7 +113,7 @@ def get_production_data(project,date,_type, work_done):
         actual_target = generate_target_calculations(project,date)
     else:
         if project == 28:
-            target = UploadDataTable.objects.filter(project=project,date=date).aggregate(target=Sum('upload'))
+            target = UploadDataTable.objects.filter(project=project,date=date).aggregate(target=Sum('target'))
             actual_target = target['target']
         elif project == 1:
             target = Targets.objects.filter(project=project,to_date__gte=date,target_type=_type).exclude(work_packet="About the Company").\
