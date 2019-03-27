@@ -177,7 +177,7 @@ def get_accuracy_data(project,date,_type,table_name):
         else:
             audit_data = work_done
         
-        if audit_data:
+        if audit_data > 0:
             accuracy = (float(error_data[0][1])/float(audit_data))*100
             accuracy =  100 - accuracy
             accuracy = float('%.2f' % round(accuracy, 2))
@@ -185,7 +185,11 @@ def get_accuracy_data(project,date,_type,table_name):
         else:
             accuracy = str(0) + " %"
     else:
-        accuracy = str(100) + " %"
+        proj_list = Project.objects.filter(name__contains="IBM").values_list('id',flat=True).distinct()
+        if project in proj_list:
+            accuracy = str(100) + " %"
+        else:
+            accuracy = "No Data"
     
     target = Targets.objects.filter(project=project,to_date__gte=date,target_type=_type[0],\
         target_method=_type[1]).values_list('target_value',flat=True)
