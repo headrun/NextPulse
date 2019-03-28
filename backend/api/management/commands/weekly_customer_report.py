@@ -25,29 +25,30 @@ class Command(BaseCommand):
         center_managers = Centermanager.objects.filter(name__is_active=True, weekly_mail=True)
         customers = Customer.objects.filter(name__is_active=True, project__is_weekly_mail=True,\
              project__is_voice=False, project__display_project=True, weekly_mail=True, \
-                 disable_weekly_metrics = False).distinct()
+                 weekly_mail_metrics = False).distinct()
         tls = TeamLead.objects.filter(name__is_active=True, project__is_voice=False,\
              project__display_project=True, project__is_weekly_mail=True, weekly_mail=True).\
                  distinct()
         customer_metric_weekly = Customer.objects.filter(name__is_active=True, \
             project__is_weekly_mail=True, project__is_voice=False, project__display_project=True, \
-                 disable_weekly_metrics=True, weekly_mail = False).distinct()
+                 weekly_mail_metrics=True, weekly_mail = False).distinct()
         custom_list = [30,112,160,129,159,117,180,181,182,123,113,162,114,126,119,115,118,130,127,\
             154,158,121,156,161,116,132]
         
+        
         for customer in customers:
             customer_details = Customer.objects.filter(id=customer.id, project__is_weekly_mail=True,\
-                 weekly_mail=True, disable_weekly_metrics=False).\
+                 weekly_mail=True, weekly_mail_metrics=False).\
                      values_list('project', flat=True).distinct()                        
             if len(customer_details) > 0:
-                weekly_mail_data(customer_details, customer, 'customer')
+                send_weekly_metric_mail(customer, customer_details)
         
         for customer in customer_metric_weekly:
             customer_details = Customer.objects.filter(id=customer.id, project__is_weekly_mail=True,\
-                 disable_weekly_metrics=True, weekly_mail=False).\
+                 weekly_mail_metrics=True, weekly_mail=False).\
                      values_list('project', flat=True).distinct()
             if len(customer_details) > 0:
-                send_weekly_metric_mail(customer, customer_details)
+                weekly_mail_data(customer_details, customer, 'customer')                
 
         for tl in tls:
             tl_details = TeamLead.objects.filter(id=tl.id, project__is_weekly_mail=True,\

@@ -22,7 +22,7 @@ def send_mail_data(user_details, user, user_group):
             upload_date = RawTable.objects.filter(project=project).aggregate(Max('created_at'))
             upload_date = upload_date['created_at__max']        
             if upload_date != None:            
-                if upload_date.date() == yesterdays_date.date():                
+                if upload_date.date() == yesterdays_date.date():                    
                     if user_group == 'customer':
                         is_senior = Customer.objects.get(id=user.id).is_senior                        
                     else:
