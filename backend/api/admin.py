@@ -118,6 +118,14 @@ def L_disable_sms_notifications(modeladmin, request, queryset):
         queryset.update(daily_sms=False)
 L_disable_sms_notifications.short_description = "Disable sms for selected ones"
 
+def L_enable_sms_metrics_notifications(modeladmin, request, queryset):
+        queryset.update(daily_sms_metrics=True)
+L_enable_sms_metrics_notifications.short_description = "Enable sms metrics for selected ones"
+
+def L_disable_sms_metrics_notifications(modeladmin, request, queryset):
+        queryset.update(daily_sms_metrics=False)
+L_disable_sms_metrics_notifications.short_description = "Disable sms metrics for selected ones"
+
 def L_enable_weekly_mail_notifications(modeladmin, request, queryset):
         queryset.update(weekly_mail=True)
 L_enable_weekly_mail_notifications.short_description = "Enable weekly mail for selected ones"
@@ -127,20 +135,20 @@ def L_disable_weekly_mail_notifications(modeladmin, request, queryset):
 L_disable_weekly_mail_notifications.short_description = "Disable weekly mail for selected ones"
 
 def L_enable_daily_metrics(modeladmin, request, queryset):
-    queryset.update(disable_daily_metrics=True)
-L_enable_daily_metrics.short_description = "Disable daily metrics - Active"
+    queryset.update(daily_mail_metrics=True)
+L_enable_daily_metrics.short_description = "Enable daily metrics"
 
 def L_disable_daily_metrics(modeladmin, request, queryset):
-    queryset.update(disable_daily_metrics=False)
-L_disable_daily_metrics.short_description = "Disable daily metrics - Inactive"
+    queryset.update(daily_mail_metrics=False)
+L_disable_daily_metrics.short_description = "Disable daily metrics"
 
 def L_enable_weekly_metrics(modeladmin, request, queryset):
-    queryset.update(disable_weekly_metrics=True)
-L_enable_weekly_metrics.short_description = "Disable weekly metrics - Active"
+    queryset.update(weekly_mail_metrics=True)
+L_enable_weekly_metrics.short_description = "Enable weekly metrics"
 
 def L_disable_weekly_metrics(modeladmin, request, queryset):
-    queryset.update(disable_weekly_metrics=False)
-L_disable_weekly_metrics.short_description = "Disable weekly metrics - Inactive"
+    queryset.update(weekly_mail_metrics=False)
+L_disable_weekly_metrics.short_description = "Disable weekly metrics"
 
 
 class TeamleadAdmin(admin.ModelAdmin):
@@ -153,9 +161,9 @@ admin.site.register(TeamLead,TeamleadAdmin)
 
 
 class CustomerAdmin(admin.ModelAdmin):
-    list_display = ['id','name','get_projects','daily_mail','disable_daily_metrics','weekly_mail','disable_weekly_metrics','daily_sms']
+    list_display = ['id','name','get_projects','daily_mail','daily_mail_metrics','weekly_mail','weekly_mail_metrics','daily_sms','daily_sms_metrics']
     actions = [L_enable_mail_notifications, L_disable_mail_notifications, L_enable_sms_notifications, L_disable_sms_notifications, L_enable_push_notifications, L_disable_push_notifications , L_enable_weekly_mail_notifications, L_disable_weekly_mail_notifications,\
-               L_enable_daily_metrics,L_disable_daily_metrics,L_enable_weekly_metrics,L_disable_weekly_metrics]
+               L_enable_daily_metrics,L_disable_daily_metrics,L_enable_weekly_metrics,L_disable_weekly_metrics,L_enable_sms_metrics_notifications,L_disable_sms_metrics_notifications]
     def get_projects(self, obj):
         return ", \n".join([p.name for p in obj.project.all()])
     get_projects.short_description = "Projects"

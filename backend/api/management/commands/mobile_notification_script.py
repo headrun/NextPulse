@@ -22,13 +22,28 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         
         customers = Customer.objects.filter(name__is_active=True, project__is_daily_sms=True\
-             , daily_sms=True, project__is_voice=False, project__display_project=True).distinct()                
+             , daily_sms=False, project__is_voice=False, project__display_project=True, \
+                 daily_sms_metrics=True).distinct()                
         tls = TeamLead.objects.filter(name__is_active=True,  daily_sms=True, project__is_daily_sms=True,\
-            project__is_voice=False, project__display_project=True).distinct()                      
+            project__is_voice=False, project__display_project=True).distinct()    
+
+        customers_metrics = Customer.objects.filter(name__is_active=True, project__is_daily_sms=True\
+             , daily_sms=True,daily_sms_metrics=False, project__is_voice=False, \
+                 project__display_project=True).distinct()                          
         
+        
+        for customer in customers_metrics:
+            project_list = Customer.objects.filter(id=customer.id, project__is_daily_sms=True,\
+                    project__is_voice=False, project__display_project=True, daily_sms=True,\
+                         daily_sms_metrics=False).values_list('project',flat=True).distinct()
+            if len(project_list) > 0:
+                send_mobile_metric_notifications(project_list, customer)
+
+
         for customer in customers:
             project_list = Customer.objects.filter(id=customer.id, project__is_daily_sms=True, \
-                project__is_voice=False, project__display_project=True,daily_sms=True).\
+                project__is_voice=False, project__display_project=True,daily_sms_metrics=True,\
+                    daily_sms=False ).\
                     values_list('project', flat=True).distinct()             
             if len(project_list) > 0:
                 send_mobile_notifications(project_list, customer, 'customer')

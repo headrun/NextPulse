@@ -23,40 +23,45 @@ def send_mobile_notifications(proj_list, user_obj, user_group):
         for project in proj_list:
             recent_upload_date = RawTable.objects.filter(project=project).aggregate(Max('created_at'))
             recent_upload_date = recent_upload_date['created_at__max']            
-            if recent_upload_date != None:
+            if recent_upload_date != None:                
                 if yesterdays_date.date() == recent_upload_date.date():                
                     date_query = RawTable.objects.filter(project_id=project).aggregate(Max('date'))
                     date = str(date_query['date__max'])
                     project_name = Project.objects.get(id=project).name
-                    values = generate_targets_data(project,user_group,is_senior,date_query)                                        
-                    if user_group   == 'customer' and is_senior:
-                        push_data   = get_senior_customer_data(values)
-                    elif user_group == 'customer':
-                        push_data   = get_customer_data(values)
+                    values = generate_targets_data(project,user_group,is_senior,date_query)
+                    if values:
+                        if user_group   == 'customer' and is_senior:
+                            push_data   = get_senior_customer_data(values)
+                        elif user_group == 'customer':
+                            push_data   = get_customer_data(values)
+                        else:
+                            push_data   = values
+                        _keys  = push_data.keys()                        
+                        data_1 = project_name +" - "+ date+ "\n"
+                        if (('production' in _keys) and ('aht' in _keys) and ('productivity' in _keys) and ('sla' in _keys)) or\
+                            (('production' in _keys) and ('sla' in _keys) and ('productivity' in _keys)) or \
+                                (('production' in _keys) and ('sla' in _keys) and ('kpi' in _keys)) or \
+                                    (('production' in _keys) and ('sla' in _keys) and ('aht' in _keys)) or\
+                                        (('aht' in _keys) and ('sla' in _keys) and ('productivity' in _keys)):                    
+                            metric = get_required_data_for_notification(push_data)
+                        elif (('production' in _keys) and ('aht' in _keys)) or (('production' in _keys) and ('sla' in _keys)) or\
+                            (('productivity' in _keys) and ('sla' in _keys)) or (('production' in _keys) and ('productivity' in _keys))\
+                            or (('productivity' in _keys) and ('aht' in _keys) or (('production' in _keys) and ('kpi' in _keys))):
+                            metric = get_fields_data_for_push(push_data)
+                        elif (('production' in _keys)):
+                            metric = get_individual_fields_for_push(push_data)
+                        else:
+                            metric = ''
+                        data = data_1 + metric+"\n" 
+                        full_data = full_data + data
                     else:
-                        push_data   = values
-                    _keys  = push_data.keys()                        
-                    data_1 = project_name +" - "+ date+ "\n"
-                    if (('production' in _keys) and ('aht' in _keys) and ('productivity' in _keys) and ('sla' in _keys)) or\
-                        (('production' in _keys) and ('sla' in _keys) and ('productivity' in _keys)) or \
-                            (('production' in _keys) and ('sla' in _keys) and ('kpi' in _keys)) or \                                
-                                (('production' in _keys) and ('sla' in _keys) and ('aht' in _keys)) or\
-                                     (('aht' in _keys) and ('sla' in _keys) and ('productivity' in _keys)):                    
-                        metric = get_required_data_for_notification(push_data)
-                    elif (('production' in _keys) and ('aht' in _keys)) or (('production' in _keys) and ('sla' in _keys)) or\
-                        (('productivity' in _keys) and ('sla' in _keys)) or (('production' in _keys) and ('productivity' in _keys))\
-                        or (('productivity' in _keys) and ('aht' in _keys) or (('production' in _keys) and ('kpi' in _keys))):
-                        metric = get_fields_data_for_push(push_data)
-                    elif (('production' in _keys)):
-                        metric = get_individual_fields_for_push(push_data)
-                    data = data_1 + metric+"\n" 
-                    full_data = full_data + data
+                        payload = {}                    
                 else:
                     payload = {}           
             else:
                 payload = {}
 
-
+        
         if full_data:
             full_data = full_data + "FMI.,https://nextpulse.nextwealth.in/"
             url = "http://roundsms.com/api/sendhttp.php?authkey=MGZhZTA4YTQ4ZTd&mobiles=%s&message=%s&sender=NXTWTH&type=2&route=3"%(phone_no, full_data)                                        
@@ -67,6 +72,42 @@ def send_mobile_notifications(proj_list, user_obj, user_group):
     else:
         payload = {}
     return json_HttpResponse(payload)
+
+
+
+def send_mobile_metric_notifications(proj_list, user_obj):
+    phone_no = UserProfile.objects.get(user=user_obj.name_id).phone_number
+    user_data = User.objects.get(id=user_obj.name_id).first_name    
+    yesterdays_date = datetime.datetime.now() - datetime.timedelta(days=1)
+    full_data = ""
+    proj = []
+    for project in proj_list:
+        recent_upload_date = RawTable.objects.filter(project=project).aggregate(Max('created_at'))
+        recent_upload_date = recent_upload_date['created_at__max']
+        proj_data = Project.objects.get(id=project).name        
+        if recent_upload_date != None:
+            if yesterdays_date.date() == recent_upload_date.date():            
+                proj.append(proj_data)
+    
+    if len(proj) > 0:
+        proj_data = ' , '.join(proj)
+        data = "Dear %s, Recent Data has been Uploaded for following project %s, Please find the Details on NextPulse Dashboard."\
+                                % (user_data, proj_data)
+        full_data = full_data + data    
+        if full_data:
+            full_data = full_data + "FMI.,https://nextpulse.nextwealth.in/"    
+            url = "http://roundsms.com/api/sendhttp.php?authkey=MGZhZTA4YTQ4ZTd&mobiles=%s&message=%s&sender=NXTWTH&type=2&route=3"%(phone_no, full_data)                                        
+            request = requests.post(url)                                                            
+            payload = {}   
+        else:
+            payload = {}
+    else:
+        payload = {}
+    
+    return json_HttpResponse(payload)
+
+
+
 
 
 def get_required_data_for_notification(push_data):
