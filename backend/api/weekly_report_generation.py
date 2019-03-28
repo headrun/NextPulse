@@ -64,11 +64,6 @@ def generate_targets_data(project, user_group, from_date, to_date):
         work_done = work_done_query.aggregate(prod_sum=Sum('completed'))  
         work_done = work_done['prod_sum']
         worked_dates = work_done_query.values_list('date', flat=True).distinct()
-    elif project == 28:
-        work_done_query = UploadDataTable.objects.filter(project=project, date__range=[from_date, to_date])
-        work_done = work_done_query.aggregate(prod_sum=Sum('upload'))  
-        work_done = work_done['prod_sum']                
-        worked_dates = work_done_query.values_list('date', flat=True).distinct()
     else:
         work_done_query = RawTable.objects.filter(project=project,date__range=[from_date, to_date])
         work_done = work_done_query.aggregate(Sum('per_day'))    
@@ -153,18 +148,13 @@ def get_production_data(project, from_date, to_date, _type, work_done, worked_da
     if _type == 'FTE Target':
         actual_target = generate_target_calculations(project,from_date, to_date, worked_dates)
     else:
-        if project == 28:
-            target_query = UploadDataTable.objects.filter(project=project, date__range=[from_date, to_date])
-            target = target_query.aggregate(target=Sum('target'))
-            actual_target = target['target']            
+        targets, target_query, m_count = get_target_query_format(project, from_date, to_date)
+        target = target_query.aggregate(Sum('target_value'))
+        actual_target = target['target_value__sum']
+        if actual_target != None and m_count == 0:
+            actual_target = actual_target * worked_dates.count()
         else:
-            targets, target_query, m_count = get_target_query_format(project, from_date, to_date)            
-            target = target_query.aggregate(Sum('target_value'))                
-            actual_target = target['target_value__sum']         
-            if actual_target != None and m_count == 0:
-                actual_target = actual_target * worked_dates.count()
-            else:
-                actual_target = actual_target    
+            actual_target = actual_target
                 
     if actual_target != None:
         actual_target = int(actual_target)    
