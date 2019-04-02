@@ -53,9 +53,6 @@ def generate_targets_data(project, user_group, is_senior, last_date):
     if project == 1:
         work_done = Worktrack.objects.filter(project=project,date=last_date).exclude(work_packet="About the Company").aggregate(prod=Sum('completed'))
         work_done = work_done['prod']
-    elif project == 28:
-        work_done = UploadDataTable.objects.filter(project=project,date=last_date).aggregate(prod=Sum('upload'))
-        work_done = work_done['prod']
     else:
         work_done = RawTable.objects.filter(project=project,date=last_date).aggregate(Sum('per_day'))
         work_done = work_done['per_day__sum']
@@ -112,10 +109,7 @@ def get_production_data(project,date,_type, work_done):
     if _type == 'FTE Target':
         actual_target = generate_target_calculations(project,date)
     else:
-        if project == 28:
-            target = UploadDataTable.objects.filter(project=project,date=date).aggregate(target=Sum('target'))
-            actual_target = target['target']
-        elif project == 1:
+        if project == 1:
             target = Targets.objects.filter(project=project,to_date__gte=date,target_type=_type).exclude(work_packet="About the Company").\
                 aggregate(Sum('target_value'))
             actual_target = target['target_value__sum']
