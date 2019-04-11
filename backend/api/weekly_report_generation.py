@@ -1,5 +1,5 @@
 import datetime
-from django.db.models import Sum,Max, Count, F
+from django.db.models import Sum,Max, Count, F, Q
 from django.core import mail
 from django.core.mail import send_mail, BadHeaderError
 from django.core.mail import EmailMessage
@@ -9,11 +9,13 @@ from api.models import *
 def weekly_mail_data(user_details, user, user_group):
     
     mail_data = ''
-    prj_count = []
+    prj_count, week_dates = [], []
     user_data = User.objects.filter(id=user.name_id)
     user_name = user_data[0].first_name
     today = datetime.date.today()
     week_from_date = today - datetime.timedelta(days=today.weekday(),weeks=1)
+    for i in range(7):
+        week_dates.append(week_from_date + datetime.timedelta(days=i))           
     week_to_date = week_from_date + datetime.timedelta(days=6)
     from_date = week_from_date
     to_date = week_to_date
@@ -21,12 +23,11 @@ def weekly_mail_data(user_details, user, user_group):
     to_d = datetime.datetime.strftime(to_date,"%d  %b  %Y")
     w_dates = str(from_d)+ " to " +str(to_d)
     _data = "Dear %s, <p>Please find below the high level weekly Metrics from %s</p>"\
-                    % (user_name, w_dates)   
-
+                    % (user_name, w_dates)       
     if user_group in ["team_lead","customer","NW_manager","C_manager"]:        
         for data in user_details:
             project = data                                          
-            result = generate_targets_data(project, user_group, from_date, to_date)
+            result = generate_targets_data(project, user_group, week_dates)
             project_name = Project.objects.get(id=project).name                
             mail_table_data = generate_mail_table_format(result,project,from_date, to_date,user_group)                    
             if mail_table_data != '':
@@ -45,20 +46,32 @@ def weekly_mail_data(user_details, user, user_group):
     return "success"
 
 
-def get_target_query(prj_id, from_date, to_date):    
+def get_target_query(prj_id, week_dates):      
     query, pro_query = {}, {}    
-    query.update({'from_date__lte':from_date,'to_date__gte':to_date,'project':prj_id})
-    pro_query.update({'from_date__gte':from_date,'to_date__lte':to_date,'project':prj_id})             
+    from_date = week_dates[0]
+    to_date = week_dates[-1]        
+    pro_query.update({'from_date__gte':from_date,'to_date__lte':to_date,'project':prj_id})    
     targ_query = Targets.objects.filter(**pro_query)    
-    if targ_query:
-        targ_query = targ_query
-    else:               
-        targ_query = Targets.objects.filter(**query)        
+    targ_check = targ_query.filter(from_date=F('to_date')).count()    
+    if prj_id == 1:        
+        if targ_query and targ_check != 0:
+            targ_query = targ_query.exclude(work_packet='About the Company')
+        else:               
+            targ_query = Targets.objects.filter(project=prj_id).filter((Q(from_date__lte=from_date)&Q(to_date__gte=to_date))\
+            | (Q(from_date__in=week_dates)|Q(to_date__in=week_dates))).exclude(work_packet='About the Company')
+    else:        
+        if targ_query and targ_check != 0:
+            targ_query = targ_query
+        else:               
+            targ_query = Targets.objects.filter(project=prj_id).filter((Q(from_date__lte=from_date)&Q(to_date__gte=to_date))\
+            | (Q(from_date__in=week_dates)|Q(to_date__in=week_dates)))            
     return targ_query
 
 
-def generate_targets_data(project, user_group, from_date, to_date):    
+def generate_targets_data(project, user_group, week_dates):    
     common_dict = {}
+    from_date = week_dates[0]
+    to_date = week_dates[-1]
     if project == 1:
         work_done_query = Worktrack.objects.filter(project=project, date__range=[from_date, to_date])
         work_done = work_done_query.aggregate(prod_sum=Sum('completed'))  
@@ -72,24 +85,24 @@ def generate_targets_data(project, user_group, from_date, to_date):
     if work_done != None:
         work_done = int(work_done)
     else:
-        pass        
-    target_filter_query = get_target_query(project, from_date, to_date)
-    target_query = target_filter_query.values_list('target_type','target_method').distinct()               
+        pass    
+    target_filter_query = get_target_query(project, week_dates)    
+    target_query = target_filter_query.values_list('target_type','target_method').distinct()                               
     for _type in target_query:
         if (_type[0] == 'FTE Target' or _type[0] == 'Target') and (work_done != None):
-            production = get_production_data(project, from_date, to_date, _type[0], work_done, worked_dates)
+            production = get_production_data(project, week_dates, _type[0], work_done, worked_dates)
             production['prod_target_method'] = "SLA"
             common_dict['production'] = production
 
         elif _type[1] == 'SLA' and 'Accuracy' in _type[0]:
             table_name = Externalerrors
-            sla = get_accuracy_data(project, from_date, to_date, _type, table_name)
+            sla = get_accuracy_data(project, week_dates, _type, table_name)
             sla['sla_target_method'] = _type[1]
             common_dict['sla'] = sla
 
         elif _type[1] == 'KPI' and 'Accuracy' in _type[0]:
             table_name = Internalerrors
-            kpi = get_accuracy_data(project, from_date, to_date, _type, table_name)            
+            kpi = get_accuracy_data(project, week_dates, _type, table_name)            
             kpi['kpi_target_method'] = _type[1]
             common_dict['kpi'] = kpi
 
@@ -112,11 +125,14 @@ def generate_targets_data(project, user_group, from_date, to_date):
 
 
 
-def get_target_query_format(prj_id, from_date, to_date):    
+def get_target_query_format(prj_id, week_dates):    
     query, raw_data = {}, {}
-    pro_query, pro_data = {}, {}
+    pro_query, pro_data = {}, {}    
     _term = ''
-    _type = Targets.objects.filter(project=prj_id, to_date__gte=from_date).values_list('target_type',flat=True).distinct()         
+    from_date = week_dates[0]
+    to_date = week_dates[-1]
+    _type_query = get_target_query(prj_id, week_dates)
+    _type = _type_query.values_list('target_type',flat=True).distinct()
     if 'FTE Target' in _type:
         query.update({'from_date__lte':from_date,'to_date__gte':to_date,'target_type':'FTE Target',\
                         'project':prj_id})
@@ -128,56 +144,52 @@ def get_target_query_format(prj_id, from_date, to_date):
                         'project':prj_id})
         query.update({'from_date__lte':from_date,'to_date__gte':to_date,'target_type':'Target',\
                             'project':prj_id})
-        _type = 'Target'                  
+        _type = 'Target'
     
-    targets = Targets.objects.filter(**pro_query).values_list('from_date','to_date').\
-                annotate(target=Sum('target_value'))    
-    targ_query = Targets.objects.filter(**pro_query)    
-    if targets:
-        targets = targets
-    else:        
-        targets = Targets.objects.filter(**query).values_list('from_date','to_date').\
-                    annotate(target=Sum('target_value'))
-        targ_query = Targets.objects.filter(**query)        
+    if prj_id == 1:
+        targets = Targets.objects.filter(**pro_query).exclude(work_packet="About the Company").values_list('from_date','to_date').\
+                    annotate(target=Sum('target_value'))    
+        targ_query = Targets.objects.filter(**pro_query).exclude(work_packet="About the Company")
+        if targets:
+            targets = targets
+        else:        
+            targ_qry = Targets.objects.filter(project=prj_id,target_type=_type)\
+                .filter((Q(from_date__lte=from_date)&Q(to_date__gte=to_date))\
+            |(Q(from_date__in=week_dates)|Q(to_date__in=week_dates))).\
+                exclude(work_packet="About the Company")
+            targets = targ_qry.values_list('from_date','to_date').\
+                        annotate(target=Sum('target_value'))
+            targ_query = targ_qry    
+    else:
+        targets = Targets.objects.filter(**pro_query).values_list('from_date','to_date').\
+                    annotate(target=Sum('target_value'))    
+        targ_query = Targets.objects.filter(**pro_query)    
+        if targets:
+            targets = targets
+        else:        
+            targ_qry = Targets.objects.filter(project=prj_id,target_type=_type)\
+                .filter((Q(from_date__lte=from_date)&Q(to_date__gte=to_date))\
+            | (Q(from_date__in=week_dates)|Q(to_date__in=week_dates)))
+            targets = targ_qry.values_list('from_date','to_date').\
+                        annotate(target=Sum('target_value'))
+            targ_query = targ_qry    
     m_count = targ_query.filter(from_date=F('to_date')).count()
     return targets, targ_query, m_count
 
 
-def get_production_data(project, from_date, to_date, _type, work_done, worked_dates):
-    result = {}   
-    if _type == 'FTE Target':
-        actual_target = generate_target_calculations(project,from_date, to_date, worked_dates)
-    else:
-        targets, target_query, m_count = get_target_query_format(project, from_date, to_date)
-        target = target_query.aggregate(Sum('target_value'))
-        actual_target = target['target_value__sum']
-        if actual_target != None and m_count == 0:
-            actual_target = actual_target * worked_dates.count()
-        else:
-            actual_target = actual_target
-                
-    if actual_target != None:
-        actual_target = int(actual_target)    
-    else:
-        pass
-    color = 'black'
-    if actual_target > work_done:
-        color = 'Red'
-    result['production_target'] = actual_target
-    result['workdone'] = work_done
-    result['prod_color'] = color     
-    return result
 
-
-def generate_target_calculations(project,from_date, to_date, worked_dates):
+def generate_target_calculations(project,week_dates, worked_dates):
     query_dict = {}
-    targets, target_query, m_count = get_target_query_format(project, from_date, to_date)     
-    packet_check = target_query.values('sub_project','work_packet').distinct()    
+    from_date = week_dates[0]
+    to_date = week_dates[-1]
+    targets, target_query, m_count = get_target_query_format(project, week_dates)     
+    packet_check = target_query.values('sub_project','work_packet').distinct()        
     if packet_check[0]['sub_project'] != '':
         packet_check = 'sub_project'
     elif packet_check[0]['work_packet'] != '':
         packet_check = 'work_packet'    
     total_target, pack_target, hc_billable = 0, 0, 0
+    
     target_packets = target_query.values_list(packet_check,flat=True).distinct() 
     total_target = 0     
     for packet in target_packets:
@@ -201,10 +213,12 @@ def generate_target_calculations(project,from_date, to_date, worked_dates):
     return total_target     
 
 
-def get_target_query_type(prj_id, from_date, to_date, acc_type):    
+def get_target_query_type(prj_id, week_dates, acc_type):    
     query, raw_data = {}, {}
-    pro_query, pro_data = {}, {}
+    pro_query, pro_data = {}, {}    
     _term, tar_type = '', ''
+    from_date = week_dates[0]
+    to_date = week_dates[-1]
     if acc_type == Internalerrors:
         tar_type = "Internal Accuracy"
     elif acc_type == Externalerrors:
@@ -225,16 +239,47 @@ def get_target_query_type(prj_id, from_date, to_date, acc_type):
     if targets:
         targets = targets        
     else:        
-        targets = Targets.objects.filter(**query).values_list('from_date','to_date').\
+        targ_qry = Targets.objects.filter(project=prj_id, target_type=tar_type)\
+            .filter((Q(from_date__lte=from_date)&Q(to_date__gte=to_date))\
+        | (Q(from_date__in=week_dates)|Q(to_date__in=week_dates)))    
+        targets = targ_qry.values_list('from_date','to_date').\
                     annotate(target=Sum('target_value'))
-        targ_query = Targets.objects.filter(**query)    
+        targ_query = targ_qry
     m_count = targ_query.filter(from_date=F('to_date')).count()    
     return targets, targ_query, m_count
 
 
+def get_production_data(project, week_dates, _type, work_done, worked_dates):
+    result = {}  
 
-def get_accuracy_data(project, from_date, to_date, _type, table_name):    
+    if _type == 'FTE Target':
+        actual_target = generate_target_calculations(project,week_dates, worked_dates)
+    else:
+        targets, target_query, m_count = get_target_query_format(project, week_dates)
+        target = target_query.aggregate(Sum('target_value'))
+        actual_target = target['target_value__sum']
+        if actual_target != None and m_count == 0:
+            actual_target = actual_target * worked_dates.count()
+        else:
+            actual_target = actual_target
+                
+    if actual_target != None:
+        actual_target = int(actual_target)    
+    else:
+        pass
+    color = 'black'
+    if actual_target > work_done:
+        color = 'Red'
+    result['production_target'] = actual_target
+    result['workdone'] = work_done
+    result['prod_color'] = color     
+    return result
+
+
+def get_accuracy_data(project, week_dates, _type, table_name):    
     result = {}
+    from_date = week_dates[0]
+    to_date = week_dates[-1]
     work_done = RawTable.objects.filter(project=project,date__range=[from_date, to_date]).aggregate(Sum('per_day'))    
     work_done = work_done['per_day__sum']    
     error_data = table_name.objects.filter(project=project,date__range=[from_date, to_date]).\
@@ -259,18 +304,19 @@ def get_accuracy_data(project, from_date, to_date, _type, table_name):
     else:
         accuracy = str(100) + " %"
     
-    targets, target_query, m_count = get_target_query_type(project, from_date, to_date, table_name)        
+    targets, target_query, m_count = get_target_query_type(project, week_dates, table_name)    
     target = target_query.aggregate(acc=Sum('target_value'))   
-    
+    target = target['acc']    
     if project == 30:
         m_count = target_query.count()
     if target and m_count >0:
         if project == 30:            
-            target = (target['acc']/m_count)
+            target = (target/m_count)
         else:            
-            target = (target['acc']/m_count)
+            target = (target/m_count)
+
     elif target and m_count == 0:
-        target = target['acc']
+        target = target
     else:
         target = 'No data'
     color = 'black'
@@ -349,46 +395,46 @@ def get_accuracy_data(project, from_date, to_date, _type, table_name):
 #     return result
 
 
-def get_aht_data(project,date):
-    result = {}
-    aht_value = AHTTeam.objects.filter(project=project,date=date).aggregate(Sum('AHT'))
-    aht = aht_value['AHT__sum']
-    targets, target_query, m_count = get_target_query_type(project, from_date, to_date, 'AHT')    
-    target = target_query.aggregate(Sum('target_value'))
-    target = target['target_value__sum']
-    if aht != None:
-        aht = round(aht,2)
-    if target != None:
-        target = int(target)
-    color = 'black'
+# def get_aht_data(project,date):
+#     result = {}
+#     aht_value = AHTTeam.objects.filter(project=project,date=date).aggregate(Sum('AHT'))
+#     aht = aht_value['AHT__sum']
+#     targets, target_query, m_count = get_target_query_type(project, week_dates, 'AHT')    
+#     target = target_query.aggregate(Sum('target_value'))
+#     target = target['target_value__sum']
+#     if aht != None:
+#         aht = round(aht,2)
+#     if target != None:
+#         target = int(target)
+#     color = 'black'
 
-    if target > aht:
-        color = 'Red'
-    result['aht_color'] = color
-    result['aht_target'] = target
-    result['aht'] = aht
-    return result
+#     if target > aht:
+#         color = 'Red'
+#     result['aht_color'] = color
+#     result['aht_target'] = target
+#     result['aht'] = aht
+#     return result
 
 
-def get_tat_data(project,date):
-    result = {}
-    targets, target_query, m_count = get_target_query_type(project, from_date, to_date, 'TAT')    
-    target = target_query.aggregate(Sum('target_value'))
-    target = target['target_value__sum']
-    tat_data = TatTable.objects.filter(project=project,date=date).values_list('date').\
-        annotate(met=Sum('met_count'), not_met=Sum('not_met_count'))
-    if tat_data[0]:
-        tat = (float(tat[0])/float(tat[0]+tat[1])) *100
-        tat = round(tat, 2)
-    else:
-        tat = 0
-    color = 'black'
-    if target > tat:
-        color = 'Red'
-    result['tat_color'] = color
-    result['tat'] = tat
-    result['tat_target'] = int(target)
-    return result
+# def get_tat_data(project,date):
+#     result = {}
+#     targets, target_query, m_count = get_target_query_type(project, from_date, to_date, 'TAT')    
+#     target = target_query.aggregate(Sum('target_value'))
+#     target = target['target_value__sum']
+#     tat_data = TatTable.objects.filter(project=project,date=date).values_list('date').\
+#         annotate(met=Sum('met_count'), not_met=Sum('not_met_count'))
+#     if tat_data[0]:
+#         tat = (float(tat[0])/float(tat[0]+tat[1])) *100
+#         tat = round(tat, 2)
+#     else:
+#         tat = 0
+#     color = 'black'
+#     if target > tat:
+#         color = 'Red'
+#     result['tat_color'] = color
+#     result['tat'] = tat
+#     result['tat_target'] = int(target)
+#     return result
 
 
 def get_senior_customer_data(_data):
