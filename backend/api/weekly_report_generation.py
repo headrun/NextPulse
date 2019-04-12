@@ -73,7 +73,7 @@ def generate_targets_data(project, user_group, week_dates):
     from_date = week_dates[0]
     to_date = week_dates[-1]
     if project == 1:
-        work_done_query = Worktrack.objects.filter(project=project, date__range=[from_date, to_date])
+        work_done_query = Worktrack.objects.filter(project=project, date__range=[from_date, to_date]).exclude(work_packet="About the Company")
         work_done = work_done_query.aggregate(prod_sum=Sum('completed'))  
         work_done = work_done['prod_sum']
         worked_dates = work_done_query.values_list('date', flat=True).distinct()
