@@ -7,14 +7,14 @@ from django.db.models import Max
 def send_metric_mail(user, customer_details):
     user_data = User.objects.filter(id=user.name_id)
     user_name = user_data[0].first_name
-    yesterdays_date = datetime.datetime.now() - datetime.timedelta(days=1)
+    todays_date = datetime.datetime.now()
     proj = []
     for data in customer_details:
         project = data
         upload_date = RawTable.objects.filter(project=project).aggregate(Max('created_at'))
         upload_date = upload_date['created_at__max']
         if upload_date != None:            
-            if upload_date.date() == yesterdays_date.date():
+            if upload_date.date() == todays_date.date():
                 project_name = Project.objects.get(id=project).name
                 proj.append(project_name)
 
