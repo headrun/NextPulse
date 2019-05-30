@@ -46,7 +46,7 @@ class Command(BaseCommand):
             mail_data += "<h4>"+one['project']+"</h4>"+"<ul>"+"<li>"+one['last_updated_on']+"</li>"+"<li>"+one['message']+"</li></ul>"
 
 
-        to = ['prabhakaran.k@mnw.co.in','kannan.sundar@nextwealth.in','poornima.mitta@nextwealth.in', 'sankar.k@mnxw.org','Jagadish.sh@nextwealth.in']
+        to = ['kannan.sundar@nextwealth.in','poornima.mitta@nextwealth.in', 'sankar.k@mnxw.org','Jagadish.sh@nextwealth.in']
 
         msg = EmailMessage("Next Pulse : Sheet upload status" , mail_data, 'nextpulse@nextwealth.in', to)
     
