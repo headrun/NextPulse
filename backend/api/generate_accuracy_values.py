@@ -14,7 +14,7 @@ def send_mail_data(user_details, user, user_group):
     user_name = user_data[0].first_name
     _data = "Dear %s, <p>Please find below the high level daily metrics.</p>"\
                     % (user_name)
-    yesterdays_date = datetime.datetime.now() - datetime.timedelta(days=1)   
+    todays_date = datetime.datetime.now()
     
     if user_group in ["team_lead","customer","NW_manager","C_manager"]:        
         for data in user_details:
@@ -22,7 +22,7 @@ def send_mail_data(user_details, user, user_group):
             upload_date = RawTable.objects.filter(project=project).aggregate(Max('created_at'))
             upload_date = upload_date['created_at__max']        
             if upload_date != None:            
-                if upload_date.date() == yesterdays_date.date():                    
+                if upload_date.date() == todays_date.date():                    
                     if user_group == 'customer':
                         is_senior = Customer.objects.get(id=user.id).is_senior                        
                     else:

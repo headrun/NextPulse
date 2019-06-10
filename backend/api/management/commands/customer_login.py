@@ -40,8 +40,7 @@ class Command(BaseCommand):
             mail_data += "<h4>"+one['project']+" - "+one['customer']+"</h4>"+"<ul>"+"<li>"+one['last_login_on']+"</li>"+"<li>"+one['message']+"</li></ul>"
 
 
-        to = ['prabhakaran.k@mnw.co.in', \
-            'kannan.sundar@nextwealth.in','poornima.mitta@nextwealth.in','sankar.k@mnxw.org','Jagadish.sh@nextwealth.in']
+        to = ['kannan.sundar@nextwealth.in','poornima.mitta@nextwealth.in','sankar.k@mnxw.org','Jagadish.sh@nextwealth.in']
 
         msg = EmailMessage("Next Pulse : Customer last login details" , mail_data, 'nextpulse@nextwealth.in', to) 
 
