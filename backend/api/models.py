@@ -41,7 +41,8 @@ class Project(models.Model):
     project_db_handlings_choices = (('update','Update'),('aggregate','Aggregate'),('ignore','Ignore'),)
     project_db_handling = models.CharField(max_length=30,choices=project_db_handlings_choices,default='ignore',) 
     sub_project_check = models.BooleanField(default=None)
-    is_voice = models.BooleanField(default = False)    
+    is_voice = models.BooleanField(default = False)
+    is_hourly_dashboard = models.BooleanField(default = False)
     display_value = models.BooleanField(default = False)
     user = models.ManyToManyField(User,null=True)
     is_daily_mail = models.BooleanField(default = False)
@@ -1064,7 +1065,77 @@ class Time_authoring(models.Model):
         db_table = u'Customer_time_authoring'
         verbose_name_plural = 'C_Time_authoring'
 
+class live_transaction_table(models.Model):    
+    date = models.DateField(auto_now_add=True)
+    center = models.ForeignKey(Center)
+    project = models.ForeignKey(Project)
+    sub_project = models.CharField(max_length=250, blank=True, null=True)
+    work_packet = models.CharField(max_length=250, blank=True, null=True)
+    sub_packet = models.CharField(max_length=250, blank=True, null=True)
+    transaction_id = models.CharField(max_length=250)
+    agent_role = models.CharField(max_length=50)    
+    start_time = models.DateTimeField(null=True, blank=True)
+    end_time = models.DateTimeField(null=True, blank=True)
+    time_stamp = models.DateTimeField(auto_now_add=True)
+    emp_name = models.CharField(max_length=250)
+
+    class Meta:
+        db_table = u'live_trans_table'        
+        index_together = (('project', 'center', 'id'), ('project', 'center', 'work_packet', 'id'),
+                            ('project', 'center', 'sub_project', 'work_packet', 'id'), ('project', 'center', 'id', 'emp_name'),
+                            ('project', 'center', 'sub_project', 'work_packet', 'sub_packet', 'id'), 
+                            ('project', 'center', 'id', 'work_packet', 'emp_name'),
+                            ('project', 'center', 'id', 'work_packet', 'sub_packet', 'emp_name'),
+                            ('project', 'center', 'id', 'sub_project', 'work_packet', 'sub_packet', 'emp_name'),
+                             )
+
+class live_agent_login_table(models.Model):
+    date = models.DateField()
+    center = models.ForeignKey(Center)
+    project = models.ForeignKey(Project)
+    agent_id = models.CharField(max_length=250)
+    login_time = models.DateTimeField(null=True,blank=True)
+    logout_time = models.DateTimeField(null=True,blank=True)
+    host_name = models.CharField(max_length=250,null=True,blank=True)
+    session_key = models.CharField(max_length=250,null=True,blank=True)
+    time_stamp = models.DateTimeField(auto_now_add=True)
+    class Meta:
+        db_table = u'live_agent_login'
+        index_together = (('project','center','date'),('project','center','date','login_time','logout_time'))
 
 
+class live_error_table(models.Model):
+    date = models.DateField()
+    center = models.ForeignKey(Center)
+    project = models.ForeignKey(Project)
+    production_agent = models.CharField(max_length=250)
+    audit_agent = models.CharField(max_length=250)
+    sub_project = models.CharField(max_length = 250,null=True,blank=True)
+    work_packet = models.CharField(max_length = 250,null=True,blank=True)
+    total_errors = models.IntegerField(default=0,null=True,blank=True)
+    error_count = models.CharField(max_length=250,null=True,blank=True)
+    sub_packet = models.CharField(max_length = 250,null=True,blank=True)
+    error_category = models.CharField(max_length = 250,null=True,blank=True)
+    error_type = models.CharField(max_length = 250,null=True,blank=True)
+    prod_start_time = models.DateTimeField(null=True,blank=True)
+    prod_end_time = models.DateTimeField(null=True,blank=True)
+    time_stamp = models.DateTimeField(auto_now_add=True)
+    transaction_id = models.CharField(max_length=250)
 
+    class Meta:
+        db_table = u'live_error_table'
+        index_together = (('project','center','date'),
+                         ('project','center','date','production_agent'),
+                         ('project','center','prod_end_time'))
+class live_break_time(models.Model):
+    date = models.DateField()
+    center = models.ForeignKey(Center)
+    project = models.ForeignKey(Project)
+    from_time = models.DateTimeField(null=True, blank=True)
+    to_time = models.DateTimeField(null=True, blank=True)
+    trans_id = models.CharField(max_length=250)
+    time_stamp = models.DateTimeField(auto_now_add=True)
+    class Meta:
+        db_table = u'live_break_table'
+        index_together = (('trans_id','to_time'),('center','project','from_time'))
 
