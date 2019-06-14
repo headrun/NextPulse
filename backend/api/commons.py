@@ -40,8 +40,11 @@ def data_dict(variable):
                 type = 'week'
             if date_count > 60:
                 type = 'month'
-            if date_count == 1:
+            if date_count == 1 and Project.objects.get(name = project_name).is_hourly_dashboard == True:
                 type = 'hour'
+            if date_count == 1 and Project.objects.get(name = project_name).is_hourly_dashboard == False:
+                type = 'day'
+                
         dwm_dict['day']= date_list
         main_data_dict['dwm_dict'] = dwm_dict
     
@@ -128,42 +131,93 @@ def data_dict(variable):
     main_data_dict['type'] = type
     return main_data_dict 
 
-
 def get_packet_details(request):
     """It will generate all the list of packets, projects and sub packets for the project"""
 
     main_data_dict = data_dict(request.GET)
+   
     if main_data_dict['type'] == 'hour':
         dates = main_data_dict['dwm_dict']['day']
     else:
-        dates = [main_data_dict['dwm_dict']['day'][:-1][0], main_data_dict['dwm_dict']['day'][-1:][0]]
+        if len(main_data_dict['dwm_dict']['day']) > 1:
+            dates = [main_data_dict['dwm_dict']['day'][:-1][0], main_data_dict['dwm_dict']['day'][-1:][0]]
+        else:
+            dates = [main_data_dict['dwm_dict']['day'][0]]
     final_dict = {}
-    if main_data_dict['type'] == 'hour':
-        raw_master_set = RawTable.objects.filter(\
-                         project=main_data_dict['pro_cen_mapping'][0][0], center=main_data_dict['pro_cen_mapping'][1][0], date=dates[0])
+    is_hourly = Project.objects.get(id=main_data_dict['pro_cen_mapping'][0][0]).is_hourly_dashboard
+
+    if is_hourly:
+        if len(dates) == 1:
+            raw_master_set1 = live_transaction_table.objects.filter(project=main_data_dict['pro_cen_mapping'][0][0],\
+            center=main_data_dict['pro_cen_mapping'][1][0], date__in=dates).values('sub_project','work_packet','sub_packet').distinct()
+
+            raw_master_set2 = RawTable.objects.filter(project=main_data_dict['pro_cen_mapping'][0][0],\
+            center=main_data_dict['pro_cen_mapping'][1][0], date__in=dates).values('sub_project','work_packet','sub_packet').distinct()
+
+            raw_master_set3 = live_error_table.objects.filter(project=main_data_dict['pro_cen_mapping'][0][0],\
+            center=main_data_dict['pro_cen_mapping'][1][0], date__in=dates).values('sub_project','work_packet','sub_packet').distinct()
+
+            raw_master_set = raw_master_set1.union(raw_master_set2,raw_master_set3)
+        else:
+            raw_master_set1 = live_transaction_table.objects.filter(project=main_data_dict['pro_cen_mapping'][0][0],\
+            center=main_data_dict['pro_cen_mapping'][1][0], date__range=dates).values('sub_project','work_packet','sub_packet').distinct()
+                        
+            raw_master_set2 = RawTable.objects.filter(project=main_data_dict['pro_cen_mapping'][0][0],\
+            center=main_data_dict['pro_cen_mapping'][1][0], date__range=dates).values('sub_project','work_packet','sub_packet').distinct()
+            
+            raw_master_set3 = live_error_table.objects.filter(project=main_data_dict['pro_cen_mapping'][0][0],\
+            center=main_data_dict['pro_cen_mapping'][1][0], date__range=dates).values('sub_project','work_packet','sub_packet').distinct()
+            
+            raw_master_set = raw_master_set1.union(raw_master_set2,raw_master_set3)
+            
     else:
         raw_master_set = RawTable.objects.filter(\
                          project=main_data_dict['pro_cen_mapping'][0][0], center=main_data_dict['pro_cen_mapping'][1][0], \
-                         date__range=dates)
-        
-    sub_pro_level = filter(None, raw_master_set.values_list('sub_project',flat=True).distinct())
+                         date__range=dates)    
+    if is_hourly:
+        sub_pro_level = filter(lambda x: x['sub_project'] not in [None, u''], raw_master_set)
+        sub_pro_level = [i['sub_project'] for i in sub_pro_level]
+        sub_pro_level = list(dict.fromkeys(sub_pro_level))
+        work_pac_level = filter(lambda x: x['work_packet'] not in [None, u''], raw_master_set)
+        work_pac_level = [i['work_packet'] for i in work_pac_level]
+        work_pac_level = list(dict.fromkeys(work_pac_level))
+        sub_pac_level =  filter(lambda x: x['sub_packet'] not in [None, u''], raw_master_set)
+        sub_pac_level = [i['sub_packet'] for i in sub_pac_level]
+        sub_pac_level = list(dict.fromkeys(sub_pac_level))
+    else:
+        sub_pro_level = filter(None, raw_master_set.values_list('sub_project',flat=True).distinct())
+        work_pac_level = filter(None, raw_master_set.values_list('work_packet',flat=True).distinct())
+        sub_pac_level = filter(None, raw_master_set.values_list('sub_packet',flat=True).distinct())
+    
     sub_project_level = [i for i in sub_pro_level]
+   
     if sub_project_level:
         sub_project_level.append('all')
     else:
         sub_project_level = ''
-    work_pac_level = filter(None, raw_master_set.values_list('work_packet',flat=True).distinct())
+    
+    
     work_packet_level = [j for j in work_pac_level]
+    
     if work_packet_level:
         work_packet_level.append('all')
     else:
-        work_packet_level = ''
-    sub_pac_level = filter(None, raw_master_set.values_list('sub_packet',flat=True).distinct())
+        if sub_project_level:
+            work_packet_level.append('all')
+        else:
+            work_packet_level = ''
+    
+    
     sub_packet_level = [k for k in sub_pac_level]
+   
     if sub_packet_level:
         sub_packet_level.append('all')
     else:
-        sub_packet_level = ''
+        if work_packet_level:
+            sub_packet_level.append('all')
+        else:
+            sub_packet_level = ''
+
     prj_type = request.GET.get('voice_project_type', '')
     if main_data_dict['type'] == 'hour':
         inbound_hourly_master_set = InboundDaily.objects.filter(\
@@ -173,12 +227,20 @@ def get_packet_details(request):
                                      project=main_data_dict['pro_cen_mapping'][0][0], center=main_data_dict['pro_cen_mapping'][1][0],\
                                      date = dates[0])
     else:
-        inbound_hourly_master_set = InboundDaily.objects.filter(\
-                                    project=main_data_dict['pro_cen_mapping'][0][0], center=main_data_dict['pro_cen_mapping'][1][0],\
-                                    date__range = dates)
-        outbound_hourly_master_set = OutboundDaily.objects.filter(\
-                                     project=main_data_dict['pro_cen_mapping'][0][0], center=main_data_dict['pro_cen_mapping'][1][0],\
-                                     date__range = dates)
+        if len(dates) == 1:
+            inbound_hourly_master_set = InboundDaily.objects.filter(\
+                                        project=main_data_dict['pro_cen_mapping'][0][0], center=main_data_dict['pro_cen_mapping'][1][0],\
+                                        date__in = dates)
+            outbound_hourly_master_set = OutboundDaily.objects.filter(\
+                                        project=main_data_dict['pro_cen_mapping'][0][0], center=main_data_dict['pro_cen_mapping'][1][0],\
+                                        date__in = dates)
+        else:
+            inbound_hourly_master_set = InboundDaily.objects.filter(\
+                                        project=main_data_dict['pro_cen_mapping'][0][0], center=main_data_dict['pro_cen_mapping'][1][0],\
+                                        date__range = dates)
+            outbound_hourly_master_set = OutboundDaily.objects.filter(\
+                                        project=main_data_dict['pro_cen_mapping'][0][0], center=main_data_dict['pro_cen_mapping'][1][0],\
+                                        date__range = dates)
     if prj_type == 'inbound' or prj_type == '':
         location_names = filter(None, inbound_hourly_master_set.values_list('location',flat=True).distinct())
     elif prj_type == 'outbound':
@@ -202,13 +264,18 @@ def get_packet_details(request):
         disposition_names = filter(None, outbound_hourly_master_set.values_list('disposition',flat=True).distinct())
     else:
         disposition_names = ''
-    is_voice = Project.objects.filter(\
-                                   id=main_data_dict['pro_cen_mapping'][0][0], center=main_data_dict['pro_cen_mapping'][1][0])\
+    is_voice = Project.objects.filter(id=main_data_dict['pro_cen_mapping'][0][0], center=main_data_dict['pro_cen_mapping'][1][0])\
                                    .values_list('is_voice', flat=True).distinct()
+    is_hourly = Project.objects.filter(id=main_data_dict['pro_cen_mapping'][0][0], center=main_data_dict['pro_cen_mapping'][1][0])\
+                                   .values_list('is_hourly_dashboard', flat=True).distinct()
     if is_voice:
         is_voice = is_voice[0]
     else:
         is_voice = ''
+    if is_hourly:
+        is_hourly = is_hourly[0]
+    else:
+        is_hourly = ''
     for dispo in disposition_names:
         dispo_list.append(dispo)
     if location_list:
@@ -232,10 +299,13 @@ def get_packet_details(request):
     final_details['sub_packet'] = 0
     if sub_pro_level:
         final_details['sub_project'] = 1
-    if work_pac_level:
         final_details['work_packet'] = 1
+    if work_pac_level:        
+        final_details['work_packet'] = 1
+        final_details['sub_packet'] = 1
     if sub_pac_level:
         final_details['sub_packet'] = 1
+    
     prj_id = main_data_dict['pro_cen_mapping'][0][0]
     center = main_data_dict['pro_cen_mapping'][1][0]
     final_dict['sub_project_level'] = sub_project_level
@@ -245,21 +315,56 @@ def get_packet_details(request):
     final_dict['skill'] = skill_list
     final_dict['disposition'] = dispo_list
     final_dict['is_voice'] = is_voice
+    final_dict['is_hourly'] = is_hourly
     final_dict['type'] = main_data_dict['type']
     big_dict = {}
+    
     if final_details['sub_project']:
         if final_details['work_packet']:
             first = raw_master_set.values_list('sub_project').distinct()
             big_dict = {}
             total = {}
+           
             for i in first:
-                list_val = RawTable.objects.filter(project=prj_id, sub_project=i[0], date__range=dates)\
-                                                  .values_list('work_packet').distinct()
+                if len(dates) == 1:
+                    if is_hourly:
+                        list_val1 = RawTable.objects.filter(project=prj_id, sub_project=i[0], date__in=dates)\
+                                                        .values_list('work_packet').distinct()
+
+                        list_val2 = live_transaction_table.objects.filter(project=prj_id,sub_project=i[0], date__in=dates)\
+                                                        .values_list('work_packet').distinct()
+
+                        list_val3 = live_error_table.objects.filter(project=prj_id, sub_project=i[0], date__in=dates)\
+                                                        .values_list('work_packet').distinct()
+
+                        list_val = list_val1.union(list_val2,list_val3)
+                    else:
+                        list_val = RawTable.objects.filter(project=prj_id, sub_project=i[0], date__in=dates)\
+                                                        .values_list('work_packet').distinct()
+                else:
+                    if is_hourly:
+                        list_val1 = RawTable.objects.filter(project=prj_id, sub_project=i[0], date__range=dates)\
+                                                    .values_list('work_packet').distinct()
+
+                        list_val2 = live_transaction_table.objects.filter(project=prj_id,sub_project=i[0], date__range=dates)\
+                                                        .values_list('work_packet').distinct()
+
+                        list_val3 = live_error_table.objects.filter(project=prj_id,sub_project=i[0], date__range=dates)\
+                                                        .values_list('work_packet').distinct()
+                       
+                        list_val = list_val1.union(list_val2,list_val3)
+                    else:
+                        list_val = RawTable.objects.filter(project=prj_id, sub_project=i[0], date__range=dates)\
+                                                        .values_list('work_packet').distinct()
                 for j in list_val:
                     if j[0] != "":
                         total[j[0]] = []
-                        sub_pac_data = RawTable.objects.filter(project=prj_id, sub_project=i[0], work_packet=j[0], date__range=dates)\
-                                                          .values_list('sub_packet').distinct()
+                        if len(dates) == 1:
+                            sub_pac_data = RawTable.objects.filter(project=prj_id, sub_project=i[0], work_packet=j[0], date__in=dates)\
+                                                            .values_list('sub_packet').distinct()
+                        else:
+                            sub_pac_data = RawTable.objects.filter(project=prj_id, sub_project=i[0], work_packet=j[0], date__range=dates)\
+                                                            .values_list('sub_packet').distinct()
                         for l in sub_pac_data:
                             if l[0] != "":
                                 total[j[0]].append(l[0])
@@ -267,26 +372,60 @@ def get_packet_details(request):
                 total = {}
     elif final_details['work_packet']:
         if final_details['sub_packet']:
-            first = raw_master_set.values_list('work_packet').distinct()
+            if is_hourly:
+                sub_pro_level = filter(lambda x: x['work_packet'] not in [None, u''], raw_master_set)
+                sub_pro_level = [i['work_packet'] for i in sub_pro_level]
+                first = list(dict.fromkeys(sub_pro_level))
+            else:
+                first = raw_master_set.values_list('work_packet').distinct()
             big_dict = {}
             total = {}
             for i in first:
-                list_val = RawTable.objects.filter(project=prj_id, work_packet=i[0], date__range=dates).\
-                                                   values_list('sub_packet').distinct()
+               
+                if is_hourly:
+                    if len(dates) == 1:
+                        list_val1 = live_transaction_table.objects.filter(project=prj_id, work_packet=i, date__in=dates).\
+                                                        values_list('sub_packet').distinct()
+                        list_val2 = RawTable.objects.filter(project=prj_id, work_packet=i, date__in=dates).\
+                                                        values_list('sub_packet').distinct()
+                        list_val3 = live_error_table.objects.filter(project=prj_id, work_packet=i, date__in=dates).\
+                                                        values_list('sub_packet').distinct()
+                        list_val = list(list_val1.union(list_val2,list_val3))
+                    else:
+                        list_val1 = live_transaction_table.objects.filter(project=prj_id, work_packet=i, date__range=dates).\
+                                                       values_list('sub_packet').distinct()
+                        list_val2 = RawTable.objects.filter(project=prj_id, work_packet=i, date__range=dates).\
+                                                       values_list('sub_packet').distinct()
+                        list_val3 = live_error_table.objects.filter(project=prj_id, work_packet=i, date__range=dates).\
+                                                        values_list('sub_packet').distinct()
+                        list_val = list(list_val1.union(list_val2,list_val3))
+                    
+                else:
+                    if len(dates) == 1:
+                        list_val = RawTable.objects.filter(project=prj_id, work_packet=i[0], date__in=dates).\
+                                                        values_list('sub_packet').distinct()
+                    else:
+                        list_val = RawTable.objects.filter(project=prj_id, work_packet=i[0], date__range=dates).\
+                                                        values_list('sub_packet').distinct()
+                
                 for j in list_val:
-                    total[j[0]] = []
-                big_dict[i[0]] = total
+                    if is_hourly:
+                        total[j['sub_packet']] = []
+                        big_dict[i] = total
+                    else:  
+                        total[j[0]] = []  
+                        big_dict[i[0]] = total
                 total = {}
         else:
             big_dict = {}
             work_pac_level = raw_master_set.values_list('work_packet').distinct()
             for i in work_pac_level:
                 big_dict[i[0]] = {}
+   
     final_dict['level'] = [1, 2]
     final_dict['fin'] = final_details
     final_dict['drop_value'] = big_dict
     return json_HttpResponse(final_dict)
-
 
 def utc_to_local(utc_dt):
     """convert utc time to local time """

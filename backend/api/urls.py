@@ -104,4 +104,17 @@ urlpatterns = [
     url(r'^int_acc_agent',apiviews.Internal_Acc_Agents),
     url(r'^ext_acc_agent',apiviews.External_Acc_Agents),    
     url(r'^agent_wise_production',apiviews.Agent_wise_production),
+    url(r'^hourly_prod',apiviews.Test_project_hourly),
+    url(r'^hourly_login',apiviews.Test_hourly_login),
+    url(r'^hourly_error',apiviews.Test_hourly_error),
+    url(r'^hourly_accu',apiviews.Hourly_Accuracy),
+    url(r'^hourly_tot_prod',apiviews.total_hourly_production),
+    url(r'^total_login',apiviews.Total_Login),
+    url(r'^total_error',apiviews.Total_Error),
+    url(r'^live_prod_data',apiviews.live_data_store),
+    url(r'^live_error_data',apiviews.live_error_data),
+    url(r'^live_login_data',apiviews.live_login_data),
+    url(r'^datetime',apiviews.live_date),
+    url(r'^live_break_time',apiviews.live_break_funct),
+
 ]

@@ -184,13 +184,19 @@ div.content {
             </div>
         </div>
         <div class="col-lg-6 col-md-6 col-sm-6">
-            <div class="btn-group common-button_1" ng-if="$ctrl.is_voice_flag === true" id="voice_date_type">
+            <div class="btn-group common-button_1" ng-if="$ctrl.is_voice_flag === true && $ctrl.is_hourly_flag === false" id="voice_date_type">
                 <button type="button" id="hour" ng-model="radioModel" class="btn btn-default hour" ng-click="$ctrl.active_filters('hour','hour_yes')" uib-btn-radio="'Hour'">Hour</button>
                 <button type="button" id="day" ng-model="radioModel" class="btn btn-default day" ng-click="$ctrl.active_filters('day','day_yes')" uib-btn-radio="'Day'">Day</button>
                 <button type="button" id="week" ng-model="radioModel" class="btn btn-default week" ng-click="$ctrl.active_filters('week','week_yes')" uib-btn-radio="'Week'">Week</button>
-                <button type="button" id="Month" ng-model="radioModel" class="btn btn-default month voice_month" ng-click="$ctrl.active_filters('month','month_yes')" uib-btn-radio="'Month'">Month</button>
+                <button type="button" id="Month" ng-model="radioModel" class="btn btn-default month" ng-click="$ctrl.active_filters('month','month_yes')" uib-btn-radio="'Month'">Month</button>
             </div>
-            <div class="btn-group common-button" ng-if="$ctrl.is_voice_flag === false">
+            <div class="btn-group common-button_2" ng-if="$ctrl.is_hourly_flag === true && $ctrl.is_voice_flag === false" id="hourly_date_type">
+                <button type="button" id="hour" ng-model="radioModel" class="btn btn-default hour" ng-click="$ctrl.active_filters('hour','hour_yes')" uib-btn-radio="'Hour'">Hour</button>
+                <button type="button" id="day" ng-model="radioModel" class="btn btn-default day" ng-click="$ctrl.active_filters('day','day_yes')" uib-btn-radio="'Day'">Day</button>
+                <button type="button" id="week" ng-model="radioModel" class="btn btn-default week" ng-click="$ctrl.active_filters('week','week_yes')" uib-btn-radio="'Week'">Week</button>
+                <button type="button" id="Month" ng-model="radioModel" class="btn btn-default month" ng-click="$ctrl.active_filters('month','month_yes')" uib-btn-radio="'Month'">Month</button>
+            </div>
+            <div class="btn-group common-button" ng-if="$ctrl.is_voice_flag === false && $ctrl.is_hourly_flag === false">
                 <button type="button" id="day" ng-model="radioModel" class="btn btn-default day" ng-click="$ctrl.active_filters('day','day_yes')" uib-btn-radio="'Day'">Day</button>
                 <button type="button" id="week" ng-model="radioModel" class="btn btn-default week" ng-click="$ctrl.active_filters('week','week_yes')" uib-btn-radio="'Week'">Week</button>
                 <button type="button" id="Month" ng-model="radioModel" class="btn btn-default month" ng-click="$ctrl.active_filters('month','month_yes')" uib-btn-radio="'Month'">Month</button>
@@ -217,15 +223,15 @@ div.content {
 <div class="scroll">
     <div class="row">
         <div ng-repeat="i in $ctrl.final_layout_list">
-            <div class="col-sm-{{i.col}} widget">
+            <div class="col-sm-{{i.col}} widget" id="{{i.id_num}}">
                 <div class="widget-content widget-loader-show widget-{{i.id_num}}a">
-                    <div class="widget-title clearfix" title="Sample Widg">
+                    <div class="widget-title clearfix" title="Sample Widg" id="{{i.id_num}}-title">
                         <span  id="title-name" class="pull-left">{{i.name}}</span>
                     </div>
                     <div class="widget-body widget-data-hide widget-{{i.id_num}}b">
                         <div ng-if="i.day_type_widget" class="input-group" id="inner2">
                             <div class="btn-group">
-                                <button ng-if= "$ctrl.is_voice_flag" type="button" id="hour" ng-model="radioModel" class="btn btn-default hour2" ng-click="$ctrl.dateType('hour', i.opt, i.api, 'hour_yes')" uib-btn-radio="'Hour'">Hour</button>
+                                <button ng-if= "$ctrl.is_voice_flag === true || $ctrl.is_hourly_flag === true" type="button" id="hour" ng-model="radioModel" class="btn btn-default hour2" ng-click="$ctrl.dateType('hour', i.opt, i.api, 'hour_yes')" uib-btn-radio="'Hour'">Hour</button>
                                 <button type="button" id="day" ng-model="radioModel" class="btn btn-default day2" ng-click="$ctrl.dateType('day', i.opt, i.api, 'day_yes')" uib-btn-radio="'Day'">Day</button>
                                 <button type="button" id="week" ng-model="radioModel" class="btn btn-default week2" ng-click="$ctrl.dateType('week', i.opt, i.api, 'week_yes')" uib-btn-radio="'Week'">Week</button>
                                 <button type="button" id="Month" ng-model="radioModel" class="btn btn-default month2" ng-click="$ctrl.dateType('month', i.opt, i.api, 'month_yes')" uib-btn-radio="'Month'">Month</button>

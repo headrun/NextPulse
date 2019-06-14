@@ -139,13 +139,22 @@ def latest_dates(request,prj_id):
     req_last_date = request.GET.get('to', '')
     if len(prj_id) == 1:
         project_check = Project.objects.filter(id=prj_id).values_list('is_voice',flat=True).distinct()[0]
-        if project_check == False:
-            latest_date = RawTable.objects.filter(project=prj_id).all().aggregate(Max('date'))
-            to_date = latest_date['date__max']
-        else:
+        proj_check = Project.objects.filter(id=prj_id).values_list('is_hourly_dashboard',flat=True).distinct()[0]
+        if project_check == True:
             latest_date = InboundHourlyCall.objects.filter(project=prj_id).all().aggregate(Max('date'))
             to_date = latest_date['date__max']
-        if to_date and ((req_from_date == '') or (req_from_date == 'undefined')):
+        elif proj_check == True:
+            latest_date = live_transaction_table.objects.filter(project=prj_id).aggregate(Max('start_time'))
+            to_date = datetime.date.today()
+        else:
+            latest_date = RawTable.objects.filter(project=prj_id).all().aggregate(Max('date'))
+            to_date = latest_date['date__max']
+           
+        if to_date and ((req_from_date == '') or (req_from_date == 'undefined')) and proj_check == False:
+            from_date = to_date - timedelta(6)
+            result['from_date'] = str(from_date)
+            result['to_date'] = str(to_date)
+        elif proj_check == True:
             from_date = to_date - timedelta(6)
             result['from_date'] = str(from_date)
             result['to_date'] = str(to_date)
