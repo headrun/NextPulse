@@ -14,11 +14,8 @@ def live_data_store(request):
         for key,value in data_val.iteritems():
             center = Center.objects.get(name=value[0]['center'])
             proj = Project.objects.get(name=value[0]['project'])
-            dt = {'center':center,'project':proj,'sub_project':value[0]['batch_name'],'work_packet':value[0]['status'],\
-            'transaction_id':value[0]['id'],'agent_role':value[0]['role'],'start_time':value[0]['start_time'].split('.')[0],'end_time':value[0]["end_time"].split('.')[0],\
-            'emp_name':value[0]['emp_name']}
-            obj1, created = live_transaction_table.objects.update_or_create(transaction_id = value[0]['id'],agent_role = value[0]['role'],defaults={'center':center,'project':proj,'sub_project':value[0]['batch_name'],'work_packet':value[0]['status'],\
-            'transaction_id':value[0]['id'],'agent_role':value[0]['role'],'start_time':value[0]['start_time'].split('.')[0],'end_time':value[0]["end_time"].split('.')[0],\
+            obj1, created = live_transaction_table.objects.update_or_create(transaction_id = value[0]['id'],date = value[0]['date'],defaults={'center':center,'project':proj,'sub_project':value[0]['batch_name'],'work_packet':value[0]['status'],\
+            'agent_role':value[0]['role'],'start_time':value[0]['start_time'].split('.')[0],'end_time':value[0]["end_time"].split('.')[0],\
             'emp_name':value[0]['emp_name']})
             if created:
                 obj1.save()
