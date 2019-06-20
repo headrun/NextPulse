@@ -106,16 +106,21 @@ def voice_upload(request, prj_obj, center_obj, open_book):
             for column, col_idx in sheet_headers:
                 cell_data = get_cell_data(open_sheet, row_idx, col_idx)
                 if column in DATES:
+                    cell_data = xlrd.xldate_as_tuple(int(cell_data.split('.')[0]), 0)
+                    cell_data = '%s/%s/%s' % (cell_data[2], cell_data[1], cell_data[0
                     _date = cell_data
                     customer_data[column] = datetime.datetime.strptime(_date, "%d/%m/%Y")
                     #cell_data = xlrd.xldate_as_tuple(int(cell_data.split('.')[0]), 0)
                     #cell_data = '%s-%s-%s' % (cell_data[0], cell_data[1], cell_data[2])
                     #customer_data[column] = ''.join(cell_data)
                 elif column in SECONDS_STORAGE:
+                    cell_data = float(cell_data)*24*3600
                     customer_data[column] = convert_to_sec(cell_data)
                 elif column in INTEGER_NUMBERS:
                     customer_data[column] = int(float(cell_data))
                 elif column in DATETIME_STORAGE:
+                    x = float(cell_data) * 24 * 3600
+                    cell_data = str(datetime.time(int(x)//3600,(int(x)%3600)//60,int(x)%60))
                     customer_data[column] = datetime.datetime.strptime(
                         (_date + cell_data), "%d/%m/%Y%H:%M:%S"
                     )
@@ -208,7 +213,8 @@ def remove_existing_data_performance(table_name, call_dicts):
 
     for item in existing_calls:
         key = '%s_%s_%s' % (item[0], item[1], item[2])
-        del call_dicts[key]
+        if call_dicts.has_key(key):
+            del call_dicts[key]
     return call_dicts
 
 
@@ -225,7 +231,7 @@ def convert_from_sec(duration):
 def convert_to_sec(duration):
     """Convert time from sec to display
     """  
-
+    duration = str(datetime.time(int(duration)//3600,(int(duration)%3600)//60,int(duration)%60))
     _duration = duration.split(":")
     _duration1 = (int(_duration[0]) * 60 * 60) + (int(_duration[1]) * 60) + int(_duration[2])
     return _duration1
